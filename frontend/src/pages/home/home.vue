@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ROUTER_PATHS } from '@src/libs/router/router-paths'
+import { ROUTER_PATHS } from '@/lib/router/router-paths'
 import { useTitle } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { SOCIAL_LINKS } from './constants/social-links'

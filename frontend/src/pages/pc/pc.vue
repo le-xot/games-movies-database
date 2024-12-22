@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { ROUTER_PATHS } from '@src/libs/router/router-paths.ts'
-import { hardware } from '@src/pages/pc/constants/parts-links.ts'
+import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
+import { hardware } from '@/pages/pc/constants/parts-links.ts'
 import { useTitle } from '@vueuse/core'
-import { NH2 } from 'naive-ui'
 import { onMounted } from 'vue'
 
 const title = useTitle()
@@ -13,7 +12,9 @@ onMounted(() => title.value = 'Железки Лешота')
   <div class="container">
     <div>
       <template v-for="(parts, name) of hardware" :key="name">
-        <NH2>{{ name }}</NH2>
+        <h3 class="mt-8 mb-3 scroll-m-20 text-2xl font-semibold tracking-tight">
+          {{ name }}
+        </h3>
         <div class="buttons buttons--grid">
           <a
             v-for="link in parts"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import { Dialog } from '@/components/ui/dialog'
 import { Info } from 'lucide-vue-next'
-
-import { NButton, NIcon, NModal } from 'naive-ui'
 import { ref } from 'vue'
 
 defineProps<{
@@ -14,16 +14,16 @@ const isShow = ref(false)
 <template>
   <div class="table-info">
     {{ title }}
-    <NButton quaternary circle @click="isShow = true">
+    <Button
+      @click="isShow = true"
+    >
       <template #icon>
-        <NIcon size="16" color="var(--n-th-icon-color)">
-          <Info />
-        </NIcon>
+        <Info />
       </template>
-    </NButton>
-    <NModal v-model:show="isShow">
+    </Button>
+    <Dialog v-model:show="isShow">
       <slot />
-    </NModal>
+    </Dialog>
   </div>
 </template>
 

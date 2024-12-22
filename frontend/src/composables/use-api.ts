@@ -1,4 +1,4 @@
-import { Api, HttpClient } from '@src/libs/api'
+import { Api, HttpClient } from '@/lib/api.ts'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export const useApi = defineStore('globals/use-api', () => {

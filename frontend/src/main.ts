@@ -15,8 +15,20 @@ PiniaColada(app, {
   pinia,
   refetchOnMount: true,
   refetchOnWindowFocus: false,
-  // gcTime: 1000 * 60 * 5,
-  // staleTime: 1000 * 60 * 1,
 })
+
+// highlight re-renders
+// if (import.meta.env.DEV) {
+//   app.mixin({
+//     updated() {
+//       const el = this.$el
+//       if (el && el.style) {
+//         el.style.transition = 'box-shadow 0.3s ease'
+//         el.style.boxShadow = 'inset 0px 0px 0px 1px tomato'
+//         setTimeout(() => el.style.boxShadow = '', 300)
+//       }
+//     },
+//   })
+// }
 
 app.mount('#app')

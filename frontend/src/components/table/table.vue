@@ -48,9 +48,9 @@ const table = useVueTable({
       <template v-if="table.getRowModel().rows?.length">
         <template v-for="row in table.getRowModel().rows" :key="row.id">
           <TableRow :data-state="row.getIsSelected() && 'selected'">
-            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+            <template v-for="cell in row.getVisibleCells()" :key="cell.id">
               <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-            </TableCell>
+            </template>
           </TableRow>
           <TableRow v-if="row.getIsExpanded()">
             <TableCell :colspan="row.getAllCells().length">

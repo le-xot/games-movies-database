@@ -1,11 +1,21 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { TableCell } from '@/components/ui/table'
 import { Tag } from '@/components/ui/tag'
+import { cn } from '@/lib/utils'
+import { Check } from 'lucide-vue-next'
 import { computed, ref, toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 import { useTablePersons } from '../composables/use-table-persons'
-import TableCol from './table-col.vue'
 
 type PersonValue = number | undefined
 
@@ -17,68 +27,91 @@ const persons = useTablePersons()
 
 const {
   isEdit,
-  inputRef,
   inputValue,
-  updateValue,
-  handleChange,
+  handleClose,
   handleOpen,
+  handleUpdateValue,
 } = useTableCol(personId, emits)
 
-const currentPerson = computed(() => {
-  return persons.persons?.find((p) => p.id === personId.value)
+const searchValue = ref('')
+const filteredPersons = computed(() => {
+  if (!searchValue.value) return persons.personOptions
+  return persons.personOptions.filter((person) =>
+    person.label.toLowerCase().includes(searchValue.value.toLowerCase()),
+  )
 })
 
-async function updatePerson(id: number, data: { name?: string, color?: string }) {
-  persons.updatePerson(id, data)
-}
+const currentPerson = computed(() => {
+  return persons.persons!.find((person) => person.id === personId.value)
+})
 
-async function handleColorChange(newColor: string) {
-  if (currentPerson.value) {
-    await updatePerson(currentPerson.value.id, { color: newColor })
-  }
-}
-
-const color = ref('#ff0000')
-const isPopoverOpen = ref(false)
-
-function onColorChange(event: any) {
-  color.value = event.target.value
+async function createNewPerson() {
+  if (filteredPersons.value.length || !searchValue.value) return
+  const { data } = await persons.createPerson({ name: searchValue.value })
+  searchValue.value = ''
+  handleUpdateValue(data.id)
+  handleClose()
 }
 </script>
 
-// TODO https://www.shadcn-vue.com/docs/components/context-menu.html
-
 <template>
-  <TableCol @click="handleOpen">
-    <div v-if="isEdit">
-      <div class="flex items-center space-x-4">
-        <Popover v-model:open="isPopoverOpen">
-          <PopoverTrigger>
-            <div :style="{ backgroundColor: currentPerson?.color }">
-              {{ currentPerson?.name }}
-            </div>
-            <Button variant="ghost">
-              <div
-                :style="{ backgroundColor: color }"
-                class="w-5 h-5 rounded-full"
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>
-            <input
-              v-model="color"
-              type="color"
-              class="w-full h-10 p-0 border-0 outline-none bg-transparent"
-              @input="onColorChange"
-            >
-          </PopoverContent>
-        </Popover>
-      </div>
-    </div>
+  <TableCell @click="handleOpen">
+    <Popover
+      v-if="isEdit"
+      default-open
+      @update:open="(isOpen) => !isOpen && handleClose()"
+    >
+      <PopoverTrigger as-child>
+        <Button
+          variant="outline"
+          role="combobox"
+          :aria-expanded="true"
+          class="h-8 w-[200px] justify-between"
+        >
+          {{ inputValue
+            ? persons.personOptions.find((person) => person.value === inputValue)?.label
+            : "Искать заказчика..." }}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent class="w-[200px] p-0">
+        <Command v-model:search-term="searchValue">
+          <CommandInput
+            class="h-9"
+            placeholder="Искать заказчика..."
+            @keydown.enter="createNewPerson"
+          />
+          <CommandEmpty>Заказчик не найден.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              <CommandItem
+                v-for="person in filteredPersons"
+                :key="person.value"
+                :value="person.value"
+                @select="() => {
+                  handleUpdateValue(person.value)
+                  handleClose()
+                }"
+              >
+                {{ person.label }}
+                <Check
+                  :class="cn(
+                    'ml-auto h-4 w-4',
+                    inputValue === person.value ? 'opacity-100' : 'opacity-0',
+                  )"
+                />
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
     <template v-else>
-      <Tag class="truncate w-48" :style="{ backgroundColor: currentPerson?.color }">
+      <Tag
+        class="truncate w-48"
+        :style="{ backgroundColor: currentPerson?.color }"
+      >
         {{ currentPerson?.name }}
       </Tag>
     </template>
-  </TableCol>
+  </TableCell>
 </template>

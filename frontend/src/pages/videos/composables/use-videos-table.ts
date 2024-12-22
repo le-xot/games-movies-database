@@ -3,6 +3,7 @@ import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { VideoEntity } from '@/lib/api.ts'
 import { ColumnDef } from '@tanstack/vue-table'
@@ -111,7 +112,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
           })
         },
         cell: ({ row }) => {
-          return h(DialogButton, {
+          return h(TableCell, {}, { default: () => h(DialogButton, {
             key: `id-${row.original.id}`,
             icon: Eraser,
             onClick: () => dialog.openDialog({
@@ -119,7 +120,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
               description: `Вы уверены, что хотите удалить "${row.original.title}"?`,
               onSubmit: () => videos.deleteVideo(row.original.id),
             }),
-          })
+          }) })
         },
       })
     }

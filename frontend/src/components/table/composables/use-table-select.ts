@@ -45,11 +45,22 @@ export const genreTags: Record<
   GenresEnum,
   BadgeOptions
 > = {
-  [GenresEnum.MOVIE]: { name: 'Фильм', class: 'bg-[#2b593f] border px-2.5 text-white/80' },
-  [GenresEnum.SERIES]: { name: 'Сериал', class: 'bg-[#28456c] border px-2.5 text-white/80',
+  [GenresEnum.MOVIE]: {
+    name: 'Фильм',
+    class: 'bg-[#2b593f] border px-2.5 text-white/80',
   },
-  [GenresEnum.ANIME]: { name: 'Аниме', class: 'bg-[#6e3630] text-white/80' },
-  [GenresEnum.CARTOON]: { name: 'Мультфильм', class: 'bg-[#89632a] border px-2.5 text-white/80' },
+  [GenresEnum.SERIES]: {
+    name: 'Сериал',
+    class: 'bg-[#28456c] border px-2.5 text-white/80',
+  },
+  [GenresEnum.ANIME]: {
+    name: 'Аниме',
+    class: 'bg-[#6e3630] text-white/80',
+  },
+  [GenresEnum.CARTOON]: {
+    name: 'Мультфильм',
+    class: 'bg-[#89632a] border px-2.5 text-white/80',
+  },
 }
 
 export const gradeTags: Record<
@@ -83,23 +94,26 @@ export const gradeTags: Record<
 }
 
 export const useTableSelect = defineStore('use-table-select', () => {
-  const options: Record<SelectKind, { label: string, value: string }[]> = {
+  const options: Record<SelectKind, { label: string, value: string, class: string }[]> = {
     status: Object.entries(statusTags).map(([key, value]) => {
       return {
         label: value.name,
         value: key,
+        class: value.class,
       }
     }),
     genre: Object.entries(genreTags).map(([key, value]) => {
       return {
         label: value.name,
         value: key,
+        class: value.class,
       }
     }),
     grade: Object.entries(gradeTags).map(([key, value]) => {
       return {
         label: `${value.name} ${value.label}`,
         value: key,
+        class: value.class,
       }
     }),
   }

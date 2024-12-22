@@ -12,7 +12,7 @@ function clearSearch() {
 </script>
 
 <template>
-  <div class="relative w-full max-w-sm items-center">
+  <div class="relative w-full items-center">
     <Input
       v-model:model-value="searchValue"
       class="pr-10"

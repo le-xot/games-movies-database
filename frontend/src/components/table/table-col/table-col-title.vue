@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input'
+import { TableCell } from '@/components/ui/table'
 import { toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
-import TableCol from './table-col.vue'
 
 type TitleType = string | undefined
 
@@ -20,7 +20,7 @@ const {
 </script>
 
 <template>
-  <TableCol @click="handleOpen">
+  <TableCell @click="handleOpen">
     <Input
       v-if="isEdit"
       ref="inputRef"
@@ -32,5 +32,5 @@ const {
     <template v-else>
       {{ inputValue }}
     </template>
-  </TableCol>
+  </TableCell>
 </template>

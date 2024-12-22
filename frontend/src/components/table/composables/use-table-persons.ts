@@ -50,14 +50,13 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     patchQueue.value = { id, data }
   }
 
-  // TODO АХТУНГ, поправить any
-  const personOptions = computed<any[]>(() => {
+  const personOptions = computed(() => {
     if (!persons.value) return []
     return persons.value.map((item) => {
       return {
         value: item.id,
         label: item.name,
-        style: { color: '#ffffff', backgroundColor: item.color },
+        color: item.color,
       }
     })
   })

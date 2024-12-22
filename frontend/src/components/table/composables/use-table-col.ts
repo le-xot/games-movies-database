@@ -41,9 +41,10 @@ export function useTableCol<T>(
     emits('update', inputValue.value)
   }
 
-  function handleUpdateValue(event: string) {
-    if (initialValue.value === event) return
-    emits('update', initialValue.value)
+  function handleUpdateValue(event: string | number) {
+    inputValue.value = event
+    if (initialValue.value === inputValue.value) return
+    emits('update', inputValue.value)
   }
 
   const { escape } = useMagicKeys()

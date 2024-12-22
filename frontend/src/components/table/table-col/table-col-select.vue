@@ -1,21 +1,11 @@
 <script setup lang="ts" generic="T extends StatusesEnum | GradeEnum | GenresEnum">
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TableCell } from '@/components/ui/table'
 import { Tag } from '@/components/ui/tag'
 import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
 import { computed, toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
-import {
-  BadgeOptions,
-  SelectKind,
-  useTableSelect,
-} from '../composables/use-table-select'
+import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select'
 
 type ValueSelect = T | undefined
 

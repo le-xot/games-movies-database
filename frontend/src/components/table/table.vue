@@ -1,21 +1,7 @@
 <script setup lang="ts">
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-
-import {
-  FlexRender,
-  getCoreRowModel,
-  useVueTable,
-} from '@tanstack/vue-table'
-import type {
-  ColumnDef,
-} from '@tanstack/vue-table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
+import type { ColumnDef } from '@tanstack/vue-table'
 
 const props = defineProps<{
   isLoading: boolean

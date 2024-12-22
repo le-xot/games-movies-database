@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { cn } from '@/lib/utils'
 import { CheckIcon } from '@radix-icons/vue'
-import {
-  SelectItem,
-  SelectItemIndicator,
-  type SelectItemProps,
-  SelectItemText,
-  useForwardProps,
-} from 'radix-vue'
+import { SelectItem, SelectItemIndicator, type SelectItemProps, SelectItemText, useForwardProps } from 'radix-vue'
 import { computed, type HTMLAttributes } from 'vue'
 
 interface _SelectItemProps extends SelectItemProps {

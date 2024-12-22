@@ -12,8 +12,8 @@
 
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-
     --card: 0 0% 100%;
+
     --card-foreground: 240 10% 3.9%;
 
     --border: 240 5.9% 90%;
@@ -75,4 +75,35 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+// https://stackoverflow.com/questions/2781549/removing-input-background-colour-for-chrome-autocomplete
+input:-webkit-autofill {
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    transition-delay: 9999s !important;
+    transition-property: background-color, color !important;
+  }
+}
+
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-track:hover,
+*::-webkit-scrollbar-track:active {
+  background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:active {
+  background-color: hsla(var(--border));
+  border-radius: 8px;
+  border-top-left-radius: 0px;
 }

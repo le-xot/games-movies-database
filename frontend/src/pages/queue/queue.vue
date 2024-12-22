@@ -38,31 +38,40 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
 
     <div
       v-if="videos.videosQueue.length === 0 && games.gamesQueue.length === 0 && !isLoading"
-      class="empty"
+      class="aga"
     >
-      Пока в очереди ничего нет :C
+      <img class="aga__img" src="/images/aga.webp" alt="Ага">
+      <span class="aga__text">Пока в очереди ничего нет :C</span>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .queue {
-  margin: 0 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: inherit;
 }
 
-.empty {
+.aga {
   width: 100%;
-  height: 100dvh;
+  height: 100%;
   display: flex;
-  font-size: 100px;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
+  gap: 16px;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &__img {
+    width: 120px;
+    height: 120px;
+  }
+
+  &__text {
+    font-size: 20px;
+    font-weight: 700;
+  }
 }
 
 .loader {

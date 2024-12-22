@@ -53,7 +53,7 @@ function isShow(item: T) {
 .title {
   padding-bottom: 1rem;
   color: #fff;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 .person {

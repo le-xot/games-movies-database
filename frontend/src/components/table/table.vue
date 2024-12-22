@@ -1,39 +1,73 @@
 <script setup lang="ts">
-import { NDataTable } from 'naive-ui'
-import type { TableColumns } from 'naive-ui/es/data-table/src/interface'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
-defineProps<{
+import {
+  FlexRender,
+  getCoreRowModel,
+  useVueTable,
+} from '@tanstack/vue-table'
+import type {
+  ColumnDef,
+} from '@tanstack/vue-table'
+
+const props = defineProps<{
   isLoading: boolean
-  columns: TableColumns<any>
-  data?: any[]
+  columns: ColumnDef<any>[]
+  data: any[]
 }>()
+
+const table = useVueTable({
+  get data() {
+    return props.data
+  },
+  get columns() {
+    return props.columns
+  },
+  getCoreRowModel: getCoreRowModel(),
+},
+)
 </script>
 
 <template>
-  <div class="table">
-    <NDataTable
-      :bordered="false"
-      :bottom-bordered="false"
-      :columns="columns"
-      :data="data"
-      :loading="isLoading"
-      max-height="100%"
-      scroll-x="1200px"
-      size="small"
-    />
-  </div>
+  <Table class="rounded-md border">
+    <TableHeader>
+      <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+        <TableHead v-for="header in headerGroup.headers" :key="header.id">
+          <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      <template v-if="table.getRowModel().rows?.length">
+        <template v-for="row in table.getRowModel().rows" :key="row.id">
+          <TableRow :data-state="row.getIsSelected() && 'selected'">
+            <template v-for="cell in row.getVisibleCells()" :key="cell.id">
+              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+            </template>
+          </TableRow>
+          <TableRow v-if="row.getIsExpanded()">
+            <TableCell :colspan="row.getAllCells().length">
+              {{ JSON.stringify(row.original) }}
+            </TableCell>
+          </TableRow>
+        </template>
+      </template>
+
+      <TableRow v-else>
+        <TableCell
+          :colspan="columns.length"
+          class="h-24 text-center"
+        >
+          No results.
+        </TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>
 </template>
-
-<style>
-.table {
-  overflow-x: auto;
-  height: 100%;
-  white-space: nowrap;
-  margin: 0 1rem;
-}
-
-.n-data-table-base-table-header {
-  position: sticky;
-  inset-block-start: 0px;
-}
-</style>

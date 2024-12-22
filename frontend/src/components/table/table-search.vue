@@ -1,30 +1,25 @@
 <script setup lang="ts">
-import { NInput } from 'naive-ui'
+import { XIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { Input } from '../ui/input'
 
 const searchValue = defineModel<string>('value', { required: true })
 const placeholder = computed(() => 'Искать по названию или заказчику')
+
+function clearSearch() {
+  searchValue.value = ''
+}
 </script>
 
 <template>
-  <div class="table-search">
-    <NInput
-      v-model:value="searchValue"
-      class="input"
-      type="text"
+  <div class="relative w-full items-center">
+    <Input
+      v-model:model-value="searchValue"
+      class="pr-10"
       :placeholder="placeholder"
-      clearable
     />
+    <span class="absolute cursor-pointer end-0 inset-y-0 flex items-center justify-center px-2" @click="clearSearch">
+      <XIcon class="size-4 text-muted-foreground" />
+    </span>
   </div>
 </template>
-
-<style scoped lang="scss">
-.table-search {
-  display: flex;
-  flex-grow: 1;
-}
-
-.input {
-  width: 100%;
-}
-</style>

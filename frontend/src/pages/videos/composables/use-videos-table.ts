@@ -1,52 +1,48 @@
-import { useTableFilters } from '@/components/table/composables/use-table-filters'
+import { useDialog } from '@/components/dialog/composables/use-dialog'
+import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import TableHeaderButton from '@/components/table/table-header/table-header-button.vue'
-import TableHeaderButtonConfirm from '@/components/table/table-header/table-header-button-confirm.vue'
+import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { VideoEntity } from '@/lib/api.ts'
+import { ColumnDef } from '@tanstack/vue-table'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
-import { DataTableColumns } from 'naive-ui'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, h, ref } from 'vue'
+import { computed, h } from 'vue'
 import { useVideos } from './use-videos'
 
 export const useVideosTable = defineStore('videos/use-videos-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const videos = useVideos()
-  const filters = useTableFilters()
-
-  const visibleColumns = ref(new Set(['id', 'title', 'person', 'genre', 'status', 'grade']))
-
+  const dialog = useDialog()
   const tableColumns = computed(() => {
-    const columns: DataTableColumns<VideoEntity> = [
+    const columns: ColumnDef<VideoEntity>[] = [
       {
-        title: 'Название',
-        key: 'title',
-        align: 'center',
-        render(row) {
+        accessorKey: 'title',
+        header: 'Название',
+        cell: ({ row }) => {
           return h(TableColTitle, {
-            key: `title-${row.id}`,
-            title: row.title,
+            key: `title-${row.original.id}`,
+            title: row.original.title,
             onUpdate: (title) => videos.updateVideo({
-              id: row.id,
+              id: row.original.id,
               data: { title },
             }),
           })
         },
       },
       {
-        ...filters.genreFilters,
-        width: 200,
-        render(row) {
+        accessorKey: 'genre',
+        header: 'Жанр',
+        cell: ({ row }) => {
           return h(TableColSelect, {
-            key: `genre-${row.id}`,
-            value: row.genre,
+            key: `genre-${row.original.id}`,
+            value: row.original.genre,
             kind: 'genre',
             onUpdate: (value) => {
               videos.updateVideo({
-                id: row.id,
+                id: row.original.id,
                 data: { genre: value },
               })
             },
@@ -54,32 +50,30 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
         },
       },
       {
-        title: 'Заказчик',
-        key: 'person',
-        align: 'center',
-        width: 300,
-        render(row) {
+        accessorKey: 'person',
+        header: 'Заказчик',
+        cell: ({ row }) => {
           return h(TableColPerson, {
-            key: `person-${row.id}`,
-            personId: row.person?.id,
+            key: `person-${row.original.id}`,
+            personId: row.original.person?.id,
             onUpdate: (personId) => videos.updateVideo({
-              id: row.id,
+              id: row.original.id,
               data: { personId },
             }),
           })
         },
       },
       {
-        ...filters.statusFilters,
-        width: 200,
-        render(row) {
+        accessorKey: 'status',
+        header: 'Статус',
+        cell: ({ row }) => {
           return h(TableColSelect, {
-            key: `status-${row.id}`,
-            value: row.status,
+            key: `status-${row.original.id}`,
+            value: row.original.status,
             kind: 'status',
             onUpdate: (value) => {
               videos.updateVideo({
-                id: row.id,
+                id: row.original.id,
                 data: { status: value },
               })
             },
@@ -87,16 +81,16 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
         },
       },
       {
-        ...filters.gradeFilters,
-        width: 200,
-        render(row) {
+        accessorKey: 'grade',
+        header: 'Оценка',
+        cell: ({ row }) => {
           return h(TableColSelect, {
-            key: `grade-${row.id}`,
-            value: row.grade,
+            key: `grade-${row.original.id}`,
+            value: row.original.grade,
             kind: 'grade',
             onUpdate: (value) => {
               videos.updateVideo({
-                id: row.id,
+                id: row.original.id,
                 data: { grade: value },
               })
             },
@@ -104,40 +98,37 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
         },
       },
     ]
-
     if (isAdmin.value) {
       columns.unshift({
-        key: 'id',
-        align: 'center',
-        width: 50,
-        title() {
-          return h(TableHeaderButton, {
+        accessorKey: 'id',
+        header: () => {
+          return h(DialogButton, {
             icon: CirclePlus,
-            onClick: () => videos.createVideo(),
+            onClick: () => dialog.openDialog({
+              title: `Создать киношку?`,
+              description: '',
+              onSubmit: () => videos.createVideo(),
+            }),
           })
         },
-        render(row) {
-          return h(TableHeaderButtonConfirm, {
-            key: `id-${row.id}`,
+        cell: ({ row }) => {
+          return h(TableCell, {}, { default: () => h(DialogButton, {
+            key: `id-${row.original.id}`,
             icon: Eraser,
-            onClick: () => videos.deleteVideo(row.id),
-          })
+            onClick: () => dialog.openDialog({
+              title: `Удалить киношку?`,
+              description: `Вы уверены, что хотите удалить "${row.original.title}"?`,
+              onSubmit: () => videos.deleteVideo(row.original.id),
+            }),
+          }) })
         },
       })
     }
-
-    return columns.filter((col) => {
-      if ('key' in col && col.key) {
-        return visibleColumns.value.has(col.key as string)
-      }
-      return true
-    })
+    return columns
   })
-
   return {
     tableColumns,
     search: videos.search,
-    visibleColumns,
   }
 })
 

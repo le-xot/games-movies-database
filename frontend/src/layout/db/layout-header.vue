@@ -37,8 +37,9 @@ onMounted(() => {
             :to="headerRoute.path"
           >
             <Button
-              variant="link"
               :href="href"
+              variant="secondary"
+              :class="{ active: route.path === headerRoute.path }"
               @click="(event) => {
                 navigate(event)
                 updateTitle(headerRoute.name)
@@ -74,5 +75,9 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+}
+
+.active {
+  background-color: hsla(var(--primary-foreground));
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
+import type { HTMLAttributes } from 'vue'
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -8,7 +8,15 @@ const props = defineProps<{
 </script>
 
 <template>
-  <thead :class="cn('[&_tr]:border-b', props.class)">
+  <thead :class="cn('table-header [&_tr]:border-b', props.class)">
     <slot />
   </thead>
 </template>
+
+<style scoped>
+.table-header {
+  position: sticky;
+  inset-block-start: 0px;
+  background: hsla(var(--secondary));
+}
+</style>

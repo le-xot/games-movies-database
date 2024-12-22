@@ -5,7 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { Button } from '../ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogTrigger } from '../ui/dialog'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 
@@ -60,9 +60,6 @@ async function logout() {
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
       <form @submit="onSubmit">
-        <DialogHeader>
-          <DialogTitle>Enter your credentials</DialogTitle>
-        </DialogHeader>
         <FormField v-slot="{ componentField }" name="username">
           <FormItem>
             <FormLabel>Логин</FormLabel>

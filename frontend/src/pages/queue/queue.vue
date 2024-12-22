@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { genreTags } from '@/components/table/composables/use-table-select'
+import { Tag } from '@/components/ui/tag'
 import Spinner from '@/components/utils/spinner.vue'
 import { computed } from 'vue'
 import { useGames } from '../games/composables/use-games'
@@ -27,7 +29,9 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
       </template>
       <template #footer="{ item }">
         <div>
-          {{ item.genre }}
+          <Tag :class="genreTags[item.genre].class">
+            {{ genreTags[item.genre].name }}
+          </Tag>
         </div>
       </template>
     </QueueCard>

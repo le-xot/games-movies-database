@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { NInput } from 'naive-ui'
+import { Input } from '@/components/ui/input'
+import { TableCell } from '@/components/ui/table'
 import { toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
-import TableCol from './table-col.vue'
 
 type TitleType = string | undefined
 
@@ -12,28 +12,25 @@ const title = toRef(props, 'title')
 
 const {
   isEdit,
-  inputRef,
   inputValue,
-  updateValue,
   handleChange,
   handleOpen,
+  inputRef,
 } = useTableCol<TitleType>(title, emits)
 </script>
 
 <template>
-  <TableCol @click="handleOpen">
-    <NInput
+  <TableCell @click="handleOpen">
+    <Input
       v-if="isEdit"
       ref="inputRef"
-      v-model:value="inputValue"
-      class="input"
-      size="medium"
-      @update-value="updateValue"
+      v-model="inputValue"
+      class="h-8 text-left"
       @blur="handleChange"
       @keydown.enter="handleChange"
     />
     <template v-else>
       {{ inputValue }}
     </template>
-  </TableCol>
+  </TableCell>
 </template>

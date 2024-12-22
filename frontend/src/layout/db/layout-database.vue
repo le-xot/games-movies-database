@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import Dialog from '@/components/dialog/dialog.vue'
 import LayoutBody from '@/layout/db/layout-body.vue'
 import LayoutHeader from '@/layout/db/layout-header.vue'
-import { darkTheme, NConfigProvider } from 'naive-ui'
 </script>
 
 <template>
-  <NConfigProvider :theme="darkTheme" class="layout-database" preflight-style-disabled>
+  <div class="layout-database">
+    <Dialog />
     <LayoutHeader />
     <LayoutBody />
-  </NConfigProvider>
+  </div>
 </template>
 
 <style scoped>

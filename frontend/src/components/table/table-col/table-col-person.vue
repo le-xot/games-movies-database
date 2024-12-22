@@ -1,9 +1,21 @@
 <script setup lang="ts">
-import { NColorPicker, NSelect, NTag } from 'naive-ui'
-import { computed, toRef } from 'vue'
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { TableCell } from '@/components/ui/table'
+import { Tag } from '@/components/ui/tag'
+import { cn } from '@/lib/utils'
+import { Check } from 'lucide-vue-next'
+import { computed, ref, toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 import { useTablePersons } from '../composables/use-table-persons'
-import TableCol from './table-col.vue'
 
 type PersonValue = number | undefined
 
@@ -15,74 +27,91 @@ const persons = useTablePersons()
 
 const {
   isEdit,
-  inputRef,
   inputValue,
-  updateValue,
-  handleChange,
+  handleClose,
   handleOpen,
+  handleUpdateValue,
 } = useTableCol(personId, emits)
 
-const currentPerson = computed(() => {
-  return persons.persons?.find((p) => p.id === personId.value)
+const searchValue = ref('')
+const filteredPersons = computed(() => {
+  if (!searchValue.value) return persons.personOptions
+  return persons.personOptions.filter((person) =>
+    person.label.toLowerCase().includes(searchValue.value.toLowerCase()),
+  )
 })
 
-async function updatePerson(id: number, data: { name?: string, color?: string }) {
-  persons.updatePerson(id, data)
-}
+const currentPerson = computed(() => {
+  return persons.persons!.find((person) => person.id === personId.value)
+})
 
-async function handleColorChange(newColor: string) {
-  if (currentPerson.value) {
-    await updatePerson(currentPerson.value.id, { color: newColor })
-  }
+async function createNewPerson() {
+  if (filteredPersons.value.length || !searchValue.value) return
+  const { data } = await persons.createPerson({ name: searchValue.value })
+  searchValue.value = ''
+  handleUpdateValue(data.id)
+  handleClose()
 }
 </script>
 
 <template>
-  <TableCol @click="handleOpen">
-    <div v-if="isEdit">
-      <NColorPicker
-        size="small"
-        placement="right"
-        :modes="['hex']"
-        :show-alpha="false"
-        :value="currentPerson?.color"
-        :swatches="['#603B2C', '#854C1D', '#89632A', '#2B593F', '#28456C', '#492F64', '#69314C', '#8f332a']"
-        @update:value="handleColorChange"
-      />
-      <NSelect
-        ref="inputRef"
-        v-model:value="inputValue"
-        tag
-        show
-        show-on-focus
-        filterable
-        size="small"
-        style="background-color: #18181C"
-        :options="persons.personOptions"
-        @update:value="updateValue"
-        @keydown.enter="handleChange"
-      />
-    </div>
+  <TableCell @click="handleOpen">
+    <Popover
+      v-if="isEdit"
+      default-open
+      @update:open="(isOpen) => !isOpen && handleClose()"
+    >
+      <PopoverTrigger as-child>
+        <Button
+          variant="outline"
+          role="combobox"
+          :aria-expanded="true"
+          class="h-8 w-[200px] justify-between"
+        >
+          {{ inputValue
+            ? persons.personOptions.find((person) => person.value === inputValue)?.label
+            : "Искать заказчика..." }}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent class="w-[200px] p-0">
+        <Command v-model:search-term="searchValue">
+          <CommandInput
+            class="h-9"
+            placeholder="Искать заказчика..."
+            @keydown.enter="createNewPerson"
+          />
+          <CommandEmpty>Заказчик не найден.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              <CommandItem
+                v-for="person in filteredPersons"
+                :key="person.value"
+                :value="person.value"
+                @select="() => {
+                  handleUpdateValue(person.value)
+                  handleClose()
+                }"
+              >
+                {{ person.label }}
+                <Check
+                  :class="cn(
+                    'ml-auto h-4 w-4',
+                    inputValue === person.value ? 'opacity-100' : 'opacity-0',
+                  )"
+                />
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
     <template v-else>
-      <NTag
-        v-if="currentPerson?.name"
-        :bordered="false"
-        size="medium"
-        round
-        :color="{ color: currentPerson?.color }"
-        class="tag"
+      <Tag
+        class="truncate w-48"
+        :style="{ backgroundColor: currentPerson?.color }"
       >
         {{ currentPerson?.name }}
-      </NTag>
+      </Tag>
     </template>
-  </TableCol>
+  </TableCell>
 </template>
-
-<style scoped>
-.tag {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 250px;
-}
-</style>

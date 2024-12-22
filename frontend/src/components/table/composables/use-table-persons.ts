@@ -1,7 +1,6 @@
 import { useApi } from '@/composables/use-api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { refDebounced } from '@vueuse/core'
-import { SelectBaseOption } from 'naive-ui/es/select/src/interface'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
@@ -51,13 +50,13 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     patchQueue.value = { id, data }
   }
 
-  const personOptions = computed<SelectBaseOption[]>(() => {
+  const personOptions = computed(() => {
     if (!persons.value) return []
     return persons.value.map((item) => {
       return {
         value: item.id,
         label: item.name,
-        style: { color: '#ffffff', backgroundColor: item.color },
+        color: item.color,
       }
     })
   })

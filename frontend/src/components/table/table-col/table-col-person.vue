@@ -12,7 +12,6 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableCell } from '@/components/ui/table'
-import { Tag } from '@/components/ui/tag'
 import { PersonEntity } from '@/lib/api'
 import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
 import { computed, ref, toRef, watch } from 'vue'
@@ -36,6 +35,7 @@ const {
   handleUpdateValue,
 } = useTableCol(personId, emits)
 
+const isOpenPopover = ref(false)
 const isOpenDropdown = ref(false)
 watch(isEdit, (value) => {
   if (value) return
@@ -76,6 +76,7 @@ function invokeDeletePerson(person: PersonEntity) {
     description: `Вы уверены что хотите удалить ${person.name}?`,
     onSubmit: () => {
       persons.deletePersonById(person.id)
+      inputValue.value = undefined
     },
   })
 }
@@ -90,23 +91,26 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
 <template>
   <TableCell @click="handleOpen">
     <Popover
-      v-if="isEdit"
-      default-open
-      @update:open="(isOpen) => !isOpen && handleClose()"
+      v-model:open="isOpenPopover"
+      @update:open="(isOpen) => {
+        if (!isOpen) handleClose()
+      }"
     >
       <PopoverTrigger as-child>
         <Button
           variant="outline"
           role="combobox"
           :aria-expanded="true"
-          class="h-8 w-[192px] justify-between text-xs"
+          class="h-8 w-[192px] justify-between text-xs font-semibold"
           :style="{ backgroundColor: currentPerson?.color }"
         >
           {{ inputValue
             ? persons.personOptions.find((person) => person.id === inputValue)?.name
             : "Не выбрано" }}
           <Button
-            variant="ghost" class="h-6 w-6 pr-2 bg-transparent hover:bg-transparent"
+            v-if="isOpenPopover"
+            variant="ghost"
+            class="h-6 w-6 pr-2 bg-transparent hover:bg-transparent"
             @click="invokeRemovePerson()"
           >
             <DeleteIcon />
@@ -181,13 +185,5 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
         </Command>
       </PopoverContent>
     </Popover>
-    <template v-else>
-      <Tag
-        class="truncate w-48"
-        :style="{ backgroundColor: currentPerson?.color }"
-      >
-        {{ currentPerson?.name }}
-      </Tag>
-    </template>
   </TableCell>
 </template>

@@ -21,6 +21,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
+        minSize: 50,
+        maxSize: 50,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
@@ -35,6 +37,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'person',
         header: 'Заказчик',
+        minSize: 10,
+        maxSize: 10,
         cell: ({ row }) => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
@@ -49,6 +53,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'status',
         header: 'Статус',
+        minSize: 10,
+        maxSize: 10,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
@@ -66,6 +72,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'grade',
         header: 'Оценка',
+        minSize: 10,
+        maxSize: 10,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
@@ -84,6 +92,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
     if (isAdmin.value) {
       columns.unshift({
         accessorKey: 'id',
+        minSize: 5,
+        maxSize: 5,
         header: () => {
           return h(DialogButton, {
             icon: CirclePlus,

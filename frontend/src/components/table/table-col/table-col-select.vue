@@ -1,9 +1,9 @@
 <script setup lang="ts" generic="T extends StatusesEnum | GradeEnum | GenresEnum">
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { TableCell } from '@/components/ui/table'
 import { Tag } from '@/components/ui/tag'
 import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
-import { computed, toRef } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select'
 
@@ -15,6 +15,8 @@ const props = defineProps<{
 }>()
 const emits = defineEmits<{ update: [ValueSelect] }>()
 const selectValue = toRef(props, 'value')
+
+const isOpen = ref(false)
 
 const {
   isEdit,
@@ -33,23 +35,34 @@ const data = computed(() => {
 })
 
 const placeholder = computed(() => {
-  if (!data.value.tag) return 'Выберите значение'
-  return `${data.value.tag.name} ${data.value.tag.label ?? ''}`
+  if (!data.value.tag) return 'Отсутствует'
+  return data.value.tag.name
 })
 </script>
 
 <template>
-  <TableCell @click="handleOpen">
+  <TableCell
+    @click="() => {
+      handleOpen()
+      isOpen = true
+    }"
+  >
     <Select
-      v-if="isEdit"
-      default-open
+      v-if="isEdit || data.tag"
+      v-model:open="isOpen"
       @update:model-value="(value) => {
         handleUpdateValue(value)
         handleClose()
       }"
     >
-      <SelectTrigger :class="data.tag.class" class="w-fit" @blur="handleClose">
-        <SelectValue :placeholder="placeholder" />
+      <SelectTrigger
+        :class="data.tag?.class"
+        as-child
+        @blur="handleClose"
+      >
+        <span>
+          {{ placeholder }}
+        </span>
       </SelectTrigger>
       <SelectContent class="w-[180px]">
         <SelectItem
@@ -64,8 +77,8 @@ const placeholder = computed(() => {
         </SelectItem>
       </SelectContent>
     </Select>
-    <Tag v-else-if="data.tag" :class="data.tag.class">
-      {{ data.tag.name }}
+    <Tag v-else-if="!data.tag" class="border border-input w-full">
+      Отсутствует
     </Tag>
   </TableCell>
 </template>

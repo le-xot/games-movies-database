@@ -21,6 +21,13 @@ export const useGames = defineStore('games/use-games', () => {
     query: async () => {
       const { data } = await api.games.gameControllerGetAllGames()
       return data
+      // const a = Array.from({ length: 1000 }, (_, id) => ({
+      //   ...data[1],
+      //   id,
+      // }))
+
+      // a.push({ ...data[0], title: 'test' })
+      // return a
     },
   })
 

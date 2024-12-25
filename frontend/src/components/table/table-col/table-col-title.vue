@@ -29,8 +29,8 @@ const {
       @blur="handleChange"
       @keydown.enter="handleChange"
     />
-    <template v-else>
+    <span v-else class="pl-2">
       {{ inputValue }}
-    </template>
+    </span>
   </TableCell>
 </template>

@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@pinia/colada'
 import { refDebounced } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { number } from 'zod'
 
 export const PERSONS_QUERY_KEY = 'persons'
 
@@ -25,6 +26,14 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     key: [PERSONS_QUERY_KEY, 'create'],
     mutation: async (opts: { name: string, color?: string }) => {
       return await api.persons.personControllerCreatePerson(opts)
+    },
+    onSettled: () => refetchPersons(),
+  })
+
+  const { mutateAsync: deletePersonById } = useMutation({
+    key: [PERSONS_QUERY_KEY, 'delete'],
+    mutation: async (id: number) => {
+      return await api.persons.personControllerDeletePersonById(id)
     },
     onSettled: () => refetchPersons(),
   })
@@ -54,8 +63,8 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     if (!persons.value) return []
     return persons.value.map((item) => {
       return {
-        value: item.id,
-        label: item.name,
+        id: item.id,
+        name: item.name,
         color: item.color,
       }
     })
@@ -76,12 +85,18 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     }
   }
 
+  async function deletePerson(id: number) {
+    if (!number) return
+    await deletePersonById(id)
+  }
+
   return {
     isLoading,
     persons,
     personOptions,
     createPerson,
     updatePerson,
+    deletePerson,
     updateSelectOrCreatePerson,
   }
 })

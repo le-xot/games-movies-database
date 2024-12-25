@@ -160,6 +160,9 @@ importers:
       vee-validate:
         specifier: 4.14.7
         version: 4.14.7(vue@3.5.12(typescript@5.6.3))
+      virtua:
+        specifier: 0.39.2
+        version: 0.39.2(vue@3.5.12(typescript@5.6.3))
       vite-svg-loader:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.3))
@@ -4558,6 +4561,26 @@ packages:
     resolution: {integrity: sha512-XVb1gBFJR57equ11HEI8uxNqFJkwvCP/b+p+saDPQYaW7k45cdF5jsYPEJud1o29GD6h2y7Awm7Qfm89yKi74A==}
     peerDependencies:
       vue: ^3.4.26
+
+  virtua@0.39.2:
+    resolution: {integrity: sha512-KhDYmfDe36L1W5ir1b5+jeV40+u4bb5bRiZggWwGinreGXKnxxcLGdk+yVZlO5dNdBq/nxj4v4w6yxuwgLXSBg==}
+    peerDependencies:
+      react: '>=16.14.0'
+      react-dom: '>=16.14.0'
+      solid-js: '>=1.0'
+      svelte: '>=5.0'
+      vue: '>=3.2'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
 
   vite-svg-loader@5.1.0:
     resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
@@ -9770,6 +9793,10 @@ snapshots:
     dependencies:
       '@vue/devtools-api': 7.6.8
       type-fest: 4.30.1
+      vue: 3.5.12(typescript@5.6.3)
+
+  virtua@0.39.2(vue@3.5.12(typescript@5.6.3)):
+    optionalDependencies:
       vue: 3.5.12(typescript@5.6.3)
 
   vite-svg-loader@5.1.0(vue@3.5.12(typescript@5.6.3)):

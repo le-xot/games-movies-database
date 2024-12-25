@@ -41,7 +41,7 @@ export function useTableCol<T>(
     emits('update', inputValue.value)
   }
 
-  function handleUpdateValue(event: string | number) {
+  function handleUpdateValue(event: string | number | null) {
     inputValue.value = event
     if (initialValue.value === inputValue.value) return
     emits('update', inputValue.value)

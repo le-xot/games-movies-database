@@ -1,9 +1,9 @@
 import { useApi } from '@/composables/use-api'
+import { PersonEntity } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { refDebounced } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { number } from 'zod'
 
 export const PERSONS_QUERY_KEY = 'persons'
 
@@ -59,7 +59,7 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     patchQueue.value = { id, data }
   }
 
-  const personOptions = computed(() => {
+  const personOptions = computed<PersonEntity[]>(() => {
     if (!persons.value) return []
     return persons.value.map((item) => {
       return {
@@ -70,34 +70,13 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     })
   })
 
-  async function updateSelectOrCreatePerson(
-    person: string | number | undefined,
-  ) {
-    if (!person) return
-    const personId = person
-
-    // Это костыль для NaiveUI. Идёт несовпадение в NSelect типа string и number
-    if (typeof personId === 'string') {
-      const { data } = await createPerson({ name: personId })
-      return data.id
-    } else {
-      return personId
-    }
-  }
-
-  async function deletePerson(id: number) {
-    if (!number) return
-    await deletePersonById(id)
-  }
-
   return {
     isLoading,
     persons,
     personOptions,
     createPerson,
     updatePerson,
-    deletePerson,
-    updateSelectOrCreatePerson,
+    deletePersonById,
   }
 })
 

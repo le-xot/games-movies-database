@@ -48,7 +48,7 @@ const placeholder = computed(() => {
         handleClose()
       }"
     >
-      <SelectTrigger class="w-[180px]" @blur="handleClose">
+      <SelectTrigger :class="data.tag.class" class="w-fit" @blur="handleClose">
         <SelectValue :placeholder="placeholder" />
       </SelectTrigger>
       <SelectContent class="w-[180px]">

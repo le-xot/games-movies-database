@@ -12,8 +12,10 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableCell } from '@/components/ui/table'
+import { useUser } from '@/composables/use-user.ts'
 import { PersonEntity } from '@/lib/api'
 import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, watch } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 import { useTablePersons } from '../composables/use-table-persons'
@@ -41,6 +43,8 @@ watch(isEdit, (value) => {
   if (value) return
   isOpenDropdown.value = false
 })
+
+const { isAdmin } = storeToRefs(useUser())
 
 const searchValue = ref('')
 const filteredPersons = computed(() => {
@@ -90,7 +94,20 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
 
 <template>
   <TableCell @click="handleOpen">
+    <Button
+      v-if="!isAdmin"
+      variant="outline"
+      class="cursor-default relative h-8 w-[240px] flex items-center text-xs font-semibold"
+      :style="{ backgroundColor: currentPerson?.color }"
+    >
+      <span class="w-full items-center justify-center">
+        {{ inputValue
+          ? persons.personOptions.find((person) => person.id === inputValue)?.name
+          : "Не выбрано" }}
+      </span>
+    </Button>
     <Popover
+      v-else
       v-model:open="isOpenPopover"
       @update:open="(isOpen) => {
         if (!isOpen) handleClose()
@@ -101,25 +118,29 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           variant="outline"
           role="combobox"
           :aria-expanded="true"
-          class="h-8 w-[192px] justify-between text-xs font-semibold"
+          class="cursor-default relative h-8 w-[240px] flex items-center text-xs font-semibold"
           :style="{ backgroundColor: currentPerson?.color }"
         >
-          {{ inputValue
-            ? persons.personOptions.find((person) => person.id === inputValue)?.name
-            : "Не выбрано" }}
+          <span class="w-full absolute inset-0 flex items-center justify-center">
+            {{ inputValue
+              ? persons.personOptions.find((person) => person.id === inputValue)?.name
+              : "Нет данных" }}
+          </span>
           <Button
             v-if="isOpenPopover"
             variant="ghost"
-            class="h-6 w-6 pr-2 bg-transparent hover:bg-transparent"
+            size="icon"
+            class="absolute right-2 h-6 w-6 bg-transparent hover:bg-transparent"
             @click="invokeRemovePerson()"
           >
             <DeleteIcon />
           </Button>
         </Button>
       </PopoverTrigger>
-      <PopoverContent class="w-[200px] p-0">
+      <PopoverContent class="w-[250px] p-0">
         <Command v-model:search-term="searchValue">
           <CommandInput
+            name="search"
             class="h-9"
             placeholder="Искать заказчика..."
             @keydown.enter="createNewPerson"

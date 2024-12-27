@@ -12,6 +12,8 @@ import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useGames } from './use-games'
 
+const COLUMN_WIDTH = 175
+
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const games = useGames()
@@ -21,8 +23,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        minSize: 50,
-        maxSize: 50,
+        size: 782,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
@@ -37,8 +38,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'person',
         header: 'Заказчик',
-        minSize: 10,
-        maxSize: 10,
+        size: 256,
         cell: ({ row }) => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
@@ -53,8 +53,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'status',
         header: 'Статус',
-        minSize: 10,
-        maxSize: 10,
+        size: COLUMN_WIDTH,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
@@ -72,8 +71,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'grade',
         header: 'Оценка',
-        minSize: 10,
-        maxSize: 10,
+        size: COLUMN_WIDTH,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
@@ -92,8 +90,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
     if (isAdmin.value) {
       columns.unshift({
         accessorKey: 'id',
-        minSize: 5,
-        maxSize: 5,
+        size: 52,
         header: () => {
           return h(DialogButton, {
             icon: CirclePlus,

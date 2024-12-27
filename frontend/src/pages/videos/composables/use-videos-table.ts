@@ -12,6 +12,8 @@ import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useVideos } from './use-videos'
 
+const COLUMN_WIDTH = 175
+
 export const useVideosTable = defineStore('videos/use-videos-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const videos = useVideos()
@@ -21,6 +23,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
+        size: 607,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
@@ -35,6 +38,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'genre',
         header: 'Жанр',
+        size: COLUMN_WIDTH,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `genre-${row.original.id}`,
@@ -52,6 +56,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'person',
         header: 'Заказчик',
+        size: 256,
         cell: ({ row }) => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
@@ -66,6 +71,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'status',
         header: 'Статус',
+        size: COLUMN_WIDTH,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
@@ -83,6 +89,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'grade',
         header: 'Оценка',
+        size: COLUMN_WIDTH,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
@@ -101,6 +108,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
     if (isAdmin.value) {
       columns.unshift({
         accessorKey: 'id',
+        size: 52,
         header: () => {
           return h(DialogButton, {
             icon: CirclePlus,

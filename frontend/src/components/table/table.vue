@@ -22,6 +22,7 @@ const table = useVueTable({
   get data() {
     return props.data
   },
+
   get columns() {
     return props.columns
   },
@@ -38,7 +39,7 @@ const table = useVueTable({
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :style="{ width: `${header.column.getSize()}%` }"
+            :style="{ width: `${header.column.getSize()}px` }"
           >
             <FlexRender
               v-if="!header.isPlaceholder"
@@ -66,7 +67,7 @@ const table = useVueTable({
           :key="cell.id"
           :render="cell.column.columnDef.cell"
           :props="cell.getContext()"
-          :style="{ width: `${cell.column.getSize()}%` }"
+          :style="{ width: cell.column.getSize() === 0 ? '1000px' : `${cell.column.getSize()}px` }"
         />
       </Virtualizer>
     </Table>

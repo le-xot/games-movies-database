@@ -10,11 +10,15 @@ const table = useGamesTable()
 </script>
 
 <template>
-  <TableSearch v-model:value="table.search.searchValue" />
+  <TableSearch
+    v-model:value="table.search.searchValue"
+    v-model:column-visibility="table.columnVisibility"
+  />
   <Table
     :columns="table.tableColumns"
     :data="games"
     :is-loading="isLoading"
+    :column-visibility="table.columnVisibility"
   />
 </template>
 

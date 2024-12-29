@@ -13,6 +13,7 @@ import type { ColumnDef } from '@tanstack/vue-table'
 const props = defineProps<{
   isLoading: boolean
   columns: ColumnDef<any>[]
+  columnVisibility: Record<string, boolean>
   data: any[]
 }>()
 
@@ -22,9 +23,13 @@ const table = useVueTable({
   get data() {
     return props.data
   },
-
   get columns() {
     return props.columns
+  },
+  state: {
+    get columnVisibility() {
+      return props.columnVisibility
+    },
   },
   getCoreRowModel: getCoreRowModel(),
 },
@@ -62,13 +67,17 @@ const table = useVueTable({
           class: 'w-full border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
         })"
       >
-        <FlexRender
+        <template
           v-for="cell in item.getVisibleCells()"
           :key="cell.id"
-          :render="cell.column.columnDef.cell"
-          :props="cell.getContext()"
-          :style="{ width: cell.column.getSize() === 0 ? '1000px' : `${cell.column.getSize()}px` }"
-        />
+        >
+          <FlexRender
+            v-if="cell.column.getIsVisible()"
+            :render="cell.column.columnDef.cell"
+            :props="cell.getContext()"
+            :style="{ width: cell.column.getSize() === 0 ? '1000px' : `${cell.column.getSize()}px` }"
+          />
+        </template>
       </Virtualizer>
     </Table>
   </div>

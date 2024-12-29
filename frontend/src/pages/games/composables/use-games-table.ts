@@ -9,7 +9,7 @@ import { GameEntity } from '@/lib/api.ts'
 import { ColumnDef } from '@tanstack/vue-table'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useGames } from './use-games'
 
 const COLUMN_WIDTH = 175
@@ -18,6 +18,14 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const games = useGames()
   const dialog = useDialog()
+
+  const columnVisibility = ref<Record<string, boolean>>({
+    title: true,
+    person: true,
+    status: true,
+    grade: true,
+  })
+
   const tableColumns = computed(() => {
     const columns: ColumnDef<GameEntity>[] = [
       {
@@ -114,11 +122,14 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         },
       })
     }
+
     return columns
   })
+
   return {
     tableColumns,
     search: games.search,
+    columnVisibility,
   }
 })
 

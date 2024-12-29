@@ -5,9 +5,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useBreakpoints } from '@/composables/use-breakpoints'
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { Virtualizer } from 'virtua/vue'
 import { ref } from 'vue'
+import { Card } from '../ui/card'
 import type { ColumnDef } from '@tanstack/vue-table'
 
 const props = defineProps<{
@@ -17,6 +19,7 @@ const props = defineProps<{
   data: any[]
 }>()
 
+const breakpoints = useBreakpoints()
 const scrollRef = ref<HTMLElement>()
 
 const table = useVueTable({
@@ -32,12 +35,15 @@ const table = useVueTable({
     },
   },
   getCoreRowModel: getCoreRowModel(),
-},
-)
+})
 </script>
 
 <template>
-  <div ref="scrollRef" class="relative w-full overflow-auto rounded-md border">
+  <div
+    v-if="breakpoints.isDesktop"
+    ref="scrollRef"
+    class="relative w-full overflow-auto rounded-md border"
+  >
     <Table class="w-full h-[83dvh] overflow-auto">
       <TableHeader class="w-full">
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
@@ -80,5 +86,26 @@ const table = useVueTable({
         </template>
       </Virtualizer>
     </Table>
+  </div>
+  <div v-else class="relative w-full overflow-auto">
+    <div class="grid grid-cols-1 gap-4">
+      <Card v-for="row in table.getRowModel().rows" :key="row.id">
+        <template
+          v-for="cell in row.getVisibleCells()"
+          :key="cell.id"
+        >
+          <div v-if="cell.column.id !== 'id'" class="flex flex-col w-full px-4 py-2 border-b last:border-0">
+            <FlexRender :render="cell.column.columnDef.header" />
+            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+          </div>
+          <div v-else class="flex justify-end border-b">
+            <FlexRender
+              :render="cell.column.columnDef.cell"
+              :props="cell.getContext()"
+            />
+          </div>
+        </template>
+      </Card>
+    </div>
   </div>
 </template>

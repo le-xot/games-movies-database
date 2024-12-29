@@ -73,7 +73,7 @@ const placeholder = computed(() => {
           {{ placeholder }}
         </span>
       </SelectTrigger>
-      <SelectContent align="center" class="w-[180px]">
+      <SelectContent align="center" class="w-[--radix-select-trigger-width]">
         <SelectItem
           v-for="option in data.options"
           :key="option.value"

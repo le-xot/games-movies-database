@@ -12,6 +12,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableCell } from '@/components/ui/table'
+import { useBreakpoints } from '@/composables/use-breakpoints'
 import { useUser } from '@/composables/use-user.ts'
 import { PersonEntity } from '@/lib/api'
 import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
@@ -44,6 +45,7 @@ watch(isEdit, (value) => {
   isOpenDropdown.value = false
 })
 
+const breakpoints = useBreakpoints()
 const { isAdmin } = storeToRefs(useUser())
 
 const searchValue = ref('')
@@ -105,7 +107,8 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           variant="outline"
           role="combobox"
           :aria-expanded="true"
-          class="cursor-default relative h-8 w-[240px] flex items-center text-xs font-semibold !opacity-100"
+          class="cursor-default relative h-8 flex items-center text-xs font-semibold !opacity-100"
+          :class="[breakpoints.isDesktop ? 'w-[240px]' : 'w-full']"
           :style="{ backgroundColor: currentPerson?.color }"
           :disabled="!isAdmin"
         >
@@ -125,7 +128,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           </Button>
         </Button>
       </PopoverTrigger>
-      <PopoverContent class="w-[240px] p-0">
+      <PopoverContent class="p-0 w-[--radix-popover-trigger-width]">
         <Command v-model:search-term="searchValue">
           <CommandInput
             name="search"

@@ -94,20 +94,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
 
 <template>
   <TableCell @click="handleOpen">
-    <Button
-      v-if="!isAdmin"
-      variant="outline"
-      class="cursor-default relative h-8 w-[240px] flex items-center text-xs font-semibold"
-      :style="{ backgroundColor: currentPerson?.color }"
-    >
-      <span class="w-full items-center justify-center">
-        {{ inputValue
-          ? persons.personOptions.find((person) => person.id === inputValue)?.name
-          : "Не выбрано" }}
-      </span>
-    </Button>
     <Popover
-      v-else
       v-model:open="isOpenPopover"
       @update:open="(isOpen) => {
         if (!isOpen) handleClose()
@@ -118,12 +105,13 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           variant="outline"
           role="combobox"
           :aria-expanded="true"
-          class="cursor-default relative h-8 w-[240px] flex items-center text-xs font-semibold"
+          class="cursor-default relative h-8 w-[240px] flex items-center text-xs font-semibold !opacity-100"
           :style="{ backgroundColor: currentPerson?.color }"
+          :disabled="!isAdmin"
         >
           <span class="w-full absolute inset-0 flex items-center justify-center">
             {{ inputValue
-              ? persons.personOptions.find((person) => person.id === inputValue)?.name
+              ? persons.personOptions.find((person) => person.id === inputValue)?.name || "Нет данных"
               : "Нет данных" }}
           </span>
           <Button
@@ -137,7 +125,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           </Button>
         </Button>
       </PopoverTrigger>
-      <PopoverContent class="w-[250px] p-0">
+      <PopoverContent class="w-[240px] p-0">
         <Command v-model:search-term="searchValue">
           <CommandInput
             name="search"

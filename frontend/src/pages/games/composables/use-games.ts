@@ -25,8 +25,6 @@ export const useGames = defineStore('games/use-games', () => {
       //   ...data[1],
       //   id,
       // }))
-
-      // a.push({ ...data[0], title: 'test' })
       // return a
     },
   })

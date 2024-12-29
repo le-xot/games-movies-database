@@ -32,8 +32,8 @@ const table = useVueTable({
 </script>
 
 <template>
-  <div ref="scrollRef" class="relative w-full overflow-auto">
-    <Table class="rounded-md border w-full h-[80vh] overflow-auto">
+  <div ref="scrollRef" class="relative w-full overflow-auto rounded-md border">
+    <Table class="w-full h-[83dvh] overflow-auto">
       <TableHeader class="w-full">
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
           <TableHead

@@ -1,7 +1,7 @@
 import { useUser } from '@/composables/use-user'
 import { useMagicKeys } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { nextTick, Ref, ref, unref, watch } from 'vue'
+import { Ref, ref, unref, watch } from 'vue'
 
 export function useTableCol<T>(
   initialValue: Ref<T>,
@@ -20,14 +20,6 @@ export function useTableCol<T>(
   function handleOpen() {
     if (!isAdmin.value) return
     isEdit.value = true
-    nextTick(() => {
-      if (inputRef.value?.focus) {
-        inputRef.value?.focus()
-      } else {
-        inputRef.value?.inputRef.focus()
-      }
-    },
-    )
   }
 
   function handleClose() {

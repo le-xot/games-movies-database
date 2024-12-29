@@ -26,10 +26,12 @@ const onSubmit = form.handleSubmit(async (values) => {
     await user.userLogin(values)
     toast({
       title: 'Successful login',
+      duration: 1000,
     })
   } catch {
     toast({
       title: `Invalid login data`,
+      duration: 1000,
     })
   }
 })
@@ -39,10 +41,12 @@ async function logout() {
     await user.userLogout()
     toast({
       title: 'Successful logout',
+      duration: 1000,
     })
   } catch {
     toast({
       title: `Logout error`,
+      duration: 1000,
     })
   }
 }
@@ -78,7 +82,7 @@ async function logout() {
             <FormMessage />
           </FormItem>
         </FormField>
-        <DialogFooter>
+        <DialogFooter class="mt-4">
           <Button type="submit">
             Login
           </Button>

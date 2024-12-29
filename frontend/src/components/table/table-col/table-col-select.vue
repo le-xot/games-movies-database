@@ -1,25 +1,34 @@
 <script setup lang="ts" generic="T extends StatusesEnum | GradeEnum | GenresEnum">
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { TableCell } from '@/components/ui/table'
 import { Tag } from '@/components/ui/tag'
+import { useUser } from '@/composables/use-user'
 import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
-import { computed, toRef } from 'vue'
+import { storeToRefs } from 'pinia'
+import { computed, ref, toRef, useId } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select'
 
 type ValueSelect = T | undefined
+
 const props = defineProps<{
   kind: SelectKind
   value: ValueSelect
 }>()
 const emits = defineEmits<{ update: [ValueSelect] }>()
 const selectValue = toRef(props, 'value')
+
+const isOpen = ref(false)
+const { isAdmin } = storeToRefs(useUser())
+
 const {
   isEdit,
   handleOpen,
   handleClose,
   handleUpdateValue,
 } = useTableCol<T>(selectValue, emits)
+
+const id = useId()
 const select = useTableSelect()
 const data = computed(() => {
   const tag = select[`${props.kind}Tags`]?.[selectValue.value] as BadgeOptions
@@ -28,30 +37,43 @@ const data = computed(() => {
     options: select.options[props.kind],
   }
 })
+
 const placeholder = computed(() => {
-  if (!data.value.tag) return 'Выберите значение'
-  return `${data.value.tag.name} ${data.value.tag.label ?? ''}`
+  if (!data.value.tag) return 'Нет данных'
+  return data.value.tag.name
 })
 </script>
 
 <template>
-  <TableCell @click="handleOpen">
+  <TableCell
+    @click="() => {
+      if (!isAdmin) return
+      handleOpen()
+      isOpen = true
+    }"
+  >
     <Select
-      v-if="isEdit"
-      class="w-full"
-      default-open
+      v-if="isEdit || data.tag"
+      v-model:open="isOpen"
+      :name="`${props.kind}-${id}`"
       @update:model-value="(value) => {
+        console.log(value)
         handleUpdateValue(value)
         handleClose()
       }"
     >
       <SelectTrigger
-        class="w-full" :class="[data.tag?.class || 'text-[#FAFAFA] bg-[rgb(9, 9, 11)] border-[1px] border-[rgb(39, 39, 42)]']"
+        class="min-w-28"
+        :class="[data.tag?.class]"
+        as-child
+        :disabled="!isAdmin"
         @blur="handleClose"
       >
-        <SelectValue :placeholder="data.tag?.class ? placeholder : 'Нет данных'" />
+        <span>
+          {{ placeholder }}
+        </span>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent align="center" class="w-[180px]">
         <SelectItem
           v-for="option in data.options"
           :key="option.value"
@@ -64,11 +86,8 @@ const placeholder = computed(() => {
         </SelectItem>
       </SelectContent>
     </Select>
-    <Tag v-else-if="data.tag" :class="data.tag.class" class="w-full">
-      {{ data.tag.name }}
+    <Tag v-else-if="!data.tag" class="border border-input w-full">
+      {{ placeholder }}
     </Tag>
-    <Tag v-else class="w-full bg-[rgb(9, 9, 11)] text-[#FAFAFA] border-[1px] border-[rgb(39, 39, 42)] text-center">
-      Нет данных
-    </Tag>
-  </tablecell>
+  </TableCell>
 </template>

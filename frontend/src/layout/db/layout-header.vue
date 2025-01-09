@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useTitle } from '@/composables/use-title'
 import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
+import { HouseIcon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
@@ -11,11 +12,10 @@ const route = useRoute()
 const { updateTitle } = useTitle()
 
 const routes = [
-  { name: 'Главная', path: ROUTER_PATHS.home },
+  { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
   { name: 'Кино', path: ROUTER_PATHS.dbVideos },
-  { name: 'Железки', path: ROUTER_PATHS.pc },
 ]
 
 onMounted(() => {
@@ -45,7 +45,10 @@ onMounted(() => {
                 updateTitle(headerRoute.name)
               }"
             >
-              {{ headerRoute.name }}
+              <component :is="headerRoute.icon" v-if="headerRoute.icon" />
+              <template v-else>
+                {{ headerRoute.name }}
+              </template>
             </Button>
           </RouterLink>
         </div>

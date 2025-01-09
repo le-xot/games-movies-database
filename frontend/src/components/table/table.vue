@@ -94,11 +94,20 @@ const table = useVueTable({
           v-for="cell in row.getVisibleCells()"
           :key="cell.id"
         >
-          <div v-if="cell.column.id !== 'id'" class="flex flex-col w-full px-4 py-2 border-b last:border-0">
-            <FlexRender :render="cell.column.columnDef.header" />
-            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+          <div v-if="cell.column.id !== 'id'" class="flex flex-col w-full px-4 py-2 last:border-0">
+            <template v-if="cell.column.id === 'title'">
+              <div class="ml-1 font-bold border-b text-pretty">
+                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+              </div>
+            </template>
+            <template v-else>
+              <div class="ml-3">
+                {{ cell.column.columnDef.header }}:
+              </div>
+              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+            </template>
           </div>
-          <div v-else class="flex justify-end border-b">
+          <div v-else class="flex justify-end">
             <FlexRender
               :render="cell.column.columnDef.cell"
               :props="cell.getContext()"

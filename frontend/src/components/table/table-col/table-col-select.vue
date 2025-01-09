@@ -57,7 +57,6 @@ const placeholder = computed(() => {
       v-model:open="isOpen"
       :name="`${props.kind}-${id}`"
       @update:model-value="(value) => {
-        console.log(value)
         handleUpdateValue(value)
         handleClose()
       }"
@@ -73,14 +72,14 @@ const placeholder = computed(() => {
           {{ placeholder }}
         </span>
       </SelectTrigger>
-      <SelectContent align="center" class="w-[--radix-select-trigger-width]">
+      <SelectContent align="center" class="w-[200px]">
         <SelectItem
           v-for="option in data.options"
           :key="option.value"
           :value="option.value"
           hide-indicator
         >
-          <Tag class="w-full" :class="option.class">
+          <Tag class="p-6 w-full" :class="option.class">
             {{ option.label }}
           </Tag>
         </SelectItem>

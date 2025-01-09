@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ROUTER_PATHS } from '@/lib/router/router-paths'
 import { useTitle } from '@vueuse/core'
+import { ComputerIcon, LibraryBigIcon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { SOCIAL_LINKS } from './constants/social-links'
 
@@ -33,10 +34,15 @@ onMounted(() => title.value = 'le-xot.ru')
             />
             <span class="button_text">{{ link.name }}</span>
           </a>
+          <router-link :to="ROUTER_PATHS.dbQueue" class="button" style="background-color: forestgreen;">
+            <LibraryBigIcon :size="32" />
+            Кладовка
+          </router-link>
+          <router-link :to="ROUTER_PATHS.pc" class="button" style="background-color: #ad882d;">
+            <ComputerIcon :size="32" />
+            Железки
+          </router-link>
         </div>
-        <router-link :to="ROUTER_PATHS.dbQueue" class="button button--large">
-          Кладовка Лешота
-        </router-link>
       </div>
     </div>
   </div>
@@ -107,7 +113,6 @@ button {
   gap: 2rem;
   fill: #ffffff;
   padding: 0.5rem 1rem;
-  background: #209852;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.025em;

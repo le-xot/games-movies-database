@@ -2,6 +2,7 @@
 import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
 import { hardware } from '@/pages/pc/constants/parts-links.ts'
 import { useTitle } from '@vueuse/core'
+import { Undo2Icon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 
 const title = useTitle()
@@ -31,9 +32,10 @@ onMounted(() => title.value = 'Железки Лешота')
       <div style="margin-top: 20px" class="buttons buttons--grid">
         <router-link
           class="button"
-          style="background-color: #209852"
-          :to="ROUTER_PATHS.db"
+          style="background-color: #209852; margin-top: 10px;"
+          :to="ROUTER_PATHS.home"
         >
+          <Undo2Icon :size="32" />
           Назад
         </router-link>
       </div>
@@ -58,7 +60,7 @@ onMounted(() => title.value = 'Железки Лешота')
 .button {
   width: 100%;
   max-width: 500px;
-  min-height: 36px;
+  min-height: 48px;
   color: white;
   text-decoration: none;
   display: flex;

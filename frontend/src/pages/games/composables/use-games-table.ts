@@ -7,19 +7,18 @@ import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { GameEntity } from '@/lib/api.ts'
 import { ColumnDef } from '@tanstack/vue-table'
+import { useLocalStorage } from '@vueuse/core'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, h, ref } from 'vue'
+import { computed, h } from 'vue'
 import { useGames } from './use-games'
-
-const COLUMN_WIDTH = 175
 
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const games = useGames()
   const dialog = useDialog()
 
-  const columnVisibility = ref<Record<string, boolean>>({
+  const columnVisibility = useLocalStorage<Record<string, boolean>>('gamesColumnVisibility', {
     title: true,
     person: true,
     status: true,
@@ -31,7 +30,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        size: 782,
+        size: isAdmin.value ? 55 : 60,
+        minSize: isAdmin.value ? 55 : 60,
+        maxSize: isAdmin.value ? 55 : 60,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
@@ -46,7 +48,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'person',
         header: 'Заказчик',
-        size: 256,
+        size: 20,
+        minSize: 20,
+        maxSize: 20,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
@@ -61,7 +66,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'status',
         header: 'Статус',
-        size: COLUMN_WIDTH,
+        size: 10,
+        minSize: 10,
+        maxSize: 10,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
@@ -79,7 +87,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       {
         accessorKey: 'grade',
         header: 'Оценка',
-        size: COLUMN_WIDTH,
+        size: 10,
+        minSize: 10,
+        maxSize: 10,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
@@ -98,7 +109,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
     if (isAdmin.value) {
       columns.unshift({
         accessorKey: 'id',
-        size: 52,
+        size: 5,
+        minSize: 5,
+        maxSize: 5,
+        enableResizing: false,
         header: () => {
           return h(DialogButton, {
             icon: CirclePlus,

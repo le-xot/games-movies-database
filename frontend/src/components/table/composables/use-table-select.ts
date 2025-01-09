@@ -17,27 +17,27 @@ export const statusTags: Record<
   [StatusesEnum.QUEUE]: {
     name: 'В очереди',
     description: 'заказ ждёт своего часа.',
-    class: 'bg-[#333333] border px-2.5 text-white/80',
+    class: 'bg-[#333333] border text-white/80',
   },
   [StatusesEnum.UNFINISHED]: {
     name: 'Нет концовки',
     description: 'игра не имеет концовки (титров или логического завершения сюжета).',
-    class: 'bg-[#28456c] border px-2.5 text-white/80',
+    class: 'bg-[#28456c] border text-white/80',
   },
   [StatusesEnum.DONE]: {
     name: 'Готово',
     description: 'игра выполнена, кинолента посмотрена.',
-    class: 'bg-[#2b593f] border px-2.5 text-white/80',
+    class: 'bg-[#2b593f] border text-white/80',
   },
   [StatusesEnum.PROGRESS]: {
     name: 'В процессе',
     description: 'заказ находится на стадии выполнения.',
-    class: 'bg-[#89632a] border px-2.5 text-white/80',
+    class: 'bg-[#89632a] border text-white/80',
   },
   [StatusesEnum.DROP]: {
     name: 'Дроп',
     description: 'заказ не будет закончен до конца.',
-    class: 'bg-[#6e3630] border px-2.5 text-white/80',
+    class: 'bg-[#6e3630] border text-white/80',
   },
 }
 
@@ -47,19 +47,19 @@ export const genreTags: Record<
 > = {
   [GenresEnum.MOVIE]: {
     name: 'Фильм',
-    class: 'bg-[#2b593f] border px-2.5 text-white/80',
+    class: 'bg-[#2b593f] border text-white/80',
   },
   [GenresEnum.SERIES]: {
     name: 'Сериал',
-    class: 'bg-[#28456c] border px-2.5 text-white/80',
+    class: 'bg-[#28456c] border text-white/80',
   },
   [GenresEnum.ANIME]: {
     name: 'Аниме',
-    class: 'bg-[#6e3630] text-white/80',
+    class: 'bg-[#6e3630] border text-white/80',
   },
   [GenresEnum.CARTOON]: {
     name: 'Мультфильм',
-    class: 'bg-[#89632a] border px-2.5 text-white/80',
+    class: 'bg-[#89632a] border text-white/80',
   },
 }
 
@@ -71,25 +71,25 @@ export const gradeTags: Record<
     name: '🔥',
     label: 'Рекомендую',
     description: 'надеюсь, что это понравится всем. Произведения заслуживающие внимания.',
-    class: 'bg-[#28456c] border px-2.5',
+    class: 'bg-[#28456c] border',
   },
   [GradeEnum.LIKE]: {
     name: '👍',
     label: 'Понравилось',
     description: 'мне, но может не понравится вам. Больше вкусовщина.',
-    class: 'bg-[#2b593f] border px-2.5',
+    class: 'bg-[#2b593f] border',
   },
   [GradeEnum.BEER]: {
     name: '🍺',
     label: 'Под пивко',
     description: 'пойдёт. Больше чем на один разочек не тянет, как не старайся.',
-    class: 'bg-[#89632a] border px-2.5',
+    class: 'bg-[#89632a] border',
   },
   [GradeEnum.DISLIKE]: {
     name: '👎',
     label: 'Не рекомендую',
     description: 'и считаю это пустой тратой времени и недостойным проведением досуга.',
-    class: 'bg-[#6e3630] border px-2.5',
+    class: 'bg-[#6e3630] border',
   },
 }
 

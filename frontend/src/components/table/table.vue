@@ -50,7 +50,7 @@ const table = useVueTable({
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :style="{ width: `${header.column.getSize()}px` }"
+            :style="{ width: `${header.column.getSize()}%` }"
           >
             <FlexRender
               v-if="!header.isPlaceholder"
@@ -81,7 +81,7 @@ const table = useVueTable({
             v-if="cell.column.getIsVisible()"
             :render="cell.column.columnDef.cell"
             :props="cell.getContext()"
-            :style="{ width: cell.column.getSize() === 0 ? '1000px' : `${cell.column.getSize()}px` }"
+            :style="{ width: `${cell.column.getSize()}%` }"
           />
         </template>
       </Virtualizer>

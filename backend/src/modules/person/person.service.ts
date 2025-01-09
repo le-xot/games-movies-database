@@ -49,6 +49,8 @@ export class PersonServices {
   }
 
   async getAllPersons(): Promise<PersonEntity[]> {
-    return this.prisma.person.findMany()
+    return this.prisma.person.findMany({
+      orderBy: { name: 'desc' },
+    })
   }
 }

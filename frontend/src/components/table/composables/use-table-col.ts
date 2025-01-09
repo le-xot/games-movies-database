@@ -1,7 +1,7 @@
-import { useUser } from '@src/composables/use-user'
+import { useUser } from '@/composables/use-user'
 import { useMagicKeys } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { nextTick, Ref, ref, unref, watch } from 'vue'
+import { Ref, ref, unref, watch } from 'vue'
 
 export function useTableCol<T>(
   initialValue: Ref<T>,
@@ -10,7 +10,7 @@ export function useTableCol<T>(
   const { isAdmin } = storeToRefs(useUser())
 
   const isEdit = ref(false)
-  const inputRef = ref<HTMLInputElement | null>(null)
+  const inputRef = ref<any>(null)
   const inputValue = ref(unref(initialValue))
 
   function updateValue(value: T) {
@@ -20,7 +20,6 @@ export function useTableCol<T>(
   function handleOpen() {
     if (!isAdmin.value) return
     isEdit.value = true
-    nextTick(() => inputRef.value?.focus())
   }
 
   function handleClose() {
@@ -30,7 +29,12 @@ export function useTableCol<T>(
   function handleChange(event: Event) {
     if (!isEdit.value && event.type === 'blur') return
     isEdit.value = false
+    if (initialValue.value === inputValue.value) return
+    emits('update', inputValue.value)
+  }
 
+  function handleUpdateValue(event: string | number | null) {
+    inputValue.value = event
     if (initialValue.value === inputValue.value) return
     emits('update', inputValue.value)
   }
@@ -46,5 +50,6 @@ export function useTableCol<T>(
     handleOpen,
     handleClose,
     handleChange,
+    handleUpdateValue,
   }
 }

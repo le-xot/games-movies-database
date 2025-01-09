@@ -1,7 +1,7 @@
+import { useTableSearch } from '@/components/table/composables/use-table-search'
+import { useApi } from '@/composables/use-api'
+import { type GameEntity, type PatchGameDTO, StatusesEnum } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
-import { useTableSearch } from '@src/components/table/composables/use-table-search'
-import { useApi } from '@src/composables/use-api'
-import { type GameEntity, type PatchGameDTO, StatusesEnum } from '@src/libs/api'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
 

@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import LayoutBody from '@src/layout/db/layout-body.vue'
-import LayoutHeader from '@src/layout/db/layout-header.vue'
-import { darkTheme, NConfigProvider, NMessageProvider } from 'naive-ui'
+import Dialog from '@/components/dialog/dialog.vue'
+import LayoutBody from '@/layout/db/layout-body.vue'
+import LayoutHeader from '@/layout/db/layout-header.vue'
 </script>
 
 <template>
-  <NConfigProvider :theme="darkTheme" class="layout-database">
-    <NMessageProvider>
-      <LayoutHeader />
-      <LayoutBody />
-    </NMessageProvider>
-  </NConfigProvider>
+  <div class="layout-database">
+    <Dialog />
+    <LayoutHeader />
+    <LayoutBody />
+  </div>
 </template>
 
 <style scoped>

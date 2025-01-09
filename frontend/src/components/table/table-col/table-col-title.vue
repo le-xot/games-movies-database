@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NInput } from 'naive-ui'
+import { Input } from '@/components/ui/input'
+import { TableCell } from '@/components/ui/table'
+import { useBreakpoints } from '@/composables/use-breakpoints'
 import { toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
-import TableCol from './table-col.vue'
 
 type TitleType = string | undefined
 
@@ -10,30 +11,29 @@ const props = defineProps<{ title: TitleType }>()
 const emits = defineEmits<{ update: [TitleType] }>()
 const title = toRef(props, 'title')
 
+const breakpoints = useBreakpoints()
+
 const {
   isEdit,
-  inputRef,
   inputValue,
-  updateValue,
   handleChange,
   handleOpen,
+  inputRef,
 } = useTableCol<TitleType>(title, emits)
 </script>
 
 <template>
-  <TableCol @click="handleOpen">
-    <NInput
+  <TableCell @click="handleOpen">
+    <Input
       v-if="isEdit"
       ref="inputRef"
-      v-model:value="inputValue"
-      class="input"
-      size="medium"
-      @update-value="updateValue"
+      v-model="inputValue"
+      class="h-8 text-left"
       @blur="handleChange"
       @keydown.enter="handleChange"
     />
-    <template v-else>
-      {{ inputValue }}
-    </template>
-  </TableCol>
+    <span v-else :class="{ 'pl-2': breakpoints.isDesktop }">
+      {{ inputValue || 'Нет данных' }}
+    </span>
+  </TableCell>
 </template>

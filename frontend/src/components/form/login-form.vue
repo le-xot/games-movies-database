@@ -1,106 +1,93 @@
 <script setup lang="ts">
-import { useUser } from '@src/composables/use-user.ts'
-import {
-  FormInst,
-  FormRules,
-  NButton,
-  NCard,
-  NForm,
-  NFormItem,
-  NInput,
-  NModal,
-  useMessage,
-} from 'naive-ui'
-import { ref } from 'vue'
+import { useToast } from '@/components/ui/toast/use-toast'
+import { useUser } from '@/composables/use-user'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm } from 'vee-validate'
+import * as z from 'zod'
+import { Button } from '../ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogTrigger } from '../ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
+import { Input } from '../ui/input'
 
+const { toast } = useToast()
 const user = useUser()
-const showModal = ref(false)
-const formRef = ref<FormInst | null>(null)
-const message = useMessage()
-const formValue = ref({
-  username: '',
-  password: '',
+
+const formSchema = toTypedSchema(z.object({
+  username: z.string().min(1, 'Логин должна содержать минимум 1 символ'),
+  password: z.string().min(1, 'Пароль должен содержать минимум 1 символ'),
+}))
+
+const form = useForm({
+  validationSchema: formSchema,
 })
 
-const rules: FormRules = {
-  username: {
-    required: true,
-    message: 'Please input your username',
-    trigger: 'blur',
-  },
-  password: {
-    required: true,
-    message: 'Please input your password',
-    trigger: ['input'],
-  },
-}
-
-async function saveCookie() {
+const onSubmit = form.handleSubmit(async (values) => {
   try {
-    await formRef.value?.validate()
-    await user.userLogin(formValue.value)
-    showModal.value = false
-    message.success('Login success')
+    await user.userLogin(values)
+    toast({
+      title: 'Successful login',
+      duration: 1000,
+    })
   } catch {
-    message.error('Invalid')
+    toast({
+      title: `Invalid login data`,
+      duration: 1000,
+    })
   }
-}
+})
 
-async function deleteCookie() {
+async function logout() {
   try {
     await user.userLogout()
-    message.success('Logout success')
+    toast({
+      title: 'Successful logout',
+      duration: 1000,
+    })
   } catch {
-    message.error('Logout error')
+    toast({
+      title: `Logout error`,
+      duration: 1000,
+    })
   }
 }
 </script>
 
 <template>
-  <NButton
-    v-if="user.isLoggedIn"
-    quaternary
-    type="error"
-    @click="deleteCookie"
-  >
-    Выйти
-  </NButton>
-  <NButton
-    v-else
-    quaternary
-    type="primary"
-    @click="showModal = true"
-  >
-    Войти
-  </NButton>
-  <NModal v-model:show="showModal">
-    <NCard
-      style="width: 600px"
-      title="Вход"
-      size="huge"
-      role="dialog"
-      aria-modal="true"
-    >
-      <NForm
-        ref="formRef"
-        inline
-        :label-width="80"
-        :model="formValue"
-        :rules="rules"
-        @submit.prevent="saveCookie"
-      >
-        <NFormItem label="Логин" path="username">
-          <NInput v-model:value="formValue.username" placeholder="Username" />
-        </NFormItem>
-        <NFormItem label="Пароль" path="password">
-          <NInput v-model:value="formValue.password" type="password" placeholder="Password" />
-        </NFormItem>
-        <NFormItem>
-          <NButton attr-type="submit">
-            Войти
-          </NButton>
-        </NFormItem>
-      </NForm>
-    </NCard>
-  </NModal>
+  <Button v-if="user.isLoggedIn" variant="destructive" @click="logout">
+    Выйти
+  </Button>
+  <Dialog v-else>
+    <DialogTrigger as-child>
+      <Button>
+        Войти
+      </Button>
+    </DialogTrigger>
+    <DialogContent class="sm:max-w-[425px]">
+      <form @submit="onSubmit">
+        <FormField v-slot="{ componentField }" name="username">
+          <FormItem>
+            <FormLabel>Логин</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Логин" v-bind="componentField" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <FormField v-slot="{ componentField }" name="password">
+          <FormItem>
+            <FormLabel>Пароль</FormLabel>
+            <FormControl>
+              <Input type="password" placeholder="Пароль" v-bind="componentField" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <DialogFooter class="mt-4">
+          <Button type="submit">
+            Login
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  </Dialog>
 </template>

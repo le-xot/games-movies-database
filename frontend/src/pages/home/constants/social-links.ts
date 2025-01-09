@@ -16,6 +16,18 @@ interface SocialLink {
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {
+    name: 'Steam',
+    icon: SteamIcon,
+    color: '#000000',
+    url: 'https://steamcommunity.com/id/le_xot',
+  },
+  {
+    name: 'GitHub',
+    icon: GitHubIcon,
+    color: '#181717',
+    url: 'https://github.com/le-xot',
+  },
+  {
     name: 'Telegram',
     icon: TelegramIcon,
     color: '#26A5E4',
@@ -38,17 +50,5 @@ export const SOCIAL_LINKS: SocialLink[] = [
     icon: YouTubeIcon,
     color: '#FF0000',
     url: 'https://www.youtube.com/@le_xot',
-  },
-  {
-    name: 'Steam',
-    icon: SteamIcon,
-    color: '#000000',
-    url: 'https://steamcommunity.com/id/le_xot',
-  },
-  {
-    name: 'GitHub',
-    icon: GitHubIcon,
-    color: '#181717',
-    url: 'https://github.com/le-xot',
   },
 ]

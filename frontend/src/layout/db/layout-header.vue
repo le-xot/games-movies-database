@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import LoginForm from '@src/components/form/login-form.vue'
-import { useTitle } from '@src/composables/use-title'
-import { ROUTER_PATHS } from '@src/libs/router/router-paths.ts'
-import { NButton } from 'naive-ui'
+import LoginForm from '@/components/form/login-form.vue'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { useTitle } from '@/composables/use-title'
+import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
+import { HouseIcon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
@@ -10,11 +12,10 @@ const route = useRoute()
 const { updateTitle } = useTitle()
 
 const routes = [
-  { name: 'Главная', path: ROUTER_PATHS.home },
+  { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
   { name: 'Кино', path: ROUTER_PATHS.dbVideos },
-  { name: 'Железки', path: ROUTER_PATHS.pc },
 ]
 
 onMounted(() => {
@@ -30,35 +31,37 @@ onMounted(() => {
         <div class="header-nav">
           <RouterLink
             v-for="headerRoute of routes"
-            v-slot="{ isActive, href, navigate }"
+            v-slot="{ href, navigate }"
             :key="headerRoute.name"
             custom
             :to="headerRoute.path"
           >
-            <NButton
-              tag="a"
+            <Button
               :href="href"
-              secondary
-              :type="isActive ? 'success' : 'default'"
+              variant="secondary"
+              :class="{ active: route.path === headerRoute.path }"
               @click="(event) => {
                 navigate(event)
                 updateTitle(headerRoute.name)
               }"
             >
-              {{ headerRoute.name }}
-            </NButton>
+              <component :is="headerRoute.icon" v-if="headerRoute.icon" />
+              <template v-else>
+                {{ headerRoute.name }}
+              </template>
+            </Button>
           </RouterLink>
         </div>
       </div>
       <LoginForm />
     </div>
   </div>
+  <Separator />
 </template>
 
 <style scoped>
 .header {
   display: flex;
-  background-color: var(--header-color);
 }
 
 .header-container {
@@ -75,5 +78,9 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+}
+
+.active {
+  background-color: hsla(var(--primary-foreground));
 }
 </style>

@@ -1,7 +1,7 @@
+import { useApi } from '@/composables/use-api'
+import { PersonEntity } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
-import { useApi } from '@src/composables/use-api'
 import { refDebounced } from '@vueuse/core'
-import { SelectBaseOption } from 'naive-ui/es/select/src/interface'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
@@ -30,6 +30,14 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     onSettled: () => refetchPersons(),
   })
 
+  const { mutateAsync: deletePersonById } = useMutation({
+    key: [PERSONS_QUERY_KEY, 'delete'],
+    mutation: async (id: number) => {
+      return await api.persons.personControllerDeletePersonById(id)
+    },
+    onSettled: () => refetchPersons(),
+  })
+
   const patchQueue = ref<{ id: number, data: { name?: string, color?: string } } | null>(null)
   const debouncedPatchQueue = refDebounced(patchQueue, 200)
 
@@ -51,31 +59,16 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     patchQueue.value = { id, data }
   }
 
-  const personOptions = computed<SelectBaseOption[]>(() => {
+  const personOptions = computed<PersonEntity[]>(() => {
     if (!persons.value) return []
     return persons.value.map((item) => {
       return {
-        value: item.id,
-        label: item.name,
-        style: { color: '#ffffff', backgroundColor: item.color },
+        id: item.id,
+        name: item.name,
+        color: item.color,
       }
     })
   })
-
-  async function updateSelectOrCreatePerson(
-    person: string | number | undefined,
-  ) {
-    if (!person) return
-    const personId = person
-
-    // Это костыль для NaiveUI. Идёт несовпадение в NSelect типа string и number
-    if (typeof personId === 'string') {
-      const { data } = await createPerson({ name: personId })
-      return data.id
-    } else {
-      return personId
-    }
-  }
 
   return {
     isLoading,
@@ -83,7 +76,7 @@ export const useTablePersons = defineStore('use-table-persons', () => {
     personOptions,
     createPerson,
     updatePerson,
-    updateSelectOrCreatePerson,
+    deletePersonById,
   }
 })
 

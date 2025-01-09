@@ -1,65 +1,75 @@
-import { useTableFilters } from '@src/components/table/composables/use-table-filters'
-import TableColPerson from '@src/components/table/table-col/table-col-person.vue'
-import TableColSelect from '@src/components/table/table-col/table-col-select.vue'
-import TableColTitle from '@src/components/table/table-col/table-col-title.vue'
-import TableHeaderButton from '@src/components/table/table-header/table-header-button.vue'
-import TableHeaderButtonConfirm from '@src/components/table/table-header/table-header-button-confirm.vue'
-import { useUser } from '@src/composables/use-user'
-import { GameEntity } from '@src/libs/api'
+import { useDialog } from '@/components/dialog/composables/use-dialog'
+import DialogButton from '@/components/dialog/dialog-button.vue'
+import TableColPerson from '@/components/table/table-col/table-col-person.vue'
+import TableColSelect from '@/components/table/table-col/table-col-select.vue'
+import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import { TableCell } from '@/components/ui/table'
+import { useUser } from '@/composables/use-user'
+import { GameEntity } from '@/lib/api.ts'
+import { ColumnDef } from '@tanstack/vue-table'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
-import { DataTableColumns } from 'naive-ui'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h, ref } from 'vue'
 import { useGames } from './use-games'
 
+const COLUMN_WIDTH = 175
+
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const games = useGames()
-  const filters = useTableFilters()
+  const dialog = useDialog()
 
-  const visibleColumns = ref(new Set(['id', 'title', 'person', 'status', 'grade']))
+  const columnVisibility = ref<Record<string, boolean>>({
+    title: true,
+    person: true,
+    status: true,
+    grade: true,
+  })
 
   const tableColumns = computed(() => {
-    const allColumns: DataTableColumns<GameEntity> = [
+    const columns: ColumnDef<GameEntity>[] = [
       {
-        title: 'Название',
-        key: 'title',
-        align: 'center',
-        render(row) {
+        accessorKey: 'title',
+        header: 'Название',
+        size: 782,
+        cell: ({ row }) => {
           return h(TableColTitle, {
-            key: `title-${row.id}`,
-            title: row.title,
+            key: `title-${row.original.id}`,
+            title: row.original.title,
             onUpdate: (title) => games.updateGame({
-              id: row.id,
+              id: row.original.id,
               data: { title },
             }),
           })
         },
       },
       {
-        title: 'Заказчик',
-        key: 'person',
-        align: 'center',
-        width: 300,
-        render(row) {
+        accessorKey: 'person',
+        header: 'Заказчик',
+        size: 256,
+        cell: ({ row }) => {
           return h(TableColPerson, {
-            key: `person-${row.id}`,
-            personId: row.person?.id,
-            onUpdate: (personId) => games.updateGame({ id: row.id, data: { personId } }),
+            key: `person-${row.original.id}`,
+            personId: row.original.person?.id,
+            onUpdate: (personId) => games.updateGame({
+              id: row.original.id,
+              data: { personId },
+            }),
           })
         },
       },
       {
-        ...filters.statusFilters,
-        width: 200,
-        render(row) {
+        accessorKey: 'status',
+        header: 'Статус',
+        size: COLUMN_WIDTH,
+        cell: ({ row }) => {
           return h(TableColSelect, {
-            key: `status-${row.id}`,
-            value: row.status,
+            key: `status-${row.original.id}`,
+            value: row.original.status,
             kind: 'status',
             onUpdate: (value) => {
               games.updateGame({
-                id: row.id,
+                id: row.original.id,
                 data: { status: value },
               })
             },
@@ -67,16 +77,17 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         },
       },
       {
-        ...filters.gradeFilters,
-        width: 200,
-        render(row) {
+        accessorKey: 'grade',
+        header: 'Оценка',
+        size: COLUMN_WIDTH,
+        cell: ({ row }) => {
           return h(TableColSelect, {
-            key: `grade-${row.id}`,
-            value: row.grade,
+            key: `grade-${row.original.id}`,
+            value: row.original.grade,
             kind: 'grade',
             onUpdate: (value) => {
               games.updateGame({
-                id: row.id,
+                id: row.original.id,
                 data: { grade: value },
               })
             },
@@ -84,40 +95,41 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         },
       },
     ]
-
     if (isAdmin.value) {
-      allColumns.unshift({
-        key: 'id',
-        align: 'center',
-        width: 50,
-        title() {
-          return h(TableHeaderButton, {
+      columns.unshift({
+        accessorKey: 'id',
+        size: 52,
+        header: () => {
+          return h(DialogButton, {
             icon: CirclePlus,
-            onClick: () => games.createGame(),
+            onClick: () => dialog.openDialog({
+              title: `Создать игру?`,
+              description: '',
+              onSubmit: () => games.createGame(),
+            }),
           })
         },
-        render(row) {
-          return h(TableHeaderButtonConfirm, {
-            key: `id-${row.id}`,
+        cell: ({ row }) => {
+          return h(TableCell, {}, { default: () => h(DialogButton, {
+            key: `id-${row.original.id}`,
             icon: Eraser,
-            onClick: () => games.deleteGame(row.id),
-          })
+            onClick: () => dialog.openDialog({
+              title: `Удалить игру?`,
+              description: `Вы уверены, что хотите удалить "${row.original.title}"?`,
+              onSubmit: () => games.deleteGame(row.original.id),
+            }),
+          }) })
         },
       })
     }
 
-    return allColumns.filter((col) => {
-      if ('key' in col && col.key) {
-        return visibleColumns.value.has(col.key as string)
-      }
-      return true
-    })
+    return columns
   })
 
   return {
     tableColumns,
     search: games.search,
-    visibleColumns,
+    columnVisibility,
   }
 })
 

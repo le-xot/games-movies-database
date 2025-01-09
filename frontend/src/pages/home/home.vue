@@ -6,7 +6,7 @@ import { onMounted } from 'vue'
 import { SOCIAL_LINKS } from './constants/social-links'
 
 const title = useTitle()
-onMounted(() => title.value = 'le-xot.ru')
+onMounted(() => title.value = 'Лешот.ру')
 </script>
 
 <template>

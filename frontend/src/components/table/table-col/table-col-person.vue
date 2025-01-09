@@ -12,7 +12,6 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableCell } from '@/components/ui/table'
-import { useBreakpoints } from '@/composables/use-breakpoints'
 import { useUser } from '@/composables/use-user.ts'
 import { PersonEntity } from '@/lib/api'
 import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
@@ -45,7 +44,6 @@ watch(isEdit, (value) => {
   isOpenDropdown.value = false
 })
 
-const breakpoints = useBreakpoints()
 const { isAdmin } = storeToRefs(useUser())
 
 const searchValue = ref('')

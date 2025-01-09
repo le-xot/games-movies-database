@@ -107,8 +107,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           variant="outline"
           role="combobox"
           :aria-expanded="true"
-          class="cursor-default relative h-8 flex items-center text-xs font-semibold !opacity-100"
-          :class="[breakpoints.isDesktop ? 'w-[240px]' : 'w-full']"
+          class="w-full cursor-default relative h-8 flex items-center text-xs font-semibold !opacity-100"
           :style="{ backgroundColor: currentPerson?.color }"
           :disabled="!isAdmin"
         >

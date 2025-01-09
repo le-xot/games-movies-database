@@ -7,19 +7,18 @@ import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { VideoEntity } from '@/lib/api.ts'
 import { ColumnDef } from '@tanstack/vue-table'
+import { useLocalStorage } from '@vueuse/core'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, h, ref } from 'vue'
+import { computed, h } from 'vue'
 import { useVideos } from './use-videos'
-
-const COLUMN_WIDTH = 175
 
 export const useVideosTable = defineStore('videos/use-videos-table', () => {
   const { isAdmin } = storeToRefs(useUser())
   const videos = useVideos()
   const dialog = useDialog()
 
-  const columnVisibility = ref<Record<string, boolean>>({
+  const columnVisibility = useLocalStorage<Record<string, boolean>>('videosColumnVisibility', {
     title: true,
     genre: true,
     person: true,
@@ -32,7 +31,10 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        size: 607,
+        size: isAdmin.value ? 45 : 50,
+        minSize: isAdmin.value ? 45 : 50,
+        maxSize: isAdmin.value ? 45 : 50,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
@@ -47,7 +49,10 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'genre',
         header: 'Жанр',
-        size: COLUMN_WIDTH,
+        size: 10,
+        minSize: 10,
+        maxSize: 10,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `genre-${row.original.id}`,
@@ -65,7 +70,10 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'person',
         header: 'Заказчик',
-        size: 256,
+        size: 20,
+        minSize: 20,
+        maxSize: 20,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
@@ -80,7 +88,10 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'status',
         header: 'Статус',
-        size: COLUMN_WIDTH,
+        size: 10,
+        minSize: 10,
+        maxSize: 10,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
@@ -98,7 +109,10 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'grade',
         header: 'Оценка',
-        size: COLUMN_WIDTH,
+        size: 10,
+        minSize: 10,
+        maxSize: 10,
+        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
@@ -117,7 +131,10 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
     if (isAdmin.value) {
       columns.unshift({
         accessorKey: 'id',
-        size: 52,
+        size: 5,
+        minSize: 5,
+        maxSize: 5,
+        enableResizing: false,
         header: () => {
           return h(DialogButton, {
             icon: CirclePlus,

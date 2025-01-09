@@ -28,7 +28,7 @@ const {
       v-if="isEdit"
       ref="inputRef"
       v-model="inputValue"
-      class="h-8 text-left"
+      class="h-8 text-left w-full"
       @blur="handleChange"
       @keydown.enter="handleChange"
     />

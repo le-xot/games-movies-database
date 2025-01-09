@@ -62,7 +62,7 @@ const placeholder = computed(() => {
       }"
     >
       <SelectTrigger
-        class="min-w-28"
+        class="min-w-32"
         :class="[data.tag?.class]"
         as-child
         :disabled="!isAdmin"
@@ -72,7 +72,7 @@ const placeholder = computed(() => {
           {{ placeholder }}
         </span>
       </SelectTrigger>
-      <SelectContent align="center" class="w-[200px]">
+      <SelectContent align="center" class="w-full">
         <SelectItem
           v-for="option in data.options"
           :key="option.value"
@@ -85,7 +85,7 @@ const placeholder = computed(() => {
         </SelectItem>
       </SelectContent>
     </Select>
-    <Tag v-else-if="!data.tag" class="border border-input w-full">
+    <Tag v-else-if="!data.tag" class="min-w-32 w-full border border-input">
       {{ placeholder }}
     </Tag>
   </TableCell>

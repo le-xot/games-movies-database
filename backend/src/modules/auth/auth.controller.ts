@@ -43,6 +43,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<string> {
     const { username, password } = userData
+    console.log('username', username, 'password', password)
     const token = await this.authService.login(username, password)
     response.cookie('token', token, {
       httpOnly: true,

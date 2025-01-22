@@ -19,9 +19,9 @@ export interface CreateUserDTO {
 }
 
 export interface LoginDTO {
-  /** @example "Joe" */
+  /** @example "admin" */
   username: string;
-  /** @example "Doe" */
+  /** @example "secret" */
   password: string;
 }
 
@@ -149,6 +149,16 @@ export interface CreateGameDTO {
   grade?: string;
 }
 
+export interface GameEntity {
+  id: number;
+  title: string;
+  person: PersonEntity;
+  personId: number;
+  type: TypesEnum;
+  status: StatusesEnum;
+  grade: GradeEnum;
+}
+
 export interface PatchGameDTO {
   /** @example "Dota 2" */
   title?: string;
@@ -160,16 +170,6 @@ export interface PatchGameDTO {
   status?: string;
   /** @example "DISLIKE" */
   grade?: string;
-}
-
-export interface GameEntity {
-  id: number;
-  title: string;
-  person: PersonEntity;
-  personId: number;
-  type: TypesEnum;
-  status: StatusesEnum;
-  grade: GradeEnum;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -756,11 +756,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/games
      */
     gameControllerCreateGame: (data: CreateGameDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GameEntity, any>({
         path: `/games`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -771,10 +772,29 @@ export class Api<SecurityDataType extends unknown> {
      * @name GameControllerGetAllGames
      * @request GET:/games
      */
-    gameControllerGetAllGames: (params: RequestParams = {}) =>
+    gameControllerGetAllGames: (
+      query?: {
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+        /** @example "minecraft" */
+        title?: string;
+        /** @example 1 */
+        personId?: number;
+        /** @example "FREE" */
+        type?: string;
+        /** @example "PROGRESS" */
+        status?: string;
+        /** @example "LIKE" */
+        grade?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.http.request<GameEntity[], any>({
         path: `/games`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -787,9 +807,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/games/{id}
      */
     gameControllerFindGameById: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GameEntity, void>({
         path: `/games/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -801,11 +822,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request PATCH:/games/{id}
      */
     gameControllerPatchGame: (id: number, data: PatchGameDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GameEntity, any>({
         path: `/games/${id}`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 

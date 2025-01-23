@@ -9,14 +9,12 @@
  * ---------------------------------------------------------------
  */
 
-export interface UpdateUserDTO {
-  /** @example 1 */
-  id: number;
+export interface UpsertUserDTO {
   /** @example "NotJoe" */
-  username: string;
+  login: string;
   /** @example "NotDoe" */
-  password: string;
-  /** @example "ADMIN" */
+  twitchId: string;
+  /** @example "USER" */
   role: string;
 }
 
@@ -418,13 +416,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerUpdateUser
-     * @request PATCH:/users
+     * @name UserControllerCreateOrUpdateUser
+     * @request POST:/users
      */
-    userControllerUpdateUser: (data: UpdateUserDTO, params: RequestParams = {}) =>
+    userControllerCreateOrUpdateUser: (data: UpsertUserDTO, params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/users`,
-        method: "PATCH",
+        method: "POST",
         body: data,
         type: ContentType.Json,
         ...params,
@@ -442,99 +440,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/users`,
         method: "GET",
         format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerDeleteUser
-     * @request DELETE:/users/{id}
-     */
-    userControllerDeleteUser: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/users/${id}`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetInfo
-     * @request GET:/users/info
-     */
-    userControllerGetInfo: (params: RequestParams = {}) =>
-      this.http.request<UserEntity, any>({
-        path: `/users/info`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-  };
-  admin = {
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerFindAll
-     * @request GET:/admin/users
-     */
-    adminControllerFindAll: (params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/admin/users`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerDeleteAll
-     * @request DELETE:/admin/users
-     */
-    adminControllerDeleteAll: (params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/admin/users`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerFindOne
-     * @request GET:/admin/users/{username}
-     */
-    adminControllerFindOne: (username: string, params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/admin/users/${username}`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerDeleteUser
-     * @request DELETE:/admin/users/{username}
-     */
-    adminControllerDeleteUser: (
-      username: string,
-      query: {
-        username: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, void>({
-        path: `/admin/users/${username}`,
-        method: "DELETE",
-        query: query,
         ...params,
       }),
   };

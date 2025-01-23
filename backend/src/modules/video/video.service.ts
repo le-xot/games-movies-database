@@ -46,6 +46,8 @@ export class VideoServices {
       genre?: PrismaGenres
       grade?: PrismaGrades
     },
+    orderBy?: 'title' | 'id',
+    direction?: 'asc' | 'desc',
   ): Promise<{ videos: VideoEntity[], total: number }> {
     const skip = (page - 1) * limit
 
@@ -84,7 +86,7 @@ export class VideoServices {
       where: Object.keys(where).length > 0 ? where : undefined,
       include: { person: true },
       orderBy: {
-        id: 'desc',
+        [orderBy || 'id']: direction || 'asc',
       },
       skip,
       take: limit,

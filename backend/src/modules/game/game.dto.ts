@@ -88,4 +88,12 @@ export class GetGameDTO {
   @ApiProperty({ example: $Enums.PrismaGrades.LIKE, required: false })
   @IsOptional()
   grade?: $Enums.PrismaGrades
+
+  @ApiProperty({ example: 'id', required: false })
+  @IsOptional()
+  orderBy?: 'id' | 'title'
+
+  @ApiProperty({ example: 'asc', required: false })
+  @IsOptional()
+  direction?: 'asc' | 'desc'
 }

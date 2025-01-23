@@ -83,21 +83,6 @@ export interface CreateVideoDTO {
   grade?: string;
 }
 
-export interface PatchVideoDTO {
-  /** @example "Боб строитель" */
-  title?: string;
-  /** @example 1 */
-  personId?: number;
-  /** @example "FREE" */
-  type?: string;
-  /** @example "DONE" */
-  status?: string;
-  /** @example "MOVIE" */
-  genre?: string;
-  /** @example "DISLIKE" */
-  grade?: string;
-}
-
 export enum TypesEnum {
   PAID = "PAID",
   FREE = "FREE",
@@ -134,6 +119,21 @@ export interface VideoEntity {
   status: StatusesEnum;
   genre: GenresEnum;
   grade: GradeEnum;
+}
+
+export interface PatchVideoDTO {
+  /** @example "Боб строитель" */
+  title?: string;
+  /** @example 1 */
+  personId?: number;
+  /** @example "FREE" */
+  type?: string;
+  /** @example "DONE" */
+  status?: string;
+  /** @example "MOVIE" */
+  genre?: string;
+  /** @example "DISLIKE" */
+  grade?: string;
 }
 
 export interface CreateGameDTO {
@@ -680,11 +680,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/videos
      */
     videoControllerCreateVideo: (data: CreateVideoDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<VideoEntity, any>({
         path: `/videos`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -695,10 +696,35 @@ export class Api<SecurityDataType extends unknown> {
      * @name VideoControllerGetAllVideos
      * @request GET:/videos
      */
-    videoControllerGetAllVideos: (params: RequestParams = {}) =>
+    videoControllerGetAllVideos: (
+      query?: {
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+        /** @example "Мадагаскар" */
+        title?: string;
+        /** @example 1 */
+        personId?: number;
+        /** @example "FREE" */
+        type?: string;
+        /** @example "PROGRESS" */
+        status?: string;
+        /** @example "CARTOON" */
+        genre?: string;
+        /** @example "LIKE" */
+        grade?: string;
+        /** @example "id" */
+        orderBy?: string;
+        /** @example "asc" */
+        direction?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.http.request<VideoEntity[], any>({
         path: `/videos`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -711,9 +737,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/videos/{id}
      */
     videoControllerFindVideoById: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<VideoEntity, void>({
         path: `/videos/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -725,11 +752,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request PATCH:/videos/{id}
      */
     videoControllerPatchVideo: (id: number, data: PatchVideoDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<VideoEntity, any>({
         path: `/videos/${id}`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -788,6 +816,10 @@ export class Api<SecurityDataType extends unknown> {
         status?: string;
         /** @example "LIKE" */
         grade?: string;
+        /** @example "id" */
+        orderBy?: string;
+        /** @example "asc" */
+        direction?: string;
       },
       params: RequestParams = {},
     ) =>

@@ -62,8 +62,8 @@ export class VideoController {
   @Get()
   @ApiResponse({ status: 200, type: VideoEntity, isArray: true })
   async getAllVideos(@Query() query: GetVideoDTO): Promise<{ videos: VideoEntity[], total: number }> {
-    const { page, limit, ...filters } = query
-    const { videos, total } = await this.videoServices.getAllVideos(page, limit, filters)
+    const { page, limit, orderBy, direction, ...filters } = query
+    const { videos, total } = await this.videoServices.getAllVideos(page, limit, filters, orderBy, direction)
     return { videos, total }
   }
 }

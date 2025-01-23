@@ -62,8 +62,8 @@ export class GameController {
   @Get()
   @ApiResponse({ status: 200, type: GameEntity, isArray: true })
   async getAllGames(@Query() query: GetGameDTO): Promise<{ games: GameEntity[], total: number }> {
-    const { page, limit, ...filters } = query
-    const { games, total } = await this.gameServices.getAllGames(page, limit, filters)
+    const { page, limit, orderBy, direction, ...filters } = query
+    const { games, total } = await this.gameServices.getAllGames(page, limit, filters, orderBy, direction)
     return { games, total }
   }
 }

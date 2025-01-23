@@ -9,22 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-export interface CreateUserDTO {
-  /** @example "Joe" */
-  username: string;
-  /** @example "Doe" */
-  password: string;
-  /** @example "USER" */
-  role: string;
-}
-
-export interface LoginDTO {
-  /** @example "admin" */
-  username: string;
-  /** @example "secret" */
-  password: string;
-}
-
 export interface UpdateUserDTO {
   /** @example 1 */
   id: number;
@@ -43,8 +27,8 @@ export enum RolesEnum {
 
 export interface UserEntity {
   id: number;
-  username: string;
-  password: string;
+  login: string;
+  twitchId: string;
   role: RolesEnum;
 }
 
@@ -398,46 +382,34 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags auth
-     * @name AuthControllerRegisterUser
-     * @request POST:/auth/register
+     * @tags Auth
+     * @name AuthControllerTwitchAuth
+     * @request GET:/auth/twitch
      */
-    authControllerRegisterUser: (data: CreateUserDTO, params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/auth/register`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags auth
-     * @name AuthControllerLogin
-     * @request POST:/auth/login
-     */
-    authControllerLogin: (data: LoginDTO, params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/auth/login`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags auth
-     * @name AuthControllerLogout
-     * @request POST:/auth/logout
-     */
-    authControllerLogout: (params: RequestParams = {}) =>
+    authControllerTwitchAuth: (params: RequestParams = {}) =>
       this.http.request<void, any>({
-        path: `/auth/logout`,
-        method: "POST",
+        path: `/auth/twitch`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTwitchAuthCallback
+     * @request GET:/auth/twitch/callback
+     */
+    authControllerTwitchAuthCallback: (
+      query: {
+        code: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch/callback`,
+        method: "GET",
+        query: query,
         ...params,
       }),
   };

@@ -1,61 +1,35 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Res,
-} from '@nestjs/common'
-import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Response } from 'express'
-import { CreateUserDTO } from '../user/user.dto'
-import { LoginDTO } from './auth.dto'
+import { Controller, Get, Query, Res } from '@nestjs/common'
+import { PrismaRoles } from '@prisma/client'
+import { env } from '../../utils/enviroments'
+import { UserServices } from '../user/user.service'
 import { AuthService } from './auth.service'
 
-@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly userService: UserServices) {}
 
-  @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'User created' })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'User with username already exists',
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid role' })
-  async registerUser(
-    @Body()
-    userData: CreateUserDTO,
-  ): Promise<void> {
-    const { username, password, role } = userData
-    return this.authService.registerUser(username, password, role)
+  @Get('twitch')
+  async twitchAuth(@Res() res) {
+    const redirectUri = `https://id.twitch.tv/oauth2/authorize?`
+      + `client_id=${env.TWITCH_CLIENT_ID}&`
+      + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
+      + `response_type=code&`
+      + `scope=user:read:email`
+    res.redirect(redirectUri)
   }
 
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse({ status: HttpStatus.OK, description: 'User logged in' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid user' })
-  async login(
-    @Body()
-    userData: LoginDTO,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<string> {
-    const { username, password } = userData
-    console.log('username', username, 'password', password)
-    const token = await this.authService.login(username, password)
-    response.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    })
-    return token
-  }
+  @Get('twitch/callback')
+  async twitchAuthCallback(@Query('code') code: string, @Res() res) {
+    try {
+      const accessToken = await this.authService.getAccessToken(code)
+      const user = await this.authService.getTwitchUser(accessToken)
 
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse({ status: HttpStatus.OK, description: 'User logged out' })
-  async logout(@Res({ passthrough: true }) response: Response): Promise<void> {
-    response.clearCookie('token')
+      await this.userService.upsertUser(user.login, user.id, PrismaRoles.USER)
+
+      res.redirect('http://localhost:5173/db/queue')
+    } catch (error) {
+      console.error(error)
+      res.status(500).send('Authentication failed')
+    }
   }
 }

@@ -9,4 +9,8 @@ export const env = cleanEnv(process.env, {
   JWT_SECRET: str({}),
   APP_PORT: num({ default: 3000 }),
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
+  DEFAULT_ADMIN_PASSWORD: str({}),
+  TWITCH_CLIENT_ID: str({}),
+  TWITCH_CLIENT_SECRET: str({}),
+  TWITCH_CALLBACK_URL: str({}),
 })

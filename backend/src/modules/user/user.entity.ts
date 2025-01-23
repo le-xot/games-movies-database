@@ -7,10 +7,10 @@ export class UserEntity implements User {
   id: number
 
   @ApiProperty()
-  username: string
+  login: string
 
   @ApiProperty()
-  password: string
+  twitchId: string
 
   @ApiProperty({ enumName: RolesEnum, enum: $Enums.PrismaRoles })
   role: PrismaRoles

@@ -41,8 +41,10 @@ async function bootstrap() {
     )
   }
 
+  const allowedCors = ['http://localhost:3000', 'http://localhost:5173']
+
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: allowedCors,
     credentials: true,
   })
 

@@ -1,19 +1,17 @@
 const { PrismaClient } = require('@prisma/client')
 require('dotenv').config()
 const process = require('node:process')
-const bcrypt = require('bcrypt')
 
 const prisma = new PrismaClient()
 
 async function seed() {
-  const hashedPassword = await bcrypt.hash(process.env.DEFAULT_ADMIN_PASSWORD, 10)
   await prisma.user.upsert(
     {
-      where: { username: 'admin' },
+      where: { login: 'le_xot' },
       update: { },
       create: {
-        username: 'admin',
-        password: hashedPassword,
+        login: 'le_xot',
+        twitchId: '155644238',
         role: 'ADMIN',
       },
     },

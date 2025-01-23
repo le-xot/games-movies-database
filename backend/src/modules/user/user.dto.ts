@@ -1,33 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
-import { IsString } from 'class-validator'
+import { PrismaRoles } from '@prisma/client'
+import { IsOptional, IsString } from 'class-validator'
 
-export class CreateUserDTO {
-  @ApiProperty({ example: 'Joe' })
-  @IsString()
-  username: string
-
-  @ApiProperty({ example: 'Doe' })
-  @IsString()
-  password: string
-
-  @ApiProperty({ example: $Enums.PrismaRoles.USER })
-  role: $Enums.PrismaRoles
-}
-
-export class UpdateUserDTO {
+export class UserDTO {
   @ApiProperty({ example: 1 })
   @IsString()
   id: number
 
   @ApiProperty({ example: 'NotJoe' })
   @IsString()
-  username: string
+  login: string
 
   @ApiProperty({ example: 'NotDoe' })
   @IsString()
-  password: string
+  twitchId: string
 
-  @ApiProperty({ example: $Enums.PrismaRoles.ADMIN })
-  role: $Enums.PrismaRoles
+  @ApiProperty({ example: PrismaRoles.USER })
+  @IsOptional()
+  role: PrismaRoles = PrismaRoles.USER
+}
+
+export class UpsertUserDTO {
+  @ApiProperty({ example: 'NotJoe' })
+  @IsString()
+  login: string
+
+  @ApiProperty({ example: 'NotDoe' })
+  @IsString()
+  twitchId: string
+
+  @ApiProperty({ example: PrismaRoles.USER })
+  @IsOptional()
+  role: PrismaRoles = PrismaRoles.USER
 }

@@ -2,7 +2,6 @@ import { join } from 'node:path'
 import { Module } from '@nestjs/common'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { PrismaModule } from './database/prisma.module'
-import { AdminsModule } from './modules/admin/admin.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { GameModule } from './modules/game/game.module'
 import { PersonModule } from './modules/person/person.module'
@@ -15,7 +14,6 @@ import { VideoModule } from './modules/video/video.module'
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
     }),
     AuthModule,
-    AdminsModule,
     PersonModule,
     VideoModule,
     GameModule,

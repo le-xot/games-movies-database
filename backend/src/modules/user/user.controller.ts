@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PrismaRoles, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
@@ -12,13 +12,19 @@ import { UserServices } from './user.service'
 export class UserController {
   constructor(private userService: UserServices) {}
 
-  @Post()
+  @Post('/createOrUpdateUser')
   async createOrUpdateUser(@Body() user: UpsertUserDTO): Promise<UserDTO> {
     const { login, twitchId, role } = user
     return await this.userService.upsertUser(login, twitchId, role)
   }
 
-  @Get()
+  @Get('/getUserByTwitchId')
+  @ApiResponse({ status: HttpStatus.OK })
+  async getUserByTwitchId(twitchId: string): Promise<User> {
+    return await this.userService.getUserByTwitchId(twitchId)
+  }
+
+  @Get('/getAllUsers')
   @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<User[]> {

@@ -12,7 +12,7 @@ export class AuthController {
   async twitchAuth(@Res() res) {
     const redirectUri = `https://id.twitch.tv/oauth2/authorize?`
       + `client_id=${env.TWITCH_CLIENT_ID}&`
-      + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
+      + `redirect_uri=${env.TWITCH_CALLBACK_5173_URL}&`
       + `response_type=code&`
       + `scope=user:read:email`
     res.redirect(redirectUri)
@@ -24,7 +24,14 @@ export class AuthController {
       const accessToken = await this.authService.getAccessToken(code)
       const user = await this.authService.getTwitchUser(accessToken)
 
-      await this.userService.upsertUser(user.login, user.id, PrismaRoles.USER)
+      const upsertUser = await this.userService.upsertUser(user.login, user.id, PrismaRoles.USER)
+
+      const token = await this.authService.signJwt(upsertUser)
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      })
 
       res.redirect('http://localhost:5173/db/queue')
     } catch (error) {

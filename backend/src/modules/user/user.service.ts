@@ -19,11 +19,11 @@ export class UserServices {
     }
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return this.prisma.user.findMany()
+  async getUserByTwitchId(twitchId: string): Promise<User> {
+    return this.prisma.user.findUnique({ where: { twitchId } })
   }
 
-  async deleteAll(): Promise<void> {
-    this.prisma.user.deleteMany({})
+  async getAllUsers(): Promise<User[]> {
+    return this.prisma.user.findMany()
   }
 }

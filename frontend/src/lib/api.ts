@@ -417,11 +417,11 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags users
      * @name UserControllerCreateOrUpdateUser
-     * @request POST:/users
+     * @request POST:/users/createOrUpdateUser
      */
     userControllerCreateOrUpdateUser: (data: UpsertUserDTO, params: RequestParams = {}) =>
       this.http.request<void, any>({
-        path: `/users`,
+        path: `/users/createOrUpdateUser`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -432,12 +432,26 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
+     * @name UserControllerGetUserByTwitchId
+     * @request GET:/users/getUserByTwitchId
+     */
+    userControllerGetUserByTwitchId: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/getUserByTwitchId`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
      * @name UserControllerGetAllUsers
-     * @request GET:/users
+     * @request GET:/users/getAllUsers
      */
     userControllerGetAllUsers: (params: RequestParams = {}) =>
       this.http.request<UserEntity[], any>({
-        path: `/users`,
+        path: `/users/getAllUsers`,
         method: "GET",
         format: "json",
         ...params,

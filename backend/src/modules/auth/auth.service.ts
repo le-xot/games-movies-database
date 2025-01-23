@@ -1,8 +1,16 @@
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { env } from '../../utils/enviroments'
+import { UserDTO } from '../user/user.dto'
+import { UserServices } from '../user/user.service'
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userServices: UserServices,
+  ) {}
+
   async getTwitchUser(accessToken: string) {
     const response = await fetch('https://api.twitch.tv/helix/users', {
       method: 'GET',
@@ -31,7 +39,7 @@ export class AuthService {
         client_secret: env.TWITCH_CLIENT_SECRET,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: env.TWITCH_CALLBACK_URL,
+        redirect_uri: env.TWITCH_CALLBACK_5173_URL,
       }).toString(),
     })
 
@@ -41,5 +49,19 @@ export class AuthService {
 
     const data = await response.json()
     return data.access_token
+  }
+
+  async signJwt(user: UserDTO): Promise<string> {
+    const foundedUser = await this.userServices.getUserByTwitchId(user.twitchId)
+    if (!foundedUser) {
+      throw new HttpException(
+        'Invalid username or password',
+        HttpStatus.UNAUTHORIZED,
+      )
+    }
+
+    const payload = { id: foundedUser.id, login: foundedUser.login, twitchId: foundedUser.twitchId, role: foundedUser.role }
+
+    return await this.jwtService.signAsync(payload)
   }
 }

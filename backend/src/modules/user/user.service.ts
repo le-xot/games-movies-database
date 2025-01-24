@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaRoles, User } from '@prisma/client'
+import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
 
 @Injectable()
@@ -9,7 +9,7 @@ export class UserServices {
   async upsertUser(
     login: string,
     twitchId: string,
-    role: PrismaRoles,
+    role: $Enums.PrismaRoles,
   ): Promise<User> {
     const foundUser = await this.prisma.user.findUnique({ where: { twitchId } })
     if (!foundUser) {

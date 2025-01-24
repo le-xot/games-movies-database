@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { PrismaRoles } from '@prisma/client'
+import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { CreateGameDTO, GetGameDTO, PatchGameDTO } from './game.dto'
@@ -24,14 +24,14 @@ export class GameController {
   constructor(private gameServices: GameServices) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 201, type: GameEntity })
   async createGame(@Body() game: CreateGameDTO): Promise<GameEntity> {
     return this.gameServices.createGame(game)
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: GameEntity })
   @ApiResponse({ status: 404, description: 'Game not found' })
   async findGameById(@Param('id') id: number): Promise<GameEntity> {
@@ -43,7 +43,7 @@ export class GameController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: GameEntity })
   async patchGame(
     @Param('id') id: number,
@@ -53,7 +53,7 @@ export class GameController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 204 })
   async deleteGame(@Param('id') id: number): Promise<void> {
     await this.gameServices.deleteGame(id)

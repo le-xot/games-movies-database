@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { PrismaRoles } from '@prisma/client'
+import { $Enums } from '@prisma/client'
 import { IsOptional, IsString } from 'class-validator'
 
 export class UserDTO {
@@ -15,9 +15,9 @@ export class UserDTO {
   @IsString()
   twitchId: string
 
-  @ApiProperty({ example: PrismaRoles.USER })
+  @ApiProperty({ example: $Enums.PrismaRoles.USER })
   @IsOptional()
-  role: PrismaRoles = PrismaRoles.USER
+  role: $Enums.PrismaRoles = $Enums.PrismaRoles.USER
 }
 
 export class UpsertUserDTO {
@@ -29,7 +29,7 @@ export class UpsertUserDTO {
   @IsString()
   twitchId: string
 
-  @ApiProperty({ example: PrismaRoles.USER })
+  @ApiProperty({ example: $Enums.PrismaRoles.USER })
   @IsOptional()
-  role: PrismaRoles = PrismaRoles.USER
+  role: $Enums.PrismaRoles = $Enums.PrismaRoles.USER
 }

@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { PrismaRoles } from '@prisma/client'
+import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { CreateVideoDTO, GetVideoDTO, PatchVideoDTO } from './video.dto'
@@ -24,14 +24,14 @@ export class VideoController {
   constructor(private videoServices: VideoServices) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 201, type: VideoEntity })
   async createVideo(@Body() video: CreateVideoDTO): Promise<VideoEntity> {
     return this.videoServices.createVideo(video)
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: VideoEntity })
   @ApiResponse({ status: 404, description: 'Video not found' })
   async findVideoById(@Param('id') id: number): Promise<VideoEntity> {
@@ -43,7 +43,7 @@ export class VideoController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: VideoEntity })
   async patchVideo(
     @Param('id') id: number,
@@ -53,7 +53,7 @@ export class VideoController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 204 })
   async deleteVideo(@Param('id') id: number): Promise<void> {
     await this.videoServices.deleteVideo(id)

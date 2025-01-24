@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma, PrismaGenres, PrismaGrades, PrismaStatuses, PrismaTypes } from '@prisma/client'
+import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
 import { CreateVideoDTO, PatchVideoDTO } from './video.dto'
 import { VideoEntity } from './video.entity'
@@ -41,10 +41,10 @@ export class VideoServices {
     filters?: {
       title?: string
       personId?: number
-      type?: PrismaTypes
-      status?: PrismaStatuses
-      genre?: PrismaGenres
-      grade?: PrismaGrades
+      type?: $Enums.PrismaTypes
+      status?: $Enums.PrismaStatuses
+      genre?: $Enums.PrismaGenres
+      grade?: $Enums.PrismaGrades
     },
     orderBy?: 'title' | 'id',
     direction?: 'asc' | 'desc',

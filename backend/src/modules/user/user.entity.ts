@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums, PrismaRoles, User } from '@prisma/client'
+import { $Enums, User } from '@prisma/client'
 import { RolesEnum } from '../../enums/enums.names'
 
 export class UserEntity implements User {
@@ -13,5 +13,5 @@ export class UserEntity implements User {
   twitchId: string
 
   @ApiProperty({ enumName: RolesEnum, enum: $Enums.PrismaRoles })
-  role: PrismaRoles
+  role: $Enums.PrismaRoles
 }

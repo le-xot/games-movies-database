@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { PrismaRoles, User } from '@prisma/client'
+import { $Enums, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { UpsertUserDTO, UserDTO } from './user.dto'
@@ -25,7 +25,7 @@ export class UserController {
   }
 
   @Get('/getAllUsers')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<User[]> {
     return await this.userService.getAllUsers()

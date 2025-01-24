@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma, PrismaGrades, PrismaStatuses, PrismaTypes } from '@prisma/client'
+import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
 import { CreateGameDTO, PatchGameDTO } from './game.dto'
 import { GameEntity } from './game.entity'
@@ -41,9 +41,9 @@ export class GameServices {
     filters?: {
       title?: string
       personId?: number
-      type?: PrismaTypes
-      status?: PrismaStatuses
-      grade?: PrismaGrades
+      type?: $Enums.PrismaTypes
+      status?: $Enums.PrismaStatuses
+      grade?: $Enums.PrismaGrades
     },
     orderBy?: 'title' | 'id',
     direction?: 'asc' | 'desc',

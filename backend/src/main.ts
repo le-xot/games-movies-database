@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.use(cookieParser())
   app.enableCors()
-  const config = new DocumentBuilder().setTitle('le_xot`s lists').build()
+  const config = new DocumentBuilder().setTitle('games-movies-database').build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, document)
 

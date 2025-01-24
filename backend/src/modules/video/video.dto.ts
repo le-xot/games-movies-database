@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { IsInt, IsOptional, IsString } from 'class-validator'
+import { VideoEntity } from './video.entity'
 
 export class CreateVideoDTO {
   @ApiProperty({ example: 'Мадагаскар', required: false })
@@ -108,4 +109,12 @@ export class GetVideoDTO {
   @ApiProperty({ example: 'asc', required: false })
   @IsOptional()
   direction?: 'asc' | 'desc'
+}
+
+export class GetVideosDto {
+  @ApiProperty({ type: VideoEntity, isArray: true })
+  videos: VideoEntity[]
+
+  @ApiProperty()
+  total: number
 }

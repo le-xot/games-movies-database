@@ -1,42 +1,61 @@
-import { Controller, Get, Query, Res } from '@nestjs/common'
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
+import { ApiResponse } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { env } from '../../utils/enviroments'
-import { UserServices } from '../user/user.service'
+import { UserEntity } from '../user/user.entity'
+import { UserService } from '../user/user.service'
+import { AuthGuard } from './auth.guard'
 import { AuthService } from './auth.service'
+import { User } from './auth.user.decorator'
+import { CallbackDto } from './dto/callback.dto'
+import type { Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly userService: UserServices) {}
+  constructor(private readonly authService: AuthService, private readonly userService: UserService) {}
 
-  @Get('twitch')
-  async twitchAuth(@Res() res) {
+  @Get('/twitch')
+  async twitchAuth(@Res() res: Response) {
     const redirectUri = `https://id.twitch.tv/oauth2/authorize?`
       + `client_id=${env.TWITCH_CLIENT_ID}&`
-      + `redirect_uri=${env.TWITCH_CALLBACK_5173_URL}&`
+      + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
       + `response_type=code&`
       + `scope=user:read:email`
     res.redirect(redirectUri)
   }
 
-  @Get('twitch/callback')
-  async twitchAuthCallback(@Query('code') code: string, @Res() res) {
+  @Post('/twitch/callback')
+  async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
     try {
-      const accessToken = await this.authService.getAccessToken(code)
+      const accessToken = await this.authService.getAccessToken(data.code)
       const user = await this.authService.getTwitchUser(accessToken)
 
-      const upsertUser = await this.userService.upsertUser(user.login, user.id, $Enums.PrismaRoles.USER)
+      await this.userService.upsertUser(user.id, user.login, $Enums.PrismaRoles.USER)
 
-      const token = await this.authService.signJwt(upsertUser)
+      const token = await this.authService.signJwt(user.id)
 
       res.cookie('token', token, {
         httpOnly: true,
         maxAge: 30 * 24 * 60 * 60 * 1000,
       })
 
-      res.redirect('http://localhost:5173/db/queue')
+      res.status(200).send('Authentication successful')
     } catch (error) {
       console.error(error)
       res.status(500).send('Authentication failed')
     }
+  }
+
+  @Get('/me')
+  @UseGuards(AuthGuard)
+  @ApiResponse({ type: UserEntity, status: 200 })
+  async me(@User() user: UserEntity) {
+    return user
+  }
+
+  @Post('/logout')
+  async logout(@Res() res: Response) {
+    res.clearCookie('token')
+    res.end()
   }
 }

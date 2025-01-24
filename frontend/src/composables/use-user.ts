@@ -1,4 +1,4 @@
-import { RolesEnum } from '@/lib/api.ts'
+import { RolesEnum } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
@@ -17,9 +17,10 @@ export const useUser = defineStore('globals/use-user', () => {
     key: [USER_QUERY_KEY],
     query: async () => {
       try {
-        const { data } = await api.users.userControllerGetInfo()
+        const { data } = await api.auth.authControllerMe()
+
         return data
-      } catch {
+      } catch (e) {
         return null
       }
     },
@@ -30,18 +31,17 @@ export const useUser = defineStore('globals/use-user', () => {
 
   const { mutateAsync: userLogin } = useMutation({
     key: [USER_QUERY_KEY, 'login'],
-    mutation: ({ username, password }: { username: string, password: string }) => {
-      return api.auth.authControllerLogin({
-        username,
-        password,
-      })
+    mutation: (input: { code: string }) => {
+      return api.auth.authControllerTwitchAuthCallback(input)
     },
     onSuccess: () => refetchUser(),
   })
 
   const { mutateAsync: userLogout } = useMutation({
     key: [USER_QUERY_KEY, 'logout'],
-    mutation: () => api.auth.authControllerLogout(),
+    mutation: async () => {
+      return await api.auth.authControllerLogout()
+    },
     onSuccess: () => refetchUser(),
   })
 

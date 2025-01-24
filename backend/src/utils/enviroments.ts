@@ -11,6 +11,5 @@ export const env = cleanEnv(process.env, {
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
   TWITCH_CLIENT_ID: str({}),
   TWITCH_CLIENT_SECRET: str({}),
-  TWITCH_CALLBACK_3000_URL: str({}),
-  TWITCH_CALLBACK_5173_URL: str({}),
+  TWITCH_CALLBACK_URL: str({}),
 })

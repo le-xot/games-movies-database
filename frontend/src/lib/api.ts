@@ -9,13 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-export interface UpsertUserDTO {
-  /** @example "NotJoe" */
-  login: string;
-  /** @example "NotDoe" */
-  twitchId: string;
-  /** @example "USER" */
-  role: string;
+export interface CallbackDto {
+  code: string;
 }
 
 export enum RolesEnum {
@@ -24,10 +19,18 @@ export enum RolesEnum {
 }
 
 export interface UserEntity {
-  id: number;
+  id: string;
   login: string;
-  twitchId: string;
   role: RolesEnum;
+}
+
+export interface UpsertUserDTO {
+  /** @example "NotJoe" */
+  login: string;
+  /** @example "NotDoe" */
+  id: string;
+  /** @example "USER" */
+  role: string;
 }
 
 export interface CreatePersonDTO {
@@ -116,6 +119,11 @@ export interface PatchVideoDTO {
   genre?: string;
   /** @example "DISLIKE" */
   grade?: string;
+}
+
+export interface GetVideosDto {
+  videos: VideoEntity[];
+  total: number;
 }
 
 export interface CreateGameDTO {
@@ -365,7 +373,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title le_xot`s lists
+ * @title games-movies-database
  * @version 1.0.0
  * @contact
  */
@@ -396,18 +404,43 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags Auth
      * @name AuthControllerTwitchAuthCallback
-     * @request GET:/auth/twitch/callback
+     * @request POST:/auth/twitch/callback
      */
-    authControllerTwitchAuthCallback: (
-      query: {
-        code: string;
-      },
-      params: RequestParams = {},
-    ) =>
+    authControllerTwitchAuthCallback: (data: CallbackDto, params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/auth/twitch/callback`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerMe
+     * @request GET:/auth/me
+     */
+    authControllerMe: (params: RequestParams = {}) =>
+      this.http.request<UserEntity, any>({
+        path: `/auth/me`,
         method: "GET",
-        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerLogout
+     * @request POST:/auth/logout
+     */
+    authControllerLogout: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/logout`,
+        method: "POST",
         ...params,
       }),
   };
@@ -417,11 +450,11 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags users
      * @name UserControllerCreateOrUpdateUser
-     * @request POST:/users/createOrUpdateUser
+     * @request POST:/users
      */
     userControllerCreateOrUpdateUser: (data: UpsertUserDTO, params: RequestParams = {}) =>
       this.http.request<void, any>({
-        path: `/users/createOrUpdateUser`,
+        path: `/users`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -432,19 +465,14 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerGetUserByTwitchId
-     * @request GET:/users/getUserByTwitchId
+     * @name UserControllerGetAllUsers
+     * @request GET:/users
      */
-    userControllerGetUserByTwitchId: (
-      query: {
-        twitchId: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, any>({
-        path: `/users/getUserByTwitchId`,
+    userControllerGetAllUsers: (params: RequestParams = {}) =>
+      this.http.request<UserEntity[], any>({
+        path: `/users`,
         method: "GET",
-        query: query,
+        format: "json",
         ...params,
       }),
 
@@ -452,14 +480,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerGetAllUsers
-     * @request GET:/users/getAllUsers
+     * @name UserControllerGetUserByTwitchId
+     * @request GET:/users/{id}
      */
-    userControllerGetAllUsers: (params: RequestParams = {}) =>
-      this.http.request<UserEntity[], any>({
-        path: `/users/getAllUsers`,
+    userControllerGetUserByTwitchId: (id: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${id}`,
         method: "GET",
-        format: "json",
         ...params,
       }),
   };
@@ -618,7 +645,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<VideoEntity[], any>({
+      this.http.request<GetVideosDto, any>({
         path: `/videos`,
         method: "GET",
         query: query,

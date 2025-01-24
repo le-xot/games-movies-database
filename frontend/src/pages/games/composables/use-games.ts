@@ -17,7 +17,7 @@ export const useGames = defineStore('games/use-games', () => {
     refetch: refetchGames,
   } = useQuery<GameEntity[]>({
     key: [GAMES_QUERY_KEY],
-    placeholderData: (prev) => prev ?? [],
+    placeholderData: (prev) => prev ?? { games: [], total: 0 },
     query: async () => {
       const { data } = await api.games.gameControllerGetAllGames()
       return data
@@ -49,9 +49,9 @@ export const useGames = defineStore('games/use-games', () => {
   })
 
   const gamesQueue = computed(() => {
-    if (!data.value) return []
+    if (!data.value) return { games: [], total: 0 }
 
-    return data.value.filter((games) => {
+    return data.value.games.filter((games) => {
       return games.status === StatusesEnum.QUEUE
         || games.status === StatusesEnum.PROGRESS
     })

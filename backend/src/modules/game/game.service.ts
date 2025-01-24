@@ -5,7 +5,7 @@ import { CreateGameDTO, PatchGameDTO } from './game.dto'
 import { GameEntity } from './game.entity'
 
 @Injectable()
-export class GameServices {
+export class GameService {
   constructor(private prisma: PrismaService) {}
 
   async createGame(game: CreateGameDTO): Promise<GameEntity> {

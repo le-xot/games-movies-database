@@ -7,11 +7,13 @@ const prisma = new PrismaClient()
 async function seed() {
   await prisma.user.upsert(
     {
-      where: { login: 'le_xot' },
-      update: { },
+      where: { id: '155644238' },
+      update: {
+        role: 'ADMIN',
+      },
       create: {
+        id: '155644238',
         login: 'le_xot',
-        twitchId: '155644238',
         role: 'ADMIN',
       },
     },

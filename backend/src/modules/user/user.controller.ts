@@ -1,30 +1,30 @@
-import { Body, Controller, Get, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { UpsertUserDTO, UserDTO } from './user.dto'
 import { UserEntity } from './user.entity'
-import { UserServices } from './user.service'
+import { UserService } from './user.service'
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserServices) {}
+  constructor(private userService: UserService) {}
 
-  @Post('/createOrUpdateUser')
+  @Post()
   async createOrUpdateUser(@Body() user: UpsertUserDTO): Promise<UserDTO> {
-    const { login, twitchId, role } = user
-    return await this.userService.upsertUser(login, twitchId, role)
+    const { id, login, role } = user
+    return await this.userService.upsertUser(id, login, role)
   }
 
-  @Get('/getUserByTwitchId')
+  @Get(':id')
   @ApiResponse({ status: HttpStatus.OK })
-  async getUserByTwitchId(@Query('twitchId') twitchId: string): Promise<User> {
-    return await this.userService.getUserByTwitchId(twitchId)
+  async getUserByTwitchId(@Param('id') id: string): Promise<User> {
+    return await this.userService.getUserById(id)
   }
 
-  @Get('/getAllUsers')
+  @Get()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<User[]> {

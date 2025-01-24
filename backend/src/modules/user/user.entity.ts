@@ -4,13 +4,10 @@ import { RolesEnum } from '../../enums/enums.names'
 
 export class UserEntity implements User {
   @ApiProperty()
-  id: number
+  id: string
 
   @ApiProperty()
   login: string
-
-  @ApiProperty()
-  twitchId: string
 
   @ApiProperty({ enumName: RolesEnum, enum: $Enums.PrismaRoles })
   role: $Enums.PrismaRoles

@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
-import { CreateVideoDTO, PatchVideoDTO } from './video.dto'
+import { CreateVideoDTO, GetVideosDto, PatchVideoDTO } from './video.dto'
 import { VideoEntity } from './video.entity'
 
 @Injectable()
-export class VideoServices {
+export class VideoService {
   constructor(private prisma: PrismaService) {}
 
   async createVideo(video: CreateVideoDTO): Promise<VideoEntity> {
@@ -48,7 +48,7 @@ export class VideoServices {
     },
     orderBy?: 'title' | 'id',
     direction?: 'asc' | 'desc',
-  ): Promise<{ videos: VideoEntity[], total: number }> {
+  ): Promise<GetVideosDto> {
     const skip = (page - 1) * limit
 
     const where: Prisma.VideoWhereInput = {}

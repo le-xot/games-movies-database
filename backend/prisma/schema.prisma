@@ -43,10 +43,9 @@ model Person {
 }
 
 model User {
-  id       Int         @id @default(autoincrement())
-  login    String      @unique
-  twitchId String      @unique
-  role     PrismaRoles @default(USER)
+  id    String      @id @unique
+  login String      @unique
+  role  PrismaRoles @default(USER)
 
   @@map("users")
 }

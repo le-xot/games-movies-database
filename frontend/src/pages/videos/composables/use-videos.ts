@@ -1,6 +1,6 @@
 import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
-import { type PatchVideoDTO, StatusesEnum, type VideoEntity } from '@/lib/api.ts'
+import { type GetVideosDto, type PatchVideoDTO, StatusesEnum } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
@@ -15,7 +15,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     isLoading,
     data,
     refetch: refetchVideos,
-  } = useQuery<VideoEntity[]>({
+  } = useQuery<GetVideosDto>({
     key: [VIDEOS_QUERY_KEY],
     query: async () => {
       const { data } = await api.videos.videoControllerGetAllVideos()
@@ -48,15 +48,15 @@ export const useVideos = defineStore('videos/use-videos', () => {
   })
 
   const videosQueue = computed(() => {
-    if (!data.value) return []
-    return data.value.filter((video) => {
+    if (!data.value) return { videos: [], total: 0 }
+    return data.value.videos.filter((video) => {
       return video.status === StatusesEnum.QUEUE
         || video.status === StatusesEnum.PROGRESS
     })
   })
 
   const videos = computed(() => {
-    return search.filterData(data.value ?? [])
+    return search.filterData(data.value?.videos ?? [])
   })
 
   return {

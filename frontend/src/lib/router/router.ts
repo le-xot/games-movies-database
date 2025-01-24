@@ -5,6 +5,10 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: '/auth/callback',
+      component: () => import('@/pages/auth/callback.vue'),
+    },
+    {
       path: ROUTER_PATHS.home,
       component: () => import('@/layout/home/layout-home.vue'),
       children: [

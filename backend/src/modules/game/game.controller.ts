@@ -16,12 +16,12 @@ import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { CreateGameDTO, GetGameDTO, PatchGameDTO } from './game.dto'
 import { GameEntity } from './game.entity'
-import { GameServices } from './game.service'
+import { GameService } from './game.service'
 
 @ApiTags('games')
 @Controller('games')
 export class GameController {
-  constructor(private gameServices: GameServices) {}
+  constructor(private gameServices: GameService) {}
 
   @Post()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))

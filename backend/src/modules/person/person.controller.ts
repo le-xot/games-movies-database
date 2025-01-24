@@ -15,12 +15,12 @@ import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { CreatePersonDTO, PatchPersonDTO } from './person.dto'
 import { PersonEntity } from './person.entity'
-import { PersonServices } from './person.service'
+import { PersonService } from './person.service'
 
 @ApiTags('persons')
 @Controller('persons')
 export class PersonController {
-  constructor(private personServices: PersonServices) {}
+  constructor(private personServices: PersonService) {}
 
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @Post()

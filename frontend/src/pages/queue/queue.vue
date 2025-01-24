@@ -41,7 +41,7 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
       class="aga"
     >
       <img class="aga__img" src="/images/aga.webp" alt="Ага">
-      <span class="aga__text">Пока в очереди ничего нет :C</span>
+      <span class="aga__text">Пока в очереди ничего нет</span>
     </div>
   </div>
 </template>

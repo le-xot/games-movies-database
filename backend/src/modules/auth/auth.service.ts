@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { env } from '../../utils/enviroments'
-import { UserDTO } from '../user/user.dto'
-import { UserServices } from '../user/user.service'
+import { UserService } from '../user/user.service'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userServices: UserServices,
+    private readonly userServices: UserService,
   ) {}
 
   async getTwitchUser(accessToken: string) {
@@ -39,7 +38,7 @@ export class AuthService {
         client_secret: env.TWITCH_CLIENT_SECRET,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: env.TWITCH_CALLBACK_5173_URL,
+        redirect_uri: env.TWITCH_CALLBACK_URL,
       }).toString(),
     })
 
@@ -51,17 +50,21 @@ export class AuthService {
     return data.access_token
   }
 
-  async signJwt(user: UserDTO): Promise<string> {
-    const foundedUser = await this.userServices.getUserByTwitchId(user.twitchId)
+  async signJwt(userId: string): Promise<string> {
+    const foundedUser = await this.userServices.getUserById(userId)
     if (!foundedUser) {
       throw new HttpException(
-        'Invalid username or password',
+        'User does not exist',
         HttpStatus.UNAUTHORIZED,
       )
     }
 
-    const payload = { id: foundedUser.id, login: foundedUser.login, twitchId: foundedUser.twitchId, role: foundedUser.role }
+    const payload = { id: foundedUser.id }
 
     return await this.jwtService.signAsync(payload)
+  }
+
+  async verifyJwt(token: string): Promise<any> {
+    return await this.jwtService.verifyAsync(token)
   }
 }

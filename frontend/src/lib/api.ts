@@ -435,10 +435,16 @@ export class Api<SecurityDataType extends unknown> {
      * @name UserControllerGetUserByTwitchId
      * @request GET:/users/getUserByTwitchId
      */
-    userControllerGetUserByTwitchId: (params: RequestParams = {}) =>
+    userControllerGetUserByTwitchId: (
+      query: {
+        twitchId: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/users/getUserByTwitchId`,
         method: "GET",
+        query: query,
         ...params,
       }),
 

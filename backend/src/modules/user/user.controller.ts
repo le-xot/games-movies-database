@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PrismaRoles, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
@@ -20,7 +20,7 @@ export class UserController {
 
   @Get('/getUserByTwitchId')
   @ApiResponse({ status: HttpStatus.OK })
-  async getUserByTwitchId(twitchId: string): Promise<User> {
+  async getUserByTwitchId(@Query('twitchId') twitchId: string): Promise<User> {
     return await this.userService.getUserByTwitchId(twitchId)
   }
 

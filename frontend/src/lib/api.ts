@@ -25,9 +25,9 @@ export interface UserEntity {
 }
 
 export interface UpsertUserDTO {
-  /** @example "NotJoe" */
+  /** @example "le_xot" */
   login: string;
-  /** @example "NotDoe" */
+  /** @example "155644238" */
   id: string;
   /** @example "USER" */
   role: string;
@@ -160,6 +160,11 @@ export interface PatchGameDTO {
   status?: string;
   /** @example "DISLIKE" */
   grade?: string;
+}
+
+export interface GetAllGamesResponse {
+  games: GameEntity[];
+  total: number;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -747,7 +752,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<GameEntity[], any>({
+      this.http.request<GetAllGamesResponse, any>({
         path: `/games`,
         method: "GET",
         query: query,

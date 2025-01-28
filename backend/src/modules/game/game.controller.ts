@@ -15,7 +15,7 @@ import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { CreateGameDTO, GetGameDTO, PatchGameDTO } from './game.dto'
-import { GameEntity } from './game.entity'
+import { GameEntity, GetAllGamesResponse } from './game.entity'
 import { GameService } from './game.service'
 
 @ApiTags('games')
@@ -60,8 +60,8 @@ export class GameController {
   }
 
   @Get()
-  @ApiResponse({ status: 200, type: GameEntity, isArray: true })
-  async getAllGames(@Query() query: GetGameDTO): Promise<{ games: GameEntity[], total: number }> {
+  @ApiResponse({ status: 200, type: GetAllGamesResponse })
+  async getAllGames(@Query() query: GetGameDTO): Promise<GetAllGamesResponse> {
     const { page, limit, orderBy, direction, ...filters } = query
     const { games, total } = await this.gameServices.getAllGames(page, limit, filters, orderBy, direction)
     return { games, total }

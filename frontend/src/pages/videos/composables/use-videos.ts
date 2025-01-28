@@ -1,6 +1,6 @@
 import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
-import { type GetVideosDto, type PatchVideoDTO, StatusesEnum } from '@/lib/api.ts'
+import { type PatchVideoDTO, StatusesEnum, VideoEntity } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
@@ -15,7 +15,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     isLoading,
     data,
     refetch: refetchVideos,
-  } = useQuery<GetVideosDto>({
+  } = useQuery<{ videos: VideoEntity[], total: number }>({
     key: [VIDEOS_QUERY_KEY],
     query: async () => {
       const { data } = await api.videos.videoControllerGetAllVideos()

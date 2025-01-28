@@ -18,9 +18,8 @@ export const useUser = defineStore('globals/use-user', () => {
     query: async () => {
       try {
         const { data } = await api.auth.authControllerMe()
-
         return data
-      } catch (e) {
+      } catch {
         return null
       }
     },

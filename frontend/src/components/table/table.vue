@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {
   Table,
+  TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
 import { useBreakpoints } from '@/composables/use-breakpoints'
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { Virtualizer } from 'virtua/vue'
 import { ref } from 'vue'
-import { Card } from '../ui/card'
 import type { ColumnDef } from '@tanstack/vue-table'
 
 const props = defineProps<{
@@ -60,61 +60,36 @@ const table = useVueTable({
           </TableHead>
         </TableRow>
       </TableHeader>
-      <Virtualizer
-        v-slot="{ item }"
-        :scroll-ref="scrollRef"
-        :data="table.getRowModel().rows"
-        :item-size="52"
-        as="tbody"
-        item="tr"
-        class="[&_tr:last-child]:border-0"
-        :start-margin="42"
-        :item-props="() => ({
-          class: 'w-full border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
-        })"
-      >
-        <template
-          v-for="cell in item.getVisibleCells()"
-          :key="cell.id"
-        >
-          <FlexRender
-            v-if="cell.column.getIsVisible()"
-            :render="cell.column.columnDef.cell"
-            :props="cell.getContext()"
-            :style="{ width: `${cell.column.getSize()}%` }"
-          />
+
+      <TableBody>
+        <template v-if="table.getRowModel().rows?.length">
+          <template v-for="row in table.getRowModel().rows" :key="row.id">
+            <TableRow :data-state="row.getIsSelected() && 'selected'">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <FlexRender
+                  :style="{ width: `${cell.column.getSize()}%` }"
+                  :render="cell.column.columnDef.cell"
+                  :props="cell.getContext()"
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow v-if="row.getIsExpanded()">
+              <TableCell :colspan="row.getAllCells().length">
+                {{ JSON.stringify(row.original) }}
+              </TableCell>
+            </TableRow>
+          </template>
         </template>
-      </Virtualizer>
+
+        <TableRow v-else>
+          <TableCell
+            :colspan="columns.length"
+            class="h-24 text-center"
+          >
+            No results.
+          </TableCell>
+        </TableRow>
+      </TableBody>
     </Table>
-  </div>
-  <div v-else class="relative w-full overflow-auto">
-    <div class="grid grid-cols-1 gap-4">
-      <Card v-for="row in table.getRowModel().rows" :key="row.id">
-        <template
-          v-for="cell in row.getVisibleCells()"
-          :key="cell.id"
-        >
-          <div v-if="cell.column.id !== 'id'" class="flex flex-col w-full px-4 py-2 last:border-0">
-            <template v-if="cell.column.id === 'title'">
-              <div class="ml-1 font-bold border-b text-pretty">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </div>
-            </template>
-            <template v-else>
-              <div class="ml-3">
-                {{ cell.column.columnDef.header }}:
-              </div>
-              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-            </template>
-          </div>
-          <div v-else class="flex justify-end">
-            <FlexRender
-              :render="cell.column.columnDef.cell"
-              :props="cell.getContext()"
-            />
-          </div>
-        </template>
-      </Card>
-    </div>
   </div>
 </template>

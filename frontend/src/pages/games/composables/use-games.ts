@@ -3,23 +3,25 @@ import { useApi } from '@/composables/use-api'
 import { type GameEntity, type PatchGameDTO, StatusesEnum } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 export const GAMES_QUERY_KEY = 'games'
 
 export const useGames = defineStore('games/use-games', () => {
   const api = useApi()
   const search = useTableSearch()
+  const queryGames = ref({ page: 1, limit: 10000, direction: 'asc', orderBy: 'id' })
 
   const {
     isLoading,
     data,
     refetch: refetchGames,
-  } = useQuery<GameEntity[]>({
-    key: [GAMES_QUERY_KEY],
-    placeholderData: (prev) => prev ?? { games: [], total: 0 },
+  } = useQuery<{ games: GameEntity[], total: number }>({
+    key: [GAMES_QUERY_KEY, queryGames.value],
     query: async () => {
-      const { data } = await api.games.gameControllerGetAllGames()
+      const { data } = await api.games.gameControllerGetAllGames(queryGames.value)
+      console.log(data)
+
       return data
     },
   })
@@ -58,10 +60,11 @@ export const useGames = defineStore('games/use-games', () => {
   })
 
   const games = computed(() => {
-    return search.filterData(data.value ?? [])
+    return search.filterData(data.value?.games ?? [])
   })
 
   return {
+    queryGames,
     isLoading,
     games,
     gamesQueue,

@@ -51,18 +51,11 @@ const table = useVueTable({
 </script>
 
 <template>
-  <TablePagination
-    :total="totalRecords"
-    :table="table"
-    :pagination="pagination"
-    @update:page="(pageIndex) => { $emit('update:pagination', { ...pagination, pageIndex }) }"
-    @update:page-size="(pageSize) => { $emit('update:pagination', { ...pagination, pageSize }) }"
-  />
   <div
     v-if="breakpoints.isDesktop"
     class="relative w-full overflow-auto rounded-md border"
   >
-    <Table class="w-full h-[82dvh] overflow-auto">
+    <Table class="w-full h-[80dvh] overflow-auto">
       <TableHeader class="w-full">
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
           <TableHead

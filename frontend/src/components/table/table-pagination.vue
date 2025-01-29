@@ -37,26 +37,12 @@ function handlePageSizeChange(pageSize: string) {
 <template>
   <div class="flex justify-end max-sm:flex-col gap-4">
     <div class="flex gap-2 items-center">
-      <div class="text-sm text-muted-foreground text-nowrap">
-        pages: {{ table.getPageCount() }}
-        total items: {{ total }}
-      </div>
-      <Select default-value="10" @update:model-value="handlePageSizeChange">
-        <SelectTrigger class="h-9 justify-between gap-2">
-          <div>
-            PerPage
-            <SelectValue class="flex-none" />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
-            {{ pageSize }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-    <div class="flex gap-2 items-center">
       <div class="flex gap-2 max-sm:justify-end max-sm:w-full">
+        <div class="flex justify-center items-center text-muted-foreground text-nowrap">
+          Показано с&nbsp; <strong>{{ pagination.pageIndex * pagination.pageSize + 1 }}</strong>&nbsp;по&nbsp;
+          <strong>{{ Math.min((pagination.pageIndex + 1) * pagination.pageSize, total) }}</strong>&nbsp;запись из&nbsp;
+          <strong>{{ total }}</strong>
+        </div>
         <Button
           class="size-9 min-w-9 max-sm:w-full"
           variant="outline"
@@ -67,7 +53,7 @@ function handlePageSizeChange(pageSize: string) {
           <ChevronLeft class="h-4 w-4" />
         </Button>
         <Input
-          class="w-20 h-9 max-sm:w-full"
+          class="w-15 h-9 max-sm:w-full"
           :min="1"
           :max="table.getPageCount()"
           :model-value="currentPage"
@@ -84,6 +70,20 @@ function handlePageSizeChange(pageSize: string) {
         >
           <ChevronRight class="h-4 w-4" />
         </Button>
+      </div>
+      <div class="flex gap-2 items-center">
+        <Select default-value="10" @update:model-value="handlePageSizeChange">
+          <SelectTrigger class="h-9 justify-between gap-2">
+            <div>
+              <SelectValue class="flex-none" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
+              {{ pageSize }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   </div>

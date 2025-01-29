@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { GameModule } from './modules/game/game.module'
 import { CustomJwtModule } from './modules/jwt/jwt.module'
 import { PersonModule } from './modules/person/person.module'
+import { QueueModule } from './modules/queue/queue.module'
 import { UserModule } from './modules/user/user.module'
 import { VideoModule } from './modules/video/video.module'
 
@@ -22,6 +23,7 @@ import { VideoModule } from './modules/video/video.module'
     UserModule,
     PrismaModule,
     CustomJwtModule,
+    QueueModule,
   ],
 })
 export class AppModule {}

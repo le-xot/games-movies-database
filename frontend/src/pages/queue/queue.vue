@@ -6,9 +6,11 @@ import { computed } from 'vue'
 import { useGames } from '../games/composables/use-games'
 import { useVideos } from '../videos/composables/use-videos'
 import QueueCard from './components/queue-card.vue'
+import { useQueue } from './composables/use-queue'
 
 const games = useGames()
 const videos = useVideos()
+const queue = useQueue()
 const isLoading = computed(() => games.isLoading || videos.isLoading)
 </script>
 
@@ -17,13 +19,13 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
     <div v-if="isLoading" class="loaded">
       <Spinner />
     </div>
-    <QueueCard v-if="games.totalRecords > 0 && !isLoading" kind="game" :items="games.gamesQueue">
+    <QueueCard v-if="queue.data?.games.length > 0 && !isLoading" kind="game" :items="queue.data?.games ?? []">
       <template #title>
-        Поиграть: {{ games.totalRecords }}
+        Поиграть: {{ queue.data?.games.length }}
       </template>
     </QueueCard>
 
-    <QueueCard v-if="videos.totalRecords > 0" kind="video" :items="videos.videosQueue">
+    <QueueCard v-if="queue.data?.videos.length > 0 && !isLoading" kind="video" :items="queue.data?.videos ?? []">
       <template #title>
         Посмотреть: {{ videos.totalRecords }}
       </template>
@@ -37,7 +39,7 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
     </QueueCard>
 
     <div
-      v-if="videos.videosQueue.length === 0 && games.gamesQueue.length === 0 && !isLoading"
+      v-if="queue.data?.games.length === 0 && queue.data.videos.length === 0 && !isLoading"
       class="aga"
     >
       <img class="aga__img" src="/images/aga.webp" alt="Ага">

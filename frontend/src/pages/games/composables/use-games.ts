@@ -1,10 +1,10 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
 import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
-import { type GameEntity, type PatchGameDTO, StatusesEnum } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
+import type { GameEntity, PatchGameDTO } from '@/lib/api.ts'
 
 export const GAMES_QUERY_KEY = 'games'
 
@@ -73,15 +73,6 @@ export const useGames = defineStore('games/use-games', () => {
     onSettled: () => refetchGames(),
   })
 
-  const gamesQueue = computed(() => {
-    if (!data.value) return []
-
-    return data.value.games.filter((games) => {
-      return games.status === StatusesEnum.QUEUE
-        || games.status === StatusesEnum.PROGRESS
-    })
-  })
-
   const games = computed(() => {
     return search.filterData(data.value?.games ?? [])
   })
@@ -90,7 +81,6 @@ export const useGames = defineStore('games/use-games', () => {
     setQueryGames,
     isLoading,
     games,
-    gamesQueue,
     search,
     refetchGames,
     updateGame,

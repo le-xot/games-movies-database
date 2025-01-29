@@ -172,6 +172,25 @@ export interface GetAllGamesResponse {
   total: number;
 }
 
+export interface QueueItemDto {
+  title: string;
+  type: string;
+  personName: string;
+  genre: QueueItemDtoGenreEnum;
+}
+
+export interface QueueDto {
+  games: QueueItemDto[];
+  videos: QueueItemDto[];
+}
+
+export enum QueueItemDtoGenreEnum {
+  ANIME = "ANIME",
+  MOVIE = "MOVIE",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -808,6 +827,22 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/games/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  queue = {
+    /**
+     * No description
+     *
+     * @tags Queue
+     * @name QueueControllerGetQueue
+     * @request GET:/queue
+     */
+    queueControllerGetQueue: (params: RequestParams = {}) =>
+      this.http.request<QueueDto, any>({
+        path: `/queue`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
   };

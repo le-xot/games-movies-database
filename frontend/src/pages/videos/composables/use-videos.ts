@@ -1,7 +1,7 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
 import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
-import { type PatchVideoDTO, StatusesEnum, VideoEntity } from '@/lib/api.ts'
+import { type PatchVideoDTO, VideoEntity } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
@@ -73,15 +73,6 @@ export const useVideos = defineStore('videos/use-videos', () => {
     onSuccess: () => refetchVideos(),
   })
 
-  const videosQueue = computed(() => {
-    if (!data.value) return []
-
-    return data.value.videos.filter((video) => {
-      return video.status === StatusesEnum.QUEUE
-        || video.status === StatusesEnum.PROGRESS
-    })
-  })
-
   const videos = computed(() => {
     return search.filterData(data.value?.videos ?? [])
   })
@@ -90,7 +81,6 @@ export const useVideos = defineStore('videos/use-videos', () => {
     setQueryVideos,
     isLoading,
     videos,
-    videosQueue,
     search,
     refetchVideos,
     updateVideo,

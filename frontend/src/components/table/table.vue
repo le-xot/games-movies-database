@@ -78,6 +78,7 @@ const table = useVueTable({
             <TableRow :data-state="row.getIsSelected() && 'selected'">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                 <FlexRender
+                  v-if="cell.column.getIsVisible()"
                   :style="{ width: `${cell.column.getSize()}%` }"
                   :render="cell.column.columnDef.cell"
                   :props="cell.getContext()"

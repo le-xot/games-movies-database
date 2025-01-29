@@ -78,7 +78,7 @@ function handlePageSizeChange(pageSize: string) {
               <SelectValue class="flex-none" />
             </div>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent align="end">
             <SelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
               {{ pageSize }}
             </SelectItem>

@@ -36,3 +36,4 @@ pnpm dev
 ## Contributing
 
 * Please make sure that you pull request to [dev](/tree/dev) branch.
+* To become an ADMIN please change [dev](/tree/dev/backend/prisma/seed.js) with your actual twitch login and id

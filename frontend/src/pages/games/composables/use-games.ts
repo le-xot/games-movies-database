@@ -10,7 +10,22 @@ export const GAMES_QUERY_KEY = 'games'
 export const useGames = defineStore('games/use-games', () => {
   const api = useApi()
   const search = useTableSearch()
-  const queryGames = ref({ page: 1, limit: 10000, direction: 'asc', orderBy: 'id' })
+
+  const pagination = ref({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
+  const queryGames = ref({
+    page: pagination.value.pageIndex + 1,
+    limit: pagination.value.pageSize,
+    direction: 'asc',
+    orderBy: 'id',
+  })
+
+  const setQueryGames = (newQuery: Partial<typeof queryGames.value>) => {
+    Object.assign(queryGames.value, newQuery)
+  }
 
   const {
     isLoading,
@@ -20,11 +35,20 @@ export const useGames = defineStore('games/use-games', () => {
     key: [GAMES_QUERY_KEY, queryGames.value],
     query: async () => {
       const { data } = await api.games.gameControllerGetAllGames(queryGames.value)
-      console.log(data)
-
       return data
     },
   })
+
+  const totalPages = computed(() => {
+    if (!data.value) return 0
+    return Math.ceil(data.value.total / pagination.value.pageSize)
+  })
+
+  const setPagination = (newPagination: { pageIndex: number, pageSize: number }) => {
+    pagination.value = newPagination
+    setQueryGames({ page: newPagination.pageIndex + 1, limit: newPagination.pageSize })
+    refetchGames()
+  }
 
   const { mutateAsync: updateGame } = useMutation({
     key: [GAMES_QUERY_KEY, 'update'],
@@ -65,6 +89,7 @@ export const useGames = defineStore('games/use-games', () => {
 
   return {
     queryGames,
+    setQueryGames,
     isLoading,
     games,
     gamesQueue,
@@ -73,6 +98,9 @@ export const useGames = defineStore('games/use-games', () => {
     updateGame,
     deleteGame,
     createGame,
+    pagination,
+    totalPages,
+    setPagination,
   }
 })
 

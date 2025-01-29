@@ -142,7 +142,6 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
 
   return {
     tableColumns,
-    search: games.search,
     columnVisibility,
   }
 })

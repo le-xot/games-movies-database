@@ -39,7 +39,7 @@ export class VideoService {
     page: number = 1,
     limit: number = 10,
     filters?: {
-      title?: string
+      search?: string
       personId?: number
       type?: $Enums.PrismaTypes
       status?: $Enums.PrismaStatuses
@@ -53,12 +53,25 @@ export class VideoService {
 
     const where: Prisma.VideoWhereInput = {}
 
-    if (filters?.title) {
-      where.title = {
-        contains: filters.title,
-        mode: Prisma.QueryMode.insensitive,
-      }
+    if (filters?.search) {
+      where.OR = [
+        {
+          title: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          person: {
+            name: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        },
+      ]
     }
+
     if (filters?.personId) {
       where.personId = filters.personId
     }

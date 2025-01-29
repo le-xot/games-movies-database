@@ -1,25 +1,26 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
-import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
 import { type PatchVideoDTO, VideoEntity } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
+import { refDebounced } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 export const VIDEOS_QUERY_KEY = 'videos'
 
 export const useVideos = defineStore('videos/use-videos', () => {
   const api = useApi()
-  const search = useTableSearch()
-
+  const search = ref('')
+  const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
   const queryVideos = computed(() => {
     return {
       page: pagination.value.pageIndex + 1,
       limit: pagination.value.pageSize,
-      direction: 'asc',
+      search: debouncedSearch.value,
       orderBy: 'id',
+      direction: 'asc',
     }
   })
 
@@ -54,7 +55,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     mutation: ({ id, data }: { id: number, data: PatchVideoDTO }) => {
       return api.videos.videoControllerPatchVideo(id, data)
     },
-    onSuccess: () => refetchVideos(),
+    onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: deleteVideo } = useMutation({
@@ -62,7 +63,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     mutation: (id: number) => {
       return api.videos.videoControllerDeleteVideo(id)
     },
-    onSuccess: () => refetchVideos(),
+    onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: createVideo } = useMutation({
@@ -70,11 +71,12 @@ export const useVideos = defineStore('videos/use-videos', () => {
     mutation: async () => {
       return await api.videos.videoControllerCreateVideo({})
     },
-    onSuccess: () => refetchVideos(),
+    onSettled: () => refetchVideos(),
   })
 
   const videos = computed(() => {
-    return search.filterData(data.value?.videos ?? [])
+    if (!data.value) return []
+    return data.value.videos
   })
 
   return {

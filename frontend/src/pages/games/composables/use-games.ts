@@ -1,25 +1,26 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
-import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
 import { useMutation, useQuery } from '@pinia/colada'
+import { refDebounced } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { GameEntity, PatchGameDTO } from '@/lib/api.ts'
 
 export const GAMES_QUERY_KEY = 'games'
 
 export const useGames = defineStore('games/use-games', () => {
   const api = useApi()
-  const search = useTableSearch()
-
+  const search = ref('')
+  const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
   const queryGames = computed(() => {
     return {
       page: pagination.value.pageIndex + 1,
       limit: pagination.value.pageSize,
-      direction: 'asc',
+      search: debouncedSearch.value,
       orderBy: 'id',
+      direction: 'asc',
     }
   })
 
@@ -74,7 +75,8 @@ export const useGames = defineStore('games/use-games', () => {
   })
 
   const games = computed(() => {
-    return search.filterData(data.value?.games ?? [])
+    if (!data.value) return []
+    return data.value.games
   })
 
   return {
@@ -87,8 +89,8 @@ export const useGames = defineStore('games/use-games', () => {
     deleteGame,
     createGame,
     pagination,
-    totalPages,
     totalRecords,
+    totalPages,
   }
 })
 

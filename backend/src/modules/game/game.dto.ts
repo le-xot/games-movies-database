@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { IsInt, IsOptional, IsString } from 'class-validator'
+import { GameEntity } from './game.entity'
 
 export class CreateGameDTO {
   @ApiProperty({ example: 'minecraft', required: false })
@@ -58,42 +59,50 @@ export class GetGameDTO {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  page: number
+  page?: number
 
   @ApiProperty({ example: 10, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  limit: number
+  limit?: number
 
   @ApiProperty({ example: 'minecraft', required: false })
   @IsOptional()
   @IsString()
-  title: string
+  search?: string
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  personId: number
+  personId?: number
 
   @ApiProperty({ example: $Enums.PrismaTypes.FREE, required: false })
   @IsOptional()
-  type: $Enums.PrismaTypes
+  type?: $Enums.PrismaTypes
 
   @ApiProperty({ example: $Enums.PrismaStatuses.PROGRESS, required: false })
   @IsOptional()
-  status: $Enums.PrismaStatuses
+  status?: $Enums.PrismaStatuses
 
   @ApiProperty({ example: $Enums.PrismaGrades.LIKE, required: false })
   @IsOptional()
-  grade: $Enums.PrismaGrades
+  grade?: $Enums.PrismaGrades
 
   @ApiProperty({ example: 'id', required: false })
   @IsOptional()
-  orderBy: 'id' | 'title'
+  orderBy?: 'id' | 'title'
 
   @ApiProperty({ example: 'asc', required: false })
   @IsOptional()
-  direction: 'asc' | 'desc'
+  direction?: 'asc' | 'desc'
+}
+
+export class GetGamesDto {
+  @ApiProperty({ type: GameEntity, isArray: true })
+  games: GameEntity[]
+
+  @ApiProperty()
+  total: number
 }

@@ -14,8 +14,8 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
-import { CreateVideoDTO, GetVideoDTO, GetVideosDto, PatchVideoDTO } from './video.dto'
-import { VideoEntity } from './video.entity'
+import { CreateVideoDTO, GetVideoDTO, PatchVideoDTO } from './video.dto'
+import { GetAllVideosResponse, VideoEntity } from './video.entity'
 import { VideoService } from './video.service'
 
 @ApiTags('videos')
@@ -60,8 +60,8 @@ export class VideoController {
   }
 
   @Get()
-  @ApiResponse({ status: 200, type: GetVideosDto })
-  async getAllVideos(@Query() query: GetVideoDTO): Promise<GetVideosDto> {
+  @ApiResponse({ status: 200, type: GetAllVideosResponse })
+  async getAllVideos(@Query() query: GetVideoDTO): Promise<GetAllVideosResponse> {
     const { page, limit, orderBy, direction, ...filters } = query
     return await this.videoServices.getAllVideos(page, limit, filters, orderBy, direction)
   }

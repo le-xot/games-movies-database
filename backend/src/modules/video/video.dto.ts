@@ -78,7 +78,7 @@ export class GetVideoDTO {
   @ApiProperty({ example: 'Мадагаскар', required: false })
   @IsOptional()
   @IsString()
-  title?: string
+  search?: string
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()

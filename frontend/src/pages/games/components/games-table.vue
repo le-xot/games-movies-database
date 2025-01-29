@@ -15,7 +15,7 @@ const table = useGamesTable()
 
 <template>
   <TableSearch
-    v-model:value="table.search.searchValue"
+    v-model:value="gamesStore.search"
     v-model:column-visibility="table.columnVisibility"
   />
   <Table

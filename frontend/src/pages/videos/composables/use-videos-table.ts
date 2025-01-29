@@ -164,7 +164,6 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
 
   return {
     tableColumns,
-    search: videos.search,
     columnVisibility,
   }
 })

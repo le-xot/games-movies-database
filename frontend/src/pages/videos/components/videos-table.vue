@@ -14,7 +14,7 @@ const table = useVideosTable()
 
 <template>
   <TableSearch
-    v-model:value="table.search.searchValue"
+    v-model:value="videosStore.search"
     v-model:column-visibility="table.columnVisibility"
   />
   <Table

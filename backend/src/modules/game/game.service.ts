@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
-import { CreateGameDTO, PatchGameDTO } from './game.dto'
+import { CreateGameDTO, GetGamesDto, PatchGameDTO } from './game.dto'
 import { GameEntity } from './game.entity'
 
 @Injectable()
@@ -39,7 +39,7 @@ export class GameService {
     page: number = 1,
     limit: number = 10,
     filters?: {
-      title?: string
+      search?: string
       personId?: number
       type?: $Enums.PrismaTypes
       status?: $Enums.PrismaStatuses
@@ -47,16 +47,27 @@ export class GameService {
     },
     orderBy?: 'title' | 'id',
     direction?: 'asc' | 'desc',
-  ): Promise<{ games: GameEntity[], total: number }> {
+  ): Promise<GetGamesDto> {
     const skip = (page - 1) * limit
-
     const where: Prisma.GameWhereInput = {}
 
-    if (filters?.title) {
-      where.title = {
-        contains: filters.title,
-        mode: Prisma.QueryMode.insensitive,
-      }
+    if (filters?.search) {
+      where.OR = [
+        {
+          title: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          person: {
+            name: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        },
+      ]
     }
 
     if (filters?.personId) {

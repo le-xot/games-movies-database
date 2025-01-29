@@ -63,7 +63,6 @@ export class GameController {
   @ApiResponse({ status: 200, type: GetAllGamesResponse })
   async getAllGames(@Query() query: GetGameDTO): Promise<GetAllGamesResponse> {
     const { page, limit, orderBy, direction, ...filters } = query
-    const { games, total } = await this.gameServices.getAllGames(page, limit, filters, orderBy, direction)
-    return { games, total }
+    return await this.gameServices.getAllGames(page, limit, filters, orderBy, direction)
   }
 }

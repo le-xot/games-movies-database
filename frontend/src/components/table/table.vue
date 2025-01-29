@@ -51,6 +51,13 @@ const table = useVueTable({
 </script>
 
 <template>
+  <TablePagination
+    :total="totalRecords"
+    :table="table"
+    :pagination="pagination"
+    @update:page="(pageIndex) => { $emit('update:pagination', { ...pagination, pageIndex }) }"
+    @update:page-size="(pageSize) => { $emit('update:pagination', { ...pagination, pageSize }) }"
+  />
   <div
     v-if="breakpoints.isDesktop"
     class="relative w-full overflow-auto rounded-md border"
@@ -98,4 +105,12 @@ const table = useVueTable({
       </TableBody>
     </Table>
   </div>
+
+  <TablePagination
+    :total="totalRecords"
+    :table="table"
+    :pagination="pagination"
+    @update:page="(pageIndex) => { $emit('update:pagination', { ...pagination, pageIndex }) }"
+    @update:page-size="(pageSize) => { $emit('update:pagination', { ...pagination, pageSize }) }"
+  />
 </template>

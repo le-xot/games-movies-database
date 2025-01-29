@@ -4,7 +4,7 @@ import { useApi } from '@/composables/use-api'
 import { type PatchVideoDTO, StatusesEnum, VideoEntity } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 export const VIDEOS_QUERY_KEY = 'videos'
 
@@ -14,11 +14,13 @@ export const useVideos = defineStore('videos/use-videos', () => {
 
   const pagination = usePagination()
 
-  const queryVideos = ref({
-    page: pagination.value.pageIndex + 1,
-    limit: pagination.value.pageSize,
-    direction: 'asc',
-    orderBy: 'id',
+  const queryVideos = computed(() => {
+    return {
+      page: pagination.value.pageIndex + 1,
+      limit: pagination.value.pageSize,
+      direction: 'asc',
+      orderBy: 'id',
+    }
   })
 
   const setQueryVideos = (newQuery: Partial<typeof queryVideos.value>) => {
@@ -30,7 +32,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     data,
     refetch: refetchVideos,
   } = useQuery<{ videos: VideoEntity[], total: number }>({
-    key: [VIDEOS_QUERY_KEY, queryVideos.value],
+    key: () => [VIDEOS_QUERY_KEY, queryVideos.value],
     query: async () => {
       const { data } = await api.videos.videoControllerGetAllVideos(queryVideos.value)
       return data
@@ -97,7 +99,6 @@ export const useVideos = defineStore('videos/use-videos', () => {
     pagination,
     totalRecords,
     totalPages,
-    setPagination,
   }
 })
 

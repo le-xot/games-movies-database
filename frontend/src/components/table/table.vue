@@ -8,19 +8,21 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useBreakpoints } from '@/composables/use-breakpoints'
-import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import type { ColumnDef } from '@tanstack/vue-table'
+import { FlexRender, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
+import TablePagination from './table-pagination.vue'
+import type { ColumnDef, PaginationState } from '@tanstack/vue-table'
 
 const props = defineProps<{
   isLoading: boolean
   columns: ColumnDef<any>[]
   columnVisibility: Record<string, boolean>
   data: any[]
-  pagination: { pageIndex: number, pageSize: number }
+  pagination: PaginationState
   totalPages: number
+  totalRecords: number
 }>()
 
-const emit = defineEmits(['update:pagination'])
+defineEmits<{ 'update:pagination': [PaginationState] }>()
 
 const breakpoints = useBreakpoints()
 
@@ -31,6 +33,9 @@ const table = useVueTable({
   get columns() {
     return props.columns
   },
+  get pageCount() {
+    return props.totalPages
+  },
   state: {
     get columnVisibility() {
       return props.columnVisibility
@@ -40,10 +45,7 @@ const table = useVueTable({
     },
   },
   getCoreRowModel: getCoreRowModel(),
-  onPaginationChange: (updater) => {
-    const newPagination = typeof updater === 'function' ? updater(props.pagination) : updater
-    emit('update:pagination', newPagination)
-  },
+  getPaginationRowModel: getPaginationRowModel(),
   manualPagination: true,
 })
 </script>
@@ -80,11 +82,6 @@ const table = useVueTable({
                   :render="cell.column.columnDef.cell"
                   :props="cell.getContext()"
                 />
-              </TableCell>
-            </TableRow>
-            <TableRow v-if="row.getIsExpanded()">
-              <TableCell :colspan="row.getAllCells().length">
-                {{ JSON.stringify(row.original) }}
               </TableCell>
             </TableRow>
           </template>

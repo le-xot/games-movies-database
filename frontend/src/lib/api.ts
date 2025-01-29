@@ -22,6 +22,9 @@ export interface UserEntity {
   id: string;
   login: string;
   role: RolesEnum;
+  profileImageUrl: string;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface UpsertUserDTO {
@@ -31,6 +34,8 @@ export interface UpsertUserDTO {
   id: string;
   /** @example "USER" */
   role: string;
+  /** @example "le_xot" */
+  profileImageUrl: string;
 }
 
 export interface CreatePersonDTO {

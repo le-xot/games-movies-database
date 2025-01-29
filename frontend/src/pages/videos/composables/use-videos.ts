@@ -1,3 +1,4 @@
+import { usePagination } from '@/components/table/composables/use-pagination'
 import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
 import { type PatchVideoDTO, StatusesEnum, VideoEntity } from '@/lib/api.ts'
@@ -11,10 +12,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
   const api = useApi()
   const search = useTableSearch()
 
-  const pagination = ref({
-    pageIndex: 0,
-    pageSize: 10,
-  })
+  const pagination = usePagination()
 
   const queryVideos = ref({
     page: pagination.value.pageIndex + 1,
@@ -39,16 +37,15 @@ export const useVideos = defineStore('videos/use-videos', () => {
     },
   })
 
+  const totalRecords = computed(() => {
+    if (!data.value) return 0
+    return data.value.total
+  })
+
   const totalPages = computed(() => {
     if (!data.value) return 0
     return Math.ceil(data.value.total / pagination.value.pageSize)
   })
-
-  const setPagination = (newPagination: { pageIndex: number, pageSize: number }) => {
-    pagination.value = newPagination
-    setQueryVideos({ page: newPagination.pageIndex + 1, limit: newPagination.pageSize })
-    refetchVideos()
-  }
 
   const { mutateAsync: updateVideo } = useMutation({
     key: [VIDEOS_QUERY_KEY, 'update'],
@@ -75,7 +72,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
   })
 
   const videosQueue = computed(() => {
-    if (!data.value) return { videos: [], total: 0 }
+    if (!data.value) return []
 
     return data.value.videos.filter((video) => {
       return video.status === StatusesEnum.QUEUE
@@ -98,6 +95,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     deleteVideo,
     createVideo,
     pagination,
+    totalRecords,
     totalPages,
     setPagination,
   }

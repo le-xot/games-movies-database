@@ -17,15 +17,15 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
     <div v-if="isLoading" class="loaded">
       <Spinner />
     </div>
-    <QueueCard v-if="games.gamesQueue.length > 0 && !isLoading" kind="game" :items="games.gamesQueue">
+    <QueueCard v-if="games.totalRecords > 0 && !isLoading" kind="game" :items="games.gamesQueue">
       <template #title>
-        Поиграть: {{ games.gamesQueue.length }}
+        Поиграть: {{ games.totalRecords }}
       </template>
     </QueueCard>
 
-    <QueueCard v-if="videos.videosQueue.length > 0" kind="video" :items="videos.videosQueue">
+    <QueueCard v-if="videos.totalRecords > 0" kind="video" :items="videos.videosQueue">
       <template #title>
-        Посмотреть: {{ videos.videosQueue.length }}
+        Посмотреть: {{ videos.totalRecords }}
       </template>
       <template #footer="{ item }">
         <div>

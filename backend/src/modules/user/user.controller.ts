@@ -14,8 +14,7 @@ export class UserController {
 
   @Post()
   async createOrUpdateUser(@Body() user: UpsertUserDTO): Promise<UserDTO> {
-    const { id, login, role } = user
-    return await this.userService.upsertUser(id, login, role)
+    return await this.userService.upsertUser(user)
   }
 
   @Get(':id')

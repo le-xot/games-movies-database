@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
 import { env } from '../../utils/enviroments'
 import { UserEntity } from '../user/user.entity'
 import { UserService } from '../user/user.service'
@@ -30,7 +29,7 @@ export class AuthController {
       const accessToken = await this.authService.getAccessToken(data.code)
       const user = await this.authService.getTwitchUser(accessToken)
 
-      await this.userService.upsertUser(user.id, user.login, $Enums.PrismaRoles.USER)
+      await this.userService.upsertUser({ id: user.id, login: user.login, profileImageUrl: user.profile_image_url })
 
       const token = await this.authService.signJwt(user.id)
 

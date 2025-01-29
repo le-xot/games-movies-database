@@ -11,4 +11,10 @@ export class UserEntity implements User {
 
   @ApiProperty({ enumName: RolesEnum, enum: $Enums.PrismaRoles })
   role: $Enums.PrismaRoles
+
+  @ApiProperty()
+  profileImageUrl: string
+
+  @ApiProperty()
+  createdAt: Date
 }

@@ -7,16 +7,27 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async upsertUser(
-    id: string,
-    login: string,
-    role: $Enums.PrismaRoles,
+    opts: {
+      id: string
+      login?: string
+      role?: $Enums.PrismaRoles
+      profileImageUrl?: string
+    },
   ): Promise<User> {
-    const foundUser = await this.prisma.user.findUnique({ where: { id } })
-    if (!foundUser) {
-      return this.prisma.user.create({ data: { id, login, role } })
-    } else {
-      return foundUser
-    }
+    return this.prisma.user.upsert({
+      where: { id: opts.id },
+      update: {
+        login: opts.login,
+        role: opts.role,
+        profileImageUrl: opts.profileImageUrl,
+      },
+      create: {
+        id: opts.id,
+        login: opts.login,
+        role: $Enums.PrismaRoles.USER,
+        profileImageUrl: opts.profileImageUrl,
+      },
+    })
   }
 
   async getUserById(id: string): Promise<User> {

@@ -13,7 +13,12 @@ export class UserDTO {
 
   @ApiProperty({ example: $Enums.PrismaRoles.USER })
   @IsOptional()
-  role?: $Enums.PrismaRoles = $Enums.PrismaRoles.USER
+  role?: $Enums.PrismaRoles
+
+  @ApiProperty({ example: 'le_xot' })
+  @IsString()
+  @IsOptional()
+  profileImageUrl?: string
 }
 
 export class UpsertUserDTO {
@@ -27,5 +32,10 @@ export class UpsertUserDTO {
 
   @ApiProperty({ example: $Enums.PrismaRoles.USER })
   @IsOptional()
-  role?: $Enums.PrismaRoles = $Enums.PrismaRoles.USER
+  role?: $Enums.PrismaRoles
+
+  @ApiProperty({ example: 'le_xot' })
+  @IsString()
+  @IsOptional()
+  profileImageUrl?: string
 }

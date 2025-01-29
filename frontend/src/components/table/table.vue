@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { useBreakpoints } from '@/composables/use-breakpoints'
 import { FlexRender, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
 import TablePagination from './table-pagination.vue'
 import type { ColumnDef, PaginationState } from '@tanstack/vue-table'
@@ -23,8 +22,6 @@ const props = defineProps<{
 }>()
 
 defineEmits<{ 'update:pagination': [PaginationState] }>()
-
-const breakpoints = useBreakpoints()
 
 const table = useVueTable({
   get data() {
@@ -52,10 +49,9 @@ const table = useVueTable({
 
 <template>
   <div
-    v-if="breakpoints.isDesktop"
-    class="relative w-full overflow-auto rounded-md border"
+    class="relative w-full overflow-auto rounded-md border h-full"
   >
-    <Table class="w-full h-[80dvh] overflow-auto">
+    <Table>
       <TableHeader class="w-full">
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
           <TableHead
@@ -74,18 +70,16 @@ const table = useVueTable({
 
       <TableBody>
         <template v-if="table.getRowModel().rows?.length">
-          <template v-for="row in table.getRowModel().rows" :key="row.id">
-            <TableRow :data-state="row.getIsSelected() && 'selected'">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender
-                  v-if="cell.column.getIsVisible()"
-                  :style="{ width: `${cell.column.getSize()}%` }"
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
-              </TableCell>
-            </TableRow>
-          </template>
+          <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="max-h-24" :data-state="row.getIsSelected() && 'selected'">
+            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+              <FlexRender
+                v-if="cell.column.getIsVisible()"
+                :style="{ width: `${cell.column.getSize()}%` }"
+                :render="cell.column.columnDef.cell"
+                :props="cell.getContext()"
+              />
+            </TableCell>
+          </TableRow>
         </template>
 
         <TableRow v-else>

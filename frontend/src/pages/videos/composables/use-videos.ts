@@ -33,6 +33,10 @@ export const useVideos = defineStore('videos/use-videos', () => {
     data,
     refetch: refetchVideos,
   } = useQuery<{ videos: VideoEntity[], total: number }>({
+    placeholderData(previousData) {
+      if (!previousData) return { videos: [], total: 0 }
+      return previousData
+    },
     key: () => [VIDEOS_QUERY_KEY, queryVideos.value],
     query: async () => {
       const { data } = await api.videos.videoControllerGetAllVideos(queryVideos.value)

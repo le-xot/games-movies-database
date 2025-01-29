@@ -33,6 +33,10 @@ export const useGames = defineStore('games/use-games', () => {
     data,
     refetch: refetchGames,
   } = useQuery<{ games: GameEntity[], total: number }>({
+    placeholderData(previousData) {
+      if (!previousData) return { games: [], total: 0 }
+      return previousData
+    },
     key: () => [GAMES_QUERY_KEY, queryGames.value],
     query: async () => {
       const { data } = await api.games.gameControllerGetAllGames(queryGames.value)

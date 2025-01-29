@@ -36,4 +36,4 @@ pnpm dev
 ## Contributing
 
 * Please make sure that you pull request to [dev](https://github.com/le-xot/games-movies-database/tree/dev) branch.
-* To become an ADMIN please change [dev](/backend/prisma/seed.js) with your actual twitch login and id
+* To become an ADMIN please change [seed.js](/backend/prisma/seed.js) with your actual twitch login and id

@@ -17,8 +17,7 @@ import LayoutHeader from '@/layout/db/layout-header.vue'
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100dvh;
-  overflow: auto;
+  height: 100%;
   scrollbar-width: none;
 }
 </style>

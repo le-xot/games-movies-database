@@ -15,6 +15,6 @@
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  height: calc(100dvh - 75px);
+  height: 100%;
 }
 </style>

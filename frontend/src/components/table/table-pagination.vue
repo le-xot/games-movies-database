@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { pageSize } from './composables/use-pagination'
 import type { PaginationState, RowData, Table } from '@tanstack/vue-table'
 
 const props = defineProps<{
@@ -72,15 +73,15 @@ function handlePageSizeChange(pageSize: string) {
         </Button>
       </div>
       <div class="flex gap-2 items-center">
-        <Select default-value="10" @update:model-value="handlePageSizeChange">
+        <Select :default-value="pageSize[0]" @update:model-value="handlePageSizeChange">
           <SelectTrigger class="h-9 justify-between gap-2">
             <div>
               <SelectValue class="flex-none" />
             </div>
           </SelectTrigger>
           <SelectContent align="end">
-            <SelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
-              {{ pageSize }}
+            <SelectItem v-for="size in pageSize" :key="size" :value="size">
+              {{ size }}
             </SelectItem>
           </SelectContent>
         </Select>

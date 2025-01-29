@@ -48,8 +48,15 @@ const table = useVueTable({
 </script>
 
 <template>
+  <TablePagination
+    :total="totalRecords"
+    :table="table"
+    :pagination="pagination"
+    @update:page="(pageIndex) => { $emit('update:pagination', { ...pagination, pageIndex }) }"
+    @update:page-size="(pageSize) => { $emit('update:pagination', { ...pagination, pageSize }) }"
+  />
   <div
-    class="relative w-full overflow-auto rounded-md border h-full"
+    class="w-full rounded-md border"
   >
     <Table>
       <TableHeader class="w-full">

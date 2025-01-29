@@ -31,7 +31,8 @@ function handleGoToPage(event: any) {
 
 function handlePageSizeChange(pageSize: string) {
   emits('update:page', 0)
-  emits('update:pageSize', Number(pageSize))
+  const newSize = Number(pageSize)
+  emits('update:pageSize', newSize)
 }
 </script>
 
@@ -73,7 +74,7 @@ function handlePageSizeChange(pageSize: string) {
         </Button>
       </div>
       <div class="flex gap-2 items-center">
-        <Select :default-value="pageSize[0]" @update:model-value="handlePageSizeChange">
+        <Select :default-value="pagination.pageSize.toString()" @update:model-value="handlePageSizeChange">
           <SelectTrigger class="h-9 justify-between gap-2">
             <div>
               <SelectValue class="flex-none" />

@@ -7,14 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { FlexRender, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
+import { ColumnDef, FlexRender, getCoreRowModel, getPaginationRowModel, PaginationState, useVueTable, VisibilityState } from '@tanstack/vue-table'
 import TablePagination from './table-pagination.vue'
-import type { ColumnDef, PaginationState } from '@tanstack/vue-table'
 
 const props = defineProps<{
   isLoading: boolean
   columns: ColumnDef<any>[]
-  columnVisibility: Record<string, boolean>
+  columnVisibility: VisibilityState
   data: any[]
   pagination: PaginationState
   totalPages: number

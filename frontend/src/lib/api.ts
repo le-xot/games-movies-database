@@ -126,7 +126,7 @@ export interface PatchVideoDTO {
   grade?: string;
 }
 
-export interface GetVideosDto {
+export interface GetAllVideosResponse {
   videos: VideoEntity[];
   total: number;
 }
@@ -656,7 +656,7 @@ export class Api<SecurityDataType extends unknown> {
         /** @example 10 */
         limit?: number;
         /** @example "Мадагаскар" */
-        title?: string;
+        search?: string;
         /** @example 1 */
         personId?: number;
         /** @example "FREE" */
@@ -674,7 +674,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<GetVideosDto, any>({
+      this.http.request<GetAllVideosResponse, any>({
         path: `/videos`,
         method: "GET",
         query: query,
@@ -760,7 +760,7 @@ export class Api<SecurityDataType extends unknown> {
         /** @example 10 */
         limit?: number;
         /** @example "minecraft" */
-        title?: string;
+        search?: string;
         /** @example 1 */
         personId?: number;
         /** @example "FREE" */

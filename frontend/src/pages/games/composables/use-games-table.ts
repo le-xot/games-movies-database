@@ -6,7 +6,7 @@ import TableColTitle from '@/components/table/table-col/table-col-title.vue'
 import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { GameEntity } from '@/lib/api.ts'
-import { ColumnDef } from '@tanstack/vue-table'
+import { ColumnDef, VisibilityState } from '@tanstack/vue-table'
 import { useLocalStorage } from '@vueuse/core'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
@@ -18,7 +18,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
   const games = useGames()
   const dialog = useDialog()
 
-  const columnVisibility = useLocalStorage<Record<string, boolean>>('gamesColumnVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('gamesColumnVisibility', {
     title: true,
     person: true,
     status: true,
@@ -33,7 +33,6 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         size: isAdmin.value ? 55 : 60,
         minSize: isAdmin.value ? 55 : 60,
         maxSize: isAdmin.value ? 55 : 60,
-        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,

@@ -6,7 +6,7 @@ import TableColTitle from '@/components/table/table-col/table-col-title.vue'
 import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { VideoEntity } from '@/lib/api.ts'
-import { ColumnDef } from '@tanstack/vue-table'
+import { ColumnDef, VisibilityState } from '@tanstack/vue-table'
 import { useLocalStorage } from '@vueuse/core'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
@@ -18,7 +18,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
   const videos = useVideos()
   const dialog = useDialog()
 
-  const columnVisibility = useLocalStorage<Record<string, boolean>>('videosColumnVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('videosColumnVisibility', {
     title: true,
     genre: true,
     person: true,

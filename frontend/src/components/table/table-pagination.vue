@@ -38,8 +38,8 @@ function handlePageSizeChange(pageSize: string) {
 
 <template>
   <div class="flex justify-end max-sm:flex-col gap-4">
-    <div class="flex gap-2 items-center">
-      <div class="flex gap-2 max-sm:justify-end max-sm:w-full">
+    <div class="flex gap-2 items-center flex-wrap">
+      <div class="flex gap-2 max-sm:justify-end max-sm:w-full flex-wrap">
         <div class="flex justify-center items-center text-muted-foreground text-nowrap">
           Показано с&nbsp; <strong>{{ pagination.pageIndex * pagination.pageSize + 1 }}</strong>&nbsp;по&nbsp;
           <strong>{{ Math.min((pagination.pageIndex + 1) * pagination.pageSize, total) }}</strong>&nbsp;запись из&nbsp;

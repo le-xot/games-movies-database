@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VisibilityState } from '@tanstack/vue-table'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Button } from '../ui/button'
@@ -7,7 +8,7 @@ import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 const searchValue = defineModel<string>('value', { required: true })
-const columnVisibility = defineModel<Record<string, boolean>>('columnVisibility', { required: true })
+const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })
 const placeholder = computed(() => 'Искать по названию или заказчику')
 
 function clearSearch() {

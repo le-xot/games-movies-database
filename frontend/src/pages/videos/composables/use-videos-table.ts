@@ -6,25 +6,24 @@ import TableColTitle from '@/components/table/table-col/table-col-title.vue'
 import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { VideoEntity } from '@/lib/api.ts'
-import { ColumnDef, VisibilityState } from '@tanstack/vue-table'
-import { useLocalStorage } from '@vueuse/core'
+import {
+  ColumnDef,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useVueTable,
+} from '@tanstack/vue-table'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useVideos } from './use-videos'
+import { useVideosParams } from './use-videos-params'
 
 export const useVideosTable = defineStore('videos/use-videos-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const videos = useVideos()
+  const videosStore = useVideos()
+  const { columnVisibility, pagination } = storeToRefs(useVideosParams())
+  const { videos, totalPages } = storeToRefs(videosStore)
   const dialog = useDialog()
-
-  const columnVisibility = useLocalStorage<VisibilityState>('videosColumnVisibility', {
-    title: true,
-    genre: true,
-    person: true,
-    status: true,
-    grade: true,
-  })
 
   const tableColumns = computed(() => {
     const columns: ColumnDef<VideoEntity>[] = [
@@ -39,7 +38,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
-            onUpdate: (title) => videos.updateVideo({
+            onUpdate: (title) => videosStore.updateVideo({
               id: row.original.id,
               data: { title },
             }),
@@ -59,7 +58,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
             value: row.original.genre,
             kind: 'genre',
             onUpdate: (value) => {
-              videos.updateVideo({
+              videosStore.updateVideo({
                 id: row.original.id,
                 data: { genre: value },
               })
@@ -78,7 +77,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
             personId: row.original.person?.id,
-            onUpdate: (personId) => videos.updateVideo({
+            onUpdate: (personId) => videosStore.updateVideo({
               id: row.original.id,
               data: { personId },
             }),
@@ -98,7 +97,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
             value: row.original.status,
             kind: 'status',
             onUpdate: (value) => {
-              videos.updateVideo({
+              videosStore.updateVideo({
                 id: row.original.id,
                 data: { status: value },
               })
@@ -119,7 +118,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
             value: row.original.grade,
             kind: 'grade',
             onUpdate: (value) => {
-              videos.updateVideo({
+              videosStore.updateVideo({
                 id: row.original.id,
                 data: { grade: value },
               })
@@ -141,7 +140,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
             onClick: () => dialog.openDialog({
               title: `Создать киношку?`,
               description: '',
-              onSubmit: () => videos.createVideo(),
+              onSubmit: () => videosStore.createVideo(),
             }),
           })
         },
@@ -152,7 +151,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
             onClick: () => dialog.openDialog({
               title: `Удалить киношку?`,
               description: `Вы уверены, что хотите удалить "${row.original.title}"?`,
-              onSubmit: () => videos.deleteVideo(row.original.id),
+              onSubmit: () => videosStore.deleteVideo(row.original.id),
             }),
           }) })
         },
@@ -162,10 +161,30 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
     return columns
   })
 
-  return {
-    tableColumns,
-    columnVisibility,
-  }
+  const table = useVueTable({
+    get data() {
+      return videos.value
+    },
+    get columns() {
+      return tableColumns.value
+    },
+    get pageCount() {
+      return totalPages.value
+    },
+    state: {
+      get columnVisibility() {
+        return columnVisibility.value
+      },
+      get pagination() {
+        return pagination.value
+      },
+    },
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  })
+
+  return table
 })
 
 if (import.meta.hot) {

@@ -1,45 +1,31 @@
-import { usePagination } from '@/components/table/composables/use-pagination'
 import { useApi } from '@/composables/use-api'
-import { type PatchVideoDTO, VideoEntity } from '@/lib/api.ts'
+import { GetAllVideosResponse, type PatchVideoDTO } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
-import { refDebounced } from '@vueuse/core'
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
+import { computed } from 'vue'
+import { useVideosParams } from './use-videos-params'
 
 export const VIDEOS_QUERY_KEY = 'videos'
 
 export const useVideos = defineStore('videos/use-videos', () => {
   const api = useApi()
-  const search = ref('')
-  const debouncedSearch = refDebounced(search, 500)
-  const pagination = usePagination()
-
-  const queryVideos = computed(() => {
-    return {
-      page: pagination.value.pageIndex + 1,
-      limit: pagination.value.pageSize,
-      search: debouncedSearch.value,
-      orderBy: 'id',
-      direction: 'asc',
-    }
-  })
-
-  const setQueryVideos = (newQuery: Partial<typeof queryVideos.value>) => {
-    Object.assign(queryVideos.value, newQuery)
-  }
+  const {
+    pagination,
+    videosParams,
+  } = storeToRefs(useVideosParams())
 
   const {
     isLoading,
     data,
     refetch: refetchVideos,
-  } = useQuery<{ videos: VideoEntity[], total: number }>({
-    placeholderData(previousData) {
+  } = useQuery({
+    placeholderData(previousData): GetAllVideosResponse {
       if (!previousData) return { videos: [], total: 0 }
       return previousData
     },
-    key: () => [VIDEOS_QUERY_KEY, queryVideos.value],
+    key: () => [VIDEOS_QUERY_KEY, videosParams.value],
     query: async () => {
-      const { data } = await api.videos.videoControllerGetAllVideos(queryVideos.value)
+      const { data } = await api.videos.videoControllerGetAllVideos(videosParams.value)
       return data
     },
   })
@@ -84,15 +70,12 @@ export const useVideos = defineStore('videos/use-videos', () => {
   })
 
   return {
-    setQueryVideos,
     isLoading,
     videos,
-    search,
     refetchVideos,
     updateVideo,
     deleteVideo,
     createVideo,
-    pagination,
     totalRecords,
     totalPages,
   }

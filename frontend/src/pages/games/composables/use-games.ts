@@ -1,45 +1,28 @@
-import { usePagination } from '@/components/table/composables/use-pagination'
 import { useApi } from '@/composables/use-api'
 import { useMutation, useQuery } from '@pinia/colada'
-import { refDebounced } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
-import type { GameEntity, PatchGameDTO } from '@/lib/api.ts'
+import { computed } from 'vue'
+import { useGamesParams } from './use-games-params'
+import type { GetAllGamesResponse, PatchGameDTO } from '@/lib/api.ts'
 
 export const GAMES_QUERY_KEY = 'games'
 
 export const useGames = defineStore('games/use-games', () => {
   const api = useApi()
-  const search = ref('')
-  const debouncedSearch = refDebounced(search, 500)
-  const pagination = usePagination()
-
-  const queryGames = computed(() => {
-    return {
-      page: pagination.value.pageIndex + 1,
-      limit: pagination.value.pageSize,
-      search: debouncedSearch.value,
-      orderBy: 'id',
-      direction: 'asc',
-    }
-  })
-
-  const setQueryGames = (newQuery: Partial<typeof queryGames.value>) => {
-    Object.assign(queryGames.value, newQuery)
-  }
+  const params = useGamesParams()
 
   const {
     isLoading,
     data,
     refetch: refetchGames,
-  } = useQuery<{ games: GameEntity[], total: number }>({
-    placeholderData(previousData) {
+  } = useQuery({
+    placeholderData(previousData): GetAllGamesResponse {
       if (!previousData) return { games: [], total: 0 }
       return previousData
     },
-    key: () => [GAMES_QUERY_KEY, queryGames.value],
+    key: () => [GAMES_QUERY_KEY, params.gamesParams],
     query: async () => {
-      const { data } = await api.games.gameControllerGetAllGames(queryGames.value)
+      const { data } = await api.games.gameControllerGetAllGames(params.gamesParams)
       return data
     },
   })
@@ -51,7 +34,7 @@ export const useGames = defineStore('games/use-games', () => {
 
   const totalPages = computed(() => {
     if (!data.value) return 0
-    return Math.ceil(data.value.total / pagination.value.pageSize)
+    return Math.ceil(data.value.total / params.pagination.pageSize)
   })
 
   const { mutateAsync: updateGame } = useMutation({
@@ -84,15 +67,12 @@ export const useGames = defineStore('games/use-games', () => {
   })
 
   return {
-    setQueryGames,
     isLoading,
     games,
-    search,
     refetchGames,
     updateGame,
     deleteGame,
     createGame,
-    pagination,
     totalRecords,
     totalPages,
   }

@@ -24,6 +24,10 @@ coverage
 
 # Editor directories and files
 .idea
+!.idea/codeStyles
+!.idea/codeStyles/*.xml
+!.idea/dataSources.xml
+!.idea/jsLinters
 .project
 .classpath
 .c9/
@@ -62,8 +66,3 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # TS
 *.tsbuildinfo
-.idea
-!.idea/codeStyles
-!.idea/codeStyles/*.xml
-!.idea/dataSources.xml
-!.idea/jsLinters

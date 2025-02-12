@@ -1,48 +1,31 @@
 <script setup lang="ts">
 import Table from '@/components/table/table.vue'
+import TablePagination from '@/components/table/table-pagination.vue'
 import TableSearch from '@/components/table/table-search.vue'
-import { storeToRefs } from 'pinia'
 import { useGames } from '../composables/use-games'
+import { useGamesParams } from '../composables/use-games-params'
 import { useGamesTable } from '../composables/use-games-table'
 
-const { isLoading, games } = storeToRefs(useGames())
+const games = useGames()
 const table = useGamesTable()
+const params = useGamesParams()
 </script>
 
 <template>
   <TableSearch
-    v-model:value="table.search.searchValue"
-    v-model:column-visibility="table.columnVisibility"
+    v-model:value="params.search"
+    v-model:column-visibility="params.columnVisibility"
   />
+
   <Table
-    :columns="table.tableColumns"
-    :data="games"
-    :is-loading="isLoading"
-    :column-visibility="table.columnVisibility"
-  />
+    :is-loading="games.isLoading"
+    :table="table"
+  >
+    <template #pagination>
+      <TablePagination
+        v-model="params.pagination"
+        :total-records="games.totalRecords"
+      />
+    </template>
+  </Table>
 </template>
-
-<style scoped>
-.table-manage {
-  display: flex;
-  justify-content: flex-start;
-  margin: 0 1rem;
-}
-
-.search-and-button {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-}
-
-.column-button {
-  width: 120px;
-  margin-left: 1rem;
-}
-
-.column-checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-</style>

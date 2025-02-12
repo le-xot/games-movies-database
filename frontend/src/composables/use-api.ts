@@ -4,9 +4,12 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 export const useApi = defineStore('globals/use-api', () => {
   const httpClient = new HttpClient({
     baseUrl: '/api',
+    baseApiParams: {
+      credentials: 'include',
+    },
   })
-  const api = new Api(httpClient)
-  return api
+
+  return new Api(httpClient)
 })
 
 if (import.meta.hot) {

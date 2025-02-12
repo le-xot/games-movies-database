@@ -1,27 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
+import { IsOptional, IsString } from 'class-validator'
 
-export class CreateUserDTO {
-  @ApiProperty({ example: 'Joe' })
-  username: string
+export class UserDTO {
+  @ApiProperty({ example: 'le_xot' })
+  @IsString()
+  login: string
 
-  @ApiProperty({ example: 'Doe' })
-  password: string
+  @ApiProperty({ example: '155644238' })
+  @IsString()
+  id: string
 
   @ApiProperty({ example: $Enums.PrismaRoles.USER })
-  role: $Enums.PrismaRoles
+  @IsOptional()
+  role?: $Enums.PrismaRoles
+
+  @ApiProperty({ example: 'le_xot' })
+  @IsString()
+  @IsOptional()
+  profileImageUrl?: string
 }
 
-export class UpdateUserDTO {
-  @ApiProperty({ example: 1 })
-  id: number
+export class UpsertUserDTO {
+  @ApiProperty({ example: 'le_xot' })
+  @IsString()
+  login: string
 
-  @ApiProperty({ example: 'NotJoe' })
-  username: string
+  @ApiProperty({ example: '155644238' })
+  @IsString()
+  id: string
 
-  @ApiProperty({ example: 'NotDoe' })
-  password: string
+  @ApiProperty({ example: $Enums.PrismaRoles.USER })
+  @IsOptional()
+  role?: $Enums.PrismaRoles
 
-  @ApiProperty({ example: $Enums.PrismaRoles.ADMIN })
-  role: $Enums.PrismaRoles
+  @ApiProperty({ example: 'le_xot' })
+  @IsString()
+  @IsOptional()
+  profileImageUrl?: string
 }

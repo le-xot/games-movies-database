@@ -25,3 +25,11 @@ export class GameEntity implements Game {
   @ApiProperty({ enumName: GradeEnum, enum: $Enums.PrismaGrades })
   grade: $Enums.PrismaGrades
 }
+
+export class GetAllGamesResponse {
+  @ApiProperty({ type: GameEntity, isArray: true })
+  games: GameEntity[]
+
+  @ApiProperty()
+  total: number
+}

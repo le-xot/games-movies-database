@@ -4,7 +4,7 @@ import { PatchPersonDTO } from './person.dto'
 import { PersonEntity } from './person.entity'
 
 @Injectable()
-export class PersonServices {
+export class PersonService {
   constructor(private prisma: PrismaService) {}
 
   async createPerson(name: string, color?: string): Promise<PersonEntity> {

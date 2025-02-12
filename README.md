@@ -18,11 +18,12 @@ pnpm i
 docker compose up -d
 ```
 
-* Generate prisma schema and migrate dev database in **backend** folder
+* Generate prisma schema and migrate dev database
 
 ```bash
-pnpx prisma generate
-pnpx prisma migrate dev
+cd backend
+pnpm prisma generate
+pnpm prisma migrate dev
 ```
 
 * Start development
@@ -35,4 +36,5 @@ pnpm dev
 
 ## Contributing
 
-* Please make sure that you pull request to [dev](/tree/dev) branch.
+* Please make sure that you pull request to [dev](https://github.com/le-xot/games-movies-database/tree/dev) branch.
+* To become an ADMIN please change [seed.js](/backend/prisma/seed.js) with your actual twitch login and id

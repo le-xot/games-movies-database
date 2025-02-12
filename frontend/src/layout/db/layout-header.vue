@@ -61,6 +61,7 @@ onMounted(() => {
 
 <style scoped>
 .header {
+  height: 68px;
   display: flex;
 }
 

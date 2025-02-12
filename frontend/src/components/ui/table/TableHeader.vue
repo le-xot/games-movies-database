@@ -15,7 +15,6 @@ const props = defineProps<{
 
 <style scoped>
 .table-header {
-  position: sticky;
   inset-block-start: -1px;
   background: hsla(var(--secondary));
   z-index: 1;

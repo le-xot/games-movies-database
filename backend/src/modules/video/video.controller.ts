@@ -3,55 +3,66 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { PrismaRoles, Video } from '@prisma/client'
+import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
-import { CreateVideoDTO, PatchVideoDTO } from './video.dto'
-import { VideoEntity } from './video.entity'
-import { VideoServices } from './video.service'
+import { CreateVideoDTO, GetVideoDTO, PatchVideoDTO } from './video.dto'
+import { GetAllVideosResponse, VideoEntity } from './video.entity'
+import { VideoService } from './video.service'
 
 @ApiTags('videos')
 @Controller('videos')
 export class VideoController {
-  constructor(private videoServices: VideoServices) {}
+  constructor(private videoServices: VideoService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
-  async createVideo(@Body() video: CreateVideoDTO): Promise<Video> {
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
+  @ApiResponse({ status: 201, type: VideoEntity })
+  async createVideo(@Body() video: CreateVideoDTO): Promise<VideoEntity> {
     return this.videoServices.createVideo(video)
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
-  async findVideoById(@Param('id', ParseIntPipe) id: number): Promise<Video> {
-    return await this.videoServices.findVideoById(id)
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
+  @ApiResponse({ status: 200, type: VideoEntity })
+  @ApiResponse({ status: 404, description: 'Video not found' })
+  async findVideoById(@Param('id') id: number): Promise<VideoEntity> {
+    const video = await this.videoServices.findVideoById(id)
+    if (!video) {
+      throw new NotFoundException('Video not found')
+    }
+    return video
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
+  @ApiResponse({ status: 200, type: VideoEntity })
   async patchVideo(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: number,
     @Body() video: PatchVideoDTO,
-  ): Promise<Video> {
+  ): Promise<VideoEntity> {
     return this.videoServices.patchVideo(id, video)
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard([PrismaRoles.ADMIN]))
-  async deleteVideo(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
+  @ApiResponse({ status: 204 })
+  async deleteVideo(@Param('id') id: number): Promise<void> {
     await this.videoServices.deleteVideo(id)
   }
 
   @Get()
-  @ApiResponse({ status: 200, type: VideoEntity, isArray: true })
-  async getAllVideos(): Promise<VideoEntity[]> {
-    return await this.videoServices.getAllVideos()
+  @ApiResponse({ status: 200, type: GetAllVideosResponse })
+  async getAllVideos(@Query() query: GetVideoDTO): Promise<GetAllVideosResponse> {
+    const { page, limit, orderBy, direction, ...filters } = query
+    return await this.videoServices.getAllVideos(page, limit, filters, orderBy, direction)
   }
 }

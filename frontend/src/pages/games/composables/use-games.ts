@@ -1,27 +1,40 @@
-import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
-import { type GameEntity, type PatchGameDTO, StatusesEnum } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
+import { useGamesParams } from './use-games-params'
+import type { GetAllGamesResponse, PatchGameDTO } from '@/lib/api.ts'
 
 export const GAMES_QUERY_KEY = 'games'
 
 export const useGames = defineStore('games/use-games', () => {
   const api = useApi()
-  const search = useTableSearch()
+  const params = useGamesParams()
 
   const {
     isLoading,
     data,
     refetch: refetchGames,
-  } = useQuery<GameEntity[]>({
-    key: [GAMES_QUERY_KEY],
-    placeholderData: (prev) => prev ?? [],
+  } = useQuery({
+    placeholderData(previousData): GetAllGamesResponse {
+      if (!previousData) return { games: [], total: 0 }
+      return previousData
+    },
+    key: () => [GAMES_QUERY_KEY, params.gamesParams],
     query: async () => {
-      const { data } = await api.games.gameControllerGetAllGames()
+      const { data } = await api.games.gameControllerGetAllGames(params.gamesParams)
       return data
     },
+  })
+
+  const totalRecords = computed(() => {
+    if (!data.value) return 0
+    return data.value.total
+  })
+
+  const totalPages = computed(() => {
+    if (!data.value) return 0
+    return Math.ceil(data.value.total / params.pagination.pageSize)
   })
 
   const { mutateAsync: updateGame } = useMutation({
@@ -48,28 +61,20 @@ export const useGames = defineStore('games/use-games', () => {
     onSettled: () => refetchGames(),
   })
 
-  const gamesQueue = computed(() => {
-    if (!data.value) return []
-
-    return data.value.filter((games) => {
-      return games.status === StatusesEnum.QUEUE
-        || games.status === StatusesEnum.PROGRESS
-    })
-  })
-
   const games = computed(() => {
-    return search.filterData(data.value ?? [])
+    if (!data.value) return []
+    return data.value.games
   })
 
   return {
     isLoading,
     games,
-    gamesQueue,
-    search,
     refetchGames,
     updateGame,
     deleteGame,
     createGame,
+    totalRecords,
+    totalPages,
   }
 })
 

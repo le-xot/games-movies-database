@@ -9,31 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-export interface CreateUserDTO {
-  /** @example "Joe" */
-  username: string;
-  /** @example "Doe" */
-  password: string;
-  /** @example "USER" */
-  role: string;
-}
-
-export interface LoginDTO {
-  /** @example "Joe" */
-  username: string;
-  /** @example "Doe" */
-  password: string;
-}
-
-export interface UpdateUserDTO {
-  /** @example 1 */
-  id: number;
-  /** @example "NotJoe" */
-  username: string;
-  /** @example "NotDoe" */
-  password: string;
-  /** @example "ADMIN" */
-  role: string;
+export interface CallbackDto {
+  code: string;
 }
 
 export enum RolesEnum {
@@ -42,10 +19,23 @@ export enum RolesEnum {
 }
 
 export interface UserEntity {
-  id: number;
-  username: string;
-  password: string;
+  id: string;
+  login: string;
   role: RolesEnum;
+  profileImageUrl: string;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export interface UpsertUserDTO {
+  /** @example "le_xot" */
+  login: string;
+  /** @example "155644238" */
+  id: string;
+  /** @example "USER" */
+  role: string;
+  /** @example "le_xot" */
+  profileImageUrl: string;
 }
 
 export interface CreatePersonDTO {
@@ -78,21 +68,6 @@ export interface CreateVideoDTO {
   /** @example "PROGRESS" */
   status?: string;
   /** @example "CARTOON" */
-  genre?: string;
-  /** @example "DISLIKE" */
-  grade?: string;
-}
-
-export interface PatchVideoDTO {
-  /** @example "Боб строитель" */
-  title?: string;
-  /** @example 1 */
-  personId?: number;
-  /** @example "FREE" */
-  type?: string;
-  /** @example "DONE" */
-  status?: string;
-  /** @example "MOVIE" */
   genre?: string;
   /** @example "DISLIKE" */
   grade?: string;
@@ -136,6 +111,26 @@ export interface VideoEntity {
   grade: GradeEnum;
 }
 
+export interface PatchVideoDTO {
+  /** @example "Боб строитель" */
+  title?: string;
+  /** @example 1 */
+  personId?: number;
+  /** @example "FREE" */
+  type?: string;
+  /** @example "DONE" */
+  status?: string;
+  /** @example "MOVIE" */
+  genre?: string;
+  /** @example "DISLIKE" */
+  grade?: string;
+}
+
+export interface GetAllVideosResponse {
+  videos: VideoEntity[];
+  total: number;
+}
+
 export interface CreateGameDTO {
   /** @example "minecraft" */
   title?: string;
@@ -147,6 +142,16 @@ export interface CreateGameDTO {
   status?: string;
   /** @example "LIKE" */
   grade?: string;
+}
+
+export interface GameEntity {
+  id: number;
+  title: string;
+  person: PersonEntity;
+  personId: number;
+  type: TypesEnum;
+  status: StatusesEnum;
+  grade: GradeEnum;
 }
 
 export interface PatchGameDTO {
@@ -162,14 +167,28 @@ export interface PatchGameDTO {
   grade?: string;
 }
 
-export interface GameEntity {
-  id: number;
+export interface GetAllGamesResponse {
+  games: GameEntity[];
+  total: number;
+}
+
+export interface QueueItemDto {
   title: string;
-  person: PersonEntity;
-  personId: number;
-  type: TypesEnum;
-  status: StatusesEnum;
-  grade: GradeEnum;
+  type: string;
+  personName: string;
+  genre: QueueItemDtoGenreEnum;
+}
+
+export interface QueueDto {
+  games: QueueItemDto[];
+  videos: QueueItemDto[];
+}
+
+export enum QueueItemDtoGenreEnum {
+  ANIME = "ANIME",
+  MOVIE = "MOVIE",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -383,7 +402,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title le_xot`s lists
+ * @title games-movies-database
  * @version 1.0.0
  * @contact
  */
@@ -398,13 +417,27 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags auth
-     * @name AuthControllerRegisterUser
-     * @request POST:/auth/register
+     * @tags Auth
+     * @name AuthControllerTwitchAuth
+     * @request GET:/auth/twitch
      */
-    authControllerRegisterUser: (data: CreateUserDTO, params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/auth/register`,
+    authControllerTwitchAuth: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTwitchAuthCallback
+     * @request POST:/auth/twitch/callback
+     */
+    authControllerTwitchAuthCallback: (data: CallbackDto, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch/callback`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -414,23 +447,22 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags auth
-     * @name AuthControllerLogin
-     * @request POST:/auth/login
+     * @tags Auth
+     * @name AuthControllerMe
+     * @request GET:/auth/me
      */
-    authControllerLogin: (data: LoginDTO, params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/auth/login`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
+    authControllerMe: (params: RequestParams = {}) =>
+      this.http.request<UserEntity, any>({
+        path: `/auth/me`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
     /**
      * No description
      *
-     * @tags auth
+     * @tags Auth
      * @name AuthControllerLogout
      * @request POST:/auth/logout
      */
@@ -446,13 +478,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerUpdateUser
-     * @request PATCH:/users
+     * @name UserControllerCreateOrUpdateUser
+     * @request POST:/users
      */
-    userControllerUpdateUser: (data: UpdateUserDTO, params: RequestParams = {}) =>
+    userControllerCreateOrUpdateUser: (data: UpsertUserDTO, params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/users`,
-        method: "PATCH",
+        method: "POST",
         body: data,
         type: ContentType.Json,
         ...params,
@@ -477,92 +509,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerDeleteUser
-     * @request DELETE:/users/{id}
+     * @name UserControllerGetUserByTwitchId
+     * @request GET:/users/{id}
      */
-    userControllerDeleteUser: (id: number, params: RequestParams = {}) =>
+    userControllerGetUserByTwitchId: (id: string, params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/users/${id}`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetInfo
-     * @request GET:/users/info
-     */
-    userControllerGetInfo: (params: RequestParams = {}) =>
-      this.http.request<UserEntity, any>({
-        path: `/users/info`,
         method: "GET",
-        format: "json",
-        ...params,
-      }),
-  };
-  admin = {
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerFindAll
-     * @request GET:/admin/users
-     */
-    adminControllerFindAll: (params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/admin/users`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerDeleteAll
-     * @request DELETE:/admin/users
-     */
-    adminControllerDeleteAll: (params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/admin/users`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerFindOne
-     * @request GET:/admin/users/{username}
-     */
-    adminControllerFindOne: (username: string, params: RequestParams = {}) =>
-      this.http.request<void, void>({
-        path: `/admin/users/${username}`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags admin
-     * @name AdminControllerDeleteUser
-     * @request DELETE:/admin/users/{username}
-     */
-    adminControllerDeleteUser: (
-      username: string,
-      query: {
-        username: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, void>({
-        path: `/admin/users/${username}`,
-        method: "DELETE",
-        query: query,
         ...params,
       }),
   };
@@ -680,11 +633,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/videos
      */
     videoControllerCreateVideo: (data: CreateVideoDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<VideoEntity, any>({
         path: `/videos`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -695,10 +649,35 @@ export class Api<SecurityDataType extends unknown> {
      * @name VideoControllerGetAllVideos
      * @request GET:/videos
      */
-    videoControllerGetAllVideos: (params: RequestParams = {}) =>
-      this.http.request<VideoEntity[], any>({
+    videoControllerGetAllVideos: (
+      query?: {
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+        /** @example "Мадагаскар" */
+        search?: string;
+        /** @example 1 */
+        personId?: number;
+        /** @example "FREE" */
+        type?: string;
+        /** @example "PROGRESS" */
+        status?: string;
+        /** @example "CARTOON" */
+        genre?: string;
+        /** @example "LIKE" */
+        grade?: string;
+        /** @example "id" */
+        orderBy?: string;
+        /** @example "asc" */
+        direction?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetAllVideosResponse, any>({
         path: `/videos`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -711,9 +690,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/videos/{id}
      */
     videoControllerFindVideoById: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<VideoEntity, void>({
         path: `/videos/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -725,11 +705,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request PATCH:/videos/{id}
      */
     videoControllerPatchVideo: (id: number, data: PatchVideoDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<VideoEntity, any>({
         path: `/videos/${id}`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -756,11 +737,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/games
      */
     gameControllerCreateGame: (data: CreateGameDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GameEntity, any>({
         path: `/games`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -771,10 +753,33 @@ export class Api<SecurityDataType extends unknown> {
      * @name GameControllerGetAllGames
      * @request GET:/games
      */
-    gameControllerGetAllGames: (params: RequestParams = {}) =>
-      this.http.request<GameEntity[], any>({
+    gameControllerGetAllGames: (
+      query?: {
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+        /** @example "minecraft" */
+        search?: string;
+        /** @example 1 */
+        personId?: number;
+        /** @example "FREE" */
+        type?: string;
+        /** @example "PROGRESS" */
+        status?: string;
+        /** @example "LIKE" */
+        grade?: string;
+        /** @example "id" */
+        orderBy?: string;
+        /** @example "asc" */
+        direction?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetAllGamesResponse, any>({
         path: `/games`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -787,9 +792,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/games/{id}
      */
     gameControllerFindGameById: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GameEntity, void>({
         path: `/games/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -801,11 +807,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request PATCH:/games/{id}
      */
     gameControllerPatchGame: (id: number, data: PatchGameDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GameEntity, any>({
         path: `/games/${id}`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -820,6 +827,22 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/games/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  queue = {
+    /**
+     * No description
+     *
+     * @tags Queue
+     * @name QueueControllerGetQueue
+     * @request GET:/queue
+     */
+    queueControllerGetQueue: (params: RequestParams = {}) =>
+      this.http.request<QueueDto, any>({
+        path: `/queue`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
   };

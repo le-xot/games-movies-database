@@ -1,31 +1,28 @@
-import { Injectable } from '@nestjs/common'
-import { Video } from '@prisma/client'
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
-import { CreateVideoDTO, PatchVideoDTO } from './video.dto'
+import { CreateVideoDTO, GetVideosDto, PatchVideoDTO } from './video.dto'
 import { VideoEntity } from './video.entity'
 
 @Injectable()
-export class VideoServices {
+export class VideoService {
   constructor(private prisma: PrismaService) {}
+
   async createVideo(video: CreateVideoDTO): Promise<VideoEntity> {
     return this.prisma.video.create({
-      data:
-        video,
+      data: video,
       include: {
         person: true,
       },
     })
   }
 
-  async patchVideo(
-    id: number,
-    video: PatchVideoDTO,
-  ): Promise<Video> {
+  async patchVideo(id: number, video: PatchVideoDTO): Promise<VideoEntity> {
     const foundedVideo = await this.prisma.video.findUnique({
       where: { id },
     })
     if (!foundedVideo) {
-      throw new Error('Video not found')
+      throw new NotFoundException('Video not found')
     }
     return this.prisma.video.update({
       where: { id },
@@ -38,16 +35,89 @@ export class VideoServices {
     await this.prisma.video.delete({ where: { id } })
   }
 
-  async getAllVideos(): Promise<VideoEntity[]> {
-    return this.prisma.video.findMany({
+  async getAllVideos(
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      search?: string
+      personId?: number
+      type?: $Enums.PrismaTypes
+      status?: $Enums.PrismaStatuses
+      genre?: $Enums.PrismaGenres
+      grade?: $Enums.PrismaGrades
+    },
+    orderBy?: 'title' | 'id',
+    direction?: 'asc' | 'desc',
+  ): Promise<GetVideosDto> {
+    const skip = (page - 1) * limit
+
+    const where: Prisma.VideoWhereInput = {}
+
+    if (filters?.search) {
+      where.OR = [
+        {
+          title: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          person: {
+            name: {
+              contains: filters.search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        },
+      ]
+    }
+
+    if (filters?.personId) {
+      where.personId = filters.personId
+    }
+
+    if (filters?.type) {
+      where.type = filters.type
+    }
+
+    if (filters?.status) {
+      where.status = filters.status
+    }
+    if (filters?.grade) {
+      where.grade = filters.grade
+    }
+
+    if (filters?.genre) {
+      where.genre = filters.genre
+    }
+
+    const total = await this.prisma.video.count({
+      where: Object.keys(where).length > 0 ? where : undefined,
+    })
+
+    const videos = await this.prisma.video.findMany({
+      where: Object.keys(where).length > 0 ? where : undefined,
       include: { person: true },
       orderBy: {
-        id: 'desc',
+        [orderBy || 'id']: direction || 'asc',
       },
+      skip,
+      take: limit,
     })
+
+    return { videos, total }
   }
 
   async findVideoById(id: number): Promise<VideoEntity> {
-    return this.prisma.video.findUnique({ where: { id }, include: { person: true } })
+    const video = await this.prisma.video.findUnique({
+      where: { id },
+      include: {
+        person: true,
+      },
+    })
+    if (!video) {
+      throw new NotFoundException('Video not found')
+    }
+    return video
   }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VisibilityState } from '@tanstack/vue-table'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Button } from '../ui/button'
@@ -7,7 +8,7 @@ import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 const searchValue = defineModel<string>('value', { required: true })
-const columnVisibility = defineModel<Record<string, boolean>>('columnVisibility', { required: true })
+const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })
 const placeholder = computed(() => 'Искать по названию или заказчику')
 
 function clearSearch() {
@@ -20,6 +21,13 @@ const columnText: Record<string, string> = {
   person: 'Заказчик',
   status: 'Статус',
   grade: 'Оценка',
+}
+
+function updateVisibility(key: string, value: boolean) {
+  // columnVisibility somehow is shallowRef in tanstack table
+  // so we need to mutate whole object to make it reactive in useVueTable() from tanstack
+  // https://tanstack.com/table/latest/docs/framework/vue/guide/table-state#using-reactive-data
+  columnVisibility.value = { ...columnVisibility.value, [key]: value }
 }
 </script>
 
@@ -48,7 +56,7 @@ const columnText: Record<string, string> = {
               v-for="[filter, value] of Object.entries(columnVisibility)"
               :key="filter"
               :value="filter"
-              @select="columnVisibility[filter] = !value"
+              @select="updateVisibility(filter, !value)"
             >
               <div
                 class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"

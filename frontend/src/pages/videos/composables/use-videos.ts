@@ -1,26 +1,43 @@
-import { useTableSearch } from '@/components/table/composables/use-table-search'
 import { useApi } from '@/composables/use-api'
-import { type PatchVideoDTO, StatusesEnum, type VideoEntity } from '@/lib/api.ts'
+import { GetAllVideosResponse, type PatchVideoDTO } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
+import { useVideosParams } from './use-videos-params'
 
 export const VIDEOS_QUERY_KEY = 'videos'
 
 export const useVideos = defineStore('videos/use-videos', () => {
   const api = useApi()
-  const search = useTableSearch()
+  const {
+    pagination,
+    videosParams,
+  } = storeToRefs(useVideosParams())
 
   const {
     isLoading,
     data,
     refetch: refetchVideos,
-  } = useQuery<VideoEntity[]>({
-    key: [VIDEOS_QUERY_KEY],
+  } = useQuery({
+    placeholderData(previousData): GetAllVideosResponse {
+      if (!previousData) return { videos: [], total: 0 }
+      return previousData
+    },
+    key: () => [VIDEOS_QUERY_KEY, videosParams.value],
     query: async () => {
-      const { data } = await api.videos.videoControllerGetAllVideos()
+      const { data } = await api.videos.videoControllerGetAllVideos(videosParams.value)
       return data
     },
+  })
+
+  const totalRecords = computed(() => {
+    if (!data.value) return 0
+    return data.value.total
+  })
+
+  const totalPages = computed(() => {
+    if (!data.value) return 0
+    return Math.ceil(data.value.total / pagination.value.pageSize)
   })
 
   const { mutateAsync: updateVideo } = useMutation({
@@ -28,7 +45,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     mutation: ({ id, data }: { id: number, data: PatchVideoDTO }) => {
       return api.videos.videoControllerPatchVideo(id, data)
     },
-    onSuccess: () => refetchVideos(),
+    onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: deleteVideo } = useMutation({
@@ -36,7 +53,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
     mutation: (id: number) => {
       return api.videos.videoControllerDeleteVideo(id)
     },
-    onSuccess: () => refetchVideos(),
+    onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: createVideo } = useMutation({
@@ -44,30 +61,23 @@ export const useVideos = defineStore('videos/use-videos', () => {
     mutation: async () => {
       return await api.videos.videoControllerCreateVideo({})
     },
-    onSuccess: () => refetchVideos(),
-  })
-
-  const videosQueue = computed(() => {
-    if (!data.value) return []
-    return data.value.filter((video) => {
-      return video.status === StatusesEnum.QUEUE
-        || video.status === StatusesEnum.PROGRESS
-    })
+    onSettled: () => refetchVideos(),
   })
 
   const videos = computed(() => {
-    return search.filterData(data.value ?? [])
+    if (!data.value) return []
+    return data.value.videos
   })
 
   return {
     isLoading,
     videos,
-    videosQueue,
-    search,
     refetchVideos,
     updateVideo,
     deleteVideo,
     createVideo,
+    totalRecords,
+    totalPages,
   }
 })
 

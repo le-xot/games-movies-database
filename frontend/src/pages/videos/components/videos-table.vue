@@ -1,48 +1,31 @@
 <script setup lang="ts">
 import Table from '@/components/table/table.vue'
+import TablePagination from '@/components/table/table-pagination.vue'
 import TableSearch from '@/components/table/table-search.vue'
-import { storeToRefs } from 'pinia'
 import { useVideos } from '../composables/use-videos'
+import { useVideosParams } from '../composables/use-videos-params'
 import { useVideosTable } from '../composables/use-videos-table'
 
-const { isLoading, videos } = storeToRefs(useVideos())
+const videos = useVideos()
 const table = useVideosTable()
+const params = useVideosParams()
 </script>
 
 <template>
   <TableSearch
-    v-model:value="table.search.searchValue"
-    v-model:column-visibility="table.columnVisibility"
+    v-model:value="params.search"
+    v-model:column-visibility="params.columnVisibility"
   />
+
   <Table
-    :columns="table.tableColumns"
-    :data="videos"
-    :is-loading="isLoading"
-    :column-visibility="table.columnVisibility"
-  />
+    :is-loading="videos.isLoading"
+    :table="table"
+  >
+    <template #pagination>
+      <TablePagination
+        v-model="params.pagination"
+        :total-records="videos.totalRecords"
+      />
+    </template>
+  </Table>
 </template>
-
-<style scoped>
-.table-manage {
-  display: flex;
-  justify-content: flex-start;
-  margin: 0 1rem;
-}
-
-.search-and-button {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-}
-
-.column-button {
-  width: 120px;
-  margin-left: 1rem;
-}
-
-.column-checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-</style>

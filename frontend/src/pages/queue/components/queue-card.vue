@@ -1,11 +1,11 @@
-<script setup lang="ts" generic="T extends GameEntity | VideoEntity">
+<script setup lang="ts">
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { GameEntity, VideoEntity } from '@/lib/api.ts'
+import { QueueItemDto } from '@/lib/api.ts'
 
-defineProps<{ items: T[] }>()
+defineProps<{ items: QueueItemDto[] }>()
 
-function isShow(item: T) {
-  return item.title && item.person
+function isShow(item: QueueItemDto) {
+  return item.title && item.personName
 }
 </script>
 
@@ -26,7 +26,7 @@ function isShow(item: T) {
           <CardFooter>
             <div class="person">
               <div class="person-name">
-                {{ item.person.name }}
+                {{ item.personName }}
               </div>
               <slot name="footer" :item="item" />
             </div>

@@ -3,27 +3,26 @@ import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { GameEntity } from '@/lib/api.ts'
-import { ColumnDef } from '@tanstack/vue-table'
-import { useLocalStorage } from '@vueuse/core'
+import {
+  ColumnDef,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useVueTable,
+} from '@tanstack/vue-table'
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useGames } from './use-games'
+import { useGamesParams } from './use-games-params'
 
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const games = useGames()
+  const { pagination, columnVisibility } = storeToRefs(useGamesParams())
+  const gamesStore = useGames()
+  const { games, totalPages } = storeToRefs(gamesStore)
   const dialog = useDialog()
-
-  const columnVisibility = useLocalStorage<Record<string, boolean>>('gamesColumnVisibility', {
-    title: true,
-    person: true,
-    status: true,
-    grade: true,
-  })
 
   const tableColumns = computed(() => {
     const columns: ColumnDef<GameEntity>[] = [
@@ -33,12 +32,11 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         size: isAdmin.value ? 55 : 60,
         minSize: isAdmin.value ? 55 : 60,
         maxSize: isAdmin.value ? 55 : 60,
-        enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
-            onUpdate: (title) => games.updateGame({
+            onUpdate: (title) => gamesStore.updateGame({
               id: row.original.id,
               data: { title },
             }),
@@ -56,7 +54,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
             personId: row.original.person?.id,
-            onUpdate: (personId) => games.updateGame({
+            onUpdate: (personId) => gamesStore.updateGame({
               id: row.original.id,
               data: { personId },
             }),
@@ -76,7 +74,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             value: row.original.status,
             kind: 'status',
             onUpdate: (value) => {
-              games.updateGame({
+              gamesStore.updateGame({
                 id: row.original.id,
                 data: { status: value },
               })
@@ -97,7 +95,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             value: row.original.grade,
             kind: 'grade',
             onUpdate: (value) => {
-              games.updateGame({
+              gamesStore.updateGame({
                 id: row.original.id,
                 data: { grade: value },
               })
@@ -119,20 +117,28 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             onClick: () => dialog.openDialog({
               title: `Создать игру?`,
               description: '',
-              onSubmit: () => games.createGame(),
+              onSubmit: () => gamesStore.createGame(),
             }),
           })
         },
         cell: ({ row }) => {
-          return h(TableCell, {}, { default: () => h(DialogButton, {
-            key: `id-${row.original.id}`,
-            icon: Eraser,
-            onClick: () => dialog.openDialog({
-              title: `Удалить игру?`,
-              description: `Вы уверены, что хотите удалить "${row.original.title}"?`,
-              onSubmit: () => games.deleteGame(row.original.id),
-            }),
-          }) })
+          return h(
+            'div',
+            {},
+            {
+              default: () => [
+                h(DialogButton, {
+                  key: `id-${row.original.id}`,
+                  icon: Eraser,
+                  onClick: () => dialog.openDialog({
+                    title: `Удалить игру?`,
+                    description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
+                    onSubmit: () => gamesStore.deleteGame(row.original.id),
+                  }),
+                }),
+              ],
+            },
+          )
         },
       })
     }
@@ -140,11 +146,30 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
     return columns
   })
 
-  return {
-    tableColumns,
-    search: games.search,
-    columnVisibility,
-  }
+  const table = useVueTable({
+    get data() {
+      return games.value
+    },
+    get columns() {
+      return tableColumns.value
+    },
+    get pageCount() {
+      return totalPages.value
+    },
+    state: {
+      get columnVisibility() {
+        return columnVisibility.value
+      },
+      get pagination() {
+        return pagination.value
+      },
+    },
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  })
+
+  return table
 })
 
 if (import.meta.hot) {

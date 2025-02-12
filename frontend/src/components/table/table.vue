@@ -1,50 +1,33 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends RowData">
 import {
-  Table,
+  TableBody,
+  TableCell,
   TableHead,
   TableHeader,
+  Table as TableRoot,
   TableRow,
 } from '@/components/ui/table'
-import { useBreakpoints } from '@/composables/use-breakpoints'
-import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { Virtualizer } from 'virtua/vue'
-import { ref } from 'vue'
-import { Card } from '../ui/card'
-import type { ColumnDef } from '@tanstack/vue-table'
+import {
+  FlexRender,
+  RowData,
+  Table,
+} from '@tanstack/vue-table'
+import { provide } from 'vue'
+import { tableInjectionKey } from './table-injection-key'
 
 const props = defineProps<{
   isLoading: boolean
-  columns: ColumnDef<any>[]
-  columnVisibility: Record<string, boolean>
-  data: any[]
+  table: Table<T>
 }>()
 
-const breakpoints = useBreakpoints()
-const scrollRef = ref<HTMLElement>()
-
-const table = useVueTable({
-  get data() {
-    return props.data
-  },
-  get columns() {
-    return props.columns
-  },
-  state: {
-    get columnVisibility() {
-      return props.columnVisibility
-    },
-  },
-  getCoreRowModel: getCoreRowModel(),
-})
+provide(tableInjectionKey, props.table)
 </script>
 
 <template>
-  <div
-    v-if="breakpoints.isDesktop"
-    ref="scrollRef"
-    class="relative w-full overflow-auto rounded-md border"
-  >
-    <Table class="w-full h-[83dvh] overflow-auto">
+  <slot name="pagination" />
+
+  <div class="w-full rounded-md border">
+    <TableRoot>
       <TableHeader class="w-full">
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
           <TableHead
@@ -60,61 +43,30 @@ const table = useVueTable({
           </TableHead>
         </TableRow>
       </TableHeader>
-      <Virtualizer
-        v-slot="{ item }"
-        :scroll-ref="scrollRef"
-        :data="table.getRowModel().rows"
-        :item-size="52"
-        as="tbody"
-        item="tr"
-        class="[&_tr:last-child]:border-0"
-        :start-margin="42"
-        :item-props="() => ({
-          class: 'w-full border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
-        })"
-      >
-        <template
-          v-for="cell in item.getVisibleCells()"
-          :key="cell.id"
-        >
-          <FlexRender
-            v-if="cell.column.getIsVisible()"
-            :render="cell.column.columnDef.cell"
-            :props="cell.getContext()"
-            :style="{ width: `${cell.column.getSize()}%` }"
-          />
+
+      <TableBody>
+        <template v-if="table.getRowModel().rows?.length">
+          <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="max-h-24" :data-state="row.getIsSelected() && 'selected'">
+            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+              <FlexRender
+                :render="cell.column.columnDef.cell"
+                :props="cell.getContext()"
+              />
+            </TableCell>
+          </TableRow>
         </template>
-      </Virtualizer>
-    </Table>
+
+        <TableRow v-else>
+          <TableCell
+            :colspan="table.getAllColumns().length"
+            class="h-24 text-center"
+          >
+            No results.
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </TableRoot>
   </div>
-  <div v-else class="relative w-full overflow-auto">
-    <div class="grid grid-cols-1 gap-4">
-      <Card v-for="row in table.getRowModel().rows" :key="row.id">
-        <template
-          v-for="cell in row.getVisibleCells()"
-          :key="cell.id"
-        >
-          <div v-if="cell.column.id !== 'id'" class="flex flex-col w-full px-4 py-2 last:border-0">
-            <template v-if="cell.column.id === 'title'">
-              <div class="ml-1 font-bold border-b text-pretty">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </div>
-            </template>
-            <template v-else>
-              <div class="ml-3">
-                {{ cell.column.columnDef.header }}:
-              </div>
-              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-            </template>
-          </div>
-          <div v-else class="flex justify-end">
-            <FlexRender
-              :render="cell.column.columnDef.cell"
-              :props="cell.getContext()"
-            />
-          </div>
-        </template>
-      </Card>
-    </div>
-  </div>
+
+  <slot name="pagination" />
 </template>

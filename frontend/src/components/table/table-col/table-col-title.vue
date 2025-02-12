@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input'
-import { TableCell } from '@/components/ui/table'
 import { useBreakpoints } from '@/composables/use-breakpoints'
 import { toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
@@ -23,7 +22,7 @@ const {
 </script>
 
 <template>
-  <TableCell @click="handleOpen">
+  <div @click="handleOpen">
     <Input
       v-if="isEdit"
       ref="inputRef"
@@ -35,5 +34,5 @@ const {
     <span v-else :class="{ 'pl-2': breakpoints.isDesktop }">
       {{ inputValue || 'Нет данных' }}
     </span>
-  </TableCell>
+  </div>
 </template>

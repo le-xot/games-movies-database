@@ -43,10 +43,11 @@ model Person {
 }
 
 model User {
-  id       Int         @id @default(autoincrement())
-  username String      @unique
-  password String
-  role     PrismaRoles @default(USER)
+  id              String       @id @unique
+  login           String       @unique
+  role            PrismaRoles? @default(USER)
+  profileImageUrl String?
+  createdAt       DateTime     @default(now())
 
   @@map("users")
 }

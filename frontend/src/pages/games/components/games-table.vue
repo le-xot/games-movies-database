@@ -1,40 +1,31 @@
 <script setup lang="ts">
 import Table from '@/components/table/table.vue'
+import TablePagination from '@/components/table/table-pagination.vue'
 import TableSearch from '@/components/table/table-search.vue'
-import { VisibilityState } from '@tanstack/vue-table'
-import { useLocalStorage } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
 import { useGames } from '../composables/use-games'
+import { useGamesParams } from '../composables/use-games-params'
 import { useGamesTable } from '../composables/use-games-table'
 
-const { isLoading, games, pagination, totalPages } = storeToRefs(useGames())
-
-const gamesStore = useGames()
-
+const games = useGames()
 const table = useGamesTable()
-
-const columnVisibility = useLocalStorage<VisibilityState>('gamesColumnVisibility', {
-  title: true,
-  person: true,
-  status: true,
-  grade: true,
-})
+const params = useGamesParams()
 </script>
 
 <template>
   <TableSearch
-    v-model:value="gamesStore.search"
-    v-model:column-visibility="columnVisibility"
+    v-model:value="params.search"
+    v-model:column-visibility="params.columnVisibility"
   />
 
   <Table
-    :columns="table.tableColumns"
-    :data="games"
-    :is-loading="isLoading"
-    :column-visibility="columnVisibility"
-    :pagination="pagination"
-    :total-pages="totalPages"
-    :total-records="gamesStore.totalRecords"
-    @update:pagination="(pagination) => { gamesStore.pagination = pagination }"
-  />
+    :is-loading="games.isLoading"
+    :table="table"
+  >
+    <template #pagination>
+      <TablePagination
+        v-model="params.pagination"
+        :total-records="games.totalRecords"
+      />
+    </template>
+  </Table>
 </template>

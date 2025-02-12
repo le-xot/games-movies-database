@@ -7,6 +7,9 @@
   - Made the column `twitchId` on table `users` required. This step will fail if there are existing NULL values in that column.
 
 */
+
+DELETE FROM "users";
+
 -- AlterTable
 ALTER TABLE "users" DROP COLUMN "password",
 DROP COLUMN "username",

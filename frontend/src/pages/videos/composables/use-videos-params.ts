@@ -23,7 +23,7 @@ export const useVideosParams = defineStore('videos/use-videos-params', () => {
       limit: pagination.value.pageSize,
       search: debouncedSearch.value,
       orderBy: 'id',
-      direction: 'asc',
+      direction: 'desc',
     }
   })
 

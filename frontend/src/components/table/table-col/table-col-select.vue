@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends StatusesEnum | GradeEnum | GenresEnum">
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { TableCell } from '@/components/ui/table'
 import { Tag } from '@/components/ui/tag'
 import { useUser } from '@/composables/use-user'
 import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
@@ -45,7 +44,7 @@ const placeholder = computed(() => {
 </script>
 
 <template>
-  <TableCell
+  <div
     @click="() => {
       if (!isAdmin) return
       handleOpen()
@@ -88,5 +87,5 @@ const placeholder = computed(() => {
     <Tag v-else-if="!data.tag" class="min-w-32 max-w-32 border border-input">
       {{ placeholder }}
     </Tag>
-  </TableCell>
+  </div>
 </template>

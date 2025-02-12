@@ -22,6 +22,13 @@ const columnText: Record<string, string> = {
   status: 'Статус',
   grade: 'Оценка',
 }
+
+function updateVisibility(key: string, value: boolean) {
+  // columnVisibility somehow is shallowRef in tanstack table
+  // so we need to mutate whole object to make it reactive in useVueTable() from tanstack
+  // https://tanstack.com/table/latest/docs/framework/vue/guide/table-state#using-reactive-data
+  columnVisibility.value = { ...columnVisibility.value, [key]: value }
+}
 </script>
 
 <template>
@@ -49,7 +56,7 @@ const columnText: Record<string, string> = {
               v-for="[filter, value] of Object.entries(columnVisibility)"
               :key="filter"
               :value="filter"
-              @select="columnVisibility[filter] = !value"
+              @select="updateVisibility(filter, !value)"
             >
               <div
                 class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"

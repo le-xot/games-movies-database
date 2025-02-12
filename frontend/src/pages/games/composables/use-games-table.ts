@@ -3,7 +3,6 @@ import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user'
 import { GameEntity } from '@/lib/api.ts'
 import {
@@ -20,7 +19,7 @@ import { useGamesParams } from './use-games-params'
 
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const { columnVisibility, pagination } = storeToRefs(useGamesParams())
+  const { pagination, columnVisibility } = storeToRefs(useGamesParams())
   const gamesStore = useGames()
   const { games, totalPages } = storeToRefs(gamesStore)
   const dialog = useDialog()
@@ -123,15 +122,23 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           })
         },
         cell: ({ row }) => {
-          return h(TableCell, {}, { default: () => h(DialogButton, {
-            key: `id-${row.original.id}`,
-            icon: Eraser,
-            onClick: () => dialog.openDialog({
-              title: `Удалить игру?`,
-              description: `Вы уверены, что хотите удалить "${row.original.title}"?`,
-              onSubmit: () => gamesStore.deleteGame(row.original.id),
-            }),
-          }) })
+          return h(
+            'div',
+            {},
+            {
+              default: () => [
+                h(DialogButton, {
+                  key: `id-${row.original.id}`,
+                  icon: Eraser,
+                  onClick: () => dialog.openDialog({
+                    title: `Удалить игру?`,
+                    description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
+                    onSubmit: () => gamesStore.deleteGame(row.original.id),
+                  }),
+                }),
+              ],
+            },
+          )
         },
       })
     }

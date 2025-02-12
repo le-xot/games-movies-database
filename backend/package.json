@@ -15,7 +15,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "node ./prisma/seed.js",
     "prestart": "pnpm prisma migrate deploy && pnpm seed",
-    "predev": "pnpm seed"
+    "predev": "pnpm seed",
+    "prisma": "prisma"
   },
   "dependencies": {
     "@nestjs/common": "10.4.7",

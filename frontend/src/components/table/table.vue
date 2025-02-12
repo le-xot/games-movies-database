@@ -49,8 +49,6 @@ provide(tableInjectionKey, props.table)
           <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="max-h-24" :data-state="row.getIsSelected() && 'selected'">
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
               <FlexRender
-                v-if="cell.column.getIsVisible()"
-                :style="{ width: `${cell.column.getSize()}%` }"
                 :render="cell.column.columnDef.cell"
                 :props="cell.getContext()"
               />

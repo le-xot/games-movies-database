@@ -18,11 +18,12 @@ pnpm i
 docker compose up -d
 ```
 
-* Generate prisma schema and migrate dev database in **backend** folder
+* Generate prisma schema and migrate dev database
 
 ```bash
-pnpx prisma generate
-pnpx prisma migrate dev
+cd backend
+pnpm prisma generate
+pnpm prisma migrate dev
 ```
 
 * Start development

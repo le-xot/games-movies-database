@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/command'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { TableCell } from '@/components/ui/table'
 import { useUser } from '@/composables/use-user.ts'
 import { PersonEntity } from '@/lib/api'
 import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
@@ -93,7 +92,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
 </script>
 
 <template>
-  <TableCell @click="handleOpen">
+  <div class="w-full" @click="handleOpen">
     <Popover
       v-model:open="isOpenPopover"
       @update:open="(isOpen) => {
@@ -194,5 +193,5 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
         </Command>
       </PopoverContent>
     </Popover>
-  </TableCell>
+  </div>
 </template>

@@ -27,7 +27,7 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
 
     <QueueCard v-if="queue.data?.videos.length > 0 && !isLoading" kind="video" :items="queue.data?.videos ?? []">
       <template #title>
-        Посмотреть: {{ videos.totalRecords }}
+        Посмотреть: {{ queue.data?.videos.length }}
       </template>
       <template #footer="{ item }">
         <div>

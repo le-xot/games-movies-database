@@ -22,7 +22,7 @@ export const useGamesParams = defineStore('games/use-games-params', () => {
       limit: pagination.value.pageSize,
       search: debouncedSearch.value,
       orderBy: 'id',
-      direction: 'asc',
+      direction: 'desc',
     }
   })
 

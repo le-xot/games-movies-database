@@ -1,19 +1,20 @@
 const { PrismaClient } = require('@prisma/client')
 require('dotenv').config()
 const process = require('node:process')
+const {env} = require("../src/utils/enviroments");
 
 const prisma = new PrismaClient()
 
 async function seed() {
   await prisma.user.upsert(
     {
-      where: { id: '155644238' },
+      where: { id: env.TWITCH_ADMIN_ID },
       update: {
         role: 'ADMIN',
       },
       create: {
-        id: '155644238',
-        login: 'le_xot',
+        id: env.TWITCH_ADMIN_ID,
+        login: env.TWITCH_ADMIN_LOGIN,
         role: 'ADMIN',
       },
     },

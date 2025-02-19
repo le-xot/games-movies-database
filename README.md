@@ -1,7 +1,9 @@
 # Development
 
-* [Node.js: v20](https://nodejs.org/en)
-* [PNPM: v9](https://pnpm.io/)
+## Dependencies
+
+* [Node.js: v22](https://nodejs.org/en)
+* [PNPM: v10](https://pnpm.io/)
 * [Docker](https://docs.docker.com/engine/)
 
 ## Cli
@@ -32,7 +34,7 @@ pnpm prisma migrate dev
 pnpm dev
 ```
 
-* Visit http://localhost:5173
+* Visit [http://localhost:5173](http://localhost:5173)
 
 ## Contributing
 

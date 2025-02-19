@@ -26,8 +26,6 @@ coverage
 .idea/*
 !.idea/codeStyles
 !.idea/codeStyles/*.xml
-!.idea/dataSources.xml
-!.idea/dataSources
 !.idea/jsLinters
 .project
 .classpath

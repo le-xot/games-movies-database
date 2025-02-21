@@ -84,7 +84,7 @@ const placeholder = computed(() => {
         </SelectItem>
       </SelectContent>
     </Select>
-    <Tag v-else-if="!data.tag" class="min-w-32 max-w-32 border border-input">
+    <Tag v-else-if="!data.tag" class="w-full border border-input">
       {{ placeholder }}
     </Tag>
   </div>

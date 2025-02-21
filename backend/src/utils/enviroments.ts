@@ -14,5 +14,4 @@ export const env = cleanEnv(process.env, {
   TWITCH_CALLBACK_URL: str({}),
   TWITCH_ADMIN_ID: str({}),
   TWITCH_ADMIN_LOGIN: str({}),
-  TWITCH_LINK: str({}),
 })

@@ -9,9 +9,9 @@ export const useGamesParams = defineStore('games/use-games-params', () => {
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('gamesColumnVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('gamesColumnsVisibility', {
     title: true,
-    person: true,
+    person: false,
     status: true,
     grade: true,
   })

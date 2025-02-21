@@ -9,10 +9,10 @@ export const useVideosParams = defineStore('videos/use-videos-params', () => {
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('videosColumnVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('videosColumnsVisibility', {
     title: true,
     genre: true,
-    person: true,
+    person: false,
     status: true,
     grade: true,
   })

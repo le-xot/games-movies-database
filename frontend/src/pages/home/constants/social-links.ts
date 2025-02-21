@@ -43,7 +43,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     name: 'Twitch',
     icon: TwitchIcon,
     color: '#9146FF',
-    url: 'https://www.twitch.tv/le_xot',
+    url: `https://www.twitch.tv/etonelexot`,
   },
   {
     name: 'YouTube',

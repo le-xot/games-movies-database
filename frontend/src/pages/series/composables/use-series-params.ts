@@ -1,27 +1,28 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
+import { GenresEnum } from '@/lib/api.ts'
 import { VisibilityState } from '@tanstack/vue-table'
 import { refDebounced, useLocalStorage } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-export const useVideosParams = defineStore('videos/use-videos-params', () => {
+export const useSeriesParams = defineStore('series/use-series-params', () => {
   const search = ref('')
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('videosColumnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('seriesColumnsVisibility', {
     title: true,
-    genre: true,
     person: false,
     status: true,
     grade: true,
   })
 
-  const videosParams = computed(() => {
+  const cartoonParams = computed(() => {
     return {
       page: pagination.value.pageIndex + 1,
       limit: pagination.value.pageSize,
       search: debouncedSearch.value,
+      genre: GenresEnum.SERIES,
       orderBy: 'id',
       direction: 'desc',
     }
@@ -32,10 +33,10 @@ export const useVideosParams = defineStore('videos/use-videos-params', () => {
     debouncedSearch,
     pagination,
     columnVisibility,
-    videosParams,
+    cartoonParams,
   }
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useVideosParams, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useSeriesParams, import.meta.hot))
 }

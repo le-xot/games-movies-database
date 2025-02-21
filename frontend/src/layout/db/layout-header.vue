@@ -15,7 +15,10 @@ const routes = [
   { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
-  { name: 'Кино', path: ROUTER_PATHS.dbVideos },
+  { name: 'Аниме', path: ROUTER_PATHS.dbAnime },
+  { name: 'Фильмы', path: ROUTER_PATHS.dbMovie },
+  { name: 'Сериалы', path: ROUTER_PATHS.dbSeries },
+  { name: 'Мультфильмы', path: ROUTER_PATHS.dbCartoon },
 ]
 
 onMounted(() => {

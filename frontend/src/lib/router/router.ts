@@ -32,12 +32,24 @@ export const router = createRouter({
           component: () => import('@/pages/queue/queue.vue'),
         },
         {
-          path: ROUTER_PATHS.dbVideos,
-          component: () => import('@/pages/videos/videos.vue'),
+          path: ROUTER_PATHS.dbAnime,
+          component: () => import('@/pages/anime/anime.vue'),
         },
         {
           path: ROUTER_PATHS.dbGames,
           component: () => import('@/pages/games/games.vue'),
+        },
+        {
+          path: ROUTER_PATHS.dbMovie,
+          component: () => import('@/pages/movie/movie.vue'),
+        },
+        {
+          path: ROUTER_PATHS.dbCartoon,
+          component: () => import('@/pages/cartoon/cartoon.vue'),
+        },
+        {
+          path: ROUTER_PATHS.dbSeries,
+          component: () => import('@/pages/series/series.vue'),
         },
       ],
     },

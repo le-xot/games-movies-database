@@ -31,7 +31,7 @@ onMounted(() => {
   <div class="header">
     <div class="header-container">
       <div class="header-nav">
-        <div class="header-nav">
+        <div class="button-container">
           <RouterLink
             v-for="headerRoute of routes"
             v-slot="{ href, navigate }"
@@ -79,12 +79,29 @@ onMounted(() => {
 
 .header-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .active {
   background-color: hsla(var(--primary-foreground));
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  white-space: nowrap;
+  height: 50px;
+  width: 100%;
+  gap: 10px;
+  align-items: center;
+}
+
+router-link {
+  flex-shrink: 0;
 }
 </style>

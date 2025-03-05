@@ -2,16 +2,16 @@
 import { genreTags } from '@/components/table/composables/use-table-select'
 import { Tag } from '@/components/ui/tag'
 import Spinner from '@/components/utils/spinner.vue'
+import { useAnime } from '@/pages/anime/composables/use-anime.ts'
 import { computed } from 'vue'
 import { useGames } from '../games/composables/use-games'
-import { useVideos } from '../videos/composables/use-videos'
 import QueueCard from './components/queue-card.vue'
 import { useQueue } from './composables/use-queue'
 
 const games = useGames()
-const videos = useVideos()
+const anime = useAnime()
 const queue = useQueue()
-const isLoading = computed(() => games.isLoading || videos.isLoading)
+const isLoading = computed(() => games.isLoading || anime.isLoading)
 </script>
 
 <template>
@@ -19,15 +19,15 @@ const isLoading = computed(() => games.isLoading || videos.isLoading)
     <div v-if="isLoading" class="loaded">
       <Spinner />
     </div>
-    <QueueCard v-if="queue.data?.games.length > 0 && !isLoading" kind="game" :items="queue.data?.games ?? []">
+    <QueueCard v-if="(queue.data?.games?.length ?? 0) > 0 && !isLoading" kind="game" :items="queue.data?.games ?? []">
       <template #title>
-        Поиграть: {{ queue.data?.games.length }}
+        Поиграть: {{ queue.data?.games?.length ?? 0 }}
       </template>
     </QueueCard>
 
-    <QueueCard v-if="queue.data?.videos.length > 0 && !isLoading" kind="video" :items="queue.data?.videos ?? []">
+    <QueueCard v-if="(queue.data?.videos?.length ?? 0) > 0 && !isLoading" kind="video" :items="queue.data?.videos ?? []">
       <template #title>
-        Посмотреть: {{ queue.data?.videos.length }}
+        Посмотреть: {{ queue.data?.videos?.length ?? 0 }}
       </template>
       <template #footer="{ item }">
         <div>

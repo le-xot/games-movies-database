@@ -15,7 +15,10 @@ const routes = [
   { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
-  { name: 'Кино', path: ROUTER_PATHS.dbVideos },
+  { name: 'Аниме', path: ROUTER_PATHS.dbAnime },
+  { name: 'Фильмы', path: ROUTER_PATHS.dbMovie },
+  { name: 'Сериалы', path: ROUTER_PATHS.dbSeries },
+  { name: 'Мультфильмы', path: ROUTER_PATHS.dbCartoon },
 ]
 
 onMounted(() => {
@@ -28,7 +31,7 @@ onMounted(() => {
   <div class="header">
     <div class="header-container">
       <div class="header-nav">
-        <div class="header-nav">
+        <div class="button-container">
           <RouterLink
             v-for="headerRoute of routes"
             v-slot="{ href, navigate }"
@@ -76,12 +79,29 @@ onMounted(() => {
 
 .header-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .active {
   background-color: hsla(var(--primary-foreground));
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  white-space: nowrap;
+  height: 50px;
+  width: 100%;
+  gap: 10px;
+  align-items: center;
+}
+
+router-link {
+  flex-shrink: 0;
 }
 </style>

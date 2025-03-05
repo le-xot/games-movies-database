@@ -1,18 +1,18 @@
 import { useApi } from '@/composables/use-api'
-import { GetAllVideosResponse, type PatchVideoDTO } from '@/lib/api.ts'
+import { GenresEnum, GetAllVideosResponse, type PatchVideoDTO } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import { useVideosParams } from './use-videos-params'
+import { useAnimeParams } from './use-anime-params.ts'
 
-export const VIDEOS_QUERY_KEY = 'videos'
+export const VIDEOS_QUERY_KEY = 'anime'
 
-export const useVideos = defineStore('videos/use-videos', () => {
+export const useAnime = defineStore('anime/use-anime', () => {
   const api = useApi()
   const {
     pagination,
-    videosParams,
-  } = storeToRefs(useVideosParams())
+    animeParams,
+  } = storeToRefs(useAnimeParams())
 
   const {
     isLoading,
@@ -23,9 +23,9 @@ export const useVideos = defineStore('videos/use-videos', () => {
       if (!previousData) return { videos: [], total: 0 }
       return previousData
     },
-    key: () => [VIDEOS_QUERY_KEY, videosParams.value],
+    key: () => [VIDEOS_QUERY_KEY, animeParams.value],
     query: async () => {
-      const { data } = await api.videos.videoControllerGetAllVideos(videosParams.value)
+      const { data } = await api.videos.videoControllerGetAllVideos(animeParams.value)
       return data
     },
   })
@@ -59,7 +59,7 @@ export const useVideos = defineStore('videos/use-videos', () => {
   const { mutateAsync: createVideo } = useMutation({
     key: [VIDEOS_QUERY_KEY, 'create'],
     mutation: async () => {
-      return await api.videos.videoControllerCreateVideo({})
+      return await api.videos.videoControllerCreateVideo({ genre: GenresEnum.ANIME })
     },
     onSettled: () => refetchVideos(),
   })
@@ -82,5 +82,5 @@ export const useVideos = defineStore('videos/use-videos', () => {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useVideos, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useAnime, import.meta.hot))
 }

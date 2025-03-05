@@ -4,5 +4,8 @@ export const ROUTER_PATHS = {
   pc: '/pc',
   dbQueue: '/db/queue',
   dbGames: '/db/games',
-  dbVideos: '/db/videos',
+  dbAnime: '/db/anime',
+  dbMovie: '/db/movie',
+  dbCartoon: '/db/cartoon',
+  dbSeries: '/db/series',
 }

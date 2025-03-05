@@ -14,13 +14,13 @@ import {
 import { CirclePlus, Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
-import { useVideos } from './use-videos'
-import { useVideosParams } from './use-videos-params'
+import { useAnime } from './use-anime.ts'
+import { useAnimeParams } from './use-anime-params.ts'
 
-export const useVideosTable = defineStore('videos/use-videos-table', () => {
+export const useAnimeTable = defineStore('anime/use-anime-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const videosStore = useVideos()
-  const { columnVisibility, pagination } = storeToRefs(useVideosParams())
+  const videosStore = useAnime()
+  const { columnVisibility, pagination } = storeToRefs(useAnimeParams())
   const { videos, totalPages } = storeToRefs(videosStore)
   const dialog = useDialog()
 
@@ -29,9 +29,9 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        size: isAdmin.value ? 45 : 50,
-        minSize: isAdmin.value ? 45 : 50,
-        maxSize: isAdmin.value ? 45 : 50,
+        size: isAdmin.value ? 55 : 60,
+        minSize: isAdmin.value ? 55 : 60,
+        maxSize: isAdmin.value ? 55 : 60,
         enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
@@ -41,27 +41,6 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
               id: row.original.id,
               data: { title },
             }),
-          })
-        },
-      },
-      {
-        accessorKey: 'genre',
-        header: 'Жанр',
-        size: 10,
-        minSize: 10,
-        maxSize: 10,
-        enableResizing: false,
-        cell: ({ row }) => {
-          return h(TableColSelect, {
-            key: `genre-${row.original.id}`,
-            value: row.original.genre,
-            kind: 'genre',
-            onUpdate: (value) => {
-              videosStore.updateVideo({
-                id: row.original.id,
-                data: { genre: value },
-              })
-            },
           })
         },
       },
@@ -137,7 +116,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
           return h(DialogButton, {
             icon: CirclePlus,
             onClick: () => dialog.openDialog({
-              title: `Создать киношку?`,
+              title: `Создать анимешку?`,
               description: '',
               onSubmit: () => videosStore.createVideo(),
             }),
@@ -150,7 +129,7 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
                 key: `id-${row.original.id}`,
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
-                  title: `Удалить киношку?`,
+                  title: `Удалить анимешку?`,
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                   onSubmit: () => videosStore.deleteVideo(row.original.id),
                 }),
@@ -191,5 +170,5 @@ export const useVideosTable = defineStore('videos/use-videos-table', () => {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useVideosTable, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useAnimeTable, import.meta.hot))
 }

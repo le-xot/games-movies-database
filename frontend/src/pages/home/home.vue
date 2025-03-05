@@ -34,7 +34,7 @@ onMounted(() => title.value = 'Лешот.ру')
             />
             <span class="button_text">{{ link.name }}</span>
           </a>
-          <router-link :to="ROUTER_PATHS.dbQueue" class="button" style="background-color: forestgreen;">
+          <router-link :to="ROUTER_PATHS.dbGames" class="button" style="background-color: forestgreen;">
             <LibraryBigIcon :size="32" />
             Кладовка
           </router-link>

@@ -4,6 +4,7 @@ export default antfu({
   typescript: true,
   markdown: true,
   yaml: true,
+  ignores: ['.augment-guidelines'],
   rules: {
     'ts/consistent-type-imports': 'off',
     'antfu/no-top-level-await': 'off',

@@ -68,7 +68,7 @@ export const router = createRouter({
 })
 
 // Navigation guard for admin routes
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   if (to.meta.requiresAdmin) {
     const userStore = useUser()
     if (!userStore.isAdmin) {

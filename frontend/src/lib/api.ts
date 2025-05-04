@@ -518,6 +518,20 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerDeleteUser
+     * @request DELETE:/users/{id}
+     */
+    userControllerDeleteUser: (id: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${id}`,
+        method: "DELETE",
+        ...params,
+      }),
   };
   persons = {
     /**

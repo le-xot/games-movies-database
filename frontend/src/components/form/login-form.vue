@@ -30,6 +30,11 @@ const loginHref = `${window.location.origin}/api/auth/twitch`
       </div>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
+      <DropdownMenuItem v-if="userStore.isAdmin" as-child>
+        <RouterLink to="/db/admin">
+          Админка
+        </RouterLink>
+      </DropdownMenuItem>
       <DropdownMenuItem @click="userStore.userLogout">
         <LogOutIcon class="size-4 mr-2" />
         Logout

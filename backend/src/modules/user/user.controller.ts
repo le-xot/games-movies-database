@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
@@ -28,5 +28,12 @@ export class UserController {
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<User[]> {
     return await this.userService.getAllUsers()
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
+  @ApiResponse({ status: HttpStatus.NO_CONTENT })
+  async deleteUser(@Param('id') id: string): Promise<void> {
+    await this.userService.deleteUserById(id)
   }
 }

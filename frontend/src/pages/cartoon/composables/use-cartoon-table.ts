@@ -3,6 +3,8 @@ import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import TableFilterGrade from '@/components/table/table-filter-grade.vue'
+import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
 import { VideoEntity } from '@/lib/api.ts'
 import {
@@ -19,9 +21,10 @@ import { useCartoonParams } from './use-cartoon-params.ts'
 
 export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const videosStore = useCartoon()
-  const { columnVisibility, pagination } = storeToRefs(useCartoonParams())
-  const { videos, totalPages } = storeToRefs(videosStore)
+  const cartoonStore = useCartoon()
+  const cartoonParams = useCartoonParams()
+  const { columnVisibility, pagination } = storeToRefs(cartoonParams)
+  const { videos, totalPages } = storeToRefs(cartoonStore)
   const dialog = useDialog()
 
   const tableColumns = computed(() => {
@@ -37,7 +40,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
-            onUpdate: (title) => videosStore.updateVideo({
+            onUpdate: (title) => cartoonStore.updateVideo({
               id: row.original.id,
               data: { title },
             }),
@@ -55,7 +58,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
             personId: row.original.person?.id,
-            onUpdate: (personId) => videosStore.updateVideo({
+            onUpdate: (personId) => cartoonStore.updateVideo({
               id: row.original.id,
               data: { personId },
             }),
@@ -64,7 +67,17 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
       },
       {
         accessorKey: 'status',
-        header: 'Статус',
+        header: () => {
+          return h('div', { class: 'flex justify-between items-center mx-3' }, [
+            h('span', {}, 'Статус'),
+            h(TableFilterStatus, {
+              value: null,
+              onUpdate: (value) => {
+                cartoonParams.setStatusFilter(value)
+              },
+            }),
+          ])
+        },
         size: 10,
         minSize: 10,
         maxSize: 10,
@@ -75,7 +88,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
             value: row.original.status,
             kind: 'status',
             onUpdate: (value) => {
-              videosStore.updateVideo({
+              cartoonStore.updateVideo({
                 id: row.original.id,
                 data: { status: value },
               })
@@ -85,7 +98,17 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
       },
       {
         accessorKey: 'grade',
-        header: 'Оценка',
+        header: () => {
+          return h('div', { class: 'flex justify-between items-center mx-3' }, [
+            h('span', {}, 'Оценка'),
+            h(TableFilterGrade, {
+              value: null,
+              onUpdate: (value) => {
+                cartoonParams.setGradeFilter(value)
+              },
+            }),
+          ])
+        },
         size: 10,
         minSize: 10,
         maxSize: 10,
@@ -96,7 +119,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
             value: row.original.grade,
             kind: 'grade',
             onUpdate: (value) => {
-              videosStore.updateVideo({
+              cartoonStore.updateVideo({
                 id: row.original.id,
                 data: { grade: value },
               })
@@ -118,7 +141,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
             onClick: () => dialog.openDialog({
               title: `Создать мультик?`,
               description: '',
-              onSubmit: () => videosStore.createVideo(),
+              onSubmit: () => cartoonStore.createVideo(),
             }),
           })
         },
@@ -131,7 +154,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
                 onClick: () => dialog.openDialog({
                   title: `Удалить мультик?`,
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
-                  onSubmit: () => videosStore.deleteVideo(row.original.id),
+                  onSubmit: () => cartoonStore.deleteVideo(row.original.id),
                 }),
               }),
             ],

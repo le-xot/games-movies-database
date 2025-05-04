@@ -9,8 +9,8 @@ export const useGamesParams = defineStore('games/use-games-params', () => {
   const search = ref('')
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
-  const statusesFilter = ref<StatusesEnum | null>(null)
-  const gradeFilter = ref<GradeEnum | null>(null)
+  const statusesFilter = ref<StatusesEnum[] | null>(null)
+  const gradeFilter = ref<GradeEnum[] | null>(null)
 
   const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
@@ -42,12 +42,22 @@ export const useGamesParams = defineStore('games/use-games-params', () => {
     return params
   })
 
+  function setGradeFilter(value: GradeEnum[] | null) {
+    gradeFilter.value = value
+  }
+
+  function setStatusFilter(value: StatusesEnum[] | null) {
+    statusesFilter.value = value
+  }
+
   return {
     search,
     debouncedSearch,
     pagination,
     columnVisibility,
     gamesParams,
+    setGradeFilter,
+    setStatusFilter,
   }
 })
 

@@ -3,7 +3,7 @@
 ## Dependencies
 
 * [Node.js: v22](https://nodejs.org/en)
-* [PNPM: v10](https://pnpm.io/)
+* [Pnpm: v10](https://pnpm.io/)
 * [Docker](https://docs.docker.com/engine/)
 
 ## Cli
@@ -17,7 +17,7 @@ pnpm i
 * Run needed services (postgres)
 
 ```bash
-docker compose up -d
+docker compose -f ./docker-compose-dev.yml up -d
 ```
 
 * Generate prisma schema and migrate dev database

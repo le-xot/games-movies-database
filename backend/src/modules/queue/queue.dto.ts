@@ -8,15 +8,17 @@ export class QueueItemDto {
   @ApiProperty()
   type: QueueType
 
-  @ApiProperty()
-  personName: string
+  @ApiProperty({ nullable: true })
+  personName: string | 'John Doe'
 
   @ApiProperty({ enum: $Enums.PrismaGenres, nullable: true })
   genre: $Enums.PrismaGenres | null
 }
 
 export enum QueueType {
+  // eslint-disable-next-line no-unused-vars
   VIDEO = 'VIDEO',
+  // eslint-disable-next-line no-unused-vars
   GAME = 'GAME',
 }
 

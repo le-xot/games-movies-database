@@ -3,6 +3,8 @@ import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import TableFilterGrade from '@/components/table/table-filter-grade.vue'
+import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
 import { GameEntity } from '@/lib/api.ts'
 import {
@@ -19,7 +21,8 @@ import { useGamesParams } from './use-games-params'
 
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const { pagination, columnVisibility } = storeToRefs(useGamesParams())
+  const gamesParams = useGamesParams()
+  const { pagination, columnVisibility } = storeToRefs(gamesParams)
   const gamesStore = useGames()
   const { games, totalPages } = storeToRefs(gamesStore)
   const dialog = useDialog()
@@ -63,7 +66,17 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       },
       {
         accessorKey: 'status',
-        header: 'Статус',
+        header: () => {
+          return h('div', { class: 'flex justify-between items-center mx-3' }, [
+            h('span', {}, 'Статус'),
+            h(TableFilterStatus, {
+              value: null,
+              onUpdate: (value) => {
+                gamesParams.setStatusFilter(value)
+              },
+            }),
+          ])
+        },
         size: 10,
         minSize: 10,
         maxSize: 10,
@@ -84,7 +97,17 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
       },
       {
         accessorKey: 'grade',
-        header: 'Оценка',
+        header: () => {
+          return h('div', { class: 'flex justify-between items-center mx-3' }, [
+            h('span', {}, 'Оценка'),
+            h(TableFilterGrade, {
+              value: null,
+              onUpdate: (value) => {
+                gamesParams.setGradeFilter(value)
+              },
+            }),
+          ])
+        },
         size: 10,
         minSize: 10,
         maxSize: 10,

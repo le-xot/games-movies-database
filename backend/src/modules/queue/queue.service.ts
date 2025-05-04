@@ -22,13 +22,13 @@ export class QueueService {
       games: games.map((g): QueueItemDto => ({
         title: g.title,
         type: QueueType.GAME,
-        personName: g.person.name,
+        personName: g.person?.name || 'John Doe',
         genre: null,
       })),
       videos: videos.map((v): QueueItemDto => ({
         title: v.title,
         type: QueueType.VIDEO,
-        personName: v.person.name,
+        personName: v.person?.name || 'John Doe',
         genre: v.genre,
       })),
     }

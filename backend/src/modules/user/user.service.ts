@@ -37,4 +37,8 @@ export class UserService {
   async getAllUsers(): Promise<User[]> {
     return this.prisma.user.findMany()
   }
+
+  async deleteUserById(id: string): Promise<void> {
+    await this.prisma.user.delete({ where: { id } })
+  }
 }

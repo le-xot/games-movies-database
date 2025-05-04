@@ -175,7 +175,7 @@ export interface GetAllGamesResponse {
 export interface QueueItemDto {
   title: string;
   type: string;
-  personName: string;
+  personName: string | null;
   genre: QueueItemDtoGenreEnum;
 }
 

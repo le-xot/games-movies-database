@@ -1,3 +1,4 @@
+import { useUser } from '@/composables/use-user'
 import { createRouter, createWebHistory } from 'vue-router'
 import { ROUTER_PATHS } from './router-paths.ts'
 
@@ -32,6 +33,11 @@ export const router = createRouter({
           component: () => import('@/pages/queue/queue.vue'),
         },
         {
+          path: ROUTER_PATHS.admin,
+          component: () => import('@/pages/admin/admin.vue'),
+          meta: { requiresAdmin: true },
+        },
+        {
           path: ROUTER_PATHS.dbAnime,
           component: () => import('@/pages/anime/anime.vue'),
         },
@@ -59,4 +65,19 @@ export const router = createRouter({
       redirect: ROUTER_PATHS.home,
     },
   ],
+})
+
+// Navigation guard for admin routes
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAdmin) {
+    const userStore = useUser()
+    if (!userStore.isAdmin) {
+      // Redirect non-admin users to home page
+      next({ path: ROUTER_PATHS.home })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })

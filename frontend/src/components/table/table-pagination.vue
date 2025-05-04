@@ -54,7 +54,8 @@ function validateInput(event: Event) {
   const input = event.target as HTMLInputElement
   const value = Number.parseInt(input.value)
 
-  if (value <= 0) {
+  if (Number.isNaN(value) || value <= 0) {
+    input.value = '1'
     pageIndex.value = 1
   }
 }
@@ -62,6 +63,12 @@ function validateInput(event: Event) {
 function handlePageInput() {
   const validValue = Math.max(1, Math.min(pageIndex.value, table.getPageCount()))
   pageIndex.value = validValue
+}
+
+function handleBlur() {
+  if (pageIndex.value <= 0) {
+    pageIndex.value = 1
+  }
 }
 </script>
 
@@ -92,6 +99,7 @@ function handlePageInput() {
           type="number"
           @keydown.enter.prevent="handlePageInput"
           @input="validateInput"
+          @blur="handleBlur"
         />
         <Button
           class="size-9 min-w-9 max-sm:w-full"
@@ -124,3 +132,17 @@ function handlePageInput() {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Скрываем стрелки для числового инпута */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield; /* Standard property for compatibility */
+}
+</style>

@@ -33,7 +33,8 @@ const pageIndex = computed({
     return pagination.value.pageIndex + 1
   },
   set(value) {
-    pagination.value.pageIndex = value - 1
+    const validValue = Math.max(1, Math.min(value, table.getPageCount()))
+    pagination.value.pageIndex = validValue - 1
   },
 })
 
@@ -48,6 +49,20 @@ const pageSize = computed({
     }
   },
 })
+
+function validateInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  const value = Number.parseInt(input.value)
+
+  if (value <= 0) {
+    pageIndex.value = 1
+  }
+}
+
+function handlePageInput() {
+  const validValue = Math.max(1, Math.min(pageIndex.value, table.getPageCount()))
+  pageIndex.value = validValue
+}
 </script>
 
 <template>
@@ -75,6 +90,8 @@ const pageSize = computed({
           :max="table.getPageCount()"
           inputmode="numeric"
           type="number"
+          @keydown.enter.prevent="handlePageInput"
+          @input="validateInput"
         />
         <Button
           class="size-9 min-w-9 max-sm:w-full"

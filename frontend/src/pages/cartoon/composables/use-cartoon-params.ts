@@ -10,7 +10,7 @@ export const useCartoonParams = defineStore('cartoon/use-cartoon-params', () => 
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('cartoonColumnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
     person: false,
     status: true,

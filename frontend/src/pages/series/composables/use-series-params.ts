@@ -10,7 +10,7 @@ export const useSeriesParams = defineStore('series/use-series-params', () => {
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('seriesColumnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
     person: false,
     status: true,

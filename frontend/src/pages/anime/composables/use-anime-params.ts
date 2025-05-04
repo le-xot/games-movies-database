@@ -10,7 +10,7 @@ export const useAnimeParams = defineStore('anime/use-anime-params', () => {
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('animeColumnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
     person: false,
     status: true,

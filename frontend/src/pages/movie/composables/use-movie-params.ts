@@ -10,7 +10,7 @@ export const useMovieParams = defineStore('movies/use-movie-params', () => {
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
 
-  const columnVisibility = useLocalStorage<VisibilityState>('movieColumnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
     person: false,
     status: true,

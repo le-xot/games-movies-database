@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: abc
       POSTGRES_DB: lists
     ports:
-      - '5432:5432'
+      - '6543:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:

@@ -846,4 +846,19 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  weather = {
+    /**
+     * No description
+     *
+     * @tags weather
+     * @name WeatherControllerGetWeather
+     * @request GET:/weather
+     */
+    weatherControllerGetWeather: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/weather`,
+        method: "GET",
+        ...params,
+      }),
+  };
 }

@@ -9,6 +9,7 @@ import { PersonModule } from './modules/person/person.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { UserModule } from './modules/user/user.module'
 import { VideoModule } from './modules/video/video.module'
+import { WeatherModule } from './modules/weather/weather.module'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { VideoModule } from './modules/video/video.module'
     PrismaModule,
     CustomJwtModule,
     QueueModule,
+    WeatherModule,
   ],
 })
 export class AppModule {}

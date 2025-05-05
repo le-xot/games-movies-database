@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useUser } from '@/composables/use-user.ts'
 import { PersonEntity } from '@/lib/api'
-import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
+import { DeleteIcon, EllipsisIcon, PencilIcon, Trash2Icon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, watch } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
@@ -89,6 +89,26 @@ function invokeRemovePerson() {
 }
 
 const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '#69314C', '#854C1D', '#89632A', '#2B593F']
+
+const editingName = ref(false)
+const nameInputValue = ref('')
+
+function startNameEdit(person: PersonEntity) {
+  nameInputValue.value = person.name
+  editingName.value = true
+}
+
+function saveNameEdit(person: PersonEntity) {
+  if (nameInputValue.value && nameInputValue.value !== person.name) {
+    updatePerson(person.id, { name: nameInputValue.value })
+  }
+  editingName.value = false
+}
+
+// Custom directive for auto-focusing the input
+const vFocus = {
+  mounted: (el: HTMLElement) => el.focus(),
+}
 </script>
 
 <template>
@@ -162,20 +182,46 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
-                    class="w-36"
+                    class="w-40"
                     side="right"
                     align="start"
                     :align-offset="-8"
                     :side-offset="26"
                   >
                     <div class="p-2 gap-2 flex justify-center flex-wrap">
+                      <div v-if="editingName" class="w-full mb-2">
+                        <input
+                          v-model="nameInputValue"
+                          v-focus
+                          class="w-full p-1 text-sm border rounded bg-background text-foreground"
+                          @keydown.enter="saveNameEdit(person)"
+                          @keydown.escape="editingName = false"
+                          @click.stop
+                        >
+                        <Button
+                          variant="outline"
+                          class="w-full mt-1 text-xs"
+                          @click="saveNameEdit(person)"
+                        >
+                          Подтвердить
+                        </Button>
+                      </div>
+                      <Button
+                        v-else
+                        variant="ghost"
+                        class="w-full flex justify-between"
+                        @click="startNameEdit(person)"
+                      >
+                        <span class="truncate mr-1">Изменить</span>
+                        <PencilIcon class="size-4 shrink-0" />
+                      </Button>
                       <Button
                         variant="ghost"
                         class="w-full flex justify-between"
                         @click="invokeDeletePerson(person)"
                       >
-                        Удалить
-                        <Trash2Icon />
+                        <span class="truncate mr-1">Удалить</span>
+                        <Trash2Icon class="size-4 shrink-0" />
                       </Button>
                       <Button
                         v-for="color in BUTTONS_COLORS"

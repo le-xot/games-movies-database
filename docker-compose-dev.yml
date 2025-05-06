@@ -13,7 +13,7 @@ services:
   admin:
     image: adminer
     restart: unless-stopped
-    depends_on: 
+    depends_on:
       - postgres
     ports:
       - 54321:8080

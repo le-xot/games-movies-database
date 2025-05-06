@@ -10,5 +10,12 @@ services:
       - '6543:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+  admin:
+    image: adminer
+    restart: unless-stopped
+    depends_on: 
+      - postgres
+    ports:
+      - 54321:8080
 volumes:
   pgdata:

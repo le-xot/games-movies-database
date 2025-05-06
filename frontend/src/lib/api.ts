@@ -49,6 +49,8 @@ export interface PersonEntity {
   name: string;
   id: number;
   color: string;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface PatchPersonDTO {
@@ -109,6 +111,8 @@ export interface VideoEntity {
   status: StatusesEnum;
   genre: GenresEnum;
   grade: GradeEnum;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface PatchVideoDTO {
@@ -152,6 +156,8 @@ export interface GameEntity {
   type: TypesEnum;
   status: StatusesEnum;
   grade: GradeEnum;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface PatchGameDTO {

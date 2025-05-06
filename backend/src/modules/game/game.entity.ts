@@ -24,6 +24,9 @@ export class GameEntity implements Game {
 
   @ApiProperty({ enumName: GradeEnum, enum: $Enums.PrismaGrades })
   grade: $Enums.PrismaGrades
+
+  @ApiProperty()
+  createdAt: Date
 }
 
 export class GetAllGamesResponse {

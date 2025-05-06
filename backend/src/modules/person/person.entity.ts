@@ -10,4 +10,7 @@ export class PersonEntity implements Person {
 
   @ApiProperty()
   color: string
+
+  @ApiProperty()
+  createdAt: Date
 }

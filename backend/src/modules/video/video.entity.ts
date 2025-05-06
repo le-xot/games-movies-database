@@ -32,6 +32,9 @@ export class VideoEntity implements Video {
 
   @ApiProperty({ enumName: GradeEnum, enum: $Enums.PrismaGrades })
   grade: $Enums.PrismaGrades
+
+  @ApiProperty()
+  createdAt: Date
 }
 
 export class GetAllVideosResponse {

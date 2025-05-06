@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useUser } from '@/composables/use-user.ts'
-import { LogOutIcon } from 'lucide-vue-next'
+import { LogOutIcon, ShieldUser } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
@@ -32,6 +32,7 @@ const loginHref = `${window.location.origin}/api/auth/twitch`
     <DropdownMenuContent>
       <DropdownMenuItem v-if="userStore.isAdmin" as-child>
         <RouterLink to="/db/admin">
+          <ShieldUser class="size-4 mr-2" />
           Админка
         </RouterLink>
       </DropdownMenuItem>

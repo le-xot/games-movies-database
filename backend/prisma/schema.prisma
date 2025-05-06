@@ -8,36 +8,39 @@ generator client {
 }
 
 model Game {
-  id       Int             @id @default(autoincrement())
-  title    String?         @unique
-  personId Int?
-  person   Person?         @relation(fields: [personId], references: [id])
-  type     PrismaTypes?    @default(FREE)
-  status   PrismaStatuses? @default(QUEUE)
-  grade    PrismaGrades?
+  id        Int             @id @default(autoincrement())
+  title     String?         @unique
+  personId  Int?
+  person    Person?         @relation(fields: [personId], references: [id])
+  type      PrismaTypes?    @default(FREE)
+  status    PrismaStatuses? @default(QUEUE)
+  grade     PrismaGrades?
+  createdAt DateTime        @default(now())
 
   @@map("games")
 }
 
 model Video {
-  id       Int             @id @default(autoincrement())
-  title    String?         @unique
-  personId Int?
-  person   Person?         @relation(fields: [personId], references: [id])
-  type     PrismaTypes?    @default(FREE)
-  status   PrismaStatuses? @default(QUEUE)
-  genre    PrismaGenres?
-  grade    PrismaGrades?
+  id        Int             @id @default(autoincrement())
+  title     String?         @unique
+  personId  Int?
+  person    Person?         @relation(fields: [personId], references: [id])
+  type      PrismaTypes?    @default(FREE)
+  status    PrismaStatuses? @default(QUEUE)
+  genre     PrismaGenres?
+  grade     PrismaGrades?
+  createdAt DateTime        @default(now())
 
   @@map("videos")
 }
 
 model Person {
-  id           Int     @id @default(autoincrement())
-  name         String  @unique
-  color        String  @default("#333333")
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  color        String   @default("#333333")
   RecordGames  Game[]
   RecordMovies Video[]
+  createdAt    DateTime @default(now())
 
   @@map("persons")
 }

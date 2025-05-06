@@ -66,6 +66,7 @@ export const useTablePersons = defineStore('use-table-persons', () => {
         id: item.id,
         name: item.name,
         color: item.color,
+        createdAt: item.createdAt,
       }
     })
   })

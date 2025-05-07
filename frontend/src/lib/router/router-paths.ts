@@ -9,4 +9,5 @@ export const ROUTER_PATHS = {
   dbMovie: '/db/movie',
   dbCartoon: '/db/cartoon',
   dbSeries: '/db/series',
+  dbSuggestion: '/db/suggestion',
 }

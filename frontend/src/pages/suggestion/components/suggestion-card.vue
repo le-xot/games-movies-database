@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useUser } from '@/composables/use-user'
-
 import { SuggestionItemDto } from '@/lib/api.ts'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useSuggestion } from '../composables/use-suggestion'
-import SuggestionForm from './suggestion-form.vue'
 
 const props = defineProps<{ items: SuggestionItemDto[] }>()
 
 const isShow = (item: SuggestionItemDto) => item.title && item.user.login
 
 const { isAdmin } = storeToRefs(useUser())
-const dialog = useDialog()
 const { toast } = useToast()
 const suggestion = useSuggestion()
 
@@ -33,41 +29,28 @@ const filteredItems = computed(() =>
 
 defineExpose({ isDialogOpen })
 
-function openSuggestionDialog() {
-  dialog.openDialog({
-    title: 'Предложить контент',
-    description: 'Поддерживаются форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687',
-    onSubmit: () => {},
-    onCancel: () => {
-      dialog.closeDialog()
-      resetDialogState()
-    },
-    component: SuggestionForm,
-  })
-}
+watch(isDialogOpen, (newValue) => {
+  if (newValue) {
+    suggestion.openSuggestionDialog(resetDialogState)
+  }
+})
 
 async function handleDeleteSuggestion(id: number) {
   try {
     await suggestion.deleteSuggestion(id)
     toast({
       title: 'Успешно',
-      description: 'Предложение удалено',
+      description: 'Совет удален',
       variant: 'default',
     })
   } catch {
     toast({
       title: 'Ошибка',
-      description: suggestion.error || 'Не удалось удалить предложение',
+      description: suggestion.error || 'Не удалось удалить совет',
       variant: 'destructive',
     })
   }
 }
-
-watch(isDialogOpen, (newValue) => {
-  if (newValue) {
-    openSuggestionDialog()
-  }
-})
 </script>
 
 <template>
@@ -129,16 +112,13 @@ watch(isDialogOpen, (newValue) => {
                 </div>
               </div>
               <div v-if="isAdmin" class="flex gap-2">
-                <Button variant="outline" size="sm" class="text-sm">
-                  Edit
-                </Button>
                 <Button
                   variant="destructive"
                   size="sm"
                   class="text-sm"
                   @click="handleDeleteSuggestion(item.id)"
                 >
-                  Delete
+                  Удалить
                 </Button>
               </div>
             </CardFooter>

@@ -3,11 +3,9 @@ import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { toTypedSchema } from '@vee-validate/zod'
 import { AlertCircle } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, watch } from 'vue'
-import * as z from 'zod'
 import { useSuggestion } from '../composables/use-suggestion'
 
 const dialog = useDialog()
@@ -19,12 +17,7 @@ interface FormValues {
   link: string
 }
 
-const formSchema = toTypedSchema(z.object({
-  link: z.string({ message: 'Ошибка' }).url('Пожалуйста, введите корректную ссылку'),
-}))
-
 const form = useForm<FormValues>({
-  validationSchema: formSchema,
   initialValues: {
     link: '',
   },
@@ -61,7 +54,7 @@ async function submitSuggestion(values: any) {
     form.resetForm()
     dialog.closeDialog()
   } catch (err: any) {
-    let message = 'Ошибка при отправке предложения'
+    let message = 'Ошибка при отправке совета'
 
     try {
       if (err instanceof Response || (err && typeof err.json === 'function')) {
@@ -75,7 +68,7 @@ async function submitSuggestion(values: any) {
     } catch (parseError) {
       console.error('Failed to parse error response:', parseError)
     }
-    errorMessage.value = message || suggestion.error || 'Ошибка при отправке предложения'
+    errorMessage.value = message || suggestion.error || 'Ошибка при отправке совета'
   } finally {
     isSubmitting.value = false
   }
@@ -83,7 +76,7 @@ async function submitSuggestion(values: any) {
 </script>
 
 <template>
-  <Form :validation-schema="formSchema" @submit="submitSuggestion">
+  <Form @submit="submitSuggestion">
     <div class="space-y-4">
       <FormField v-slot="{ componentField }" name="link">
         <FormItem>

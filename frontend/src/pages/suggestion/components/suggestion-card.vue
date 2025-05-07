@@ -111,7 +111,7 @@ async function handleDeleteSuggestion(id: number) {
                   {{ item.user?.login }}
                 </div>
               </div>
-              <div v-if="isAdmin" class="flex gap-2">
+              <div v-if="isAdmin" class="flex justify-end w-full mt-auto">
                 <Button
                   variant="destructive"
                   size="sm"

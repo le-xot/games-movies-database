@@ -14,6 +14,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 const userStore = useUser()
 const { user } = storeToRefs(userStore)
 const loginHref = `${window.location.origin}/api/auth/twitch`
+
+function handleLogin() {
+  localStorage.setItem('loginReturnUrl', window.location.pathname)
+  window.location.href = loginHref
+}
 </script>
 
 <template>
@@ -43,7 +48,7 @@ const loginHref = `${window.location.origin}/api/auth/twitch`
     </DropdownMenuContent>
   </DropdownMenu>
 
-  <Button v-else as="a" :href="loginHref">
+  <Button v-else @click="handleLogin">
     Login
   </Button>
 </template>

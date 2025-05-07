@@ -29,13 +29,17 @@ export const router = createRouter({
       redirect: { path: ROUTER_PATHS.dbQueue },
       children: [
         {
+          path: ROUTER_PATHS.admin,
+          component: () => import('@/pages/admin/admin.vue'),
+          meta: { requiresAdmin: true },
+        },
+        {
           path: ROUTER_PATHS.dbQueue,
           component: () => import('@/pages/queue/queue.vue'),
         },
         {
-          path: ROUTER_PATHS.admin,
-          component: () => import('@/pages/admin/admin.vue'),
-          meta: { requiresAdmin: true },
+          path: ROUTER_PATHS.dbSuggestion,
+          component: () => import('@/pages/suggestion/suggestion.vue'),
         },
         {
           path: ROUTER_PATHS.dbAnime,
@@ -67,12 +71,10 @@ export const router = createRouter({
   ],
 })
 
-// Navigation guard for admin routes
 router.beforeEach((to, _, next) => {
   if (to.meta.requiresAdmin) {
     const userStore = useUser()
     if (!userStore.isAdmin) {
-      // Redirect non-admin users to home page
       next({ path: ROUTER_PATHS.home })
     } else {
       next()

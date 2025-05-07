@@ -13,6 +13,7 @@ const { updateTitle } = useTitle()
 
 const routes = [
   { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
+  { name: 'Советы', path: ROUTER_PATHS.dbSuggestion },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
   { name: 'Аниме', path: ROUTER_PATHS.dbAnime },
@@ -28,10 +29,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="header">
-    <div class="header-container">
-      <div class="header-nav">
-        <div class="button-container">
+  <div class="h-[68px] flex">
+    <div class="flex justify-between items-center gap-8 p-4 w-full">
+      <div class="flex flex-nowrap gap-2 items-center overflow-x-auto whitespace-nowrap">
+        <div class="flex flex-row overflow-x-auto whitespace-nowrap h-[50px] w-full gap-2.5 items-center">
           <RouterLink
             v-for="headerRoute of routes"
             v-slot="{ href, navigate }"
@@ -42,7 +43,7 @@ onMounted(() => {
             <Button
               :href="href"
               variant="secondary"
-              :class="{ active: route.path === headerRoute.path }"
+              :class="{ 'bg-[hsla(var(--primary-foreground))]': route.path === headerRoute.path }"
               @click="(event) => {
                 navigate(event)
                 updateTitle(headerRoute.name)
@@ -61,47 +62,3 @@ onMounted(() => {
   </div>
   <Separator />
 </template>
-
-<style scoped>
-.header {
-  height: 68px;
-  display: flex;
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-  padding: 1rem;
-  width: 100%;
-}
-
-.header-nav {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-  align-items: center;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.active {
-  background-color: hsla(var(--primary-foreground));
-}
-
-.button-container {
-  display: flex;
-  flex-direction: row;
-  overflow-x: auto;
-  white-space: nowrap;
-  height: 50px;
-  width: 100%;
-  gap: 10px;
-  align-items: center;
-}
-
-router-link {
-  flex-shrink: 0;
-}
-</style>

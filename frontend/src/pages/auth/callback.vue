@@ -23,9 +23,12 @@ onMounted(async () => {
     return
   }
 
+  const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
+
   try {
     await userApi.userLogin({ code })
-    await router.push(ROUTER_PATHS.db)
+    localStorage.removeItem('loginReturnUrl')
+    await router.push(returnUrl)
   } catch (e) {
     if (e instanceof Error) {
       error.value = e.toString()

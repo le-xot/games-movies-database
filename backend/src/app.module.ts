@@ -5,8 +5,10 @@ import { PrismaModule } from './database/prisma.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { GameModule } from './modules/game/game.module'
 import { CustomJwtModule } from './modules/jwt/jwt.module'
+import { LimitModule } from './modules/limit/limit.module'
 import { PersonModule } from './modules/person/person.module'
 import { QueueModule } from './modules/queue/queue.module'
+import { SuggestionModule } from './modules/suggestion/suggestion.module'
 import { UserModule } from './modules/user/user.module'
 import { VideoModule } from './modules/video/video.module'
 import { WeatherModule } from './modules/weather/weather.module'
@@ -25,7 +27,9 @@ import { WeatherModule } from './modules/weather/weather.module'
     PrismaModule,
     CustomJwtModule,
     QueueModule,
+    SuggestionModule,
     WeatherModule,
+    LimitModule,
   ],
 })
 export class AppModule {}

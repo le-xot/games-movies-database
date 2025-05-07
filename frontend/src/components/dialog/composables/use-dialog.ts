@@ -4,7 +4,12 @@ import { ref } from 'vue'
 interface DialogState {
   title: string
   description: string
-  onSubmit: () => void
+  onSubmit: (formData?: any) => void
+  onCancel?: () => void
+  content?: string
+  formData?: { title: string, description: string }
+  component?: any
+  props?: Record<string, any>
 }
 
 export const useDialog = defineStore('dialog', () => {
@@ -16,9 +21,15 @@ export const useDialog = defineStore('dialog', () => {
     dialogState.value = state
   }
 
-  function submitDialog() {
+  function submitDialog(formData?: any) {
     if (!dialogState.value) return
-    dialogState.value.onSubmit()
+    dialogState.value.onSubmit(formData)
+    isOpen.value = false
+    dialogState.value = null
+  }
+
+  function closeDialog() {
+    isOpen.value = false
     dialogState.value = null
   }
 
@@ -27,5 +38,6 @@ export const useDialog = defineStore('dialog', () => {
     dialogState,
     openDialog,
     submitDialog,
+    closeDialog,
   }
 })

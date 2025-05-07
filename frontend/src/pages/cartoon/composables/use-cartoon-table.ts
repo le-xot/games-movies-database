@@ -140,6 +140,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
             icon: CirclePlus,
             onClick: () => dialog.openDialog({
               title: `Создать мультик?`,
+              content: '',
               description: '',
               onSubmit: () => cartoonStore.createVideo(),
             }),
@@ -153,6 +154,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
                   title: `Удалить мультик?`,
+                  content: '',
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                   onSubmit: () => cartoonStore.deleteVideo(row.original.id),
                 }),

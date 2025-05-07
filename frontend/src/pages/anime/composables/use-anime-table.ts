@@ -140,6 +140,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
             icon: CirclePlus,
             onClick: () => dialog.openDialog({
               title: `Создать анимешку?`,
+              content: '',
               description: '',
               onSubmit: () => animeStore.createVideo(),
             }),
@@ -153,6 +154,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
                   title: `Удалить анимешку?`,
+                  content: '',
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                   onSubmit: () => animeStore.deleteVideo(row.original.id),
                 }),

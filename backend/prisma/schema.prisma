@@ -51,8 +51,40 @@ model User {
   role            PrismaRoles? @default(USER)
   profileImageUrl String?
   createdAt       DateTime     @default(now())
+  suggestion      Suggestion[]
 
   @@map("users")
+}
+
+model Suggestion {
+  id        Int             @id @default(autoincrement())
+  title     String
+  user      User            @relation(fields: [userId], references: [id])
+  userId    String
+  link      String
+  type      SuggestionsType
+  posterUrl String?
+  grade     String?
+  genre     PrismaGenres?
+  createdAt DateTime        @default(now())
+
+  @@map("suggestions")
+}
+
+model Limit {
+  name     LimitType @unique
+  quantity Int       @default(5)
+
+  @@map("limits")
+}
+
+enum LimitType {
+  SUGGESTION
+}
+
+enum SuggestionsType {
+  WATCH
+  GAME
 }
 
 enum PrismaRoles {

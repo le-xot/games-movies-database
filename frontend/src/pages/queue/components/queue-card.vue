@@ -11,21 +11,23 @@ function isShow(item: QueueItemDto) {
 
 <template>
   <div>
-    <p class="title">
+    <p class="pb-4 text-white text-2xl">
       <slot name="title" />
     </p>
-    <div class="grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
       <template v-for="(item, index) in items" :key="index">
         <Card
           v-if="isShow(item)"
-          class="card"
+          class="bg-[var(--n-action-color)] h-full justify-between"
         >
           <CardHeader>
-            <CardTitle>{{ item.title }}</CardTitle>
+            <CardTitle class="text-xl overflow-hidden line-clamp-2 max-w-full box-border">
+              {{ item.title }}
+            </CardTitle>
           </CardHeader>
           <CardFooter>
-            <div class="person">
-              <div class="person-name">
+            <div class="w-full flex flex-wrap justify-between">
+              <div class="flex justify-end">
                 {{ item.personName }}
               </div>
               <slot name="footer" :item="item" />
@@ -36,35 +38,3 @@ function isShow(item: QueueItemDto) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 16px;
-}
-
-.card {
-  background-color: var(--n-action-color);
-  height: 100% ;
-  justify-content: space-between;
-}
-
-.title {
-  padding-bottom: 1rem;
-  color: #fff;
-  font-size: 1.5rem;
-}
-
-.person {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between
-}
-
-.person-name {
-  display: flex;
-  justify-content: flex-end
-}
-</style>

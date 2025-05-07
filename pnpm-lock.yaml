@@ -69,6 +69,9 @@ importers:
       envalid:
         specifier: 8.0.0
         version: 8.0.0
+      node-shikimori:
+        specifier: 2.0.3
+        version: 2.0.3
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
@@ -3926,6 +3929,9 @@ packages:
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
+
+  node-shikimori@2.0.3:
+    resolution: {integrity: sha512-xE+u0tok3HMFm39cEvFVPQtFaET3jjQg2aQxerEFKrIkCpRUm/NWfFzxbnyDXrClQ+fwPJi3Wa1r+5fUcCwJgg==}
 
   nopt@5.0.0:
     resolution: {integrity: sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==}
@@ -9663,6 +9669,8 @@ snapshots:
       es6-promise: 3.3.1
 
   node-releases@2.0.19: {}
+
+  node-shikimori@2.0.3: {}
 
   nopt@5.0.0:
     dependencies:

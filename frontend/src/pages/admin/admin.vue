@@ -35,6 +35,7 @@ async function fetchUsers() {
 async function deleteUser(userId: string, username: string) {
   dialog.openDialog({
     title: 'Удалить пользователя?',
+    content: '',
     description: `Вы уверены, что хотите удалить пользователя ${username}?`,
     onSubmit: async () => {
       try {

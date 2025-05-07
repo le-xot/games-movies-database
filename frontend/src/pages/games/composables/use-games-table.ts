@@ -139,6 +139,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             icon: CirclePlus,
             onClick: () => dialog.openDialog({
               title: `Создать игру?`,
+              content: '',
               description: '',
               onSubmit: () => gamesStore.createGame(),
             }),
@@ -155,6 +156,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
                   icon: Eraser,
                   onClick: () => dialog.openDialog({
                     title: `Удалить игру?`,
+                    content: '',
                     description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                     onSubmit: () => gamesStore.deleteGame(row.original.id),
                   }),

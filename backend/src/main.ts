@@ -56,8 +56,6 @@ async function bootstrap() {
   )
 
   await app.listen(env.APP_PORT, '0.0.0.0')
-  console.log(`API http://localhost:${env.APP_PORT}/reference`)
-  console.log(`DEV http://localhost:5173`)
 
   if (module.hot) {
     module.hot.accept()

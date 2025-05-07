@@ -76,6 +76,7 @@ async function handleColorChange(person: PersonEntity, color: string) {
 function invokeDeletePerson(person: PersonEntity) {
   dialog.openDialog({
     title: `Удалить заказчика?`,
+    content: '',
     description: `Вы уверены что хотите удалить ${person.name}?`,
     onSubmit: () => {
       persons.deletePersonById(person.id)

@@ -190,7 +190,62 @@ export interface QueueDto {
   videos: QueueItemDto[];
 }
 
+export interface UserDTO {
+  /** @example "le_xot" */
+  login: string;
+  /** @example "155644238" */
+  id: string;
+  /** @example "USER" */
+  role: string;
+  /** @example "le_xot" */
+  profileImageUrl: string;
+}
+
+export interface SuggestionItemDto {
+  id: number;
+  title: string;
+  link: string;
+  user: UserDTO;
+  genre: SuggestionItemDtoGenreEnum;
+  posterUrl: string | null;
+  grade: string | null;
+}
+
+export interface SuggestionsDto {
+  suggestions: SuggestionItemDto[];
+}
+
+export interface UserSuggestionDTO {
+  /** @example "https://shikimori.one/animes/1943-paprika" */
+  link: string;
+}
+
+export enum LimitTypeEnum {
+  SUGGESTION = "SUGGESTION",
+}
+
+export interface ChangeLimitDTO {
+  name: LimitTypeEnum;
+  /**
+   * Limit quantity
+   * @example 5
+   */
+  quantity: number;
+}
+
+export interface LimitEntity {
+  name: LimitTypeEnum;
+  quantity: number;
+}
+
 export enum QueueItemDtoGenreEnum {
+  ANIME = "ANIME",
+  MOVIE = "MOVIE",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
+}
+
+export enum SuggestionItemDtoGenreEnum {
   ANIME = "ANIME",
   MOVIE = "MOVIE",
   CARTOON = "CARTOON",
@@ -866,6 +921,52 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  suggestions = {
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerGetSuggestions
+     * @request GET:/suggestions
+     */
+    suggestionControllerGetSuggestions: (params: RequestParams = {}) =>
+      this.http.request<SuggestionsDto, any>({
+        path: `/suggestions`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerUserSuggest
+     * @request POST:/suggestions
+     */
+    suggestionControllerUserSuggest: (data: UserSuggestionDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/suggestions`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerDeleteSuggestion
+     * @request DELETE:/suggestions/{id}
+     */
+    suggestionControllerDeleteSuggestion: (id: number, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/suggestions/${id}`,
+        method: "DELETE",
+        ...params,
+      }),
+  };
   weather = {
     /**
      * No description
@@ -878,6 +979,24 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/weather`,
         method: "GET",
+        ...params,
+      }),
+  };
+  limits = {
+    /**
+     * No description
+     *
+     * @tags limits
+     * @name LimitControllerChangeLimit
+     * @request POST:/limits
+     */
+    limitControllerChangeLimit: (data: ChangeLimitDTO, params: RequestParams = {}) =>
+      this.http.request<LimitEntity, any>({
+        path: `/limits`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

@@ -18,6 +18,16 @@ async function seed() {
       },
     },
   )
+  await prisma.limit.upsert(
+    {
+      where: { name: 'SUGGESTION' },
+      update: {},
+      create: {
+        name: 'SUGGESTION',
+        quantity: 3,
+      },
+    },
+  )
 }
 
 seed()

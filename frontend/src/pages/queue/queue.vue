@@ -1,22 +1,48 @@
 <script setup lang="ts">
+import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { genreTags } from '@/components/table/composables/use-table-select'
+import { Button } from '@/components/ui/button'
 import { Tag } from '@/components/ui/tag'
 import Spinner from '@/components/utils/spinner.vue'
+import { useUser } from '@/composables/use-user'
 import { useAnime } from '@/pages/anime/composables/use-anime.ts'
-import { computed } from 'vue'
+import { ListPlus } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { useGames } from '../games/composables/use-games'
 import QueueCard from './components/queue-card.vue'
+import SuggestionCard from './components/suggestion-card.vue'
+import SuggestionForm from './components/suggestion-form.vue'
 import { useQueue } from './composables/use-queue'
+import { useSuggestion } from './composables/use-suggestion'
 
 const games = useGames()
 const anime = useAnime()
 const queue = useQueue()
-const isLoading = computed(() => games.isLoading || anime.isLoading)
+const suggestion = useSuggestion()
+const dialog = useDialog()
+
+const user = useUser()
+
+const isLoading = computed(() => games.isLoading || anime.isLoading || suggestion.isLoading)
+
+const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
+
+function openSuggestionDialog() {
+  dialog.openDialog({
+    title: 'Предложить контент',
+    description: 'Поддерживаются форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687',
+    onSubmit: () => {},
+    onCancel: () => {
+      dialog.closeDialog()
+    },
+    component: SuggestionForm,
+  })
+}
 </script>
 
 <template>
-  <div class="queue">
-    <div v-if="isLoading" class="loaded">
+  <div class="flex flex-col gap-4 h-full">
+    <div v-if="isLoading" class="flex items-center justify-center">
       <Spinner />
     </div>
     <QueueCard v-if="(queue.data?.games?.length ?? 0) > 0 && !isLoading" kind="game" :items="queue.data?.games ?? []">
@@ -38,47 +64,44 @@ const isLoading = computed(() => games.isLoading || anime.isLoading)
       </template>
     </QueueCard>
 
-    <div
-      v-if="queue.data?.games.length === 0 && queue.data.videos.length === 0 && !isLoading"
-      class="aga"
+    <SuggestionCard
+      v-if="(suggestion.suggestions?.length ?? 0) > 0 && !isLoading"
+      ref="suggestionCard"
+      kind="suggestion"
+      :items="suggestion.suggestions ?? []"
     >
-      <img class="aga__img" src="/images/aga.webp" alt="Ага">
-      <span class="aga__text">Пока в очереди ничего нет</span>
+      <template #title>
+        <div class="flex justify-between">
+          Предложения: {{ suggestion.suggestions?.length ?? 0 }}
+          <Button :disabled="!user.isLoggedIn" @click="openSuggestionDialog">
+            <span v-if="user.isLoggedIn" class="flex items-center gap-2">
+              Предложить
+              <ListPlus class="icon" />
+            </span>
+            <span v-else>
+              Авторизуйтесь, чтобы предложить
+            </span>
+          </Button>
+        </div>
+      </template>
+    </SuggestionCard>
+
+    <div
+      v-if="queue.data?.games.length === 0 && queue.data.videos.length === 0 && (suggestion.suggestions?.length ?? 0) === 0 && !isLoading"
+      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"
+      class="text-center"
+    >
+      <img class="w-[120px] h-[120px] mx-auto" src="/images/aga.webp" alt="Ага">
+      <span class="text-xl font-bold block mt-4">Пока в очереди ничего нет</span>
+      <Button class="mt-4" :disabled="!user.isLoggedIn" @click="openSuggestionDialog">
+        <span v-if="user.isLoggedIn" class="flex items-center gap-2">
+          Предложить
+          <ListPlus class="icon" />
+        </span>
+        <span v-else>
+          Авторизуйтесь, чтобы предложить
+        </span>
+      </Button>
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-.queue {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  height: inherit;
-}
-
-.aga {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  gap: 16px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  &__img {
-    width: 120px;
-    height: 120px;
-  }
-
-  &__text {
-    font-size: 20px;
-    font-weight: 700;
-  }
-}
-
-.loader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

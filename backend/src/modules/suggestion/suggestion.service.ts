@@ -91,9 +91,17 @@ export class SuggestionService {
 
   private async fetchShikimori(id: number): Promise<CreateSuggestion> {
     const shikimori = client()
-    const result = await shikimori.animes.byId({
-      id,
-    })
+
+    let result: any
+
+    try {
+      result = await shikimori.animes.byId({
+        id,
+      })
+    } catch {
+      throw new BadRequestException('Не удалось получить данные из API Shikimori')
+    }
+
     const data = {
       title: result.russian,
       type: $Enums.SuggestionsType.WATCH,

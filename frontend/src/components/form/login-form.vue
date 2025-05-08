@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useUser } from '@/composables/use-user.ts'
-import { LogOutIcon, ShieldUser } from 'lucide-vue-next'
+import { CircleUserRound, Lock, LogOutIcon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
@@ -37,18 +37,24 @@ function handleLogin() {
     <DropdownMenuContent>
       <DropdownMenuItem v-if="userStore.isAdmin" as-child>
         <RouterLink to="/db/admin">
-          <ShieldUser class="size-4 mr-2" />
+          <Lock class="size-6 mr-2" />
           Админка
         </RouterLink>
       </DropdownMenuItem>
+      <DropdownMenuItem v-if="userStore.isLoggedIn" as-child>
+        <RouterLink to="/db/profile">
+          <CircleUserRound class="size-6 mr-2" />
+          Профиль
+        </RouterLink>
+      </DropdownMenuItem>
       <DropdownMenuItem @click="userStore.userLogout">
-        <LogOutIcon class="size-4 mr-2" />
-        Logout
+        <LogOutIcon class="size-6 mr-2" />
+        Выйти
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 
   <Button v-else @click="handleLogin">
-    Login
+    Логин
   </Button>
 </template>

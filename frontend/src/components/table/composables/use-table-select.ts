@@ -1,4 +1,4 @@
-import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
+import { GenresEnum, GradeEnum, StatusesEnum, TypesEnum } from '@/lib/api.ts'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export interface BadgeOptions {
@@ -90,6 +90,20 @@ export const gradeTags: Record<
     label: 'Не рекомендую',
     description: 'и считаю это пустой тратой времени и недостойным проведением досуга.',
     class: 'bg-[#6e3630] border',
+  },
+}
+
+export const typeTags: Record<
+  TypesEnum,
+  BadgeOptions
+> = {
+  [TypesEnum.PAID]: {
+    name: 'Платная',
+    class: 'bg-[#6e3630] border text-white/80',
+  },
+  [TypesEnum.FREE]: {
+    name: 'Бесплатная',
+    class: 'bg-[#2b593f] border text-white/80',
   },
 }
 

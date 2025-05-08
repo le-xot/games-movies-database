@@ -1,13 +1,14 @@
 import { RolesEnum } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useApi } from './use-api'
 
 export const USER_QUERY_KEY = 'user'
 
 export const useUser = defineStore('globals/use-user', () => {
   const api = useApi()
+  const isInitialized = ref(false)
 
   const {
     isLoading,
@@ -27,6 +28,15 @@ export const useUser = defineStore('globals/use-user', () => {
 
   const isLoggedIn = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === RolesEnum.ADMIN)
+
+  const fetchUser = async () => {
+    try {
+      await refetchUser()
+    } finally {
+      isInitialized.value = true
+    }
+    return user.value
+  }
 
   const { mutateAsync: userLogin } = useMutation({
     key: [USER_QUERY_KEY, 'login'],
@@ -49,6 +59,8 @@ export const useUser = defineStore('globals/use-user', () => {
     user,
     isLoggedIn,
     isAdmin,
+    isInitialized,
+    fetchUser,
     userLogin,
     userLogout,
   }

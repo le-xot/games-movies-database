@@ -3,6 +3,7 @@ export const ROUTER_PATHS = {
   db: '/db',
   pc: '/pc',
   admin: '/db/admin',
+  profile: '/db/profile',
   dbQueue: '/db/queue',
   dbGames: '/db/games',
   dbAnime: '/db/anime',

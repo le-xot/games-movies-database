@@ -34,6 +34,11 @@ export const router = createRouter({
           meta: { requiresAdmin: true },
         },
         {
+          path: ROUTER_PATHS.profile,
+          component: () => import('@/pages/profile/profile.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
           path: ROUTER_PATHS.dbQueue,
           component: () => import('@/pages/queue/queue.vue'),
         },
@@ -71,10 +76,24 @@ export const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _, next) => {
+router.beforeEach(async (to, _, next) => {
+  const userStore = useUser()
+  if (!userStore.isInitialized) {
+    try {
+      await userStore.fetchUser()
+    } catch (error) {
+      console.error('Failed to fetch user data:', error)
+    }
+  }
+
   if (to.meta.requiresAdmin) {
-    const userStore = useUser()
     if (!userStore.isAdmin) {
+      next({ path: ROUTER_PATHS.home })
+    } else {
+      next()
+    }
+  } else if (to.meta.requiresAuth) {
+    if (!userStore.isLoggedIn) {
       next({ path: ROUTER_PATHS.home })
     } else {
       next()

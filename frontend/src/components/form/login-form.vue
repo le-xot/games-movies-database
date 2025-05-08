@@ -43,12 +43,12 @@ function handleLogin() {
       </DropdownMenuItem>
       <DropdownMenuItem @click="userStore.userLogout">
         <LogOutIcon class="size-4 mr-2" />
-        Logout
+        Выйти
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 
   <Button v-else @click="handleLogin">
-    Login
+    Логин
   </Button>
 </template>

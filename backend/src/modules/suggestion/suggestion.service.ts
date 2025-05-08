@@ -114,8 +114,6 @@ export class SuggestionService {
   }
 
   private async fetchKinopoisk(id: number): Promise<CreateSuggestion> {
-    console.log(id)
-
     const response = await fetch(
       `https://kinopoiskapiunofficial.tech/api/v2.2/films/${id}`,
       {
@@ -125,8 +123,6 @@ export class SuggestionService {
         },
       },
     )
-
-    console.log(response)
 
     if (!response.ok) {
       throw new BadRequestException('Не удалось получить данные из API Кинопоиска')

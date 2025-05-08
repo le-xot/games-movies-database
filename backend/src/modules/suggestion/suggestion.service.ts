@@ -173,7 +173,8 @@ export class SuggestionService {
   private parseLink(link: string): { service: string, id: number } {
     const patterns = {
       shikimori: /shikimori\.one\/animes\/[a-z]?(\d+)/,
-      kinopoisk: /kinopoisk\.ru\/film\/(\d+)/,
+      kinopoisk: /kinopoisk\.ru\/(film|series)\/(\d+)/,
+
     }
     for (const [service, pattern] of Object.entries(patterns)) {
       const match = link.match(pattern)

@@ -5,6 +5,15 @@ import { createApp } from 'vue'
 import App from './app.vue'
 import './assets/index.scss'
 
+const APP_VERSION = '1.0.0'
+const STORAGE_VERSION_KEY = 'app_version'
+
+const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+if (storedVersion !== APP_VERSION) {
+  localStorage.clear()
+  localStorage.setItem(STORAGE_VERSION_KEY, APP_VERSION)
+}
+
 const app = createApp(App)
 const pinia = createPinia()
 

@@ -174,12 +174,15 @@ export class SuggestionService {
     const patterns = {
       shikimori: /shikimori\.one\/animes\/[a-z]?(\d+)/,
       kinopoisk: /kinopoisk\.ru\/(film|series)\/(\d+)/,
-
     }
     for (const [service, pattern] of Object.entries(patterns)) {
       const match = link.match(pattern)
-      if (match && match[1]) {
-        return { service, id: Number(match[1]) }
+      if (match) {
+        if (service === 'kinopoisk') {
+          return { service, id: Number(match[2]) }
+        } else {
+          return { service, id: Number(match[1]) }
+        }
       }
     }
     throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')

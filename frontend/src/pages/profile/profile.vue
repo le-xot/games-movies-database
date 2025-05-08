@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { genreTags, gradeTags, statusTags } from '@/components/table/composables/use-table-select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -9,11 +10,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Spinner from '@/components/utils/spinner.vue'
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
-import { GameEntity, GenresEnum, VideoEntity } from '@/lib/api'
+import { GameEntity, GenresEnum, UserEntity, VideoEntity } from '@/lib/api'
 import { useTitle } from '@vueuse/core'
+import { EyeIcon, EyeOffIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 
-// Определяем тип для ключей сортировки
 type SortKey = 'title' | 'grade' | 'status'
 
 const title = useTitle()
@@ -26,16 +27,20 @@ const userGames = ref<GameEntity[]>([])
 const isLoadingVideos = ref(true)
 const isLoadingGames = ref(true)
 
-// Добавить состояние для фильтрации и сортировки
+const allUsers = ref<UserEntity[]>([])
+const selectedUserId = ref<string | undefined>(undefined)
+const viewingUser = ref<UserEntity | undefined>(undefined)
+const isLoadingUsers = ref(false)
+
 const searchQuery = ref('')
 const sortBy = ref<SortKey>('title')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 
-// Отфильтрованные и отсортированные видео
+const isAdmin = computed(() => user.user?.role === 'ADMIN')
+
 const filteredVideos = computed(() => {
   let result = userVideos.value
 
-  // Фильтрация по поисковому запросу
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(video =>
@@ -43,13 +48,10 @@ const filteredVideos = computed(() => {
     )
   }
 
-  // Сортировка
   result = [...result].sort((a, b) => {
-    // Используем явную типизацию для доступа к свойствам
     const aValue = a[sortBy.value] as string | null | undefined
     const bValue = b[sortBy.value] as string | null | undefined
 
-    // Обработка null/undefined значений
     const aCompare = aValue ?? ''
     const bCompare = bValue ?? ''
 
@@ -63,20 +65,47 @@ const filteredVideos = computed(() => {
   return result
 })
 
-onMounted(async () => {
-  if (user.isLoggedIn) {
+async function fetchAllUsers() {
+  if (!user.isAdmin) return
+
+  isLoadingUsers.value = true
+  try {
+    const { data } = await api.users.userControllerGetAllUsers()
+    allUsers.value = data.filter(u => u.id !== user.user?.id)
+  } catch (error) {
+    console.error('Failed to fetch users:', error)
+  } finally {
+    isLoadingUsers.value = false
+  }
+}
+
+async function viewUserProfile() {
+  if (!selectedUserId.value) return
+
+  const selectedUser = allUsers.value.find(u => u.id === selectedUserId.value)
+  if (selectedUser) {
+    viewingUser.value = selectedUser
     await Promise.all([
-      fetchUserVideos(),
-      fetchUserGames(),
+      fetchUserVideos(selectedUser.login),
+      fetchUserGames(selectedUser.login),
     ])
   }
-})
+}
 
-async function fetchUserVideos() {
+function resetToOwnProfile() {
+  viewingUser.value = undefined
+  selectedUserId.value = undefined
+  Promise.all([
+    fetchUserVideos(),
+    fetchUserGames(),
+  ])
+}
+
+async function fetchUserVideos(login?: string) {
   isLoadingVideos.value = true
   try {
     const { data } = await api.videos.videoControllerGetAllVideos({
-      search: user.user?.login,
+      search: login || user.user?.login,
       limit: 1000,
     })
     userVideos.value = data.videos
@@ -87,11 +116,11 @@ async function fetchUserVideos() {
   }
 }
 
-async function fetchUserGames() {
+async function fetchUserGames(login?: string) {
   isLoadingGames.value = true
   try {
     const { data } = await api.games.gameControllerGetAllGames({
-      search: user.user?.login,
+      search: login || user.user?.login,
       limit: 1000,
     })
     userGames.value = data.games
@@ -110,19 +139,69 @@ const movieVideos = computed(() => getVideosByGenre(GenresEnum.MOVIE))
 const seriesVideos = computed(() => getVideosByGenre(GenresEnum.SERIES))
 const animeVideos = computed(() => getVideosByGenre(GenresEnum.ANIME))
 const cartoonVideos = computed(() => getVideosByGenre(GenresEnum.CARTOON))
+
+onMounted(async () => {
+  if (user.isLoggedIn) {
+    if (user.isAdmin) {
+      await fetchAllUsers()
+    }
+    await Promise.all([
+      fetchUserVideos(),
+      fetchUserGames(),
+    ])
+  }
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
+    <Card v-if="isAdmin">
+      <CardHeader>
+        <CardTitle>Просмотр профиля</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div v-if="viewingUser" class="flex items-center gap-2">
+          <div class="text-sm text-yellow-500 font-medium">
+            Просмотр профиля: {{ viewingUser.login }}
+          </div>
+          <Button variant="outline" size="sm" @click="resetToOwnProfile">
+            <EyeOffIcon class="size-4 mr-2" />
+            Вернуться к своему профилю
+          </Button>
+        </div>
+        <div v-else class="flex items-center gap-2">
+          <Select v-model="selectedUserId">
+            <SelectTrigger class="w-[200px]">
+              <SelectValue placeholder="Выберите пользователя" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="u in allUsers" :key="u.id" :value="u.id">
+                {{ u.login }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" :disabled="!selectedUserId" @click="viewUserProfile">
+            <EyeIcon class="size-4 mr-2" />
+            Смотреть профиль
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+
     <Card>
       <CardHeader class="flex flex-row items-center">
         <Avatar class="size-12">
-          <AvatarImage :src="user.user?.profileImageUrl || ''" :alt="user.user?.login || ''" />
-          <AvatarFallback>{{ user.user?.login.charAt(0).toUpperCase() }}</AvatarFallback>
+          <AvatarImage
+            :src="viewingUser?.profileImageUrl || user.user?.profileImageUrl || ''"
+            :alt="viewingUser?.login || user.user?.login || ''"
+          />
+          <AvatarFallback>
+            {{ (viewingUser?.login || user.user?.login || '').charAt(0).toUpperCase() }}
+          </AvatarFallback>
         </Avatar>
         <div class="ml-4">
-          <CardTitle>{{ user.user?.login }}</CardTitle>
-          <CardDescription>{{ user.user?.role }}</CardDescription>
+          <CardTitle>{{ viewingUser?.login || user.user?.login }}</CardTitle>
+          <CardDescription>{{ viewingUser?.role || user.user?.role }}</CardDescription>
         </div>
       </CardHeader>
     </Card>

@@ -14,6 +14,7 @@ export const useSeriesParams = defineStore('series/use-series-params', () => {
 
   const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
+    episode: true,
     person: false,
     status: true,
     grade: true,

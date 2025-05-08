@@ -14,6 +14,7 @@ export const useAnimeParams = defineStore('anime/use-anime-params', () => {
 
   const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
+    episode: true,
     person: false,
     status: true,
     grade: true,

@@ -69,6 +69,8 @@ export interface CreateVideoDTO {
   type?: string;
   /** @example "PROGRESS" */
   status?: string;
+  /** @example "10/24" */
+  episode?: string;
   /** @example "CARTOON" */
   genre?: string;
   /** @example "DISLIKE" */
@@ -109,6 +111,7 @@ export interface VideoEntity {
   personId: number;
   type: TypesEnum;
   status: StatusesEnum;
+  episode: string;
   genre: GenresEnum;
   grade: GradeEnum;
   /** @format date-time */
@@ -124,6 +127,8 @@ export interface PatchVideoDTO {
   type?: string;
   /** @example "DONE" */
   status?: string;
+  /** @example "10/24" */
+  episode?: string;
   /** @example "MOVIE" */
   genre?: string;
   /** @example "DISLIKE" */
@@ -738,6 +743,8 @@ export class Api<SecurityDataType extends unknown> {
         type?: string;
         /** @example "PROGRESS" */
         status?: string;
+        /** @example "10/24" */
+        episode?: string;
         /** @example "CARTOON" */
         genre?: string;
         /** @example "LIKE" */

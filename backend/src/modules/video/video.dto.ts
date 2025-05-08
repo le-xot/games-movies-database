@@ -24,6 +24,11 @@ export class CreateVideoDTO {
   @IsOptional()
   status?: $Enums.PrismaStatuses
 
+  @ApiProperty({ example: '10/24', required: false })
+  @IsOptional()
+  @IsString()
+  episode?: string
+
   @ApiProperty({ example: $Enums.PrismaGenres.CARTOON, required: false })
   @IsOptional()
   genre?: $Enums.PrismaGenres
@@ -52,6 +57,11 @@ export class PatchVideoDTO {
   @ApiProperty({ example: $Enums.PrismaStatuses.DONE, required: false })
   @IsOptional()
   status?: $Enums.PrismaStatuses
+
+  @ApiProperty({ example: '10/24', required: false })
+  @IsOptional()
+  @IsString()
+  episode?: string
 
   @ApiProperty({ example: $Enums.PrismaGenres.MOVIE, required: false })
   @IsOptional()
@@ -93,6 +103,11 @@ export class GetVideoDTO {
   @ApiProperty({ example: $Enums.PrismaStatuses.PROGRESS, required: false })
   @IsOptional()
   status?: $Enums.PrismaStatuses
+
+  @ApiProperty({ example: '10/24', required: false })
+  @IsOptional()
+  @IsString()
+  episode?: string
 
   @ApiProperty({ example: $Enums.PrismaGenres.CARTOON, required: false })
   @IsOptional()

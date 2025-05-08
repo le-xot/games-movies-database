@@ -8,28 +8,29 @@ generator client {
 }
 
 model Game {
-  id        Int             @id @default(autoincrement())
-  title     String?         @unique
+  id        Int            @id @default(autoincrement())
+  title     String?        @unique
   personId  Int?
-  person    Person?         @relation(fields: [personId], references: [id])
-  type      PrismaTypes?    @default(FREE)
-  status    PrismaStatuses? @default(QUEUE)
+  person    Person?        @relation(fields: [personId], references: [id])
+  type      PrismaTypes    @default(FREE)
+  status    PrismaStatuses @default(QUEUE)
   grade     PrismaGrades?
-  createdAt DateTime        @default(now())
+  createdAt DateTime       @default(now())
 
   @@map("games")
 }
 
 model Video {
-  id        Int             @id @default(autoincrement())
-  title     String?         @unique
+  id        Int            @id @default(autoincrement())
+  title     String?        @unique
   personId  Int?
-  person    Person?         @relation(fields: [personId], references: [id])
-  type      PrismaTypes?    @default(FREE)
-  status    PrismaStatuses? @default(QUEUE)
+  person    Person?        @relation(fields: [personId], references: [id])
+  type      PrismaTypes    @default(FREE)
+  status    PrismaStatuses @default(QUEUE)
+  episode   String?
   genre     PrismaGenres?
   grade     PrismaGrades?
-  createdAt DateTime        @default(now())
+  createdAt DateTime       @default(now())
 
   @@map("videos")
 }

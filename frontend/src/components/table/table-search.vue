@@ -17,6 +17,7 @@ function clearSearch() {
 
 const columnText: Record<string, string> = {
   title: 'Название',
+  episode: 'Серии',
   genre: 'Жанр',
   person: 'Заказчик',
   status: 'Статус',

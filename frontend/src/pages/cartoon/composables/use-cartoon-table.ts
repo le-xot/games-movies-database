@@ -1,5 +1,6 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import DialogButton from '@/components/dialog/dialog-button.vue'
+import TableColEpisode from '@/components/table/table-col/table-col-episode.vue'
 import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
@@ -32,9 +33,9 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        size: isAdmin.value ? 55 : 60,
-        minSize: isAdmin.value ? 55 : 60,
-        maxSize: isAdmin.value ? 55 : 60,
+        size: isAdmin.value ? 40 : 45,
+        minSize: isAdmin.value ? 40 : 45,
+        maxSize: isAdmin.value ? 40 : 45,
         enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
@@ -43,6 +44,24 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
             onUpdate: (title) => cartoonStore.updateVideo({
               id: row.original.id,
               data: { title },
+            }),
+          })
+        },
+      },
+      {
+        accessorKey: 'episode',
+        header: 'Серии',
+        size: 5,
+        minSize: 5,
+        maxSize: 5,
+        enableResizing: false,
+        cell: ({ row }) => {
+          return h(TableColEpisode, {
+            key: `episode-${row.original.id}`,
+            episode: row.original.episode,
+            onUpdate: (episode) => cartoonStore.updateVideo({
+              id: row.original.id,
+              data: { episode },
             }),
           })
         },

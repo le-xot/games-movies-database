@@ -27,6 +27,9 @@ export class VideoEntity implements Video {
   @ApiProperty({ enumName: StatusesEnum, enum: $Enums.PrismaStatuses })
   status: $Enums.PrismaStatuses
 
+  @ApiProperty()
+  episode: string
+
   @ApiProperty({ enumName: GenresEnum, enum: $Enums.PrismaGenres })
   genre: $Enums.PrismaGenres
 

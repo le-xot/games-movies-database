@@ -62,13 +62,14 @@ export class SuggestionService {
     }
 
     if (data.type === 'WATCH') {
-      const foundedMovie = await this.prisma.video.findFirst({
+      const foundedInDbMovie = await this.prisma.video.findFirst({
         where: { title: data.title },
-      }) || await this.prisma.suggestion.findFirst({
+      })
+      const foundedInSuggestion = await this.prisma.suggestion.findFirst({
         where: { title: data.title },
       })
 
-      if (foundedMovie) {
+      if (foundedInSuggestion || (foundedInDbMovie && foundedInDbMovie.status !== $Enums.PrismaStatuses.UNFINISHED)) {
         throw new BadRequestException('Уже есть в базе данных')
       }
     }

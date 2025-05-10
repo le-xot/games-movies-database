@@ -106,7 +106,6 @@ function saveNameEdit(person: PersonEntity) {
   editingName.value = false
 }
 
-// Custom directive for auto-focusing the input
 const vFocus = {
   mounted: (el: HTMLElement) => el.focus(),
 }

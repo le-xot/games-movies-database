@@ -82,6 +82,21 @@ export class SuggestionService {
       }
     }
 
+    if (data.type === 'GAME') {
+      const [foundedInDbGame, foundedInSuggestion] = await Promise.all([
+        this.prisma.game.findFirst({
+          where: { title: data.title },
+        }),
+        this.prisma.suggestion.findFirst({
+          where: { title: data.title },
+        }),
+      ])
+
+      if (foundedInSuggestion || (foundedInDbGame && foundedInDbGame.status !== $Enums.PrismaStatuses.UNFINISHED)) {
+        throw new BadRequestException('Уже есть в базе данных')
+      }
+    }
+
     return this.prisma.suggestion.create({
       data: {
         ...data,

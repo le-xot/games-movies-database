@@ -4,7 +4,6 @@ import { SuggestionItemDto } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-// Import the SuggestionForm component
 import SuggestionForm from '../components/suggestion-form.vue'
 
 export const SUGGESTION_QUERY_KEY = 'suggestion'
@@ -18,11 +17,10 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
   const error = ref<string | null>(null)
   const dialog = useDialog()
 
-  // Add function to open suggestion dialog
   function openSuggestionDialog(onClose?: () => void) {
     dialog.openDialog({
       title: 'Посоветовать контент',
-      description: 'Поддерживаются форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687',
+      description: 'Поддерживаемые форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687<br/>https://www.igdb.com/games/terraria',
       onSubmit: () => {},
       onCancel: () => {
         dialog.closeDialog()
@@ -122,7 +120,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     refetchSuggestions,
     submitSuggestion,
     deleteSuggestion,
-    openSuggestionDialog, // Export the new function
+    openSuggestionDialog,
   }
 })
 

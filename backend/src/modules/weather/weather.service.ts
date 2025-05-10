@@ -21,13 +21,11 @@ export interface WeatherData {
 export class WeatherService implements OnModuleInit {
   private cachedData: WeatherData | null = null
   private lastFetch: number = 0
-  private readonly CACHE_DURATION = 5 * 60 * 1000 // 5 minutes in milliseconds
+  private readonly CACHE_DURATION = 5 * 60 * 1000
 
   async onModuleInit() {
-    // Initial fetch when service starts
     await this.fetchWeatherData()
 
-    // Set up periodic fetching
     setInterval(() => {
       this.fetchWeatherData()
     }, this.CACHE_DURATION)
@@ -51,7 +49,6 @@ export class WeatherService implements OnModuleInit {
   }
 
   async getWeatherData(): Promise<WeatherData | null> {
-    // If cache is expired, fetch new data
     if (Date.now() - this.lastFetch >= this.CACHE_DURATION) {
       await this.fetchWeatherData()
     }

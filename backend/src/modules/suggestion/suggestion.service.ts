@@ -12,7 +12,6 @@ export class SuggestionService {
 
   async getSuggestions(): Promise<SuggestionsDto> {
     const suggestions = await this.prisma.suggestion.findMany({
-      where: { type: $Enums.SuggestionsType.WATCH },
       include: { user: true },
     })
 
@@ -52,10 +51,13 @@ export class SuggestionService {
 
     switch (service) {
       case 'shikimori':
-        data = await this.fetchShikimori(id)
+        data = await this.fetchShikimori(id as number)
         break
       case 'kinopoisk':
-        data = await this.fetchKinopoisk(id)
+        data = await this.fetchKinopoisk(id as number)
+        break
+      case 'igdb':
+        data = await this.fetchIGDB(id as string)
         break
       default:
         throw new BadRequestException('Неподдерживаемый сервис')
@@ -208,22 +210,83 @@ export class SuggestionService {
     return $Enums.PrismaGenres.MOVIE
   }
 
-  private parseLink(link: string): { service: string, id: number } {
+  private parseLink(link: string): { service: string, id: number | string } {
     const patterns = {
       shikimori: /shikimori\.one\/animes\/[a-z]?(\d+)/,
       kinopoisk: /kinopoisk\.ru\/(film|series)\/(\d+)/,
+      igdb: /igdb\.com\/games\/([^/]+)/,
     }
     for (const [service, pattern] of Object.entries(patterns)) {
       const match = link.match(pattern)
       if (match) {
         if (service === 'kinopoisk') {
           return { service, id: Number(match[2]) }
+        } else if (service === 'igdb') {
+          return { service, id: match[1] }
         } else {
           return { service, id: Number(match[1]) }
         }
       }
     }
     throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
+  }
+
+  private async fetchIGDB(gameSlug: string): Promise<CreateSuggestion> {
+    if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET) {
+      throw new BadRequestException('API ключи для IGDB не настроены')
+    }
+
+    try {
+      const tokenResponse = await fetch(
+        `https://id.twitch.tv/oauth2/token?client_id=${env.TWITCH_CLIENT_ID}&client_secret=${env.TWITCH_CLIENT_SECRET}&grant_type=client_credentials`,
+        { method: 'POST' },
+      )
+
+      if (!tokenResponse.ok) {
+        throw new BadRequestException('Не удалось получить токен доступа для IGDB API')
+      }
+
+      const tokenData = await tokenResponse.json()
+      const accessToken = tokenData.access_token
+
+      const response = await fetch(
+        'https://api.igdb.com/v4/games',
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Client-ID': env.TWITCH_CLIENT_ID,
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          body: `fields name,rating,cover.url; where slug = "${gameSlug}";`,
+        },
+      )
+
+      if (!response.ok) {
+        throw new BadRequestException(`Не удалось получить данные из API IGDB: ${response.status}`)
+      }
+
+      const result = await response.json()
+
+      if (!result[0]) {
+        throw new BadRequestException('Игра не найдена в API IGDB')
+      }
+
+      const game = result[0]
+      const coverUrl = game.cover?.url ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}` : null
+
+      const data = {
+        title: game.name,
+        type: $Enums.SuggestionsType.GAME,
+        posterUrl: coverUrl,
+        grade: game.rating ? (game.rating / 10).toFixed(1) : null,
+
+      }
+      return data
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error
+      throw new BadRequestException(`Не удалось получить данные из API IGDB: ${error.message || 'неизвестная ошибка'}`)
+    }
   }
 }
 

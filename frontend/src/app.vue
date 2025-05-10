@@ -2,7 +2,7 @@
 import Toaster from '@/components/ui/toast/Toaster.vue'
 import { onMounted, ref } from 'vue'
 
-const maintenanceMode = ref(false)
+const maintenanceMode = ref(true)
 
 onMounted(() => {
   const bypassMaintenance = localStorage.getItem('bypassMaintenance')
@@ -26,7 +26,7 @@ onMounted(() => {
         Технические работы на сайте
       </h1>
       <p class="text-xl opacity-80">
-        le-xot.ru временно недоступен. Пожалуйста, зайдите позже.
+        ЛешотРу временно недоступен. Пожалуйста, зайдите позже.
       </p>
       <p class="mt-10 text-xl opacity-80 text-sky-500 underline">
         <a href="https://t.me/lexotdev" target="_blank">

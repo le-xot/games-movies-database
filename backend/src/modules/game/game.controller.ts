@@ -26,7 +26,7 @@ export class GameController {
   @Post()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 201, type: GameEntity })
-  async createGame(@Body() game: CreateGameDTO): Promise<GameEntity> {
+  createGame(@Body() game: CreateGameDTO): Promise<GameEntity> {
     return this.gameServices.createGame(game)
   }
 
@@ -45,7 +45,7 @@ export class GameController {
   @Patch(':id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: GameEntity })
-  async patchGame(
+  patchGame(
     @Param('id') id: number,
     @Body() game: PatchGameDTO,
   ): Promise<GameEntity> {

@@ -8,7 +8,7 @@ import { GameEntity } from './game.entity'
 export class GameService {
   constructor(private prisma: PrismaService) {}
 
-  async createGame(game: CreateGameDTO): Promise<GameEntity> {
+  createGame(game: CreateGameDTO): Promise<GameEntity> {
     return this.prisma.game.create({
       data: game,
       include: {

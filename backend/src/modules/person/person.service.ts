@@ -33,22 +33,22 @@ export class PersonService {
     await this.prisma.person.delete({ where: { name } })
   }
 
-  async findPersonById(id: number): Promise<PersonEntity> {
+  findPersonById(id: number): Promise<PersonEntity> {
     return this.prisma.person.findUnique({ where: { id } })
   }
 
-  async findPersonByName(name: string): Promise<PersonEntity> {
+  findPersonByName(name: string): Promise<PersonEntity> {
     return this.prisma.person.findUnique({ where: { name } })
   }
 
-  async patchPerson(id: number, body: PatchPersonDTO): Promise<PersonEntity> {
+  patchPerson(id: number, body: PatchPersonDTO): Promise<PersonEntity> {
     return this.prisma.person.update({
       where: { id },
       data: body,
     })
   }
 
-  async getAllPersons(): Promise<PersonEntity[]> {
+  getAllPersons(): Promise<PersonEntity[]> {
     return this.prisma.person.findMany({
       orderBy: { name: 'desc' },
     })

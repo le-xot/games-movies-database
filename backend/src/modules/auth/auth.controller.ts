@@ -14,7 +14,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService, private readonly userService: UserService) {}
 
   @Get('/twitch')
-  async twitchAuth(@Res() res: Response) {
+  twitchAuth(@Res() res: Response) {
     const redirectUri = `https://id.twitch.tv/oauth2/authorize?`
       + `client_id=${env.TWITCH_CLIENT_ID}&`
       + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
@@ -48,12 +48,12 @@ export class AuthController {
   @Get('/me')
   @UseGuards(AuthGuard)
   @ApiResponse({ type: UserEntity, status: 200 })
-  async me(@User() user: UserEntity) {
+  me(@User() user: UserEntity) {
     return user
   }
 
   @Post('/logout')
-  async logout(@Res() res: Response) {
+  logout(@Res() res: Response) {
     res.clearCookie('token')
     res.end()
   }

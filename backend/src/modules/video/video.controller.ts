@@ -26,7 +26,7 @@ export class VideoController {
   @Post()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 201, type: VideoEntity })
-  async createVideo(@Body() video: CreateVideoDTO): Promise<VideoEntity> {
+  createVideo(@Body() video: CreateVideoDTO): Promise<VideoEntity> {
     return this.videoServices.createVideo(video)
   }
 
@@ -45,7 +45,7 @@ export class VideoController {
   @Patch(':id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
   @ApiResponse({ status: 200, type: VideoEntity })
-  async patchVideo(
+  patchVideo(
     @Param('id') id: number,
     @Body() video: PatchVideoDTO,
   ): Promise<VideoEntity> {

@@ -3,7 +3,7 @@ import { $Enums } from '@prisma/client'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private roles: $Enums.PrismaRoles[]) {}
+  constructor(private roles: $Enums.UserRole[]) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest()

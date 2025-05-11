@@ -10,12 +10,12 @@ generator client {
 // ----- User -----
 
 model User {
-  id              String    @id @unique
-  login           String    @unique
-  role            UserRole? @default(USER)
-  profileImageUrl String?
-  color           String    @default("#333333")
-  createdAt       DateTime  @default(now())
+  id              String   @id @unique
+  login           String   @unique
+  role            UserRole @default(USER)
+  profileImageUrl String
+  color           String   @default("#333333")
+  createdAt       DateTime @default(now())
 
   record Record[]
 
@@ -31,13 +31,13 @@ enum UserRole {
 // ----- Record -----
 
 model Record {
-  id        Int     @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   title     String
   link      String
-  posterUrl String?
+  posterUrl String
 
-  status  RecordStatus @default(QUEUE)
-  type    RecordType   @default(HANDWRITTEN)
+  status  RecordStatus? @default(QUEUE)
+  type    RecordType?   @default(HANDWRITTEN)
   genre   RecordGenre?
   grade   RecordGrade?
   episode String?

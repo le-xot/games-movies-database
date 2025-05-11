@@ -20,8 +20,8 @@ CREATE TYPE "LimitType" AS ENUM ('SUGGESTION');
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "login" TEXT NOT NULL,
-    "role" "UserRole" DEFAULT 'USER',
-    "profileImageUrl" TEXT,
+    "role" "UserRole" NOT NULL DEFAULT 'USER',
+    "profileImageUrl" TEXT NOT NULL,
     "color" TEXT NOT NULL DEFAULT '#333333',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -33,9 +33,9 @@ CREATE TABLE "records" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "link" TEXT NOT NULL,
-    "posterUrl" TEXT,
-    "status" "RecordStatus" NOT NULL DEFAULT 'QUEUE',
-    "type" "RecordType" NOT NULL DEFAULT 'HANDWRITTEN',
+    "posterUrl" TEXT NOT NULL,
+    "status" "RecordStatus" DEFAULT 'QUEUE',
+    "type" "RecordType" DEFAULT 'HANDWRITTEN',
     "genre" "RecordGenre",
     "grade" "RecordGrade",
     "episode" TEXT,

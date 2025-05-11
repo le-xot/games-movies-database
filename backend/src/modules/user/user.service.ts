@@ -6,7 +6,7 @@ import { PrismaService } from '../../database/prisma.service'
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async upsertUser(
+  upsertUser(
     opts: {
       id: string
       login?: string
@@ -30,11 +30,11 @@ export class UserService {
     })
   }
 
-  async getUserById(id: string): Promise<User> {
+  getUserById(id: string): Promise<User> {
     return this.prisma.user.findUnique({ where: { id } })
   }
 
-  async getAllUsers(): Promise<User[]> {
+  getAllUsers(): Promise<User[]> {
     return this.prisma.user.findMany()
   }
 

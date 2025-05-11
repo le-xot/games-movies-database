@@ -2,12 +2,14 @@ import { env } from 'node:process'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { $Enums, Limit, Suggestion } from '@prisma/client'
 import { PrismaService } from 'src/database/prisma.service'
+import { TwitchService } from '../twitch/twitch.service'
 import { SuggestionsDto, UserSuggestionDTO } from './suggesttion.dto'
 
 @Injectable()
 export class SuggestionService {
   constructor(
     private prisma: PrismaService,
+    private twitch: TwitchService,
   ) {}
 
   async getSuggestions(): Promise<SuggestionsDto> {
@@ -106,7 +108,7 @@ export class SuggestionService {
     })
   }
 
-  async changeSuggestionLimit(limit: number): Promise<Limit> {
+  changeSuggestionLimit(limit: number): Promise<Limit> {
     return this.prisma.limit.update({
       where: { name: 'SUGGESTION' },
       data: { quantity: limit },
@@ -252,17 +254,7 @@ export class SuggestionService {
     }
 
     try {
-      const tokenResponse = await fetch(
-        `https://id.twitch.tv/oauth2/token?client_id=${env.TWITCH_CLIENT_ID}&client_secret=${env.TWITCH_CLIENT_SECRET}&grant_type=client_credentials`,
-        { method: 'POST' },
-      )
-
-      if (!tokenResponse.ok) {
-        throw new BadRequestException('Не удалось получить токен доступа для IGDB API')
-      }
-
-      const tokenData = await tokenResponse.json()
-      const accessToken = tokenData.access_token
+      const accessToken = await this.twitch.getAppAccessToken()
 
       const response = await fetch(
         'https://api.igdb.com/v4/games',

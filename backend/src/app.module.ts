@@ -9,6 +9,7 @@ import { LimitModule } from './modules/limit/limit.module'
 import { PersonModule } from './modules/person/person.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { SuggestionModule } from './modules/suggestion/suggestion.module'
+import { TwitchModule } from './modules/twitch/twitch.module'
 import { UserModule } from './modules/user/user.module'
 import { VideoModule } from './modules/video/video.module'
 import { WeatherModule } from './modules/weather/weather.module'
@@ -18,6 +19,7 @@ import { WeatherModule } from './modules/weather/weather.module'
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
     }),
+    TwitchModule,
     CustomJwtModule,
     AuthModule,
     PersonModule,

@@ -65,7 +65,7 @@ async function createNewPerson() {
   handleClose()
 }
 
-async function updatePerson(id: number, data: { name?: string, color?: string }) {
+function updatePerson(id: number, data: { name?: string, color?: string }) {
   persons.updatePerson(id, data)
 }
 

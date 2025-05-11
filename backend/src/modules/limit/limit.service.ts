@@ -6,7 +6,7 @@ import { ChangeLimitDTO, LimitEntity } from './limit.dto'
 export class LimitService {
   constructor(private prisma: PrismaService) {}
 
-  async changeLimit(limitData: ChangeLimitDTO): Promise<LimitEntity> {
+  changeLimit(limitData: ChangeLimitDTO): Promise<LimitEntity> {
     return this.prisma.limit.update({
       where: { name: limitData.name },
       data: { quantity: limitData.quantity },

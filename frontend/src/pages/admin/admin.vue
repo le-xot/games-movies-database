@@ -32,7 +32,7 @@ async function fetchUsers() {
   }
 }
 
-async function deleteUser(userId: string, username: string) {
+function deleteUser(userId: string, username: string) {
   dialog.openDialog({
     title: 'Удалить пользователя?',
     content: '',

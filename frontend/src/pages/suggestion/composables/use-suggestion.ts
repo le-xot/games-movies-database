@@ -48,7 +48,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     },
   })
 
-  const { mutateAsync: submitSuggestion, isLoading: isSubmitLoading } = useMutation({
+  const { mutateAsync: submitSuggestion } = useMutation({
     key: [SUGGESTION_QUERY_KEY, 'submit'],
     mutation: async (link: string) => {
       try {
@@ -111,7 +111,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     return data.value.suggestions
   })
 
-  const isLoading = computed(() => isSubmitLoading.value || isLoadingData.value)
+  const isLoading = computed(() => isLoadingData.value)
 
   return {
     isLoading,

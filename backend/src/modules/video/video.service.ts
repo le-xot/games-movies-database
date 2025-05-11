@@ -8,7 +8,7 @@ import { VideoEntity } from './video.entity'
 export class VideoService {
   constructor(private prisma: PrismaService) {}
 
-  async createVideo(video: CreateVideoDTO): Promise<VideoEntity> {
+  createVideo(video: CreateVideoDTO): Promise<VideoEntity> {
     return this.prisma.video.create({
       data: video,
       include: {

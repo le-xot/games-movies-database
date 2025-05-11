@@ -2,7 +2,7 @@
 import Toaster from '@/components/ui/toast/Toaster.vue'
 import { onMounted, ref } from 'vue'
 
-const maintenanceMode = ref(false)
+const maintenanceMode = ref(true)
 
 onMounted(() => {
   const bypassMaintenance = localStorage.getItem('bypassMaintenance')

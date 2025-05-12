@@ -41,8 +41,8 @@ function handleLogin() {
           Админка
         </RouterLink>
       </DropdownMenuItem>
-      <DropdownMenuItem v-if="userStore.isLoggedIn" as-child>
-        <RouterLink to="/db/profile">
+      <DropdownMenuItem v-if="userStore.isLoggedIn" as-child disabled>
+        <RouterLink to="/db/profile" class="opacity-50 pointer-events-none">
           <CircleUserRound class="size-6 mr-2" />
           Профиль
         </RouterLink>

@@ -14,7 +14,7 @@ export const useMovieParams = defineStore('movies/use-movie-params', () => {
 
   const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
-    person: false,
+    user: false,
     status: true,
     grade: true,
   })

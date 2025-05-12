@@ -71,7 +71,7 @@ function invokeDeleteUser(user: any) {
     content: '',
     description: `Вы уверены что хотите удалить ${user.login}?`,
     onSubmit: () => {
-      users.deletePersonById(user.id)
+      users.deleteUserById(user.id)
       inputValue.value = undefined
     },
   })
@@ -94,6 +94,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
 
 <template>
   <div class="w-full" @click="handleOpen">
+    {{ currentUser?.name }}
     <Popover
       v-model:open="isOpenPopover"
       @update:open="(isOpen) => {
@@ -101,7 +102,6 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
       }"
     >
       <PopoverTrigger as-child>
-        {{ currentUser?.name }}
         <Button
           variant="outline"
           role="combobox"

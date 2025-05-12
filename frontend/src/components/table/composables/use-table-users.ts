@@ -37,7 +37,7 @@ export const useTableUsers = defineStore('use-table-users', () => {
     onSettled: () => refetchUsers(),
   })
 
-  const { mutateAsync: deletePersonById } = useMutation({
+  const { mutateAsync: deleteUserById } = useMutation({
     key: [USERS_QUERY_KEY, 'delete'],
     mutation: async (id: string) => {
       return await api.users.userControllerDeleteUser(id)
@@ -63,7 +63,7 @@ export const useTableUsers = defineStore('use-table-users', () => {
     createUserByLogin,
     refetchUsers,
     createOrUpdateUser: patchUser,
-    deletePersonById,
+    deleteUserById,
   }
 })
 

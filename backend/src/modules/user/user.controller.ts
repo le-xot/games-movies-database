@@ -55,8 +55,16 @@ export class UserController {
   @Get('all-users')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
-  async getAllUsers(): Promise<User[]> {
-    return await this.userService.getAllUsers()
+  async getAllUsers(): Promise<UserEntity[]> {
+    const users = await this.userService.getAllUsers()
+    return users.map(user => ({
+      id: user.id,
+      login: user.login,
+      role: user.role,
+      profileImageUrl: user.profileImageUrl,
+      color: user.color,
+      createdAt: user.createdAt,
+    }))
   }
 
   @Delete(':id')

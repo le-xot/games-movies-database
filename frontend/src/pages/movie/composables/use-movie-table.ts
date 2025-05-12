@@ -2,7 +2,7 @@ import { useDialog } from '@/components/dialog/composables/use-dialog'
 import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import TableColPerson from '@/components/table/table-col/table-col-user.vue'
+import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
@@ -51,8 +51,8 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
         maxSize: 20,
         enableResizing: false,
         cell: ({ row }) => {
-          return h(TableColPerson, {
-            key: `person-${row.original.id}`,
+          return h(TableColUser, {
+            key: `user-${row.original.id}`,
             userId: row.original.userId,
             onUpdate: (userId) => moviesStore.updateVideo({
               id: row.original.id,

@@ -5,6 +5,22 @@ import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from 'src/enums/enums.names'
 import { RecordEntity } from './record.entity'
 
+export class RecordCreateFromLinkDTO {
+  @ApiProperty({ example: 'https://example.com/record' })
+  @IsUrl()
+  link: string
+
+  @ApiProperty({ example: $Enums.RecordStatus.QUEUE, enum: $Enums.RecordStatus, enumName: RecordStatus, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordStatus)
+  status?: $Enums.RecordStatus = $Enums.RecordStatus.QUEUE
+
+  @ApiProperty({ example: $Enums.RecordType.WRITTEN, enum: $Enums.RecordType, enumName: RecordType, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordType)
+  type?: $Enums.RecordType = $Enums.RecordType.WRITTEN
+}
+
 export class RecordUpdateDTO {
   @ApiProperty({ example: $Enums.RecordStatus.PROGRESS, enum: $Enums.RecordStatus, enumName: RecordStatus, required: false })
   @IsOptional()

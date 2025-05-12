@@ -16,7 +16,7 @@ import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { User } from '../auth/auth.user.decorator'
 import { UserEntity } from '../user/user.entity'
-import { GetAllRecordsDTO, RecordGetDTO, RecordUpdateDTO } from './record.dto'
+import { GetAllRecordsDTO, RecordCreateFromLinkDTO, RecordGetDTO, RecordUpdateDTO } from './record.dto'
 import { RecordEntity } from './record.entity'
 import { RecordService } from './record.service'
 
@@ -29,10 +29,10 @@ export class RecordController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
   createRecordFromLink(
-    @Body() data: { link: string },
     @User() user: UserEntity,
+    @Body() data: RecordCreateFromLinkDTO,
   ): Promise<RecordEntity> {
-    return this.recordServices.createRecordFromLink({ link: data.link, userId: user.id })
+    return this.recordServices.createRecordFromLink(user, data)
   }
 
   @Post()

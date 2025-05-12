@@ -31,6 +31,22 @@ export interface UserCreateByLoginDTO {
   login: string;
 }
 
+export interface RecordEntity {
+  id: number;
+  title: string;
+  link: string;
+  posterUrl: string;
+  status: string;
+  type: string;
+  genre: string;
+  grade: string;
+  episode: string;
+  userId: string;
+  user?: UserEntity | null;
+  /** @format date-time */
+  createdAt: string;
+}
+
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
@@ -50,28 +66,28 @@ export interface UserUpdateDTO {
   color?: string;
 }
 
-export interface RecordEntity {
-  id: number;
-  title: string;
-  link: string;
-  posterUrl: string;
-  status: string;
-  type: string;
-  genre: string;
-  grade: string;
-  episode: string;
-  userId: string;
-  user?: UserEntity | null;
-  /** @format date-time */
-  createdAt: string;
-}
-
 export enum RecordStatus {
   QUEUE = "QUEUE",
   PROGRESS = "PROGRESS",
   DROP = "DROP",
   UNFINISHED = "UNFINISHED",
   DONE = "DONE",
+}
+
+export enum RecordType {
+  WRITTEN = "WRITTEN",
+  SUGGESTION = "SUGGESTION",
+  AUCTION = "AUCTION",
+  ORDER = "ORDER",
+}
+
+export interface RecordCreateFromLinkDTO {
+  /** @example "https://example.com/record" */
+  link: string;
+  /** @example "QUEUE" */
+  status?: RecordStatus;
+  /** @example "WRITTEN" */
+  type?: RecordType;
 }
 
 export enum RecordGrade {
@@ -90,13 +106,6 @@ export interface RecordUpdateDTO {
   episode?: string;
   /** @example "1" */
   userId?: string;
-}
-
-export enum RecordType {
-  WRITTEN = "WRITTEN",
-  SUGGESTION = "SUGGESTION",
-  AUCTION = "AUCTION",
-  ORDER = "ORDER",
 }
 
 export enum RecordGenre {
@@ -133,6 +142,7 @@ export interface LimitEntity {
 export interface QueueItemDto {
   title: string;
   login: string | null;
+  type: RecordType | null;
   genre: RecordGenre | null;
 }
 
@@ -462,6 +472,42 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
+     * @name UserControllerGetAllUsers
+     * @request GET:/users/users
+     */
+    userControllerGetAllUsers: (params: RequestParams = {}) =>
+      this.http.request<UserEntity[], any>({
+        path: `/users/users`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerGetUserRecords
+     * @request GET:/users/user-records
+     */
+    userControllerGetUserRecords: (
+      query: {
+        login: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/users/user-records`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
      * @name UserControllerPatchUser
      * @request POST:/users/{id}
      */
@@ -506,27 +552,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerGetUserRecords
-     * @request GET:/users/user-records
-     */
-    userControllerGetUserRecords: (
-      query: {
-        login: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RecordEntity[], any>({
-        path: `/users/user-records`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
      * @name UserControllerGetUserByLogin
      * @request GET:/users/{login}
      */
@@ -550,21 +575,6 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         ...params,
       }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetAllUsers
-     * @request GET:/users/all-users
-     */
-    userControllerGetAllUsers: (params: RequestParams = {}) =>
-      this.http.request<UserEntity[], any>({
-        path: `/users/all-users`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
   };
   records = {
     /**
@@ -574,10 +584,12 @@ export class Api<SecurityDataType extends unknown> {
      * @name RecordControllerCreateRecordFromLink
      * @request POST:/records/link
      */
-    recordControllerCreateRecordFromLink: (params: RequestParams = {}) =>
+    recordControllerCreateRecordFromLink: (data: RecordCreateFromLinkDTO, params: RequestParams = {}) =>
       this.http.request<RecordEntity, any>({
         path: `/records/link`,
         method: "POST",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

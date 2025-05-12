@@ -1,11 +1,13 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import DialogButton from '@/components/dialog/dialog-button.vue'
+import RecordCreateButton from '@/components/dialog/record-create-button.vue'
 import TableColEpisode from '@/components/table/table-col/table-col-episode.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
 import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
+import { useRecordCreate } from '@/composables/use-record-create.ts'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
 import {
@@ -14,7 +16,7 @@ import {
   getPaginationRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { CirclePlus, Eraser } from 'lucide-vue-next'
+import { Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useSeries } from './use-series.ts'
@@ -27,6 +29,10 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
   const { columnVisibility, pagination } = storeToRefs(seriesParams)
   const { videos, totalPages } = storeToRefs(seriesStore)
   const dialog = useDialog()
+
+  const { createRecord } = useRecordCreate('cartoon', () => {
+    seriesStore.refetchVideos()
+  })
 
   const tableColumns = computed(() => {
     const columns: ColumnDef<RecordEntity>[] = [
@@ -152,17 +158,11 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
         minSize: 5,
         maxSize: 5,
         enableResizing: false,
-        header: () => {
-          return h(DialogButton, {
-            icon: CirclePlus,
-            onClick: () => dialog.openDialog({
-              title: `Создать сирик?`,
-              content: '',
-              description: '',
-              onSubmit: () => seriesStore.createVideo(),
-            }),
-          })
-        },
+        header: () => h(RecordCreateButton, {
+          title: 'Создать запись',
+          placeholder: 'https://www.igdb.com/games/example-game',
+          onSubmit: (link: string) => createRecord(link),
+        }),
         cell: ({ row }) => {
           return h('div', {}, {
             default: () => [

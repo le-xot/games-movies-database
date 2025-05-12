@@ -2,23 +2,24 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
-import { RecordUpdateDTO } from './record.dto'
+import { UserEntity } from '../user/user.entity'
+import { RecordCreateFromLinkDTO, RecordUpdateDTO } from './record.dto'
 import { RecordEntity } from './record.entity'
 
 @Injectable()
 export class RecordService {
   constructor(private readonly prisma: PrismaService, private readonly recordsProviderService: RecordsProvidersService) {}
 
-  async createRecordFromLink(data: { link: string, userId: string }) {
-    const preparedData = await this.recordsProviderService.prepareData(data)
+  async createRecordFromLink(user: UserEntity, data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
+    const preparedData = await this.recordsProviderService.prepareData({ link: data.link, userId: user.id })
 
     return this.prisma.record.create({
       data: {
         ...preparedData,
         link: data.link,
-        status: $Enums.RecordStatus.QUEUE,
-        type: $Enums.RecordType.WRITTEN,
-        user: { connect: { id: data.userId } },
+        status: data.status || $Enums.RecordStatus.QUEUE,
+        type: data.type || $Enums.RecordType.WRITTEN,
+        user: { connect: { id: user.id } },
       },
     })
   }

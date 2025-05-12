@@ -27,32 +27,7 @@ export class UserController {
     }
   }
 
-  @Post(':id')
-  @ApiResponse({ status: HttpStatus.OK })
-  async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<User> {
-    return await this.userService.upsertUser(id, data)
-  }
-
-  @Get(':id')
-  @ApiResponse({ status: HttpStatus.OK })
-  async getUserByTwitchId(@Param('id') id: string): Promise<User> {
-    return await this.userService.getUserById(id)
-  }
-
-  @Get('user-records')
-  @UseGuards(AuthGuard)
-  @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
-  async getUserRecords(@Query('login') login: string): Promise<RecordEntity[]> {
-    return await this.userService.getUserRecords(login)
-  }
-
-  @Get(':login')
-  @ApiResponse({ status: HttpStatus.OK })
-  async getUserByLogin(@Param('login') login: string): Promise<User> {
-    return await this.userService.getUserByLogin(login)
-  }
-
-  @Get('all-users')
+  @Get('users')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<UserEntity[]> {
@@ -65,6 +40,31 @@ export class UserController {
       color: user.color,
       createdAt: user.createdAt,
     }))
+  }
+
+  @Get('user-records')
+  @UseGuards(AuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
+  async getUserRecords(@Query('login') login: string): Promise<RecordEntity[]> {
+    return await this.userService.getUserRecords(login)
+  }
+
+  @Post(':id')
+  @ApiResponse({ status: HttpStatus.OK })
+  async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<User> {
+    return await this.userService.upsertUser(id, data)
+  }
+
+  @Get(':id')
+  @ApiResponse({ status: HttpStatus.OK })
+  async getUserByTwitchId(@Param('id') id: string): Promise<User> {
+    return await this.userService.getUserById(id)
+  }
+
+  @Get(':login')
+  @ApiResponse({ status: HttpStatus.OK })
+  async getUserByLogin(@Param('login') login: string): Promise<User> {
+    return await this.userService.getUserByLogin(login)
   }
 
   @Delete(':id')

@@ -1,4 +1,5 @@
 import { useApi } from '@/composables/use-api'
+import { useRecordCreate } from '@/composables/use-record-create.ts'
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
@@ -58,10 +59,11 @@ export const useAnime = defineStore('anime/use-anime', () => {
 
   const { mutateAsync: createVideo } = useMutation({
     key: [VIDEOS_QUERY_KEY, 'create'],
-    mutation: async () => {
-      return await api.records.recordControllerCreateRecordFromLink()
+    mutation: async (link: string) => {
+      const { createRecord } = useRecordCreate(VIDEOS_QUERY_KEY, refetchVideos)
+      return await createRecord(link)
     },
-    onSettled: () => refetchVideos(),
+    onSuccess: () => refetchVideos(),
   })
 
   const videos = computed(() => {

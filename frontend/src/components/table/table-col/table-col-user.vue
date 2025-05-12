@@ -94,7 +94,6 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
 
 <template>
   <div class="w-full" @click="handleOpen">
-    {{ currentUser?.name }}
     <Popover
       v-model:open="isOpenPopover"
       @update:open="(isOpen) => {

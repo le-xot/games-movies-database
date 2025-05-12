@@ -1,4 +1,5 @@
 import { useApi } from '@/composables/use-api'
+import { useRecordCreate } from '@/composables/use-record-create'
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
@@ -57,10 +58,11 @@ export const useGames = defineStore('games/use-games', () => {
 
   const { mutateAsync: createGame } = useMutation({
     key: [GAMES_QUERY_KEY, 'create'],
-    mutation: async () => {
-      return await api.records.recordControllerCreateRecordFromLink()
+    mutation: async (link: string) => {
+      const { createRecord } = useRecordCreate(GAMES_QUERY_KEY, refetchGames)
+      return await createRecord(link)
     },
-    onSettled: () => refetchGames(),
+    onSuccess: () => refetchGames(),
   })
 
   const games = computed(() => {

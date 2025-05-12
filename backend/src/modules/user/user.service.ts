@@ -8,7 +8,7 @@ import { TwitchService } from '../twitch/twitch.service'
 export class UserService {
   constructor(private prisma: PrismaService, private twitch: TwitchService) {}
 
-  upsertUser(
+  async upsertUser(
     id: string,
     data: {
       login?: string
@@ -17,20 +17,33 @@ export class UserService {
       color?: string
     },
   ): Promise<User> {
-    return this.prisma.user.upsert({
+    const foundedUser = await this.prisma.user.findFirst({
       where: { id },
-      update: {
+    })
+
+    if (!foundedUser && data.login && data.profileImageUrl && data.role && data.color) {
+      return this.prisma.user.create({
+        data: {
+          id,
+          login: data.login,
+          role: data.role,
+          profileImageUrl: data.profileImageUrl,
+          color: data.color,
+        },
+      })
+    }
+
+    if (!foundedUser) {
+      return this.createUserByLogin(data.login)
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
         login: data.login,
         role: data.role,
         profileImageUrl: data.profileImageUrl,
         color: data.color,
-      },
-      create: {
-        id,
-        login: data.login,
-        role: $Enums.UserRole.USER,
-        profileImageUrl: data.profileImageUrl,
-        color: data.color || '#333333',
       },
     })
   }

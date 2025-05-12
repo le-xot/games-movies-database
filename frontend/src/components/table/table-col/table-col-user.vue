@@ -5,7 +5,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
@@ -77,14 +76,6 @@ function invokeDeleteUser(user: any) {
   })
 }
 
-async function createNewUser() {
-  if (filteredUsers.value.length || !searchValue.value) return
-  const { data } = await users.createUserByLogin(searchValue.value)
-  searchValue.value = ''
-  handleUpdateValue(data.id)
-  handleClose()
-}
-
 function invokeRemoveUser() {
   handleUpdateValue(null)
 }
@@ -126,13 +117,14 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
         </Button>
       </PopoverTrigger>
       <PopoverContent class="p-0 w-[--radix-popover-trigger-width]">
-        <Command v-model:search-term="searchValue">
-          <CommandInput
-            name="search"
-            class="h-9"
-            placeholder="Искать пользователя..."
-            @keydown.enter="createNewUser"
-          />
+        <Command>
+          <div class="flex items-center border-b px-3" cmdk-input-wrapper>
+            <input
+              v-model="searchValue"
+              class="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+              placeholder="Искать пользователя..."
+            >
+          </div>
           <CommandEmpty>Пользователь не найден.</CommandEmpty>
           <CommandList
             :style="{ scrollbarGutter: 'stable' }"

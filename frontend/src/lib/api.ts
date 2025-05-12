@@ -23,69 +23,31 @@ export interface UserEntity {
   createdAt: string;
 }
 
-export interface UserUpsertDto {
+export interface UserCreateByLoginDTO {
   /**
    * Unique login of the user
    * @example "john_doe"
    */
   login: string;
-  /**
-   * Role of the user
-   * @default "USER"
-   */
-  role?: UserUpsertDtoRoleEnum;
-  /**
-   * URL of the user profile image
-   * @example "https://example.com/image.jpg"
-   */
-  profileImageUrl: string;
-  /**
-   * Hex color code for user profile
-   * @example "#333333"
-   */
-  color?: string;
 }
 
-export interface RecordUpsertDTO {
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export interface UserUpdateDTO {
+  /** @example "john_doe" */
+  login?: string;
   /**
-   * Title of the record
-   * @example "My Record"
+   * @default "USER"
+   * @example "USER"
    */
-  title: string;
-  /**
-   * URL of the record
-   * @example "https://example.com/record"
-   */
-  link: string;
-  /**
-   * URL of the record poster
-   * @example "https://example.com/poster.jpg"
-   */
-  posterUrl: string;
-  /**
-   * Status of the record
-   * @default "QUEUE"
-   */
-  status?: RecordUpsertDtoStatusEnum;
-  /**
-   * Type of the record
-   * @default "HANDWRITTEN"
-   */
-  type?: RecordUpsertDtoTypeEnum;
-  /** Genre of the record */
-  genre?: RecordUpsertDtoGenreEnum;
-  /** Grade of the record */
-  grade?: RecordUpsertDtoGradeEnum;
-  /**
-   * Episode identifier
-   * @example "S01E01"
-   */
-  episode?: string;
-  /**
-   * ID of the associated user
-   * @example "user123"
-   */
-  userId?: string;
+  role?: UserRole;
+  /** @example "https://example.com/image.jpg" */
+  profileImageUrl?: string;
+  /** @example "#333333" */
+  color?: string;
 }
 
 export interface RecordEntity {
@@ -99,8 +61,50 @@ export interface RecordEntity {
   grade: string;
   episode: string;
   userId: string;
+  user?: UserEntity | null;
   /** @format date-time */
   createdAt: string;
+}
+
+export enum RecordStatus {
+  QUEUE = "QUEUE",
+  PROGRESS = "PROGRESS",
+  DROP = "DROP",
+  UNFINISHED = "UNFINISHED",
+  DONE = "DONE",
+}
+
+export enum RecordGrade {
+  DISLIKE = "DISLIKE",
+  BEER = "BEER",
+  LIKE = "LIKE",
+  RECOMMEND = "RECOMMEND",
+}
+
+export interface RecordUpdateDTO {
+  /** @example "PROGRESS" */
+  status?: RecordStatus;
+  /** @example "LIKE" */
+  grade?: RecordGrade;
+  /** @example "S01E01" */
+  episode?: string;
+  /** @example "1" */
+  userId?: string;
+}
+
+export enum RecordType {
+  WRITTEN = "WRITTEN",
+  SUGGESTION = "SUGGESTION",
+  AUCTION = "AUCTION",
+  ORDER = "ORDER",
+}
+
+export enum RecordGenre {
+  GAME = "GAME",
+  MOVIE = "MOVIE",
+  ANIME = "ANIME",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
 }
 
 export interface GetAllRecordsDTO {
@@ -126,53 +130,32 @@ export interface LimitEntity {
   quantity: number;
 }
 
-/**
- * Role of the user
- * @default "USER"
- */
-export enum UserUpsertDtoRoleEnum {
-  USER = "USER",
-  ADMIN = "ADMIN",
+export interface QueueItemDto {
+  title: string;
+  login: string | null;
+  genre: RecordGenre | null;
 }
 
-/**
- * Status of the record
- * @default "QUEUE"
- */
-export enum RecordUpsertDtoStatusEnum {
-  QUEUE = "QUEUE",
-  PROGRESS = "PROGRESS",
-  DROP = "DROP",
-  UNFINISHED = "UNFINISHED",
-  DONE = "DONE",
+export interface QueueDto {
+  games: QueueItemDto[];
+  videos: QueueItemDto[];
 }
 
-/**
- * Type of the record
- * @default "HANDWRITTEN"
- */
-export enum RecordUpsertDtoTypeEnum {
-  HANDWRITTEN = "HANDWRITTEN",
-  SUGGESTION = "SUGGESTION",
-  AUCTION = "AUCTION",
-  ORDER = "ORDER",
+export interface UserSuggestionDTO {
+  /** @example "https://shikimori.one/animes/1943-paprika" */
+  link: string;
 }
 
-/** Genre of the record */
-export enum RecordUpsertDtoGenreEnum {
-  GAME = "GAME",
-  MOVIE = "MOVIE",
-  ANIME = "ANIME",
-  CARTOON = "CARTOON",
-  SERIES = "SERIES",
+/** @example "id" */
+export enum RecordControllerGetAllRecordsParamsOrderByEnum {
+  Id = "id",
+  Title = "title",
 }
 
-/** Grade of the record */
-export enum RecordUpsertDtoGradeEnum {
-  DISLIKE = "DISLIKE",
-  BEER = "BEER",
-  LIKE = "LIKE",
-  RECOMMEND = "RECOMMEND",
+/** @example "asc" */
+export enum RecordControllerGetAllRecordsParamsDirectionEnum {
+  Asc = "asc",
+  Desc = "desc",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -462,15 +445,16 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerCreateOrUpdateUser
-     * @request POST:/users
+     * @name UserControllerCreateUserByLogin
+     * @request POST:/users/login
      */
-    userControllerCreateOrUpdateUser: (data: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/users`,
+    userControllerCreateUserByLogin: (data: UserCreateByLoginDTO, params: RequestParams = {}) =>
+      this.http.request<UserEntity, any>({
+        path: `/users/login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -478,14 +462,15 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerGetAllUsers
-     * @request GET:/users
+     * @name UserControllerPatchUser
+     * @request POST:/users/{id}
      */
-    userControllerGetAllUsers: (params: RequestParams = {}) =>
-      this.http.request<UserEntity[], any>({
-        path: `/users`,
-        method: "GET",
-        format: "json",
+    userControllerPatchUser: (id: string, data: UserUpdateDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${id}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
 
@@ -521,6 +506,27 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
+     * @name UserControllerGetUserRecords
+     * @request GET:/users/user-records
+     */
+    userControllerGetUserRecords: (
+      query: {
+        login: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/users/user-records`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
      * @name UserControllerGetUserByLogin
      * @request GET:/users/{login}
      */
@@ -544,8 +550,38 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerGetAllUsers
+     * @request GET:/users/all-users
+     */
+    userControllerGetAllUsers: (params: RequestParams = {}) =>
+      this.http.request<UserEntity[], any>({
+        path: `/users/all-users`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
   };
   records = {
+    /**
+     * No description
+     *
+     * @tags records
+     * @name RecordControllerCreateRecordFromLink
+     * @request POST:/records/link
+     */
+    recordControllerCreateRecordFromLink: (params: RequestParams = {}) =>
+      this.http.request<RecordEntity, any>({
+        path: `/records/link`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * No description
      *
@@ -553,7 +589,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name RecordControllerCreateRecord
      * @request POST:/records
      */
-    recordControllerCreateRecord: (data: RecordUpsertDTO, params: RequestParams = {}) =>
+    recordControllerCreateRecord: (data: number, params: RequestParams = {}) =>
       this.http.request<RecordEntity, any>({
         path: `/records`,
         method: "POST",
@@ -571,24 +607,23 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/records
      */
     recordControllerGetAllRecords: (
-      query: {
-        id: number;
-        title: string;
-        link: string;
-        posterUrl: string;
-        /** @example "PROGRESS" */
-        status: string;
-        /** @example "HANDWRITTEN" */
-        type: string;
-        /** @example "GAME" */
-        genre: string;
-        /** @example "LIKE" */
-        grade: string;
-        episode: string;
+      query?: {
         /** @example 1 */
-        userId: string;
-        /** @format date-time */
-        createdAt: string;
+        id?: number;
+        /** @example "My Record" */
+        title?: string;
+        /** @example "https://example.com/record" */
+        link?: string;
+        /** @example "https://example.com/poster.jpg" */
+        posterUrl?: string;
+        status?: RecordStatus;
+        type?: RecordType;
+        genre?: RecordGenre;
+        grade?: RecordGrade;
+        /** @example "S01E01" */
+        episode?: string;
+        /** @example "1" */
+        userId?: string;
         /** @example "minecraft" */
         search?: string;
         /** @example 1 */
@@ -596,9 +631,9 @@ export class Api<SecurityDataType extends unknown> {
         /** @example 10 */
         limit?: number;
         /** @example "id" */
-        orderBy?: string;
+        orderBy?: RecordControllerGetAllRecordsParamsOrderByEnum;
         /** @example "asc" */
-        direction?: string;
+        direction?: RecordControllerGetAllRecordsParamsDirectionEnum;
       },
       params: RequestParams = {},
     ) =>
@@ -632,7 +667,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name RecordControllerPatchRecord
      * @request PATCH:/records/{id}
      */
-    recordControllerPatchRecord: (id: number, data: RecordUpsertDTO, params: RequestParams = {}) =>
+    recordControllerPatchRecord: (id: number, data: RecordUpdateDTO, params: RequestParams = {}) =>
       this.http.request<RecordEntity, any>({
         path: `/records/${id}`,
         method: "PATCH",
@@ -671,6 +706,69 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+  };
+  queue = {
+    /**
+     * No description
+     *
+     * @tags Queue
+     * @name QueueControllerGetQueue
+     * @request GET:/queue
+     */
+    queueControllerGetQueue: (params: RequestParams = {}) =>
+      this.http.request<QueueDto, any>({
+        path: `/queue`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  suggestions = {
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerGetSuggestions
+     * @request GET:/suggestions
+     */
+    suggestionControllerGetSuggestions: (params: RequestParams = {}) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/suggestions`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerUserSuggest
+     * @request POST:/suggestions
+     */
+    suggestionControllerUserSuggest: (data: UserSuggestionDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/suggestions`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  weather = {
+    /**
+     * No description
+     *
+     * @tags weather
+     * @name WeatherControllerGetWeather
+     * @request GET:/weather
+     */
+    weatherControllerGetWeather: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/weather`,
+        method: "GET",
         ...params,
       }),
   };

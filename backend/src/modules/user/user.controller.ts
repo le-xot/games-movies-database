@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
-import { UserUpsertDto } from './user.dto'
+import { RecordEntity } from '../record/record.entity'
+import { UserCreateByLoginDTO, UserUpdateDTO } from './user.dto'
 import { UserEntity } from './user.entity'
 import { UserService } from './user.service'
 
@@ -12,10 +13,10 @@ import { UserService } from './user.service'
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post()
-  @ApiResponse({ status: HttpStatus.CREATED })
-  async createOrUpdateUser(@Body() id: string, @Body() data: UserUpsertDto): Promise<UserEntity> {
-    const user = await this.userService.upsertUser(id, data)
+  @Post('login')
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserEntity })
+  async createUserByLogin(@Body() data: UserCreateByLoginDTO): Promise<UserEntity> {
+    const user = await this.userService.createUserByLogin(data.login)
     return {
       id: user.id,
       login: user.login,
@@ -26,10 +27,23 @@ export class UserController {
     }
   }
 
+  @Post(':id')
+  @ApiResponse({ status: HttpStatus.OK })
+  async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<User> {
+    return await this.userService.upsertUser(id, data)
+  }
+
   @Get(':id')
   @ApiResponse({ status: HttpStatus.OK })
   async getUserByTwitchId(@Param('id') id: string): Promise<User> {
     return await this.userService.getUserById(id)
+  }
+
+  @Get('user-records')
+  @UseGuards(AuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
+  async getUserRecords(@Query('login') login: string): Promise<RecordEntity[]> {
+    return await this.userService.getUserRecords(login)
   }
 
   @Get(':login')
@@ -38,7 +52,7 @@ export class UserController {
     return await this.userService.getUserByLogin(login)
   }
 
-  @Get()
+  @Get('all-users')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<User[]> {

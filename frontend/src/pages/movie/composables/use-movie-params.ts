@@ -1,5 +1,5 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
-import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
 import { VisibilityState } from '@tanstack/vue-table'
 import { refDebounced, useLocalStorage } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -9,8 +9,8 @@ export const useMovieParams = defineStore('movies/use-movie-params', () => {
   const search = ref('')
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
-  const statusesFilter = ref<StatusesEnum[] | null>(null)
-  const gradeFilter = ref<GradeEnum[] | null>(null)
+  const statusesFilter = ref<RecordStatus[] | null>(null)
+  const gradeFilter = ref<RecordGrade[] | null>(null)
 
   const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
@@ -21,10 +21,11 @@ export const useMovieParams = defineStore('movies/use-movie-params', () => {
 
   const movieParams = computed(() => {
     const params: Record<string, any> = {
+      genre: RecordGenre.MOVIE,
+      type: RecordType.WRITTEN,
       page: pagination.value.pageIndex + 1,
       limit: pagination.value.pageSize,
       search: debouncedSearch.value,
-      genre: GenresEnum.MOVIE,
       orderBy: 'id',
       direction: 'desc',
     }
@@ -44,11 +45,11 @@ export const useMovieParams = defineStore('movies/use-movie-params', () => {
     return params
   })
 
-  function setGradeFilter(value: GradeEnum[] | null) {
+  function setGradeFilter(value: RecordGrade[] | null) {
     gradeFilter.value = value
   }
 
-  function setStatusFilter(value: StatusesEnum[] | null) {
+  function setStatusFilter(value: RecordStatus[] | null) {
     statusesFilter.value = value
   }
 

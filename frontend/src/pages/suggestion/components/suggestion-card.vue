@@ -4,14 +4,12 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useUser } from '@/composables/use-user'
-import { SuggestionItemDto } from '@/lib/api.ts'
+import { RecordEntity } from '@/lib/api.ts'
 import { storeToRefs } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useSuggestion } from '../composables/use-suggestion'
 
-const props = defineProps<{ items: SuggestionItemDto[] }>()
-
-const isShow = (item: SuggestionItemDto) => item.title && item.user.login
+defineProps<{ items: RecordEntity[] }>()
 
 const { isAdmin } = storeToRefs(useUser())
 const { toast } = useToast()
@@ -22,10 +20,6 @@ const isDialogOpen = ref(false)
 function resetDialogState() {
   isDialogOpen.value = false
 }
-
-const filteredItems = computed(() =>
-  props.items.filter(isShow),
-)
 
 defineExpose({ isDialogOpen })
 
@@ -61,7 +55,7 @@ async function handleDeleteSuggestion(id: number) {
 
     <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
       <Card
-        v-for="item in filteredItems"
+        v-for="item in items"
         :key="item.id"
         class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col transition-[height] duration-300"
         :class="{ 'h-[250px]': isAdmin }"
@@ -73,19 +67,6 @@ async function handleDeleteSuggestion(id: number) {
               class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
               alt="Poster"
             >
-            <div
-              v-if="item.grade"
-              class="absolute bottom-2 right-2 text-white text-sm font-semibold w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow-lg"
-              :class="{
-                'bg-[#28a745]': Number(item.grade) >= 8,
-                'bg-[#ffc107]': Number(item.grade) >= 5 && Number(item.grade) < 8,
-                'bg-[#dc3545]': Number(item.grade) < 5,
-              }"
-              :aria-label="`Rating: ${item.grade}`"
-              style="text-shadow: 0 0 2px #000, 0 0 2px #000; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);"
-            >
-              {{ Number(item.grade).toFixed(1) }}
-            </div>
           </div>
           <div class="flex flex-col flex-1 justify-between overflow-hidden">
             <CardHeader>
@@ -102,13 +83,13 @@ async function handleDeleteSuggestion(id: number) {
               </a>
             </CardContent>
             <CardFooter class="flex flex-col items-start gap-3 w-full">
-              <div class="flex items-center gap-2">
+              <div v-if="item.user" class="flex items-center gap-2">
                 <Avatar class="w-8 h-8 mr-2">
                   <AvatarImage :src="item.user.profileImageUrl" />
                   <AvatarFallback />
                 </Avatar>
                 <div class="text-base text-white font-medium">
-                  {{ item.user?.login }}
+                  {{ item.user.login }}
                 </div>
               </div>
               <div v-if="isAdmin" class="flex justify-end w-full mt-auto">

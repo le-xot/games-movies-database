@@ -1,28 +1,34 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
-import { RecordUpsertDTO } from './record.dto'
+import { RecordsProvidersService } from '../records-providers/records-providers.service'
+import { RecordUpdateDTO } from './record.dto'
 import { RecordEntity } from './record.entity'
 
 @Injectable()
 export class RecordService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly recordsProviderService: RecordsProvidersService) {}
 
-  createRecord(data: RecordUpsertDTO): Promise<RecordEntity> {
+  async createRecordFromLink(data: { link: string, userId: string }) {
+    const preparedData = await this.recordsProviderService.prepareData(data)
+
     return this.prisma.record.create({
-      data,
-      include: {
-        user: true,
+      data: {
+        ...preparedData,
+        link: data.link,
+        status: $Enums.RecordStatus.QUEUE,
+        type: $Enums.RecordType.WRITTEN,
+        user: { connect: { id: data.userId } },
       },
     })
   }
 
-  async patchRecord(id: number, data: RecordUpsertDTO): Promise<RecordEntity> {
+  async patchRecord(id: number, data: RecordUpdateDTO): Promise<RecordEntity> {
     const foundedRecord = await this.prisma.record.findUnique({
       where: { id },
     })
     if (!foundedRecord) {
-      throw new NotFoundException('Game not found')
+      throw new NotFoundException('Record not found')
     }
     return this.prisma.record.update({
       where: { id },

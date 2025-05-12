@@ -14,7 +14,9 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
-import { GetAllRecordsDTO, RecordGetDTO, RecordUpsertDTO } from './record.dto'
+import { User } from '../auth/auth.user.decorator'
+import { UserEntity } from '../user/user.entity'
+import { GetAllRecordsDTO, RecordGetDTO, RecordUpdateDTO } from './record.dto'
 import { RecordEntity } from './record.entity'
 import { RecordService } from './record.service'
 
@@ -23,11 +25,21 @@ import { RecordService } from './record.service'
 export class RecordController {
   constructor(private recordServices: RecordService) {}
 
+  @Post('link')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @ApiResponse({ status: 201, type: RecordEntity })
+  createRecordFromLink(
+    @Body() data: { link: string },
+    @User() user: UserEntity,
+  ): Promise<RecordEntity> {
+    return this.recordServices.createRecordFromLink({ link: data.link, userId: user.id })
+  }
+
   @Post()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
-  createRecord(@Body() record: RecordUpsertDTO): Promise<RecordEntity> {
-    return this.recordServices.createRecord(record)
+  createRecord(@Body() id: number, record: RecordUpdateDTO): Promise<RecordEntity> {
+    return this.recordServices.patchRecord(id, record)
   }
 
   @Get(':id')
@@ -47,7 +59,7 @@ export class RecordController {
   @ApiResponse({ status: 200, type: RecordEntity })
   patchRecord(
     @Param('id') id: number,
-    @Body() record: RecordUpsertDTO,
+    @Body() record: RecordUpdateDTO,
   ): Promise<RecordEntity> {
     return this.recordServices.patchRecord(id, record)
   }

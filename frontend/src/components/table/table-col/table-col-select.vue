@@ -1,8 +1,8 @@
-<script setup lang="ts" generic="T extends StatusesEnum | GradeEnum | GenresEnum">
+<script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { Tag } from '@/components/ui/tag'
 import { useUser } from '@/composables/use-user'
-import { GenresEnum, GradeEnum, StatusesEnum } from '@/lib/api.ts'
+import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api.ts'
 import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, useId } from 'vue'
 import { useTableCol } from '../composables/use-table-col'

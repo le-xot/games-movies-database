@@ -1,13 +1,13 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import DialogButton from '@/components/dialog/dialog-button.vue'
 import TableColEpisode from '@/components/table/table-col/table-col-episode.vue'
-import TableColPerson from '@/components/table/table-col/table-col-person.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import TableColPerson from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
-import { VideoEntity } from '@/lib/api.ts'
+import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -29,7 +29,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
   const dialog = useDialog()
 
   const tableColumns = computed(() => {
-    const columns: ColumnDef<VideoEntity>[] = [
+    const columns: ColumnDef<RecordEntity>[] = [
       {
         accessorKey: 'title',
         header: 'Название',
@@ -41,10 +41,6 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
-            onUpdate: (title) => seriesStore.updateVideo({
-              id: row.original.id,
-              data: { title },
-            }),
           })
         },
       },
@@ -67,8 +63,8 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
         },
       },
       {
-        accessorKey: 'person',
-        header: 'Заказчик',
+        accessorKey: 'user',
+        header: 'Пользователь',
         size: 20,
         minSize: 20,
         maxSize: 20,
@@ -76,10 +72,10 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
         cell: ({ row }) => {
           return h(TableColPerson, {
             key: `person-${row.original.id}`,
-            personId: row.original.person?.id,
-            onUpdate: (personId) => seriesStore.updateVideo({
+            userId: row.original.userId,
+            onUpdate: (userId) => seriesStore.updateVideo({
               id: row.original.id,
-              data: { personId },
+              data: { userId },
             }),
           })
         },
@@ -104,12 +100,14 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
-            value: row.original.status,
+            value: row.original.status as RecordStatus,
             kind: 'status',
             onUpdate: (value) => {
               seriesStore.updateVideo({
                 id: row.original.id,
-                data: { status: value },
+                data: {
+                  status: value as RecordStatus,
+                },
               })
             },
           })
@@ -135,12 +133,12 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
-            value: row.original.grade,
+            value: row.original.grade as RecordGrade,
             kind: 'grade',
             onUpdate: (value) => {
               seriesStore.updateVideo({
                 id: row.original.id,
-                data: { grade: value },
+                data: { grade: value as RecordGrade },
               })
             },
           })

@@ -26,24 +26,13 @@ export class AuthController {
 
   @Post('/twitch/callback')
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
-    try {
-      const autorizationCode = await this.twitch.getAuthorizationCode(data.code)
-      const user = await this.twitch.getTwitchUser(autorizationCode)
+    const token = await this.authService.handleCallback(data.code)
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    })
 
-      await this.userService.upsertUser(user.id, { login: user.login, profileImageUrl: user.profile_image_url })
-
-      const token = await this.authService.signJwt(user.id)
-
-      res.cookie('token', token, {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      })
-
-      res.status(200).send('Authentication successful')
-    } catch (error) {
-      console.error(error)
-      res.status(500).send('Authentication failed')
-    }
+    res.status(200).send('Authentication successful')
   }
 
   @Get('/me')

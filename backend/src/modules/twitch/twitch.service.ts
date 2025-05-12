@@ -84,4 +84,21 @@ export class TwitchService implements OnModuleInit {
       throw error
     }
   }
+
+  async searchTwitchUsers(login: string, accessToken: string) {
+    const response = await fetch(`https://api.twitch.tv/helix/users?login=${login}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Client-ID': env.TWITCH_CLIENT_ID,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to search Twitch users: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.data
+  }
 }

@@ -5,7 +5,7 @@ import { QueueItemDto } from '@/lib/api.ts'
 defineProps<{ items: QueueItemDto[] }>()
 
 function isShow(item: QueueItemDto) {
-  return item.title && item.personName
+  return item.title && item.login
 }
 </script>
 
@@ -28,7 +28,7 @@ function isShow(item: QueueItemDto) {
           <CardFooter>
             <div class="w-full flex flex-wrap justify-between">
               <div class="flex justify-end">
-                {{ item.personName }}
+                {{ item.login }}
               </div>
               <slot name="footer" :item="item" />
             </div>

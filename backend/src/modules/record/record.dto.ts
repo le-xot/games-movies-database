@@ -1,101 +1,81 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums, RecordGenre, RecordGrade, RecordStatus, RecordType } from '@prisma/client'
+import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from 'src/enums/enums.names'
 import { RecordEntity } from './record.entity'
 
-export class RecordUpsertDTO {
-  @ApiProperty({ description: 'Title of the record', example: 'My Record' })
+export class RecordUpdateDTO {
+  @ApiProperty({ example: $Enums.RecordStatus.PROGRESS, enum: $Enums.RecordStatus, enumName: RecordStatus, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordStatus)
+  status?: $Enums.RecordStatus
+
+  @ApiProperty({ example: $Enums.RecordGrade.LIKE, enum: $Enums.RecordGrade, enumName: RecordGrade, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordGrade)
+  grade?: $Enums.RecordGrade
+
+  @ApiProperty({ example: 'S01E01', required: false })
+  @IsOptional()
   @IsString()
-  title: string
-
-  @ApiProperty({ description: 'URL of the record', example: 'https://example.com/record' })
-  @IsUrl()
-  link: string
-
-  @ApiProperty({ description: 'URL of the record poster', example: 'https://example.com/poster.jpg' })
-  @IsUrl()
-  posterUrl: string
-
-  @ApiProperty({
-    description: 'Status of the record',
-    enum: RecordStatus,
-    default: RecordStatus.QUEUE,
-    required: false,
-  })
-  @IsEnum(RecordStatus)
-  @IsOptional()
-  status?: RecordStatus
-
-  @ApiProperty({
-    description: 'Type of the record',
-    enum: RecordType,
-    default: RecordType.HANDWRITTEN,
-    required: false,
-  })
-  @IsEnum(RecordType)
-  @IsOptional()
-  type?: RecordType
-
-  @ApiProperty({
-    description: 'Genre of the record',
-    enum: RecordGenre,
-    required: false,
-  })
-  @IsEnum(RecordGenre)
-  @IsOptional()
-  genre?: RecordGenre
-
-  @ApiProperty({
-    description: 'Grade of the record',
-    enum: RecordGrade,
-    required: false,
-  })
-  @IsEnum(RecordGrade)
-  @IsOptional()
-  grade?: RecordGrade
-
-  @ApiProperty({
-    description: 'Episode identifier',
-    example: 'S01E01',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
   episode?: string
 
-  @ApiProperty({
-    description: 'ID of the associated user',
-    example: 'user123',
-    required: false,
-  })
-
-  @IsString()
+  @ApiProperty({ example: '1', required: false })
   @IsOptional()
+  @IsString()
   userId?: string
 }
 
-export class RecordGetDTO extends RecordEntity {
-  @ApiProperty({ example: $Enums.RecordStatus.PROGRESS })
+export class RecordGetDTO {
+  @ApiProperty({ example: 1, required: false })
   @IsOptional()
-  status: $Enums.RecordStatus
+  id?: number
 
-  @ApiProperty({ example: $Enums.RecordType.HANDWRITTEN })
-  @IsOptional()
-  type: $Enums.RecordType
-
-  @ApiProperty({ example: $Enums.RecordGenre.GAME })
-  @IsOptional()
-  genre: $Enums.RecordGenre
-
-  @ApiProperty({ example: $Enums.RecordGrade.LIKE })
-  @IsOptional()
-  grade: $Enums.RecordGrade
-
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 'My Record', required: false })
   @IsOptional()
   @IsString()
-  userId: string
+  title?: string
+
+  @ApiProperty({ example: 'https://example.com/record', required: false })
+  @IsOptional()
+  @IsUrl()
+  link?: string
+
+  @ApiProperty({ example: 'https://example.com/poster.jpg', required: false })
+  @IsOptional()
+  @IsUrl()
+  posterUrl?: string
+
+  @ApiProperty({ example: $Enums.RecordStatus.PROGRESS, enum: $Enums.RecordStatus, enumName: RecordStatus, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordStatus)
+  status?: $Enums.RecordStatus
+
+  @ApiProperty({ example: $Enums.RecordType.WRITTEN, enum: $Enums.RecordType, enumName: RecordType, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordType)
+  type?: $Enums.RecordType
+
+  @ApiProperty({ example: $Enums.RecordGenre.GAME, enum: $Enums.RecordGenre, enumName: RecordGenre, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordGenre)
+  genre?: $Enums.RecordGenre
+
+  @ApiProperty({ example: $Enums.RecordGrade.LIKE, enum: $Enums.RecordGrade, enumName: RecordGrade, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordGrade)
+  grade?: $Enums.RecordGrade
+
+  @ApiProperty({ example: 'S01E01', required: false })
+  @IsOptional()
+  @IsString()
+  episode?: string
+
+  @ApiProperty({ example: '1', required: false })
+  @IsOptional()
+  @IsString()
+  userId?: string
 
   @ApiProperty({ example: 'minecraft', required: false })
   @IsOptional()
@@ -114,11 +94,11 @@ export class RecordGetDTO extends RecordEntity {
   @IsInt()
   limit?: number
 
-  @ApiProperty({ example: 'id', required: false })
+  @ApiProperty({ example: 'id', required: false, enum: ['id', 'title'] })
   @IsOptional()
   orderBy?: 'id' | 'title'
 
-  @ApiProperty({ example: 'asc', required: false })
+  @ApiProperty({ example: 'asc', required: false, enum: ['asc', 'desc'] })
   @IsOptional()
   direction?: 'asc' | 'desc'
 }

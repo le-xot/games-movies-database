@@ -37,7 +37,7 @@ model Record {
   posterUrl String
 
   status  RecordStatus? @default(QUEUE)
-  type    RecordType?   @default(HANDWRITTEN)
+  type    RecordType?   @default(WRITTEN)
   genre   RecordGenre?
   grade   RecordGrade?
   episode String?
@@ -60,7 +60,7 @@ enum RecordStatus {
 }
 
 enum RecordType {
-  HANDWRITTEN
+  WRITTEN
   SUGGESTION
   AUCTION
   ORDER

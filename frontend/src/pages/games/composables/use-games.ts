@@ -1,32 +1,34 @@
 import { useApi } from '@/composables/use-api'
+import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useGamesParams } from './use-games-params'
-import type { GetAllGamesResponse, PatchGameDTO } from '@/lib/api.ts'
 
 export const GAMES_QUERY_KEY = 'games'
 
 export const useGames = defineStore('games/use-games', () => {
   const api = useApi()
-  const params = useGamesParams()
+  const {
+    pagination,
+    gamesParams,
+  } = storeToRefs(useGamesParams())
 
   const {
     isLoading,
     data,
     refetch: refetchGames,
   } = useQuery({
-    placeholderData(previousData): GetAllGamesResponse {
-      if (!previousData) return { games: [], total: 0 }
+    placeholderData(previousData): { records: RecordEntity[], total: number } {
+      if (!previousData) return { records: [], total: 0 }
       return previousData
     },
-    key: () => [GAMES_QUERY_KEY, params.gamesParams],
+    key: () => [GAMES_QUERY_KEY, gamesParams.value],
     query: async () => {
-      const { data } = await api.games.gameControllerGetAllGames(params.gamesParams)
+      const { data } = await api.records.recordControllerGetAllRecords(gamesParams.value)
       return data
     },
   })
-
   const totalRecords = computed(() => {
     if (!data.value) return 0
     return data.value.total
@@ -34,13 +36,13 @@ export const useGames = defineStore('games/use-games', () => {
 
   const totalPages = computed(() => {
     if (!data.value) return 0
-    return Math.ceil(data.value.total / params.pagination.pageSize)
+    return Math.ceil(data.value.total / pagination.value.pageSize)
   })
 
   const { mutateAsync: updateGame } = useMutation({
     key: [GAMES_QUERY_KEY, 'update'],
-    mutation: ({ id, data }: { id: number, data: PatchGameDTO }) => {
-      return api.games.gameControllerPatchGame(id, data)
+    mutation: ({ id, data }: { id: number, data: RecordUpdateDTO }) => {
+      return api.records.recordControllerPatchRecord(id, data)
     },
     onSettled: () => refetchGames(),
   })
@@ -48,7 +50,7 @@ export const useGames = defineStore('games/use-games', () => {
   const { mutateAsync: deleteGame } = useMutation({
     key: [GAMES_QUERY_KEY, 'delete'],
     mutation: (id: number) => {
-      return api.games.gameControllerDeleteGame(id)
+      return api.records.recordControllerDeleteRecord(id)
     },
     onSettled: () => refetchGames(),
   })
@@ -56,14 +58,14 @@ export const useGames = defineStore('games/use-games', () => {
   const { mutateAsync: createGame } = useMutation({
     key: [GAMES_QUERY_KEY, 'create'],
     mutation: async () => {
-      return await api.games.gameControllerCreateGame({})
+      return await api.records.recordControllerCreateRecordFromLink()
     },
     onSettled: () => refetchGames(),
   })
 
   const games = computed(() => {
     if (!data.value) return []
-    return data.value.games
+    return data.value.records
   })
 
   return {

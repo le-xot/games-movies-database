@@ -22,6 +22,6 @@ export class SuggestionController {
   @UseGuards(AuthGuard)
   @ApiResponse({ status: 200, description: 'Returns created suggestion' })
   async userSuggest(@Body() suggest: UserSuggestionDTO, @User() user: UserEntity): Promise<any> {
-    return await this.suggestionService.userSuggest(suggest, user.id)
+    return await this.suggestionService.userSuggest({ link: suggest.link, userId: user.id })
   }
 }

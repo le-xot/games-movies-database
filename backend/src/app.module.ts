@@ -7,6 +7,7 @@ import { CustomJwtModule } from './modules/jwt/jwt.module'
 import { LimitModule } from './modules/limit/limit.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { RecordModule } from './modules/record/record.module'
+import { RecordsProvidersModule } from './modules/records-providers/records-providers.module'
 import { SuggestionModule } from './modules/suggestion/suggestion.module'
 import { TwitchModule } from './modules/twitch/twitch.module'
 import { UserModule } from './modules/user/user.module'
@@ -28,6 +29,7 @@ import { WeatherModule } from './modules/weather/weather.module'
     QueueModule,
     SuggestionModule,
     WeatherModule,
+    RecordsProvidersModule,
   ],
 })
 export class AppModule {}

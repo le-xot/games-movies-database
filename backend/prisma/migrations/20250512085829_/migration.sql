@@ -5,7 +5,7 @@ CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN');
 CREATE TYPE "RecordStatus" AS ENUM ('QUEUE', 'PROGRESS', 'DROP', 'UNFINISHED', 'DONE');
 
 -- CreateEnum
-CREATE TYPE "RecordType" AS ENUM ('HANDWRITTEN', 'SUGGESTION', 'AUCTION', 'ORDER');
+CREATE TYPE "RecordType" AS ENUM ('WRITTEN', 'SUGGESTION', 'AUCTION', 'ORDER');
 
 -- CreateEnum
 CREATE TYPE "RecordGenre" AS ENUM ('GAME', 'MOVIE', 'ANIME', 'CARTOON', 'SERIES');
@@ -35,7 +35,7 @@ CREATE TABLE "records" (
     "link" TEXT NOT NULL,
     "posterUrl" TEXT NOT NULL,
     "status" "RecordStatus" DEFAULT 'QUEUE',
-    "type" "RecordType" DEFAULT 'HANDWRITTEN',
+    "type" "RecordType" DEFAULT 'WRITTEN',
     "genre" "RecordGenre",
     "grade" "RecordGrade",
     "episode" TEXT,

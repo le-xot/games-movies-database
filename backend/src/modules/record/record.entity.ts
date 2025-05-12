@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@prisma/client'
+import { UserEntity } from '../user/user.entity'
 
 export class RecordEntity {
   @ApiProperty()
@@ -31,6 +32,9 @@ export class RecordEntity {
 
   @ApiProperty()
   userId: string | null
+
+  @ApiProperty({ type: UserEntity, required: false, nullable: true })
+  user?: UserEntity | null
 
   @ApiProperty()
   createdAt: Date

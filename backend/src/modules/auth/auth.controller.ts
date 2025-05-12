@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { env } from '../../utils/enviroments'
+import { TwitchService } from '../twitch/twitch.service'
 import { UserEntity } from '../user/user.entity'
 import { UserService } from '../user/user.service'
 import { AuthGuard } from './auth.guard'
@@ -11,7 +12,7 @@ import type { Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly userService: UserService) {}
+  constructor(private readonly authService: AuthService, private readonly userService: UserService, private readonly twitch: TwitchService) {}
 
   @Get('/twitch')
   twitchAuth(@Res() res: Response) {
@@ -25,24 +26,13 @@ export class AuthController {
 
   @Post('/twitch/callback')
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
-    try {
-      const accessToken = await this.authService.getAccessToken(data.code)
-      const user = await this.authService.getTwitchUser(accessToken)
+    const token = await this.authService.handleCallback(data.code)
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    })
 
-      await this.userService.upsertUser({ id: user.id, login: user.login, profileImageUrl: user.profile_image_url })
-
-      const token = await this.authService.signJwt(user.id)
-
-      res.cookie('token', token, {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      })
-
-      res.status(200).send('Authentication successful')
-    } catch (error) {
-      console.error(error)
-      res.status(500).send('Authentication failed')
-    }
+    res.status(200).send('Authentication successful')
   }
 
   @Get('/me')

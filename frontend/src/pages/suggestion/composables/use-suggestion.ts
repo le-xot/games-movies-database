@@ -1,6 +1,6 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { useApi } from '@/composables/use-api'
-import { SuggestionItemDto } from '@/lib/api'
+import { RecordEntity } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -82,7 +82,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.suggestions.suggestionControllerDeleteSuggestion(id)
+        return await api.records.recordControllerDeleteRecord(id)
       } catch (err: any) {
         let errorMessage = 'Неизвестная ошибка'
 
@@ -106,9 +106,9 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     onSettled: () => refetchSuggestions(),
   })
 
-  const suggestions = computed<SuggestionItemDto[]>(() => {
+  const suggestions = computed<RecordEntity[]>(() => {
     if (!data.value) return []
-    return data.value.suggestions
+    return data.value
   })
 
   const isLoading = computed(() => isLoadingData.value)

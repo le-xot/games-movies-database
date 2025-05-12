@@ -12,7 +12,7 @@ export class LimitController {
   constructor(private limitService: LimitService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.PrismaRoles.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({
     status: 200,
     description: 'Returns updated limit',

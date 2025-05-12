@@ -13,224 +13,120 @@ export interface CallbackDto {
   code: string;
 }
 
-export enum RolesEnum {
-  ADMIN = "ADMIN",
-  USER = "USER",
-}
-
 export interface UserEntity {
   id: string;
   login: string;
-  role: RolesEnum;
-  profileImageUrl: string;
-  /** @format date-time */
-  createdAt: string;
-}
-
-export interface UpsertUserDTO {
-  /** @example "le_xot" */
-  login: string;
-  /** @example "155644238" */
-  id: string;
-  /** @example "USER" */
   role: string;
-  /** @example "le_xot" */
   profileImageUrl: string;
-}
-
-export interface CreatePersonDTO {
-  /** @example "le_xot" */
-  name: string;
-  /** @example "#333333" */
-  color?: string;
-}
-
-export interface PersonEntity {
-  name: string;
-  id: number;
   color: string;
   /** @format date-time */
   createdAt: string;
 }
 
-export interface PatchPersonDTO {
-  /** @example "le_xot" */
-  name?: string;
+export interface UserCreateByLoginDTO {
+  /**
+   * Unique login of the user
+   * @example "john_doe"
+   */
+  login: string;
+}
+
+export interface RecordEntity {
+  id: number;
+  title: string;
+  link: string;
+  posterUrl: string;
+  status: string;
+  type: string;
+  genre: string;
+  grade: string;
+  episode: string;
+  userId: string;
+  user?: UserEntity | null;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export interface UserUpdateDTO {
+  /** @example "john_doe" */
+  login?: string;
+  /**
+   * @default "USER"
+   * @example "USER"
+   */
+  role?: UserRole;
+  /** @example "https://example.com/image.jpg" */
+  profileImageUrl?: string;
   /** @example "#333333" */
   color?: string;
 }
 
-export interface CreateVideoDTO {
-  /** @example "Мадагаскар" */
-  title?: string;
-  /** @example 1 */
-  personId?: number;
-  /** @example "FREE" */
-  type?: string;
-  /** @example "PROGRESS" */
-  status?: string;
-  /** @example "10/24" */
-  episode?: string;
-  /** @example "CARTOON" */
-  genre?: string;
-  /** @example "DISLIKE" */
-  grade?: string;
-}
-
-export enum TypesEnum {
-  PAID = "PAID",
-  FREE = "FREE",
-}
-
-export enum StatusesEnum {
+export enum RecordStatus {
   QUEUE = "QUEUE",
-  DONE = "DONE",
   PROGRESS = "PROGRESS",
-  UNFINISHED = "UNFINISHED",
   DROP = "DROP",
+  UNFINISHED = "UNFINISHED",
+  DONE = "DONE",
 }
 
-export enum GenresEnum {
-  ANIME = "ANIME",
+export enum RecordType {
+  WRITTEN = "WRITTEN",
+  SUGGESTION = "SUGGESTION",
+  AUCTION = "AUCTION",
+  ORDER = "ORDER",
+}
+
+export interface RecordCreateFromLinkDTO {
+  /** @example "https://example.com/record" */
+  link: string;
+  /** @example "QUEUE" */
+  status?: RecordStatus;
+  /** @example "WRITTEN" */
+  type?: RecordType;
+}
+
+export enum RecordGrade {
+  DISLIKE = "DISLIKE",
+  BEER = "BEER",
+  LIKE = "LIKE",
+  RECOMMEND = "RECOMMEND",
+}
+
+export interface RecordUpdateDTO {
+  /** @example "PROGRESS" */
+  status?: RecordStatus;
+  /** @example "LIKE" */
+  grade?: RecordGrade;
+  /** @example "S01E01" */
+  episode?: string;
+  /** @example "1" */
+  userId?: string;
+}
+
+export enum RecordGenre {
+  GAME = "GAME",
   MOVIE = "MOVIE",
+  ANIME = "ANIME",
   CARTOON = "CARTOON",
   SERIES = "SERIES",
 }
 
-export enum GradeEnum {
-  RECOMMEND = "RECOMMEND",
-  LIKE = "LIKE",
-  BEER = "BEER",
-  DISLIKE = "DISLIKE",
-}
-
-export interface VideoEntity {
-  id: number;
-  title: string;
-  person: PersonEntity;
-  personId: number;
-  type: TypesEnum;
-  status: StatusesEnum;
-  episode: string;
-  genre: GenresEnum;
-  grade: GradeEnum;
-  /** @format date-time */
-  createdAt: string;
-}
-
-export interface PatchVideoDTO {
-  /** @example "Боб строитель" */
-  title?: string;
-  /** @example 1 */
-  personId?: number;
-  /** @example "FREE" */
-  type?: string;
-  /** @example "DONE" */
-  status?: string;
-  /** @example "10/24" */
-  episode?: string;
-  /** @example "MOVIE" */
-  genre?: string;
-  /** @example "DISLIKE" */
-  grade?: string;
-}
-
-export interface GetAllVideosResponse {
-  videos: VideoEntity[];
+export interface GetAllRecordsDTO {
+  records: RecordEntity[];
   total: number;
 }
 
-export interface CreateGameDTO {
-  /** @example "minecraft" */
-  title?: string;
-  /** @example 1 */
-  personId?: number;
-  /** @example "FREE" */
-  type?: string;
-  /** @example "PROGRESS" */
-  status?: string;
-  /** @example "LIKE" */
-  grade?: string;
-}
-
-export interface GameEntity {
-  id: number;
-  title: string;
-  person: PersonEntity;
-  personId: number;
-  type: TypesEnum;
-  status: StatusesEnum;
-  grade: GradeEnum;
-  /** @format date-time */
-  createdAt: string;
-}
-
-export interface PatchGameDTO {
-  /** @example "Dota 2" */
-  title?: string;
-  /** @example 1 */
-  personId?: number;
-  /** @example "FREE" */
-  type?: string;
-  /** @example "DONE" */
-  status?: string;
-  /** @example "DISLIKE" */
-  grade?: string;
-}
-
-export interface GetAllGamesResponse {
-  games: GameEntity[];
-  total: number;
-}
-
-export interface QueueItemDto {
-  title: string;
-  type: string;
-  personName: string | null;
-  genre: QueueItemDtoGenreEnum;
-}
-
-export interface QueueDto {
-  games: QueueItemDto[];
-  videos: QueueItemDto[];
-}
-
-export interface UserDTO {
-  /** @example "le_xot" */
-  login: string;
-  /** @example "155644238" */
-  id: string;
-  /** @example "USER" */
-  role: string;
-  /** @example "le_xot" */
-  profileImageUrl: string;
-}
-
-export interface SuggestionItemDto {
-  id: number;
-  title: string;
-  link: string;
-  user: UserDTO;
-  genre: SuggestionItemDtoGenreEnum;
-  posterUrl: string | null;
-  grade: string | null;
-}
-
-export interface SuggestionsDto {
-  suggestions: SuggestionItemDto[];
-}
-
-export interface UserSuggestionDTO {
-  /** @example "https://shikimori.one/animes/1943-paprika" */
-  link: string;
-}
-
-export enum LimitTypeEnum {
+export enum LimitType {
   SUGGESTION = "SUGGESTION",
 }
 
 export interface ChangeLimitDTO {
-  name: LimitTypeEnum;
+  name: LimitType;
   /**
    * Limit quantity
    * @example 5
@@ -239,22 +135,37 @@ export interface ChangeLimitDTO {
 }
 
 export interface LimitEntity {
-  name: LimitTypeEnum;
+  name: LimitType;
   quantity: number;
 }
 
-export enum QueueItemDtoGenreEnum {
-  ANIME = "ANIME",
-  MOVIE = "MOVIE",
-  CARTOON = "CARTOON",
-  SERIES = "SERIES",
+export interface QueueItemDto {
+  title: string;
+  login: string | null;
+  type: RecordType | null;
+  genre: RecordGenre | null;
 }
 
-export enum SuggestionItemDtoGenreEnum {
-  ANIME = "ANIME",
-  MOVIE = "MOVIE",
-  CARTOON = "CARTOON",
-  SERIES = "SERIES",
+export interface QueueDto {
+  games: QueueItemDto[];
+  videos: QueueItemDto[];
+}
+
+export interface UserSuggestionDTO {
+  /** @example "https://shikimori.one/animes/1943-paprika" */
+  link: string;
+}
+
+/** @example "id" */
+export enum RecordControllerGetAllRecordsParamsOrderByEnum {
+  Id = "id",
+  Title = "title",
+}
+
+/** @example "asc" */
+export enum RecordControllerGetAllRecordsParamsDirectionEnum {
+  Asc = "asc",
+  Desc = "desc",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -544,15 +455,16 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerCreateOrUpdateUser
-     * @request POST:/users
+     * @name UserControllerCreateUserByLogin
+     * @request POST:/users/login
      */
-    userControllerCreateOrUpdateUser: (data: UpsertUserDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/users`,
+    userControllerCreateUserByLogin: (data: UserCreateByLoginDTO, params: RequestParams = {}) =>
+      this.http.request<UserEntity, any>({
+        path: `/users/login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -561,13 +473,50 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags users
      * @name UserControllerGetAllUsers
-     * @request GET:/users
+     * @request GET:/users/users
      */
     userControllerGetAllUsers: (params: RequestParams = {}) =>
       this.http.request<UserEntity[], any>({
-        path: `/users`,
+        path: `/users/users`,
         method: "GET",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerGetUserRecords
+     * @request GET:/users/user-records
+     */
+    userControllerGetUserRecords: (
+      query: {
+        login: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/users/user-records`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerPatchUser
+     * @request POST:/users/{id}
+     */
+    userControllerPatchUser: (id: string, data: UserUpdateDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${id}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
 
@@ -598,18 +547,46 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         ...params,
       }),
-  };
-  persons = {
+
     /**
      * No description
      *
-     * @tags persons
-     * @name PersonControllerCreatePerson
-     * @request POST:/persons
+     * @tags users
+     * @name UserControllerGetUserByLogin
+     * @request GET:/users/{login}
      */
-    personControllerCreatePerson: (data: CreatePersonDTO, params: RequestParams = {}) =>
-      this.http.request<PersonEntity, any>({
-        path: `/persons`,
+    userControllerGetUserByLogin: (login: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${login}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerDeleteUserByLogin
+     * @request DELETE:/users/{login}
+     */
+    userControllerDeleteUserByLogin: (login: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${login}`,
+        method: "DELETE",
+        ...params,
+      }),
+  };
+  records = {
+    /**
+     * No description
+     *
+     * @tags records
+     * @name RecordControllerCreateRecordFromLink
+     * @request POST:/records/link
+     */
+    recordControllerCreateRecordFromLink: (data: RecordCreateFromLinkDTO, params: RequestParams = {}) =>
+      this.http.request<RecordEntity, any>({
+        path: `/records/link`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -620,101 +597,13 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags persons
-     * @name PersonControllerGetAllPersons
-     * @request GET:/persons
+     * @tags records
+     * @name RecordControllerCreateRecord
+     * @request POST:/records
      */
-    personControllerGetAllPersons: (params: RequestParams = {}) =>
-      this.http.request<PersonEntity[], any>({
-        path: `/persons`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags persons
-     * @name PersonControllerDeletePersonById
-     * @request DELETE:/persons/{id}
-     */
-    personControllerDeletePersonById: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/persons/${id}`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags persons
-     * @name PersonControllerPatchPerson
-     * @request PATCH:/persons/{id}
-     */
-    personControllerPatchPerson: (id: number, data: PatchPersonDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/persons/${id}`,
-        method: "PATCH",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags persons
-     * @name PersonControllerFindPersonById
-     * @request GET:/persons/{id}
-     */
-    personControllerFindPersonById: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/persons/${id}`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags persons
-     * @name PersonControllerDeletePersonByName
-     * @request DELETE:/persons/{name}
-     */
-    personControllerDeletePersonByName: (name: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/persons/${name}`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags persons
-     * @name PersonControllerFindPersonByName
-     * @request GET:/persons/{name}
-     */
-    personControllerFindPersonByName: (name: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/persons/${name}`,
-        method: "GET",
-        ...params,
-      }),
-  };
-  videos = {
-    /**
-     * No description
-     *
-     * @tags videos
-     * @name VideoControllerCreateVideo
-     * @request POST:/videos
-     */
-    videoControllerCreateVideo: (data: CreateVideoDTO, params: RequestParams = {}) =>
-      this.http.request<VideoEntity, any>({
-        path: `/videos`,
+    recordControllerCreateRecord: (data: number, params: RequestParams = {}) =>
+      this.http.request<RecordEntity, any>({
+        path: `/records`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -725,141 +614,43 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags videos
-     * @name VideoControllerGetAllVideos
-     * @request GET:/videos
+     * @tags records
+     * @name RecordControllerGetAllRecords
+     * @request GET:/records
      */
-    videoControllerGetAllVideos: (
+    recordControllerGetAllRecords: (
       query?: {
         /** @example 1 */
-        page?: number;
-        /** @example 10 */
-        limit?: number;
-        /** @example "Мадагаскар" */
-        search?: string;
-        /** @example 1 */
-        personId?: number;
-        /** @example "FREE" */
-        type?: string;
-        /** @example "PROGRESS" */
-        status?: string;
-        /** @example "10/24" */
+        id?: number;
+        /** @example "My Record" */
+        title?: string;
+        /** @example "https://example.com/record" */
+        link?: string;
+        /** @example "https://example.com/poster.jpg" */
+        posterUrl?: string;
+        status?: RecordStatus;
+        type?: RecordType;
+        genre?: RecordGenre;
+        grade?: RecordGrade;
+        /** @example "S01E01" */
         episode?: string;
-        /** @example "CARTOON" */
-        genre?: string;
-        /** @example "LIKE" */
-        grade?: string;
-        /** @example "id" */
-        orderBy?: string;
-        /** @example "asc" */
-        direction?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<GetAllVideosResponse, any>({
-        path: `/videos`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags videos
-     * @name VideoControllerFindVideoById
-     * @request GET:/videos/{id}
-     */
-    videoControllerFindVideoById: (id: number, params: RequestParams = {}) =>
-      this.http.request<VideoEntity, void>({
-        path: `/videos/${id}`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags videos
-     * @name VideoControllerPatchVideo
-     * @request PATCH:/videos/{id}
-     */
-    videoControllerPatchVideo: (id: number, data: PatchVideoDTO, params: RequestParams = {}) =>
-      this.http.request<VideoEntity, any>({
-        path: `/videos/${id}`,
-        method: "PATCH",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags videos
-     * @name VideoControllerDeleteVideo
-     * @request DELETE:/videos/{id}
-     */
-    videoControllerDeleteVideo: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/videos/${id}`,
-        method: "DELETE",
-        ...params,
-      }),
-  };
-  games = {
-    /**
-     * No description
-     *
-     * @tags games
-     * @name GameControllerCreateGame
-     * @request POST:/games
-     */
-    gameControllerCreateGame: (data: CreateGameDTO, params: RequestParams = {}) =>
-      this.http.request<GameEntity, any>({
-        path: `/games`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags games
-     * @name GameControllerGetAllGames
-     * @request GET:/games
-     */
-    gameControllerGetAllGames: (
-      query?: {
-        /** @example 1 */
-        page?: number;
-        /** @example 10 */
-        limit?: number;
+        /** @example "1" */
+        userId?: string;
         /** @example "minecraft" */
         search?: string;
         /** @example 1 */
-        personId?: number;
-        /** @example "FREE" */
-        type?: string;
-        /** @example "PROGRESS" */
-        status?: string;
-        /** @example "LIKE" */
-        grade?: string;
+        page?: number;
+        /** @example 10 */
+        limit?: number;
         /** @example "id" */
-        orderBy?: string;
+        orderBy?: RecordControllerGetAllRecordsParamsOrderByEnum;
         /** @example "asc" */
-        direction?: string;
+        direction?: RecordControllerGetAllRecordsParamsDirectionEnum;
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<GetAllGamesResponse, any>({
-        path: `/games`,
+      this.http.request<GetAllRecordsDTO, any>({
+        path: `/records`,
         method: "GET",
         query: query,
         format: "json",
@@ -869,13 +660,13 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags games
-     * @name GameControllerFindGameById
-     * @request GET:/games/{id}
+     * @tags records
+     * @name RecordControllerFindRecordById
+     * @request GET:/records/{id}
      */
-    gameControllerFindGameById: (id: number, params: RequestParams = {}) =>
-      this.http.request<GameEntity, void>({
-        path: `/games/${id}`,
+    recordControllerFindRecordById: (id: number, params: RequestParams = {}) =>
+      this.http.request<RecordEntity, void>({
+        path: `/records/${id}`,
         method: "GET",
         format: "json",
         ...params,
@@ -884,13 +675,13 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags games
-     * @name GameControllerPatchGame
-     * @request PATCH:/games/{id}
+     * @tags records
+     * @name RecordControllerPatchRecord
+     * @request PATCH:/records/{id}
      */
-    gameControllerPatchGame: (id: number, data: PatchGameDTO, params: RequestParams = {}) =>
-      this.http.request<GameEntity, any>({
-        path: `/games/${id}`,
+    recordControllerPatchRecord: (id: number, data: RecordUpdateDTO, params: RequestParams = {}) =>
+      this.http.request<RecordEntity, any>({
+        path: `/records/${id}`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
@@ -901,14 +692,32 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags games
-     * @name GameControllerDeleteGame
-     * @request DELETE:/games/{id}
+     * @tags records
+     * @name RecordControllerDeleteRecord
+     * @request DELETE:/records/{id}
      */
-    gameControllerDeleteGame: (id: number, params: RequestParams = {}) =>
+    recordControllerDeleteRecord: (id: number, params: RequestParams = {}) =>
       this.http.request<void, any>({
-        path: `/games/${id}`,
+        path: `/records/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  limits = {
+    /**
+     * No description
+     *
+     * @tags limits
+     * @name LimitControllerChangeLimit
+     * @request POST:/limits
+     */
+    limitControllerChangeLimit: (data: ChangeLimitDTO, params: RequestParams = {}) =>
+      this.http.request<LimitEntity, any>({
+        path: `/limits`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };
@@ -937,7 +746,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/suggestions
      */
     suggestionControllerGetSuggestions: (params: RequestParams = {}) =>
-      this.http.request<SuggestionsDto, any>({
+      this.http.request<RecordEntity[], any>({
         path: `/suggestions`,
         method: "GET",
         format: "json",
@@ -959,20 +768,6 @@ export class Api<SecurityDataType extends unknown> {
         type: ContentType.Json,
         ...params,
       }),
-
-    /**
-     * No description
-     *
-     * @tags suggestions
-     * @name SuggestionControllerDeleteSuggestion
-     * @request DELETE:/suggestions/{id}
-     */
-    suggestionControllerDeleteSuggestion: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/suggestions/${id}`,
-        method: "DELETE",
-        ...params,
-      }),
   };
   weather = {
     /**
@@ -986,24 +781,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/weather`,
         method: "GET",
-        ...params,
-      }),
-  };
-  limits = {
-    /**
-     * No description
-     *
-     * @tags limits
-     * @name LimitControllerChangeLimit
-     * @request POST:/limits
-     */
-    limitControllerChangeLimit: (data: ChangeLimitDTO, params: RequestParams = {}) =>
-      this.http.request<LimitEntity, any>({
-        path: `/limits`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
         ...params,
       }),
   };

@@ -7,70 +7,81 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Game {
-  id        Int            @id @default(autoincrement())
-  title     String?        @unique
-  personId  Int?
-  person    Person?        @relation(fields: [personId], references: [id])
-  type      PrismaTypes    @default(FREE)
-  status    PrismaStatuses @default(QUEUE)
-  grade     PrismaGrades?
-  createdAt DateTime       @default(now())
-
-  @@map("games")
-}
-
-model Video {
-  id        Int            @id @default(autoincrement())
-  title     String?        @unique
-  personId  Int?
-  person    Person?        @relation(fields: [personId], references: [id])
-  type      PrismaTypes    @default(FREE)
-  status    PrismaStatuses @default(QUEUE)
-  episode   String?
-  genre     PrismaGenres?
-  grade     PrismaGrades?
-  createdAt DateTime       @default(now())
-
-  @@map("videos")
-}
-
-model Person {
-  id           Int      @id @default(autoincrement())
-  name         String   @unique
-  color        String   @default("#333333")
-  RecordGames  Game[]
-  RecordMovies Video[]
-  createdAt    DateTime @default(now())
-
-  @@map("persons")
-}
+// ----- User -----
 
 model User {
-  id              String       @id @unique
-  login           String       @unique
-  role            PrismaRoles? @default(USER)
-  profileImageUrl String?
-  createdAt       DateTime     @default(now())
-  suggestion      Suggestion[]
+  id              String   @id @unique
+  login           String   @unique
+  role            UserRole @default(USER)
+  profileImageUrl String
+  color           String   @default("#333333")
+  createdAt       DateTime @default(now())
 
+  record Record[]
+
+  @@index([id, login])
   @@map("users")
 }
 
-model Suggestion {
-  id        Int             @id @default(autoincrement())
-  title     String
-  user      User            @relation(fields: [userId], references: [id])
-  userId    String
-  link      String
-  type      SuggestionsType
-  posterUrl String?
-  grade     String?
-  genre     PrismaGenres?
-  createdAt DateTime        @default(now())
-
-  @@map("suggestions")
+enum UserRole {
+  USER
+  ADMIN
 }
+
+// ----- Record -----
+
+model Record {
+  id        Int    @id @default(autoincrement())
+  title     String
+  link      String
+  posterUrl String
+
+  status  RecordStatus? @default(QUEUE)
+  type    RecordType?   @default(WRITTEN)
+  genre   RecordGenre?
+  grade   RecordGrade?
+  episode String?
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([title])
+  @@map("records")
+}
+
+enum RecordStatus {
+  QUEUE
+  PROGRESS
+  DROP
+  UNFINISHED
+  DONE
+}
+
+enum RecordType {
+  WRITTEN
+  SUGGESTION
+  AUCTION
+  ORDER
+}
+
+enum RecordGenre {
+  GAME
+  MOVIE
+  ANIME
+  CARTOON
+  SERIES
+}
+
+enum RecordGrade {
+  DISLIKE
+  BEER
+  LIKE
+  RECOMMEND
+}
+
+// ----- Limit -----
 
 model Limit {
   name     LimitType @unique
@@ -81,41 +92,4 @@ model Limit {
 
 enum LimitType {
   SUGGESTION
-}
-
-enum SuggestionsType {
-  WATCH
-  GAME
-}
-
-enum PrismaRoles {
-  ADMIN
-  USER
-}
-
-enum PrismaTypes {
-  PAID
-  FREE
-}
-
-enum PrismaStatuses {
-  QUEUE
-  DONE
-  PROGRESS
-  UNFINISHED
-  DROP
-}
-
-enum PrismaGenres {
-  ANIME
-  MOVIE
-  CARTOON
-  SERIES
-}
-
-enum PrismaGrades {
-  RECOMMEND
-  LIKE
-  BEER
-  DISLIKE
 }

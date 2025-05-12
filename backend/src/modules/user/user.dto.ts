@@ -1,41 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
-import { IsOptional, IsString } from 'class-validator'
+import { IsEnum, IsHexColor, IsOptional, IsString, IsUrl } from 'class-validator'
+import { UserRole } from 'src/enums/enums.names'
 
-export class UserDTO {
-  @ApiProperty({ example: 'le_xot' })
+export class UserCreateByLoginDTO {
+  @ApiProperty({ description: 'Unique login of the user', example: 'john_doe' })
   @IsString()
   login: string
-
-  @ApiProperty({ example: '155644238' })
-  @IsString()
-  id: string
-
-  @ApiProperty({ example: $Enums.PrismaRoles.USER })
-  @IsOptional()
-  role?: $Enums.PrismaRoles
-
-  @ApiProperty({ example: 'le_xot' })
-  @IsString()
-  @IsOptional()
-  profileImageUrl?: string
 }
 
-export class UpsertUserDTO {
-  @ApiProperty({ example: 'le_xot' })
-  @IsString()
-  login: string
-
-  @ApiProperty({ example: '155644238' })
-  @IsString()
-  id: string
-
-  @ApiProperty({ example: $Enums.PrismaRoles.USER })
+export class UserUpdateDTO {
+  @ApiProperty({ example: 'john_doe', required: false })
   @IsOptional()
-  role?: $Enums.PrismaRoles
-
-  @ApiProperty({ example: 'le_xot' })
   @IsString()
+  login?: string
+
+  @ApiProperty({
+    example: $Enums.UserRole.USER,
+    enum: $Enums.UserRole,
+    enumName: UserRole,
+    default: $Enums.UserRole.USER,
+    required: false,
+  })
+  @IsEnum($Enums.UserRole)
   @IsOptional()
+  role?: $Enums.UserRole
+
+  @ApiProperty({ example: 'https://example.com/image.jpg', required: false })
+  @IsOptional()
+  @IsUrl()
   profileImageUrl?: string
+
+  @ApiProperty({
+    example: '#333333',
+    required: false,
+  })
+  @IsHexColor()
+  @IsOptional()
+  color?: string
 }

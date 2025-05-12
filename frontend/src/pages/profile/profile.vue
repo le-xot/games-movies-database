@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { genreTags, gradeTags, statusTags } from '@/components/table/composables/use-table-select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Spinner from '@/components/utils/spinner.vue'
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
-import { GameEntity, GenresEnum, UserEntity, VideoEntity } from '@/lib/api'
+import { RecordEntity, RecordGenre, RecordGrade, RecordStatus, UserEntity } from '@/lib/api'
 import { useTitle } from '@vueuse/core'
 import { EyeIcon, EyeOffIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
@@ -22,14 +22,14 @@ onMounted(() => title.value = 'Профиль')
 
 const user = useUser()
 const api = useApi()
-const userVideos = ref<VideoEntity[]>([])
-const userGames = ref<GameEntity[]>([])
-const isLoadingVideos = ref(true)
+const userRecords = ref<RecordEntity[]>([])
+const userGames = ref<RecordEntity[]>([])
+const isLoadingRecords = ref(true)
 const isLoadingGames = ref(true)
 
 const allUsers = ref<UserEntity[]>([])
-const selectedUserId = ref<string | undefined>(undefined)
-const viewingUser = ref<UserEntity | undefined>(undefined)
+const selectedUserId = ref<string>('')
+const viewingUser = ref<UserEntity | null>(null)
 const isLoadingUsers = ref(false)
 
 const searchQuery = ref('')
@@ -38,27 +38,46 @@ const sortOrder = ref<'asc' | 'desc'>('asc')
 
 const isAdmin = computed(() => user.user?.role === 'ADMIN')
 
+// Функция для безопасного получения тега жанра
+function getGenreTag(genre: string | null | undefined) {
+  if (!genre) return null
+  return genreTags[genre as RecordGenre]
+}
+
+// Функция для безопасного получения тега статуса
+function getStatusTag(status: string | null | undefined) {
+  if (!status) return null
+  return statusTags[status as RecordStatus]
+}
+
+// Функция для безопасного получения тега оценки
+function getGradeTag(grade: string | null | undefined) {
+  if (!grade) return null
+  return gradeTags[grade as RecordGrade]
+}
+
 const filteredVideos = computed(() => {
-  let result = userVideos.value
+  let result = userRecords.value
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(video =>
-      video.title?.toLowerCase().includes(query) || '',
+      video.title?.toLowerCase().includes(query),
     )
   }
 
   result = [...result].sort((a, b) => {
-    const aValue = a[sortBy.value] as string | null | undefined
-    const bValue = b[sortBy.value] as string | null | undefined
+    let aValue: any = a[sortBy.value]
+    let bValue: any = b[sortBy.value]
 
-    const aCompare = aValue ?? ''
-    const bCompare = bValue ?? ''
+    // Обработка undefined и null значений
+    aValue = aValue ?? ''
+    bValue = bValue ?? ''
 
     if (sortOrder.value === 'asc') {
-      return aCompare > bCompare ? 1 : -1
+      return aValue > bValue ? 1 : -1
     } else {
-      return aCompare < bCompare ? 1 : -1
+      return aValue < bValue ? 1 : -1
     }
   })
 
@@ -66,16 +85,68 @@ const filteredVideos = computed(() => {
 })
 
 async function fetchAllUsers() {
-  if (!user.isAdmin) return
+  if (!isAdmin.value) return
 
   isLoadingUsers.value = true
   try {
-    const { data } = await api.users.userControllerGetAllUsers()
-    allUsers.value = data.filter(u => u.id !== user.user?.id)
+    const response = await api.users.userControllerGetAllUsers()
+    if (response && response.data) {
+      allUsers.value = response.data.filter(u => u.id !== user.user?.id)
+    } else {
+      console.warn('Empty response data for users')
+      allUsers.value = []
+    }
   } catch (error) {
     console.error('Failed to fetch users:', error)
+    allUsers.value = []
   } finally {
     isLoadingUsers.value = false
+  }
+}
+
+async function fetchUserVideos(login?: string) {
+  isLoadingRecords.value = true
+  try {
+    const targetLogin = login || user.user?.login || ''
+    const response = await api.users.userControllerGetUserRecords({
+      login: targetLogin,
+    })
+
+    // Проверяем, что response и response.data существуют
+    if (response && response.data) {
+      userRecords.value = response.data.filter(r => r.genre !== RecordGenre.GAME)
+    } else {
+      console.warn('Empty response data for videos')
+      userRecords.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch user videos:', error)
+    userRecords.value = []
+  } finally {
+    isLoadingRecords.value = false
+  }
+}
+
+async function fetchUserGames(login?: string) {
+  isLoadingGames.value = true
+  try {
+    const targetLogin = login || user.user?.login || ''
+    const response = await api.users.userControllerGetUserRecords({
+      login: targetLogin,
+    })
+
+    // Проверяем, что response и response.data существуют
+    if (response && response.data) {
+      userGames.value = response.data.filter(r => r.genre === RecordGenre.GAME)
+    } else {
+      console.warn('Empty response data for games')
+      userGames.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch user games:', error)
+    userGames.value = []
+  } finally {
+    isLoadingGames.value = false
   }
 }
 
@@ -93,56 +164,26 @@ async function viewUserProfile() {
 }
 
 function resetToOwnProfile() {
-  viewingUser.value = undefined
-  selectedUserId.value = undefined
+  viewingUser.value = null
+  selectedUserId.value = ''
   Promise.all([
     fetchUserVideos(),
     fetchUserGames(),
   ])
 }
 
-async function fetchUserVideos(login?: string) {
-  isLoadingVideos.value = true
-  try {
-    const { data } = await api.videos.videoControllerGetAllVideos({
-      search: login || user.user?.login,
-      limit: 1000,
-    })
-    userVideos.value = data.videos
-  } catch (error) {
-    console.error('Failed to fetch user videos:', error)
-  } finally {
-    isLoadingVideos.value = false
-  }
+function getVideosByGenre(genre: RecordGenre) {
+  return userRecords.value.filter(video => video.genre === genre)
 }
 
-async function fetchUserGames(login?: string) {
-  isLoadingGames.value = true
-  try {
-    const { data } = await api.games.gameControllerGetAllGames({
-      search: login || user.user?.login,
-      limit: 1000,
-    })
-    userGames.value = data.games
-  } catch (error) {
-    console.error('Failed to fetch user games:', error)
-  } finally {
-    isLoadingGames.value = false
-  }
-}
-
-function getVideosByGenre(genre: GenresEnum) {
-  return userVideos.value.filter(video => video.genre === genre)
-}
-
-const movieVideos = computed(() => getVideosByGenre(GenresEnum.MOVIE))
-const seriesVideos = computed(() => getVideosByGenre(GenresEnum.SERIES))
-const animeVideos = computed(() => getVideosByGenre(GenresEnum.ANIME))
-const cartoonVideos = computed(() => getVideosByGenre(GenresEnum.CARTOON))
+const movieVideos = computed(() => getVideosByGenre(RecordGenre.MOVIE))
+const seriesVideos = computed(() => getVideosByGenre(RecordGenre.SERIES))
+const animeVideos = computed(() => getVideosByGenre(RecordGenre.ANIME))
+const cartoonVideos = computed(() => getVideosByGenre(RecordGenre.CARTOON))
 
 onMounted(async () => {
   if (user.isLoggedIn) {
-    if (user.isAdmin) {
+    if (isAdmin.value) {
       await fetchAllUsers()
     }
     await Promise.all([
@@ -208,7 +249,7 @@ onMounted(async () => {
 
     <Card>
       <CardHeader>
-        <CardTitle>Мои заказы:</CardTitle>
+        <CardTitle>Мои записи:</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs default-value="videos" class="w-full">
@@ -260,10 +301,10 @@ onMounted(async () => {
                     <SelectValue placeholder="Порядок" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="desc">
+                    <SelectItem value="asc">
                       По возрастанию
                     </SelectItem>
-                    <SelectItem value="asc">
+                    <SelectItem value="desc">
                       По убыванию
                     </SelectItem>
                   </SelectContent>
@@ -271,7 +312,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div v-if="isLoadingVideos" class="flex justify-center py-4">
+            <div v-if="isLoadingRecords" class="flex justify-center py-4">
               <Spinner />
             </div>
             <div v-else-if="filteredVideos.length === 0" class="text-center py-4 text-muted-foreground">
@@ -307,20 +348,22 @@ onMounted(async () => {
                       {{ video.episode || '' }}
                     </TableCell>
                     <TableCell class="text-center">
-                      <span v-if="video.genre" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="genreTags[video.genre]?.class">
-                        {{ genreTags[video.genre]?.name }}
+                      <span v-if="getGenreTag(video.genre)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGenreTag(video.genre)?.class">
+                        {{ getGenreTag(video.genre)?.name }}
                       </span>
                       <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="statusTags[video.status]?.class">
-                        {{ statusTags[video.status]?.name }}
+                      <span v-if="getStatusTag(video.status)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getStatusTag(video.status)?.class">
+                        {{ getStatusTag(video.status)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="gradeTags[video.grade]?.class">
-                        {{ gradeTags[video.grade]?.name }}
+                      <span v-if="getGradeTag(video.grade)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGradeTag(video.grade)?.class">
+                        {{ getGradeTag(video.grade)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -359,14 +402,16 @@ onMounted(async () => {
                       {{ game.title }}
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="statusTags[game.status]?.class">
-                        {{ statusTags[game.status]?.name }}
+                      <span v-if="getStatusTag(game.status)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getStatusTag(game.status)?.class">
+                        {{ getStatusTag(game.status)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="gradeTags[game.grade]?.class">
-                        {{ gradeTags[game.grade]?.name }}
+                      <span v-if="getGradeTag(game.grade)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGradeTag(game.grade)?.class">
+                        {{ getGradeTag(game.grade)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -378,7 +423,7 @@ onMounted(async () => {
           </TabsContent>
 
           <TabsContent value="movies">
-            <div v-if="isLoadingVideos" class="flex justify-center py-4">
+            <div v-if="isLoadingRecords" class="flex justify-center py-4">
               <Spinner />
             </div>
             <div v-else-if="movieVideos.length === 0" class="text-center py-4 text-muted-foreground">
@@ -411,14 +456,16 @@ onMounted(async () => {
                       {{ video.episode || '' }}
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="statusTags[video.status]?.class">
-                        {{ statusTags[video.status]?.name }}
+                      <span v-if="getStatusTag(video.status)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getStatusTag(video.status)?.class">
+                        {{ getStatusTag(video.status)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="gradeTags[video.grade]?.class">
-                        {{ gradeTags[video.grade]?.name }}
+                      <span v-if="getGradeTag(video.grade)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGradeTag(video.grade)?.class">
+                        {{ getGradeTag(video.grade)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -430,7 +477,7 @@ onMounted(async () => {
           </TabsContent>
 
           <TabsContent value="series">
-            <div v-if="isLoadingVideos" class="flex justify-center py-4">
+            <div v-if="isLoadingRecords" class="flex justify-center py-4">
               <Spinner />
             </div>
             <div v-else-if="seriesVideos.length === 0" class="text-center py-4 text-muted-foreground">
@@ -463,14 +510,16 @@ onMounted(async () => {
                       {{ video.episode || '' }}
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="statusTags[video.status]?.class">
-                        {{ statusTags[video.status]?.name }}
+                      <span v-if="getStatusTag(video.status)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getStatusTag(video.status)?.class">
+                        {{ getStatusTag(video.status)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="gradeTags[video.grade]?.class">
-                        {{ gradeTags[video.grade]?.name }}
+                      <span v-if="getGradeTag(video.grade)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGradeTag(video.grade)?.class">
+                        {{ getGradeTag(video.grade)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -482,7 +531,7 @@ onMounted(async () => {
           </TabsContent>
 
           <TabsContent value="anime">
-            <div v-if="isLoadingVideos" class="flex justify-center py-4">
+            <div v-if="isLoadingRecords" class="flex justify-center py-4">
               <Spinner />
             </div>
             <div v-else-if="animeVideos.length === 0" class="text-center py-4 text-muted-foreground">
@@ -515,14 +564,16 @@ onMounted(async () => {
                       {{ video.episode || '' }}
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="statusTags[video.status]?.class">
-                        {{ statusTags[video.status]?.name }}
+                      <span v-if="getStatusTag(video.status)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getStatusTag(video.status)?.class">
+                        {{ getStatusTag(video.status)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="gradeTags[video.grade]?.class">
-                        {{ gradeTags[video.grade]?.name }}
+                      <span v-if="getGradeTag(video.grade)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGradeTag(video.grade)?.class">
+                        {{ getGradeTag(video.grade)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -534,7 +585,7 @@ onMounted(async () => {
           </TabsContent>
 
           <TabsContent value="cartoon">
-            <div v-if="isLoadingVideos" class="flex justify-center py-4">
+            <div v-if="isLoadingRecords" class="flex justify-center py-4">
               <Spinner />
             </div>
             <div v-else-if="cartoonVideos.length === 0" class="text-center py-4 text-muted-foreground">
@@ -567,14 +618,16 @@ onMounted(async () => {
                       {{ video.episode || '' }}
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="statusTags[video.status]?.class">
-                        {{ statusTags[video.status]?.name }}
+                      <span v-if="getStatusTag(video.status)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getStatusTag(video.status)?.class">
+                        {{ getStatusTag(video.status)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                     <TableCell class="text-center">
-                      <span class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="gradeTags[video.grade]?.class">
-                        {{ gradeTags[video.grade]?.name }}
+                      <span v-if="getGradeTag(video.grade)" class="px-2 py-0.5 rounded text-xs text-white w-full inline-block" :class="getGradeTag(video.grade)?.class">
+                        {{ getGradeTag(video.grade)?.name }}
                       </span>
+                      <span v-else>-</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -588,4 +641,4 @@ onMounted(async () => {
       </CardContent>
     </Card>
   </div>
-</template>
+</template> -->

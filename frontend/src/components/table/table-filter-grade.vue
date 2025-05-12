@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { GradeEnum } from '@/lib/api.ts'
+import { RecordGrade } from '@/lib/api'
 import { ListFilter } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { gradeTags } from './composables/use-table-select'
 
 const props = defineProps<{
-  value: GradeEnum[] | null
+  value: RecordGrade[] | null
 }>()
 
 const emit = defineEmits<{
-  update: [value: GradeEnum[] | null]
+  update: [value: RecordGrade[] | null]
 }>()
 
 const gradeOptions = computed(() => Object.entries(gradeTags).map(([key, value]) => ({
@@ -22,7 +22,7 @@ const gradeOptions = computed(() => Object.entries(gradeTags).map(([key, value])
 })))
 
 function toggleGrade(grade: string) {
-  const gradeValue = grade as GradeEnum
+  const gradeValue = grade as RecordGrade
 
   const newValue = props.value
     ? props.value.includes(gradeValue)

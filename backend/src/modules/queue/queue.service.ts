@@ -1,34 +1,36 @@
 import { Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
-import { QueueDto, QueueItemDto, QueueType } from './queue.dto'
+import { QueueDto, QueueItemDto } from './queue.dto'
 
 @Injectable()
 export class QueueService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getQueue(): Promise<QueueDto> {
-    const [games, videos] = await Promise.all([
-      this.prisma.game.findMany({
-        where: { status: { in: [$Enums.PrismaStatuses.QUEUE, $Enums.PrismaStatuses.PROGRESS] } },
-        select: { title: true, person: { select: { name: true } } },
-      }),
-      this.prisma.video.findMany({
-        where: { status: { in: [$Enums.PrismaStatuses.QUEUE, $Enums.PrismaStatuses.PROGRESS] } },
-        select: { title: true, person: { select: { name: true } }, genre: true },
-      }),
-    ])
+    const records = await this.prisma.record.findMany({
+      where: {
+        status: { in: [$Enums.RecordStatus.QUEUE, $Enums.RecordStatus.PROGRESS] },
+      },
+      include: {
+        user: true,
+      },
+    })
+
+    const games = records.filter(r => r.genre === $Enums.RecordGenre.GAME)
+    const videos = records.filter(r => r.genre !== $Enums.RecordGenre.GAME && r.genre !== null)
+
     return {
       games: games.map((g): QueueItemDto => ({
         title: g.title,
-        type: QueueType.GAME,
-        personName: g.person?.name || 'John Doe',
+        login: g.user?.login || 'John Doe',
+        type: g.type,
         genre: null,
       })),
       videos: videos.map((v): QueueItemDto => ({
         title: v.title,
-        type: QueueType.VIDEO,
-        personName: v.person?.name || 'John Doe',
+        login: v.user?.login || 'John Doe',
+        type: v.type,
         genre: v.genre,
       })),
     }

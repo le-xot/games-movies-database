@@ -1,25 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
+import { RecordGenre, RecordType } from 'src/enums/enums.names'
 
 export class QueueItemDto {
   @ApiProperty()
   title: string
 
-  @ApiProperty()
-  type: QueueType
-
   @ApiProperty({ nullable: true })
-  personName: string | 'John Doe'
+  login: string | 'John Doe'
 
-  @ApiProperty({ enum: $Enums.PrismaGenres, nullable: true })
-  genre: $Enums.PrismaGenres | null
-}
+  @ApiProperty({ enum: $Enums.RecordType, enumName: RecordType, nullable: true })
+  type: $Enums.RecordType | null
 
-export enum QueueType {
-  // eslint-disable-next-line no-unused-vars
-  VIDEO = 'VIDEO',
-  // eslint-disable-next-line no-unused-vars
-  GAME = 'GAME',
+  @ApiProperty({ enum: $Enums.RecordGenre, enumName: RecordGenre, nullable: true })
+  genre: $Enums.RecordGenre | null
 }
 
 export class QueueDto {

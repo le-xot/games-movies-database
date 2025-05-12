@@ -1,19 +1,21 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import DialogButton from '@/components/dialog/dialog-button.vue'
-import TableColPerson from '@/components/table/table-col/table-col-person.vue'
+import RecordCreateButton from '@/components/dialog/record-create-button.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
+import { useRecordCreate } from '@/composables/use-record-create'
 import { useUser } from '@/composables/use-user'
-import { GameEntity } from '@/lib/api.ts'
+import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api'
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { CirclePlus, Eraser } from 'lucide-vue-next'
+import { Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useGames } from './use-games'
@@ -21,14 +23,18 @@ import { useGamesParams } from './use-games-params'
 
 export const useGamesTable = defineStore('games/use-games-table', () => {
   const { isAdmin } = storeToRefs(useUser())
-  const gamesParams = useGamesParams()
-  const { pagination, columnVisibility } = storeToRefs(gamesParams)
   const gamesStore = useGames()
+  const gamesParams = useGamesParams()
+  const { columnVisibility, pagination } = storeToRefs(gamesParams)
   const { games, totalPages } = storeToRefs(gamesStore)
   const dialog = useDialog()
 
+  const { createRecord } = useRecordCreate('games', () => {
+    gamesStore.refetchGames()
+  })
+
   const tableColumns = computed(() => {
-    const columns: ColumnDef<GameEntity>[] = [
+    const columns: ColumnDef<RecordEntity>[] = [
       {
         accessorKey: 'title',
         header: 'Название',
@@ -39,27 +45,23 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
-            onUpdate: (title) => gamesStore.updateGame({
-              id: row.original.id,
-              data: { title },
-            }),
           })
         },
       },
       {
-        accessorKey: 'person',
-        header: 'Заказчик',
+        accessorKey: 'user',
+        header: 'Пользователь',
         size: 20,
         minSize: 20,
         maxSize: 20,
         enableResizing: false,
         cell: ({ row }) => {
-          return h(TableColPerson, {
-            key: `person-${row.original.id}`,
-            personId: row.original.person?.id,
-            onUpdate: (personId) => gamesStore.updateGame({
+          return h(TableColUser, {
+            key: `user-${row.original.id}`,
+            userId: row.original.userId,
+            onUpdate: (userId) => gamesStore.updateGame({
               id: row.original.id,
-              data: { personId },
+              data: { userId },
             }),
           })
         },
@@ -84,12 +86,14 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
-            value: row.original.status,
+            value: row.original.status as RecordStatus,
             kind: 'status',
             onUpdate: (value) => {
               gamesStore.updateGame({
                 id: row.original.id,
-                data: { status: value },
+                data: {
+                  status: value as RecordStatus,
+                },
               })
             },
           })
@@ -115,12 +119,12 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         cell: ({ row }) => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
-            value: row.original.grade,
+            value: row.original.grade as RecordGrade,
             kind: 'grade',
             onUpdate: (value) => {
               gamesStore.updateGame({
                 id: row.original.id,
-                data: { grade: value },
+                data: { grade: value as RecordGrade },
               })
             },
           })
@@ -134,17 +138,11 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         minSize: 5,
         maxSize: 5,
         enableResizing: false,
-        header: () => {
-          return h(DialogButton, {
-            icon: CirclePlus,
-            onClick: () => dialog.openDialog({
-              title: `Создать игру?`,
-              content: '',
-              description: '',
-              onSubmit: () => gamesStore.createGame(),
-            }),
-          })
-        },
+        header: () => h(RecordCreateButton, {
+          title: 'Создать запись',
+          placeholder: 'https://www.igdb.com/games/example-game',
+          onSubmit: (link: string) => createRecord(link),
+        }),
         cell: ({ row }) => {
           return h(
             'div',

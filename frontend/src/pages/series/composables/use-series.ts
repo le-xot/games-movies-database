@@ -1,5 +1,6 @@
 import { useApi } from '@/composables/use-api'
-import { GenresEnum, GetAllVideosResponse, type PatchVideoDTO } from '@/lib/api.ts'
+import { useRecordCreate } from '@/composables/use-record-create.ts'
+import { RecordEntity, RecordUpdateDTO } from '@/lib/api.ts'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -19,13 +20,13 @@ export const useSeries = defineStore('series/use-series', () => {
     data,
     refetch: refetchVideos,
   } = useQuery({
-    placeholderData(previousData): GetAllVideosResponse {
-      if (!previousData) return { videos: [], total: 0 }
+    placeholderData(previousData): { records: RecordEntity[], total: number } {
+      if (!previousData) return { records: [], total: 0 }
       return previousData
     },
     key: () => [VIDEOS_QUERY_KEY, cartoonParams.value],
     query: async () => {
-      const { data } = await api.videos.videoControllerGetAllVideos(cartoonParams.value)
+      const { data } = await api.records.recordControllerGetAllRecords(cartoonParams.value)
       return data
     },
   })
@@ -42,8 +43,8 @@ export const useSeries = defineStore('series/use-series', () => {
 
   const { mutateAsync: updateVideo } = useMutation({
     key: [VIDEOS_QUERY_KEY, 'update'],
-    mutation: ({ id, data }: { id: number, data: PatchVideoDTO }) => {
-      return api.videos.videoControllerPatchVideo(id, data)
+    mutation: ({ id, data }: { id: number, data: RecordUpdateDTO }) => {
+      return api.records.recordControllerPatchRecord(id, data)
     },
     onSettled: () => refetchVideos(),
   })
@@ -51,22 +52,23 @@ export const useSeries = defineStore('series/use-series', () => {
   const { mutateAsync: deleteVideo } = useMutation({
     key: [VIDEOS_QUERY_KEY, 'delete'],
     mutation: (id: number) => {
-      return api.videos.videoControllerDeleteVideo(id)
+      return api.records.recordControllerDeleteRecord(id)
     },
     onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: createVideo } = useMutation({
     key: [VIDEOS_QUERY_KEY, 'create'],
-    mutation: async () => {
-      return await api.videos.videoControllerCreateVideo({ genre: GenresEnum.SERIES })
+    mutation: async (link: string) => {
+      const { createRecord } = useRecordCreate(VIDEOS_QUERY_KEY, refetchVideos)
+      return await createRecord(link)
     },
-    onSettled: () => refetchVideos(),
+    onSuccess: () => refetchVideos(),
   })
 
   const videos = computed(() => {
     if (!data.value) return []
-    return data.value.videos
+    return data.value.records
   })
 
   return {

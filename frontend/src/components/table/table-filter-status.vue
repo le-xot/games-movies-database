@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { StatusesEnum } from '@/lib/api.ts'
+import { RecordStatus } from '@/lib/api.ts'
 import { ListFilter } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { statusTags } from './composables/use-table-select'
 
 const props = defineProps<{
-  value: StatusesEnum[] | null
+  value: RecordStatus[] | null
 }>()
 
 const emit = defineEmits<{
-  update: [value: StatusesEnum[] | null]
+  update: [value: RecordStatus[] | null]
 }>()
 
 const statusOptions = computed(() => Object.entries(statusTags).map(([key, value]) => ({
@@ -21,7 +21,7 @@ const statusOptions = computed(() => Object.entries(statusTags).map(([key, value
 })))
 
 function toggleStatus(status: string) {
-  const statusValue = status as StatusesEnum
+  const statusValue = status as RecordStatus
 
   const newValue = props.value
     ? props.value.includes(statusValue)

@@ -1,4 +1,4 @@
-import { RolesEnum } from '@/lib/api'
+import { UserRole } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -20,14 +20,15 @@ export const useUser = defineStore('globals/use-user', () => {
       try {
         const { data } = await api.auth.authControllerMe()
         return data
-      } catch {
+      } catch (error) {
+        console.error('Failed to fetch user:', error)
         return null
       }
     },
   })
 
   const isLoggedIn = computed(() => !!user.value)
-  const isAdmin = computed(() => user.value?.role === RolesEnum.ADMIN)
+  const isAdmin = computed(() => user.value?.role === UserRole.ADMIN)
 
   const fetchUser = async () => {
     try {
@@ -54,9 +55,12 @@ export const useUser = defineStore('globals/use-user', () => {
     onSuccess: () => refetchUser(),
   })
 
+  const userRole = computed(() => user.value?.role)
+
   return {
     isLoading,
     user,
+    userRole,
     isLoggedIn,
     isAdmin,
     isInitialized,

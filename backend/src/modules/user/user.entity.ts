@@ -1,20 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums, User } from '@prisma/client'
-import { RolesEnum } from '../../enums/enums.names'
+import { UserRole } from '@prisma/client'
 
-export class UserEntity implements User {
+export class UserEntity {
   @ApiProperty()
   id: string
 
   @ApiProperty()
   login: string
 
-  @ApiProperty({ enumName: RolesEnum, enum: $Enums.PrismaRoles })
-  role: $Enums.PrismaRoles
+  @ApiProperty()
+  role: UserRole
 
   @ApiProperty()
   profileImageUrl: string
 
   @ApiProperty()
+  color: string
+
+  @ApiProperty()
   createdAt: Date
+
+  constructor(partial: Partial<UserEntity>) {
+    Object.assign(this, partial)
+  }
 }

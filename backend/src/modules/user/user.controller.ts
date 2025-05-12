@@ -14,6 +14,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('login')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.CREATED, type: UserEntity })
   async createUserByLogin(@Body() data: UserCreateByLoginDTO): Promise<UserEntity> {
     const user = await this.userService.createUserByLogin(data.login)
@@ -43,25 +44,28 @@ export class UserController {
   }
 
   @Get('user-records')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
   async getUserRecords(@Query('login') login: string): Promise<RecordEntity[]> {
     return await this.userService.getUserRecords(login)
   }
 
   @Post(':id')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<User> {
     return await this.userService.upsertUser(id, data)
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async getUserByTwitchId(@Param('id') id: string): Promise<User> {
     return await this.userService.getUserById(id)
   }
 
   @Get(':login')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async getUserByLogin(@Param('login') login: string): Promise<User> {
     return await this.userService.getUserByLogin(login)

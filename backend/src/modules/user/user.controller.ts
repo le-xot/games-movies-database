@@ -28,7 +28,7 @@ export class UserController {
   }
 
   @Get('users')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards()
   @ApiResponse({ status: 200, type: UserEntity, isArray: true })
   async getAllUsers(): Promise<UserEntity[]> {
     const users = await this.userService.getAllUsers()

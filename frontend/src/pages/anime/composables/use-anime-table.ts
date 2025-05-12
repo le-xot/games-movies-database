@@ -39,9 +39,9 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        size: isAdmin.value ? 40 : 45,
-        minSize: isAdmin.value ? 40 : 45,
-        maxSize: isAdmin.value ? 40 : 45,
+        size: isAdmin.value ? 50 : 55,
+        minSize: isAdmin.value ? 50 : 55,
+        maxSize: isAdmin.value ? 50 : 55,
         enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {

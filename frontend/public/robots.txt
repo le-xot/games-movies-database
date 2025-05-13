@@ -1,0 +1,12 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin routes
+Disallow: /admin/
+Disallow: /reference/
+Disallow: /docs/
+
+# Sitemap location
+Sitemap: https://le-xot.ru/sitemap.xml
+Host: le-xot.ru

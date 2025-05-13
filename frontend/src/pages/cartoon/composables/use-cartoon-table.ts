@@ -39,9 +39,9 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
       {
         accessorKey: 'title',
         header: 'Название',
-        size: isAdmin.value ? 50 : 55,
-        minSize: isAdmin.value ? 50 : 55,
-        maxSize: isAdmin.value ? 50 : 55,
+        size: isAdmin.value ? 47 : 52,
+        minSize: isAdmin.value ? 47 : 52,
+        maxSize: isAdmin.value ? 47 : 52,
         enableResizing: false,
         cell: ({ row }) => {
           return h(TableColTitle, {
@@ -53,9 +53,9 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
       {
         accessorKey: 'episode',
         header: 'Серии',
-        size: 5,
-        minSize: 5,
-        maxSize: 5,
+        size: 8,
+        minSize: 8,
+        maxSize: 8,
         enableResizing: false,
         cell: ({ row }) => {
           return h(TableColEpisode, {

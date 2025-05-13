@@ -41,6 +41,7 @@ export const router = createRouter({
         {
           path: ROUTER_PATHS.dbAuction,
           component: () => import('@/pages/auction/auction.vue'),
+          meta: { requiresAdmin: true },
         },
         {
           path: ROUTER_PATHS.dbQueue,

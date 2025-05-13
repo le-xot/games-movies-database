@@ -92,6 +92,16 @@ To enable movie data fetching, add your Kinopoisk API key to `backend/.env`:
 KINOPOISK_API=your_api_key
 ```
 
+### TWIR Integration
+
+To enable TWIR API integration, add your TWIR API key to `backend/.env`:
+
+```bash
+TWIR_API=your_api_key
+```
+
+This API key is used for authenticating requests from TWIR to your application.
+
 ## Environment Setup
 
 Copy the example environment file and update it with your settings:

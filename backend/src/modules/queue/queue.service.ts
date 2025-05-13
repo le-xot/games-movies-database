@@ -11,6 +11,7 @@ export class QueueService {
     const records = await this.prisma.record.findMany({
       where: {
         status: { in: [$Enums.RecordStatus.QUEUE, $Enums.RecordStatus.PROGRESS] },
+        type: $Enums.RecordType.WRITTEN,
       },
       include: {
         user: true,

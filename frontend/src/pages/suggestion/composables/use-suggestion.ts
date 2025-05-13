@@ -1,6 +1,6 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { useApi } from '@/composables/use-api'
-import { RecordEntity } from '@/lib/api'
+import { RecordEntity, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -106,6 +106,35 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     onSettled: () => refetchSuggestions(),
   })
 
+  const { mutateAsync: approveSuggestion } = useMutation({
+    key: [SUGGESTION_QUERY_KEY, 'approve'],
+    mutation: async (id: number) => {
+      try {
+        error.value = null
+        return await api.records.recordControllerPatchRecord(id, { type: RecordType.WRITTEN })
+      } catch (err: any) {
+        let errorMessage = 'Неизвестная ошибка'
+
+        try {
+          if (err instanceof Response || (err && typeof err.json === 'function')) {
+            const errorData = await err.clone().json()
+            errorMessage = errorData.message || errorMessage
+          } else if (err.error) {
+            errorMessage = err.error.message || errorMessage
+          } else if (err.message) {
+            errorMessage = err.message
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+        }
+
+        error.value = errorMessage
+        throw err
+      }
+    },
+    onSettled: () => refetchSuggestions(),
+  })
+
   const suggestions = computed<RecordEntity[]>(() => {
     if (!data.value) return []
     return data.value
@@ -120,6 +149,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     refetchSuggestions,
     submitSuggestion,
     deleteSuggestion,
+    approveSuggestion,
     openSuggestionDialog,
   }
 })

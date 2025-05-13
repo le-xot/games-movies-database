@@ -45,6 +45,23 @@ async function handleDeleteSuggestion(id: number) {
     })
   }
 }
+
+async function handleApproveSuggestion(id: number) {
+  try {
+    await suggestion.approveSuggestion(id)
+    toast({
+      title: 'Успешно',
+      description: 'Совет одобрен',
+      variant: 'default',
+    })
+  } catch {
+    toast({
+      title: 'Ошибка',
+      description: suggestion.error || 'Не удалось одобрить совет',
+      variant: 'destructive',
+    })
+  }
+}
 </script>
 
 <template>
@@ -92,7 +109,15 @@ async function handleDeleteSuggestion(id: number) {
                   {{ item.user.login }}
                 </div>
               </div>
-              <div v-if="isAdmin" class="flex justify-end w-full mt-auto">
+              <div v-if="isAdmin" class="flex justify-end w-full mt-auto gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  class="text-sm"
+                  @click="handleApproveSuggestion(item.id)"
+                >
+                  Одобрить
+                </Button>
                 <Button
                   variant="destructive"
                   size="sm"

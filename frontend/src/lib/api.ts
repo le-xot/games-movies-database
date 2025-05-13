@@ -104,6 +104,8 @@ export interface RecordUpdateDTO {
   grade?: RecordGrade;
   /** @example "S01E01" */
   episode?: string;
+  /** @example "WRITTEN" */
+  type?: RecordType;
   /** @example "1" */
   userId?: string;
 }

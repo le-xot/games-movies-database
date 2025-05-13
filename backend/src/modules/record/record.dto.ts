@@ -37,6 +37,11 @@ export class RecordUpdateDTO {
   @IsString()
   episode?: string
 
+  @ApiProperty({ example: $Enums.RecordType.WRITTEN, enum: $Enums.RecordType, enumName: RecordType, required: false })
+  @IsOptional()
+  @IsEnum($Enums.RecordType)
+  type?: $Enums.RecordType
+
   @ApiProperty({ example: '1', required: false })
   @IsOptional()
   @IsString()

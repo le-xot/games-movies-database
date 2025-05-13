@@ -3,28 +3,34 @@ import LoginForm from '@/components/form/login-form.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useTitle } from '@/composables/use-title'
+import { useUser } from '@/composables/use-user'
 import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
 import { HouseIcon } from 'lucide-vue-next'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 const route = useRoute()
 const { updateTitle } = useTitle()
+const { isAdmin } = useUser()
 
-const routes = [
+const allRoutes = computed(() => [
   { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
   { name: 'Советы', path: ROUTER_PATHS.dbSuggestion },
-  { name: 'Аукцион', path: ROUTER_PATHS.dbAuction },
+  { name: 'Аукцион', path: ROUTER_PATHS.dbAuction, requiresAdmin: true },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
   { name: 'Аниме', path: ROUTER_PATHS.dbAnime },
   { name: 'Фильмы', path: ROUTER_PATHS.dbMovie },
   { name: 'Сериалы', path: ROUTER_PATHS.dbSeries },
   { name: 'Мультфильмы', path: ROUTER_PATHS.dbCartoon },
-]
+])
+
+const filteredRoutes = computed(() => {
+  return allRoutes.value.filter(route => !route.requiresAdmin || isAdmin)
+})
 
 onMounted(() => {
-  const routeData = routes.find((item) => item.path === route.path)
+  const routeData = allRoutes.value.find((item) => item.path === route.path)
   if (routeData) updateTitle(routeData.name)
 })
 </script>
@@ -35,7 +41,7 @@ onMounted(() => {
       <div class="flex flex-nowrap gap-2 items-center overflow-x-auto whitespace-nowrap">
         <div class="flex flex-row overflow-x-auto whitespace-nowrap h-[50px] w-full gap-2.5 items-center">
           <RouterLink
-            v-for="headerRoute of routes"
+            v-for="headerRoute of filteredRoutes"
             v-slot="{ href, navigate }"
             :key="headerRoute.name"
             custom

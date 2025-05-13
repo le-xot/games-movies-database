@@ -55,10 +55,32 @@ export class UserService {
     })
   }
 
+  async createUserById(id: string): Promise<User> {
+    try {
+      const twitchUser = await this.twitch.getTwitchUserById(id)
+
+      if (!twitchUser) {
+        throw new Error(`User with id ${id} not found on Twitch`)
+      }
+
+      return this.prisma.user.create({
+        data: {
+          id: twitchUser.id,
+          login: twitchUser.login,
+          role: $Enums.UserRole.USER,
+          profileImageUrl: twitchUser.profile_image_url || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
+          color: '#333333',
+        },
+      })
+    } catch (error) {
+      console.error('Error creating user by id:', error)
+      throw error
+    }
+  }
+
   async createUserByLogin(login: string): Promise<User> {
     try {
-      const accessToken = await this.twitch.getAppAccessToken()
-      const twitchUsers = await this.twitch.searchTwitchUsers(login, accessToken)
+      const twitchUsers = await this.twitch.searchTwitchUsers(login)
 
       if (!twitchUsers || twitchUsers.length === 0) {
         throw new Error(`User with login ${login} not found on Twitch`)

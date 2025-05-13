@@ -9,6 +9,7 @@ import { QueueModule } from './modules/queue/queue.module'
 import { RecordModule } from './modules/record/record.module'
 import { RecordsProvidersModule } from './modules/records-providers/records-providers.module'
 import { SuggestionModule } from './modules/suggestion/suggestion.module'
+import { TwirModule } from './modules/twir/twir.module'
 import { TwitchModule } from './modules/twitch/twitch.module'
 import { UserModule } from './modules/user/user.module'
 import { WeatherModule } from './modules/weather/weather.module'
@@ -18,6 +19,7 @@ import { WeatherModule } from './modules/weather/weather.module'
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
     }),
+    TwirModule,
     TwitchModule,
     CustomJwtModule,
     AuthModule,

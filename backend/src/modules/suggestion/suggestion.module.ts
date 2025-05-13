@@ -9,5 +9,6 @@ import { SuggestionService } from './suggestion.service'
   imports: [PrismaModule, UserModule, RecordsProvidersModule],
   providers: [SuggestionService],
   controllers: [SuggestionController],
+  exports: [SuggestionService],
 })
 export class SuggestionModule {}

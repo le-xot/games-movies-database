@@ -46,6 +46,23 @@ async function handleDeleteSuggestion(id: number) {
   }
 }
 
+async function handleMoveToAuction(id: number) {
+  try {
+    await suggestion.moveToAuction(id)
+    toast({
+      title: 'Успешно',
+      description: 'Совет отправлен на аукцион',
+      variant: 'default',
+    })
+  } catch {
+    toast({
+      title: 'Ошибка',
+      description: suggestion.error || 'Не удалось отправить совет на аукцион',
+      variant: 'destructive',
+    })
+  }
+}
+
 async function handleApproveSuggestion(id: number) {
   try {
     await suggestion.approveSuggestion(id)
@@ -111,12 +128,19 @@ async function handleApproveSuggestion(id: number) {
               </div>
               <div v-if="isAdmin" class="flex justify-end w-full mt-auto gap-2">
                 <Button
-                  variant="default"
+                  size="sm"
+                  class="text-sm"
+                  @click="handleMoveToAuction(item.id)"
+                >
+                  Аукцион
+                </Button>
+                <Button
+                  variant="secondary"
                   size="sm"
                   class="text-sm"
                   @click="handleApproveSuggestion(item.id)"
                 >
-                  Одобрить
+                  Очередь
                 </Button>
                 <Button
                   variant="destructive"

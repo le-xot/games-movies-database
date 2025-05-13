@@ -39,6 +39,10 @@ export const router = createRouter({
         //   meta: { requiresAuth: true },
         // },
         {
+          path: ROUTER_PATHS.dbAuction,
+          component: () => import('@/pages/auction/auction.vue'),
+        },
+        {
           path: ROUTER_PATHS.dbQueue,
           component: () => import('@/pages/queue/queue.vue'),
         },

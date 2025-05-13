@@ -11,4 +11,5 @@ export const ROUTER_PATHS = {
   dbCartoon: '/db/cartoon',
   dbSeries: '/db/series',
   dbSuggestion: '/db/suggestion',
+  dbAuction: '/db/auction',
 }

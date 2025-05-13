@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { Module } from '@nestjs/common'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { PrismaModule } from './database/prisma.module'
+import { AuctionModule } from './modules/auction/auction.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { CustomJwtModule } from './modules/jwt/jwt.module'
 import { LimitModule } from './modules/limit/limit.module'
@@ -19,6 +20,7 @@ import { WeatherModule } from './modules/weather/weather.module'
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
     }),
+    AuctionModule,
     TwirModule,
     TwitchModule,
     CustomJwtModule,

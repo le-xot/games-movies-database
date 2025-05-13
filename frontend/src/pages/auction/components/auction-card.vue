@@ -2,70 +2,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { toast } from '@/components/ui/toast'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity } from '@/lib/api.ts'
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
-import { useSuggestion } from '../composables/use-suggestion'
+import { ref } from 'vue'
+import { useAuctions } from '../composables/use-autions'
 
 defineProps<{ items: RecordEntity[] }>()
 
 const { isAdmin } = storeToRefs(useUser())
-const { toast } = useToast()
-const suggestion = useSuggestion()
+
+const auctions = useAuctions()
 
 const isDialogOpen = ref(false)
 
-function resetDialogState() {
-  isDialogOpen.value = false
-}
+isDialogOpen.value = false
 
 defineExpose({ isDialogOpen })
 
-watch(isDialogOpen, (newValue) => {
-  if (newValue) {
-    suggestion.openSuggestionDialog(resetDialogState)
-  }
-})
-
-async function handleDeleteSuggestion(id: number) {
-  try {
-    await suggestion.deleteSuggestion(id)
-    toast({
-      title: 'Успешно',
-      description: 'Совет удален',
-      variant: 'default',
-    })
-  } catch {
-    toast({
-      title: 'Ошибка',
-      description: suggestion.error || 'Не удалось удалить совет',
-      variant: 'destructive',
-    })
-  }
-}
-
-async function handleMoveToAuction(id: number) {
-  try {
-    await suggestion.moveToAuction(id)
-    toast({
-      title: 'Успешно',
-      description: 'Совет отправлен на аукцион',
-      variant: 'default',
-    })
-  } catch {
-    toast({
-      title: 'Ошибка',
-      description: suggestion.error || 'Не удалось отправить совет на аукцион',
-      variant: 'destructive',
-    })
-  }
-}
-
 async function handleApproveSuggestion(id: number) {
   try {
-    await suggestion.approveSuggestion(id)
+    await auctions.approveAuction(id)
     toast({
       title: 'Успешно',
       description: 'Совет одобрен',
@@ -74,7 +32,7 @@ async function handleApproveSuggestion(id: number) {
   } catch {
     toast({
       title: 'Ошибка',
-      description: suggestion.error || 'Не удалось одобрить совет',
+      description: auctions.error || 'Не удалось одобрить совет',
       variant: 'destructive',
     })
   }
@@ -130,25 +88,9 @@ async function handleApproveSuggestion(id: number) {
                 <Button
                   size="sm"
                   class="text-sm"
-                  @click="handleMoveToAuction(item.id)"
-                >
-                  Аукцион
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  class="text-sm"
                   @click="handleApproveSuggestion(item.id)"
                 >
-                  Очередь
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  class="text-sm"
-                  @click="handleDeleteSuggestion(item.id)"
-                >
-                  Удалить
+                  В базу
                 </Button>
               </div>
             </CardFooter>

@@ -9,10 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-export interface CallbackDto {
-  code: string;
-}
-
 export interface UserEntity {
   id: string;
   login: string;
@@ -21,14 +17,6 @@ export interface UserEntity {
   color: string;
   /** @format date-time */
   createdAt: string;
-}
-
-export interface UserCreateByLoginDTO {
-  /**
-   * Unique login of the user
-   * @example "john_doe"
-   */
-  login: string;
 }
 
 export interface RecordEntity {
@@ -45,6 +33,14 @@ export interface RecordEntity {
   user?: UserEntity | null;
   /** @format date-time */
   createdAt: string;
+}
+
+export interface UserCreateByLoginDTO {
+  /**
+   * Unique login of the user
+   * @example "john_doe"
+   */
+  login: string;
 }
 
 export enum UserRole {
@@ -64,6 +60,22 @@ export interface UserUpdateDTO {
   profileImageUrl?: string;
   /** @example "#333333" */
   color?: string;
+}
+
+export interface SuggestionCreateByTwirDTO {
+  /** @example "12345" */
+  userId: string;
+  /** @example "https://shikimori.one/animes/1943-paprika" */
+  link: string;
+}
+
+export interface UserSuggestionDTO {
+  /** @example "https://shikimori.one/animes/1943-paprika" */
+  link: string;
+}
+
+export interface CallbackDto {
+  code: string;
 }
 
 export enum RecordStatus {
@@ -151,11 +163,6 @@ export interface QueueItemDto {
 export interface QueueDto {
   games: QueueItemDto[];
   videos: QueueItemDto[];
-}
-
-export interface UserSuggestionDTO {
-  /** @example "https://shikimori.one/animes/1943-paprika" */
-  link: string;
 }
 
 /** @example "id" */
@@ -392,63 +399,19 @@ export class Api<SecurityDataType extends unknown> {
     this.http = http;
   }
 
-  auth = {
+  auction = {
     /**
      * No description
      *
-     * @tags Auth
-     * @name AuthControllerTwitchAuth
-     * @request GET:/auth/twitch
+     * @tags auction
+     * @name AuctionControllerGetAuctions
+     * @request GET:/auction
      */
-    authControllerTwitchAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/auth/twitch`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Auth
-     * @name AuthControllerTwitchAuthCallback
-     * @request POST:/auth/twitch/callback
-     */
-    authControllerTwitchAuthCallback: (data: CallbackDto, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/auth/twitch/callback`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Auth
-     * @name AuthControllerMe
-     * @request GET:/auth/me
-     */
-    authControllerMe: (params: RequestParams = {}) =>
-      this.http.request<UserEntity, any>({
-        path: `/auth/me`,
+    auctionControllerGetAuctions: (params: RequestParams = {}) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/auction`,
         method: "GET",
         format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Auth
-     * @name AuthControllerLogout
-     * @request POST:/auth/logout
-     */
-    authControllerLogout: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/auth/logout`,
-        method: "POST",
         ...params,
       }),
   };
@@ -575,6 +538,115 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/users/${login}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  twir = {
+    /**
+     * No description
+     *
+     * @tags Twir
+     * @name TwirControllerCreateSuggestionWithTwir
+     * @request POST:/twir/suggestion
+     */
+    twirControllerCreateSuggestionWithTwir: (data: SuggestionCreateByTwirDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/twir/suggestion`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  suggestions = {
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerGetSuggestions
+     * @request GET:/suggestions
+     */
+    suggestionControllerGetSuggestions: (params: RequestParams = {}) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/suggestions`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerUserSuggest
+     * @request POST:/suggestions
+     */
+    suggestionControllerUserSuggest: (data: UserSuggestionDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/suggestions`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  auth = {
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTwitchAuth
+     * @request GET:/auth/twitch
+     */
+    authControllerTwitchAuth: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTwitchAuthCallback
+     * @request POST:/auth/twitch/callback
+     */
+    authControllerTwitchAuthCallback: (data: CallbackDto, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch/callback`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerMe
+     * @request GET:/auth/me
+     */
+    authControllerMe: (params: RequestParams = {}) =>
+      this.http.request<UserEntity, any>({
+        path: `/auth/me`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerLogout
+     * @request POST:/auth/logout
+     */
+    authControllerLogout: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/logout`,
+        method: "POST",
         ...params,
       }),
   };
@@ -736,38 +808,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/queue`,
         method: "GET",
         format: "json",
-        ...params,
-      }),
-  };
-  suggestions = {
-    /**
-     * No description
-     *
-     * @tags suggestions
-     * @name SuggestionControllerGetSuggestions
-     * @request GET:/suggestions
-     */
-    suggestionControllerGetSuggestions: (params: RequestParams = {}) =>
-      this.http.request<RecordEntity[], any>({
-        path: `/suggestions`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags suggestions
-     * @name SuggestionControllerUserSuggest
-     * @request POST:/suggestions
-     */
-    suggestionControllerUserSuggest: (data: UserSuggestionDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/suggestions`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
         ...params,
       }),
   };

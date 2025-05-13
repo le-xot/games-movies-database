@@ -14,6 +14,7 @@ const { updateTitle } = useTitle()
 const routes = [
   { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home },
   { name: 'Советы', path: ROUTER_PATHS.dbSuggestion },
+  { name: 'Аукцион', path: ROUTER_PATHS.dbAuction },
   { name: 'Очередь', path: ROUTER_PATHS.dbQueue },
   { name: 'Игры', path: ROUTER_PATHS.dbGames },
   { name: 'Аниме', path: ROUTER_PATHS.dbAnime },

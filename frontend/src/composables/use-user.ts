@@ -20,8 +20,7 @@ export const useUser = defineStore('globals/use-user', () => {
       try {
         const { data } = await api.auth.authControllerMe()
         return data
-      } catch (error) {
-        console.error('Failed to fetch user:', error)
+      } catch {
         return null
       }
     },

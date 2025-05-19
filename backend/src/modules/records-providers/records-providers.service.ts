@@ -76,6 +76,13 @@ export class RecordsProvidersService {
   }
 
   private async fetchShikimori(id: number): Promise<PreparedData> {
+    const isAnimeAllow = await this.prisma.suggestionRules.findUnique({
+      where: { genre: $Enums.RecordGenre.ANIME },
+    })
+    if (!isAnimeAllow.permission) {
+      throw new BadRequestException('Прошу пока аниме не советовать')
+    }
+
     try {
       const response = await fetch('https://shikimori.one/api/graphql', {
         method: 'POST',
@@ -140,12 +147,10 @@ export class RecordsProvidersService {
       }
 
       const result = await response.json()
-      const genre = this.mapKinopoiskGenre(result.genres, result.type)
-
       const data = {
         title: result.nameRu || result.nameEn || result.nameOriginal,
         posterUrl: result.posterUrl,
-        genre,
+        genre: await this.mapKinopoiskGenre(result.genres, result.type),
       }
       return data
     } catch (error) {
@@ -154,7 +159,7 @@ export class RecordsProvidersService {
     }
   }
 
-  private mapKinopoiskGenre(genres: Array<{ genre: string }>, type: string): $Enums.RecordGenre {
+  private async mapKinopoiskGenre(genres: Array<{ genre: string }>, type: string): Promise<$Enums.RecordGenre> {
     if (!genres || genres.length === 0) {
       throw new BadRequestException('Не удалось определить жанр из API Кинопоиска')
     }
@@ -163,27 +168,58 @@ export class RecordsProvidersService {
     const hasCartoon = genres.some(({ genre }) => genre.toLowerCase() === 'мультфильм')
 
     if (hasAnime) {
+      const isAnimeAllow = await this.prisma.suggestionRules.findUnique({
+        where: { genre: $Enums.RecordGenre.ANIME },
+      })
+      if (!isAnimeAllow.permission) {
+        throw new BadRequestException('Прошу пока аниме не советовать')
+      }
       return $Enums.RecordGenre.ANIME
     }
 
     if (hasCartoon) {
+      const isCartoonAllow = await this.prisma.suggestionRules.findUnique({
+        where: { genre: $Enums.RecordGenre.CARTOON },
+      })
+      if (!isCartoonAllow.permission) {
+        throw new BadRequestException('Прошу пока мультфильмы не советовать')
+      }
       return $Enums.RecordGenre.CARTOON
     }
 
     return this.mapKinopoiskType(type)
   }
 
-  private mapKinopoiskType(type: string): $Enums.RecordGenre {
+  private async mapKinopoiskType(type: string): Promise<$Enums.RecordGenre> {
     const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
 
     if (seriesTypes.includes(type)) {
+      const isSeriesAllow = await this.prisma.suggestionRules.findUnique({
+        where: { genre: $Enums.RecordGenre.SERIES },
+      })
+      if (!isSeriesAllow.permission) {
+        throw new BadRequestException('Прошу пока сериалы не советовать')
+      }
       return $Enums.RecordGenre.SERIES
     }
 
+    const isMovieAllow = await this.prisma.suggestionRules.findUnique({
+      where: { genre: $Enums.RecordGenre.MOVIE },
+    })
+    if (!isMovieAllow.permission) {
+      throw new BadRequestException('Прошу пока фильмы не советовать')
+    }
     return $Enums.RecordGenre.MOVIE
   }
 
   private async fetchIGDB(id: string): Promise<PreparedData> {
+    const isGameAllow = await this.prisma.suggestionRules.findUnique({
+      where: { genre: $Enums.RecordGenre.GAME },
+    })
+    if (!isGameAllow.permission) {
+      throw new BadRequestException('Прошу пока игры не советовать')
+    }
+
     try {
       const accessToken = await this.twitch.getAppAccessToken()
 

@@ -7,7 +7,6 @@ import { RecordsProvidersService } from '../records-providers/records-providers.
 export class SuggestionService {
   constructor(
     private prisma: PrismaService,
-
     private recordsProviderService: RecordsProvidersService,
   ) {}
 

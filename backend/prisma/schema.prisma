@@ -47,6 +47,8 @@ model Record {
 
   createdAt DateTime @default(now())
 
+  AuctionsHistory AuctionsHistory[]
+
   @@index([title])
   @@map("records")
 }
@@ -79,6 +81,17 @@ enum RecordGrade {
   BEER
   LIKE
   RECOMMEND
+}
+
+// ----- AuctionsHistory -----
+
+model AuctionsHistory {
+  id        Int      @id @default(autoincrement())
+  winner    Record   @relation(fields: [winnerId], references: [id])
+  winnerId  Int
+  createdAt DateTime @default(now())
+
+  @@map("auctions_history")
 }
 
 // ----- Limit -----

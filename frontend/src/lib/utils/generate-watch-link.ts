@@ -1,5 +1,5 @@
 export function generateWatchLink(originalLink: string): string | null {
-  const shikimoriMatch = originalLink.match(/shikimori\.one\/animes\/[a-z]?(\d+)/)
+  const shikimoriMatch = originalLink.match(/shikimori\.one\/animes\/([a-z]?\d+)/)
   if (shikimoriMatch) {
     const movieId = shikimoriMatch[1]
     return `https://reyohoho.github.io/reyohoho/#shiki${movieId}`

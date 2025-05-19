@@ -414,6 +414,27 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags auction
+     * @name AuctionControllerGetWinner
+     * @request GET:/auction/winner
+     */
+    auctionControllerGetWinner: (
+      query: {
+        id: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RecordEntity, any>({
+        path: `/auction/winner`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
   };
   users = {
     /**

@@ -93,3 +93,12 @@ model Limit {
 enum LimitType {
   SUGGESTION
 }
+
+// ----- SuggestionRules -----
+
+model SuggestionRules {
+  genre      RecordGenre @unique
+  permission Boolean     @default(true)
+
+  @@map("suggestion_rules")
+}

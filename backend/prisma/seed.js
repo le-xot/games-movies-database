@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient, RecordGenre } = require('@prisma/client')
 require('dotenv').config()
 const process = require('node:process')
 
@@ -29,6 +29,18 @@ async function seed() {
       },
     },
   )
+  const genres = Object.values(RecordGenre)
+
+  for (const genre of genres) {
+    await prisma.suggestionRules.upsert({
+      where: { genre },
+      update: {},
+      create: {
+        genre,
+        permission: true,
+      },
+    })
+  }
 }
 
 seed()

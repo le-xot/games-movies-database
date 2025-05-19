@@ -41,7 +41,7 @@ async function handleApproveSuggestion(id: number) {
     await auctions.approveAuction(id)
     toast({
       title: 'Успешно',
-      description: 'Совет одобрен',
+      description: '',
       variant: 'default',
     })
   } catch {

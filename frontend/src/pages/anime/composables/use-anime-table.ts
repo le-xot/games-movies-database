@@ -47,6 +47,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
+            link: row.original.link,
           })
         },
       },

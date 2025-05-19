@@ -46,6 +46,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
+            link: row.original.link,
           })
         },
       },

@@ -45,6 +45,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
+            link: row.original.link,
           })
         },
       },

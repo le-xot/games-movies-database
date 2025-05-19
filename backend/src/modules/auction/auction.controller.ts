@@ -1,5 +1,9 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common'
+
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { $Enums } from '@prisma/client'
+import { AuthGuard } from '../auth/auth.guard'
+import { RolesGuard } from '../auth/auth.roles.guard'
 import { RecordEntity } from '../record/record.entity'
 import { AuctionService } from './auction.service'
 
@@ -9,8 +13,17 @@ export class AuctionController {
   constructor(private auction: AuctionService) {}
 
   @Get()
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity, isArray: true })
   async getAuctions(): Promise<RecordEntity[]> {
     return await this.auction.getAuctions()
+  }
+
+  @Get('winner')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @ApiResponse({ status: 200, description: 'Winner selected successfully', type: RecordEntity })
+  @HttpCode(HttpStatus.OK)
+  async getWinner(@Query('id') id: number): Promise<RecordEntity> {
+    return await this.auction.getWinner(id)
   }
 }

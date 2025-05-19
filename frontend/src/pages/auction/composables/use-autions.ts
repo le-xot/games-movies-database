@@ -1,5 +1,6 @@
 import { useApi } from '@/composables/use-api'
-import { RecordEntity, RecordType } from '@/lib/api'
+import { RecordEntity } from '@/lib/api'
+import { generateWatchLink } from '@/lib/utils/generate-watch-link'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -37,7 +38,13 @@ export const useAuctions = defineStore('queue/use-auction', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.records.recordControllerPatchRecord(id, { type: RecordType.WRITTEN })
+        const response = await api.auction.auctionControllerGetWinner({ id })
+        const winner = response.data
+
+        const watchLink = generateWatchLink(winner.link)
+        if (watchLink) {
+          window.open(watchLink, '_blank')
+        }
       } catch (err: any) {
         let errorMessage = 'Неизвестная ошибка'
 

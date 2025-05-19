@@ -47,6 +47,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
+            link: row.original.link,
           })
         },
       },

@@ -47,6 +47,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
           return h(TableColTitle, {
             key: `title-${row.original.id}`,
             title: row.original.title,
+            link: row.original.link,
           })
         },
       },

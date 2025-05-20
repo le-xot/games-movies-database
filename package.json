@@ -11,6 +11,7 @@
     "build:frontend": "pnpm --filter=./frontend run build",
     "build:backend": "pnpm --filter=./backend run build",
     "start:backend": "pnpm --filter=./backend run start",
+    "prisma": "pnpm --filter=./backend run prisma migrate dev && pnpm --filter=./backend run prisma generate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

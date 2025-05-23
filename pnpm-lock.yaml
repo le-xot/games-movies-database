@@ -48,6 +48,9 @@ importers:
       '@scalar/nestjs-api-reference':
         specifier: 0.3.167
         version: 0.3.167
+      '@soundify/web-api':
+        specifier: 1.1.5
+        version: 1.1.5
       class-transformer:
         specifier: 0.5.1
         version: 0.5.1
@@ -1160,6 +1163,9 @@ packages:
 
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
+
+  '@soundify/web-api@1.1.5':
+    resolution: {integrity: sha512-P43Ay0y4mTTGNolZBjY9bRaE+eYlLjIHYiYGl7QlDlZeCOkuL/zGPvIqCWPcQ1jkvCJPgaUw6/s3hAIfJjcyhw==}
 
   '@stylistic/eslint-plugin@2.13.0':
     resolution: {integrity: sha512-RnO1SaiCFHn666wNz2QfZEFxvmiNRqhzaMXHXxXXKt+MEP7aajlPxUSMIQpKAaJfverpovEYqjBOXDq6dDcaOQ==}
@@ -3770,6 +3776,7 @@ packages:
   multer@1.4.4-lts.1:
     resolution: {integrity: sha512-WeSGziVj6+Z2/MwQo3GvqzgR+9Uc+qt8SwHKh3gvNPiISKfsMfG4SvCOFYlxxgkXt7yIV2i1yczehm0EOKIxIg==}
     engines: {node: '>= 6.0.0'}
+    deprecated: Multer 1.x is impacted by a number of vulnerabilities, which have been patched in 2.x. You should upgrade to the latest 2.x version.
 
   mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
@@ -6227,6 +6234,8 @@ snapshots:
   '@sinonjs/fake-timers@10.3.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
+
+  '@soundify/web-api@1.1.5': {}
 
   '@stylistic/eslint-plugin@2.13.0(eslint@9.26.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:

@@ -50,7 +50,7 @@ export class SpotifyService implements OnApplicationBootstrap {
     }
 
     const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
-    const response = await fetch('', {
+    const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -90,7 +90,7 @@ export class SpotifyService implements OnApplicationBootstrap {
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: env.SPOTIFY_CLIENT_ID,
-      scope: 'user-modify-playback-state',
+      scope: 'user-modify-playback-state user-read-currently-playing user-read-playback-state',
       redirect_uri: env.SPOTIFY_CALLBACK_URL,
     })
 

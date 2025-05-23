@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Header, Post, Query, UseGuards } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
@@ -10,6 +10,7 @@ export class SpotifyController {
   constructor(private readonly service: SpotifyService) {}
 
   @Get()
+  @Header('Content-Type', 'text/plain')
   getAuthLink() {
     return this.service.createAuthorizationUrl()
   }

@@ -54,7 +54,7 @@ async function handleApproveSuggestion(id: number) {
           </div>
         </template>
       </AuctionCard>
-      <div v-else class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center flex flex-col items-center">
+      <div v-else class="text-center flex flex-col items-center">
         <img class="w-[120px] h-[120px] mx-auto" src="/images/ogo.webp" alt="Ага">
         <span class="text-xl font-bold block mt-4 mb-4">Аукцион не проводится</span>
       </div>

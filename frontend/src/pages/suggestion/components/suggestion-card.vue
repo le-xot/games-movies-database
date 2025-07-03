@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGenre } from '@/lib/api.ts'
+import { RecordEntity, RecordGenre, UserRole } from '@/lib/api.ts'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useSuggestion } from '../composables/use-suggestion'
 
 const props = defineProps<{ items: RecordEntity[] }>()
 
-const { isAdmin } = storeToRefs(useUser())
+const { isAdmin, currentUserId } = storeToRefs(useUser())
 const { toast } = useToast()
 const suggestion = useSuggestion()
 
@@ -104,6 +104,23 @@ async function handleApproveSuggestion(id: number) {
     })
   }
 }
+
+async function handleDeleteOwnSuggestion(id: number) {
+  try {
+    await suggestion.deleteOwnSuggestion(id)
+    toast({
+      title: 'Успешно',
+      description: 'Ваш совет удален',
+      variant: 'default',
+    })
+  } catch {
+    toast({
+      title: 'Ошибка',
+      description: suggestion.error || 'Не удалось удалить совет',
+      variant: 'destructive',
+    })
+  }
+}
 </script>
 
 <template>
@@ -145,40 +162,56 @@ async function handleApproveSuggestion(id: number) {
                   {{ item.link }}
                 </a>
               </CardContent>
-              <CardFooter class="flex flex-col items-start gap-3 w-full">
-                <div v-if="item.user" class="flex items-center gap-2">
-                  <Avatar class="w-8 h-8 mr-2">
-                    <AvatarImage :src="item.user.profileImageUrl" />
-                    <AvatarFallback />
-                  </Avatar>
-                  <div class="text-base text-white font-medium">
-                    {{ item.user.login }}
+              <CardFooter class="flex flex-col items-start gap-3 w-full px-6 py-2">
+                <div v-if="item.user" class="flex justify-between w-full">
+                  <div class="flex items-center">
+                    <Avatar class="w-8 h-8 mr-2">
+                      <AvatarImage :src="item.user.profileImageUrl" />
+                      <AvatarFallback />
+                    </Avatar>
+                    <div class="text-base text-white font-medium">
+                      {{ item.user.login }}
+                    </div>
+                  </div>
+                  <div
+                    v-if="item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2"
+                  >
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      class="text-sm"
+                      @click="handleDeleteOwnSuggestion(item.id)"
+                    >
+                      Удалить
+                    </Button>
                   </div>
                 </div>
-                <div v-if="isAdmin" class="flex justify-end w-full mt-auto gap-2">
-                  <Button
-                    size="sm"
-                    class="text-sm"
-                    @click="handleMoveToAuction(item.id)"
-                  >
-                    Аукцион
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    class="text-sm"
-                    @click="handleApproveSuggestion(item.id)"
-                  >
-                    Очередь
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    class="text-sm"
-                    @click="handleDeleteSuggestion(item.id)"
-                  >
-                    Удалить
-                  </Button>
+                <div class="flex justify-between w-full">
+                  <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-2">
+                    <Button
+                      size="sm"
+                      class="text-sm w-32"
+                      @click="handleMoveToAuction(item.id)"
+                    >
+                      Аукцион
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      class="text-sm w-32"
+                      @click="handleApproveSuggestion(item.id)"
+                    >
+                      Очередь
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      class="text-sm w-32"
+                      @click="handleDeleteSuggestion(item.id)"
+                    >
+                      Удалить
+                    </Button>
+                  </div>
                 </div>
               </CardFooter>
             </div>

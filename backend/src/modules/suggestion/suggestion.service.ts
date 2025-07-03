@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
-import { $Enums, Limit } from '@prisma/client'
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { $Enums } from '@prisma/client'
 import { PrismaService } from 'src/database/prisma.service'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
 
@@ -35,17 +35,31 @@ export class SuggestionService {
   }
 
   async getSuggestions() {
-    const suggestions = await this.prisma.record.findMany({
+    return await this.prisma.record.findMany({
       where: { type: $Enums.RecordType.SUGGESTION },
       include: { user: true },
     })
-    return suggestions
   }
 
-  changeSuggestionLimit(limit: number): Promise<Limit> {
-    return this.prisma.limit.update({
-      where: { name: 'SUGGESTION' },
-      data: { quantity: limit },
+  async deleteUserSuggestion(id: number, userId: string): Promise<void> {
+    console.log(id, userId)
+
+    const suggestion = await this.prisma.record.findUnique({
+      where: { id },
     })
+
+    if (!suggestion) {
+      throw new NotFoundException('Предложение не найдено')
+    }
+
+    if (suggestion.userId !== userId) {
+      throw new ForbiddenException('Вы можете удалять только свои предложения')
+    }
+
+    if (suggestion.type !== $Enums.RecordType.SUGGESTION) {
+      throw new BadRequestException('Запись не является предложением')
+    }
+
+    await this.prisma.record.delete({ where: { id } })
   }
 }

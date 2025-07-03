@@ -610,6 +610,20 @@ export class Api<SecurityDataType extends unknown> {
         type: ContentType.Json,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerDeleteUserSuggestion
+     * @request DELETE:/suggestions/{id}
+     */
+    suggestionControllerDeleteUserSuggestion: (id: number, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/suggestions/${id}`,
+        method: "DELETE",
+        ...params,
+      }),
   };
   auth = {
     /**

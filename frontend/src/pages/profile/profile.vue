@@ -5,6 +5,7 @@ import { Tag } from '@/components/ui/tag'
 import Spinner from '@/components/utils/spinner.vue'
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
+import { RecordEntity, RecordGrade } from '@/lib/api'
 import { useTitle } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -16,7 +17,7 @@ const api = useApi()
 
 // Состояние загрузки
 const isLoading = ref(false)
-const data = ref([])
+const data = ref<RecordEntity[]>([])
 
 // Функция для получения записей пользователя
 async function fetchUserRecords() {
@@ -24,7 +25,7 @@ async function fetchUserRecords() {
 
   isLoading.value = true
   try {
-    const response = await api.users.userControllerGetUserRecords(user.user.login)
+    const response = await api.users.userControllerGetUserRecords({ login: user.user.login })
     data.value = response.data
   } catch (error) {
     console.error('Error fetching user records:', error)
@@ -36,11 +37,11 @@ async function fetchUserRecords() {
 
 // Разделяем записи по типам
 const userGames = computed(() =>
-  data.value?.filter(item => item.genre === 'GAME') || [],
+  data.value?.filter((item: RecordEntity) => item.genre === 'GAME') || [],
 )
 
 const userVideos = computed(() =>
-  data.value?.filter(item => item.genre !== 'GAME' && item.genre !== null) || [],
+  data.value?.filter((item: RecordEntity) => item.genre !== 'GAME' && item.genre !== null) || [],
 )
 
 // Загружаем данные при монтировании компонента
@@ -123,8 +124,8 @@ function formatDate(dateString: string): string {
                     <div v-if="video.createdAt" class="text-sm text-muted-foreground">
                       {{ formatDate(video.createdAt) }}
                     </div>
-                    <Tag v-if="video.grade" :class="gradeTags[video.grade]?.class">
-                      {{ gradeTags[video.grade]?.name }} {{ gradeTags[video.grade]?.label }}
+                    <Tag v-if="video.grade" :class="gradeTags[video.grade as RecordGrade]?.class">
+                      {{ gradeTags[video.grade as RecordGrade]?.name }} {{ gradeTags[video.grade as RecordGrade]?.label }}
                     </Tag>
                   </div>
                 </CardFooter>
@@ -172,8 +173,8 @@ function formatDate(dateString: string): string {
                     <div v-if="game.createdAt" class="text-sm text-muted-foreground">
                       {{ formatDate(game.createdAt) }}
                     </div>
-                    <Tag v-if="game.grade" :class="gradeTags[game.grade]?.class">
-                      {{ gradeTags[game.grade]?.name }} {{ gradeTags[game.grade]?.label }}
+                    <Tag v-if="game.grade" :class="gradeTags[game.grade as RecordGrade]?.class">
+                      {{ gradeTags[game.grade as RecordGrade]?.name }} {{ gradeTags[game.grade as RecordGrade]?.label }}
                     </Tag>
                   </div>
                 </CardFooter>

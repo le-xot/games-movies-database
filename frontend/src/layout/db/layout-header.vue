@@ -51,7 +51,7 @@ onMounted(() => {
               :href="href"
               variant="secondary"
               :class="{ 'bg-[hsla(var(--primary-foreground))]': route.path === headerRoute.path }"
-              @click="(event) => {
+              @click="(event: MouseEvent) => {
                 navigate(event)
                 updateTitle(headerRoute.name)
               }"

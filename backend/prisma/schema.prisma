@@ -116,6 +116,8 @@ model SuggestionRules {
   @@map("suggestion_rules")
 }
 
+// ----- ThirdPartyOauthServiceToken -----
+
 model ThirdPartyOauthServiceToken {
   id           Int              @id @default(autoincrement())
   service      ThirdPartService @unique

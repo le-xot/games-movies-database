@@ -115,3 +115,20 @@ model SuggestionRules {
 
   @@map("suggestion_rules")
 }
+
+// ----- ThirdPartyOauthServiceToken -----
+
+model ThirdPartyOauthServiceToken {
+  id           Int              @id @default(autoincrement())
+  service      ThirdPartService @unique
+  accessToken  String
+  refreshToken String
+  obtainedAt   DateTime         @default(now())
+  expiresAt    DateTime
+
+  @@map("third_part_oauth_service_tokens")
+}
+
+enum ThirdPartService {
+  SPOTIFY
+}

@@ -9,6 +9,7 @@ import { LimitModule } from './modules/limit/limit.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { RecordModule } from './modules/record/record.module'
 import { RecordsProvidersModule } from './modules/records-providers/records-providers.module'
+import { SpotifyModule } from './modules/spotify/spotify.module'
 import { SuggestionModule } from './modules/suggestion/suggestion.module'
 import { TwirModule } from './modules/twir/twir.module'
 import { TwitchModule } from './modules/twitch/twitch.module'
@@ -34,6 +35,7 @@ import { WeatherModule } from './modules/weather/weather.module'
     SuggestionModule,
     WeatherModule,
     RecordsProvidersModule,
+    SpotifyModule,
   ],
 })
 export class AppModule {}

@@ -17,6 +17,10 @@ export const env = cleanEnv(process.env, {
   TWITCH_ADMIN_ID: str({ default: null }),
   TWITCH_ADMIN_LOGIN: str({ default: null }),
 
+  SPOTIFY_CLIENT_ID: str({ default: null }),
+  SPOTIFY_CLIENT_SECRET: str({ default: null }),
+  SPOTIFY_CALLBACK_URL: str({ default: null }),
+
   WEATHER_API_KEY: str({ default: null }),
   WEATHER_LAT: str({ default: null }),
   WEATHER_LON: str({ default: null }),

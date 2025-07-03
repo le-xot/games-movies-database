@@ -28,6 +28,7 @@ export const useUser = defineStore('globals/use-user', () => {
 
   const isLoggedIn = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === UserRole.ADMIN)
+  const currentUserId = computed(() => user.value?.id)
 
   const fetchUser = async () => {
     try {
@@ -63,6 +64,7 @@ export const useUser = defineStore('globals/use-user', () => {
     isLoggedIn,
     isAdmin,
     isInitialized,
+    currentUserId,
     fetchUser,
     userLogin,
     userLogout,

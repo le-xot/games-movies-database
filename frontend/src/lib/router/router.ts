@@ -33,11 +33,11 @@ export const router = createRouter({
           component: () => import('@/pages/admin/admin.vue'),
           meta: { requiresAdmin: true },
         },
-        // {
-        //   path: ROUTER_PATHS.profile,
-        //   component: () => import('@/pages/profile/profile.vue'),
-        //   meta: { requiresAuth: true },
-        // },
+        {
+          path: ROUTER_PATHS.profile,
+          component: () => import('@/pages/profile/profile.vue'),
+          meta: { requiresAuth: true },
+        },
         {
           path: ROUTER_PATHS.dbAuction,
           component: () => import('@/pages/auction/auction.vue'),

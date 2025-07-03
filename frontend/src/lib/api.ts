@@ -610,6 +610,20 @@ export class Api<SecurityDataType extends unknown> {
         type: ContentType.Json,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags suggestions
+     * @name SuggestionControllerDeleteUserSuggestion
+     * @request DELETE:/suggestions/{id}
+     */
+    suggestionControllerDeleteUserSuggestion: (id: number, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/suggestions/${id}`,
+        method: "DELETE",
+        ...params,
+      }),
   };
   auth = {
     /**
@@ -668,6 +682,40 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/auth/logout`,
         method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Spotify
+     * @name SpotifyControllerGetAuthLink
+     * @request GET:/auth/spotify
+     */
+    spotifyControllerGetAuthLink: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/spotify`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Spotify
+     * @name SpotifyControllerPerformAuthorization
+     * @request POST:/auth/spotify
+     */
+    spotifyControllerPerformAuthorization: (
+      query: {
+        code: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/spotify`,
+        method: "POST",
+        query: query,
         ...params,
       }),
   };

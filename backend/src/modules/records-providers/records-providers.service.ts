@@ -39,10 +39,11 @@ export class RecordsProvidersService {
 
     const foundedRecord = await this.prisma.record.findFirst({
       where: {
-        OR: [{ link: newRecord.link }, { title: newRecord.title }],
+        link: newRecord.link,
         genre: newRecord.genre,
       },
     })
+
     if (foundedRecord && foundedRecord.status !== $Enums.RecordStatus.UNFINISHED) {
       throw new BadRequestException('Уже есть в базе данных')
     }

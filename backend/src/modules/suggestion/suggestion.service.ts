@@ -23,7 +23,7 @@ export class SuggestionService {
 
     const preparedData = await this.recordsProviderService.prepareData(data)
 
-    return this.prisma.record.create({
+    const record = await this.prisma.record.create({
       data: {
         ...preparedData,
         link: data.link,
@@ -32,6 +32,11 @@ export class SuggestionService {
         user: { connect: { id: data.userId } },
       },
     })
+
+    return {
+      title: record.title,
+      genre: record.genre,
+    }
   }
 
   async getSuggestions() {

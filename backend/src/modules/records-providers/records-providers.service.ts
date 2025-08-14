@@ -62,7 +62,7 @@ export class RecordsProvidersService {
       shikimori: /shikimori\.one\/animes\/[a-z]?(\d+)/,
       kinopoisk: /kinopoisk\.ru\/(film|series)\/(\d+)/,
       igdb: /igdb\.com\/games\/([^/]+)/,
-      steam: /store\.steampowered\.com\/app\/(\d+)/,
+      steam: /store\.steampowered\.com\/app\/(\d+)|steamcommunity\.com\/app\/(\d+)/,
     }
     for (const [service, pattern] of Object.entries(patterns)) {
       const match = link.match(pattern)

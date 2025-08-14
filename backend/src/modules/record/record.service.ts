@@ -69,7 +69,7 @@ export class RecordService {
         },
         {
           user: {
-            id: {
+            login: {
               contains: filters.search,
               mode: Prisma.QueryMode.insensitive,
             },

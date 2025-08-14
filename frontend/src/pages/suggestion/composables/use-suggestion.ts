@@ -20,7 +20,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
   function openSuggestionDialog(onClose?: () => void) {
     dialog.openDialog({
       title: 'Посоветовать контент',
-      description: 'Поддерживаемые форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687<br/>https://www.igdb.com/games/terraria',
+      description: 'Поддерживаемые форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687<br/>https://www.igdb.com/games/terraria<br/>https://store.steampowered.com/app/105600/Terraria/',
       onSubmit: () => {},
       onCancel: () => {
         dialog.closeDialog()

@@ -150,11 +150,10 @@ async function handleDeleteOwnSuggestion(id: number) {
             </div>
             <div class="flex flex-col flex-1 justify-between overflow-hidden">
               <CardHeader>
-                <CardTitle
-                  class="text-xl overflow-hidden line-clamp-2 max-w-full box-border"
-                  :title="item.title"
-                >
-                  {{ item.title }}
+                <CardTitle class="text-xl overflow-hidden line-clamp-2 max-w-full box-border">
+                  <a :href="item.link" target="_blank" class="hover:underline">
+                    {{ item.title }}
+                  </a>
                 </CardTitle>
               </CardHeader>
               <CardContent class="text-sm text-[#1e90ff] underline italic block whitespace-nowrap overflow-hidden text-ellipsis">
@@ -173,24 +172,24 @@ async function handleDeleteOwnSuggestion(id: number) {
                       {{ item.user.login }}
                     </div>
                   </div>
-                  <div
-                    v-if="item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2"
-                  >
+                </div>
+                <div class="flex justify-between w-full">
+                  <div v-if="item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2">
                     <Button
                       variant="destructive"
                       size="sm"
-                      class="text-sm"
-                      @click="handleDeleteOwnSuggestion(item.id)"
+                      class="text-sm w-full"
+                      @click="handleDeleteSuggestion(item.id)"
                     >
                       Удалить
                     </Button>
                   </div>
                 </div>
                 <div class="flex justify-between w-full">
-                  <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-2">
+                  <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-3">
                     <Button
                       size="sm"
-                      class="text-sm w-32"
+                      class="text-sm w-36"
                       @click="handleMoveToAuction(item.id)"
                     >
                       Аукцион
@@ -198,7 +197,7 @@ async function handleDeleteOwnSuggestion(id: number) {
                     <Button
                       variant="secondary"
                       size="sm"
-                      class="text-sm w-32"
+                      class="text-sm w-36"
                       @click="handleApproveSuggestion(item.id)"
                     >
                       Очередь
@@ -206,7 +205,7 @@ async function handleDeleteOwnSuggestion(id: number) {
                     <Button
                       variant="destructive"
                       size="sm"
-                      class="text-sm w-32"
+                      class="text-sm w-36"
                       @click="handleDeleteSuggestion(item.id)"
                     >
                       Удалить

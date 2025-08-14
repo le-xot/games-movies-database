@@ -16,17 +16,17 @@ const { toast } = useToast()
 const suggestion = useSuggestion()
 
 const groupedItems = computed(() => {
-  const groups: Record<string, RecordEntity[]> = {}
+  const groups = new Map<string, RecordEntity[]>()
 
-  props.items.forEach(item => {
+  for (const item of props.items) {
     const genre = item.genre || 'other'
-    if (!groups[genre]) {
-      groups[genre] = []
+    if (!groups.has(genre)) {
+      groups.set(genre, [])
     }
-    groups[genre].push(item)
-  })
+    groups.get(genre)!.push(item)
+  }
 
-  return groups
+  return Array.from(groups.entries())
 })
 
 function getGroupTitle(genre: string): string {
@@ -57,68 +57,27 @@ watch(isDialogOpen, (newValue) => {
 async function handleDeleteSuggestion(id: number) {
   try {
     await suggestion.deleteSuggestion(id)
-    toast({
-      title: 'Успешно',
-      description: 'Совет удален',
-      variant: 'default',
-    })
+    toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
   } catch {
-    toast({
-      title: 'Ошибка',
-      description: suggestion.error || 'Не удалось удалить совет',
-      variant: 'destructive',
-    })
+    toast({ title: 'Ошибка', description: suggestion.error || 'Не удалось удалить совет', variant: 'destructive' })
   }
 }
 
 async function handleMoveToAuction(id: number) {
   try {
     await suggestion.moveToAuction(id)
-    toast({
-      title: 'Успешно',
-      description: 'Совет отправлен на аукцион',
-      variant: 'default',
-    })
+    toast({ title: 'Успешно', description: 'Совет отправлен на аукцион', variant: 'default' })
   } catch {
-    toast({
-      title: 'Ошибка',
-      description: suggestion.error || 'Не удалось отправить совет на аукцион',
-      variant: 'destructive',
-    })
+    toast({ title: 'Ошибка', description: suggestion.error || 'Не удалось отправить совет на аукцион', variant: 'destructive' })
   }
 }
 
 async function handleApproveSuggestion(id: number) {
   try {
     await suggestion.approveSuggestion(id)
-    toast({
-      title: 'Успешно',
-      description: 'Совет одобрен',
-      variant: 'default',
-    })
+    toast({ title: 'Успешно', description: 'Совет одобрен', variant: 'default' })
   } catch {
-    toast({
-      title: 'Ошибка',
-      description: suggestion.error || 'Не удалось одобрить совет',
-      variant: 'destructive',
-    })
-  }
-}
-
-async function handleDeleteOwnSuggestion(id: number) {
-  try {
-    await suggestion.deleteOwnSuggestion(id)
-    toast({
-      title: 'Успешно',
-      description: 'Ваш совет удален',
-      variant: 'default',
-    })
-  } catch {
-    toast({
-      title: 'Ошибка',
-      description: suggestion.error || 'Не удалось удалить совет',
-      variant: 'destructive',
-    })
+    toast({ title: 'Ошибка', description: suggestion.error || 'Не удалось одобрить совет', variant: 'destructive' })
   }
 }
 </script>
@@ -129,7 +88,7 @@ async function handleDeleteOwnSuggestion(id: number) {
       <slot name="title" />
     </p>
 
-    <div v-for="(groupItems, genre) in groupedItems" :key="genre" class="mb-8">
+    <div v-for="[genre, groupItems] in groupedItems" :key="genre" class="mb-8">
       <h3 class="text-xl text-white mb-4 font-medium">
         {{ getGroupTitle(genre) }}
       </h3>
@@ -157,9 +116,7 @@ async function handleDeleteOwnSuggestion(id: number) {
                 </CardTitle>
               </CardHeader>
               <CardContent class="text-sm text-[#1e90ff] underline italic block whitespace-nowrap overflow-hidden text-ellipsis">
-                <a :href="item.link" target="_blank">
-                  {{ item.link }}
-                </a>
+                <a :href="item.link" target="_blank">{{ item.link }}</a>
               </CardContent>
               <CardFooter class="flex flex-col items-start gap-3 w-full px-6 py-2">
                 <div v-if="item.user" class="flex justify-between w-full">
@@ -173,41 +130,24 @@ async function handleDeleteOwnSuggestion(id: number) {
                     </div>
                   </div>
                 </div>
+
                 <div class="flex justify-between w-full">
-                  <div v-if="item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      class="text-sm w-full"
-                      @click="handleDeleteSuggestion(item.id)"
-                    >
+                  <div v-if="item.user && item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2">
+                    <Button variant="destructive" size="sm" class="text-sm w-full" @click="handleDeleteSuggestion(item.id)">
                       Удалить
                     </Button>
                   </div>
                 </div>
+
                 <div class="flex justify-between w-full">
                   <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-3">
-                    <Button
-                      size="sm"
-                      class="text-sm w-36"
-                      @click="handleMoveToAuction(item.id)"
-                    >
+                    <Button size="sm" class="text-sm w-36" @click="handleMoveToAuction(item.id)">
                       Аукцион
                     </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      class="text-sm w-36"
-                      @click="handleApproveSuggestion(item.id)"
-                    >
+                    <Button variant="secondary" size="sm" class="text-sm w-36" @click="handleApproveSuggestion(item.id)">
                       Очередь
                     </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      class="text-sm w-36"
-                      @click="handleDeleteSuggestion(item.id)"
-                    >
+                    <Button variant="destructive" size="sm" class="text-sm w-36" @click="handleDeleteSuggestion(item.id)">
                       Удалить
                     </Button>
                   </div>

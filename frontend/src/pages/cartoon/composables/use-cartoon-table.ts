@@ -161,7 +161,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
         enableResizing: false,
         header: () => h(RecordCreateButton, {
           title: 'Создать запись',
-          placeholder: 'https://www.igdb.com/games/example-game',
+          placeholder: 'https://www.kinopoisk.ru/film/example/',
           onSubmit: (link: string) => createRecord(link),
         }),
         cell: ({ row }) => {

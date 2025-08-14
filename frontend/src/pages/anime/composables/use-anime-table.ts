@@ -161,7 +161,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
         enableResizing: false,
         header: () => h(RecordCreateButton, {
           title: 'Создать запись',
-          placeholder: 'https://www.igdb.com/games/example-game',
+          placeholder: 'https://shikimori.one/animes/example',
           onSubmit: (link: string) => createRecord(link),
         }),
         cell: ({ row }) => {

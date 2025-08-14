@@ -12,7 +12,6 @@ export class TwirService {
     if (!user) {
       user = await this.user.createUserById(data.userId)
     }
-
-    await this.suggestion.userSuggest({ link: data.link, userId: user.id })
+    return await this.suggestion.userSuggest({ link: data.link, userId: user.id })
   }
 }

@@ -8,6 +8,7 @@ interface PreparedData {
   title: string
   posterUrl: string
   genre: $Enums.RecordGenre
+  link: string
 }
 
 @Injectable()
@@ -29,6 +30,9 @@ export class RecordsProvidersService {
       case 'igdb':
         newRecord = await this.fetchIGDB(id as string)
         break
+      case 'steam':
+        newRecord = await this.fetchIGDBFromSteam(id as number)
+        break
       default:
         throw new BadRequestException('Неподдерживаемый сервис')
     }
@@ -39,10 +43,7 @@ export class RecordsProvidersService {
 
     const foundedRecord = await this.prisma.record.findFirst({
       where: {
-        OR: [
-          { link: data.link },
-          { title: newRecord.title },
-        ],
+        OR: [{ link: newRecord.link }, { title: newRecord.title }],
         genre: newRecord.genre,
       },
     })
@@ -50,6 +51,8 @@ export class RecordsProvidersService {
     if (foundedRecord && foundedRecord.status !== $Enums.RecordStatus.UNFINISHED) {
       throw new BadRequestException('Уже есть в базе данных')
     }
+
+    data.link = newRecord.link
 
     return newRecord
   }
@@ -59,131 +62,93 @@ export class RecordsProvidersService {
       shikimori: /shikimori\.one\/animes\/[a-z]?(\d+)/,
       kinopoisk: /kinopoisk\.ru\/(film|series)\/(\d+)/,
       igdb: /igdb\.com\/games\/([^/]+)/,
+      steam: /store\.steampowered\.com\/app\/(\d+)/,
     }
     for (const [service, pattern] of Object.entries(patterns)) {
       const match = link.match(pattern)
       if (match) {
-        if (service === 'kinopoisk') {
-          return { service, id: Number(match[2]) }
-        } else if (service === 'igdb') {
-          return { service, id: match[1] }
-        } else {
-          return { service, id: Number(match[1]) }
-        }
+        if (service === 'kinopoisk') return { service, id: Number(match[2]) }
+        if (service === 'igdb') return { service, id: match[1] }
+        if (service === 'steam') return { service, id: Number(match[1]) }
+        return { service, id: Number(match[1]) }
       }
     }
     throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
   }
 
   private async fetchShikimori(id: number): Promise<PreparedData> {
-    const isAnimeAllow = await this.prisma.suggestionRules.findUnique({
-      where: { genre: $Enums.RecordGenre.ANIME },
+    const isAnimeAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.ANIME } })
+    if (!isAnimeAllow?.permission) throw new BadRequestException('Прошу пока аниме не советовать')
+
+    const response = await fetch('https://shikimori.one/api/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': 'https://shikimori.one',
+      },
+      body: JSON.stringify({
+        query: `{
+          animes(ids: "${id}", limit: 1, kind: "!special") {
+            russian
+            poster { originalUrl }
+          }
+        }`,
+      }),
     })
-    if (!isAnimeAllow.permission) {
-      throw new BadRequestException('Прошу пока аниме не советовать')
-    }
+    if (!response.ok) throw new BadRequestException(`Не удалось получить данные из API Shikimori: ${response.status}`)
 
-    try {
-      const response = await fetch('https://shikimori.one/api/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': 'https://shikimori.one',
-        },
-        body: JSON.stringify({
-          query: `{
-            animes(ids: "${id}", limit: 1, kind: "!special") {
-              russian
-              poster { originalUrl }
-              score
-            }
-          }`,
-        }),
-      })
+    const result = await response.json()
+    const anime = result.data?.animes?.[0]
+    if (!anime) throw new BadRequestException('Аниме не найдено в API Shikимори')
 
-      if (!response.ok) {
-        throw new BadRequestException(`Не удалось получить данные из API Shikimori: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (!result.data?.animes?.[0]) {
-        throw new BadRequestException('Аниме не найдено в API Shikimori')
-      }
-
-      const anime = result.data.animes[0]
-
-      const data = {
-        title: anime.russian,
-        posterUrl: anime.poster.originalUrl,
-        genre: $Enums.RecordGenre.ANIME,
-      }
-      return data
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error
-      throw new BadRequestException(`Не удалось получить данные из API Shikimori: ${error.message || 'неизвестная ошибка'}`)
+    return {
+      title: anime.russian,
+      posterUrl: anime.poster.originalUrl ?? '',
+      genre: $Enums.RecordGenre.ANIME,
+      link: `https://shikimori.one/animes/${id}`,
     }
   }
 
   private async fetchKinopoisk(id: number): Promise<PreparedData> {
-    if (!env.KINOPOISK_API) {
-      throw new BadRequestException('API ключ для Кинопоиска не настроен')
-    }
+    if (!env.KINOPOISK_API) throw new BadRequestException('API ключ для Кинопоиска не настроен')
 
-    try {
-      const response = await fetch(
-        `https://kinopoiskapiunofficial.tech/api/v2.2/films/${id}`,
-        {
-          headers: {
-            'accept': 'application/json',
-            'X-API-KEY': env.KINOPOISK_API,
-          },
-        },
-      )
+    const response = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/films/${id}`, {
+      headers: {
+        'accept': 'application/json',
+        'X-API-KEY': env.KINOPOISK_API,
+      },
+    })
+    if (!response.ok) throw new BadRequestException(`Не удалось получить данные из API Кинопоиска: ${response.status}`)
 
-      if (!response.ok) {
-        throw new BadRequestException(`Не удалось получить данные из API Кинопоиска: ${response.status}`)
-      }
+    const result = await response.json()
 
-      const result = await response.json()
-      const data = {
-        title: result.nameRu || result.nameEn || result.nameOriginal,
-        posterUrl: result.posterUrl,
-        genre: await this.mapKinopoiskGenre(result.genres, result.type),
-      }
-      return data
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error
-      throw new BadRequestException(`Не удалось получить данные из API Кинопоиска: ${error.message || 'неизвестная ошибка'}`)
+    const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
+    const path = seriesTypes.includes(result.type) ? 'series' : 'film'
+
+    return {
+      title: result.nameRu || result.nameEn || result.nameOriginal,
+      posterUrl: result.posterUrl ?? '',
+      genre: await this.mapKinopoiskGenre(result.genres, result.type),
+      link: `https://www.kinopoisk.ru/${path}/${id}`,
     }
   }
 
   private async mapKinopoiskGenre(genres: Array<{ genre: string }>, type: string): Promise<$Enums.RecordGenre> {
-    if (!genres || genres.length === 0) {
-      throw new BadRequestException('Не удалось определить жанр из API Кинопоиска')
-    }
+    if (!genres?.length) throw new BadRequestException('Не удалось определить жанр из API Кинопоиска')
 
     const hasAnime = genres.some(({ genre }) => genre.toLowerCase() === 'аниме')
     const hasCartoon = genres.some(({ genre }) => genre.toLowerCase() === 'мультфильм')
 
     if (hasAnime) {
-      const isAnimeAllow = await this.prisma.suggestionRules.findUnique({
-        where: { genre: $Enums.RecordGenre.ANIME },
-      })
-      if (!isAnimeAllow.permission) {
-        throw new BadRequestException('Прошу пока аниме не советовать')
-      }
+      const isAnimeAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.ANIME } })
+      if (!isAnimeAllow?.permission) throw new BadRequestException('Прошу пока аниме не советовать')
       return $Enums.RecordGenre.ANIME
     }
 
     if (hasCartoon) {
-      const isCartoonAllow = await this.prisma.suggestionRules.findUnique({
-        where: { genre: $Enums.RecordGenre.CARTOON },
-      })
-      if (!isCartoonAllow.permission) {
-        throw new BadRequestException('Прошу пока мультфильмы не советовать')
-      }
+      const isCartoonAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.CARTOON } })
+      if (!isCartoonAllow?.permission) throw new BadRequestException('Прошу пока мультфильмы не советовать')
       return $Enums.RecordGenre.CARTOON
     }
 
@@ -194,72 +159,90 @@ export class RecordsProvidersService {
     const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
 
     if (seriesTypes.includes(type)) {
-      const isSeriesAllow = await this.prisma.suggestionRules.findUnique({
-        where: { genre: $Enums.RecordGenre.SERIES },
-      })
-      if (!isSeriesAllow.permission) {
-        throw new BadRequestException('Прошу пока сериалы не советовать')
-      }
+      const isSeriesAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.SERIES } })
+      if (!isSeriesAllow?.permission) throw new BadRequestException('Прошу пока сериалы не советовать')
       return $Enums.RecordGenre.SERIES
     }
 
-    const isMovieAllow = await this.prisma.suggestionRules.findUnique({
-      where: { genre: $Enums.RecordGenre.MOVIE },
-    })
-    if (!isMovieAllow.permission) {
-      throw new BadRequestException('Прошу пока фильмы не советовать')
-    }
+    const isMovieAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.MOVIE } })
+    if (!isMovieAllow?.permission) throw new BadRequestException('Прошу пока фильмы не советовать')
     return $Enums.RecordGenre.MOVIE
   }
 
   private async fetchIGDB(id: string): Promise<PreparedData> {
-    const isGameAllow = await this.prisma.suggestionRules.findUnique({
-      where: { genre: $Enums.RecordGenre.GAME },
+    const isGameAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.GAME } })
+    if (!isGameAllow?.permission) throw new BadRequestException('Прошу пока игры не советовать')
+
+    const accessToken = await this.twitch.getAppAccessToken()
+    const response = await fetch('https://api.igdb.com/v4/games', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Client-ID': env.TWITCH_CLIENT_ID,
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: `fields name,cover.url,slug; where slug = "${id}";`,
     })
-    if (!isGameAllow.permission) {
-      throw new BadRequestException('Прошу пока игры не советовать')
+    if (!response.ok) throw new BadRequestException(`Не удалось получить данные из API IGDB: ${response.status}`)
+
+    const result = await response.json()
+    const game = result[0]
+    if (!game) throw new BadRequestException('Игра не найдена в API IGDB')
+
+    const coverUrl = game.cover?.url ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}` : ''
+
+    return {
+      title: game.name,
+      posterUrl: coverUrl,
+      genre: $Enums.RecordGenre.GAME,
+      link: `https://www.igdb.com/games/${game.slug}`,
     }
+  }
 
-    try {
-      const accessToken = await this.twitch.getAppAccessToken()
+  private async fetchIGDBFromSteam(appId: number): Promise<PreparedData> {
+    const isGameAllow = await this.prisma.suggestionRules.findUnique({ where: { genre: $Enums.RecordGenre.GAME } })
+    if (!isGameAllow?.permission) throw new BadRequestException('Прошу пока игры не советовать')
 
-      const response = await fetch(
-        'https://api.igdb.com/v4/games',
-        {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Client-ID': env.TWITCH_CLIENT_ID,
-            'Authorization': `Bearer ${accessToken}`,
-          },
-          body: `fields name,rating,cover.url; where slug = "${id}";`,
-        },
-      )
+    const accessToken = await this.twitch.getAppAccessToken()
 
-      if (!response.ok) {
-        throw new BadRequestException(`Не удалось получить данные из API IGDB: ${response.status}`)
-      }
+    const externalResp = await fetch('https://api.igdb.com/v4/external_games', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Client-ID': env.TWITCH_CLIENT_ID,
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: `fields game; where uid = "${appId}" & category = 1;`,
+    })
+    if (!externalResp.ok) throw new BadRequestException(`Не удалось получить данные external_games IGDB: ${externalResp.status}`)
 
-      const result = await response.json()
+    const externalData = await externalResp.json()
+    if (!externalData[0]?.game) throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
 
-      if (!result[0]) {
-        throw new BadRequestException('Игра не найдена в API IGDB')
-      }
+    const gameId = externalData[0].game
 
-      const game = result[0]
-      const coverUrl = game.cover?.url ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}` : null
+    const gameResp = await fetch('https://api.igdb.com/v4/games', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Client-ID': env.TWITCH_CLIENT_ID,
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: `fields name,cover.url,slug; where id = ${gameId};`,
+    })
+    if (!gameResp.ok) throw new BadRequestException(`Не удалось получить данные из API IGDB: ${gameResp.status}`)
 
-      const data = {
+    const gameData = await gameResp.json()
+    const game = gameData[0]
+    if (!game) throw new BadRequestException('Игра не найдена в API IGDB')
 
-        title: game.name,
-        posterUrl: coverUrl,
-        genre: $Enums.RecordGenre.GAME,
+    const coverUrl = game.cover?.url ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}` : ''
 
-      }
-      return data
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error
-      throw new BadRequestException(`Не удалось получить данные из API IGDB: ${error.message || 'неизвестная ошибка'}`)
+    return {
+      title: game.name,
+      posterUrl: coverUrl,
+      genre: $Enums.RecordGenre.GAME,
+      link: `https://www.igdb.com/games/${game.slug}`,
     }
   }
 }

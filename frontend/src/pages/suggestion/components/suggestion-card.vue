@@ -63,6 +63,15 @@ async function handleDeleteSuggestion(id: number) {
   }
 }
 
+async function handleDeleteOwnSuggestion(id: number) {
+  try {
+    await suggestion.deleteOwnSuggestion(id)
+    toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
+  } catch {
+    toast({ title: 'Ошибка', description: suggestion.error || 'Не удалось удалить совет', variant: 'destructive' })
+  }
+}
+
 async function handleMoveToAuction(id: number) {
   try {
     await suggestion.moveToAuction(id)
@@ -133,7 +142,7 @@ async function handleApproveSuggestion(id: number) {
 
                 <div class="flex justify-between w-full">
                   <div v-if="item.user && item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2">
-                    <Button variant="destructive" size="sm" class="text-sm w-full" @click="handleDeleteSuggestion(item.id)">
+                    <Button variant="destructive" size="sm" class="text-sm w-full" @click="handleDeleteOwnSuggestion(item.id)">
                       Удалить
                     </Button>
                   </div>

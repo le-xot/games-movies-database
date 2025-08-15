@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { QueueItemDto } from '@/lib/api.ts'
+import { generateWatchLink } from '@/lib/utils/generate-watch-link'
 
 defineProps<{ items: QueueItemDto[] }>()
 
@@ -22,7 +23,9 @@ function isShow(item: QueueItemDto) {
         >
           <CardHeader>
             <CardTitle class="text-xl overflow-hidden line-clamp-2 max-w-full box-border">
-              {{ item.title }}
+              <a :href="generateWatchLink(item.link) || item.link" target="_blank" class="hover:underline">
+                {{ item.title }}
+              </a>
             </CardTitle>
           </CardHeader>
           <CardFooter>

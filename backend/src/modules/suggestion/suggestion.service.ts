@@ -47,8 +47,6 @@ export class SuggestionService {
   }
 
   async deleteUserSuggestion(id: number, userId: string): Promise<void> {
-    console.log(id, userId)
-
     const suggestion = await this.prisma.record.findUnique({
       where: { id },
     })

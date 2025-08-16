@@ -25,12 +25,14 @@ export class QueueService {
       games: games.map((g): QueueItemDto => ({
         title: g.title,
         login: g.user?.login || 'John Doe',
+        link: g.link,
         type: g.type,
         genre: null,
       })),
       videos: videos.map((v): QueueItemDto => ({
         title: v.title,
         login: v.user?.login || 'John Doe',
+        link: v.link,
         type: v.type,
         genre: v.genre,
       })),

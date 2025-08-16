@@ -9,6 +9,9 @@ export class QueueItemDto {
   @ApiProperty({ nullable: true })
   login: string | 'John Doe'
 
+  @ApiProperty()
+  link: string
+
   @ApiProperty({ enum: $Enums.RecordType, enumName: RecordType, nullable: true })
   type: $Enums.RecordType | null
 

@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api.ts'
+import { generateWatchLink } from '@/lib/utils/generate-watch-link.ts'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useSuggestion } from '../composables/use-suggestion'
@@ -119,7 +120,7 @@ async function handleApproveSuggestion(id: number) {
             <div class="flex flex-col flex-1 justify-between overflow-hidden">
               <CardHeader>
                 <CardTitle class="text-xl overflow-hidden line-clamp-2 max-w-full box-border">
-                  <a :href="item.link" target="_blank" class="hover:underline">
+                  <a :href="generateWatchLink(item.link) || item.link" target="_blank" class="hover:underline">
                     {{ item.title }}
                   </a>
                 </CardTitle>

@@ -156,6 +156,7 @@ export interface LimitEntity {
 export interface QueueItemDto {
   title: string;
   login: string | null;
+  link: string;
   type: RecordType | null;
   genre: RecordGenre | null;
 }

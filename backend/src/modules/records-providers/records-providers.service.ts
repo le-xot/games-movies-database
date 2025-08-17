@@ -1,6 +1,8 @@
 import { env } from 'node:process'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
+import fetch from 'node-fetch'
+import { SocksProxyAgent } from 'socks-proxy-agent'
 import { PrismaService } from 'src/database/prisma.service'
 import { TwitchService } from '../twitch/twitch.service'
 
@@ -13,7 +15,13 @@ interface PreparedData {
 
 @Injectable()
 export class RecordsProvidersService {
-  constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) {}
+  private readonly proxyAgent: SocksProxyAgent
+
+  constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) {
+    if (env.PROXY) {
+      this.proxyAgent = new SocksProxyAgent(env.PROXY)
+    }
+  }
 
   private readonly linkPatterns: Record<string, { regex: RegExp, parse: (m: RegExpMatchArray) => number | string }> = {
     shikimori: { regex: /shikimori\.one\/animes\/[a-z]?(\d+)/, parse: m => Number(m[1]) },
@@ -78,10 +86,14 @@ export class RecordsProvidersService {
 
     const findResp = await fetch(
       `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`,
+      {
+        agent: this.proxyAgent,
+      },
     )
+
     if (!findResp.ok) throw new BadRequestException(`Ошибка TMDB find: ${findResp.status}`)
 
-    const findData = await findResp.json()
+    const findData = await findResp.json() as any
     const movie = findData.movie_results?.[0]
     const tv = findData.tv_results?.[0]
 
@@ -157,7 +169,7 @@ export class RecordsProvidersService {
     })
     if (!response.ok) throw new BadRequestException(`Не удалось получить данные из API Shikimori: ${response.status}`)
 
-    const anime = (await response.json()).data?.animes?.[0]
+    const anime = (await response.json() as any).data?.animes?.[0]
     if (!anime) throw new BadRequestException('Аниме не найдено в API Shikimori')
 
     return {
@@ -179,7 +191,7 @@ export class RecordsProvidersService {
     })
     if (!response.ok) throw new BadRequestException(`Не удалось получить данные из API Кинопоиска: ${response.status}`)
 
-    const result = await response.json()
+    const result = await response.json() as any
     const genre = await this.mapKinopoiskGenre(result.genres, result.type)
     const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
     const path = seriesTypes.includes(result.type) ? 'series' : 'film'

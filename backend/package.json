@@ -34,8 +34,10 @@
     "cookie-parser": "1.4.7",
     "dotenv": "16.4.5",
     "envalid": "8.0.0",
+    "node-fetch": "2.7.0",
     "reflect-metadata": "0.2.2",
-    "rxjs": "7.8.1"
+    "rxjs": "7.8.1",
+    "socks-proxy-agent": "8.0.5"
   },
   "devDependencies": {
     "@nestjs/cli": "10.4.7",

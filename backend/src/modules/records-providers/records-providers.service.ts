@@ -1,8 +1,8 @@
 import { env } from 'node:process'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
-import fetch from 'node-fetch'
-import { SocksProxyAgent } from 'socks-proxy-agent'
+import axios from 'axios'
+import { HttpProxyAgent } from 'http-proxy-agent'
 import { PrismaService } from 'src/database/prisma.service'
 import { TwitchService } from '../twitch/twitch.service'
 
@@ -15,11 +15,11 @@ interface PreparedData {
 
 @Injectable()
 export class RecordsProvidersService {
-  private readonly proxyAgent: SocksProxyAgent
+  private readonly proxyAgent: HttpProxyAgent<string>
 
   constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) {
     if (env.PROXY) {
-      this.proxyAgent = new SocksProxyAgent(env.PROXY)
+      this.proxyAgent = new HttpProxyAgent(env.PROXY)
     }
   }
 
@@ -84,16 +84,16 @@ export class RecordsProvidersService {
   private async fetchTmdb(imdbId: string): Promise<PreparedData> {
     if (!env.TMBD_API) throw new BadRequestException('API ключ для TMDB не настроен')
 
-    const findResp = await fetch(
-      `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`,
+    const findResp = await axios.get(
+      'https://api.themoviedb.org/3/find/tt31868189?api_key=9396ba1854219ee87852247ea71b3aa5&language=ru-RU&external_source=imdb_id',
       {
-        agent: this.proxyAgent,
+        httpAgent: this.proxyAgent,
       },
     )
 
-    if (!findResp.ok) throw new BadRequestException(`Ошибка TMDB find: ${findResp.status}`)
+    if (findResp.status !== 200) throw new BadRequestException(`Ошибка TMDB find: ${findResp.status}`)
 
-    const findData = await findResp.json() as any
+    const findData = findResp.data as any
     const movie = findData.movie_results?.[0]
     const tv = findData.tv_results?.[0]
 

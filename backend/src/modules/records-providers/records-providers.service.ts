@@ -2,7 +2,7 @@ import { env } from 'node:process'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import axios from 'axios'
-import { HttpProxyAgent } from 'http-proxy-agent'
+import { SocksProxyAgent } from 'socks-proxy-agent'
 import { PrismaService } from 'src/database/prisma.service'
 import { TwitchService } from '../twitch/twitch.service'
 
@@ -15,11 +15,10 @@ interface PreparedData {
 
 @Injectable()
 export class RecordsProvidersService {
-  private readonly proxyAgent: HttpProxyAgent<string>
-
+  private readonly proxyAgent: SocksProxyAgent
   constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) {
     if (env.PROXY) {
-      this.proxyAgent = new HttpProxyAgent(env.PROXY)
+      this.proxyAgent = new SocksProxyAgent(env.PROXY)
     }
   }
 
@@ -85,9 +84,9 @@ export class RecordsProvidersService {
     if (!env.TMBD_API) throw new BadRequestException('API ключ для TMDB не настроен')
 
     const findResp = await axios.get(
-      'https://api.themoviedb.org/3/find/tt31868189?api_key=9396ba1854219ee87852247ea71b3aa5&language=ru-RU&external_source=imdb_id',
+      `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`,
       {
-        httpAgent: this.proxyAgent,
+        httpsAgent: this.proxyAgent,
       },
     )
 

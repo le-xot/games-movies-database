@@ -7,11 +7,6 @@ import { computed, ref } from 'vue'
 import SuggestionForm from '../components/suggestion-form.vue'
 
 export const SUGGESTION_QUERY_KEY = 'suggestion'
-export interface SuggestionError {
-  code: string
-  message: string
-}
-
 export const useSuggestion = defineStore('queue/use-suggestion', () => {
   const api = useApi()
   const error = ref<string | null>(null)
@@ -19,8 +14,8 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
 
   function openSuggestionDialog(onClose?: () => void) {
     dialog.openDialog({
-      title: 'Посоветовать контент',
-      description: 'Поддерживаемые форматы:<br/><br/>https://shikimori.one/animes/1943-paprika<br/>https://www.kinopoisk.ru/film/258687<br/>https://www.igdb.com/games/terraria<br/>https://store.steampowered.com/app/105600/Terraria/',
+      title: 'Поддерживаемые сервисы:',
+      description: '<u><b>Кинчики:</b></u><br/>Kinopoisk<br/>Shikimori<br/>IMDb<br/><br/><u><b>Игры:</b></u><br/>Steam<br/>IGDb',
       onSubmit: () => {},
       onCancel: () => {
         dialog.closeDialog()

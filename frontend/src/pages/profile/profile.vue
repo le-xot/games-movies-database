@@ -148,7 +148,7 @@ const filteredUsers = computed(() => {
               <CommandEmpty>Пользователи не найдены.</CommandEmpty>
               <CommandGroup>
                 <CommandItem
-                  :value="user.user?.id"
+                  :value="user.user?.id || ''"
                   @select="() => selectUser(null)"
                 >
                   <Check
@@ -284,11 +284,11 @@ const filteredUsers = computed(() => {
           </Card>
         </div>
       </div>
-      <div v-if="userGames.length === 0 && userVideos.length === 0 && user.user.login === selectedUser.login" class="text-center my-8">
+      <div v-if="userGames.length === 0 && userVideos.length === 0 && user.user?.login === selectedUser?.login" class="text-center my-8">
         <img class="w-[120px] h-[120px] mx-auto" src="/images/muh.webp" alt="Ага">
         <span class="text-xl font-bold block mt-4">Вы ещё ничего не предложили</span>
       </div>
-      <div v-else-if="userGames.length === 0 && userVideos.length === 0 && user.user.login !== selectedUser.login" class="text-center my-8">
+      <div v-else-if="userGames.length === 0 && userVideos.length === 0 && user.user?.login !== selectedUser?.login" class="text-center my-8">
         <img class="w-[120px] h-[120px] mx-auto" src="/images/aga.webp" alt="Ага">
         <span class="text-xl font-bold block mt-4">Пользователь пока ничего не предложил</span>
       </div>

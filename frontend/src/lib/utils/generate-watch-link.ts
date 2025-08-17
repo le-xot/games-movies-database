@@ -11,6 +11,12 @@ export function generateWatchLink(originalLink: string): string | null {
     return `https://reyohoho.github.io/reyohoho/#${movieId}`
   }
 
+  const imdbMatch = originalLink.match(/imdb\.com\/title\/(tt\d+)/)
+  if (imdbMatch) {
+    const movieId = imdbMatch[1]
+    return `https://reyohoho.github.io/reyohoho/#imdb=${movieId}`
+  }
+
   const igdbMatch = originalLink.match(/igdb\.com\/games\/([^/]+)/)
   if (igdbMatch) {
     return originalLink

@@ -26,6 +26,7 @@ export const env = cleanEnv(process.env, {
   WEATHER_LON: str({ default: null }),
 
   KINOPOISK_API: str({ default: null }),
+  TMBD_API: str({ default: null }),
 
   TWIR_API: str({ default: null }),
 })

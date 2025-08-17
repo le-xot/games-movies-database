@@ -39,6 +39,11 @@ export const statusTags: Record<
     description: 'заказ не будет закончен до конца.',
     class: 'bg-[#6e3630] border text-white/80',
   },
+  [RecordStatus.NOTINTERESTED]: {
+    name: 'Не интересно',
+    description: 'заказ не интересен.',
+    class: 'border text-white/80',
+  },
 }
 
 export const genreTags: Partial<Record<

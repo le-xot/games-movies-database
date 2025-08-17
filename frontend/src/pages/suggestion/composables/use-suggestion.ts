@@ -1,6 +1,6 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { useApi } from '@/composables/use-api'
-import { RecordEntity, RecordType } from '@/lib/api'
+import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -77,7 +77,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.records.recordControllerDeleteRecord(id)
+        return await api.records.recordControllerPatchRecord(id, { status: RecordStatus.NOTINTERESTED, type: RecordType.WRITTEN })
       } catch (err: any) {
         let errorMessage = 'Неизвестная ошибка'
 
@@ -131,7 +131,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
   })
 
   const { mutateAsync: moveToAuction } = useMutation({
-    key: [SUGGESTION_QUERY_KEY, 'approve'],
+    key: [SUGGESTION_QUERY_KEY, 'move-to-auction'],
     mutation: async (id: number) => {
       try {
         error.value = null

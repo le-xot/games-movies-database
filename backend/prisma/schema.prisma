@@ -57,6 +57,7 @@ enum RecordStatus {
   QUEUE
   PROGRESS
   DROP
+  NOTINTERESTED
   UNFINISHED
   DONE
 }

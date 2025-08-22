@@ -3,11 +3,12 @@ import { genreTags } from '@/components/table/composables/use-table-select'
 import { Button } from '@/components/ui/button'
 import { Tag } from '@/components/ui/tag'
 import Spinner from '@/components/utils/spinner.vue'
+import { useRealtime } from '@/composables/use-realtime.ts'
 import { RecordType } from '@/lib/api'
 import { ROUTER_PATHS } from '@/lib/router/router-paths'
 import { useAnime } from '@/pages/anime/composables/use-anime.ts'
 import { ListPlus } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartoon } from '../cartoon/composables/use-cartoon'
 import { useGames } from '../games/composables/use-games'
@@ -33,6 +34,11 @@ const filteredVideos = computed(() => queue.data?.videos?.filter(item => item.ty
 function navigateToSuggestions() {
   router.push(ROUTER_PATHS.dbSuggestion)
 }
+
+const realtime = useRealtime()
+onMounted(() => {
+  realtime.setupListeners()
+})
 </script>
 
 <template>

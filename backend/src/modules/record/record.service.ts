@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
@@ -8,12 +9,12 @@ import { RecordEntity } from './record.entity'
 
 @Injectable()
 export class RecordService {
-  constructor(private readonly prisma: PrismaService, private readonly recordsProviderService: RecordsProvidersService) {}
+  constructor(private readonly prisma: PrismaService, private readonly recordsProviderService: RecordsProvidersService, private readonly eventEmitter: EventEmitter2) {}
 
   async createRecordFromLink(user: UserEntity, data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
     const preparedData = await this.recordsProviderService.prepareData({ link: data.link, userId: user.id })
 
-    return this.prisma.record.create({
+    const createdData = await this.prisma.record.create({
       data: {
         ...preparedData,
         link: data.link,
@@ -22,6 +23,8 @@ export class RecordService {
         user: { connect: { id: user.id } },
       },
     })
+    this.eventEmitter.emit('records-updated')
+    return createdData
   }
 
   async patchRecord(id: number, data: RecordUpdateDTO): Promise<RecordEntity> {
@@ -31,15 +34,19 @@ export class RecordService {
     if (!foundedRecord) {
       throw new NotFoundException('Record not found')
     }
-    return this.prisma.record.update({
+    const updatedRecord = await this.prisma.record.update({
       where: { id },
       include: { user: true },
       data: { ...foundedRecord, ...data },
     })
+
+    this.eventEmitter.emit('records-updated')
+    return updatedRecord
   }
 
   async deleteRecord(id: number): Promise<void> {
     await this.prisma.record.delete({ where: { id } })
+    this.eventEmitter.emit('records-updated')
   }
 
   async getAllRecords(

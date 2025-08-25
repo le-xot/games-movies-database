@@ -1,5 +1,4 @@
 <template>
-  <div class="supported-services-grid-centered">
     <div class="supported-services-grid">
       <a
         v-for="service in services"
@@ -13,7 +12,6 @@
         <span class="service-label">{{ service.name }}</span>
       </a>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -27,19 +25,14 @@ const services = [
 </script>
 
 <style scoped>
-.supported-services-grid-centered {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
 .supported-services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
   gap: 10px;
   margin: 18px 0 8px 0;
-  max-width: 500px;
   width: 100%;
 }
+
 .service-item {
   display: flex;
   flex-direction: row;
@@ -51,12 +44,13 @@ const services = [
   transition: box-shadow 0.2s, background 0.2s;
   text-decoration: none;
   cursor: pointer;
-  min-width: 0;
 }
+
 .service-item:hover {
   box-shadow: 0 4px 16px 0 rgba(0,0,0,0.08);
   background: #e0e7ef;
 }
+
 .service-icon {
   width: 40px;
   height: 40px;
@@ -65,6 +59,7 @@ const services = [
   background: #fff;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.06);
 }
+
 .service-label {
   font-size: 0.98rem;
   font-weight: 500;

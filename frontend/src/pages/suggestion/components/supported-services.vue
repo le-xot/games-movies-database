@@ -37,18 +37,18 @@ const services = [
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #f8fafc;
+  background: hsl(200 5% 11%);
   border-radius: 10px;
   padding: 7px 10px;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.03);
+  box-shadow: 0 2px 8px 0 hsla(240 3.7% 15.9% / 0.3);
   transition: box-shadow 0.2s, background 0.2s;
   text-decoration: none;
   cursor: pointer;
 }
 
 .service-item:hover {
-  box-shadow: 0 4px 16px 0 rgba(0,0,0,0.08);
-  background: #e0e7ef;
+  box-shadow: 0 2px 8px 0 hsla(240 3.7% 15.9% / 0.6);
+  background: hsl(204 6.33% 15.49%);
 }
 
 .service-icon {
@@ -56,14 +56,12 @@ const services = [
   height: 40px;
   margin-right: 10px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.06);
 }
 
 .service-label {
   font-size: 0.98rem;
   font-weight: 500;
-  color: #222;
+  color: var(--secondary-foreground);
   text-align: left;
   white-space: nowrap;
   overflow: hidden;

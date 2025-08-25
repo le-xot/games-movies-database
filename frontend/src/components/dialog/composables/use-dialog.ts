@@ -3,7 +3,8 @@ import { ref } from 'vue'
 
 interface DialogState {
   title: string
-  description: string
+  description?: string
+  customContent?: any
   onSubmit: (formData?: any) => void
   onCancel?: () => void
   content?: string

@@ -9,8 +9,15 @@ const dialog = useDialog()
   <AlertDialog v-model:open="dialog.isOpen">
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>{{ dialog.dialogState?.title }}</AlertDialogTitle>
+        <AlertDialogTitle class="text-center w-full">
+          {{ dialog.dialogState?.title }}
+        </AlertDialogTitle>
         <div v-if="dialog.dialogState?.description" class="text-muted-foreground text-sm" v-html="dialog.dialogState?.description" />
+        <component
+          :is="dialog.dialogState.customContent"
+          v-if="dialog.dialogState?.customContent"
+          class="mb-2"
+        />
       </AlertDialogHeader>
       <component
         :is="dialog.dialogState.component"

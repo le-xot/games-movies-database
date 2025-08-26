@@ -1,3 +1,26 @@
+# Games Movies Database
+
+## Table of Contents
+
+- [Development](#development)
+  - [Dependencies](#dependencies)
+  - [Setup](#setup)
+  - [Project Structure](#project-structure)
+  - [Available Scripts](#available-scripts)
+- [Third-party Integrations](#third-party-integrations)
+  - [Twitch Authentication](#twitch-authentication)
+  - [Spotify Integration](#spotify-integration)
+  - [OpenWeatherMap Integration](#openweathermap-integration)
+  - [Kinopoisk API](#kinopoisk-api)
+  - [TMDB Integration](#tmdb-integration)
+  - [TWIR Integration](#twir-integration)
+  - [Proxy Configuration](#proxy-configuration)
+- [Environment Setup](#environment-setup)
+- [Database Administration](#database-administration)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+
 # Development
 
 ## Dependencies
@@ -101,6 +124,44 @@ TWIR_API=your_api_key
 ```
 
 This API key is used for authenticating requests from TWIR to your application.
+
+### Spotify Integration
+
+To enable Spotify functionality, add these environment variables to `backend/.env`:
+
+```bash
+SPOTIFY_CLIENT_ID=your_client_id
+SPOTIFY_CLIENT_SECRET=your_client_secret
+SPOTIFY_CALLBACK_URL=http://127.0.0.1:5173/auth/callback/spotify
+```
+
+You can obtain these credentials by:
+
+1. Going to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Creating a new application
+3. Setting the Redirect URI to `http://127.0.0.1:5173/auth/callback/spotify`
+
+### TMDB Integration
+
+To enable additional movie data fetching, add your TMDB API key to `backend/.env`:
+
+```bash
+TMBD_API=your_api_key
+```
+
+You can get your API key by:
+
+1. Creating an account at [The Movie Database](https://www.themoviedb.org/)
+2. Going to Settings > API
+3. Generating a new API key
+
+### Proxy Configuration
+
+If you need to use a proxy for external API requests, add to `backend/.env`:
+
+```bash
+PROXY=socks5://your-proxy-url:port
+```
 
 ## Environment Setup
 

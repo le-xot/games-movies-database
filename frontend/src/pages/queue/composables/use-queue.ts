@@ -13,6 +13,7 @@ export const useQueue = defineStore('queue/use-queue', () => {
   const {
     isLoading,
     data,
+    refetch,
   } = useQuery<QueueDto>({
     key: [QUEUE_QUERY_KEY],
     query: async () => {
@@ -46,6 +47,7 @@ export const useQueue = defineStore('queue/use-queue', () => {
     isLoading,
     data,
     error,
+    refetch,
   }
 })
 

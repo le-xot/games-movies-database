@@ -1,9 +1,10 @@
 import { io, Socket } from 'socket.io-client'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-export function UseWebsocket() {
+export function useWebSocket() {
   const socket = ref<Socket | null>(null)
   onMounted(() => connect())
+  onUnmounted(() => disconnect())
 
   function connect() {
     socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ['websocket'] })

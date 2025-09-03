@@ -1,13 +1,14 @@
 import { useQueue } from '@/pages/queue/composables/use-queue'
-import { UseWebsocket } from './use-websocket'
+import { useWebSocket } from './use-websocket'
 
 export function useRealtime() {
-  const { socket } = UseWebsocket()
+  const { socket } = useWebSocket()
   const queueStore = useQueue()
 
   const setupListeners = () => {
-    socket.value?.on('queueUpdated', () => {
-      queueStore.refetch()
+    console.log('setupListeners')
+    socket.value?.on('WebSocketUpdate', () => {
+      void queueStore.refetch()
     })
   }
 

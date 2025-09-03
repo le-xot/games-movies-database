@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import Spinner from '@/components/utils/spinner.vue'
+import { useRealtime } from '@/composables/use-realtime.ts'
 import { useUser } from '@/composables/use-user'
 import { ListPlus } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import SuggestionCard from './components/suggestion-card.vue'
 import { useSuggestion } from './composables/use-suggestion'
 
@@ -12,6 +13,10 @@ const user = useUser()
 
 const isLoading = computed(() => suggestion.isLoading)
 const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
+const realtime = useRealtime()
+onMounted(() => {
+  realtime.setupListeners()
+})
 </script>
 
 <template>

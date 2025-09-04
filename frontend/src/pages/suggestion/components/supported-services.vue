@@ -1,17 +1,17 @@
 <template>
-    <div class="supported-services-grid">
-      <a
-        v-for="service in services"
-        :key="service.name"
-        class="service-item"
-        :href="service.url"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img :src="service.icon" :alt="service.name" class="service-icon">
-        <span class="service-label">{{ service.name }}</span>
-      </a>
-    </div>
+  <div class="supported-services-grid">
+    <a
+      v-for="service in services"
+      :key="service.name"
+      class="service-item"
+      :href="service.url"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img :src="service.icon" :alt="service.name" class="service-icon">
+      <span class="service-label">{{ service.name }}</span>
+    </a>
+  </div>
 </template>
 
 <script setup lang="ts">

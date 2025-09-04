@@ -21,7 +21,6 @@ export const useCartoon = defineStore('cartoon/use-cartoon', () => {
     refetch: refetchVideos,
   } = useQuery({
     key: () => [VIDEOS_QUERY_KEY, cartoonParams.value],
-    keepPreviousData: true,
     placeholderData(previousData): { records: RecordEntity[], total: number } {
       if (!previousData) return { records: [], total: 0 }
       return previousData

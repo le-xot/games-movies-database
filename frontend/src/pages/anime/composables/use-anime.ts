@@ -21,7 +21,6 @@ export const useAnime = defineStore('anime/use-anime', () => {
     refetch: refetchVideos,
   } = useQuery({
     key: () => [VIDEOS_QUERY_KEY, animeParams.value],
-    keepPreviousData: true,
     placeholderData(previousData): { records: RecordEntity[], total: number } {
       if (!previousData) return { records: [], total: 0 }
       return previousData

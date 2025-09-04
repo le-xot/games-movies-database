@@ -21,7 +21,6 @@ export const useMovie = defineStore('movies/use-movie', () => {
     refetch: refetchVideos,
   } = useQuery({
     key: () => [VIDEOS_QUERY_KEY, movieParams.value],
-    keepPreviousData: true,
     placeholderData(previousData): { records: RecordEntity[], total: number } {
       if (!previousData) return { records: [], total: 0 }
       return previousData

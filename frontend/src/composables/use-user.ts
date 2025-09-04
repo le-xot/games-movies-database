@@ -16,7 +16,6 @@ export const useUser = defineStore('globals/use-user', () => {
     refetch: refetchUser,
   } = useQuery({
     key: [USER_QUERY_KEY],
-    keepPreviousData: true,
     placeholderData: (previousData) => previousData,
     query: async () => {
       try {

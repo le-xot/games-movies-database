@@ -1,5 +1,6 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { useApi } from '@/composables/use-api'
+import { useNewRecords } from '@/composables/use-new-records'
 import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -194,6 +195,10 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
 
   const suggestions = computed<RecordEntity[]>(() => {
     if (!data.value) return []
+    const newRecords = useNewRecords()
+    const currentIds = data.value.map(record => record.id)
+    newRecords.cleanupViewedRecords(currentIds)
+
     return data.value
   })
 

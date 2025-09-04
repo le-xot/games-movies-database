@@ -16,6 +16,7 @@ export const useUser = defineStore('globals/use-user', () => {
     refetch: refetchUser,
   } = useQuery({
     key: [USER_QUERY_KEY],
+    keepPreviousData: true,
     query: async () => {
       try {
         const { data } = await api.auth.authControllerMe()

@@ -11,11 +11,12 @@ export const useQueue = defineStore('queue/use-queue', () => {
   const error = ref<string | null>(null)
 
   const {
-    isLoading,
     data,
     refetch,
   } = useQuery<QueueDto>({
     key: [QUEUE_QUERY_KEY],
+    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     query: async () => {
       try {
         error.value = null
@@ -44,7 +45,6 @@ export const useQueue = defineStore('queue/use-queue', () => {
   })
 
   return {
-    isLoading,
     data,
     error,
     refetch,

@@ -5,7 +5,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tag } from '@/components/ui/tag'
-import Spinner from '@/components/utils/spinner.vue'
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
@@ -77,7 +76,7 @@ const isOwnProfile = computed(() => !selectedUserId.value || selectedUserId.valu
 onMounted(async () => {
   await fetchUsers()
   if (user.user?.login) {
-    fetchUserRecords()
+    await fetchUserRecords()
   }
 })
 
@@ -176,10 +175,6 @@ const filteredUsers = computed(() => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
-
-    <div v-if="isLoading" class="flex items-center justify-center">
-      <Spinner />
     </div>
 
     <div v-else-if="!user.isLoggedIn" class="text-center my-8">

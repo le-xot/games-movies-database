@@ -21,7 +21,6 @@ export const useGames = defineStore('games/use-games', () => {
     refetch: refetchGames,
   } = useQuery({
     key: () => [GAMES_QUERY_KEY, gamesParams.value],
-    keepPreviousData: true,
     placeholderData(previousData): { records: RecordEntity[], total: number } {
       if (!previousData) return { records: [], total: 0 }
       return previousData

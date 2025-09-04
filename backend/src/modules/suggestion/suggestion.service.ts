@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from 'src/database/prisma.service'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
@@ -8,6 +9,7 @@ export class SuggestionService {
   constructor(
     private prisma: PrismaService,
     private recordsProviderService: RecordsProvidersService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async userSuggest(data: { link: string, userId: string }) {
@@ -33,6 +35,7 @@ export class SuggestionService {
       },
     })
 
+    this.eventEmitter.emit('WebSocketUpdate')
     return {
       title: preparedData.title,
       genre: preparedData.genre,
@@ -64,5 +67,6 @@ export class SuggestionService {
     }
 
     await this.prisma.record.delete({ where: { id } })
+    this.eventEmitter.emit('WebSocketUpdate')
   }
 }

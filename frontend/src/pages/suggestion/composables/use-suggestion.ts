@@ -34,6 +34,8 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     refetch: refetchSuggestions,
   } = useQuery({
     key: () => [SUGGESTION_QUERY_KEY],
+    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     query: async () => {
       try {
         error.value = null

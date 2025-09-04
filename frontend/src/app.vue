@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Toaster from '@/components/ui/toast/Toaster.vue'
+import { useWebSocket } from '@/composables/use-websocket.ts'
 import { onMounted, ref } from 'vue'
 
 const maintenanceMode = ref(false)
@@ -10,6 +11,8 @@ onMounted(() => {
     maintenanceMode.value = false
   }
 })
+
+useWebSocket()
 </script>
 
 // ----- Секрет -----

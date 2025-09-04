@@ -20,6 +20,7 @@
     "lucide-vue-next": "0.507.0",
     "pinia": "2.3.1",
     "radix-vue": "1.9.11",
+    "socket.io-client": "4.8.1",
     "tailwind-merge": "2.5.5",
     "tailwindcss-animate": "1.0.7",
     "vee-validate": "4.15.0",
@@ -32,9 +33,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.1",
+    "@vue/language-server": "3.0.1",
     "autoprefixer": "10.4.20",
     "sass-embedded": "1.80.6",
-    "@vue/language-server": "3.0.1",
     "swagger-typescript-api": "13.0.22",
     "tailwindcss": "3.4.16",
     "typescript": "5.6.3",

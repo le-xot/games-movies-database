@@ -35,6 +35,12 @@ export default defineConfig(({ isPreview, mode }) => {
           target: 'http://localhost:3000',
           changeOrigin: true,
         },
+        '/socket.io': {
+          ws: true,
+          rewriteWsOrigin: true,
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
       },
     },
   }

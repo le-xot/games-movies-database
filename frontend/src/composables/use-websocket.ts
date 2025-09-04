@@ -1,3 +1,4 @@
+import { useUser } from '@/composables/use-user.ts'
 import { useAnime } from '@/pages/anime/composables/use-anime.ts'
 import { useAuctions } from '@/pages/auction/composables/use-autions.ts'
 import { useCartoon } from '@/pages/cartoon/composables/use-cartoon.ts'
@@ -20,6 +21,7 @@ export function useWebSocket() {
   const gamesStore = useGames()
   const suggestionStore = useSuggestion()
   const auctionStore = useAuctions()
+  const { isAdmin } = useUser()
 
   function connect() {
     socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ['websocket'] })
@@ -30,14 +32,16 @@ export function useWebSocket() {
         isConnected.value = false
       })
       .on('WebSocketUpdate', () => {
-        queueStore.refetch()
+        queueStore.refetchQueue()
         animeStore.refetchVideos()
         cartoonStore.refetchVideos()
         seriesStore.refetchVideos()
         movieStore.refetchVideos()
         gamesStore.refetchGames()
         suggestionStore.refetchSuggestions()
-        auctionStore.refetchAuctions()
+        if (isAdmin) {
+          auctionStore.refetchAuctions()
+        }
       })
       .on('connect_error', (error) => {
         console.error('WebSocket connection error:', error)

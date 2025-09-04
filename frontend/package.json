@@ -17,7 +17,7 @@
     "@vueuse/core": "12.5.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
-    "lucide-vue-next": "0.507.0",
+    "lucide-vue-next": "0.542.0",
     "pinia": "2.3.1",
     "radix-vue": "1.9.11",
     "socket.io-client": "4.8.1",
@@ -28,7 +28,7 @@
     "vite-svg-loader": "5.1.0",
     "vue": "3.5.13",
     "vue-router": "4.5.0",
-    "vue3-simple-icons": "13.2.0",
+    "vue3-simple-icons": "15.6.0",
     "zod": "3.24.1"
   },
   "devDependencies": {

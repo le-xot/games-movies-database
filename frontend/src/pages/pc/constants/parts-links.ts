@@ -3,8 +3,8 @@ import {
   Cpu,
   Fan,
   Gamepad2,
+  Gpu,
   HardDrive,
-  HdmiPort,
   Headphones,
   Keyboard,
   MemoryStick,
@@ -51,7 +51,7 @@ const SYSTEM_PARTS: PartLink[] = [
   },
   {
     name: 'Radeon RX 7700 XT GAMING OC 12G',
-    icon: HdmiPort,
+    icon: Gpu,
     url: 'https://www.gigabyte.com/us/Graphics-Card/GV-R77XTGAMING-OC-12GD#kf',
   },
   {

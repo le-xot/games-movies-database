@@ -2,6 +2,7 @@
 import LoginForm from '@/components/form/login-form.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useBreakpoints } from '@/composables/use-breakpoints'
 import { useTitle } from '@/composables/use-title'
 import { useUser } from '@/composables/use-user'
 import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
@@ -12,6 +13,9 @@ import { RouterLink, useRoute } from 'vue-router'
 const route = useRoute()
 const { updateTitle } = useTitle()
 const { isAdmin } = useUser()
+const { isCompact } = useBreakpoints()
+
+const showText = computed(() => !isCompact.value)
 
 interface RouteItem {
   name: string
@@ -68,7 +72,7 @@ onMounted(() => {
             >
               <div class="flex items-center gap-1.5">
                 <component :is="r.icon" class="w-4 h-4" />
-                <span>{{ r.name }}</span>
+                <span class="hidden 2xl:inline">{{ r.name }}</span>
               </div>
             </Button>
           </RouterLink>

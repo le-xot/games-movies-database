@@ -24,7 +24,6 @@ export class RecordService {
       },
     })
     this.eventEmitter.emit('WebSocketUpdate')
-    console.log('WebSocketUpdate', createdData)
     return createdData
   }
 
@@ -42,14 +41,12 @@ export class RecordService {
     })
 
     this.eventEmitter.emit('WebSocketUpdate')
-    console.log('WebSocketUpdate', updatedRecord)
     return updatedRecord
   }
 
   async deleteRecord(id: number): Promise<void> {
     await this.prisma.record.delete({ where: { id } })
     this.eventEmitter.emit('WebSocketUpdate')
-    console.log('WebSocketUpdate', id)
   }
 
   async getAllRecords(

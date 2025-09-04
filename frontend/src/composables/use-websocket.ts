@@ -11,8 +11,8 @@ import { onMounted, onUnmounted, ref } from 'vue'
 
 export function useWebSocket() {
   const socket = ref<Socket | null>(null)
-  const isConnected = ref(false) // Добавлено для отслеживания состояния
-  const queueStore = useQueue() // Экземпляр стора
+  const isConnected = ref(false)
+  const queueStore = useQueue()
   const animeStore = useAnime()
   const cartoonStore = useCartoon()
   const seriesStore = useSeries()
@@ -24,23 +24,20 @@ export function useWebSocket() {
   function connect() {
     socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ['websocket'] })
       .on('connect', () => {
-        console.log('Connected to websocket')
         isConnected.value = true
       })
       .on('disconnect', () => {
-        console.log('Disconnected from websocket')
         isConnected.value = false
       })
       .on('WebSocketUpdate', () => {
-        console.log('WebSocketUpdate received')
-        queueStore.refetch().then(r => console.log('Queue refetched', r))
-        animeStore.refetchVideos().then(r => console.log('Anime refetched', r))
-        cartoonStore.refetchVideos().then(r => console.log('Cartoon refetched', r))
-        seriesStore.refetchVideos().then(r => console.log('Series refetched', r))
-        movieStore.refetchVideos().then(r => console.log('Movie refetched', r))
-        gamesStore.refetchGames().then(r => console.log('Games refetched', r))
-        suggestionStore.refetchSuggestions().then(r => console.log('Suggestions refetched', r))
-        auctionStore.refetchAuctions().then(r => console.log('Auctions refetched', r))
+        queueStore.refetch()
+        animeStore.refetchVideos()
+        cartoonStore.refetchVideos()
+        seriesStore.refetchVideos()
+        movieStore.refetchVideos()
+        gamesStore.refetchGames()
+        suggestionStore.refetchSuggestions()
+        auctionStore.refetchAuctions()
       })
       .on('connect_error', (error) => {
         console.error('WebSocket connection error:', error)

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '../../database/prisma.service'
 import { RecordEntity } from '../record/record.entity'
@@ -6,7 +7,7 @@ import { TwitchService } from '../twitch/twitch.service'
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService, private twitch: TwitchService) {}
+  constructor(private prisma: PrismaService, private twitch: TwitchService, private readonly eventEmitter: EventEmitter2) {}
 
   async upsertUser(
     id: string,
@@ -22,7 +23,7 @@ export class UserService {
     })
 
     if (!foundedUser && data.login && data.profileImageUrl && data.role && data.color) {
-      return this.prisma.user.create({
+      const createdUser = await this.prisma.user.create({
         data: {
           id,
           login: data.login,
@@ -31,13 +32,15 @@ export class UserService {
           color: data.color,
         },
       })
+      this.eventEmitter.emit('WebSocketUpdate')
+      return createdUser
     }
 
     if (!foundedUser) {
       return this.createUserByLogin(data.login)
     }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
         login: data.login,
@@ -46,6 +49,8 @@ export class UserService {
         color: data.color,
       },
     })
+    this.eventEmitter.emit('WebSocketUpdate')
+    return updatedUser
   }
 
   async getUserRecords(login: string): Promise<RecordEntity[]> {
@@ -63,7 +68,7 @@ export class UserService {
         throw new Error(`User with id ${id} not found on Twitch`)
       }
 
-      return this.prisma.user.create({
+      const createdUser = await this.prisma.user.create({
         data: {
           id: twitchUser.id,
           login: twitchUser.login,
@@ -72,6 +77,8 @@ export class UserService {
           color: '#333333',
         },
       })
+      this.eventEmitter.emit('WebSocketUpdate')
+      return createdUser
     } catch (error) {
       console.error('Error creating user by id:', error)
       throw error
@@ -88,7 +95,7 @@ export class UserService {
 
       const twitchUser = twitchUsers[0]
 
-      return this.prisma.user.create({
+      const createdUser = await this.prisma.user.create({
         data: {
           id: twitchUser.id,
           login: twitchUser.login,
@@ -97,6 +104,8 @@ export class UserService {
           color: '#333333',
         },
       })
+      this.eventEmitter.emit('WebSocketUpdate')
+      return createdUser
     } catch (error) {
       console.error('Error creating user by login:', error)
       throw error
@@ -117,9 +126,11 @@ export class UserService {
 
   async deleteUserByLogin(login: string): Promise<void> {
     await this.prisma.user.delete({ where: { login } })
+    this.eventEmitter.emit('WebSocketUpdate')
   }
 
   async deleteUserById(id: string): Promise<void> {
     await this.prisma.user.delete({ where: { id } })
+    this.eventEmitter.emit('WebSocketUpdate')
   }
 }

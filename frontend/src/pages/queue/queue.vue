@@ -3,12 +3,11 @@ import { genreTags } from '@/components/table/composables/use-table-select'
 import { Button } from '@/components/ui/button'
 import { Tag } from '@/components/ui/tag'
 import Spinner from '@/components/utils/spinner.vue'
-import { useRealtime } from '@/composables/use-realtime.ts'
 import { RecordType } from '@/lib/api'
 import { ROUTER_PATHS } from '@/lib/router/router-paths'
-import { useAnime } from '@/pages/anime/composables/use-anime.ts'
+import { useAnime } from '@/pages/anime/composables/use-anime'
 import { ListPlus } from 'lucide-vue-next'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartoon } from '../cartoon/composables/use-cartoon'
 import { useGames } from '../games/composables/use-games'
@@ -22,23 +21,16 @@ const anime = useAnime()
 const cartoon = useCartoon()
 const series = useSeries()
 const movie = useMovie()
-
 const queue = useQueue()
 const router = useRouter()
 
 const isLoading = computed(() => games.isLoading || anime.isLoading || cartoon.isLoading || series.isLoading || movie.isLoading || queue.isLoading)
-
 const filteredGames = computed(() => queue.data?.games?.filter(item => item.type !== RecordType.SUGGESTION) ?? [])
 const filteredVideos = computed(() => queue.data?.videos?.filter(item => item.type !== RecordType.SUGGESTION) ?? [])
 
 function navigateToSuggestions() {
   router.push(ROUTER_PATHS.dbSuggestion)
 }
-
-const realtime = useRealtime()
-onMounted(() => {
-  realtime.setupListeners()
-})
 </script>
 
 <template>

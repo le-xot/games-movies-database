@@ -6,10 +6,6 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const AUCTION_QUERY_KEY = 'auction'
-export interface AuctionError {
-  code: string
-  message: string
-}
 
 export const useAuctions = defineStore('queue/use-auction', () => {
   const api = useApi()

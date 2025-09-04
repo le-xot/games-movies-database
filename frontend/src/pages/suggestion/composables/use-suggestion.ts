@@ -4,7 +4,7 @@ import { useNewRecords } from '@/composables/use-new-records'
 import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import SuggestionForm from '../components/suggestion-form.vue'
 import SupportedServices from '../components/supported-services.vue'
@@ -14,6 +14,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
   const api = useApi()
   const error = ref<string | null>(null)
   const dialog = useDialog()
+  const newRecords = useNewRecords()
 
   function openSuggestionDialog(onClose?: () => void) {
     dialog.openDialog({
@@ -47,6 +48,13 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
       }
     },
   })
+
+  watch(() => data.value, (newData) => {
+    if (newData) {
+      const currentIds = newData.map(record => record.id)
+      newRecords.cleanupViewedRecords(currentIds)
+    }
+  }, { immediate: true })
 
   const { mutateAsync: submitSuggestion } = useMutation({
     key: [SUGGESTION_QUERY_KEY, 'submit'],
@@ -193,14 +201,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     onSettled: () => refetchSuggestions(),
   })
 
-  const suggestions = computed<RecordEntity[]>(() => {
-    if (!data.value) return []
-    const newRecords = useNewRecords()
-    const currentIds = data.value.map(record => record.id)
-    newRecords.cleanupViewedRecords(currentIds)
-
-    return data.value
-  })
+  const suggestions = computed<RecordEntity[]>(() => data.value ?? [])
 
   const isLoading = computed(() => isLoadingData.value)
 

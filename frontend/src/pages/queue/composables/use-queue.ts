@@ -15,6 +15,8 @@ export const useQueue = defineStore('queue/use-queue', () => {
     refetch,
   } = useQuery<QueueDto>({
     key: [QUEUE_QUERY_KEY],
+    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     query: async () => {
       try {
         error.value = null

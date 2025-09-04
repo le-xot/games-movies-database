@@ -4,7 +4,9 @@ import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+
 import SuggestionForm from '../components/suggestion-form.vue'
+import SupportedServices from '../components/supported-services.vue'
 
 export const SUGGESTION_QUERY_KEY = 'suggestion'
 export const useSuggestion = defineStore('queue/use-suggestion', () => {
@@ -14,9 +16,10 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
 
   function openSuggestionDialog(onClose?: () => void) {
     dialog.openDialog({
-      title: 'Поддерживаемые сервисы:',
-      description: '<u><b>Кинчики:</b></u><br/>Kinopoisk<br/>Shikimori<br/>IMDb<br/><br/><u><b>Игры:</b></u><br/>Steam<br/>IGDb',
-      onSubmit: () => {},
+      title: 'Поддерживаемые сервисы',
+      description: undefined,
+      customContent: SupportedServices,
+      onSubmit: () => { },
       onCancel: () => {
         dialog.closeDialog()
         if (onClose) onClose()

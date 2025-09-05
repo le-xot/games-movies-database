@@ -70,14 +70,14 @@ export class RecordService {
       where.OR = [
         {
           title: {
-            contains: filters.search,
+            contains: filters.search.trim(),
             mode: Prisma.QueryMode.insensitive,
           },
         },
         {
           user: {
             login: {
-              contains: filters.search,
+              contains: filters.search.trim(),
               mode: Prisma.QueryMode.insensitive,
             },
           },

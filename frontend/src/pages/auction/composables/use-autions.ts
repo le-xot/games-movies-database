@@ -1,8 +1,9 @@
 import { useApi } from '@/composables/use-api'
+import { useUser } from '@/composables/use-user'
 import { RecordEntity } from '@/lib/api'
 import { generateWatchLink } from '@/lib/utils/generate-watch-link'
 import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const AUCTION_QUERY_KEY = 'auction'
@@ -10,6 +11,7 @@ export const AUCTION_QUERY_KEY = 'auction'
 export const useAuctions = defineStore('queue/use-auction', () => {
   const api = useApi()
   const error = ref<string | null>(null)
+  const { isAdmin } = storeToRefs(useUser())
 
   const {
     isLoading: isLoadingData,
@@ -18,6 +20,10 @@ export const useAuctions = defineStore('queue/use-auction', () => {
   } = useQuery({
     key: () => [AUCTION_QUERY_KEY],
     query: async () => {
+      if (!isAdmin.value) {
+        return []
+      }
+
       try {
         error.value = null
         const { data } = await api.auction.auctionControllerGetAuctions()

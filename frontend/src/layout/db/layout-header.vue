@@ -69,7 +69,7 @@ onMounted(() => {
             >
               <component :is="r.icon" class="w-4 h-4" />
               <div class="nav-text-container">
-                <span class="whitespace-nowrap">{{ r.name }}</span>
+                <span class="nav-text whitespace-nowrap">{{ r.name }}</span>
               </div>
             </Button>
           </RouterLink>
@@ -96,6 +96,11 @@ onMounted(() => {
   transition: max-width 1000ms ease-out;
 }
 
+.nav-text {
+  opacity: 0;
+  transition: opacity 1000ms ease-out 200ms;
+}
+
 @media (min-width: 1280px) {
   .nav-button-animation {
     gap: 0.375rem;
@@ -103,7 +108,12 @@ onMounted(() => {
   }
 
   .nav-text-container {
-    max-width: fit-content;
+    max-width: 200px;
+  }
+
+  .nav-text {
+    opacity: 1;
+    transition: opacity 1000ms ease-out;
   }
 }
 

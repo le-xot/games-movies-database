@@ -53,8 +53,8 @@ onMounted(() => {
 
 <template>
   <div class="h-[68px] flex">
-    <div class="flex justify-between items-center gap-8 p-4 w-full">
-      <div class="flex gap-2 overflow-x-auto h-[50px] items-center">
+    <div class="flex justify-between items-center gap-4 xl:gap-8 p-4 w-full">
+      <div class="flex gap-1 xl:gap-2 h-[50px] items-center justify-start">
         <template v-for="(group, i) in groupedRoutes" :key="i">
           <RouterLink
             v-for="r in group"
@@ -62,17 +62,19 @@ onMounted(() => {
             :to="r.path"
           >
             <Button
-              variant="secondary"
+              variant="secondary" class="transition-all duration-700 ease-out px-2.5 xl:px-4"
               :class="{ 'bg-[hsla(var(--primary-foreground))]': route.path === r.path }"
               @click="() => updateTitle(r.name)"
             >
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center justify-start transition-all duration-1000 ease-out delay-700 xl:delay-0 gap-0 xl:gap-1.5">
                 <component :is="r.icon" class="w-4 h-4" />
-                <span>{{ r.name }}</span>
+                <div class="overflow-hidden transition-all duration-1000 ease-out max-w-0 xl:max-w-[200px]">
+                  <span class="whitespace-nowrap">{{ r.name }}</span>
+                </div>
               </div>
             </Button>
           </RouterLink>
-          <Separator v-if="i < groupedRoutes.length - 1" orientation="vertical" class="mx-2" />
+          <Separator v-if="i < groupedRoutes.length - 1" orientation="vertical" class="transition-all duration-1000 ease-out delay-700 xl:delay-0 mx-0.5 xl:mx-2" />
         </template>
       </div>
       <LoginForm />

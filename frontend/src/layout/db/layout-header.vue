@@ -54,7 +54,7 @@ onMounted(() => {
 <template>
   <div class="h-[68px] flex">
     <div class="flex justify-between items-center gap-4 xl:gap-8 p-4 w-full">
-      <div class="flex gap-1 xl:gap-2 h-[50px] items-center justify-start">
+      <div class="flex gap-1 xl:gap-2 h-[50px] items-center">
         <template v-for="(group, i) in groupedRoutes" :key="i">
           <RouterLink
             v-for="r in group"
@@ -62,19 +62,18 @@ onMounted(() => {
             :to="r.path"
           >
             <Button
-              variant="secondary" class="transition-all duration-700 ease-out px-2.5 xl:px-4"
+              variant="secondary"
+              class="nav-button-animation px-2.5 xl:px-4"
               :class="{ 'bg-[hsla(var(--primary-foreground))]': route.path === r.path }"
               @click="() => updateTitle(r.name)"
             >
-              <div class="flex items-center justify-start transition-all duration-1000 ease-out delay-700 xl:delay-0 gap-0 xl:gap-1.5">
-                <component :is="r.icon" class="w-4 h-4" />
-                <div class="overflow-hidden transition-all duration-1000 ease-out max-w-0 xl:max-w-[200px]">
-                  <span class="whitespace-nowrap">{{ r.name }}</span>
-                </div>
+              <component :is="r.icon" class="w-4 h-4" />
+              <div class="nav-text-container">
+                <span class="whitespace-nowrap">{{ r.name }}</span>
               </div>
             </Button>
           </RouterLink>
-          <Separator v-if="i < groupedRoutes.length - 1" orientation="vertical" class="transition-all duration-1000 ease-out delay-700 xl:delay-0 mx-0.5 xl:mx-2" />
+          <Separator v-if="i < groupedRoutes.length - 1" orientation="vertical" class="nav-delay-animation mx-0.5 xl:mx-2" />
         </template>
       </div>
       <LoginForm />
@@ -82,3 +81,39 @@ onMounted(() => {
   </div>
   <Separator />
 </template>
+
+<style scoped>
+.nav-button-animation {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transition: padding 700ms ease-out, background-color 700ms ease-out, gap 1000ms ease-out 700ms;
+}
+
+.nav-text-container {
+  overflow: hidden;
+  max-width: 0;
+  transition: max-width 1000ms ease-out;
+}
+
+@media (min-width: 1280px) {
+  .nav-button-animation {
+    gap: 0.375rem;
+    transition: padding 700ms ease-out, background-color 700ms ease-out, gap 1000ms ease-out;
+  }
+
+  .nav-text-container {
+    max-width: fit-content;
+  }
+}
+
+.nav-delay-animation {
+  transition: margin 1000ms ease-out 700ms;
+}
+
+@media (min-width: 1280px) {
+  .nav-delay-animation {
+    transition: margin 1000ms ease-out;
+  }
+}
+</style>

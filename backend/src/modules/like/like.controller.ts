@@ -5,7 +5,7 @@ import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
 import { User } from '../auth/auth.user.decorator'
 import { UserEntity } from '../user/user.entity'
-import { LikeCreateDTO } from './like.dto'
+import { GetLikesByIdDTO, LikeCreateDTO } from './like.dto'
 import { LikeEntity } from './like.entuty'
 import { LikeService } from './like.service'
 
@@ -28,38 +28,26 @@ export class LikeController {
     await this.likeService.deleteLike(user.id, id, user.role)
   }
 
-  @Get('record/:id')
+  @Get('records/:id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns likes by record id' })
-  async getLikesByRecordId(@Param('id') id: number): Promise<LikeEntity[]> {
+  async getLikesByRecordId(@Param('id') id: number): Promise<GetLikesByIdDTO> {
+    console.log('getLikesByRecordId', typeof id, id)
     return await this.likeService.getLikesByRecordId(id)
   }
 
-  @Get('user/:id')
+  @Get('users/:id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns likes by user id' })
-  async getLikesByUserId(@Param('id') id: string): Promise<LikeEntity[]> {
+  async getLikesByUserId(@Param('id') id: string): Promise<GetLikesByIdDTO> {
+    console.log('getLikesByUserId', typeof id, id)
     return await this.likeService.getLikesByUserId(id)
-  }
-
-  @Get('record/:id/count')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
-  @ApiResponse({ status: 200, description: 'Returns likes count by record id' })
-  async getLikesCountByRecordId(@Param('id') id: number): Promise<number> {
-    return await this.likeService.getLikesCountByRecordId(id)
-  }
-
-  @Get('user/:id/count')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
-  @ApiResponse({ status: 200, description: 'Returns likes count by user id' })
-  async getLikesCountByUserId(@Param('id') id: string): Promise<number> {
-    return await this.likeService.getLikesCountByUserId(id)
   }
 
   @Get('count')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns likes count' })
-  async getLikesCount(): Promise<number> {
-    return await this.likeService.getLikesCount()
+  async getLikes(): Promise<GetLikesByIdDTO> {
+    return await this.likeService.getLikes()
   }
 }

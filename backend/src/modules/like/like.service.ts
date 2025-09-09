@@ -18,54 +18,40 @@ export class LikeService {
   }
 
   async deleteLike(userId: string, recordId: number, userRole?: string) {
-    const like = await this.prisma.like.findUnique({
-      where: {
-        userId_recordId: {
-          userId: userRole === 'ADMIN' ? undefined : userId,
-          recordId,
-        },
-      },
-    })
+    const where = userRole === 'ADMIN' ? { recordId } : { userId, recordId }
+    const like = await this.prisma.like.findFirst({ where })
 
     if (!like) {
       throw new NotFoundException('Лайк не найден')
     }
 
     if (userRole !== 'ADMIN' && like.userId !== userId) {
-      throw new NotFoundException('Лайк не найден')
+      throw new NotFoundException('Нет доступа')
     }
 
     await this.prisma.like.delete({
       where: { id: like.id },
     })
+
     this.eventEmitter.emit('WebSocketUpdate')
   }
 
   async getLikesByRecordId(recordId: number) {
-    return await this.prisma.like.findMany({
+    const likes = await this.prisma.like.findMany({
       where: { recordId },
     })
+    return { likes, total: likes.length }
   }
 
   async getLikesByUserId(userId: string) {
-    return await this.prisma.like.findMany({
+    const likes = await this.prisma.like.findMany({
       where: { userId },
     })
+    return { likes, total: likes.length }
   }
 
-  async getLikesCountByRecordId(recordId: number) {
-    return await this.prisma.like.count({
-      where: { recordId },
-    })
-  }
-
-  async getLikesCountByUserId(userId: string) {
-    return await this.prisma.like.count({
-      where: { userId },
-    })
-  }
-
-  async getLikesCount() {
-    return await this.prisma.like.count()
+  async getLikes() {
+    const likes = await this.prisma.like.findMany()
+    return { likes, total: likes.length }
   }
 }

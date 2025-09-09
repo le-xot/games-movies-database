@@ -87,24 +87,24 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0;
-  transition: padding 700ms ease-out, background-color 700ms ease-out, gap 1000ms ease-out 700ms;
+  transition: padding 200ms ease-out, background-color 200ms ease-out, gap 200ms ease-out 200ms;
 }
 
 .nav-text-container {
   overflow: hidden;
   max-width: 0;
-  transition: max-width 1000ms ease-out;
+  transition: max-width 200ms ease-out;
 }
 
 .nav-text {
   opacity: 0;
-  transition: opacity 1000ms ease-out 200ms;
+  transition: opacity 200ms ease-out 200ms;
 }
 
 @media (min-width: 1280px) {
   .nav-button-animation {
     gap: 0.375rem;
-    transition: padding 700ms ease-out, background-color 700ms ease-out, gap 1000ms ease-out;
+    transition: padding 200ms ease-out, background-color 200ms ease-out, gap 200ms ease-out;
   }
 
   .nav-text-container {
@@ -113,17 +113,17 @@ onMounted(() => {
 
   .nav-text {
     opacity: 1;
-    transition: opacity 1000ms ease-out;
+    transition: opacity 200ms ease-out;
   }
 }
 
 .nav-delay-animation {
-  transition: margin 1000ms ease-out 700ms;
+  transition: margin 200ms ease-out 200ms;
 }
 
 @media (min-width: 1280px) {
   .nav-delay-animation {
-    transition: margin 1000ms ease-out;
+    transition: margin 200ms ease-out;
   }
 }
 </style>

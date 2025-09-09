@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber } from 'class-validator'
-import { LikeEntity } from './like.entuty'
+import { LikeEntity } from './like.entity'
 
 export class LikeCreateDTO {
   @ApiProperty({ example: 1 })

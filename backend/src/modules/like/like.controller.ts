@@ -6,7 +6,7 @@ import { RolesGuard } from '../auth/auth.roles.guard'
 import { User } from '../auth/auth.user.decorator'
 import { UserEntity } from '../user/user.entity'
 import { GetLikesByIdDTO, LikeCreateDTO } from './like.dto'
-import { LikeEntity } from './like.entuty'
+import { LikeEntity } from './like.entity'
 import { LikeService } from './like.service'
 
 @ApiTags('likes')

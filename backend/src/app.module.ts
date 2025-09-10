@@ -6,6 +6,7 @@ import { PrismaModule } from './database/prisma.module'
 import { AuctionModule } from './modules/auction/auction.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { CustomJwtModule } from './modules/jwt/jwt.module'
+import { LikeModule } from './modules/like/like.module'
 import { LimitModule } from './modules/limit/limit.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { RecordModule } from './modules/record/record.module'
@@ -33,6 +34,7 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
     UserModule,
     PrismaModule,
     CustomJwtModule,
+    LikeModule,
     LimitModule,
     QueueModule,
     SuggestionModule,

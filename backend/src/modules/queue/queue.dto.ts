@@ -12,6 +12,15 @@ export class QueueItemDto {
   @ApiProperty()
   link: string
 
+  @ApiProperty()
+  profileImageUrl: string
+
+  @ApiProperty()
+  posterUrl: string
+
+  @ApiProperty()
+  createdAt: string
+
   @ApiProperty({ enum: $Enums.RecordType, enumName: RecordType, nullable: true })
   type: $Enums.RecordType | null
 

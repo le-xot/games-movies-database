@@ -23,23 +23,21 @@ function navigateToSuggestions() {
 
 <template>
   <div class="flex flex-col gap-4 h-full">
-    <QueueCard v-if="filteredGames.length > 0" kind="game" :items="filteredGames">
+    <QueueCard v-if="filteredGames.length > 0" :items="filteredGames">
       <template #title>
         Поиграть: {{ filteredGames.length }}
       </template>
     </QueueCard>
 
-    <QueueCard v-if="filteredVideos.length > 0" kind="video" :items="filteredVideos">
+    <QueueCard v-if="filteredVideos.length > 0" :items="filteredVideos">
       <template #title>
         Посмотреть: {{ filteredVideos.length }}
       </template>
-      <template #footer="{ item }">
-        <div>
-          <Tag :class="genreTags[item.genre!]!.class">
-            {{ genreTags[item.genre!]!.name }}
-          </Tag>
-        </div>
-      </template>
+      <div>
+        <Tag :class="genreTags[item.genre!]!.class">
+          {{ genreTags[item.genre!]!.name }}
+        </Tag>
+      </div>
     </QueueCard>
 
     <div

@@ -158,6 +158,10 @@ export interface QueueItemDto {
   title: string;
   login: string | null;
   link: string;
+  profileImageUrl: string;
+  posterUrl: string;
+  /** @format date-time */
+  createdAt: string;
   type: RecordType | null;
   genre: RecordGenre | null;
 }

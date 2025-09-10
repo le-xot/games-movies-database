@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { genreTags } from '@/components/table/composables/use-table-select'
 import { Button } from '@/components/ui/button'
-import { Tag } from '@/components/ui/tag'
 import { RecordType } from '@/lib/api'
 import { ROUTER_PATHS } from '@/lib/router/router-paths'
 import { ListPlus } from 'lucide-vue-next'
@@ -33,11 +31,6 @@ function navigateToSuggestions() {
       <template #title>
         Посмотреть: {{ filteredVideos.length }}
       </template>
-      <div>
-        <Tag :class="genreTags[item.genre!]!.class">
-          {{ genreTags[item.genre!]!.name }}
-        </Tag>
-      </div>
     </QueueCard>
 
     <div

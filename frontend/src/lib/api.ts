@@ -160,7 +160,6 @@ export interface QueueItemDto {
   link: string;
   profileImageUrl: string;
   posterUrl: string;
-  /** @format date-time */
   createdAt: string;
   type: RecordType | null;
   genre: RecordGenre | null;

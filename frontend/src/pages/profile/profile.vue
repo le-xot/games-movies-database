@@ -18,7 +18,6 @@ onMounted(() => title.value = 'Профиль')
 const user = useUser()
 const api = useApi()
 
-const isLoading = ref(false)
 const data = ref<RecordEntity[]>([])
 const users = ref<UserEntity[]>([])
 const selectedUserId = ref<string | null>(null)
@@ -46,15 +45,12 @@ async function fetchUserRecords() {
 
   if (!targetUser?.login) return
 
-  isLoading.value = true
   try {
     const response = await api.users.userControllerGetUserRecords({ login: targetUser.login })
     data.value = response.data
   } catch (error) {
     console.error('Error fetching user records:', error)
     data.value = []
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -177,7 +173,7 @@ const filteredUsers = computed(() => {
       </Popover>
     </div>
 
-    <div v-else-if="!user.isLoggedIn" class="text-center my-8">
+    <div v-if="!user.isLoggedIn" class="text-center my-8">
       <p class="text-xl">
         Пожалуйста, авторизуйтесь для просмотра профиля
       </p>

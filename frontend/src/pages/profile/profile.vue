@@ -90,17 +90,6 @@ watch(() => user.user?.login, (newLogin) => {
   }
 })
 
-function formatDate(dateString: string): string {
-  if (!dateString) return ''
-
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date)
-}
-
 function selectUser(userId: string | null) {
   selectedUserId.value = userId
   isUserSelectorOpen.value = false
@@ -215,7 +204,7 @@ const filteredUsers = computed(() => {
                 <CardFooter class="flex flex-col items-start w-full">
                   <div class="flex justify-between w-full items-center">
                     <div v-if="video.createdAt" class="text-sm text-muted-foreground">
-                      {{ formatDate(video.createdAt) }}
+                      {{ new Date(video.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) }}
                     </div>
                     <Tag v-if="video.grade" :class="gradeTags[video.grade as RecordGrade]?.class">
                       {{ gradeTags[video.grade as RecordGrade]?.name }} {{ gradeTags[video.grade as RecordGrade]?.label }}
@@ -263,7 +252,7 @@ const filteredUsers = computed(() => {
                 <CardFooter class="flex flex-col items-start w-full">
                   <div class="flex justify-between w-full items-center">
                     <div v-if="game.createdAt" class="text-sm text-muted-foreground">
-                      {{ formatDate(game.createdAt) }}
+                      {{ new Date(game.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) }}
                     </div>
                     <Tag v-if="game.grade" :class="gradeTags[game.grade as RecordGrade]?.class">
                       {{ gradeTags[game.grade as RecordGrade]?.name }} {{ gradeTags[game.grade as RecordGrade]?.label }}

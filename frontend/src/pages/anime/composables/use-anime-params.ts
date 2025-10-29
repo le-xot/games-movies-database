@@ -3,7 +3,7 @@ import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
 import { VisibilityState } from '@tanstack/vue-table'
 import { refDebounced, useLocalStorage } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 export const useAnimeParams = defineStore('anime/use-anime-params', () => {
   const search = ref('')
@@ -53,6 +53,10 @@ export const useAnimeParams = defineStore('anime/use-anime-params', () => {
   function setStatusFilter(value: RecordStatus[] | null) {
     statusesFilter.value = value
   }
+
+  watch([search, statusesFilter, gradeFilter], () => {
+    pagination.value.pageIndex = 0
+  })
 
   return {
     search,

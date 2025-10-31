@@ -1,21 +1,42 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ESNext",
+
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "baseUrl": "./",
-    "module": "commonjs",
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    "resolveJsonModule": true,
+    "strict": false,
     "strictBindCallApply": false,
     "strictNullChecks": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
-    "declaration": true,
+    "noImplicitOverride": true,
+
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "declaration": false,
+    "noEmit": false,
     "outDir": "./dist",
     "removeComments": true,
+
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": false,
     "skipLibCheck": true
-  }
+  },
+  "include": ["src//*", "prisma//*"],
+  "exclude": ["node_modules", "dist"]
 }

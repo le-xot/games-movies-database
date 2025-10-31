@@ -3,10 +3,8 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import cookieParser from 'cookie-parser'
-import { env } from 'src/utils/enviroments'
 import { AppModule } from './app.module'
-
-declare const module: any
+import { env } from './utils/enviroments'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -56,11 +54,6 @@ async function bootstrap() {
   )
 
   await app.listen(env.APP_PORT, '0.0.0.0')
-
-  if (module.hot) {
-    module.hot.accept()
-    module.hot.dispose(() => app.close())
-  }
 }
 
 bootstrap()

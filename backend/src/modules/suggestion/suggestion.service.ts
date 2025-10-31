@@ -1,7 +1,7 @@
+import { PrismaService } from '@/database/prisma.service'
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
-import { PrismaService } from 'src/database/prisma.service'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
 
 @Injectable()

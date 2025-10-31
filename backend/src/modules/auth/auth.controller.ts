@@ -1,6 +1,6 @@
+import { env } from '@/utils/enviroments'
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
-import { env } from '../../utils/enviroments'
 import { TwitchService } from '../twitch/twitch.service'
 import { UserEntity } from '../user/user.entity'
 import { UserService } from '../user/user.service'

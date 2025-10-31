@@ -1,9 +1,9 @@
 import { Buffer } from 'node:buffer'
+import { PrismaService } from '@/database/prisma.service'
+import { env } from '@/utils/enviroments'
 import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ThirdPartService } from '@prisma/client'
 import { SpotifyClient } from '@soundify/web-api'
-import { PrismaService } from '../../database/prisma.service'
-import { env } from '../../utils/enviroments'
 
 @Injectable()
 export class SpotifyService implements OnApplicationBootstrap {

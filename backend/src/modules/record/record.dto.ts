@@ -1,8 +1,8 @@
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from 'src/enums/enums.names'
 import { RecordEntity } from './record.entity'
 
 export class RecordCreateFromLinkDTO {

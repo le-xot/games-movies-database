@@ -1,5 +1,5 @@
+import { PrismaModule } from '@/database/prisma.module'
 import { Module } from '@nestjs/common'
-import { PrismaModule } from '../../database/prisma.module'
 import { CustomJwtModule } from '../jwt/jwt.module'
 import { TwitchModule } from '../twitch/twitch.module'
 import { WebsocketModule } from '../websocket/websocket.module'

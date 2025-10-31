@@ -2,16 +2,16 @@
   "name": "lexot-website",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
+  "workspaces": ["frontend", "backend"],
   "scripts": {
-    "dev": "pnpm run \"/^dev:.*/\"",
-    "dev:frontend": "pnpm --filter=./frontend run dev",
-    "dev:backend": "pnpm --filter=./backend run dev",
-    "build": "pnpm run \"/^build:.*/\"",
-    "build:frontend": "pnpm --filter=./frontend run build",
-    "build:backend": "pnpm --filter=./backend run build",
-    "start:backend": "pnpm --filter=./backend run start",
-    "prisma": "pnpm --filter=./backend run prisma migrate dev && pnpm --filter=./backend run prisma generate",
+    "dev": "bun run --filter '*' dev",
+    "dev:frontend": "bun --filter=./frontend run dev",
+    "dev:backend": "bun --filter=./backend run dev",
+    "build": "bun run --filter '*' build",
+    "build:frontend": "bun --filter=./frontend run build",
+    "build:backend": "bun --filter=./backend run build",
+    "start:backend": "bun --filter=./backend run start",
+    "prisma": "bun --filter=./backend run prisma migrate dev && bun --filter=./backend run prisma generate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -21,5 +21,11 @@
   "devDependencies": {
     "@antfu/eslint-config": "3.8.0",
     "@types/node": "20.17.6"
-  }
+  },
+  "trustedDependencies": [
+    "@nestjs/core",
+    "vite",
+    "vue-tsc",
+    "sass-embedded"
+  ]
 }

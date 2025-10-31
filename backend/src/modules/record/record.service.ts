@@ -1,7 +1,7 @@
+import { PrismaService } from '@/database/prisma.service'
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, Prisma } from '@prisma/client'
-import { PrismaService } from '../../database/prisma.service'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
 import { UserEntity } from '../user/user.entity'
 import { RecordCreateFromLinkDTO, RecordUpdateDTO } from './record.dto'

@@ -1,7 +1,7 @@
+import { UserRole } from '@/enums/enums.names'
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { IsEnum, IsHexColor, IsOptional, IsString, IsUrl } from 'class-validator'
-import { UserRole } from 'src/enums/enums.names'
 
 export class UserCreateByLoginDTO {
   @ApiProperty({ description: 'Unique login of the user', example: 'john_doe' })

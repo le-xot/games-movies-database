@@ -260,16 +260,20 @@ export class RecordsProvidersService {
     return this.fetchIGDBGame(`slug = "${id}"`)
   }
 
-  private async fetchIGDBFromSteam(appId: number) {
+  private async fetchIGDBFromSteam(appId: string) {
     const accessToken = await this.twitch.getAppAccessToken()
+
+    const body = `fields game; where uid = "${appId}" & external_game_source = 1; limit 1;`
+
     const externalResp = await fetch('https://api.igdb.com/v4/external_games', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Client-ID': env.TWITCH_CLIENT_ID,
         'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'text/plain; charset=UTF-8',
       },
-      body: `fields game; where uid = "${appId}" & category = 1;`,
+      body,
     })
     if (!externalResp.ok) throw new BadRequestException(`Не удалось получить данные external_games IGDB: ${externalResp.status}`)
 

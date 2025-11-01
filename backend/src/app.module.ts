@@ -10,12 +10,10 @@ import { LimitModule } from './modules/limit/limit.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { RecordModule } from './modules/record/record.module'
 import { RecordsProvidersModule } from './modules/records-providers/records-providers.module'
-import { SpotifyModule } from './modules/spotify/spotify.module'
 import { SuggestionModule } from './modules/suggestion/suggestion.module'
 import { TwirModule } from './modules/twir/twir.module'
 import { TwitchModule } from './modules/twitch/twitch.module'
 import { UserModule } from './modules/user/user.module'
-import { WeatherModule } from './modules/weather/weather.module'
 import { WebsocketModule } from './modules/websocket/websocket.module'
 
 @Module({
@@ -36,9 +34,9 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
     LimitModule,
     QueueModule,
     SuggestionModule,
-    WeatherModule,
+    // WeatherModule,
     RecordsProvidersModule,
-    SpotifyModule,
+    // SpotifyModule,
     WebsocketModule,
   ],
 })

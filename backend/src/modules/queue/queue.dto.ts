@@ -1,6 +1,6 @@
+import { RecordGenre, RecordType } from '@/enums/enums.names'
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
-import { RecordGenre, RecordType } from 'src/enums/enums.names'
 
 export class QueueItemDto {
   @ApiProperty()

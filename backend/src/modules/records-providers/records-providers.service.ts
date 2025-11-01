@@ -1,9 +1,9 @@
 import { env } from 'node:process'
+import { PrismaService } from '@/database/prisma.service'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import axios from 'axios'
 import { SocksProxyAgent } from 'socks-proxy-agent'
-import { PrismaService } from 'src/database/prisma.service'
 import { TwitchService } from '../twitch/twitch.service'
 
 interface PreparedData {

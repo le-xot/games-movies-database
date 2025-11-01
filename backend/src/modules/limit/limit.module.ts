@@ -1,5 +1,5 @@
+import { PrismaModule } from '@/database/prisma.module'
 import { Module } from '@nestjs/common'
-import { PrismaModule } from 'src/database/prisma.module'
 import { UserModule } from '../user/user.module'
 import { LimitController } from './limit.controller'
 import { LimitService } from './limit.service'

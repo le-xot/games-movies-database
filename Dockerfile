@@ -1,9 +1,35 @@
-FROM node:22-alpine
-RUN apk add --no-cache openssl
-RUN npm i -g pnpm@9
+FROM oven/bun:1-alpine as deps
 WORKDIR /app
-COPY . .
-RUN pnpm i
-RUN cd backend && pnpm prisma generate
-RUN pnpm build
-CMD ["pnpm","start:backend"]
+COPY package.json bun.lock ./
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+
+RUN bun install --frozen-lockfile
+
+FROM oven/bun:1-alpine AS frontend-builder
+WORKDIR /app
+COPY --from=node:24-alpine /usr/local/bin/node /usr/local/bin/
+
+COPY package.json ./
+COPY ./frontend ./frontend
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
+
+RUN bun build:frontend
+
+FROM oven/bun:1-alpine
+RUN apk add --no-cache openssl
+WORKDIR /app
+
+COPY ./backend ./backend
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/backend/node_modules ./backend/node_modules
+
+COPY package.json ./
+RUN cd backend && bunx prisma generate
+
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
+RUN bun build:backend
+
+CMD ["bun", "run", "start:backend"]

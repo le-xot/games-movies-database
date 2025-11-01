@@ -1,6 +1,6 @@
+import { PrismaService } from '@/database/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
-import { PrismaService } from '../../database/prisma.service'
 import { QueueDto, QueueItemDto } from './queue.dto'
 
 @Injectable()

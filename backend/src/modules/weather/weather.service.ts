@@ -1,5 +1,5 @@
+import { env } from '@/utils/enviroments'
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { env } from '../../utils/enviroments'
 
 export interface WeatherData {
   main: {

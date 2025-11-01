@@ -1,5 +1,5 @@
+import { env } from '@/utils/enviroments'
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
-import { env } from 'src/utils/enviroments'
 
 @Injectable()
 export class ApikeyGuard implements CanActivate {

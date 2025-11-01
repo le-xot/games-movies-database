@@ -1,7 +1,7 @@
+import { PrismaService } from '@/database/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
-import { PrismaService } from '../../database/prisma.service'
 import { RecordEntity } from '../record/record.entity'
 import { TwitchService } from '../twitch/twitch.service'
 

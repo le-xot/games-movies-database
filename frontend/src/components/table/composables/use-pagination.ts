@@ -9,7 +9,7 @@ const storagePageSize = useLocalStorage('table-page-size', { pageSize: PAGE_SIZE
 export function usePagination() {
   const pagination = ref<PaginationState>({
     pageIndex: 0,
-    pageSize: storagePageSize.value.pageSize,
+    pageSize: storagePageSize.value.pageSize ?? PAGE_SIZES[0]!,
   })
 
   watch(pagination, (newVal) => {

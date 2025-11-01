@@ -28,6 +28,7 @@ export default defineConfig(({ isPreview, mode }) => {
       },
     },
     plugins: [vue(), svgLoader()],
+    clearScreen: false,
     server: {
       host: true,
       proxy: {

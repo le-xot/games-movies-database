@@ -40,7 +40,7 @@ export function useTableCol<T>(
   }
 
   const { escape } = useMagicKeys()
-  watch(escape, handleClose)
+  watch(escape!, handleClose)
 
   return {
     isEdit,

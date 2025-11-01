@@ -6,8 +6,8 @@ export class QueueItemDto {
   @ApiProperty()
   title: string
 
-  @ApiProperty({ nullable: true })
-  login: string | 'John Doe'
+  @ApiProperty({ nullable: true, default: 'John Doe', example: 'John Doe' })
+  login: string
 
   @ApiProperty()
   link: string

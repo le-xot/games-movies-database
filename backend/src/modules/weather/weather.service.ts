@@ -1,5 +1,5 @@
 import { env } from '@/utils/enviroments'
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable, type OnModuleInit } from '@nestjs/common'
 
 export interface WeatherData {
   main: {
@@ -23,12 +23,16 @@ export class WeatherService implements OnModuleInit {
   private lastFetch: number = 0
   private readonly CACHE_DURATION = 5 * 60 * 1000
 
-  async onModuleInit() {
-    await this.fetchWeatherData()
-
-    setInterval(() => {
-      this.fetchWeatherData()
-    }, this.CACHE_DURATION)
+  onModuleInit() {
+    this.fetchWeatherData()
+      .then(() => {
+        setInterval(() => {
+          this.fetchWeatherData()
+        }, this.CACHE_DURATION)
+      })
+      .catch((e) => {
+        throw new Error(`Failed to initialize WeatherService: ${e.message}`)
+      })
   }
 
   private async fetchWeatherData(): Promise<void> {

@@ -8,7 +8,7 @@ export class UserEntity {
   @ApiProperty()
   login: string
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserRole })
   role: UserRole
 
   @ApiProperty()

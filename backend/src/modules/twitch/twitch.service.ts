@@ -11,8 +11,8 @@ interface TwitchToken {
 export class TwitchService implements OnModuleInit {
   private token: TwitchToken | null = null
 
-  async onModuleInit() {
-    await this.getAppAccessToken()
+  onModuleInit() {
+    this.getAppAccessToken()
   }
 
   async getTwitchUser(accessToken: string) {

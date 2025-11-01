@@ -1,18 +1,14 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "baseUrl": "./",
-    "rootDir": "./src",
     "module": "ESNext",
     "moduleResolution": "bundler",
-
+    "baseUrl": ".", // root of the project
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"] // @ → src
     },
-
     "resolveJsonModule": true,
     "strict": false,
     "strictBindCallApply": false,
@@ -26,10 +22,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "declaration": false,
-    "noEmit": false,
-    "outDir": "./dist",
+    "noEmit": true,
     "removeComments": true,
-
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -37,6 +31,6 @@
     "verbatimModuleSyntax": false,
     "skipLibCheck": true
   },
-  "include": ["src//*", "prisma//*"],
+  "include": ["src/*"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,8 +1,5 @@
 import process from 'node:process'
-import dotenv from 'dotenv'
 import { cleanEnv, num, str } from 'envalid'
-
-dotenv.config()
 
 export const env = cleanEnv(process.env, {
   DATASOURCE_URL: str({}),

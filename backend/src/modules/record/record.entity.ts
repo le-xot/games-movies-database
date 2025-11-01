@@ -15,16 +15,16 @@ export class RecordEntity {
   @ApiProperty()
   posterUrl: string
 
-  @ApiProperty()
+  @ApiProperty({ enum: RecordStatus })
   status: RecordStatus | null
 
-  @ApiProperty()
+  @ApiProperty({ enum: RecordType })
   type: RecordType | null
 
-  @ApiProperty()
+  @ApiProperty({ enum: RecordGenre })
   genre: RecordGenre | null
 
-  @ApiProperty()
+  @ApiProperty({ enum: RecordGrade })
   grade: RecordGrade | null
 
   @ApiProperty()

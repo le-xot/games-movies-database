@@ -689,40 +689,6 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         ...params,
       }),
-
-    /**
-     * No description
-     *
-     * @tags Spotify
-     * @name SpotifyControllerGetAuthLink
-     * @request GET:/auth/spotify
-     */
-    spotifyControllerGetAuthLink: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/auth/spotify`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Spotify
-     * @name SpotifyControllerPerformAuthorization
-     * @request POST:/auth/spotify
-     */
-    spotifyControllerPerformAuthorization: (
-      query: {
-        code: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, any>({
-        path: `/auth/spotify`,
-        method: "POST",
-        query: query,
-        ...params,
-      }),
   };
   records = {
     /**
@@ -882,21 +848,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/queue`,
         method: "GET",
         format: "json",
-        ...params,
-      }),
-  };
-  weather = {
-    /**
-     * No description
-     *
-     * @tags weather
-     * @name WeatherControllerGetWeather
-     * @request GET:/weather
-     */
-    weatherControllerGetWeather: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/weather`,
-        method: "GET",
         ...params,
       }),
   };

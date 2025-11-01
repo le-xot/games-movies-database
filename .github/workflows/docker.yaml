@@ -28,5 +28,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: lexot/games-movies-database:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=lexot/games-movies-database:latest
+          cache-to: type=inline

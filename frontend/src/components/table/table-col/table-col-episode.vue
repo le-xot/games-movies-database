@@ -4,7 +4,7 @@ import { useBreakpoints } from '@/composables/use-breakpoints'
 import { toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 
-export type EpisodeType = string | undefined
+type EpisodeType = string | undefined
 
 const props = defineProps<{ episode: EpisodeType }>()
 const emits = defineEmits<{ update: [EpisodeType] }>()

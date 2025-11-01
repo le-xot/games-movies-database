@@ -11,7 +11,6 @@ export default defineConfig(({ isPreview, mode }) => {
     generateSwagger()
   }
 
-
   return {
     resolve: {
       alias: {

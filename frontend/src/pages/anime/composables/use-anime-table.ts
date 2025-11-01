@@ -62,12 +62,10 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
           return h(TableColEpisode, {
             key: `episode-${row.original.id}`,
             episode: row.original.episode,
-            onUpdate: (episode) => {
-              animeStore.updateVideo({
-                id: row.original.id,
-                data: { episode },
-              })
-            },
+            onUpdate: (episode) => animeStore.updateVideo({
+              id: row.original.id,
+              data: { episode },
+            }),
           })
         },
       },

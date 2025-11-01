@@ -36,9 +36,9 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
     LimitModule,
     QueueModule,
     SuggestionModule,
-    WeatherModule,
+    // WeatherModule,
     RecordsProvidersModule,
-    SpotifyModule,
+    // SpotifyModule,
     WebsocketModule,
   ],
 })

@@ -13,8 +13,6 @@ RUN cd backend && bunx prisma generate
 
 COPY . .
 
-RUN cd frontend && bun run build 
-
 RUN bun run build
 
 CMD ["bun", "run", "start:backend"]

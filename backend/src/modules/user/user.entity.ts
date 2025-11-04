@@ -1,5 +1,6 @@
+import { UserRole } from '@/enums/enums.names'
 import { ApiProperty } from '@nestjs/swagger'
-import { UserRole } from '@prisma/client'
+import { $Enums } from '@prisma/client'
 
 export class UserEntity {
   @ApiProperty()
@@ -8,8 +9,8 @@ export class UserEntity {
   @ApiProperty()
   login: string
 
-  @ApiProperty({ enum: UserRole })
-  role: UserRole
+  @ApiProperty({ enum: $Enums.UserRole, enumName: UserRole })
+  role: $Enums.UserRole
 
   @ApiProperty()
   profileImageUrl: string

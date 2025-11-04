@@ -9,10 +9,46 @@
  * ---------------------------------------------------------------
  */
 
+export enum RecordStatus {
+  QUEUE = "QUEUE",
+  PROGRESS = "PROGRESS",
+  DROP = "DROP",
+  NOTINTERESTED = "NOTINTERESTED",
+  UNFINISHED = "UNFINISHED",
+  DONE = "DONE",
+}
+
+export enum RecordType {
+  WRITTEN = "WRITTEN",
+  SUGGESTION = "SUGGESTION",
+  AUCTION = "AUCTION",
+  ORDER = "ORDER",
+}
+
+export enum RecordGenre {
+  GAME = "GAME",
+  MOVIE = "MOVIE",
+  ANIME = "ANIME",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
+}
+
+export enum RecordGrade {
+  DISLIKE = "DISLIKE",
+  BEER = "BEER",
+  LIKE = "LIKE",
+  RECOMMEND = "RECOMMEND",
+}
+
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
 export interface UserEntity {
   id: string;
   login: string;
-  role: UserEntityRoleEnum;
+  role: UserRole;
   profileImageUrl: string;
   color: string;
   /** @format date-time */
@@ -24,10 +60,10 @@ export interface RecordEntity {
   title: string;
   link: string;
   posterUrl: string;
-  status: RecordEntityStatusEnum;
-  type: RecordEntityTypeEnum;
-  genre: RecordEntityGenreEnum;
-  grade: RecordEntityGradeEnum;
+  status: RecordStatus;
+  type: RecordType;
+  genre: RecordGenre;
+  grade: RecordGrade;
   episode: string;
   userId: string;
   user?: UserEntity | null;
@@ -41,11 +77,6 @@ export interface UserCreateByLoginDTO {
    * @example "john_doe"
    */
   login: string;
-}
-
-export enum UserRole {
-  USER = "USER",
-  ADMIN = "ADMIN",
 }
 
 export interface UserUpdateDTO {
@@ -78,22 +109,6 @@ export interface CallbackDto {
   code: string;
 }
 
-export enum RecordStatus {
-  QUEUE = "QUEUE",
-  PROGRESS = "PROGRESS",
-  DROP = "DROP",
-  NOTINTERESTED = "NOTINTERESTED",
-  UNFINISHED = "UNFINISHED",
-  DONE = "DONE",
-}
-
-export enum RecordType {
-  WRITTEN = "WRITTEN",
-  SUGGESTION = "SUGGESTION",
-  AUCTION = "AUCTION",
-  ORDER = "ORDER",
-}
-
 export interface RecordCreateFromLinkDTO {
   /** @example "https://example.com/record" */
   link: string;
@@ -101,13 +116,6 @@ export interface RecordCreateFromLinkDTO {
   status?: RecordStatus;
   /** @example "WRITTEN" */
   type?: RecordType;
-}
-
-export enum RecordGrade {
-  DISLIKE = "DISLIKE",
-  BEER = "BEER",
-  LIKE = "LIKE",
-  RECOMMEND = "RECOMMEND",
 }
 
 export interface RecordUpdateDTO {
@@ -121,14 +129,6 @@ export interface RecordUpdateDTO {
   type?: RecordType;
   /** @example "1" */
   userId?: string;
-}
-
-export enum RecordGenre {
-  GAME = "GAME",
-  MOVIE = "MOVIE",
-  ANIME = "ANIME",
-  CARTOON = "CARTOON",
-  SERIES = "SERIES",
 }
 
 export interface GetAllRecordsDTO {
@@ -172,42 +172,6 @@ export interface QueueItemDto {
 export interface QueueDto {
   games: QueueItemDto[];
   videos: QueueItemDto[];
-}
-
-export enum UserEntityRoleEnum {
-  USER = "USER",
-  ADMIN = "ADMIN",
-}
-
-export enum RecordEntityStatusEnum {
-  QUEUE = "QUEUE",
-  PROGRESS = "PROGRESS",
-  DROP = "DROP",
-  NOTINTERESTED = "NOTINTERESTED",
-  UNFINISHED = "UNFINISHED",
-  DONE = "DONE",
-}
-
-export enum RecordEntityTypeEnum {
-  WRITTEN = "WRITTEN",
-  SUGGESTION = "SUGGESTION",
-  AUCTION = "AUCTION",
-  ORDER = "ORDER",
-}
-
-export enum RecordEntityGenreEnum {
-  GAME = "GAME",
-  MOVIE = "MOVIE",
-  ANIME = "ANIME",
-  CARTOON = "CARTOON",
-  SERIES = "SERIES",
-}
-
-export enum RecordEntityGradeEnum {
-  DISLIKE = "DISLIKE",
-  BEER = "BEER",
-  LIKE = "LIKE",
-  RECOMMEND = "RECOMMEND",
 }
 
 /** @example "id" */

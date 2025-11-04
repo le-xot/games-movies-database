@@ -12,7 +12,7 @@
 export interface UserEntity {
   id: string;
   login: string;
-  role: string;
+  role: UserEntityRoleEnum;
   profileImageUrl: string;
   color: string;
   /** @format date-time */
@@ -24,10 +24,10 @@ export interface RecordEntity {
   title: string;
   link: string;
   posterUrl: string;
-  status: string;
-  type: string;
-  genre: string;
-  grade: string;
+  status: RecordEntityStatusEnum;
+  type: RecordEntityTypeEnum;
+  genre: RecordEntityGenreEnum;
+  grade: RecordEntityGradeEnum;
   episode: string;
   userId: string;
   user?: UserEntity | null;
@@ -156,6 +156,10 @@ export interface LimitEntity {
 
 export interface QueueItemDto {
   title: string;
+  /**
+   * @default "John Doe"
+   * @example "John Doe"
+   */
   login: string | null;
   link: string;
   profileImageUrl: string;
@@ -168,6 +172,42 @@ export interface QueueItemDto {
 export interface QueueDto {
   games: QueueItemDto[];
   videos: QueueItemDto[];
+}
+
+export enum UserEntityRoleEnum {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export enum RecordEntityStatusEnum {
+  QUEUE = "QUEUE",
+  PROGRESS = "PROGRESS",
+  DROP = "DROP",
+  NOTINTERESTED = "NOTINTERESTED",
+  UNFINISHED = "UNFINISHED",
+  DONE = "DONE",
+}
+
+export enum RecordEntityTypeEnum {
+  WRITTEN = "WRITTEN",
+  SUGGESTION = "SUGGESTION",
+  AUCTION = "AUCTION",
+  ORDER = "ORDER",
+}
+
+export enum RecordEntityGenreEnum {
+  GAME = "GAME",
+  MOVIE = "MOVIE",
+  ANIME = "ANIME",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
+}
+
+export enum RecordEntityGradeEnum {
+  DISLIKE = "DISLIKE",
+  BEER = "BEER",
+  LIKE = "LIKE",
+  RECOMMEND = "RECOMMEND",
 }
 
 /** @example "id" */

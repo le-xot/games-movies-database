@@ -1,6 +1,6 @@
+import process from 'node:process'
+
 const { PrismaClient, RecordGenre } = require('@prisma/client')
-require('dotenv').config()
-const process = require('node:process')
 
 const prisma = new PrismaClient()
 

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "bunx --bun vite --host",
+    "dev": "vite --host",
     "typecheck": "vue-tsc",
     "build": "bun typecheck && bunx --bun vite build",
     "preview": "bunx --bun vite preview"

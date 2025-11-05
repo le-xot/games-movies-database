@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input'
 import { useBreakpoints } from '@/composables/use-breakpoints'
-import { toRef } from 'vue'
+import { computed, toRef } from 'vue'
 import { useTableCol } from '../composables/use-table-col'
 
 type EpisodeType = string | undefined
@@ -19,6 +19,15 @@ const {
   handleOpen,
   inputRef,
 } = useTableCol<EpisodeType>(episode, emits)
+
+const formattedEpisode = computed(() => {
+  if (!inputValue.value) return []
+
+  return inputValue.value.split('').map(char => ({
+    char,
+    isLetter: /[a-zA-Z\u0410-\u044F\u0401\u0451]/.test(char),
+  }))
+})
 </script>
 
 <template>
@@ -32,7 +41,13 @@ const {
       @keydown.enter="handleChange"
     />
     <span v-else :class="{ 'pl-2': breakpoints.isDesktop }">
-      {{ inputValue || '' }}
+      <span
+        v-for="(item, index) in formattedEpisode"
+        :key="index"
+        :class="item.isLetter ? 'text-gray-400' : 'text-white'"
+      >
+        {{ item.char }}
+      </span>
     </span>
   </div>
 </template>

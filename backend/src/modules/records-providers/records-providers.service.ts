@@ -38,6 +38,26 @@ export class RecordsProvidersService {
     imdb: id => this.fetchImdb(id),
   }
 
+  private readonly recordValidationRules = [
+    { condition: (r: any) => r.type === $Enums.RecordType.AUCTION, message: 'Уже есть в аукционе' },
+    { condition: (r: any) => r.type === $Enums.RecordType.SUGGESTION, message: 'Уже есть в советах' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.DONE, message: 'Уже есть в базе со статусом "Готово"' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.DROP, message: 'Уже есть в базе со статусом "Дроп"' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.NOTINTERESTED, message: 'Уже есть в базе со статусом "Не интересно"' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.PROGRESS, message: 'Уже есть в базе со статусом "В процессе"' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.QUEUE, message: 'Уже есть в очереди' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.UNFINISHED, message: 'Уже есть в базе со статусом "Нет концовки"' },
+    { condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === null, message: 'Уже есть в базе' },
+  ]
+
+  private validateExistingRecord(record: any) {
+    for (const rule of this.recordValidationRules) {
+      if (rule.condition(record)) {
+        throw new BadRequestException(rule.message)
+      }
+    }
+  }
+
   async prepareData(data: { link: string, userId: string }): Promise<PreparedData> {
     const { service, id } = this.parseLink(data.link)
     const fetcher = this.serviceFetchers[service]
@@ -53,8 +73,8 @@ export class RecordsProvidersService {
       },
     })
 
-    if (foundedRecord && foundedRecord.status !== $Enums.RecordStatus.UNFINISHED) {
-      throw new BadRequestException('Уже есть в базе данных')
+    if (foundedRecord) {
+      this.validateExistingRecord(foundedRecord)
     }
 
     data.link = newRecord.link

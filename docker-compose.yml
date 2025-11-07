@@ -24,6 +24,7 @@ services:
       - postgres
     networks:
       - dokploy-network
+    env_file: .env
 volumes:
   pgdata:
 networks:

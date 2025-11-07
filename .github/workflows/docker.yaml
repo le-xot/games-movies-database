@@ -35,8 +35,13 @@ jobs:
     needs: build
     steps:
       - name: Deploy App to Dokploy
-        uses: qbix-tech/dokploy-deploy-action@v1
-        with:
-          dokploy_url: http://le-xot.ru:3000
-          api_key: ${{ secrets.DOKPLOY_API_KEY }}
-          compose_id: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+        shell: bash
+        run: |
+          curl -X 'POST' \
+            'http://le-xot.ru:3000/api/compose.deploy' \
+            -H 'accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -H 'x-api-key: ${{ secrets.DOKPLOY_API_KEY }}' \
+            -d '{
+            "composeId": "${{ secrets.DOKPLOY_COMPOSE_ID }}"
+          }'

@@ -32,6 +32,7 @@ jobs:
           cache-to: type=inline
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Deploy App to Dokploy
         uses: qbix-tech/dokploy-deploy-action@v1

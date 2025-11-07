@@ -30,3 +30,12 @@ jobs:
           tags: lexot/games-movies-database:latest
           cache-from: type=registry,ref=lexot/games-movies-database:latest
           cache-to: type=inline
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy App to Dokploy
+        uses: qbix-tech/dokploy-deploy-action@v1
+        with:
+          dokploy_url: http://le-xot.ru:3000
+          api_key: ${{ secrets.DOKPLOY_API_KEY }}
+          compose_id: ${{ secrets.DOKPLOY_COMPOSE_ID }}

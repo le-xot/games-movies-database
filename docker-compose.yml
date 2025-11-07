@@ -10,6 +10,12 @@ services:
       - dokploy-network
     volumes:
       - pgdata:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 192M
+
   admin:
     image: adminer
     restart: unless-stopped
@@ -17,6 +23,12 @@ services:
       - postgres
     networks:
       - dokploy-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 96M
+
   application:
     image: lexot/games-movies-database:latest
     restart: unless-stopped
@@ -25,6 +37,12 @@ services:
     networks:
       - dokploy-network
     env_file: .env
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 384M
+
 volumes:
   pgdata:
 networks:

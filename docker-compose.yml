@@ -6,8 +6,8 @@ services:
       POSTGRES_USER: le_xot
       POSTGRES_PASSWORD: abc
       POSTGRES_DB: lists
-    ports:
-      - '5432:5432'
+    networks:
+      - dokploy-network
     volumes:
       - pgdata:/var/lib/postgresql/data
   admin:
@@ -15,7 +15,14 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
-    ports:
-      - 54321:8080
+    networks:
+      - dokploy-network
+  application:
+    image: lexot/games-movies-database:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - dokploy-network
 volumes:
   pgdata:

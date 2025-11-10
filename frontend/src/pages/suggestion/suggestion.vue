@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { toast } from '@/components/ui/toast'
+import { useNewRecords } from '@/composables/use-new-records.ts'
 import { useUser } from '@/composables/use-user'
-import { ListPlus } from 'lucide-vue-next'
+import { EyeOff, ListPlus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import SuggestionCard from './components/suggestion-card.vue'
 import { useSuggestion } from './composables/use-suggestion'
@@ -10,6 +12,14 @@ const suggestion = useSuggestion()
 const user = useUser()
 
 const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
+
+function handleMarkAllAsViewed() {
+  suggestion.suggestions?.forEach(record => {
+    const newRecords = useNewRecords()
+    newRecords.markRecordAsViewed(record.id)
+    toast({ title: 'Успешно', description: 'Все записи отмечены как просмотренные', variant: 'default' })
+  })
+}
 </script>
 
 <template>
@@ -23,15 +33,20 @@ const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
       <template #title>
         <div class="flex justify-between">
           Советы: {{ suggestion.suggestions?.length ?? 0 }}
-          <Button :disabled="!user.isLoggedIn" @click="suggestion.openSuggestionDialog()">
-            <span v-if="user.isLoggedIn" class="flex items-center gap-2">
-              Посоветовать
-              <ListPlus class="icon" />
-            </span>
-            <span v-else>
-              Авторизуйтесь, чтобы посоветовать
-            </span>
-          </Button>
+          <div class="flex gap-2">
+            <Button variant="secondary" class="flex w-10" @click="handleMarkAllAsViewed">
+              <EyeOff class="icon" />
+            </Button>
+            <Button :disabled="!user.isLoggedIn" @click="suggestion.openSuggestionDialog()">
+              <span v-if="user.isLoggedIn" class="flex items-center gap-2">
+                Посоветовать
+                <ListPlus class="icon" />
+              </span>
+              <span v-else>
+                Авторизуйтесь, чтобы посоветовать
+              </span>
+            </Button>
+          </div>
         </div>
       </template>
     </SuggestionCard>

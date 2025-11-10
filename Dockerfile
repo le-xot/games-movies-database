@@ -30,6 +30,8 @@ RUN cd backend && bunx prisma generate
 
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
+RUN cd backend && bun prisma generate
+
 RUN bun build:backend
 
 CMD ["bun", "run", "start:backend"]

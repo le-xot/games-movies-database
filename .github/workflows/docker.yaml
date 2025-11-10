@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           curl -X 'POST' \
-            'http://le-xot.ru:3000/api/compose.deploy' \
+            'http://147.78.65.118:3000/api/compose.deploy' \
             -H 'accept: application/json' \
             -H 'Content-Type: application/json' \
             -H 'x-api-key: ${{ secrets.DOKPLOY_API_KEY }}' \

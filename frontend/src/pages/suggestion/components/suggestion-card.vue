@@ -8,6 +8,7 @@ import { useNewRecords } from '@/composables/use-new-records'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api.ts'
 import { generateWatchLink } from '@/lib/utils/generate-watch-link.ts'
+import { Gavel, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useSuggestion } from '../composables/use-suggestion'
@@ -57,6 +58,15 @@ watch(isDialogOpen, (newValue) => {
     suggestion.openSuggestionDialog(resetDialogState)
   }
 })
+
+async function handlePatchSuggestion(id: number) {
+  try {
+    await suggestion.patchSuggestion(id)
+    toast({ title: 'Успешно', description: 'Совет отмечен как не интересный', variant: 'default' })
+  } catch {
+    toast({ title: 'Ошибка', description: suggestion.error || 'Не удалось удалить совет', variant: 'destructive' })
+  }
+}
 
 async function handleDeleteSuggestion(id: number) {
   try {
@@ -155,7 +165,7 @@ function handleCardHover(recordId: number) {
                         <AvatarFallback />
                       </Avatar>
                       <div class="text-base text-white font-medium">
-                        {{ item.user.login }}
+                        {{ item.user?.login }}
                       </div>
                     </div>
                   </div>
@@ -170,14 +180,17 @@ function handleCardHover(recordId: number) {
 
                   <div class="flex justify-between w-full">
                     <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-3">
-                      <Button size="sm" class="text-sm w-36" @click="handleMoveToAuction(item.id)">
-                        Аукцион
+                      <Button variant="default" size="sm" class="text-sm w-36" @click="handleApproveSuggestion(item.id)">
+                        <ListOrdered />
                       </Button>
-                      <Button variant="secondary" size="sm" class="text-sm w-36" @click="handleApproveSuggestion(item.id)">
-                        Очередь
+                      <Button variant="secondary" size="sm" class="text-sm w-36" @click="handleMoveToAuction(item.id)">
+                        <Gavel />
+                      </Button>
+                      <Button variant="outline" size="sm" class="text-sm w-36" @click="handlePatchSuggestion(item.id)">
+                        <PencilOff />
                       </Button>
                       <Button variant="destructive" size="sm" class="text-sm w-36" @click="handleDeleteSuggestion(item.id)">
-                        Удалить
+                        <Trash2 />
                       </Button>
                     </div>
                   </div>

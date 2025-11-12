@@ -154,6 +154,11 @@ export interface LimitEntity {
   quantity: number;
 }
 
+export interface LikeCreateDTO {
+  /** @example 1 */
+  recordId: number;
+}
+
 export interface QueueItemDto {
   title: string;
   /**
@@ -408,6 +413,21 @@ export class Api<SecurityDataType extends unknown> {
     this.http = http;
   }
 
+  health = {
+    /**
+     * No description
+     *
+     * @tags App
+     * @name AppControllerVersion
+     * @request GET:/health
+     */
+    appControllerVersion: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/health`,
+        method: "GET",
+        ...params,
+      }),
+  };
   auction = {
     /**
      * No description
@@ -836,6 +856,79 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+  };
+  likes = {
+    /**
+     * No description
+     *
+     * @tags likes
+     * @name LikeControllerCreateLike
+     * @request POST:/likes
+     */
+    likeControllerCreateLike: (data: LikeCreateDTO, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/likes`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags likes
+     * @name LikeControllerDeleteLike
+     * @request DELETE:/likes/{id}
+     */
+    likeControllerDeleteLike: (id: number, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/likes/${id}`,
+        method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags likes
+     * @name LikeControllerGetLikesByRecordId
+     * @request GET:/likes/records/{id}
+     */
+    likeControllerGetLikesByRecordId: (id: number, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/likes/records/${id}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags likes
+     * @name LikeControllerGetLikesByUserId
+     * @request GET:/likes/users/{id}
+     */
+    likeControllerGetLikesByUserId: (id: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/likes/users/${id}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags likes
+     * @name LikeControllerGetLikes
+     * @request GET:/likes/count
+     */
+    likeControllerGetLikes: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/likes/count`,
+        method: "GET",
         ...params,
       }),
   };

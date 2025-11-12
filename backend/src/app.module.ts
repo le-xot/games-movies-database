@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { AppController } from '@/app.controller'
 import { Module } from '@nestjs/common'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
@@ -17,6 +18,7 @@ import { UserModule } from './modules/user/user.module'
 import { WebsocketModule } from './modules/websocket/websocket.module'
 
 @Module({
+  controllers: [AppController],
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),

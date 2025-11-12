@@ -32,6 +32,7 @@ services:
   application:
     image: lexot/games-movies-database:latest
     restart: unless-stopped
+    pull_policy: always
     depends_on:
       - postgres
     networks:

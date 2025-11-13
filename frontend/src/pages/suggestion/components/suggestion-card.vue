@@ -32,6 +32,10 @@ const groupedItems = computed(() => {
     groups.get(genre)!.push(item)
   }
 
+  for (const items of groups.values()) {
+    items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
+  }
+
   return Array.from(groups.entries())
 })
 

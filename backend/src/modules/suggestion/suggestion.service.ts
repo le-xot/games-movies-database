@@ -42,10 +42,10 @@ export class SuggestionService {
     }
   }
 
-  async getSuggestions() {
-    return await this.prisma.record.findMany({
+  getSuggestions() {
+    return this.prisma.record.findMany({
       where: { type: $Enums.RecordType.SUGGESTION },
-      include: { user: true },
+      include: { user: true, likes: true },
     })
   }
 

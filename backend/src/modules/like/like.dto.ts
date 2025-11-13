@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsInt, IsNumber, IsOptional } from 'class-validator'
 import { LikeEntity } from './like.entity'
 
 export class LikeCreateDTO {
@@ -15,4 +16,18 @@ export class GetLikesByIdDTO {
   @ApiProperty({ example: 1 })
   @IsNumber()
   total: number
+}
+
+export class GetLikesDTO {
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  page?: number
+
+  @ApiProperty({ example: 10, required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  limit?: number
 }

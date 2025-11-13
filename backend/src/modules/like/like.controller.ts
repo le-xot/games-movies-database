@@ -1,7 +1,7 @@
-import { GetLikesByIdDTO, LikeCreateDTO } from '@/modules/like/like.dto'
+import { GetLikesByIdDTO, GetLikesDTO, LikeCreateDTO } from '@/modules/like/like.dto'
 import { LikeEntity } from '@/modules/like/like.entity'
 import { LikeService } from '@/modules/like/like.service'
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
@@ -16,7 +16,7 @@ export class LikeController {
 
   @Post()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
-  @ApiResponse({ status: 200, description: 'Returns created like' })
+  @ApiResponse({ type: LikeEntity, status: 200, description: 'Returns created like' })
   async createLike(@Body() data: LikeCreateDTO, @User() user: UserEntity): Promise<LikeEntity> {
     return await this.likeService.createLike(user.id, data.recordId)
   }
@@ -30,24 +30,23 @@ export class LikeController {
 
   @Get('records/:id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
-  @ApiResponse({ status: 200, description: 'Returns likes by record id' })
+  @ApiResponse({ type: GetLikesByIdDTO, status: 200, description: 'Returns likes by record id' })
   async getLikesByRecordId(@Param('id') id: number): Promise<GetLikesByIdDTO> {
-    console.log('getLikesByRecordId', typeof id, id)
     return await this.likeService.getLikesByRecordId(id)
   }
 
   @Get('users/:id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
-  @ApiResponse({ status: 200, description: 'Returns likes by user id' })
+  @ApiResponse({ type: GetLikesByIdDTO, status: 200, description: 'Returns likes by user id' })
   async getLikesByUserId(@Param('id') id: string): Promise<GetLikesByIdDTO> {
-    console.log('getLikesByUserId', typeof id, id)
     return await this.likeService.getLikesByUserId(id)
   }
 
   @Get('count')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
-  @ApiResponse({ status: 200, description: 'Returns likes count' })
-  async getLikes(): Promise<GetLikesByIdDTO> {
-    return await this.likeService.getLikes()
+  @ApiResponse({ type: GetLikesByIdDTO, status: 200, description: 'Returns likes count' })
+  async getLikes(@Query() query: GetLikesDTO): Promise<GetLikesByIdDTO> {
+    const { page, limit } = query
+    return await this.likeService.getLikes(page, limit)
   }
 }

@@ -36,7 +36,7 @@ export class RecordService {
     }
     const updatedRecord = await this.prisma.record.update({
       where: { id },
-      include: { user: true },
+      include: { user: true, likes: true },
       data: { ...foundedRecord, ...data },
     })
 
@@ -45,6 +45,7 @@ export class RecordService {
   }
 
   async deleteRecord(id: number): Promise<void> {
+    await this.prisma.like.deleteMany({ where: { recordId: id } })
     await this.prisma.record.delete({ where: { id } })
     this.eventEmitter.emit('WebSocketUpdate')
   }
@@ -111,7 +112,7 @@ export class RecordService {
 
     const records = await this.prisma.record.findMany({
       where: Object.keys(where).length > 0 ? where : undefined,
-      include: { user: true },
+      include: { user: true, likes: true },
       orderBy: {
         [orderBy || 'id']: direction || 'asc',
       },
@@ -127,6 +128,7 @@ export class RecordService {
       where: { id },
       include: {
         user: true,
+        likes: true,
       },
     })
     if (!record) {

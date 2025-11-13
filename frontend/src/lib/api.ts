@@ -55,6 +55,14 @@ export interface UserEntity {
   createdAt: string;
 }
 
+export interface LikeEntity {
+  id: string;
+  userId: string;
+  recordId: number;
+  /** @format date-time */
+  createdAt: string;
+}
+
 export interface RecordEntity {
   id: number;
   title: string;
@@ -67,6 +75,7 @@ export interface RecordEntity {
   episode: string;
   userId: string;
   user?: UserEntity | null;
+  likes?: LikeEntity[] | null;
   /** @format date-time */
   createdAt: string;
 }
@@ -157,6 +166,12 @@ export interface LimitEntity {
 export interface LikeCreateDTO {
   /** @example 1 */
   recordId: number;
+}
+
+export interface GetLikesByIdDTO {
+  likes: LikeEntity[];
+  /** @example 1 */
+  total: number;
 }
 
 export interface QueueItemDto {
@@ -868,11 +883,12 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/likes
      */
     likeControllerCreateLike: (data: LikeCreateDTO, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<LikeEntity, any>({
         path: `/likes`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -898,9 +914,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/likes/records/{id}
      */
     likeControllerGetLikesByRecordId: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GetLikesByIdDTO, any>({
         path: `/likes/records/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -912,9 +929,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/likes/users/{id}
      */
     likeControllerGetLikesByUserId: (id: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<GetLikesByIdDTO, any>({
         path: `/likes/users/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -925,10 +943,20 @@ export class Api<SecurityDataType extends unknown> {
      * @name LikeControllerGetLikes
      * @request GET:/likes/count
      */
-    likeControllerGetLikes: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+    likeControllerGetLikes: (
+      query?: {
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetLikesByIdDTO, any>({
         path: `/likes/count`,
         method: "GET",
+        query: query,
+        format: "json",
         ...params,
       }),
   };

@@ -106,7 +106,7 @@ function getLikesCount(item: RecordEntity) {
               variant="outline"
               size="sm"
               :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-white/30 border-white'"
-              class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-2 -right-2 z-10 rounded-full w-20 h-10 p-0"
+              class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
               @click="isLikedByCurrentUser(item) ? like.deleteLike(item.id) : like.createLike(item.id)"
             >
               <Heart v-if="isLikedByCurrentUser(item)" color="red" fill="rgb(239 68 68)" class="w-6 h-6" />

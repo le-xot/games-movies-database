@@ -8,6 +8,7 @@ import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api.ts'
 import { generateWatchLink } from '@/lib/utils/generate-watch-link.ts'
 import { useLike } from '@/pages/suggestion/composables/use-like.ts'
+import { useThrottleFn } from '@vueuse/core'
 import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
@@ -20,6 +21,26 @@ const { isAdmin, currentUserId } = storeToRefs(useUser())
 const like = useLike()
 const suggestion = useSuggestion()
 const newRecords = useNewRecords()
+
+const throttledLikeFunctions = computed(() => {
+  const map = new Map<number, ReturnType<typeof useThrottleFn>>()
+
+  for (const item of props.items) {
+    if (!map.has(item.id)) {
+      const throttledFn = useThrottleFn(async () => {
+        if (isLikedByCurrentUser(item)) {
+          await like.deleteLike(item.id)
+        } else {
+          await like.createLike(item.id)
+        }
+      }, 1000)
+
+      map.set(item.id, throttledFn)
+    }
+  }
+
+  return map
+})
 
 const groupedItems = computed(() => {
   const groups = new Map<string, RecordEntity[]>()
@@ -75,6 +96,13 @@ function isLikedByCurrentUser(item: RecordEntity) {
 function getLikesCount(item: RecordEntity) {
   return item.likes?.length || 0
 }
+
+function handleLikeClick(itemId: number) {
+  const throttledFn = throttledLikeFunctions.value.get(itemId)
+  if (throttledFn) {
+    throttledFn()
+  }
+}
 </script>
 
 <template>
@@ -111,7 +139,7 @@ function getLikesCount(item: RecordEntity) {
               size="sm"
               :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-[hsla(var(--primary-foreground))] border-white'"
               class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
-              @click="isLikedByCurrentUser(item) ? like.deleteLike(item.id) : like.createLike(item.id)"
+              @click="handleLikeClick(item.id)"
             >
               <Heart v-if="isLikedByCurrentUser(item)" color="red" fill="rgb(239 68 68)" class="w-6 h-6" />
               <Heart v-else class="w-6 h-6" />

@@ -105,7 +105,7 @@ function getLikesCount(item: RecordEntity) {
             <button
               variant="outline"
               size="sm"
-              :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-white/30 border-white'"
+              :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-[hsla(var(--primary-foreground))] border-white'"
               class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
               @click="isLikedByCurrentUser(item) ? like.deleteLike(item.id) : like.createLike(item.id)"
             >

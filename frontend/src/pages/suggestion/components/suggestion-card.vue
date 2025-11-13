@@ -83,7 +83,7 @@ function getLikesCount(item: RecordEntity) {
       <h3 class="text-xl text-white mb-4 font-medium">
         {{ getGroupTitle(genre) }}
       </h3>
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-8">
         <div
           v-for="item in groupItems"
           :key="item.id"
@@ -102,6 +102,17 @@ function getLikesCount(item: RecordEntity) {
             class="bg-[var(--n-action-color)] min-h-[250px] flex flex-col transition-[height,border-color,border-width] duration-300"
             :class="{ 'h-[250px]': isAdmin, 'border-2 border-primary': newRecords.isRecordNew(item.id) }"
           >
+            <button
+              variant="outline"
+              size="sm"
+              :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-white/30 border-white'"
+              class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-2 -right-2 z-10 rounded-full w-20 h-10 p-0"
+              @click="isLikedByCurrentUser(item) ? like.deleteLike(item.id) : like.createLike(item.id)"
+            >
+              <Heart v-if="isLikedByCurrentUser(item)" color="red" fill="rgb(239 68 68)" class="w-6 h-6" />
+              <Heart v-else class="w-6 h-6" />
+              <span class="ml-1">{{ getLikesCount(item) }}</span>
+            </button>
             <div class="flex flex-1 h-full">
               <div v-if="item.posterUrl" class="relative w-[130px] flex-shrink-0">
                 <img
@@ -109,17 +120,6 @@ function getLikesCount(item: RecordEntity) {
                   class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
                   alt="Poster"
                 >
-                <button
-                  variant="outline"
-                  size="sm"
-                  :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-white/30 border-white'"
-                  class="flex justify-center backdrop-blur-lg items-center border-2  gap-2 absolute bottom-2 left-2 z-10 rounded-full w-20 h-10 p-0"
-                  @click="isLikedByCurrentUser(item) ? like.deleteLike(item.id) : like.createLike(item.id)"
-                >
-                  <Heart v-if="isLikedByCurrentUser(item)" color="red" fill="rgb(239 68 68)" class="w-6 h-6" />
-                  <Heart v-else class="w-6 h-6" />
-                  <span class="ml-1">{{ getLikesCount(item) }}</span>
-                </button>
               </div>
               <div class="flex flex-col flex-1 justify-between overflow-hidden">
                 <CardHeader>

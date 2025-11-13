@@ -53,10 +53,10 @@ export class UserService {
     return updatedUser
   }
 
-  async getUserRecords(login: string): Promise<RecordEntity[]> {
-    return await this.prisma.record.findMany({
+  getUserRecords(login: string): Promise<RecordEntity[]> {
+    return this.prisma.record.findMany({
       where: { user: { login } },
-      include: { user: true },
+      include: { user: true, likes: true },
     })
   }
 

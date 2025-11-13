@@ -16,8 +16,8 @@ export class SuggestionController {
 
   @Get()
   @ApiResponse({ status: 200, type: RecordEntity, isArray: true })
-  async getSuggestions(): Promise<RecordEntity[]> {
-    return await this.suggestionService.getSuggestions()
+  getSuggestions(): Promise<RecordEntity[]> {
+    return this.suggestionService.getSuggestions()
   }
 
   @Post()

@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { AppController } from '@/app.controller'
+import { LikeModule } from '@/modules/like/like.module'
 import { Module } from '@nestjs/common'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
@@ -34,6 +35,7 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
     PrismaModule,
     CustomJwtModule,
     LimitModule,
+    LikeModule,
     QueueModule,
     SuggestionModule,
     // WeatherModule,

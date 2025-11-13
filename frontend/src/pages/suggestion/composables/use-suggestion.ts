@@ -1,11 +1,12 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
+import { toast } from '@/components/ui/toast'
 import { useApi } from '@/composables/use-api'
 import { useNewRecords } from '@/composables/use-new-records'
 import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
 
+import { computed, ref, watch } from 'vue'
 import SuggestionForm from '../components/suggestion-form.vue'
 import SupportedServices from '../components/supported-services.vue'
 
@@ -63,22 +64,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         error.value = null
         return await api.suggestions.suggestionControllerUserSuggest({ link })
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
@@ -92,22 +78,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         error.value = null
         return await api.records.recordControllerPatchRecord(id, { status: RecordStatus.NOTINTERESTED, type: RecordType.WRITTEN })
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
@@ -119,24 +90,10 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
+        console.log('deleteSuggestion', id)
         return await api.records.recordControllerDeleteRecord(id)
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
@@ -150,22 +107,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         error.value = null
         return await api.records.recordControllerPatchRecord(id, { type: RecordType.WRITTEN })
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
@@ -179,22 +121,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         error.value = null
         return await api.records.recordControllerPatchRecord(id, { type: RecordType.AUCTION })
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
@@ -208,27 +135,58 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         error.value = null
         return await api.suggestions.suggestionControllerDeleteUserSuggestion(id)
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
     onSettled: () => refetchSuggestions(),
   })
+
+  async function handlePatchSuggestion(id: number) {
+    try {
+      await patchSuggestion(id)
+      toast({ title: 'Успешно', description: 'Совет отмечен как не интересный', variant: 'default' })
+    } catch {
+      toast({ title: 'Ошибка', description: error.value || 'Не удалось удалить совет', variant: 'destructive' })
+    }
+  }
+
+  async function handleDeleteSuggestion(id: number) {
+    try {
+      console.log('handleDeleteSuggestion', id)
+      await deleteSuggestion(id)
+      toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
+    } catch {
+      toast({ title: 'Ошибка', description: error.value || 'Не удалось удалить совет', variant: 'destructive' })
+    }
+  }
+
+  async function handleDeleteOwnSuggestion(id: number) {
+    try {
+      await deleteOwnSuggestion(id)
+      toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
+    } catch {
+      toast({ title: 'Ошибка', description: error.value || 'Не удалось удалить совет', variant: 'destructive' })
+    }
+  }
+
+  async function handleMoveToAuction(id: number) {
+    try {
+      await moveToAuction(id)
+      toast({ title: 'Успешно', description: 'Совет отправлен на аукцион', variant: 'default' })
+    } catch {
+      toast({ title: 'Ошибка', description: error.value || 'Не удалось отправить совет на аукцион', variant: 'destructive' })
+    }
+  }
+
+  async function handleApproveSuggestion(id: number) {
+    try {
+      await approveSuggestion(id)
+      toast({ title: 'Успешно', description: 'Совет одобрен', variant: 'default' })
+    } catch {
+      toast({ title: 'Ошибка', description: error.value || 'Не удалось одобрить совет', variant: 'destructive' })
+    }
+  }
 
   const suggestions = computed<RecordEntity[]>(() => data.value ?? [])
 
@@ -240,11 +198,11 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     suggestions,
     refetchSuggestions,
     submitSuggestion,
-    patchSuggestion,
-    deleteSuggestion,
-    deleteOwnSuggestion,
-    approveSuggestion,
-    moveToAuction,
+    handlePatchSuggestion,
+    handleDeleteSuggestion,
+    handleDeleteOwnSuggestion,
+    handleApproveSuggestion,
+    handleMoveToAuction,
     openSuggestionDialog,
   }
 })

@@ -18,6 +18,7 @@ model User {
   createdAt       DateTime @default(now())
 
   record Record[]
+  likes  Like[]   @relation("UserLikes")
 
   @@index([id, login])
   @@map("users")
@@ -45,9 +46,11 @@ model Record {
   user   User?   @relation(fields: [userId], references: [id])
   userId String?
 
-  createdAt DateTime @default(now())
+  likes           Like[]            @relation("RecordLikes")
 
   AuctionsHistory AuctionsHistory[]
+
+  createdAt DateTime @default(now())
 
   @@index([title])
   @@map("records")
@@ -82,6 +85,20 @@ enum RecordGrade {
   BEER
   LIKE
   RECOMMEND
+}
+
+// ----- Like -----
+
+model Like {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], name: "UserLikes")
+  userId    String
+  record    Record   @relation(fields: [recordId], references: [id], name: "RecordLikes")
+  recordId  Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, recordId])
+  @@map("likes")
 }
 
 // ----- AuctionsHistory -----

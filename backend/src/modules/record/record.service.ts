@@ -57,9 +57,14 @@ export class RecordService {
       this.eventEmitter.emit('update-suggestions')
     }
 
-    if (updatedRecord.status === $Enums.RecordStatus.QUEUE && updatedRecord.type === $Enums.RecordType.WRITTEN) {
+    if (
+      (foundedRecord.status === $Enums.RecordStatus.QUEUE && updatedRecord.status !== $Enums.RecordStatus.QUEUE)
+      || (updatedRecord.status === $Enums.RecordStatus.QUEUE && updatedRecord.type === $Enums.RecordType.WRITTEN)
+      || (foundedRecord.type === $Enums.RecordType.WRITTEN && updatedRecord.type !== $Enums.RecordType.WRITTEN)
+    ) {
       this.eventEmitter.emit('update-queue')
     }
+
     if (updatedRecord.type === $Enums.RecordType.SUGGESTION) {
       this.eventEmitter.emit('update-suggestions')
     }

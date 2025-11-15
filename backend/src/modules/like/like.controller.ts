@@ -25,7 +25,7 @@ export class LikeController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Like deleted successfully' })
   async deleteLike(@Param('id') id: number, @User() user: UserEntity): Promise<void> {
-    await this.likeService.deleteLike(user.id, id, user.role)
+    await this.likeService.deleteLike(user.id, id)
   }
 
   @Get('records/:id')

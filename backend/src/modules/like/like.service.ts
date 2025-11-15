@@ -1,5 +1,5 @@
 import { PrismaService } from '@/database/prisma.service'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Injectable()
@@ -7,6 +7,14 @@ export class LikeService {
   constructor(private prisma: PrismaService, private readonly eventEmitter: EventEmitter2) {}
 
   async createLike(userId: string, recordId: number) {
+    const existingLike = await this.prisma.like.findFirst({
+      where: { userId, recordId },
+    })
+
+    if (existingLike) {
+      throw new BadRequestException('Вы уже поставили лайк этой записи')
+    }
+
     const createdLike = await this.prisma.like.create({
       data: {
         userId,
@@ -17,16 +25,13 @@ export class LikeService {
     return createdLike
   }
 
-  async deleteLike(userId: string, recordId: number, userRole?: string) {
-    const where = userRole === 'ADMIN' ? { recordId } : { userId, recordId }
-    const like = await this.prisma.like.findFirst({ where })
+  async deleteLike(userId: string, recordId: number) {
+    const like = await this.prisma.like.findFirst({
+      where: { userId, recordId },
+    })
 
     if (!like) {
       throw new NotFoundException('Лайк не найден')
-    }
-
-    if (userRole !== 'ADMIN' && like.userId !== userId) {
-      throw new NotFoundException('Нет доступа')
     }
 
     await this.prisma.like.delete({

@@ -25,16 +25,25 @@ const like = useLike()
 const suggestion = useSuggestion()
 const newRecords = useNewRecords()
 
+const likingStates = ref<Map<number, boolean>>(new Map())
+
 const throttledLikeFunctions = computed(() => {
   const map = new Map<number, ReturnType<typeof useThrottleFn>>()
 
   for (const item of props.items) {
     if (!map.has(item.id)) {
       const throttledFn = useThrottleFn(async () => {
-        if (isLikedByCurrentUser(item)) {
-          await like.deleteLike(item.id)
-        } else {
-          await like.createLike(item.id)
+        if (likingStates.value.get(item.id)) return
+
+        likingStates.value.set(item.id, true)
+        try {
+          if (isLikedByCurrentUser(item)) {
+            await like.deleteLike(item.id)
+          } else {
+            await like.createLike(item.id)
+          }
+        } finally {
+          likingStates.value.set(item.id, false)
         }
       }, 1000)
 
@@ -108,6 +117,8 @@ function getLikesCount(item: RecordEntity) {
 }
 
 function handleLikeClick(itemId: number) {
+  if (likingStates.value.get(itemId)) return
+
   const throttledFn = throttledLikeFunctions.value.get(itemId)
   if (throttledFn) {
     throttledFn()
@@ -147,6 +158,7 @@ function handleLikeClick(itemId: number) {
             <button
               variant="outline"
               size="sm"
+              :disabled="likingStates.get(item.id)"
               :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-[hsla(var(--primary-foreground))] border-white'"
               class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
               @click="handleLikeClick(item.id)"

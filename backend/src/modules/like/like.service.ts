@@ -26,17 +26,13 @@ export class LikeService {
   }
 
   async deleteLike(userId: string, recordId: number) {
-    const like = await this.prisma.like.findFirst({
+    const deletedLike = await this.prisma.like.deleteMany({
       where: { userId, recordId },
     })
 
-    if (!like) {
+    if (deletedLike.count === 0) {
       throw new NotFoundException('Лайк не найден')
     }
-
-    await this.prisma.like.delete({
-      where: { id: like.id },
-    })
 
     this.eventEmitter.emit('update-likes')
   }

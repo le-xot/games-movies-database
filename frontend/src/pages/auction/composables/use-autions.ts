@@ -11,7 +11,7 @@ export const AUCTION_QUERY_KEY = 'auction'
 export const useAuctions = defineStore('queue/use-auction', () => {
   const api = useApi()
   const error = ref<string | null>(null)
-  const { isAdmin } = storeToRefs(useUser())
+  const { isAdmin, isInitialized } = storeToRefs(useUser())
 
   const {
     isLoading: isLoadingData,
@@ -20,7 +20,7 @@ export const useAuctions = defineStore('queue/use-auction', () => {
   } = useQuery({
     key: () => [AUCTION_QUERY_KEY],
     query: async () => {
-      if (!isAdmin.value) {
+      if (!isInitialized.value || !isAdmin.value) {
         return []
       }
 
@@ -33,6 +33,7 @@ export const useAuctions = defineStore('queue/use-auction', () => {
         throw err
       }
     },
+    enabled: () => isInitialized.value,
   })
 
   const { mutateAsync: approveAuction } = useMutation({
@@ -67,7 +68,6 @@ export const useAuctions = defineStore('queue/use-auction', () => {
         throw err
       }
     },
-    onSettled: () => refetchAuctions(),
   })
 
   const auctions = computed<RecordEntity[]>(() => {

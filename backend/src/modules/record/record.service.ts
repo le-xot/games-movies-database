@@ -23,7 +23,20 @@ export class RecordService {
         user: { connect: { id: user.id } },
       },
     })
-    this.eventEmitter.emit('WebSocketUpdate')
+
+    if (createdData.type === $Enums.RecordType.SUGGESTION && createdData.type !== $Enums.RecordType.SUGGESTION) {
+      this.eventEmitter.emit('update-suggestions')
+    }
+
+    if (createdData.status === $Enums.RecordStatus.QUEUE && createdData.type === $Enums.RecordType.WRITTEN) {
+      this.eventEmitter.emit('update-queue')
+    }
+    if (createdData.type === $Enums.RecordType.SUGGESTION) {
+      this.eventEmitter.emit('update-suggestions')
+    }
+    if (createdData.type === $Enums.RecordType.AUCTION) {
+      this.eventEmitter.emit('update-auction')
+    }
     return createdData
   }
 
@@ -40,14 +53,43 @@ export class RecordService {
       data: { ...foundedRecord, ...data },
     })
 
-    this.eventEmitter.emit('WebSocketUpdate')
+    if (foundedRecord.type === $Enums.RecordType.SUGGESTION && updatedRecord.type !== $Enums.RecordType.SUGGESTION) {
+      this.eventEmitter.emit('update-suggestions')
+    }
+
+    if (updatedRecord.status === $Enums.RecordStatus.QUEUE && updatedRecord.type === $Enums.RecordType.WRITTEN) {
+      this.eventEmitter.emit('update-queue')
+    }
+    if (updatedRecord.type === $Enums.RecordType.SUGGESTION) {
+      this.eventEmitter.emit('update-suggestions')
+    }
+    if (updatedRecord.type === $Enums.RecordType.AUCTION) {
+      this.eventEmitter.emit('update-auction')
+    }
+    this.eventEmitter.emit('update-records', { genre: updatedRecord.genre })
     return updatedRecord
   }
 
   async deleteRecord(id: number): Promise<void> {
+    const foundedRecord = await this.prisma.record.findUnique({
+      where: { id },
+    })
     await this.prisma.like.deleteMany({ where: { recordId: id } })
     await this.prisma.record.delete({ where: { id } })
-    this.eventEmitter.emit('WebSocketUpdate')
+    if (foundedRecord.type === $Enums.RecordType.SUGGESTION && foundedRecord.type !== $Enums.RecordType.SUGGESTION) {
+      this.eventEmitter.emit('update-suggestions')
+    }
+
+    if (foundedRecord.status === $Enums.RecordStatus.QUEUE && foundedRecord.type === $Enums.RecordType.WRITTEN) {
+      this.eventEmitter.emit('update-queue')
+    }
+    if (foundedRecord.type === $Enums.RecordType.SUGGESTION) {
+      this.eventEmitter.emit('update-suggestions')
+    }
+    if (foundedRecord.type === $Enums.RecordType.AUCTION) {
+      this.eventEmitter.emit('update-auction')
+    }
+    this.eventEmitter.emit('update-records', { genre: foundedRecord.genre })
   }
 
   async getAllRecords(

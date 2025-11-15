@@ -35,7 +35,7 @@ export class SuggestionService {
       },
     })
 
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-suggestions')
     return {
       title: preparedData.title,
       genre: preparedData.genre,
@@ -67,6 +67,6 @@ export class SuggestionService {
     }
 
     await this.prisma.record.delete({ where: { id } })
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-suggestions')
   }
 }

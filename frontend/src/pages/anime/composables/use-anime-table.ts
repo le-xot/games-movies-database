@@ -1,13 +1,11 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import DialogButton from '@/components/dialog/dialog-button.vue'
-import RecordCreateButton from '@/components/dialog/record-create-button.vue'
 import TableColEpisode from '@/components/table/table-col/table-col-episode.vue'
 import TableColSelect from '@/components/table/table-col/table-col-select.vue'
 import TableColTitle from '@/components/table/table-col/table-col-title.vue'
 import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
-import { useRecordCreate } from '@/composables/use-record-create.ts'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
 import {
@@ -29,10 +27,6 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
   const { columnVisibility, pagination } = storeToRefs(animeParams)
   const { videos, totalPages } = storeToRefs(animeStore)
   const dialog = useDialog()
-
-  const { createRecord } = useRecordCreate('cartoon', () => {
-    animeStore.refetchVideos()
-  })
 
   const tableColumns = computed(() => {
     const columns: ColumnDef<RecordEntity>[] = [
@@ -159,11 +153,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
         minSize: 5,
         maxSize: 5,
         enableResizing: false,
-        header: () => h(RecordCreateButton, {
-          title: 'Создать запись',
-          placeholder: 'https://shikimori.one/animes/example',
-          onSubmit: (link: string) => createRecord(link),
-        }),
+        header: '',
         cell: ({ row }) => {
           return h('div', {}, {
             default: () => [

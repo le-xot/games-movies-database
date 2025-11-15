@@ -31,17 +31,50 @@ export function useWebSocket() {
       .on('disconnect', () => {
         isConnected.value = false
       })
-      .on('WebSocketUpdate', () => {
-        queueStore.refetchQueue()
-        animeStore.refetchVideos()
-        cartoonStore.refetchVideos()
-        seriesStore.refetchVideos()
-        movieStore.refetchVideos()
-        gamesStore.refetchGames()
-        suggestionStore.refetchSuggestions()
+
+      .on('update-auction', () => {
         if (isAdmin) {
           auctionStore.refetchAuctions()
         }
+      })
+      .on('update-records', (payload) => {
+        switch (payload.genre) {
+          case 'ANIME':
+            animeStore.refetchVideos()
+            break
+          case 'CARTOON':
+            cartoonStore.refetchVideos()
+            break
+          case 'SERIES':
+            seriesStore.refetchVideos()
+            break
+          case 'MOVIE':
+            movieStore.refetchVideos()
+            break
+          case 'GAME':
+            gamesStore.refetchGames()
+            break
+          default:
+            animeStore.refetchVideos()
+            cartoonStore.refetchVideos()
+            seriesStore.refetchVideos()
+            movieStore.refetchVideos()
+            gamesStore.refetchGames()
+            break
+        }
+      })
+      .on('update-likes', () => {
+        suggestionStore.refetchSuggestions()
+      })
+      .on('update-queue', () => {
+        queueStore.refetchQueue()
+      })
+      .on('update-suggestions', () => {
+        suggestionStore.refetchSuggestions()
+      })
+      .on('update-users', () => {
+        const userStore = useUser()
+        userStore.refetchUser()
       })
       .on('connect_error', (error) => {
         console.error('WebSocket connection error:', error)

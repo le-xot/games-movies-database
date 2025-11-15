@@ -15,15 +15,15 @@ export class AuctionController {
   @Get()
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity, isArray: true })
-  async getAuctions(): Promise<RecordEntity[]> {
-    return await this.auction.getAuctions()
+  getAuctions(): Promise<RecordEntity[]> {
+    return this.auction.getAuctions()
   }
 
   @Get('winner')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Winner selected successfully', type: RecordEntity })
   @HttpCode(HttpStatus.OK)
-  async getWinner(@Query('id') id: number): Promise<RecordEntity> {
-    return await this.auction.getWinner(id)
+  getWinner(@Query('id') id: number): Promise<RecordEntity> {
+    return this.auction.getWinner(id)
   }
 }

@@ -16,7 +16,6 @@ export const useUser = defineStore('globals/use-user', () => {
     refetch: refetchUser,
   } = useQuery({
     key: [USER_QUERY_KEY],
-    placeholderData: (previousData) => previousData,
     query: async () => {
       try {
         const { data } = await api.auth.authControllerMe()
@@ -69,6 +68,7 @@ export const useUser = defineStore('globals/use-user', () => {
     fetchUser,
     userLogin,
     userLogout,
+    refetchUser,
   }
 })
 

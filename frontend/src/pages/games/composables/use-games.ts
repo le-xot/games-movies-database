@@ -30,6 +30,7 @@ export const useGames = defineStore('games/use-games', () => {
       return data
     },
   })
+
   const totalRecords = computed(() => {
     if (!data.value) return 0
     return data.value.total
@@ -45,7 +46,6 @@ export const useGames = defineStore('games/use-games', () => {
     mutation: ({ id, data }: { id: number, data: RecordUpdateDTO }) => {
       return api.records.recordControllerPatchRecord(id, data)
     },
-    onSettled: () => refetchGames(),
   })
 
   const { mutateAsync: deleteGame } = useMutation({
@@ -53,7 +53,6 @@ export const useGames = defineStore('games/use-games', () => {
     mutation: (id: number) => {
       return api.records.recordControllerDeleteRecord(id)
     },
-    onSettled: () => refetchGames(),
   })
 
   const { mutateAsync: createGame } = useMutation({
@@ -62,7 +61,6 @@ export const useGames = defineStore('games/use-games', () => {
       const { createRecord } = useRecordCreate(GAMES_QUERY_KEY, refetchGames)
       return await createRecord(link)
     },
-    onSuccess: () => refetchGames(),
   })
 
   const games = computed(() => {

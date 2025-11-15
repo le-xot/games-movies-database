@@ -13,7 +13,7 @@ export class LikeService {
         recordId,
       },
     })
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-likes')
     return createdLike
   }
 
@@ -33,7 +33,7 @@ export class LikeService {
       where: { id: like.id },
     })
 
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-likes')
   }
 
   async getLikesByRecordId(recordId: number) {

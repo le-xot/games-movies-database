@@ -32,7 +32,7 @@ export class UserService {
           color: data.color,
         },
       })
-      this.eventEmitter.emit('WebSocketUpdate')
+      this.eventEmitter.emit('update-users')
       return createdUser
     }
 
@@ -49,7 +49,7 @@ export class UserService {
         color: data.color,
       },
     })
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-users')
     return updatedUser
   }
 
@@ -77,7 +77,7 @@ export class UserService {
           color: '#333333',
         },
       })
-      this.eventEmitter.emit('WebSocketUpdate')
+      this.eventEmitter.emit('update-users')
       return createdUser
     } catch (error) {
       console.error('Error creating user by id:', error)
@@ -104,7 +104,7 @@ export class UserService {
           color: '#333333',
         },
       })
-      this.eventEmitter.emit('WebSocketUpdate')
+      this.eventEmitter.emit('update-users')
       return createdUser
     } catch (error) {
       console.error('Error creating user by login:', error)
@@ -126,11 +126,11 @@ export class UserService {
 
   async deleteUserByLogin(login: string): Promise<void> {
     await this.prisma.user.delete({ where: { login } })
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-users')
   }
 
   async deleteUserById(id: string): Promise<void> {
     await this.prisma.user.delete({ where: { id } })
-    this.eventEmitter.emit('WebSocketUpdate')
+    this.eventEmitter.emit('update-users')
   }
 }

@@ -1,21 +1,21 @@
 import { PrismaService } from '@/database/prisma.service'
 import { Injectable } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 
 @Injectable()
 export class AuctionService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly eventEmitter: EventEmitter2) {}
 
-  async getAuctions() {
-    const auctions = await this.prisma.record.findMany({
+  getAuctions() {
+    return this.prisma.record.findMany({
       where: { type: $Enums.RecordType.AUCTION },
       include: { user: true },
     })
-    return auctions
   }
 
-  async getWinner(id: number) {
-    return await this.prisma.$transaction(async (tx) => {
+  getWinner(id: number) {
+    return this.prisma.$transaction(async (tx) => {
       const record = await tx.record.findUnique({
         where: { id },
         include: { user: true },
@@ -44,6 +44,7 @@ export class AuctionService {
         },
       })
 
+      this.eventEmitter.emit('update-auction')
       return winner
     })
   }

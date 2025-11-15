@@ -46,7 +46,6 @@ export const useSeries = defineStore('series/use-series', () => {
     mutation: ({ id, data }: { id: number, data: RecordUpdateDTO }) => {
       return api.records.recordControllerPatchRecord(id, data)
     },
-    onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: deleteVideo } = useMutation({
@@ -54,7 +53,6 @@ export const useSeries = defineStore('series/use-series', () => {
     mutation: (id: number) => {
       return api.records.recordControllerDeleteRecord(id)
     },
-    onSettled: () => refetchVideos(),
   })
 
   const { mutateAsync: createVideo } = useMutation({
@@ -63,7 +61,6 @@ export const useSeries = defineStore('series/use-series', () => {
       const { createRecord } = useRecordCreate(VIDEOS_QUERY_KEY, refetchVideos)
       return await createRecord(link)
     },
-    onSuccess: () => refetchVideos(),
   })
 
   const videos = computed(() => {

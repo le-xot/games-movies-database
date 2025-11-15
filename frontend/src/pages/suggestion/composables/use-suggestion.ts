@@ -33,11 +33,10 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
 
   const {
     isLoading: isLoadingData,
-    data,
+    data: suggestions,
     refetch: refetchSuggestions,
-  } = useQuery({
-    key: () => [SUGGESTION_QUERY_KEY],
-    placeholderData: (previousData) => previousData,
+  } = useQuery<RecordEntity[]>({
+    key: [SUGGESTION_QUERY_KEY],
     query: async () => {
       try {
         error.value = null
@@ -50,7 +49,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     },
   })
 
-  watch(() => data.value, (newData) => {
+  watch(() => suggestions.value, (newData) => {
     if (newData) {
       const currentIds = newData.map(record => record.id)
       newRecords.cleanupViewedRecords(currentIds)
@@ -68,7 +67,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         throw err
       }
     },
-    onSettled: () => refetchSuggestions(),
   })
 
   const { mutateAsync: patchSuggestion } = useMutation({
@@ -82,7 +80,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         throw err
       }
     },
-    onSettled: () => refetchSuggestions(),
   })
 
   const { mutateAsync: deleteSuggestion } = useMutation({
@@ -90,14 +87,12 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        console.log('deleteSuggestion', id)
         return await api.records.recordControllerDeleteRecord(id)
       } catch (err: any) {
         error.value = err.message || 'Неизвестная ошибка'
         throw err
       }
     },
-    onSettled: () => refetchSuggestions(),
   })
 
   const { mutateAsync: approveSuggestion } = useMutation({
@@ -111,7 +106,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         throw err
       }
     },
-    onSettled: () => refetchSuggestions(),
   })
 
   const { mutateAsync: moveToAuction } = useMutation({
@@ -125,7 +119,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         throw err
       }
     },
-    onSettled: () => refetchSuggestions(),
   })
 
   const { mutateAsync: deleteOwnSuggestion } = useMutation({
@@ -139,7 +132,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         throw err
       }
     },
-    onSettled: () => refetchSuggestions(),
   })
 
   async function handlePatchSuggestion(id: number) {
@@ -153,7 +145,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
 
   async function handleDeleteSuggestion(id: number) {
     try {
-      console.log('handleDeleteSuggestion', id)
       await deleteSuggestion(id)
       toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
     } catch {
@@ -187,8 +178,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
       toast({ title: 'Ошибка', description: error.value || 'Не удалось одобрить совет', variant: 'destructive' })
     }
   }
-
-  const suggestions = computed<RecordEntity[]>(() => data.value ?? [])
 
   const isLoading = computed(() => isLoadingData.value)
 

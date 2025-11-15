@@ -14,7 +14,10 @@ import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useSuggestion } from '../composables/use-suggestion'
 
-const props = defineProps<{ items: RecordEntity[] }>()
+const props = defineProps<{
+  items: RecordEntity[]
+  sortBy: 'date' | 'likes'
+}>()
 
 const { isAdmin, currentUserId } = storeToRefs(useUser())
 
@@ -53,7 +56,18 @@ const groupedItems = computed(() => {
     groups.get(genre)!.push(item)
   }
 
-  return Array.from(groups.entries())
+  for (const items of groups.values()) {
+    if (props.sortBy === 'date') {
+      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    } else {
+      items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
+    }
+  }
+
+  const groupOrder = [RecordGenre.MOVIE, RecordGenre.GAME, RecordGenre.ANIME, RecordGenre.CARTOON, RecordGenre.SERIES, 'other']
+  return Array.from(groups.entries()).sort(([a], [b]) => {
+    return groupOrder.indexOf(a) - groupOrder.indexOf(b)
+  })
 })
 
 function getGroupTitle(genre: string): string {

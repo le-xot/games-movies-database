@@ -5,7 +5,7 @@ import { useNewRecords } from '@/composables/use-new-records.ts'
 import { useUser } from '@/composables/use-user'
 import { useLocalStorage } from '@vueuse/core'
 import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import SuggestionCard from './components/suggestion-card.vue'
 import { useSuggestion } from './composables/use-suggestion'
 
@@ -14,18 +14,6 @@ const user = useUser()
 
 const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
 const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
-
-const sortedSuggestions = computed(() => {
-  if (!suggestion.suggestions) return []
-
-  const items = [...suggestion.suggestions]
-
-  if (sortBy.value === 'date') {
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  } else {
-    return items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
-  }
-})
 
 function toggleSort() {
   sortBy.value = sortBy.value === 'date' ? 'likes' : 'date'
@@ -45,8 +33,8 @@ function handleMarkAllAsViewed() {
     <SuggestionCard
       v-if="(suggestion.suggestions?.length ?? 0) > 0"
       ref="suggestionCard"
-      kind="suggestion"
-      :items="sortedSuggestions"
+      :items="suggestion.suggestions || []"
+      :sort-by="sortBy"
     >
       <template #title>
         <div class="flex justify-between">

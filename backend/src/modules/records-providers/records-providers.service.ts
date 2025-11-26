@@ -28,6 +28,7 @@ export class RecordsProvidersService {
     igdb: { regex: /igdb\.com\/games\/([^/]+)/, parse: m => m[1] },
     steam: { regex: /store\.steampowered\.com\/app\/(\d+)|steamcommunity\.com\/app\/(\d+)/, parse: m => Number(m[1]) },
     imdb: { regex: /imdb\.com\/title\/(tt\d+)/, parse: m => m[1] },
+    reyohoho: { regex: /reyohoho\.(?:github\.io\/reyohoho|gitlab\.io\/reyohoho|vercel\.app|onrender\.com|serv00\.net)\/movie\/(\d+)|reyohoho(?:-vue)?\.(?:surge\.sh|vercel\.app)#(\d+)/, parse: m => Number(m[1] || m[2]) },
   }
 
   private readonly serviceFetchers: Record<string, (id: any) => Promise<PreparedData>> = {
@@ -36,6 +37,7 @@ export class RecordsProvidersService {
     igdb: id => this.fetchIGDB(id),
     steam: id => this.fetchIGDBFromSteam(id),
     imdb: id => this.fetchImdb(id),
+    reyohoho: id => this.fetchReyohoho(id),
   }
 
   private readonly recordValidationRules = [
@@ -301,5 +303,9 @@ export class RecordsProvidersService {
     if (!externalData[0]?.game) throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
 
     return this.fetchIGDBGame(`id = ${externalData[0].game}`)
+  }
+
+  private async fetchReyohoho(id: number): Promise<PreparedData> {
+    return await this.fetchKinopoisk(id)
   }
 }

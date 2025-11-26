@@ -21,6 +21,7 @@ const services = [
   { name: 'IMDb', icon: '/icons/services/imdb.svg', url: 'https://www.imdb.com/' },
   { name: 'Steam', icon: '/icons/services/steam.svg', url: 'https://store.steampowered.com/' },
   { name: 'IGDb', icon: '/icons/services/igdb.svg', url: 'https://www.igdb.com/' },
+  { name: 'ReYohoho', icon: '/icons/services/reyohoho.png', url: 'https://reyohoho.github.io/reyohoho/' },
 ]
 </script>
 

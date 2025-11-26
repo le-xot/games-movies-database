@@ -3,9 +3,9 @@
     "target": "ESNext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "baseUrl": ".", // root of the project
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "baseUrl": ".", // root of the project
     "paths": {
       "@/*": ["src/*"] // @ → src
     },

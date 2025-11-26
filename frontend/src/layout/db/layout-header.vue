@@ -5,7 +5,17 @@ import { Separator } from '@/components/ui/separator'
 import { useTitle } from '@/composables/use-title'
 import { useUser } from '@/composables/use-user'
 import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
-import { Baby, Film, Gamepad2, Gavel, HandPlatter, HouseIcon, JapaneseYen, ListOrdered, Popcorn } from 'lucide-vue-next'
+import {
+  Baby,
+  Film,
+  Gamepad2,
+  Gavel,
+  HandPlatter,
+  HouseIcon,
+  JapaneseYen,
+  ListOrdered,
+  Popcorn,
+} from 'lucide-vue-next'
 import { computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
@@ -23,8 +33,19 @@ interface RouteItem {
 
 const allRoutes: RouteItem[] = [
   { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home, group: 1 },
-  { name: 'Советы', icon: HandPlatter, path: ROUTER_PATHS.dbSuggestion, group: 2 },
-  { name: 'Аукцион', icon: Gavel, path: ROUTER_PATHS.dbAuction, group: 2, requiresAdmin: true },
+  {
+    name: 'Советы',
+    icon: HandPlatter,
+    path: ROUTER_PATHS.dbSuggestion,
+    group: 2,
+  },
+  {
+    name: 'Аукцион',
+    icon: Gavel,
+    path: ROUTER_PATHS.dbAuction,
+    group: 2,
+    requiresAdmin: true,
+  },
   { name: 'Очередь', icon: ListOrdered, path: ROUTER_PATHS.dbQueue, group: 2 },
   { name: 'Игры', icon: Gamepad2, path: ROUTER_PATHS.dbGames, group: 3 },
   { name: 'Аниме', icon: JapaneseYen, path: ROUTER_PATHS.dbAnime, group: 3 },
@@ -52,19 +73,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-[68px] flex">
+  <div
+    class="h-[68px] flex sticky top-0 border-b border-border bg-black z-[100]"
+  >
     <div class="flex justify-between items-center gap-4 xl:gap-8 p-4 w-full">
       <div class="flex gap-1 xl:gap-2 h-[50px] items-center">
         <template v-for="(group, i) in groupedRoutes" :key="i">
-          <RouterLink
-            v-for="r in group"
-            :key="r.name"
-            :to="r.path"
-          >
+          <RouterLink v-for="r in group" :key="r.name" :to="r.path">
             <Button
               variant="secondary"
               class="nav-button-animation px-2.5 xl:px-4"
-              :class="{ 'bg-[hsla(var(--primary-foreground))]': route.path === r.path }"
+              :class="{
+                'bg-[hsla(var(--primary-foreground))]': route.path === r.path,
+              }"
               @click="() => updateTitle(r.name)"
             >
               <component :is="r.icon" class="w-4 h-4" />
@@ -73,13 +94,16 @@ onMounted(() => {
               </div>
             </Button>
           </RouterLink>
-          <Separator v-if="i < groupedRoutes.length - 1" orientation="vertical" class="nav-delay-animation mx-0.5 xl:mx-2" />
+          <Separator
+            v-if="i < groupedRoutes.length - 1"
+            orientation="vertical"
+            class="nav-delay-animation mx-0.5 xl:mx-2 h-1/2"
+          />
         </template>
       </div>
       <LoginForm />
     </div>
   </div>
-  <Separator />
 </template>
 
 <style scoped>
@@ -87,7 +111,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0;
-  transition: padding 200ms ease-out, background-color 200ms ease-out, gap 200ms ease-out 200ms;
+  transition:
+    padding 200ms ease-out,
+    background-color 200ms ease-out,
+    gap 200ms ease-out 200ms;
 }
 
 .nav-text-container {
@@ -104,7 +131,10 @@ onMounted(() => {
 @media (min-width: 1280px) {
   .nav-button-animation {
     gap: 0.375rem;
-    transition: padding 200ms ease-out, background-color 200ms ease-out, gap 200ms ease-out;
+    transition:
+      padding 200ms ease-out,
+      background-color 200ms ease-out,
+      gap 200ms ease-out;
   }
 
   .nav-text-container {

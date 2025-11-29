@@ -1,0 +1,41 @@
+// Documentation: https://zed.dev/docs/configuring-zed#settings-files
+{
+  "format_on_save": "on",
+  "languages": {
+    "Vue.js": {
+      "language_servers": [
+        "eslint",
+        "vue-language-server",
+        "tailwindcss-language-server",
+        "..."
+      ],
+      "formatter": "language_server",
+      "prettier": { "allowed": false },
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    },
+    "TypeScript": {
+      "language_servers": ["vtsls", "eslint"],
+      "formatter": "language_server",
+      "prettier": { "allowed": false },
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    },
+    "JavaScript": {
+      "language_servers": ["vtsls", "eslint"],
+      "formatter": "language_server",
+      "prettier": { "allowed": false },
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    }
+  },
+  "auto_install_extensions": {
+    "html": true,
+    "vue": true,
+    "dockerfile": true,
+    "docker-compose": true
+  }
+}

@@ -23,12 +23,30 @@ export class RecordsProvidersService {
   }
 
   private readonly linkPatterns: Record<string, { regex: RegExp, parse: (m: RegExpMatchArray) => number | string }> = {
-    shikimori: { regex: /shikimori\.one\/animes\/[a-z]?(\d+)/, parse: m => Number(m[1]) },
-    kinopoisk: { regex: /kinopoisk\.ru\/(film|series)\/(\d+)/, parse: m => Number(m[2]) },
-    igdb: { regex: /igdb\.com\/games\/([^/]+)/, parse: m => m[1] },
-    steam: { regex: /store\.steampowered\.com\/app\/(\d+)|steamcommunity\.com\/app\/(\d+)/, parse: m => Number(m[1]) },
-    imdb: { regex: /imdb\.com\/title\/(tt\d+)/, parse: m => m[1] },
-    reyohoho: { regex: /reyohoho\.(?:github\.io\/reyohoho|gitlab\.io\/reyohoho|vercel\.app|onrender\.com|serv00\.net)\/movie\/(\d+)|reyohoho(?:-vue)?\.(?:surge\.sh|vercel\.app)#(\d+)/, parse: m => Number(m[1] || m[2]) },
+    shikimori: {
+      regex: /shikimori\.one\/animes\/[a-z]?(\d+)/,
+      parse: m => Number(m[1]),
+    },
+    kinopoisk: {
+      regex: /kinopoisk\.ru\/(film|series)\/(\d+)/,
+      parse: m => Number(m[2]),
+    },
+    igdb: {
+      regex: /igdb\.com\/games\/([^/]+)/,
+      parse: m => m[1],
+    },
+    steam: {
+      regex: /store\.steampowered\.com\/app\/(\d+)|steamcommunity\.com\/app\/(\d+)/,
+      parse: m => Number(m[1]),
+    },
+    imdb: {
+      regex: /imdb\.com\/title\/(tt\d+)/,
+      parse: m => m[1],
+    },
+    reyohoho: {
+      regex: /reyohoho\.(?:github\.io\/reyohoho|gitlab\.io\/reyohoho|vercel\.app|onrender\.com|serv00\.net)\/movie\/(\d+)|reyohoho-gitlab\.vercel\.app\/movie\/(\d+)|reyohoho(?:-vue)?\.(?:surge\.sh|vercel\.app)#(\d+)/,
+      parse: m => Number(m[1] || m[2] || m[3]),
+    },
   }
 
   private readonly serviceFetchers: Record<string, (id: any) => Promise<PreparedData>> = {

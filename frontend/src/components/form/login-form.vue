@@ -34,7 +34,7 @@ function handleLogin() {
         </Avatar>
       </div>
     </DropdownMenuTrigger>
-    <DropdownMenuContent>
+    <DropdownMenuContent class="mt-4">
       <DropdownMenuItem v-if="userStore.isAdmin" as-child>
         <RouterLink to="/db/admin">
           <Lock class="size-6 mr-2" />

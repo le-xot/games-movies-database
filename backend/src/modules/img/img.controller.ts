@@ -16,6 +16,8 @@ export class ImgController {
 
     res.setHeader('Content-Type', contentType)
     res.setHeader('Content-Length', fileBuffer.byteLength.toString())
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    res.setHeader('ETag', `"${urlEncoded}"`)
 
     res.end(Buffer.from(fileBuffer))
   }

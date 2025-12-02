@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { Tag } from '@/components/ui/tag'
 import { useUser } from '@/composables/use-user'
 import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api.ts'
 import { storeToRefs } from 'pinia'
@@ -56,18 +55,18 @@ const placeholder = computed(() => {
       v-model:open="isOpen"
       :name="`${props.kind}-${id}`"
       @update:model-value="(value) => {
-        handleUpdateValue(value)
+        handleUpdateValue(value as string)
         handleClose()
       }"
     >
       <SelectTrigger
-        class="min-w-32"
-        :class="[data.tag?.class]"
+        class="w-full cursor-default relative h-8 flex items-center justify-center text-xs font-semibold !text-white/80 !opacity-100 min-w-28 select-none"
+        :class="data.tag?.class"
         as-child
         :disabled="!isAdmin"
         @blur="handleClose"
       >
-        <span>
+        <span class="w-full absolute inset-0 flex items-center justify-center !text-white/80">
           {{ placeholder }}
         </span>
       </SelectTrigger>
@@ -77,15 +76,22 @@ const placeholder = computed(() => {
           :key="option.value"
           :value="option.value"
           hide-indicator
+          class="h-8 flex justify-center !text-white/80 hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent"
+          :class="option.class"
         >
-          <Tag class="p-6 w-full" :class="option.class">
+          <span class="text-xs font-semibold !text-white/80">
             {{ option.label }}
-          </Tag>
+          </span>
         </SelectItem>
       </SelectContent>
     </Select>
-    <Tag v-else-if="!data.tag" class="w-full border border-input">
-      {{ placeholder }}
-    </Tag>
+    <div
+      v-else-if="!data.tag"
+      class="w-full cursor-default relative h-8 flex items-center justify-center text-xs font-semibold border border-input rounded-md min-w-28 select-none"
+    >
+      <span class="w-full absolute inset-0 flex items-center justify-center">
+        {{ placeholder }}
+      </span>
+    </div>
   </div>
 </template>

@@ -131,7 +131,7 @@ async function createUser() {
               size="icon"
               @click="deleteUser(user.id, user.login)"
             >
-              <Trash2Icon class="size-4" />
+              <Trash2Icon class="size-4" color="#ffffff" />
             </Button>
           </div>
         </div>

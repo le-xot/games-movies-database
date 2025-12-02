@@ -206,7 +206,7 @@ function handleLikeClick(itemId: number) {
                         <PencilOff />
                       </Button>
                       <Button variant="destructive" size="sm" class="text-sm w-36" @click="suggestion.handleDeleteSuggestion(item.id)">
-                        <Trash2 />
+                        <Trash2 color="#ffffff" />
                       </Button>
                     </div>
                   </div>

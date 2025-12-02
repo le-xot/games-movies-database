@@ -32,7 +32,7 @@ async function startSelection() {
   const finalWinnerIndex = Math.floor(Math.random() * props.items.length)
   const finalWinner = props.items[finalWinnerIndex]
 
-  const duration = 15000
+  const duration = 1000
   const startTime = Date.now()
   const minDelay = 350
   const maxDelay = 550
@@ -117,7 +117,7 @@ watch(open, (isOpen) => {
           </div>
         </div>
         <div v-if="currentItem.user" class="text-base font-medium">
-          Предложил: {{ currentItem.user.login }}
+          Предложил: {{ currentItem.user!.login }}
         </div>
         <div class="font-bold text-2xl text-green-500">
           🎉 Победитель! 🎉

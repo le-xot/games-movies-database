@@ -33,7 +33,16 @@ export class AuctionService {
 
       await tx.auctionsHistory.create({
         data: {
-          winner: { connect: { id } },
+          winnerId: id,
+        },
+      })
+
+      await tx.like.deleteMany({
+        where: {
+          record: {
+            type: $Enums.RecordType.AUCTION,
+            id: { not: id },
+          },
         },
       })
 
@@ -45,6 +54,7 @@ export class AuctionService {
       })
 
       this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit('update-records', { genre: winner.genre })
       return winner
     })
   }

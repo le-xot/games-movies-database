@@ -84,7 +84,7 @@ onMounted(() => {
               variant="secondary"
               class="nav-button-animation px-2.5 xl:px-4"
               :class="{
-                'bg-[hsla(var(--primary-foreground))]': route.path === r.path,
+                'bg-primary text-primary-foreground hover:bg-primary/70': route.path === r.path,
               }"
               @click="() => updateTitle(r.name)"
             >

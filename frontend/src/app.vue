@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Toaster from '@/components/ui/toast/Toaster.vue'
 import { useWebSocket } from '@/composables/use-websocket.ts'
 import { onMounted, ref } from 'vue'
 
@@ -22,7 +21,6 @@ useWebSocket()
 // ----- Секрет -----
 
 <template>
-  <Toaster />
   <div v-if="maintenanceMode" class="w-full h-screen flex items-center justify-center bg-zinc-900 text-white font-['Comfortaa',_sans-serif]">
     <div class="text-center p-8 max-w-[700px]">
       <h1 class="text-4xl mb-4">

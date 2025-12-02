@@ -1,4 +1,3 @@
-import { toast } from '@/components/ui/toast'
 import { useApi } from '@/composables/use-api.ts'
 import { useMutation } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -74,39 +73,11 @@ export const useLike = defineStore('queue/use-like', () => {
     },
   })
 
-  async function handleGetLikesByRecordId(id: number) {
-    try {
-      await getLikesByRecordId(id)
-      toast({ title: 'Успешно', description: '123', variant: 'default' })
-    } catch {
-      toast({ title: 'Ошибка', description: error.value || '123', variant: 'destructive' })
-    }
-  }
-
-  async function handleGetLikesByUserId(id: string) {
-    try {
-      await getLikesByUserId(id)
-      toast({ title: 'Успешно', description: '123', variant: 'default' })
-    } catch {
-      toast({ title: 'Ошибка', description: error.value || '123', variant: 'destructive' })
-    }
-  }
-
-  async function handleGetLikes() {
-    try {
-      await getLikes()
-      toast({ title: 'Успешно', description: '123', variant: 'default' })
-    } catch {
-      toast({ title: 'Ошибка', description: error.value || '123', variant: 'destructive' })
-    }
-  }
-
   return {
     createLike,
     deleteLike,
-    handleGetLikesByRecordId,
-    handleGetLikesByUserId,
-    handleGetLikes,
+    getLikesByRecordId,
+    getLikesByUserId,
     getLikes,
   }
 })

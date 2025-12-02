@@ -3,7 +3,7 @@ import { PiniaColada } from '@pinia/colada'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './app.vue'
-import './assets/index.scss'
+import './assets/index.css'
 
 const APP_VERSION = '3.0.0'
 const STORAGE_VERSION_KEY = 'app_version'

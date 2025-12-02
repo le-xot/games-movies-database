@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { toast } from '@/components/ui/toast'
 import { Award } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import AuctionCard from './components/auction-card.vue'
 import { useAuctions } from './composables/use-autions'
 import WinnerSelectionModal from './winner-selection-modal.vue'
@@ -15,16 +15,13 @@ const hasAuctions = computed(() => (auctions.auctions?.length ?? 0) > 0)
 async function handleApproveSuggestion(id: number) {
   try {
     await auctions.approveAuction(id)
-    toast({
-      title: 'Успешно',
+    toast('Успешно', {
       description: 'Совет был одобрен.',
-      variant: 'default',
     })
   } catch {
-    toast({
-      title: 'Ошибка',
+    toast.error('Ошибка', {
       description: auctions.error || 'Не удалось одобрить совет.',
-      variant: 'destructive',
+
     })
   }
 }

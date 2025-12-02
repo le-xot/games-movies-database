@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
+import type { ContextMenuContentEmits, ContextMenuContentProps } from "reka-ui"
+import type { HTMLAttributes } from "vue"
+import { reactiveOmit } from "@vueuse/core"
 import {
   ContextMenuContent,
-  type ContextMenuContentEmits,
-  type ContextMenuContentProps,
   ContextMenuPortal,
   useForwardPropsEmits,
-} from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+} from "reka-ui"
+import { cn } from "@/lib/utils"
 
-const props = defineProps<ContextMenuContentProps & { class?: HTMLAttributes['class'] }>()
+const props = defineProps<ContextMenuContentProps & { class?: HTMLAttributes["class"] }>()
 const emits = defineEmits<ContextMenuContentEmits>()
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
-
-  return delegated
-})
+const delegatedProps = reactiveOmit(props, "class")
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>

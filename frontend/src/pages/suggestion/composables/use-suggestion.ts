@@ -1,12 +1,11 @@
 import { useDialog } from '@/components/dialog/composables/use-dialog'
-import { toast } from '@/components/ui/toast'
 import { useApi } from '@/composables/use-api'
 import { useNewRecords } from '@/composables/use-new-records'
 import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-
 import { computed, ref, watch } from 'vue'
+import { toast } from 'vue-sonner'
 import SuggestionForm from '../components/suggestion-form.vue'
 import SupportedServices from '../components/supported-services.vue'
 
@@ -137,45 +136,45 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
   async function handlePatchSuggestion(id: number) {
     try {
       await patchSuggestion(id)
-      toast({ title: 'Успешно', description: 'Совет отмечен как не интересный', variant: 'default' })
+      toast('Успешно', { description: 'Совет отмечен как не интересный' })
     } catch {
-      toast({ title: 'Ошибка', description: error.value || 'Не удалось удалить совет', variant: 'destructive' })
+      toast.error('Ошибка', { description: error.value || 'Не удалось удалить совет' })
     }
   }
 
   async function handleDeleteSuggestion(id: number) {
     try {
       await deleteSuggestion(id)
-      toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
+      toast('Успешно', { description: 'Совет удален' })
     } catch {
-      toast({ title: 'Ошибка', description: error.value || 'Не удалось удалить совет', variant: 'destructive' })
+      toast.error('Ошибка', { description: error.value || 'Не удалось удалить совет' })
     }
   }
 
   async function handleDeleteOwnSuggestion(id: number) {
     try {
       await deleteOwnSuggestion(id)
-      toast({ title: 'Успешно', description: 'Совет удален', variant: 'default' })
+      toast('Успешно', { description: 'Совет удален' })
     } catch {
-      toast({ title: 'Ошибка', description: error.value || 'Не удалось удалить совет', variant: 'destructive' })
+      toast.error('Ошибка', { description: error.value || 'Не удалось удалить совет' })
     }
   }
 
   async function handleMoveToAuction(id: number) {
     try {
       await moveToAuction(id)
-      toast({ title: 'Успешно', description: 'Совет отправлен на аукцион', variant: 'default' })
+      toast('Успешно', { description: 'Совет отправлен на аукцион' })
     } catch {
-      toast({ title: 'Ошибка', description: error.value || 'Не удалось отправить совет на аукцион', variant: 'destructive' })
+      toast.error('Ошибка', { description: error.value || 'Не удалось отправить совет на аукцион' })
     }
   }
 
   async function handleApproveSuggestion(id: number) {
     try {
       await approveSuggestion(id)
-      toast({ title: 'Успешно', description: 'Совет одобрен', variant: 'default' })
+      toast('Успешно', { description: 'Совет одобрен' })
     } catch {
-      toast({ title: 'Ошибка', description: error.value || 'Не удалось одобрить совет', variant: 'destructive' })
+      toast.error('Ошибка', { description: error.value || 'Не удалось одобрить совет' })
     }
   }
 

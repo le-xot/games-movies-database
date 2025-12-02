@@ -24,8 +24,9 @@
   },
   "trustedDependencies": [
     "@nestjs/core",
+    "sass-embedded",
+    "sharp",
     "vite",
-    "vue-tsc",
-    "sass-embedded"
+    "vue-tsc"
   ]
 }

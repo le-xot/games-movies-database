@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity } from '@/lib/api.ts'
+import { getImageUrl } from '@/lib/utils/image.ts'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 
@@ -33,7 +34,7 @@ defineExpose({ isDialogOpen })
         <div class="flex flex-1 h-full">
           <div v-if="item.posterUrl" class="relative w-[130px] flex-shrink-0">
             <img
-              :src="item.posterUrl"
+              :src="getImageUrl(item.posterUrl)"
               class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
               alt="Poster"
             >

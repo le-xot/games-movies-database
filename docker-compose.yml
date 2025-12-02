@@ -38,6 +38,8 @@ services:
     networks:
       - dokploy-network
     env_file: .env
+    volumes:
+      - images:/app/images
     deploy:
       resources:
         limits:
@@ -46,6 +48,7 @@ services:
 
 volumes:
   pgdata:
+  images:
 networks:
   dokploy-network:
     external: true

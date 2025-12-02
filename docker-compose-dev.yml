@@ -19,3 +19,4 @@ services:
       - 54321:8080
 volumes:
   pgdata:
+  images:

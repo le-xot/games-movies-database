@@ -7,6 +7,7 @@ import { useNewRecords } from '@/composables/use-new-records'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api.ts'
 import { generateWatchLink } from '@/lib/utils/generate-watch-link.ts'
+import { getImageUrl } from '@/lib/utils/image.ts'
 import { useLike } from '@/pages/suggestion/composables/use-like.ts'
 import { useThrottleFn } from '@vueuse/core'
 import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next'
@@ -124,6 +125,11 @@ function handleLikeClick(itemId: number) {
     throttledFn()
   }
 }
+
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
+}
 </script>
 
 <template>
@@ -168,12 +174,16 @@ function handleLikeClick(itemId: number) {
               <span class="ml-1">{{ getLikesCount(item) }}</span>
             </button>
             <div class="flex flex-1 h-full">
-              <div v-if="item.posterUrl" class="relative w-[130px] flex-shrink-0">
+              <div v-if="item.posterUrl" class="relative w-[130px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]">
                 <img
-                  :src="item.posterUrl"
-                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-                  alt="Poster"
+                  :src="getImageUrl(item.posterUrl)"
+                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] aspect-[2/3]"
+                  alt=""
+                  @error="handleImageError"
                 >
+              </div>
+              <div v-else class="relative w-[130px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]">
+                <span class="text-white text-xs text-center px-2">{{ item.title?.slice(0, 20) }}...</span>
               </div>
               <div class="flex flex-col flex-1 justify-between overflow-hidden">
                 <CardHeader>

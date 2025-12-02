@@ -976,4 +976,25 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  img = {
+    /**
+     * No description
+     *
+     * @tags Img
+     * @name ImgControllerGetImageContent
+     * @request GET:/img
+     */
+    imgControllerGetImageContent: (
+      query: {
+        urlEncoded: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/img`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+  };
 }

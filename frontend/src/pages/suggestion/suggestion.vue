@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { toast } from '@/components/ui/toast'
 import { useNewRecords } from '@/composables/use-new-records.ts'
 import { useUser } from '@/composables/use-user'
 import { useLocalStorage } from '@vueuse/core'
 import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
 import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 import SuggestionCard from './components/suggestion-card.vue'
 import { useSuggestion } from './composables/use-suggestion'
 

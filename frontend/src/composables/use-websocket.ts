@@ -33,6 +33,7 @@ export function useWebSocket() {
       })
 
       .on('update-auction', () => {
+        suggestionStore.refetchSuggestions()
         if (isAdmin) {
           auctionStore.refetchAuctions()
         }

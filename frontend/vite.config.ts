@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
 import { generateApi } from 'swagger-typescript-api'
-import tailwind from 'tailwindcss'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 
@@ -24,10 +24,10 @@ export default defineConfig(({ isPreview, mode }) => {
         },
       },
       postcss: {
-        plugins: [tailwind(), autoprefixer()],
+        plugins: [autoprefixer()],
       },
     },
-    plugins: [vue(), svgLoader()],
+    plugins: [vue(), svgLoader(), tailwindcss()],
     clearScreen: false,
     server: {
       host: true,

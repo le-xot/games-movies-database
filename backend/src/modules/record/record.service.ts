@@ -65,10 +65,7 @@ export class RecordService {
       this.eventEmitter.emit('update-queue')
     }
 
-    if (updatedRecord.type === $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
-    }
-    if (updatedRecord.type === $Enums.RecordType.AUCTION) {
+    if (foundedRecord.type !== $Enums.RecordType.AUCTION && updatedRecord.type === $Enums.RecordType.AUCTION) {
       this.eventEmitter.emit('update-auction')
     }
     this.eventEmitter.emit('update-records', { genre: updatedRecord.genre })

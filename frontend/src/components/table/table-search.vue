@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { CommandGroup } from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { VisibilityState } from '@tanstack/vue-table'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Button } from '../ui/button'
 import { Command, CommandItem, CommandList } from '../ui/command'
 import { Input } from '../ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 const searchValue = defineModel<string>('value', { required: true })
 const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })
@@ -53,23 +54,25 @@ function updateVisibility(key: string, value: boolean) {
       <PopoverContent class="w-[150px] p-2" align="end">
         <Command>
           <CommandList>
-            <CommandItem
-              v-for="[filter, value] of Object.entries(columnVisibility)"
-              :key="filter"
-              :value="filter"
-              @select="updateVisibility(filter, !value)"
-            >
-              <div
-                class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
-                :class="[value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'opacity-50 [&_svg]:invisible',
-                ]"
+            <CommandGroup>
+              <CommandItem
+                v-for="[filter, value] of Object.entries(columnVisibility)"
+                :key="filter"
+                :value="filter"
+                @select="updateVisibility(filter, !value)"
               >
-                <CheckIcon class="h-4 w-4" />
-              </div>
-              <span>{{ columnText[filter] }}</span>
-            </CommandItem>
+                <div
+                  class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+                  :class="[value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'opacity-50 [&_svg]:invisible',
+                  ]"
+                >
+                  <CheckIcon class="h-4 w-4" />
+                </div>
+                <span>{{ columnText[filter] }}</span>
+              </CommandItem>
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { gradeTags } from '@/components/table/composables/use-table-select'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tag } from '@/components/ui/tag'
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
@@ -206,9 +206,9 @@ const filteredUsers = computed(() => {
                     <div v-if="video.createdAt" class="text-sm text-muted-foreground">
                       {{ new Date(video.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) }}
                     </div>
-                    <Tag v-if="video.grade" :class="gradeTags[video.grade as RecordGrade]?.class">
+                    <Badge v-if="video.grade" :class="gradeTags[video.grade as RecordGrade]?.class" class="text-white pointer-events-none h-8 min-w-28 justify-center select-none">
                       {{ gradeTags[video.grade as RecordGrade]?.name }} {{ gradeTags[video.grade as RecordGrade]?.label }}
-                    </Tag>
+                    </Badge>
                   </div>
                 </CardFooter>
               </div>
@@ -254,9 +254,9 @@ const filteredUsers = computed(() => {
                     <div v-if="game.createdAt" class="text-sm text-muted-foreground">
                       {{ new Date(game.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) }}
                     </div>
-                    <Tag v-if="game.grade" :class="gradeTags[game.grade as RecordGrade]?.class">
+                    <Badge v-if="game.grade" :class="gradeTags[game.grade as RecordGrade]?.class" class="text-white pointer-events-none h-8 min-w-28 justify-center select-none">
                       {{ gradeTags[game.grade as RecordGrade]?.name }} {{ gradeTags[game.grade as RecordGrade]?.label }}
-                    </Tag>
+                    </Badge>
                   </div>
                 </CardFooter>
               </div>

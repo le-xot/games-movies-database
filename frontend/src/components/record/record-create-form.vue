@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { toTypedSchema } from '@vee-validate/zod'
 import { AlertCircle } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { ref } from 'vue'
@@ -18,9 +17,9 @@ const props = defineProps<{
 const errorMessage = ref('')
 const isSubmitting = ref(false)
 
-const formSchema = toTypedSchema(z.object({
-  link: z.string().url('Введите корректную ссылку'),
-}))
+const formSchema = z.object({
+  link: z.url('Введите корректную ссылку'),
+})
 
 interface FormValues {
   link: string

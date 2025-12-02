@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useApi } from '@/composables/use-api'
 import { UserEntity } from '@/lib/api'
+import { getImageUrl } from '@/lib/utils/image.ts'
 import { useTitle } from '@vueuse/core'
 import { PlusIcon, Trash2Icon } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
@@ -111,7 +112,7 @@ async function createUser() {
           <div v-for="user in users" :key="user.id" class="flex items-center justify-between gap-4 p-4 border rounded-md">
             <div class="flex items-center gap-4">
               <Avatar class="size-12">
-                <AvatarImage :src="user.profileImageUrl" :alt="user.login" />
+                <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
                 <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
               </Avatar>
               <div>

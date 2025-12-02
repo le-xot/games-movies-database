@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
+import { getImageUrl } from '@/lib/utils/image.ts'
 import { useTitle } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -101,6 +102,11 @@ const filteredUsers = computed(() => {
     user.login.toLowerCase().includes(searchValue.value.toLowerCase()),
   )
 })
+
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
+}
 </script>
 
 <template>
@@ -180,12 +186,16 @@ const filteredUsers = computed(() => {
             class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col"
           >
             <div class="flex flex-1 h-full">
-              <div v-if="video.posterUrl" class="relative w-[150px] flex-shrink-0">
+              <div v-if="video.posterUrl" class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]">
                 <img
-                  :src="video.posterUrl"
-                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-                  alt="Poster"
+                  :src="getImageUrl(video.posterUrl)"
+                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] aspect-[2/3]"
+                  alt=""
+                  @error="handleImageError"
                 >
+              </div>
+              <div v-else class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]">
+                <span class="text-white text-xs text-center px-2">{{ video.title?.slice(0, 20) }}...</span>
               </div>
               <div class="flex flex-col flex-1 justify-between overflow-hidden">
                 <CardHeader>
@@ -228,12 +238,16 @@ const filteredUsers = computed(() => {
             class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col"
           >
             <div class="flex flex-1 h-full">
-              <div v-if="game.posterUrl" class="relative w-[150px] flex-shrink-0">
+              <div v-if="game.posterUrl" class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]">
                 <img
-                  :src="game.posterUrl"
-                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-                  alt="Poster"
+                  :src="getImageUrl(game.posterUrl)"
+                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] aspect-[2/3]"
+                  alt=""
+                  @error="handleImageError"
                 >
+              </div>
+              <div v-else class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]">
+                <span class="text-white text-xs text-center px-2">{{ game.title?.slice(0, 20) }}...</span>
               </div>
               <div class="flex flex-col flex-1 justify-between overflow-hidden">
                 <CardHeader>

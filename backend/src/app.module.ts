@@ -17,6 +17,7 @@ import { TwirModule } from './modules/twir/twir.module'
 import { TwitchModule } from './modules/twitch/twitch.module'
 import { UserModule } from './modules/user/user.module'
 import { WebsocketModule } from './modules/websocket/websocket.module'
+import { ImgModule } from './modules/img/img.module'
 
 @Module({
   controllers: [AppController],
@@ -42,6 +43,7 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
     RecordsProvidersModule,
     // SpotifyModule,
     WebsocketModule,
+    ImgModule,
   ],
 })
 export class AppModule {}

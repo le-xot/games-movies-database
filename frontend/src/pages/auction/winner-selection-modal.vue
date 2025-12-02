@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { RecordEntity } from '@/lib/api'
+import { getImageUrl } from '@/lib/utils/image.ts'
 import { X } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
@@ -92,8 +93,8 @@ watch(open, (isOpen) => {
           <img
             v-if="currentItem?.posterUrl"
             :key="currentItem.id"
-            :src="currentItem.posterUrl"
-            class="max-h-full object-contain mx-auto opacity-70 animate-in fade-in"
+            :src="getImageUrl(currentItem.posterUrl)"
+            class="max-h-full max-w-full object-contain mx-auto opacity-70 animate-in fade-in aspect-[2/3]"
             alt="Постер"
           >
           <div v-else class="text-muted-foreground">
@@ -108,8 +109,8 @@ watch(open, (isOpen) => {
         <div class="h-[300px] p-4 flex items-center justify-center">
           <img
             v-if="currentItem.posterUrl"
-            :src="currentItem.posterUrl"
-            class="max-h-full object-contain mx-auto"
+            :src="getImageUrl(currentItem.posterUrl)"
+            class="max-h-full max-w-full object-contain mx-auto aspect-[2/3]"
             alt="Постер"
           >
           <div v-else class="text-muted-foreground">

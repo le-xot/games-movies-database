@@ -162,11 +162,10 @@ function handleImageError(event: Event) {
             :class="{ 'h-[250px]': isAdmin, 'border-2 border-primary': newRecords.isRecordNew(item.id) }"
           >
             <button
-              variant="outline"
               size="sm"
               :disabled="likingStates.get(item.id)"
               :class="isLikedByCurrentUser(item) ? 'bg-red-500/50 border-red-500' : 'bg-[hsla(var(--primary-foreground))] border-white'"
-              class="flex justify-center backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
+              class="flex justify-center outline-1 backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
               @click="handleLikeClick(item.id)"
             >
               <Heart v-if="isLikedByCurrentUser(item)" color="red" fill="rgb(239 68 68)" class="w-6 h-6" />

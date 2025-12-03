@@ -3,11 +3,11 @@
     "target": "ESNext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "baseUrl": ".", // root of the project
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["src/*"] // @ → src
+      "*": ["./*"],
+      "@/*": ["./src/*"] // @ → src
     },
     "resolveJsonModule": true,
     "strict": false,

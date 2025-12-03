@@ -13,10 +13,10 @@ onMounted(() => title.value = 'Лешот.ру')
     <div class="w-full max-w-4xl">
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <RouterLink :to="ROUTER_PATHS.home" class="hidden md:block col-span-2 row-span-2 rounded-5xl overflow-hidden">
-          <img src="/images/lexot.webp" alt="Лешот" class="object-cover">
+          <img class="w-[100%] h-[calc(40vh+1rem)] object-cover" src="/images/lexot.webp" alt="">
         </RouterLink>
         <RouterLink
-          :to="ROUTER_PATHS.dbGames" class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          :to="ROUTER_PATHS.dbGames" class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #166534CC"
         >
           <div class="flex justify-between">
@@ -29,7 +29,7 @@ onMounted(() => title.value = 'Лешот.ру')
           </p>
         </RouterLink>
         <RouterLink
-          :to="ROUTER_PATHS.pc" class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          :to="ROUTER_PATHS.pc" class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #925f0dCC"
         >
           <div class="flex justify-between">
@@ -43,7 +43,7 @@ onMounted(() => title.value = 'Лешот.ру')
         </RouterLink>
         <a
           href="https://steamcommunity.com/id/le_xot" target="_blank"
-          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #000000CC"
         >
           <div class="flex justify-between">
@@ -53,7 +53,7 @@ onMounted(() => title.value = 'Лешот.ру')
         </a>
         <a
           href="https://github.com/le-xot" target="_blank"
-          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #181717CC"
         >
           <div class="flex justify-between">
@@ -63,7 +63,7 @@ onMounted(() => title.value = 'Лешот.ру')
         </a>
         <a
           href="https://t.me/le_xot" target="_blank"
-          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #26A5E4CC"
         >
           <div class="flex justify-between">
@@ -73,7 +73,7 @@ onMounted(() => title.value = 'Лешот.ру')
         </a>
         <a
           href="https://twir.app/s/lexotovo" target="_blank"
-          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #5865F2CC"
         >
           <div class="flex justify-between">
@@ -83,7 +83,7 @@ onMounted(() => title.value = 'Лешот.ру')
         </a>
         <a
           href="https://www.twitch.tv/etonelexot" target="_blank"
-          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #9146FFCC"
         >
           <div class="flex justify-between">
@@ -93,7 +93,7 @@ onMounted(() => title.value = 'Лешот.ру')
         </a>
         <a
           href="https://www.youtube.com/@le_xot" target="_blank"
-          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-auto"
+          class="outline rounded-5xl flex flex-col justify-between p-4 text-white h-[20vh] md:h-[20vh]"
           style="background-color: #FF0000CC"
         >
           <div class="flex justify-between">

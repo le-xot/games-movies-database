@@ -26,7 +26,7 @@ export const BENTO_ITEMS: BentoItem[] = [
     description: 'Создатель сайта',
     icon: UserIcon,
     href: '',
-    class: 'col-span-2 row-span-2',
+    class: 'col-span-2 row-span-2 sm:col-span-2 sm:row-span-2',
     background: 'image',
   },
   {

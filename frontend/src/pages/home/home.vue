@@ -7,9 +7,9 @@ useTitle('Лешот.ру')
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-6">
+  <div class="min-h-screen flex items-center justify-center p-4 sm:p-6">
     <div class="max-w-5xl w-full">
-      <BentoGrid class="grid-cols-4 auto-rows-[140px] gap-4">
+      <BentoGrid class="grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[100px] sm:auto-rows-[140px] gap-2 sm:gap-4">
         <a
           v-for="(item, index) in BENTO_ITEMS"
           :key="index"
@@ -25,16 +25,13 @@ useTitle('Лешот.ру')
             :href="item.href"
             class="overflow-hidden relative h-full cursor-pointer text-white [&_svg]:text-white"
           >
-            <!-- Фон с фото только для аватара -->
             <template v-if="item.background === 'image'" #background>
               <img
                 src="/images/lexot.webp"
                 alt="Лешот"
-                class="absolute inset-0 w-full h-full object-cover none"
+                class="absolute inset-0 w-full h-full object-cover"
               >
             </template>
-
-            <!-- Цветной полупрозрачный фон для остальных -->
             <template v-else #background>
               <div
                 class="absolute inset-0 opacity-70"

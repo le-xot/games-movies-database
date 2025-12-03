@@ -1,16 +1,139 @@
-Icons:
-Always use lucide-vue-next icons when possible
-Only use other icon libraries/local files when a specific icon is not available in lucide
+# Project: games-movies-database (Лешот.ру)
+Personal website for tracking games, movies, anime, cartoons, and series.
 
-Vue imports:
-Always include .vue extension when importing Vue components
-Example: import MyComponent from './MyComponent.vue'
+## Tech Stack
 
-Vue development:
-Use Composition API with TypeScript
-Use <script setup lang="ts"> for component definitions
-Use  defineProps,  defineEmits, and  defineSlots with proper TypeScript types
+### Monorepo Structure
+- Package manager: Bun (workspaces: frontend, backend)
+- Root scripts: `bun dev`, `bun build`, `bun lint`, `bun lint:fix`
 
-Styling:
-Use Tailwind CSS for styling
-Follow the project's existing Tailwind configuration and color schemes
+### Frontend (Vue 3 + Vite)
+- Framework: Vue 3.5 with Composition API
+- Build: Vite 7, TypeScript 5.9
+- Styling: Tailwind CSS 4 with CSS variables (oklch colors)
+- UI Library: shadcn-vue (new-york style) + reka-ui primitives
+- State: Pinia + @pinia/colada
+- Routing: vue-router 4
+- Forms: vee-validate 5 + zod 4
+- Icons: lucide-vue-next (primary), vue3-simple-icons (brand icons)
+- API: Auto-generated from Swagger via swagger-typescript-api
+- WebSocket: socket.io-client
+
+### Backend (NestJS + Bun)
+- Framework: NestJS 10 with Express
+- Runtime: Bun
+- Database: PostgreSQL + Prisma 6
+- Auth: JWT + Passport (Twitch OAuth)
+- API Docs: Swagger + @scalar/nestjs-api-reference
+- WebSocket: @nestjs/websockets + socket.io
+- Validation: class-validator + class-transformer
+
+## File Structure
+
+### Frontend Paths
+- Components: `frontend/src/components/`
+- UI (shadcn): `frontend/src/components/ui/`
+- Pages: `frontend/src/pages/{feature}/{feature}.vue`
+- Layouts: `frontend/src/layout/{name}/`
+- Composables: `frontend/src/composables/use-{name}.ts`
+- Router: `frontend/src/lib/router/`
+- Utils: `frontend/src/lib/utils.ts` (cn function)
+- API client: `frontend/src/lib/api.ts` (auto-generated)
+- Styles: `frontend/src/assets/index.css`
+
+### Backend Paths
+- Modules: `backend/src/modules/{name}/`
+  - `{name}.module.ts` - NestJS module
+  - `{name}.controller.ts` - REST endpoints
+  - `{name}.service.ts` - Business logic
+  - `{name}.dto.ts` - Request/Response DTOs
+  - `{name}.entity.ts` - Swagger entities
+- Database: `backend/src/database/prisma.{module,service}.ts`
+- Prisma schema: `backend/prisma/schema.prisma`
+- Environment: `backend/src/utils/enviroments.ts`
+
+## Coding Conventions
+
+### Vue Components
+- Always use `<script setup lang="ts">`
+- Import .vue files with extension: `import MyComponent from './MyComponent.vue'`
+- Use defineProps/defineEmits with TypeScript types
+- Block order: script/template first, then style (ESLint enforced)
+- Custom events: kebab-case
+
+### TypeScript
+- Path alias: `@/` → `./src/`
+- Strict mode in frontend, relaxed in backend
+- Use type imports when possible
+
+### Styling
+- Use Tailwind CSS classes
+- Use `cn()` from `@/lib/utils` for conditional classes
+- CSS variables defined in `frontend/src/assets/index.css`
+- Color tokens: background, foreground, primary, secondary, muted, accent, destructive, card, popover, border, input, ring
+- Dark mode: `.dark` class on root
+
+### Icons
+- Primary: lucide-vue-next
+- Brand icons: vue3-simple-icons
+- Never use other icon libraries unless icon unavailable
+
+### API
+- Frontend API client auto-generated from backend Swagger
+- Access via `useApi()` Pinia store
+- Backend endpoints prefixed with `/api`
+- Use class-validator decorators for DTOs
+- Use @ApiProperty for Swagger documentation
+
+### Database
+- Prisma models use `@@map()` for table names
+- Enums defined in schema.prisma
+- Enum names exported from `backend/src/enums/enums.names.ts`
+
+## ESLint Rules
+- Config: @antfu/eslint-config
+- Import sorting: perfectionist/sort-imports
+- Brace style: 1tbs
+- No curly enforcement
+- Console allowed
+
+## Available UI Components (shadcn-vue)
+AlertDialog, Avatar, Badge, Button, Card, Command, ContextMenu, Dialog, DropdownMenu, Form, Input, Label, Pagination, Popover, Select, Separator, Sonner (toasts), Table, Tabs, Tooltip
+
+## Prisma Enums
+- UserRole: USER, ADMIN
+- RecordStatus: QUEUE, PROGRESS, DROP, NOTINTERESTED, UNFINISHED, DONE
+- RecordType: WRITTEN, SUGGESTION, AUCTION, ORDER
+- RecordGenre: GAME, MOVIE, ANIME, CARTOON, SERIES
+- RecordGrade: DISLIKE, BEER, LIKE, RECOMMEND
+- LimitType: SUGGESTION
+- ThirdPartService: SPOTIFY
+
+## Router Paths (ROUTER_PATHS constant)
+- home: /
+- db: /db
+- pc: /pc
+- admin: /db/admin
+- profile: /db/profile
+- dbQueue: /db/queue
+- dbGames: /db/games
+- dbAnime: /db/anime
+- dbMovie: /db/movie
+- dbCartoon: /db/cartoon
+- dbSeries: /db/series
+- dbSuggestion: /db/suggestion
+- dbAuction: /db/auction
+
+## Commands
+- Dev: `bun dev` (both), `bun dev:frontend`, `bun dev:backend`
+- Build: `bun build`
+- Lint: `bun lint`, `bun lint:fix`
+- Prisma: `bun prisma` (migrate + generate)
+- Backend runs on port 3000, frontend on 5173 (proxied)
+
+## Important Notes
+- API types regenerated on frontend dev start from backend Swagger
+- WebSocket events handled via @nestjs/websockets
+- Auth via Twitch OAuth, JWT stored in cookies
+- Images served from backend/images/
+- Docker support via docker-compose.yml

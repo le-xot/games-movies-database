@@ -16,7 +16,6 @@ onMounted(() => {
   <div class="min-h-screen flex items-center justify-center p-8">
     <div class="w-full max-w-4xl">
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Main Banner -->
         <RouterLink
           :to="ROUTER_PATHS.home"
           class="hidden md:block col-span-2 row-span-2 rounded-5xl overflow-hidden select-none"

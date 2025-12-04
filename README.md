@@ -87,7 +87,7 @@ bun dev
 
 To enable Twitch login functionality, fill in these environment variables in `backend/.env`:
 
-```bash
+```
 TWITCH_CLIENT_ID=your_client_id
 TWITCH_CLIENT_SECRET=your_client_secret
 TWITCH_CALLBACK_URL=http://localhost:5173/auth/callback
@@ -105,7 +105,7 @@ You can obtain these credentials by:
 
 To enable Spotify functionality, add these environment variables to `backend/.env`:
 
-```bash
+```
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
 SPOTIFY_CALLBACK_URL=http://127.0.0.1:5173/auth/callback/spotify
@@ -121,7 +121,7 @@ You can obtain these credentials by:
 
 To enable weather functionality, fill in these environment variables in `backend/.env`:
 
-```bash
+```
 WEATHER_API_KEY=your_api_key
 WEATHER_LAT=your_latitude
 WEATHER_LON=your_longitude
@@ -137,7 +137,7 @@ You can get your API key by:
 
 To enable movie data fetching, add your Kinopoisk API key to `backend/.env`:
 
-```bash
+```
 KINOPOISK_API=your_api_key
 ```
 
@@ -145,7 +145,7 @@ KINOPOISK_API=your_api_key
 
 To enable additional movie data fetching, add your TMDB API key to `backend/.env`:
 
-```bash
+```
 TMBD_API=your_api_key
 ```
 
@@ -159,7 +159,7 @@ You can get your API key by:
 
 To enable TWIR API integration, add your TWIR API key to `backend/.env`:
 
-```bash
+```
 TWIR_API=your_api_key
 ```
 
@@ -169,7 +169,7 @@ This API key is used for authenticating requests from TWIR to your application.
 
 If you need to use a proxy for external API requests, add to `backend/.env`:
 
-```bash
+```
 PROXY=socks5://your-proxy-url:port
 ```
 

@@ -3,7 +3,6 @@ import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items.ts'
 import { useTitle } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { TelegramIcon } from 'vue3-simple-icons'
 
 const title = useTitle()
 
@@ -14,10 +13,10 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center p-8">
-    <div class="w-full max-w-4xl">
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3  ">
+    <div class="w-full max-w-5xl">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4  ">
         <img
-          class="object-cover rounded-xl col-span-2 row-span-2 w-full"
+          class="object-cover rounded-xl col-span-1 row-span-2 w-full h-full md:col-span-2"
           src="/images/lexot.webp"
           alt="Main Banner"
         >
@@ -28,13 +27,19 @@ onMounted(() => {
           :to="!item.external ? item.path : undefined"
           :href="item.external ? item.path : undefined"
           :target="item.external ? '_blank' : undefined"
-          class="border-2 rounded-xl border-[#fafafa11] flex flex-col gap-4 p-4 text-white transition-transform hover:scale-[1.02] select-none cursor-pointer"
-          :style="{ backgroundColor: item.color }"
+          class="border-2 rounded-xl border-[#fafafa11] flex flex-col gap-4 p-4 text-white transition-transform translate-z-0 hover:scale-[1.02] select-none cursor-pointer"
+          :style="{ backgroundColor: item.color, transform: 'translateZ(0)' }"
         >
-          <TelegramIcon size="48" class="" />
-          <h3 class="text-3xl font-bold">
-            {{ item.title }}
-          </h3>
+          <div class="flex items-center gap-2">
+            <component
+              :is="item.icon"
+              size="32"
+              class="self-end shrink-0"
+            />
+            <h3 class="text-3xl font-bold">
+              {{ item.title }}
+            </h3>
+          </div>
           <p class="opacity-90 text-xl text-gray-300 ">
             {{ item.description }}
           </p>
@@ -45,7 +50,5 @@ onMounted(() => {
 </template>
 
 <style>
-:root{
-  --main-grid-cols: repeat(3, minmax(0, 1fr));
-}
+
 </style>

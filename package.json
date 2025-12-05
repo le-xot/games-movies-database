@@ -2,7 +2,10 @@
   "name": "lexot-website",
   "type": "module",
   "private": true,
-  "workspaces": ["frontend", "backend"],
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "dev:frontend": "bun --filter=./frontend run dev",

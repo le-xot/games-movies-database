@@ -37,5 +37,25 @@
     "vue": true,
     "dockerfile": true,
     "docker-compose": true
+  },
+  "lsp": {
+    "eslint": {
+      "settings": {
+        "rulesCustomizations": [
+          {
+            "rule": "style/*",
+            "severity": "off"
+          },
+          {
+            "rule": "*-{indent,spacing,spaces,order,dangle,newline}",
+            "severity": "off"
+          },
+          {
+            "rule": "*{quotes,semi}",
+            "severity": "off"
+          }
+        ]
+      }
+    }
   }
 }

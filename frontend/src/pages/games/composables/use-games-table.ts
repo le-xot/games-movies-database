@@ -144,7 +144,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
                   key: `id-${row.original.id}`,
                   icon: Eraser,
                   onClick: () => dialog.openDialog({
-                    title: `Удалить игру?`,
+                    title: 'Удалить игру?',
                     content: '',
                     description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                     onSubmit: () => gamesStore.deleteGame(row.original.id),

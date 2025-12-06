@@ -66,7 +66,7 @@ async function handleColorChange(user: any, color: string) {
 
 function invokeDeleteUser(user: any) {
   dialog.openDialog({
-    title: `Удалить пользователя?`,
+    title: 'Удалить пользователя?',
     content: '',
     description: `Вы уверены что хотите удалить ${user.login}?`,
     onSubmit: () => {

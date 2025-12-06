@@ -27,8 +27,8 @@ onMounted(() => {
           :to="!item.external ? item.path : undefined"
           :href="item.external ? item.path : undefined"
           :target="item.external ? '_blank' : undefined"
-          class="border-2 rounded-xl border-[#fafafa11] flex flex-col gap-4 p-4 text-white transition-transform translate-z-0 hover:scale-[1.02] select-none cursor-pointer"
-          :style="{ backgroundColor: item.color, transform: 'translateZ(0)' }"
+          class="border-2 rounded-xl border-[#fafafa11] flex flex-col gap-4 p-4 text-white select-none cursor-pointer"
+          :style="{ backgroundColor: item.color }"
         >
           <div class="flex items-center gap-2">
             <component
@@ -40,7 +40,7 @@ onMounted(() => {
               {{ item.title }}
             </h3>
           </div>
-          <p class="opacity-90 text-xl text-gray-300 ">
+          <p class="opacity-90 text-xl font-bold text-gray-100 ">
             {{ item.description }}
           </p>
         </component>

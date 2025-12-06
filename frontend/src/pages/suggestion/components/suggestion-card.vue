@@ -198,7 +198,7 @@ function handleImageError(event: Event) {
                 <CardFooter class="flex flex-col items-start gap-3 w-full px-6 py-2">
                   <div class="flex justify-between w-full">
                     <div v-if="item.user && item.user.role === UserRole.USER && item.user.id === currentUserId" class="flex justify-end w-full mt-auto gap-2">
-                      <Button variant="destructive" size="sm" class="text-sm w-full" @click="suggestion.handleDeleteOwnSuggestion(item.id)">
+                      <Button variant="destructive" size="sm" class="text-sm text-white w-full" @click="suggestion.handleDeleteOwnSuggestion(item.id)">
                         Удалить
                       </Button>
                     </div>

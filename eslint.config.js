@@ -6,6 +6,7 @@ export default antfu({
   yaml: true,
   ignores: ['.augment-guidelines'],
   rules: {
+    'style/quotes': ['error', 'single', { avoidEscape: false }],
     'require-await': 'error',
     'ts/consistent-type-imports': 'off',
     'antfu/no-top-level-await': 'off',

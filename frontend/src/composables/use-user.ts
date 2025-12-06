@@ -1,12 +1,12 @@
-import { UserRole } from '@/lib/api'
-import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
-import { useApi } from './use-api'
+import { UserRole } from "@/lib/api"
+import { useMutation, useQuery } from "@pinia/colada"
+import { acceptHMRUpdate, defineStore } from "pinia"
+import { computed, ref } from "vue"
+import { useApi } from "./use-api"
 
-export const USER_QUERY_KEY = 'user'
+export const USER_QUERY_KEY = "user"
 
-export const useUser = defineStore('globals/use-user', () => {
+export const useUser = defineStore("globals/use-user", () => {
   const api = useApi()
   const isInitialized = ref(false)
 
@@ -40,7 +40,7 @@ export const useUser = defineStore('globals/use-user', () => {
   }
 
   const { mutateAsync: userLogin } = useMutation({
-    key: [USER_QUERY_KEY, 'login'],
+    key: [USER_QUERY_KEY, "login"],
     mutation: (input: { code: string }) => {
       return api.auth.authControllerTwitchAuthCallback(input)
     },
@@ -48,7 +48,7 @@ export const useUser = defineStore('globals/use-user', () => {
   })
 
   const { mutateAsync: userLogout } = useMutation({
-    key: [USER_QUERY_KEY, 'logout'],
+    key: [USER_QUERY_KEY, "logout"],
     mutation: async () => {
       return await api.auth.authControllerLogout()
     },

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { AlertCircle } from 'lucide-vue-next'
-import { useForm } from 'vee-validate'
-import { ref } from 'vue'
-import { z } from 'zod'
+import { Button } from "@/components/ui/button"
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { AlertCircle } from "lucide-vue-next"
+import { useForm } from "vee-validate"
+import { ref } from "vue"
+import { z } from "zod"
 
 const props = defineProps<{
   onSubmit: (link: string) => Promise<any>
@@ -14,11 +14,11 @@ const props = defineProps<{
   placeholder?: string
 }>()
 
-const errorMessage = ref('')
+const errorMessage = ref("")
 const isSubmitting = ref(false)
 
 const formSchema = z.object({
-  link: z.url('Введите корректную ссылку'),
+  link: z.url("Введите корректную ссылку"),
 })
 
 interface FormValues {
@@ -28,20 +28,20 @@ interface FormValues {
 const form = useForm<FormValues>({
   validationSchema: formSchema,
   initialValues: {
-    link: '',
+    link: "",
   },
 })
 
 async function submitRecordCreate(values: any) {
   isSubmitting.value = true
-  errorMessage.value = ''
+  errorMessage.value = ""
 
   try {
     await props.onSubmit(values.link)
     form.resetForm()
     props.onCancel()
   } catch (error: any) {
-    errorMessage.value = error.message || 'Произошла ошибка при создании записи'
+    errorMessage.value = error.message || "Произошла ошибка при создании записи"
   } finally {
     isSubmitting.value = false
   }

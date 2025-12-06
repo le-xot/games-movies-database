@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import { computed, inject } from 'vue'
-import { PAGE_SIZES } from './composables/use-pagination'
-import { tableInjectionKey } from './table-injection-key'
-import type { PaginationState } from '@tanstack/vue-table'
+} from "@/components/ui/select"
+import { ChevronLeft, ChevronRight } from "lucide-vue-next"
+import { computed, inject } from "vue"
+import { PAGE_SIZES } from "./composables/use-pagination"
+import { tableInjectionKey } from "./table-injection-key"
+import type { PaginationState } from "@tanstack/vue-table"
 
 const props = defineProps<{
   totalRecords: number
@@ -55,7 +55,7 @@ function validateInput(event: Event) {
   const value = Number.parseInt(input.value)
 
   if (Number.isNaN(value) || value <= 0) {
-    input.value = '1'
+    input.value = "1"
     pageIndex.value = 1
   }
 }

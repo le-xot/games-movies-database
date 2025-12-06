@@ -1,18 +1,18 @@
-import { usePagination } from '@/components/table/composables/use-pagination'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
-import { VisibilityState } from '@tanstack/vue-table'
-import { refDebounced, useLocalStorage } from '@vueuse/core'
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { usePagination } from "@/components/table/composables/use-pagination"
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from "@/lib/api"
+import { VisibilityState } from "@tanstack/vue-table"
+import { refDebounced, useLocalStorage } from "@vueuse/core"
+import { acceptHMRUpdate, defineStore } from "pinia"
+import { computed, ref, watch } from "vue"
 
-export const useAnimeParams = defineStore('anime/use-anime-params', () => {
-  const search = ref('')
+export const useAnimeParams = defineStore("anime/use-anime-params", () => {
+  const search = ref("")
   const debouncedSearch = refDebounced(search, 500)
   const pagination = usePagination()
   const statusesFilter = ref<RecordStatus[] | null>(null)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>("columnsVisibility", {
     title: true,
     episode: true,
     user: false,
@@ -27,8 +27,8 @@ export const useAnimeParams = defineStore('anime/use-anime-params', () => {
       page: pagination.value.pageIndex + 1,
       limit: pagination.value.pageSize,
       search: debouncedSearch.value,
-      orderBy: 'id',
-      direction: 'desc',
+      orderBy: "id",
+      direction: "desc",
     }
 
     if (debouncedSearch.value) {

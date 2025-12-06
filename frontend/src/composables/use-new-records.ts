@@ -1,8 +1,8 @@
-import { useLocalStorage } from '@vueuse/core'
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useLocalStorage } from "@vueuse/core"
+import { acceptHMRUpdate, defineStore } from "pinia"
 
-export const useNewRecords = defineStore('global/use-new-records', () => {
-  const viewedRecords = useLocalStorage<number[]>('viewed-suggestions', [])
+export const useNewRecords = defineStore("global/use-new-records", () => {
+  const viewedRecords = useLocalStorage<number[]>("viewed-suggestions", [])
 
   const markRecordAsViewed = (recordId: number) => {
     if (!viewedRecords.value.includes(recordId)) {

@@ -1,12 +1,12 @@
-import { router } from '@/lib/router/router'
-import { PiniaColada } from '@pinia/colada'
-import { createPinia } from 'pinia'
-import { createApp } from 'vue'
-import App from './app.vue'
-import './assets/index.css'
+import { router } from "@/lib/router/router"
+import { PiniaColada } from "@pinia/colada"
+import { createPinia } from "pinia"
+import { createApp } from "vue"
+import App from "./app.vue"
+import "./assets/index.css"
 
-const APP_VERSION = '3.0.0'
-const STORAGE_VERSION_KEY = 'app_version'
+const APP_VERSION = "3.0.0"
+const STORAGE_VERSION_KEY = "app_version"
 
 const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
 if (storedVersion !== APP_VERSION) {
@@ -40,4 +40,4 @@ PiniaColada(app, {
 //   })
 // }
 
-app.mount('#app')
+app.mount("#app")

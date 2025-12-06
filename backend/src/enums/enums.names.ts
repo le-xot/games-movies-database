@@ -1,6 +1,6 @@
-export const UserRole = 'UserRole'
-export const RecordStatus = 'RecordStatus'
-export const RecordType = 'RecordType'
-export const RecordGenre = 'RecordGenre'
-export const RecordGrade = 'RecordGrade'
-export const LimitType = 'LimitType'
+export const UserRole = "UserRole"
+export const RecordStatus = "RecordStatus"
+export const RecordType = "RecordType"
+export const RecordGenre = "RecordGenre"
+export const RecordGrade = "RecordGrade"
+export const LimitType = "LimitType"

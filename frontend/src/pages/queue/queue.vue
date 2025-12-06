@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { RecordType } from '@/lib/api'
-import { ROUTER_PATHS } from '@/lib/router/router-paths'
-import { ListPlus } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import QueueCard from './components/queue-card.vue'
-import { useQueue } from './composables/use-queue'
+import { Button } from "@/components/ui/button"
+import { RecordType } from "@/lib/api"
+import { ROUTER_PATHS } from "@/lib/router/router-paths"
+import { ListPlus } from "lucide-vue-next"
+import { computed } from "vue"
+import { useRouter } from "vue-router"
+import QueueCard from "./components/queue-card.vue"
+import { useQueue } from "./composables/use-queue"
 
 const queue = useQueue()
 const router = useRouter()

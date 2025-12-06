@@ -1,9 +1,9 @@
-import { Controller, Get } from '@nestjs/common'
-import { ApiResponse } from '@nestjs/swagger'
-import { QueueDto } from './queue.dto'
-import { QueueService } from './queue.service'
+import { Controller, Get } from "@nestjs/common"
+import { ApiResponse } from "@nestjs/swagger"
+import { QueueDto } from "./queue.dto"
+import { QueueService } from "./queue.service"
 
-@Controller('queue')
+@Controller("queue")
 export class QueueController {
   constructor(private readonly queueService: QueueService) {}
 

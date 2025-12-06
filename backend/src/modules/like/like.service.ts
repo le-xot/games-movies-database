@@ -1,6 +1,6 @@
-import { PrismaService } from '@/database/prisma.service'
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
+import { PrismaService } from "@/database/prisma.service"
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
+import { EventEmitter2 } from "@nestjs/event-emitter"
 
 @Injectable()
 export class LikeService {
@@ -12,7 +12,7 @@ export class LikeService {
     })
 
     if (existingLike) {
-      throw new BadRequestException('Вы уже поставили лайк этой записи')
+      throw new BadRequestException("Вы уже поставили лайк этой записи")
     }
 
     const createdLike = await this.prisma.like.create({
@@ -21,7 +21,7 @@ export class LikeService {
         recordId,
       },
     })
-    this.eventEmitter.emit('update-likes')
+    this.eventEmitter.emit("update-likes")
     return createdLike
   }
 
@@ -31,10 +31,10 @@ export class LikeService {
     })
 
     if (deletedLike.count === 0) {
-      throw new NotFoundException('Лайк не найден')
+      throw new NotFoundException("Лайк не найден")
     }
 
-    this.eventEmitter.emit('update-likes')
+    this.eventEmitter.emit("update-likes")
   }
 
   async getLikesByRecordId(recordId: number) {

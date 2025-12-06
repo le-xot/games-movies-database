@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items.ts'
-import { useTitle } from '@vueuse/core'
-import { onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { HOME_GRID_ITEMS } from "@/pages/home/constants/home-items.ts"
+import { useTitle } from "@vueuse/core"
+import { onMounted } from "vue"
+import { RouterLink } from "vue-router"
 
 const title = useTitle()
 
 onMounted(() => {
-  title.value = 'Лешот.ру'
+  title.value = "Лешот.ру"
 })
 </script>
 

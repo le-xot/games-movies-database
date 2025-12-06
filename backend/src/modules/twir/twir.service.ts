@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common'
-import { SuggestionService } from '../suggestion/suggestion.service'
-import { UserService } from '../user/user.service'
-import { SuggestionCreateByTwirDTO } from './twir.dto'
+import { Injectable } from "@nestjs/common"
+import { SuggestionService } from "../suggestion/suggestion.service"
+import { UserService } from "../user/user.service"
+import { SuggestionCreateByTwirDTO } from "./twir.dto"
 
 @Injectable()
 export class TwirService {

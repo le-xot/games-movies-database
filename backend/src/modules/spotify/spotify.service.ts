@@ -1,9 +1,9 @@
-import { Buffer } from 'node:buffer'
-import { PrismaService } from '@/database/prisma.service'
-import { env } from '@/utils/enviroments'
-import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from '@nestjs/common'
-import { ThirdPartService } from '@prisma/client'
-import { SpotifyClient } from '@soundify/web-api'
+import { Buffer } from "node:buffer"
+import { PrismaService } from "@/database/prisma.service"
+import { env } from "@/utils/enviroments"
+import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from "@nestjs/common"
+import { ThirdPartService } from "@prisma/client"
+import { SpotifyClient } from "@soundify/web-api"
 
 @Injectable()
 export class SpotifyService implements OnApplicationBootstrap {
@@ -16,7 +16,7 @@ export class SpotifyService implements OnApplicationBootstrap {
     return new SpotifyClient(accessToken, {
       waitForRateLimit: true,
       refresher: async () => {
-        this.logger.log('Performing refreshing of spotify tokens')
+        this.logger.log("Performing refreshing of spotify tokens")
         const newToken = await this.refreshTokens()
         return newToken.accessToken
       },
@@ -31,7 +31,7 @@ export class SpotifyService implements OnApplicationBootstrap {
     })
 
     if (!token) {
-      this.logger.warn('Spotify not authorized yet, skip creating client.')
+      this.logger.warn("Spotify not authorized yet, skip creating client.")
       return
     }
 
@@ -46,18 +46,18 @@ export class SpotifyService implements OnApplicationBootstrap {
     })
 
     if (!dbTokens) {
-      throw new Error('Spotify tokens not created')
+      throw new Error("Spotify tokens not created")
     }
 
-    const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
-    const response = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
+    const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString("base64")
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authorization}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${authorization}`,
       },
       body: new URLSearchParams({
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
         refresh_token: dbTokens.refreshToken,
         client_id: env.SPOTIFY_CLIENT_ID,
       }),
@@ -88,9 +88,9 @@ export class SpotifyService implements OnApplicationBootstrap {
 
   createAuthorizationUrl(): string {
     const params = new URLSearchParams({
-      response_type: 'code',
+      response_type: "code",
       client_id: env.SPOTIFY_CLIENT_ID,
-      scope: 'user-modify-playback-state user-read-currently-playing user-read-playback-state',
+      scope: "user-modify-playback-state user-read-currently-playing user-read-playback-state",
       redirect_uri: env.SPOTIFY_CALLBACK_URL,
     })
 
@@ -100,16 +100,16 @@ export class SpotifyService implements OnApplicationBootstrap {
   }
 
   async authorize(code: string) {
-    const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
-    const response = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
+    const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString("base64")
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authorization}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${authorization}`,
       },
       body: new URLSearchParams({
         redirect_uri: env.SPOTIFY_CALLBACK_URL,
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         code,
       }),
     })

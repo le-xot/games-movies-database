@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Table from '@/components/table/table.vue'
-import TablePagination from '@/components/table/table-pagination.vue'
-import TableSearch from '@/components/table/table-search.vue'
-import { useMovie } from '../composables/use-movie.ts'
-import { useMovieParams } from '../composables/use-movie-params.ts'
-import { useMovieTable } from '../composables/use-movie-table.ts'
+import Table from "@/components/table/table.vue"
+import TablePagination from "@/components/table/table-pagination.vue"
+import TableSearch from "@/components/table/table-search.vue"
+import { useMovie } from "../composables/use-movie.ts"
+import { useMovieParams } from "../composables/use-movie-params.ts"
+import { useMovieTable } from "../composables/use-movie-table.ts"
 
 const videos = useMovie()
 const table = useMovieTable()

@@ -1,6 +1,6 @@
-import { UserRole } from '@/enums/enums.names'
-import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
+import { UserRole } from "@/enums/enums.names"
+import { ApiProperty } from "@nestjs/swagger"
+import { $Enums } from "@prisma/client"
 
 export class UserEntity {
   @ApiProperty()

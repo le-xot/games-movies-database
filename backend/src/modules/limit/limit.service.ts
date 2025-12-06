@@ -1,6 +1,6 @@
-import { PrismaService } from '@/database/prisma.service'
-import { Injectable } from '@nestjs/common'
-import { ChangeLimitDTO, LimitEntity } from './limit.dto'
+import { PrismaService } from "@/database/prisma.service"
+import { Injectable } from "@nestjs/common"
+import { ChangeLimitDTO, LimitEntity } from "./limit.dto"
 
 @Injectable()
 export class LimitService {

@@ -1,7 +1,7 @@
-import { LimitType } from '@/enums/enums.names'
-import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
-import { IsEnum, IsInt, IsNotEmpty, Min } from 'class-validator'
+import { LimitType } from "@/enums/enums.names"
+import { ApiProperty } from "@nestjs/swagger"
+import { $Enums } from "@prisma/client"
+import { IsEnum, IsInt, IsNotEmpty, Min } from "class-validator"
 
 export class ChangeLimitDTO {
   @ApiProperty({ enum: $Enums.LimitType, enumName: LimitType })
@@ -9,7 +9,7 @@ export class ChangeLimitDTO {
   @IsNotEmpty()
   name: $Enums.LimitType
 
-  @ApiProperty({ example: 5, description: 'Limit quantity' })
+  @ApiProperty({ example: 5, description: "Limit quantity" })
   @IsInt()
   @Min(1)
   @IsNotEmpty()

@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { gradeTags } from '@/components/table/composables/use-table-select'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useApi } from '@/composables/use-api'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
-import { getImageUrl } from '@/lib/utils/image.ts'
-import { useTitle } from '@vueuse/core'
-import { Check, ChevronsUpDown } from 'lucide-vue-next'
-import { computed, onMounted, ref, watch } from 'vue'
+import { gradeTags } from "@/components/table/composables/use-table-select"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useApi } from "@/composables/use-api"
+import { useUser } from "@/composables/use-user"
+import { RecordEntity, RecordGrade, UserEntity } from "@/lib/api"
+import { getImageUrl } from "@/lib/utils/image.ts"
+import { useTitle } from "@vueuse/core"
+import { Check, ChevronsUpDown } from "lucide-vue-next"
+import { computed, onMounted, ref, watch } from "vue"
 
 const title = useTitle()
-onMounted(() => title.value = 'Профиль')
+onMounted(() => title.value = "Профиль")
 
 const user = useUser()
 const api = useApi()
@@ -24,7 +24,7 @@ const users = ref<UserEntity[]>([])
 const selectedUserId = ref<string | null>(null)
 const isUsersLoading = ref(false)
 const isUserSelectorOpen = ref(false)
-const searchValue = ref('')
+const searchValue = ref("")
 
 async function fetchUsers() {
   isUsersLoading.value = true
@@ -32,7 +32,7 @@ async function fetchUsers() {
     const response = await api.users.userControllerGetAllUsers()
     users.value = response.data
   } catch (error) {
-    console.error('Error fetching users:', error)
+    console.error("Error fetching users:", error)
     users.value = []
   } finally {
     isUsersLoading.value = false
@@ -50,7 +50,7 @@ async function fetchUserRecords() {
     const response = await api.users.userControllerGetUserRecords({ login: targetUser.login })
     data.value = response.data
   } catch (error) {
-    console.error('Error fetching user records:', error)
+    console.error("Error fetching user records:", error)
     data.value = []
   }
 }
@@ -61,11 +61,11 @@ const selectedUser = computed(() => {
 })
 
 const userGames = computed(() =>
-  data.value?.filter((item: RecordEntity) => item.genre === 'GAME') || [],
+  data.value?.filter((item: RecordEntity) => item.genre === "GAME") || [],
 )
 
 const userVideos = computed(() =>
-  data.value?.filter((item: RecordEntity) => item.genre !== 'GAME' && item.genre !== null) || [],
+  data.value?.filter((item: RecordEntity) => item.genre !== "GAME" && item.genre !== null) || [],
 )
 
 const isOwnProfile = computed(() => !selectedUserId.value || selectedUserId.value === user.user?.id)
@@ -105,7 +105,7 @@ const filteredUsers = computed(() => {
 
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  img.src = '/images/aga.webp'
+  img.src = "/images/aga.webp"
 }
 </script>
 

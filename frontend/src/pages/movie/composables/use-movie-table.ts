@@ -1,25 +1,25 @@
-import { useDialog } from '@/components/dialog/composables/use-dialog'
-import DialogButton from '@/components/dialog/dialog-button.vue'
-import TableColSelect from '@/components/table/table-col/table-col-select.vue'
-import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import TableColUser from '@/components/table/table-col/table-col-user.vue'
-import TableFilterGrade from '@/components/table/table-filter-grade.vue'
-import TableFilterStatus from '@/components/table/table-filter-status.vue'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
+import { useDialog } from "@/components/dialog/composables/use-dialog"
+import DialogButton from "@/components/dialog/dialog-button.vue"
+import TableColSelect from "@/components/table/table-col/table-col-select.vue"
+import TableColTitle from "@/components/table/table-col/table-col-title.vue"
+import TableColUser from "@/components/table/table-col/table-col-user.vue"
+import TableFilterGrade from "@/components/table/table-filter-grade.vue"
+import TableFilterStatus from "@/components/table/table-filter-status.vue"
+import { useUser } from "@/composables/use-user"
+import { RecordEntity, RecordGrade, RecordStatus } from "@/lib/api.ts"
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
   useVueTable,
-} from '@tanstack/vue-table'
-import { Eraser } from 'lucide-vue-next'
-import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, h } from 'vue'
-import { useMovie } from './use-movie.ts'
-import { useMovieParams } from './use-movie-params.ts'
+} from "@tanstack/vue-table"
+import { Eraser } from "lucide-vue-next"
+import { acceptHMRUpdate, defineStore, storeToRefs } from "pinia"
+import { computed, h } from "vue"
+import { useMovie } from "./use-movie.ts"
+import { useMovieParams } from "./use-movie-params.ts"
 
-export const useMovieTable = defineStore('movies/use-movies-table', () => {
+export const useMovieTable = defineStore("movies/use-movies-table", () => {
   const { isAdmin } = storeToRefs(useUser())
   const moviesStore = useMovie()
   const moviesParams = useMovieParams()
@@ -30,8 +30,8 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
   const tableColumns = computed(() => {
     const columns: ColumnDef<RecordEntity>[] = [
       {
-        accessorKey: 'title',
-        header: 'Название',
+        accessorKey: "title",
+        header: "Название",
         size: isAdmin.value ? 55 : 60,
         minSize: isAdmin.value ? 55 : 60,
         maxSize: isAdmin.value ? 55 : 60,
@@ -45,8 +45,8 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
         },
       },
       {
-        accessorKey: 'user',
-        header: 'Пользователь',
+        accessorKey: "user",
+        header: "Пользователь",
         size: 20,
         minSize: 20,
         maxSize: 20,
@@ -63,10 +63,10 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
         },
       },
       {
-        accessorKey: 'status',
+        accessorKey: "status",
         header: () => {
-          return h('div', { class: 'flex justify-between items-center mx-3' }, [
-            h('span', {}, 'Статус'),
+          return h("div", { class: "flex justify-between items-center mx-3" }, [
+            h("span", {}, "Статус"),
             h(TableFilterStatus, {
               value: null,
               onUpdate: (value) => {
@@ -83,7 +83,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
             value: row.original.status as RecordStatus,
-            kind: 'status',
+            kind: "status",
             onUpdate: (value) => {
               moviesStore.updateVideo({
                 id: row.original.id,
@@ -96,10 +96,10 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
         },
       },
       {
-        accessorKey: 'grade',
+        accessorKey: "grade",
         header: () => {
-          return h('div', { class: 'flex justify-between items-center mx-3' }, [
-            h('span', {}, 'Оценка'),
+          return h("div", { class: "flex justify-between items-center mx-3" }, [
+            h("span", {}, "Оценка"),
             h(TableFilterGrade, {
               value: null,
               onUpdate: (value) => {
@@ -116,7 +116,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
             value: row.original.grade as RecordGrade,
-            kind: 'grade',
+            kind: "grade",
             onUpdate: (value) => {
               moviesStore.updateVideo({
                 id: row.original.id,
@@ -129,22 +129,22 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
     ]
     if (isAdmin.value) {
       columns.unshift({
-        accessorKey: 'id',
+        accessorKey: "id",
         size: 5,
         minSize: 5,
         maxSize: 5,
         enableResizing: false,
-        header: '',
+        header: "",
         cell: ({ row }) => {
-          return h('div', {}, {
+          return h("div", {}, {
             default: () => [
               h(DialogButton, {
                 key: `id-${row.original.id}`,
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
-                  title: `Удалить кинчик?`,
-                  content: '',
-                  description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
+                  title: "Удалить кинчик?",
+                  content: "",
+                  description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : "эту запись"}?`,
                   onSubmit: () => moviesStore.deleteVideo(row.original.id),
                 }),
               }),

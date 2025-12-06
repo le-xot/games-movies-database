@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { RecordStatus } from '@/lib/api.ts'
-import { ListFilter } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { statusTags } from './composables/use-table-select'
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { RecordStatus } from "@/lib/api.ts"
+import { ListFilter } from "lucide-vue-next"
+import { computed } from "vue"
+import { statusTags } from "./composables/use-table-select"
 
 const props = defineProps<{
   value: RecordStatus[] | null
@@ -28,10 +28,10 @@ function toggleStatus(status: string) {
       ? props.value.filter(s => s !== statusValue) || null
       : [...props.value, statusValue]
     : [statusValue]
-  emit('update', newValue.length ? newValue : null)
+  emit("update", newValue.length ? newValue : null)
 }
 
-const resetFilter = () => emit('update', null)
+const resetFilter = () => emit("update", null)
 </script>
 
 <template>

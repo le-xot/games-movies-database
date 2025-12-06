@@ -1,8 +1,8 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
-import { LikeEntity } from '@/modules/like/like.entity'
-import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
-import { UserEntity } from '../user/user.entity'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from "@/enums/enums.names"
+import { LikeEntity } from "@/modules/like/like.entity"
+import { ApiProperty } from "@nestjs/swagger"
+import { $Enums } from "@prisma/client"
+import { UserEntity } from "../user/user.entity"
 
 export class RecordEntity {
   @ApiProperty()

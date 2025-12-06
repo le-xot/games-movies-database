@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MovieTable from '@/pages/movie/components/movie-table.vue'
+import MovieTable from "@/pages/movie/components/movie-table.vue"
 </script>
 
 <template>

@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useNewRecords } from '@/composables/use-new-records'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGenre, UserRole } from '@/lib/api.ts'
-import { generateWatchLink } from '@/lib/utils/generate-watch-link.ts'
-import { getImageUrl } from '@/lib/utils/image.ts'
-import { useLike } from '@/pages/suggestion/composables/use-like.ts'
-import { useThrottleFn } from '@vueuse/core'
-import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next'
-import { storeToRefs } from 'pinia'
-import { computed, ref, watch } from 'vue'
-import { useSuggestion } from '../composables/use-suggestion'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useNewRecords } from "@/composables/use-new-records"
+import { useUser } from "@/composables/use-user"
+import { RecordEntity, RecordGenre, UserRole } from "@/lib/api.ts"
+import { generateWatchLink } from "@/lib/utils/generate-watch-link.ts"
+import { getImageUrl } from "@/lib/utils/image.ts"
+import { useLike } from "@/pages/suggestion/composables/use-like.ts"
+import { useThrottleFn } from "@vueuse/core"
+import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from "lucide-vue-next"
+import { storeToRefs } from "pinia"
+import { computed, ref, watch } from "vue"
+import { useSuggestion } from "../composables/use-suggestion"
 
 const props = defineProps<{
   items: RecordEntity[]
-  sortBy: 'date' | 'likes'
+  sortBy: "date" | "likes"
 }>()
 
 const { isAdmin, currentUserId } = storeToRefs(useUser())
@@ -59,7 +59,7 @@ const groupedItems = computed(() => {
   const groups = new Map<string, RecordEntity[]>()
 
   for (const item of props.items) {
-    const genre = item.genre || 'other'
+    const genre = item.genre || "other"
     if (!groups.has(genre)) {
       groups.set(genre, [])
     }
@@ -67,14 +67,14 @@ const groupedItems = computed(() => {
   }
 
   for (const items of groups.values()) {
-    if (props.sortBy === 'date') {
+    if (props.sortBy === "date") {
       items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     } else {
       items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
     }
   }
 
-  const groupOrder = [RecordGenre.MOVIE, RecordGenre.GAME, RecordGenre.ANIME, RecordGenre.CARTOON, RecordGenre.SERIES, 'other']
+  const groupOrder = [RecordGenre.MOVIE, RecordGenre.GAME, RecordGenre.ANIME, RecordGenre.CARTOON, RecordGenre.SERIES, "other"]
   return Array.from(groups.entries()).sort(([a], [b]) => {
     return groupOrder.indexOf(a) - groupOrder.indexOf(b)
   })
@@ -82,12 +82,12 @@ const groupedItems = computed(() => {
 
 function getGroupTitle(genre: string): string {
   switch (genre) {
-    case RecordGenre.GAME: return 'Игры:'
-    case RecordGenre.MOVIE: return 'Фильмы:'
-    case RecordGenre.SERIES: return 'Сериалы:'
-    case RecordGenre.ANIME: return 'Аниме:'
-    case RecordGenre.CARTOON: return 'Мультфильмы:'
-    default: return 'Другое:'
+    case RecordGenre.GAME: return "Игры:"
+    case RecordGenre.MOVIE: return "Фильмы:"
+    case RecordGenre.SERIES: return "Сериалы:"
+    case RecordGenre.ANIME: return "Аниме:"
+    case RecordGenre.CARTOON: return "Мультфильмы:"
+    default: return "Другое:"
   }
 }
 
@@ -128,7 +128,7 @@ function handleLikeClick(itemId: number) {
 
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  img.src = '/images/aga.webp'
+  img.src = "/images/aga.webp"
 }
 </script>
 

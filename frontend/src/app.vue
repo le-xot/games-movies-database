@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useWebSocket } from '@/composables/use-websocket.ts'
-import { onMounted, ref } from 'vue'
+import { useWebSocket } from "@/composables/use-websocket.ts"
+import { onMounted, ref } from "vue"
 
 const maintenanceMode = ref(false)
 
 onMounted(() => {
-  const bypassMaintenance = localStorage.getItem('bypassMaintenance')
-  if (bypassMaintenance === 'true') {
+  const bypassMaintenance = localStorage.getItem("bypassMaintenance")
+  if (bypassMaintenance === "true") {
     maintenanceMode.value = false
   }
 })

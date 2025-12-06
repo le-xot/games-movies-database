@@ -1,9 +1,9 @@
-import { PrismaService } from '@/database/prisma.service'
-import { Injectable } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { $Enums, User } from '@prisma/client'
-import { RecordEntity } from '../record/record.entity'
-import { TwitchService } from '../twitch/twitch.service'
+import { PrismaService } from "@/database/prisma.service"
+import { Injectable } from "@nestjs/common"
+import { EventEmitter2 } from "@nestjs/event-emitter"
+import { $Enums, User } from "@prisma/client"
+import { RecordEntity } from "../record/record.entity"
+import { TwitchService } from "../twitch/twitch.service"
 
 @Injectable()
 export class UserService {
@@ -32,7 +32,7 @@ export class UserService {
           color: data.color,
         },
       })
-      this.eventEmitter.emit('update-users')
+      this.eventEmitter.emit("update-users")
       return createdUser
     }
 
@@ -49,7 +49,7 @@ export class UserService {
         color: data.color,
       },
     })
-    this.eventEmitter.emit('update-users')
+    this.eventEmitter.emit("update-users")
     return updatedUser
   }
 
@@ -73,14 +73,14 @@ export class UserService {
           id: twitchUser.id,
           login: twitchUser.login,
           role: $Enums.UserRole.USER,
-          profileImageUrl: twitchUser.profile_image_url || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-          color: '#333333',
+          profileImageUrl: twitchUser.profile_image_url || "https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png",
+          color: "#333333",
         },
       })
-      this.eventEmitter.emit('update-users')
+      this.eventEmitter.emit("update-users")
       return createdUser
     } catch (error) {
-      console.error('Error creating user by id:', error)
+      console.error("Error creating user by id:", error)
       throw error
     }
   }
@@ -100,14 +100,14 @@ export class UserService {
           id: twitchUser.id,
           login: twitchUser.login,
           role: $Enums.UserRole.USER,
-          profileImageUrl: twitchUser.profile_image_url || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-          color: '#333333',
+          profileImageUrl: twitchUser.profile_image_url || "https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png",
+          color: "#333333",
         },
       })
-      this.eventEmitter.emit('update-users')
+      this.eventEmitter.emit("update-users")
       return createdUser
     } catch (error) {
-      console.error('Error creating user by login:', error)
+      console.error("Error creating user by login:", error)
       throw error
     }
   }
@@ -126,11 +126,11 @@ export class UserService {
 
   async deleteUserByLogin(login: string): Promise<void> {
     await this.prisma.user.delete({ where: { login } })
-    this.eventEmitter.emit('update-users')
+    this.eventEmitter.emit("update-users")
   }
 
   async deleteUserById(id: string): Promise<void> {
     await this.prisma.user.delete({ where: { id } })
-    this.eventEmitter.emit('update-users')
+    this.eventEmitter.emit("update-users")
   }
 }

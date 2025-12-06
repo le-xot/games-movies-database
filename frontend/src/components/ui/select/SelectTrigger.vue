@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
-import { reactiveOmit } from '@vueuse/core'
-import { SelectTrigger, useForwardProps } from 'reka-ui'
-import type { SelectTriggerProps } from 'reka-ui'
-import type { HTMLAttributes } from 'vue'
+import { cn } from "@/lib/utils"
+import { reactiveOmit } from "@vueuse/core"
+import { SelectTrigger, useForwardProps } from "reka-ui"
+import type { SelectTriggerProps } from "reka-ui"
+import type { HTMLAttributes } from "vue"
 
-const props = defineProps<SelectTriggerProps & { class?: HTMLAttributes['class'] }>()
+const props = defineProps<SelectTriggerProps & { class?: HTMLAttributes["class"] }>()
 
-const delegatedProps = reactiveOmit(props, 'class')
+const delegatedProps = reactiveOmit(props, "class")
 
 const forwardedProps = useForwardProps(delegatedProps)
 </script>

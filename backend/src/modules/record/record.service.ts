@@ -1,11 +1,11 @@
-import { PrismaService } from '@/database/prisma.service'
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { $Enums, Prisma } from '@prisma/client'
-import { RecordsProvidersService } from '../records-providers/records-providers.service'
-import { UserEntity } from '../user/user.entity'
-import { RecordCreateFromLinkDTO, RecordUpdateDTO } from './record.dto'
-import { RecordEntity } from './record.entity'
+import { PrismaService } from "@/database/prisma.service"
+import { Injectable, NotFoundException } from "@nestjs/common"
+import { EventEmitter2 } from "@nestjs/event-emitter"
+import { $Enums, Prisma } from "@prisma/client"
+import { RecordsProvidersService } from "../records-providers/records-providers.service"
+import { UserEntity } from "../user/user.entity"
+import { RecordCreateFromLinkDTO, RecordUpdateDTO } from "./record.dto"
+import { RecordEntity } from "./record.entity"
 
 @Injectable()
 export class RecordService {
@@ -25,17 +25,17 @@ export class RecordService {
     })
 
     if (createdData.type === $Enums.RecordType.SUGGESTION && createdData.type !== $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit("update-suggestions")
     }
 
     if (createdData.status === $Enums.RecordStatus.QUEUE && createdData.type === $Enums.RecordType.WRITTEN) {
-      this.eventEmitter.emit('update-queue')
+      this.eventEmitter.emit("update-queue")
     }
     if (createdData.type === $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit("update-suggestions")
     }
     if (createdData.type === $Enums.RecordType.AUCTION) {
-      this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit("update-auction")
     }
     return createdData
   }
@@ -45,7 +45,7 @@ export class RecordService {
       where: { id },
     })
     if (!foundedRecord) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundException("Record not found")
     }
     const updatedRecord = await this.prisma.record.update({
       where: { id },
@@ -54,7 +54,7 @@ export class RecordService {
     })
 
     if (foundedRecord.type === $Enums.RecordType.SUGGESTION && updatedRecord.type !== $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit("update-suggestions")
     }
 
     if (
@@ -62,13 +62,13 @@ export class RecordService {
       || (updatedRecord.status === $Enums.RecordStatus.QUEUE && updatedRecord.type === $Enums.RecordType.WRITTEN)
       || (foundedRecord.type === $Enums.RecordType.WRITTEN && updatedRecord.type !== $Enums.RecordType.WRITTEN)
     ) {
-      this.eventEmitter.emit('update-queue')
+      this.eventEmitter.emit("update-queue")
     }
 
     if (foundedRecord.type !== $Enums.RecordType.AUCTION && updatedRecord.type === $Enums.RecordType.AUCTION) {
-      this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit("update-auction")
     }
-    this.eventEmitter.emit('update-records', { genre: updatedRecord.genre })
+    this.eventEmitter.emit("update-records", { genre: updatedRecord.genre })
     return updatedRecord
   }
 
@@ -79,19 +79,19 @@ export class RecordService {
     await this.prisma.like.deleteMany({ where: { recordId: id } })
     await this.prisma.record.delete({ where: { id } })
     if (foundedRecord.type === $Enums.RecordType.SUGGESTION && foundedRecord.type !== $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit("update-suggestions")
     }
 
     if (foundedRecord.status === $Enums.RecordStatus.QUEUE && foundedRecord.type === $Enums.RecordType.WRITTEN) {
-      this.eventEmitter.emit('update-queue')
+      this.eventEmitter.emit("update-queue")
     }
     if (foundedRecord.type === $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit("update-suggestions")
     }
     if (foundedRecord.type === $Enums.RecordType.AUCTION) {
-      this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit("update-auction")
     }
-    this.eventEmitter.emit('update-records', { genre: foundedRecord.genre })
+    this.eventEmitter.emit("update-records", { genre: foundedRecord.genre })
   }
 
   async getAllRecords(
@@ -105,8 +105,8 @@ export class RecordService {
       userId?: string
       genre?: $Enums.RecordGenre
     },
-    orderBy?: 'title' | 'id',
-    direction?: 'asc' | 'desc',
+    orderBy?: "title" | "id",
+    direction?: "asc" | "desc",
   ): Promise<{ records: RecordEntity[], total: number }> {
     const skip = (page - 1) * limit
     const where: Prisma.RecordWhereInput = {}
@@ -158,7 +158,7 @@ export class RecordService {
       where: Object.keys(where).length > 0 ? where : undefined,
       include: { user: true, likes: true },
       orderBy: {
-        [orderBy || 'id']: direction || 'asc',
+        [orderBy || "id"]: direction || "asc",
       },
       skip,
       take: limit,
@@ -176,7 +176,7 @@ export class RecordService {
       },
     })
     if (!record) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundException("Record not found")
     }
     return record
   }

@@ -1,5 +1,5 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
-import { $Enums } from '@prisma/client'
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common"
+import { $Enums } from "@prisma/client"
 
 @Injectable()
 export class RolesGuard implements CanActivate {

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useBreakpoints } from '@/composables/use-breakpoints'
-import { generateWatchLink } from '@/lib/utils/generate-watch-link'
-import { computed, toRef } from 'vue'
-import { useTableCol } from '../composables/use-table-col'
+import { useBreakpoints } from "@/composables/use-breakpoints"
+import { generateWatchLink } from "@/lib/utils/generate-watch-link"
+import { computed, toRef } from "vue"
+import { useTableCol } from "../composables/use-table-col"
 
 type TitleType = string | undefined
 
 const props = defineProps<{ title: TitleType, link: string }>()
 const emits = defineEmits<{ update: [TitleType] }>()
-const title = toRef(props, 'title')
+const title = toRef(props, "title")
 
 const breakpoints = useBreakpoints()
 

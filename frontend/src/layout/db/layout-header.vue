@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import LoginForm from '@/components/form/login-form.vue'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useTitle } from '@/composables/use-title'
-import { useUser } from '@/composables/use-user'
-import { ROUTER_PATHS } from '@/lib/router/router-paths.ts'
+import LoginForm from "@/components/form/login-form.vue"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { useTitle } from "@/composables/use-title"
+import { useUser } from "@/composables/use-user"
+import { ROUTER_PATHS } from "@/lib/router/router-paths.ts"
 import {
   Baby,
   Film,
@@ -15,9 +15,9 @@ import {
   JapaneseYen,
   ListOrdered,
   Popcorn,
-} from 'lucide-vue-next'
-import { computed, onMounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+} from "lucide-vue-next"
+import { computed, onMounted } from "vue"
+import { RouterLink, useRoute } from "vue-router"
 
 const route = useRoute()
 const { updateTitle } = useTitle()
@@ -32,26 +32,26 @@ interface RouteItem {
 }
 
 const allRoutes: RouteItem[] = [
-  { name: 'Главная', icon: HouseIcon, path: ROUTER_PATHS.home, group: 1 },
+  { name: "Главная", icon: HouseIcon, path: ROUTER_PATHS.home, group: 1 },
   {
-    name: 'Советы',
+    name: "Советы",
     icon: HandPlatter,
     path: ROUTER_PATHS.dbSuggestion,
     group: 2,
   },
   {
-    name: 'Аукцион',
+    name: "Аукцион",
     icon: Gavel,
     path: ROUTER_PATHS.dbAuction,
     group: 2,
     requiresAdmin: true,
   },
-  { name: 'Очередь', icon: ListOrdered, path: ROUTER_PATHS.dbQueue, group: 2 },
-  { name: 'Игры', icon: Gamepad2, path: ROUTER_PATHS.dbGames, group: 3 },
-  { name: 'Аниме', icon: JapaneseYen, path: ROUTER_PATHS.dbAnime, group: 3 },
-  { name: 'Фильмы', icon: Film, path: ROUTER_PATHS.dbMovie, group: 3 },
-  { name: 'Сериалы', icon: Popcorn, path: ROUTER_PATHS.dbSeries, group: 3 },
-  { name: 'Мультфильмы', icon: Baby, path: ROUTER_PATHS.dbCartoon, group: 3 },
+  { name: "Очередь", icon: ListOrdered, path: ROUTER_PATHS.dbQueue, group: 2 },
+  { name: "Игры", icon: Gamepad2, path: ROUTER_PATHS.dbGames, group: 3 },
+  { name: "Аниме", icon: JapaneseYen, path: ROUTER_PATHS.dbAnime, group: 3 },
+  { name: "Фильмы", icon: Film, path: ROUTER_PATHS.dbMovie, group: 3 },
+  { name: "Сериалы", icon: Popcorn, path: ROUTER_PATHS.dbSeries, group: 3 },
+  { name: "Мультфильмы", icon: Baby, path: ROUTER_PATHS.dbCartoon, group: 3 },
 ]
 
 const groupedRoutes = computed(() => {

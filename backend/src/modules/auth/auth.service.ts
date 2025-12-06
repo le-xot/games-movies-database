@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
-import { TwitchService } from '../twitch/twitch.service'
-import { UserService } from '../user/user.service'
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common"
+import { JwtService } from "@nestjs/jwt"
+import { TwitchService } from "../twitch/twitch.service"
+import { UserService } from "../user/user.service"
 
 @Injectable()
 export class AuthService {
@@ -15,7 +15,7 @@ export class AuthService {
     const foundedUser = await this.userService.getUserById(userId)
     if (!foundedUser) {
       throw new HttpException(
-        'User does not exist',
+        "User does not exist",
         HttpStatus.UNAUTHORIZED,
       )
     }

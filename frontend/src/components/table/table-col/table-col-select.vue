@@ -1,11 +1,11 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { useUser } from '@/composables/use-user'
-import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api.ts'
-import { storeToRefs } from 'pinia'
-import { computed, ref, toRef, useId } from 'vue'
-import { useTableCol } from '../composables/use-table-col'
-import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { useUser } from "@/composables/use-user"
+import { RecordGenre, RecordGrade, RecordStatus } from "@/lib/api.ts"
+import { storeToRefs } from "pinia"
+import { computed, ref, toRef, useId } from "vue"
+import { useTableCol } from "../composables/use-table-col"
+import { BadgeOptions, SelectKind, useTableSelect } from "../composables/use-table-select"
 
 type ValueSelect = T | undefined
 
@@ -14,7 +14,7 @@ const props = defineProps<{
   value: ValueSelect
 }>()
 const emits = defineEmits<{ update: [ValueSelect] }>()
-const selectValue = toRef(props, 'value')
+const selectValue = toRef(props, "value")
 
 const isOpen = ref(false)
 const { isAdmin } = storeToRefs(useUser())
@@ -37,7 +37,7 @@ const data = computed(() => {
 })
 
 const placeholder = computed(() => {
-  if (!data.value.tag) return 'Нет данных'
+  if (!data.value.tag) return "Нет данных"
   return data.value.tag.name
 })
 </script>

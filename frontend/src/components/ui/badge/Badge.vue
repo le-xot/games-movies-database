@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import type { BadgeVariants } from "."
 import { cn } from "@/lib/utils"
 import { badgeVariants } from "."
+import type { HTMLAttributes } from "vue"
+import type { BadgeVariants } from "."
 
 const props = defineProps<{
   variant?: BadgeVariants["variant"]

@@ -1,16 +1,16 @@
-import { UserRole } from '@/enums/enums.names'
-import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
-import { IsEnum, IsHexColor, IsOptional, IsString, IsUrl } from 'class-validator'
+import { UserRole } from "@/enums/enums.names"
+import { ApiProperty } from "@nestjs/swagger"
+import { $Enums } from "@prisma/client"
+import { IsEnum, IsHexColor, IsOptional, IsString, IsUrl } from "class-validator"
 
 export class UserCreateByLoginDTO {
-  @ApiProperty({ description: 'Unique login of the user', example: 'john_doe' })
+  @ApiProperty({ description: "Unique login of the user", example: "john_doe" })
   @IsString()
   login: string
 }
 
 export class UserUpdateDTO {
-  @ApiProperty({ example: 'john_doe', required: false })
+  @ApiProperty({ example: "john_doe", required: false })
   @IsOptional()
   @IsString()
   login?: string
@@ -26,13 +26,13 @@ export class UserUpdateDTO {
   @IsOptional()
   role?: $Enums.UserRole
 
-  @ApiProperty({ example: 'https://example.com/image.jpg', required: false })
+  @ApiProperty({ example: "https://example.com/image.jpg", required: false })
   @IsOptional()
   @IsUrl()
   profileImageUrl?: string
 
   @ApiProperty({
-    example: '#333333',
+    example: "#333333",
     required: false,
   })
   @IsHexColor()

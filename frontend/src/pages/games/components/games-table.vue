@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Table from '@/components/table/table.vue'
-import TablePagination from '@/components/table/table-pagination.vue'
-import TableSearch from '@/components/table/table-search.vue'
-import { useGames } from '../composables/use-games'
-import { useGamesParams } from '../composables/use-games-params'
-import { useGamesTable } from '../composables/use-games-table'
+import Table from "@/components/table/table.vue"
+import TablePagination from "@/components/table/table-pagination.vue"
+import TableSearch from "@/components/table/table-search.vue"
+import { useGames } from "../composables/use-games"
+import { useGamesParams } from "../composables/use-games-params"
+import { useGamesTable } from "../composables/use-games-table"
 
 const games = useGames()
 const table = useGamesTable()

@@ -1,5 +1,5 @@
-import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { RecordGenre, RecordGrade, RecordStatus } from "@/lib/api"
+import { acceptHMRUpdate, defineStore } from "pinia"
 
 export interface BadgeOptions {
   name: string
@@ -8,41 +8,41 @@ export interface BadgeOptions {
   class: string
 }
 
-export type SelectKind = 'genre' | 'status' | 'grade'
+export type SelectKind = "genre" | "status" | "grade"
 
 export const statusTags: Record<
   RecordStatus,
   BadgeOptions
 > = {
   [RecordStatus.QUEUE]: {
-    name: 'В очереди',
-    description: 'заказ ждёт своего часа.',
-    class: 'bg-[#333333] border text-white/80',
+    name: "В очереди",
+    description: "заказ ждёт своего часа.",
+    class: "bg-[#333333] border text-white/80",
   },
   [RecordStatus.UNFINISHED]: {
-    name: 'Нет концовки',
-    description: 'игра не имеет концовки (титров или логического завершения сюжета).',
-    class: 'bg-[#28456c] border text-white/80',
+    name: "Нет концовки",
+    description: "игра не имеет концовки (титров или логического завершения сюжета).",
+    class: "bg-[#28456c] border text-white/80",
   },
   [RecordStatus.DONE]: {
-    name: 'Готово',
-    description: 'игра выполнена, кинолента посмотрена.',
-    class: 'bg-[#2b593f] border text-white/80',
+    name: "Готово",
+    description: "игра выполнена, кинолента посмотрена.",
+    class: "bg-[#2b593f] border text-white/80",
   },
   [RecordStatus.PROGRESS]: {
-    name: 'В процессе',
-    description: 'заказ находится на стадии выполнения.',
-    class: 'bg-[#89632a] border text-white/80',
+    name: "В процессе",
+    description: "заказ находится на стадии выполнения.",
+    class: "bg-[#89632a] border text-white/80",
   },
   [RecordStatus.DROP]: {
-    name: 'Дроп',
-    description: 'заказ не будет закончен до конца.',
-    class: 'bg-[#6e3630] border text-white/80',
+    name: "Дроп",
+    description: "заказ не будет закончен до конца.",
+    class: "bg-[#6e3630] border text-white/80",
   },
   [RecordStatus.NOTINTERESTED]: {
-    name: 'Не интересно',
-    description: 'заказ не интересен.',
-    class: 'border text-white/80',
+    name: "Не интересно",
+    description: "заказ не интересен.",
+    class: "border text-white/80",
   },
 }
 
@@ -51,20 +51,20 @@ export const genreTags: Partial<Record<
   BadgeOptions
 >> = {
   [RecordGenre.MOVIE]: {
-    name: 'Фильм',
-    class: 'bg-[#2b593f] border text-white/80',
+    name: "Фильм",
+    class: "bg-[#2b593f] border text-white/80",
   },
   [RecordGenre.SERIES]: {
-    name: 'Сериал',
-    class: 'bg-[#28456c] border text-white/80',
+    name: "Сериал",
+    class: "bg-[#28456c] border text-white/80",
   },
   [RecordGenre.ANIME]: {
-    name: 'Аниме',
-    class: 'bg-[#6e3630] border text-white/80',
+    name: "Аниме",
+    class: "bg-[#6e3630] border text-white/80",
   },
   [RecordGenre.CARTOON]: {
-    name: 'Мультфильм',
-    class: 'bg-[#89632a] border text-white/80',
+    name: "Мультфильм",
+    class: "bg-[#89632a] border text-white/80",
   },
 }
 
@@ -73,32 +73,32 @@ export const gradeTags: Record<
   BadgeOptions
 > = {
   [RecordGrade.RECOMMEND]: {
-    name: '🔥',
-    label: 'Рекомендую',
-    description: 'надеюсь, что это понравится всем. Произведения заслуживающие внимания.',
-    class: 'bg-[#28456c] border',
+    name: "🔥",
+    label: "Рекомендую",
+    description: "надеюсь, что это понравится всем. Произведения заслуживающие внимания.",
+    class: "bg-[#28456c] border",
   },
   [RecordGrade.LIKE]: {
-    name: '👍',
-    label: 'Понравилось',
-    description: 'мне, но может не понравится вам. Больше вкусовщина.',
-    class: 'bg-[#2b593f] border',
+    name: "👍",
+    label: "Понравилось",
+    description: "мне, но может не понравится вам. Больше вкусовщина.",
+    class: "bg-[#2b593f] border",
   },
   [RecordGrade.BEER]: {
-    name: '🍺',
-    label: 'Под пивко',
-    description: 'пойдёт. Больше чем на один разочек не тянет, как не старайся.',
-    class: 'bg-[#89632a] border',
+    name: "🍺",
+    label: "Под пивко",
+    description: "пойдёт. Больше чем на один разочек не тянет, как не старайся.",
+    class: "bg-[#89632a] border",
   },
   [RecordGrade.DISLIKE]: {
-    name: '👎',
-    label: 'Не рекомендую',
-    description: 'и считаю это пустой тратой времени и недостойным проведением досуга.',
-    class: 'bg-[#6e3630] border',
+    name: "👎",
+    label: "Не рекомендую",
+    description: "и считаю это пустой тратой времени и недостойным проведением досуга.",
+    class: "bg-[#6e3630] border",
   },
 }
 
-export const useTableSelect = defineStore('use-table-select', () => {
+export const useTableSelect = defineStore("use-table-select", () => {
   const options: Record<SelectKind, { label: string, value: string, class: string }[]> = {
     status: Object.entries(statusTags).map(([key, value]) => {
       return {

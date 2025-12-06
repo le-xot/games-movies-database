@@ -1,8 +1,8 @@
-import { PrismaService } from '@/database/prisma.service'
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { $Enums } from '@prisma/client'
-import { RecordsProvidersService } from '../records-providers/records-providers.service'
+import { PrismaService } from "@/database/prisma.service"
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common"
+import { EventEmitter2 } from "@nestjs/event-emitter"
+import { $Enums } from "@prisma/client"
+import { RecordsProvidersService } from "../records-providers/records-providers.service"
 
 @Injectable()
 export class SuggestionService {
@@ -20,7 +20,7 @@ export class SuggestionService {
     const suggestionsCount = await this.prisma.record.count({ where: { userId: data.userId, type: $Enums.LimitType.SUGGESTION } })
 
     if (suggestionsCount >= limit.quantity) {
-      throw new BadRequestException('Достигнут лимит предложений')
+      throw new BadRequestException("Достигнут лимит предложений")
     }
 
     const preparedData = await this.recordsProviderService.prepareData(data)
@@ -35,7 +35,7 @@ export class SuggestionService {
       },
     })
 
-    this.eventEmitter.emit('update-suggestions')
+    this.eventEmitter.emit("update-suggestions")
     return {
       title: preparedData.title,
       genre: preparedData.genre,
@@ -55,18 +55,18 @@ export class SuggestionService {
     })
 
     if (!suggestion) {
-      throw new NotFoundException('Предложение не найдено')
+      throw new NotFoundException("Предложение не найдено")
     }
 
     if (suggestion.userId !== userId) {
-      throw new ForbiddenException('Вы можете удалять только свои предложения')
+      throw new ForbiddenException("Вы можете удалять только свои предложения")
     }
 
     if (suggestion.type !== $Enums.RecordType.SUGGESTION) {
-      throw new BadRequestException('Запись не является предложением')
+      throw new BadRequestException("Запись не является предложением")
     }
 
     await this.prisma.record.delete({ where: { id } })
-    this.eventEmitter.emit('update-suggestions')
+    this.eventEmitter.emit("update-suggestions")
   }
 }

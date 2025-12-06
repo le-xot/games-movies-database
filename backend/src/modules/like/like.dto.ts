@@ -1,7 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsInt, IsNumber, IsOptional } from 'class-validator'
-import { LikeEntity } from './like.entity'
+import { ApiProperty } from "@nestjs/swagger"
+import { Type } from "class-transformer"
+import { IsInt, IsNumber, IsOptional } from "class-validator"
+import { LikeEntity } from "./like.entity"
 
 export class LikeCreateDTO {
   @ApiProperty({ example: 1 })

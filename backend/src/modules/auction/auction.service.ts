@@ -1,7 +1,7 @@
-import { PrismaService } from '@/database/prisma.service'
-import { Injectable } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { $Enums } from '@prisma/client'
+import { PrismaService } from "@/database/prisma.service"
+import { Injectable } from "@nestjs/common"
+import { EventEmitter2 } from "@nestjs/event-emitter"
+import { $Enums } from "@prisma/client"
 
 @Injectable()
 export class AuctionService {
@@ -53,8 +53,8 @@ export class AuctionService {
         },
       })
 
-      this.eventEmitter.emit('update-auction')
-      this.eventEmitter.emit('update-records', { genre: winner.genre })
+      this.eventEmitter.emit("update-auction")
+      this.eventEmitter.emit("update-records", { genre: winner.genre })
       return winner
     })
   }

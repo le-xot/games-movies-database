@@ -1,20 +1,20 @@
-import { ValidationPipe } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { apiReference } from '@scalar/nestjs-api-reference'
-import cookieParser from 'cookie-parser'
-import { AppModule } from './app.module'
-import { env } from './utils/enviroments'
+import { ValidationPipe } from "@nestjs/common"
+import { NestFactory } from "@nestjs/core"
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
+import { apiReference } from "@scalar/nestjs-api-reference"
+import cookieParser from "cookie-parser"
+import { AppModule } from "./app.module"
+import { env } from "./utils/enviroments"
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.use(cookieParser())
   app.enableCors()
-  const config = new DocumentBuilder().setTitle('games-movies-database').build()
+  const config = new DocumentBuilder().setTitle("games-movies-database").build()
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('docs', app, document)
+  SwaggerModule.setup("docs", app, document)
 
-  const globalPrefix = '/api'
+  const globalPrefix = "/api"
 
   app.setGlobalPrefix(globalPrefix)
 
@@ -30,7 +30,7 @@ async function bootstrap() {
 
   if (env) {
     app.use(
-      '/reference',
+      "/reference",
       apiReference({
         spec: {
           content: updatedDocument,
@@ -39,7 +39,7 @@ async function bootstrap() {
     )
   }
 
-  const allowedCors = ['http://localhost:3000', 'http://localhost:5173']
+  const allowedCors = ["http://localhost:3000", "http://localhost:5173"]
 
   app.enableCors({
     origin: allowedCors,
@@ -53,7 +53,7 @@ async function bootstrap() {
     }),
   )
 
-  await app.listen(env.APP_PORT, '0.0.0.0')
+  await app.listen(env.APP_PORT, "0.0.0.0")
 }
 
 bootstrap()

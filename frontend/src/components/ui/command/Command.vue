@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ListboxRootEmits, ListboxRootProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
+import { cn } from "@/lib/utils"
 import { reactiveOmit } from "@vueuse/core"
 import { ListboxRoot, useFilter, useForwardPropsEmits } from "reka-ui"
 import { reactive, ref, watch } from "vue"
-import { cn } from "@/lib/utils"
 import { provideCommandContext } from "."
+import type { ListboxRootEmits, ListboxRootProps } from "reka-ui"
+import type { HTMLAttributes } from "vue"
 
 const props = withDefaults(defineProps<ListboxRootProps & { class?: HTMLAttributes["class"] }>(), {
   modelValue: "",

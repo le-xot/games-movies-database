@@ -1,11 +1,11 @@
-import { Api, HttpClient } from '@/lib/api.ts'
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { Api, HttpClient } from "@/lib/api.ts"
+import { acceptHMRUpdate, defineStore } from "pinia"
 
-export const useApi = defineStore('globals/use-api', () => {
+export const useApi = defineStore("globals/use-api", () => {
   const httpClient = new HttpClient({
-    baseUrl: '/api',
+    baseUrl: "/api",
     baseApiParams: {
-      credentials: 'include',
+      credentials: "include",
     },
   })
 

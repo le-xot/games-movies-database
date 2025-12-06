@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { Input } from '@/components/ui/input'
-import { useBreakpoints } from '@/composables/use-breakpoints'
-import { computed, toRef } from 'vue'
-import { useTableCol } from '../composables/use-table-col'
+import { Input } from "@/components/ui/input"
+import { useBreakpoints } from "@/composables/use-breakpoints"
+import { computed, toRef } from "vue"
+import { useTableCol } from "../composables/use-table-col"
 
 type EpisodeType = string | undefined
 
 const props = defineProps<{ episode: EpisodeType }>()
 const emits = defineEmits<{ update: [EpisodeType] }>()
-const episode = toRef(props, 'episode')
+const episode = toRef(props, "episode")
 
 const breakpoints = useBreakpoints()
 
@@ -23,7 +23,7 @@ const {
 const formattedEpisode = computed(() => {
   if (!inputValue.value) return []
 
-  return inputValue.value.split('').map(char => ({
+  return inputValue.value.split("").map(char => ({
     char,
     isLetter: /[a-zA-Z\u0410-\u044F\u0401\u0451]/.test(char),
   }))

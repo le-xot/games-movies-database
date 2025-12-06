@@ -1,5 +1,5 @@
-import { env } from '@/utils/enviroments'
-import { Injectable, type OnModuleInit } from '@nestjs/common'
+import { env } from "@/utils/enviroments"
+import { Injectable, type OnModuleInit } from "@nestjs/common"
 
 export interface WeatherData {
   main: {
@@ -42,13 +42,13 @@ export class WeatherService implements OnModuleInit {
       )
 
       if (!response.ok) {
-        throw new Error('Weather API request failed')
+        throw new Error("Weather API request failed")
       }
 
       this.cachedData = await response.json()
       this.lastFetch = Date.now()
     } catch (error) {
-      console.error('Failed to fetch weather data:', error)
+      console.error("Failed to fetch weather data:", error)
     }
   }
 

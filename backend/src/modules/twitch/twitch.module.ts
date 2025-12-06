@@ -1,5 +1,5 @@
-import { Global, Module } from '@nestjs/common'
-import { TwitchService } from './twitch.service'
+import { Global, Module } from "@nestjs/common"
+import { TwitchService } from "./twitch.service"
 
 @Global()
 @Module({

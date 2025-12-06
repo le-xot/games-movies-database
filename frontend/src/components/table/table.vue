@@ -6,14 +6,14 @@ import {
   TableHeader,
   Table as TableRoot,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 import {
   FlexRender,
   RowData,
   Table,
-} from '@tanstack/vue-table'
-import { provide } from 'vue'
-import { tableInjectionKey } from './table-injection-key'
+} from "@tanstack/vue-table"
+import { provide } from "vue"
+import { tableInjectionKey } from "./table-injection-key"
 
 const props = defineProps<{
   isLoading: boolean

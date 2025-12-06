@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Table from '@/components/table/table.vue'
-import TablePagination from '@/components/table/table-pagination.vue'
-import TableSearch from '@/components/table/table-search.vue'
-import { useSeries } from '../composables/use-series.ts'
-import { useSeriesParams } from '../composables/use-series-params.ts'
-import { useSeriesTable } from '../composables/use-series-table.ts'
+import Table from "@/components/table/table.vue"
+import TablePagination from "@/components/table/table-pagination.vue"
+import TableSearch from "@/components/table/table-search.vue"
+import { useSeries } from "../composables/use-series.ts"
+import { useSeriesParams } from "../composables/use-series-params.ts"
+import { useSeriesTable } from "../composables/use-series-table.ts"
 
 const videos = useSeries()
 const table = useSeriesTable()

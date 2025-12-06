@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { CommandGroup } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { VisibilityState } from '@tanstack/vue-table'
-import { CheckIcon, XIcon } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { Button } from '../ui/button'
-import { Command, CommandItem, CommandList } from '../ui/command'
-import { Input } from '../ui/input'
+import { CommandGroup } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { VisibilityState } from "@tanstack/vue-table"
+import { CheckIcon, XIcon } from "lucide-vue-next"
+import { computed } from "vue"
+import { Button } from "../ui/button"
+import { Command, CommandItem, CommandList } from "../ui/command"
+import { Input } from "../ui/input"
 
-const searchValue = defineModel<string>('value', { required: true })
-const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })
-const placeholder = computed(() => 'Искать по названию или пользователю')
+const searchValue = defineModel<string>("value", { required: true })
+const columnVisibility = defineModel<VisibilityState>("columnVisibility", { required: true })
+const placeholder = computed(() => "Искать по названию или пользователю")
 
 function clearSearch() {
-  searchValue.value = ''
+  searchValue.value = ""
 }
 
 const columnText: Record<string, string> = {
-  title: 'Название',
-  episode: 'Серии',
-  genre: 'Жанр',
-  user: 'Пользователь',
-  status: 'Статус',
-  grade: 'Оценка',
+  title: "Название",
+  episode: "Серии",
+  genre: "Жанр",
+  user: "Пользователь",
+  status: "Статус",
+  grade: "Оценка",
 }
 
 function updateVisibility(key: string, value: boolean) {

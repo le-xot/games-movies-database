@@ -1,14 +1,14 @@
-import { useApi } from '@/composables/use-api'
-import { useRecordCreate } from '@/composables/use-record-create'
-import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
-import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed } from 'vue'
-import { useGamesParams } from './use-games-params'
+import { useApi } from "@/composables/use-api"
+import { useRecordCreate } from "@/composables/use-record-create"
+import { RecordEntity, RecordUpdateDTO } from "@/lib/api"
+import { useMutation, useQuery } from "@pinia/colada"
+import { acceptHMRUpdate, defineStore, storeToRefs } from "pinia"
+import { computed } from "vue"
+import { useGamesParams } from "./use-games-params"
 
-export const GAMES_QUERY_KEY = 'games'
+export const GAMES_QUERY_KEY = "games"
 
-export const useGames = defineStore('games/use-games', () => {
+export const useGames = defineStore("games/use-games", () => {
   const api = useApi()
   const {
     pagination,
@@ -42,21 +42,21 @@ export const useGames = defineStore('games/use-games', () => {
   })
 
   const { mutateAsync: updateGame } = useMutation({
-    key: [GAMES_QUERY_KEY, 'update'],
+    key: [GAMES_QUERY_KEY, "update"],
     mutation: ({ id, data }: { id: number, data: RecordUpdateDTO }) => {
       return api.records.recordControllerPatchRecord(id, data)
     },
   })
 
   const { mutateAsync: deleteGame } = useMutation({
-    key: [GAMES_QUERY_KEY, 'delete'],
+    key: [GAMES_QUERY_KEY, "delete"],
     mutation: (id: number) => {
       return api.records.recordControllerDeleteRecord(id)
     },
   })
 
   const { mutateAsync: createGame } = useMutation({
-    key: [GAMES_QUERY_KEY, 'create'],
+    key: [GAMES_QUERY_KEY, "create"],
     mutation: async (link: string) => {
       const { createRecord } = useRecordCreate(GAMES_QUERY_KEY, refetchGames)
       return await createRecord(link)

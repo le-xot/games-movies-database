@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { PaginationListItemProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import type { ButtonVariants } from '@/components/ui/button'
+import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { reactiveOmit } from "@vueuse/core"
 import { PaginationListItem } from "reka-ui"
-import { cn } from "@/lib/utils"
-import { buttonVariants } from '@/components/ui/button'
+import type { ButtonVariants } from "@/components/ui/button"
+import type { PaginationListItemProps } from "reka-ui"
+import type { HTMLAttributes } from "vue"
 
 const props = withDefaults(defineProps<PaginationListItemProps & {
   size?: ButtonVariants["size"]

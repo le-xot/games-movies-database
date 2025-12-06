@@ -1,14 +1,14 @@
-import { useUser } from '@/composables/use-user.ts'
-import { useAnime } from '@/pages/anime/composables/use-anime.ts'
-import { useAuctions } from '@/pages/auction/composables/use-autions.ts'
-import { useCartoon } from '@/pages/cartoon/composables/use-cartoon.ts'
-import { useGames } from '@/pages/games/composables/use-games.ts'
-import { useMovie } from '@/pages/movie/composables/use-movie.ts'
-import { useQueue } from '@/pages/queue/composables/use-queue.ts'
-import { useSeries } from '@/pages/series/composables/use-series.ts'
-import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion.ts'
-import { io, Socket } from 'socket.io-client'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { useUser } from "@/composables/use-user.ts"
+import { useAnime } from "@/pages/anime/composables/use-anime.ts"
+import { useAuctions } from "@/pages/auction/composables/use-autions.ts"
+import { useCartoon } from "@/pages/cartoon/composables/use-cartoon.ts"
+import { useGames } from "@/pages/games/composables/use-games.ts"
+import { useMovie } from "@/pages/movie/composables/use-movie.ts"
+import { useQueue } from "@/pages/queue/composables/use-queue.ts"
+import { useSeries } from "@/pages/series/composables/use-series.ts"
+import { useSuggestion } from "@/pages/suggestion/composables/use-suggestion.ts"
+import { io, Socket } from "socket.io-client"
+import { onMounted, onUnmounted, ref } from "vue"
 
 export function useWebSocket() {
   const socket = ref<Socket | null>(null)
@@ -24,35 +24,35 @@ export function useWebSocket() {
   const { isAdmin } = useUser()
 
   function connect() {
-    socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ['websocket'] })
-      .on('connect', () => {
+    socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ["websocket"] })
+      .on("connect", () => {
         isConnected.value = true
       })
-      .on('disconnect', () => {
+      .on("disconnect", () => {
         isConnected.value = false
       })
 
-      .on('update-auction', () => {
+      .on("update-auction", () => {
         suggestionStore.refetchSuggestions()
         if (isAdmin) {
           auctionStore.refetchAuctions()
         }
       })
-      .on('update-records', (payload) => {
+      .on("update-records", (payload) => {
         switch (payload.genre) {
-          case 'ANIME':
+          case "ANIME":
             animeStore.refetchVideos()
             break
-          case 'CARTOON':
+          case "CARTOON":
             cartoonStore.refetchVideos()
             break
-          case 'SERIES':
+          case "SERIES":
             seriesStore.refetchVideos()
             break
-          case 'MOVIE':
+          case "MOVIE":
             movieStore.refetchVideos()
             break
-          case 'GAME':
+          case "GAME":
             gamesStore.refetchGames()
             break
           default:
@@ -64,21 +64,21 @@ export function useWebSocket() {
             break
         }
       })
-      .on('update-likes', () => {
+      .on("update-likes", () => {
         suggestionStore.refetchSuggestions()
       })
-      .on('update-queue', () => {
+      .on("update-queue", () => {
         queueStore.refetchQueue()
       })
-      .on('update-suggestions', () => {
+      .on("update-suggestions", () => {
         suggestionStore.refetchSuggestions()
       })
-      .on('update-users', () => {
+      .on("update-users", () => {
         const userStore = useUser()
         userStore.refetchUser()
       })
-      .on('connect_error', (error) => {
-        console.error('WebSocket connection error:', error)
+      .on("connect_error", (error) => {
+        console.error("WebSocket connection error:", error)
         isConnected.value = false
       })
   }

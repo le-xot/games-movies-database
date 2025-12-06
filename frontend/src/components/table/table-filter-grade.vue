@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { RecordGrade } from '@/lib/api'
-import { ListFilter } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { gradeTags } from './composables/use-table-select'
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { RecordGrade } from "@/lib/api"
+import { ListFilter } from "lucide-vue-next"
+import { computed } from "vue"
+import { gradeTags } from "./composables/use-table-select"
 
 const props = defineProps<{
   value: RecordGrade[] | null
@@ -29,10 +29,10 @@ function toggleGrade(grade: string) {
       ? props.value.filter(g => g !== gradeValue) || null
       : [...props.value, gradeValue]
     : [gradeValue]
-  emit('update', newValue.length ? newValue : null)
+  emit("update", newValue.length ? newValue : null)
 }
 
-const resetFilter = () => emit('update', null)
+const resetFilter = () => emit("update", null)
 </script>
 
 <template>

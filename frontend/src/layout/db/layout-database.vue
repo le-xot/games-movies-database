@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Dialog from '@/components/dialog/dialog.vue'
-import LayoutBody from '@/layout/db/layout-body.vue'
-import LayoutHeader from '@/layout/db/layout-header.vue'
+import Dialog from "@/components/dialog/dialog.vue"
+import LayoutBody from "@/layout/db/layout-body.vue"
+import LayoutHeader from "@/layout/db/layout-header.vue"
 </script>
 
 <template>

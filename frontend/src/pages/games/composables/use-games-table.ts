@@ -1,25 +1,25 @@
-import { useDialog } from '@/components/dialog/composables/use-dialog'
-import DialogButton from '@/components/dialog/dialog-button.vue'
-import TableColSelect from '@/components/table/table-col/table-col-select.vue'
-import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import TableColUser from '@/components/table/table-col/table-col-user.vue'
-import TableFilterGrade from '@/components/table/table-filter-grade.vue'
-import TableFilterStatus from '@/components/table/table-filter-status.vue'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api'
+import { useDialog } from "@/components/dialog/composables/use-dialog"
+import DialogButton from "@/components/dialog/dialog-button.vue"
+import TableColSelect from "@/components/table/table-col/table-col-select.vue"
+import TableColTitle from "@/components/table/table-col/table-col-title.vue"
+import TableColUser from "@/components/table/table-col/table-col-user.vue"
+import TableFilterGrade from "@/components/table/table-filter-grade.vue"
+import TableFilterStatus from "@/components/table/table-filter-status.vue"
+import { useUser } from "@/composables/use-user"
+import { RecordEntity, RecordGrade, RecordStatus } from "@/lib/api"
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
   useVueTable,
-} from '@tanstack/vue-table'
-import { Eraser } from 'lucide-vue-next'
-import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, h } from 'vue'
-import { useGames } from './use-games'
-import { useGamesParams } from './use-games-params'
+} from "@tanstack/vue-table"
+import { Eraser } from "lucide-vue-next"
+import { acceptHMRUpdate, defineStore, storeToRefs } from "pinia"
+import { computed, h } from "vue"
+import { useGames } from "./use-games"
+import { useGamesParams } from "./use-games-params"
 
-export const useGamesTable = defineStore('games/use-games-table', () => {
+export const useGamesTable = defineStore("games/use-games-table", () => {
   const { isAdmin } = storeToRefs(useUser())
   const gamesStore = useGames()
   const gamesParams = useGamesParams()
@@ -30,8 +30,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
   const tableColumns = computed(() => {
     const columns: ColumnDef<RecordEntity>[] = [
       {
-        accessorKey: 'title',
-        header: 'Название',
+        accessorKey: "title",
+        header: "Название",
         size: isAdmin.value ? 55 : 60,
         minSize: isAdmin.value ? 55 : 60,
         maxSize: isAdmin.value ? 55 : 60,
@@ -44,8 +44,8 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         },
       },
       {
-        accessorKey: 'user',
-        header: 'Пользователь',
+        accessorKey: "user",
+        header: "Пользователь",
         size: 20,
         minSize: 20,
         maxSize: 20,
@@ -62,10 +62,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         },
       },
       {
-        accessorKey: 'status',
+        accessorKey: "status",
         header: () => {
-          return h('div', { class: 'flex justify-between items-center mx-3' }, [
-            h('span', {}, 'Статус'),
+          return h("div", { class: "flex justify-between items-center mx-3" }, [
+            h("span", {}, "Статус"),
             h(TableFilterStatus, {
               value: null,
               onUpdate: (value) => {
@@ -82,7 +82,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           return h(TableColSelect, {
             key: `status-${row.original.id}`,
             value: row.original.status as RecordStatus,
-            kind: 'status',
+            kind: "status",
             onUpdate: (value) => {
               gamesStore.updateGame({
                 id: row.original.id,
@@ -95,10 +95,10 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
         },
       },
       {
-        accessorKey: 'grade',
+        accessorKey: "grade",
         header: () => {
-          return h('div', { class: 'flex justify-between items-center mx-3' }, [
-            h('span', {}, 'Оценка'),
+          return h("div", { class: "flex justify-between items-center mx-3" }, [
+            h("span", {}, "Оценка"),
             h(TableFilterGrade, {
               value: null,
               onUpdate: (value) => {
@@ -115,7 +115,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           return h(TableColSelect, {
             key: `grade-${row.original.id}`,
             value: row.original.grade as RecordGrade,
-            kind: 'grade',
+            kind: "grade",
             onUpdate: (value) => {
               gamesStore.updateGame({
                 id: row.original.id,
@@ -128,15 +128,15 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
     ]
     if (isAdmin.value) {
       columns.unshift({
-        accessorKey: 'id',
+        accessorKey: "id",
         size: 5,
         minSize: 5,
         maxSize: 5,
         enableResizing: false,
-        header: '',
+        header: "",
         cell: ({ row }) => {
           return h(
-            'div',
+            "div",
             {},
             {
               default: () => [
@@ -144,9 +144,9 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
                   key: `id-${row.original.id}`,
                   icon: Eraser,
                   onClick: () => dialog.openDialog({
-                    title: `Удалить игру?`,
-                    content: '',
-                    description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
+                    title: "Удалить игру?",
+                    content: "",
+                    description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : "эту запись"}?`,
                     onSubmit: () => gamesStore.deleteGame(row.original.id),
                   }),
                 }),

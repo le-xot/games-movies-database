@@ -1,12 +1,12 @@
-import { useApi } from '@/composables/use-api'
-import { UserUpdateDTO } from '@/lib/api'
-import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed } from 'vue'
+import { useApi } from "@/composables/use-api"
+import { UserUpdateDTO } from "@/lib/api"
+import { useMutation, useQuery } from "@pinia/colada"
+import { acceptHMRUpdate, defineStore } from "pinia"
+import { computed } from "vue"
 
-export const USERS_QUERY_KEY = 'users'
+export const USERS_QUERY_KEY = "users"
 
-export const useTableUsers = defineStore('use-table-users', () => {
+export const useTableUsers = defineStore("use-table-users", () => {
   const api = useApi()
   const {
     isLoading,
@@ -22,7 +22,7 @@ export const useTableUsers = defineStore('use-table-users', () => {
   })
 
   const { mutateAsync: patchUser } = useMutation({
-    key: [USERS_QUERY_KEY, 'create'],
+    key: [USERS_QUERY_KEY, "create"],
     mutation: async (opts: { id: string, data: UserUpdateDTO }) => {
       return await api.users.userControllerPatchUser(opts.id, opts.data)
     },
@@ -30,7 +30,7 @@ export const useTableUsers = defineStore('use-table-users', () => {
   })
 
   const { mutateAsync: createUserByLogin } = useMutation({
-    key: [USERS_QUERY_KEY, 'create-by-login'],
+    key: [USERS_QUERY_KEY, "create-by-login"],
     mutation: async (login: string) => {
       return await api.users.userControllerCreateUserByLogin({ login })
     },
@@ -38,7 +38,7 @@ export const useTableUsers = defineStore('use-table-users', () => {
   })
 
   const { mutateAsync: deleteUserById } = useMutation({
-    key: [USERS_QUERY_KEY, 'delete'],
+    key: [USERS_QUERY_KEY, "delete"],
     mutation: async (id: string) => {
       return await api.users.userControllerDeleteUser(id)
     },

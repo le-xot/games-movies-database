@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { QueueItemDto } from '@/lib/api.ts'
-import { generateWatchLink } from '@/lib/utils/generate-watch-link'
-import { getImageUrl } from '@/lib/utils/image.ts'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { QueueItemDto } from "@/lib/api.ts"
+import { generateWatchLink } from "@/lib/utils/generate-watch-link"
+import { getImageUrl } from "@/lib/utils/image.ts"
 
 defineProps<{ items: QueueItemDto[] }>()
 
@@ -13,7 +13,7 @@ function isShow(item: QueueItemDto) {
 
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  img.src = '/images/aga.webp'
+  img.src = "/images/aga.webp"
 }
 </script>
 

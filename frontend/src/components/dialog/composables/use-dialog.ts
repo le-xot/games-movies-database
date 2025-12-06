@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { defineStore } from "pinia"
+import { ref } from "vue"
 
 interface DialogState {
   title: string
@@ -13,7 +13,7 @@ interface DialogState {
   props?: Record<string, any>
 }
 
-export const useDialog = defineStore('dialog', () => {
+export const useDialog = defineStore("dialog", () => {
   const isOpen = ref(false)
   const dialogState = ref<DialogState | null>(null)
 

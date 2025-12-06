@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
-import { addItemToPlaybackQueue } from '@soundify/web-api'
-import { SpotifyService } from './spotify.service'
+import { Injectable } from "@nestjs/common"
+import { addItemToPlaybackQueue } from "@soundify/web-api"
+import { SpotifyService } from "./spotify.service"
 
 @Injectable()
 export class SpotifyQueueService {

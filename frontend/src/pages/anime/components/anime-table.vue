@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Table from '@/components/table/table.vue'
-import TablePagination from '@/components/table/table-pagination.vue'
-import TableSearch from '@/components/table/table-search.vue'
-import { useAnime } from '../composables/use-anime.ts'
-import { useAnimeParams } from '../composables/use-anime-params.ts'
-import { useAnimeTable } from '../composables/use-anime-table.ts'
+import Table from "@/components/table/table.vue"
+import TablePagination from "@/components/table/table-pagination.vue"
+import TableSearch from "@/components/table/table-search.vue"
+import { useAnime } from "../composables/use-anime.ts"
+import { useAnimeParams } from "../composables/use-anime-params.ts"
+import { useAnimeTable } from "../composables/use-anime-table.ts"
 
 const videos = useAnime()
 const table = useAnimeTable()

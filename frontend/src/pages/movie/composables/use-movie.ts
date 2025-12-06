@@ -1,14 +1,14 @@
-import { useApi } from '@/composables/use-api'
-import { useRecordCreate } from '@/composables/use-record-create.ts'
-import { RecordEntity, RecordUpdateDTO } from '@/lib/api.ts'
-import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed } from 'vue'
-import { useMovieParams } from './use-movie-params.ts'
+import { useApi } from "@/composables/use-api"
+import { useRecordCreate } from "@/composables/use-record-create.ts"
+import { RecordEntity, RecordUpdateDTO } from "@/lib/api.ts"
+import { useMutation, useQuery } from "@pinia/colada"
+import { acceptHMRUpdate, defineStore, storeToRefs } from "pinia"
+import { computed } from "vue"
+import { useMovieParams } from "./use-movie-params.ts"
 
-export const VIDEOS_QUERY_KEY = 'movie'
+export const VIDEOS_QUERY_KEY = "movie"
 
-export const useMovie = defineStore('movies/use-movie', () => {
+export const useMovie = defineStore("movies/use-movie", () => {
   const api = useApi()
   const {
     pagination,
@@ -42,21 +42,21 @@ export const useMovie = defineStore('movies/use-movie', () => {
   })
 
   const { mutateAsync: updateVideo } = useMutation({
-    key: [VIDEOS_QUERY_KEY, 'update'],
+    key: [VIDEOS_QUERY_KEY, "update"],
     mutation: ({ id, data }: { id: number, data: RecordUpdateDTO }) => {
       return api.records.recordControllerPatchRecord(id, data)
     },
   })
 
   const { mutateAsync: deleteVideo } = useMutation({
-    key: [VIDEOS_QUERY_KEY, 'delete'],
+    key: [VIDEOS_QUERY_KEY, "delete"],
     mutation: (id: number) => {
       return api.records.recordControllerDeleteRecord(id)
     },
   })
 
   const { mutateAsync: createVideo } = useMutation({
-    key: [VIDEOS_QUERY_KEY, 'create'],
+    key: [VIDEOS_QUERY_KEY, "create"],
     mutation: async (link: string) => {
       const { createRecord } = useRecordCreate(VIDEOS_QUERY_KEY, refetchVideos)
       return await createRecord(link)

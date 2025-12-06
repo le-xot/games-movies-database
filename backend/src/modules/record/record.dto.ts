@@ -1,12 +1,12 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
-import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
-import { Type } from 'class-transformer'
-import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
-import { RecordEntity } from './record.entity'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from "@/enums/enums.names"
+import { ApiProperty } from "@nestjs/swagger"
+import { $Enums } from "@prisma/client"
+import { Type } from "class-transformer"
+import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from "class-validator"
+import { RecordEntity } from "./record.entity"
 
 export class RecordCreateFromLinkDTO {
-  @ApiProperty({ example: 'https://example.com/record' })
+  @ApiProperty({ example: "https://example.com/record" })
   @IsUrl()
   link: string
 
@@ -32,7 +32,7 @@ export class RecordUpdateDTO {
   @IsEnum($Enums.RecordGrade)
   grade?: $Enums.RecordGrade
 
-  @ApiProperty({ example: 'S01E01', required: false })
+  @ApiProperty({ example: "S01E01", required: false })
   @IsOptional()
   @IsString()
   episode?: string
@@ -42,7 +42,7 @@ export class RecordUpdateDTO {
   @IsEnum($Enums.RecordType)
   type?: $Enums.RecordType
 
-  @ApiProperty({ example: '1', required: false })
+  @ApiProperty({ example: "1", required: false })
   @IsOptional()
   @IsString()
   userId?: string
@@ -53,17 +53,17 @@ export class RecordGetDTO {
   @IsOptional()
   id?: number
 
-  @ApiProperty({ example: 'My Record', required: false })
+  @ApiProperty({ example: "My Record", required: false })
   @IsOptional()
   @IsString()
   title?: string
 
-  @ApiProperty({ example: 'https://example.com/record', required: false })
+  @ApiProperty({ example: "https://example.com/record", required: false })
   @IsOptional()
   @IsUrl()
   link?: string
 
-  @ApiProperty({ example: 'https://example.com/poster.jpg', required: false })
+  @ApiProperty({ example: "https://example.com/poster.jpg", required: false })
   @IsOptional()
   @IsUrl()
   posterUrl?: string
@@ -88,17 +88,17 @@ export class RecordGetDTO {
   @IsEnum($Enums.RecordGrade)
   grade?: $Enums.RecordGrade
 
-  @ApiProperty({ example: 'S01E01', required: false })
+  @ApiProperty({ example: "S01E01", required: false })
   @IsOptional()
   @IsString()
   episode?: string
 
-  @ApiProperty({ example: '1', required: false })
+  @ApiProperty({ example: "1", required: false })
   @IsOptional()
   @IsString()
   userId?: string
 
-  @ApiProperty({ example: 'minecraft', required: false })
+  @ApiProperty({ example: "minecraft", required: false })
   @IsOptional()
   @IsString()
   search?: string
@@ -115,13 +115,13 @@ export class RecordGetDTO {
   @IsInt()
   limit?: number
 
-  @ApiProperty({ example: 'id', required: false, enum: ['id', 'title'] })
+  @ApiProperty({ example: "id", required: false, enum: ["id", "title"] })
   @IsOptional()
-  orderBy?: 'id' | 'title'
+  orderBy?: "id" | "title"
 
-  @ApiProperty({ example: 'asc', required: false, enum: ['asc', 'desc'] })
+  @ApiProperty({ example: "asc", required: false, enum: ["asc", "desc"] })
   @IsOptional()
-  direction?: 'asc' | 'desc'
+  direction?: "asc" | "desc"
 }
 
 export class GetAllRecordsDTO {

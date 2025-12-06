@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { RecordEntity } from '@/lib/api'
-import { getImageUrl } from '@/lib/utils/image.ts'
-import { X } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
+import { Button } from "@/components/ui/button"
+import { RecordEntity } from "@/lib/api"
+import { getImageUrl } from "@/lib/utils/image.ts"
+import { X } from "lucide-vue-next"
+import { ref, watch } from "vue"
 
-type Phase = 'idle' | 'selecting' | 'selected'
+type Phase = "idle" | "selecting" | "selected"
 
 const props = defineProps<{
   items: RecordEntity[]
 }>()
 
 const emit = defineEmits<{
-  (e: 'approve', id: number): void
+  (e: "approve", id: number): void
 }>()
 
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>("open", { required: true })
 
-const phase = ref<Phase>('idle')
+const phase = ref<Phase>("idle")
 const currentItem = ref<RecordEntity>()
 
-const isSelecting = () => phase.value === 'selecting'
+const isSelecting = () => phase.value === "selecting"
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 async function startSelection() {
   if (props.items.length === 0) return
 
-  phase.value = 'selecting'
+  phase.value = "selecting"
   currentItem.value = undefined
 
   const finalWinnerIndex = Math.floor(Math.random() * props.items.length)
@@ -53,12 +53,12 @@ async function startSelection() {
 
   await sleep(500)
 
-  phase.value = 'selected'
+  phase.value = "selected"
 }
 
 function approve() {
   if (currentItem.value) {
-    emit('approve', currentItem.value.id)
+    emit("approve", currentItem.value.id)
     open.value = false
   }
 }
@@ -67,7 +67,7 @@ watch(open, (isOpen) => {
   if (isOpen) {
     startSelection()
   } else {
-    phase.value = 'idle'
+    phase.value = "idle"
   }
 })
 </script>

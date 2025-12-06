@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { useNewRecords } from '@/composables/use-new-records.ts'
-import { useUser } from '@/composables/use-user'
-import { useLocalStorage } from '@vueuse/core'
-import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
-import { ref } from 'vue'
-import { toast } from 'vue-sonner'
-import SuggestionCard from './components/suggestion-card.vue'
-import { useSuggestion } from './composables/use-suggestion'
+import { Button } from "@/components/ui/button"
+import { useNewRecords } from "@/composables/use-new-records.ts"
+import { useUser } from "@/composables/use-user"
+import { useLocalStorage } from "@vueuse/core"
+import { ArrowUpDown, EyeOff, ListPlus } from "lucide-vue-next"
+import { ref } from "vue"
+import { toast } from "vue-sonner"
+import SuggestionCard from "./components/suggestion-card.vue"
+import { useSuggestion } from "./composables/use-suggestion"
 
 const suggestion = useSuggestion()
 const user = useUser()
 
 const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
-const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
+const sortBy = useLocalStorage<"date" | "likes">("suggestion-sort-by", "date")
 
 function toggleSort() {
-  sortBy.value = sortBy.value === 'date' ? 'likes' : 'date'
+  sortBy.value = sortBy.value === "date" ? "likes" : "date"
 }
 
 function handleMarkAllAsViewed() {
   suggestion.suggestions?.forEach(record => {
     const newRecords = useNewRecords()
     newRecords.markRecordAsViewed(record.id)
-    toast({ title: 'Успешно', description: 'Все записи отмечены как просмотренные', variant: 'default' })
+    toast({ title: "Успешно", description: "Все записи отмечены как просмотренные", variant: "default" })
   })
 }
 </script>

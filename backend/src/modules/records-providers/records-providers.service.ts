@@ -36,7 +36,7 @@ export class RecordsProvidersService {
       parse: m => m[1],
     },
     steam: {
-      regex: /store\.steampowered\.com\/app\/(\d+)|steamcommunity\.com\/app\/(\d+)/,
+      regex: /(?:store\.steampowered|steamcommunity)\.com\/app\/(\d+)/,
       parse: m => Number(m[1]),
     },
     imdb: {

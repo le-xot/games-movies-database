@@ -142,7 +142,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
                 key: `id-${row.original.id}`,
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
-                  title: `Удалить кинчик?`,
+                  title: 'Удалить кинчик?',
                   content: '',
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                   onSubmit: () => moviesStore.deleteVideo(row.original.id),

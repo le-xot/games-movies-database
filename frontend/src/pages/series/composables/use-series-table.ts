@@ -161,7 +161,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
                 key: `id-${row.original.id}`,
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
-                  title: `Удалить сирик?`,
+                  title: 'Удалить сирик?',
                   content: '',
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                   onSubmit: () => seriesStore.deleteVideo(row.original.id),

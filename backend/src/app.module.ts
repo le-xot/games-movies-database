@@ -7,6 +7,7 @@ import { ServeStaticModule } from '@nestjs/serve-static'
 import { PrismaModule } from './database/prisma.module'
 import { AuctionModule } from './modules/auction/auction.module'
 import { AuthModule } from './modules/auth/auth.module'
+import { ImgModule } from './modules/img/img.module'
 import { CustomJwtModule } from './modules/jwt/jwt.module'
 import { LimitModule } from './modules/limit/limit.module'
 import { QueueModule } from './modules/queue/queue.module'
@@ -17,7 +18,6 @@ import { TwirModule } from './modules/twir/twir.module'
 import { TwitchModule } from './modules/twitch/twitch.module'
 import { UserModule } from './modules/user/user.module'
 import { WebsocketModule } from './modules/websocket/websocket.module'
-import { ImgModule } from './modules/img/img.module'
 
 @Module({
   controllers: [AppController],

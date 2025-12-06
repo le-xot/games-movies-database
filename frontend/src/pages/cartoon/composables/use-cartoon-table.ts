@@ -161,7 +161,7 @@ export const useCartoonTable = defineStore('cartoon/use-cartoon-table', () => {
                 key: `id-${row.original.id}`,
                 icon: Eraser,
                 onClick: () => dialog.openDialog({
-                  title: `Удалить мультик?`,
+                  title: 'Удалить мультик?',
                   content: '',
                   description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
                   onSubmit: () => cartoonStore.deleteVideo(row.original.id),

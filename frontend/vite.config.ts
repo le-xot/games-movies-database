@@ -54,7 +54,7 @@ async function generateSwagger() {
       await generateApi({
         name: 'api.ts',
         url: 'http://localhost:3000/docs-json',
-        output: fileURLToPath(new URL(`./src/lib`, import.meta.url)),
+        output: fileURLToPath(new URL('./src/lib', import.meta.url)),
         generateClient: true,
         httpClientType: 'fetch',
         singleHttpClient: true,

@@ -16,11 +16,11 @@ export class AuthController {
 
   @Get('/twitch')
   twitchAuth(@Res() res: Response) {
-    const redirectUri = `https://id.twitch.tv/oauth2/authorize?`
+    const redirectUri = 'https://id.twitch.tv/oauth2/authorize?'
       + `client_id=${env.TWITCH_CLIENT_ID}&`
       + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
-      + `response_type=code&`
-      + `scope=user:read:email`
+      + 'response_type=code&'
+      + 'scope=user:read:email'
     res.redirect(redirectUri)
   }
 

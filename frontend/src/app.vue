@@ -21,7 +21,7 @@ useWebSocket()
 // ----- Секрет -----
 
 <template>
-  <div v-if="maintenanceMode" class="w-full h-screen flex items-center justify-center bg-zinc-900 text-white font-['Comfortaa',_sans-serif]">
+  <div v-if="maintenanceMode" class="w-full h-screen flex items-center justify-center bg-zinc-900 text-white font-['Comfortaa', sans-serif]">
     <div class="text-center p-8 max-w-[700px]">
       <h1 class="text-4xl mb-4">
         Технические работы на сайте

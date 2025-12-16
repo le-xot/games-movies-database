@@ -2,8 +2,6 @@ import { env } from 'node:process'
 import { PrismaService } from '@/database/prisma.service'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
-import axios from 'axios'
-import { SocksProxyAgent } from 'socks-proxy-agent'
 import { TwitchService } from '../twitch/twitch.service'
 
 interface PreparedData {
@@ -15,12 +13,7 @@ interface PreparedData {
 
 @Injectable()
 export class RecordsProvidersService {
-  private readonly proxyAgent: SocksProxyAgent
-  constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) {
-    if (env.PROXY) {
-      this.proxyAgent = new SocksProxyAgent(env.PROXY)
-    }
-  }
+  constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) { }
 
   private readonly linkPatterns: Record<string, { regex: RegExp, parse: (m: RegExpMatchArray) => number | string }> = {
     shikimori: {
@@ -123,16 +116,14 @@ export class RecordsProvidersService {
   private async fetchTmdb(imdbId: string): Promise<PreparedData> {
     if (!env.TMBD_API) throw new BadRequestException('API ключ для TMDB не настроен')
 
-    const findResp = await axios.get(
+    const findResp = await fetch(
       `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`,
-      {
-        httpsAgent: this.proxyAgent,
-      },
+      { proxy: env.PROXY },
     )
 
     if (findResp.status !== 200) throw new BadRequestException(`Ошибка TMDB find: ${findResp.status}`)
 
-    const findData = findResp.data as any
+    const findData = await findResp.json() as any
     const movie = findData.movie_results?.[0]
     const tv = findData.tv_results?.[0]
 
@@ -159,8 +150,8 @@ export class RecordsProvidersService {
 
     const hasAnimation = item?.genre_ids?.includes(16)
     const isJapanese
-            = item?.origin_country?.includes('JP')
-              || item?.production_countries?.some(c => c.iso_3166_1 === 'JP')
+      = item?.origin_country?.includes('JP')
+        || item?.production_countries?.some(c => c.iso_3166_1 === 'JP')
 
     if (tv) {
       if (hasAnimation && isJapanese) {

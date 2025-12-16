@@ -98,7 +98,7 @@ export const gradeTags: Record<
 }
 
 export const useTableSelect = defineStore('use-table-select', () => {
-  const options: Record<SelectKind, { label: string, value: string, class: string }[]> = {
+  const options: Record<SelectKind, { label: string, value: string, class?: string }[]> = {
     status: Object.entries(statusTags).map(([key, value]) => {
       return {
         label: value.name,

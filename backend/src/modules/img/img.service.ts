@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
-import process from 'node:process'
+import process, { env } from 'node:process'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import sharp from 'sharp'
 
@@ -23,7 +23,7 @@ export class ImgService {
     }
 
     try {
-      const response = await fetch(originalUrl)
+      const response = await fetch(originalUrl, { proxy: env.PROXY })
       if (!response.ok) {
         throw new BadRequestException(`Failed to fetch image: ${response.status}`)
       }

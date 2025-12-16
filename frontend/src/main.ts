@@ -5,7 +5,7 @@ import { createApp } from 'vue'
 import App from './app.vue'
 import './assets/index.css'
 
-const APP_VERSION = '3.0.0'
+const APP_VERSION = '3.1.0'
 const STORAGE_VERSION_KEY = 'app_version'
 
 const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)

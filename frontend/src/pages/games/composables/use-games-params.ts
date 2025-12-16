@@ -14,7 +14,7 @@ export const useGamesParams = defineStore('games/use-games-params', () => {
 
   const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
     title: true,
-    user: false,
+    user: true,
     status: true,
     grade: true,
   })

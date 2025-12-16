@@ -5,7 +5,7 @@ export interface BadgeOptions {
   name: string
   label?: string
   description?: string
-  class: string
+  class?: string
 }
 
 export type SelectKind = 'genre' | 'status' | 'grade'
@@ -17,32 +17,31 @@ export const statusTags: Record<
   [RecordStatus.QUEUE]: {
     name: 'В очереди',
     description: 'заказ ждёт своего часа.',
-    class: 'bg-[#333333] border text-white/80',
+    class: 'bg-[#333333]',
   },
   [RecordStatus.UNFINISHED]: {
     name: 'Нет концовки',
     description: 'игра не имеет концовки (титров или логического завершения сюжета).',
-    class: 'bg-[#28456c] border text-white/80',
+    class: 'bg-[#28456c]',
   },
   [RecordStatus.DONE]: {
     name: 'Готово',
     description: 'игра выполнена, кинолента посмотрена.',
-    class: 'bg-[#2b593f] border text-white/80',
+    class: 'bg-[#2b593f]',
   },
   [RecordStatus.PROGRESS]: {
     name: 'В процессе',
     description: 'заказ находится на стадии выполнения.',
-    class: 'bg-[#89632a] border text-white/80',
+    class: 'bg-[#89632a]',
   },
   [RecordStatus.DROP]: {
     name: 'Дроп',
     description: 'заказ не будет закончен до конца.',
-    class: 'bg-[#6e3630] border text-white/80',
+    class: 'bg-[#6e3630]',
   },
   [RecordStatus.NOTINTERESTED]: {
     name: 'Не интересно',
     description: 'заказ не интересен.',
-    class: 'border text-white/80',
   },
 }
 

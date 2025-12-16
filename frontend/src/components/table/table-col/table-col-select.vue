@@ -60,13 +60,13 @@ const placeholder = computed(() => {
       }"
     >
       <SelectTrigger
-        class="w-full cursor-default relative h-8 flex items-center justify-center text-xs font-semibold !text-white/80 !opacity-100 min-w-28 select-none"
+        class="w-full cursor-default relative h-8 flex items-center justify-center text-xs font-semibold text-white/80! opacity-100 min-w-28 select-none"
         :class="data.tag?.class"
         as-child
         :disabled="!isAdmin"
         @blur="handleClose"
       >
-        <span class="w-full absolute inset-0 flex items-center justify-center !text-white/80">
+        <span class="w-full absolute inset-0 flex items-center justify-center text-white/80!">
           {{ placeholder }}
         </span>
       </SelectTrigger>
@@ -76,10 +76,10 @@ const placeholder = computed(() => {
           :key="option.value"
           :value="option.value"
           hide-indicator
-          class="h-8 flex justify-center !text-white/80 hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent"
+          class="h-8 flex items-center rounded-md justify-center font-medium text-xs border hover:opacity-80 focus:opacity-90"
           :class="option.class"
         >
-          <span class="text-xs font-semibold !text-white/80">
+          <span>
             {{ option.label }}
           </span>
         </SelectItem>

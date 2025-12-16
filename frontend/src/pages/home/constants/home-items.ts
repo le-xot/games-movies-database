@@ -16,7 +16,7 @@ export const HOME_GRID_ITEMS: GridItem[] = [
   {
     title: 'Кладовка',
     description: 'База данных игр и кинолент',
-    path: ROUTER_PATHS.dbGames,
+    path: ROUTER_PATHS.dbSuggestion,
     color: '#166534',
     icon: h(LibraryBig),
   },

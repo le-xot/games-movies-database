@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import sharp from 'sharp'
 
 @Injectable()
@@ -22,18 +22,35 @@ export class ImgService {
       }
     }
 
-    const fileContent = await fetch(originalUrl).then(res => res.arrayBuffer())
+    try {
+      const response = await fetch(originalUrl)
+      if (!response.ok) {
+        throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+      }
 
-    const imageBuffer = await sharp(fileContent)
-      .resize(300, 450)
-      .webp()
-      .toBuffer()
+      const contentType = response.headers.get('content-type')
+      if (!contentType?.startsWith('image/')) {
+        throw new BadRequestException('URL does not point to an image')
+      }
 
-    await Bun.write(fileDiskPath, imageBuffer)
+      const fileContent = await response.arrayBuffer()
 
-    return {
-      fileDiskPath,
-      contentType: 'image/webp',
+      const imageBuffer = await sharp(fileContent)
+        .resize(300, 450)
+        .webp()
+        .toBuffer()
+
+      await Bun.write(fileDiskPath, imageBuffer)
+
+      return {
+        fileDiskPath,
+        contentType: 'image/webp',
+      }
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error
+      }
+      throw new BadRequestException(`Failed to process image: ${error.message}`)
     }
   }
 }

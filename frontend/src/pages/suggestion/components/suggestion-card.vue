@@ -152,7 +152,7 @@ function handleImageError(event: Event) {
     </p>
 
     <div v-for="[genre, groupItems] in groupedItems" :key="genre" class="mb-8">
-      <h3 class="text-xl text-white mb-4 font-medium">
+      <h3 class="text-xl text-white mb-4 font-medium text-center">
         {{ getGroupTitle(genre) }}
       </h3>
       <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-8">

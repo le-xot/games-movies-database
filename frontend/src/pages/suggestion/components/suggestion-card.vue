@@ -56,14 +56,17 @@ const throttledLikeFunctions = computed(() => {
 })
 
 const groupedItems = computed(() => {
-  const groups = new Map<string, RecordEntity[]>()
+  const groups = new Map<RecordGenre, RecordEntity[]>()
 
   for (const item of props.items) {
-    const genre = item.genre || 'other'
-    if (!groups.has(genre)) {
-      groups.set(genre, [])
+    // Skip elements without genre
+    if (!item.genre) continue
+
+    if (!groups.has(item.genre)) {
+      groups.set(item.genre, [])
     }
-    groups.get(genre)!.push(item)
+
+    groups.get(item.genre)!.push(item)
   }
 
   for (const items of groups.values()) {
@@ -74,21 +77,31 @@ const groupedItems = computed(() => {
     }
   }
 
-  const groupOrder = [RecordGenre.MOVIE, RecordGenre.GAME, RecordGenre.ANIME, RecordGenre.CARTOON, RecordGenre.SERIES, 'other']
+  const groupOrder: RecordGenre[] = [
+    RecordGenre.MOVIE,
+    RecordGenre.GAME,
+    RecordGenre.ANIME,
+    RecordGenre.CARTOON,
+    RecordGenre.SERIES,
+  ]
+
   return Array.from(groups.entries()).sort(([a], [b]) => {
     return groupOrder.indexOf(a) - groupOrder.indexOf(b)
   })
 })
 
-function getGroupTitle(genre: string): string {
-  switch (genre) {
-    case RecordGenre.GAME: return 'Игры'
-    case RecordGenre.MOVIE: return 'Фильмы'
-    case RecordGenre.SERIES: return 'Сериалы'
-    case RecordGenre.ANIME: return 'Аниме'
-    case RecordGenre.CARTOON: return 'Мультфильмы'
-    default: return 'Другое:'
-  }
+type GenreValue = `${RecordGenre}`
+
+const genreTitles: Record<GenreValue, string> = {
+  [RecordGenre.GAME]: 'Игры',
+  [RecordGenre.MOVIE]: 'Фильмы',
+  [RecordGenre.SERIES]: 'Сериалы',
+  [RecordGenre.ANIME]: 'Аниме',
+  [RecordGenre.CARTOON]: 'Мультфильмы',
+} as const
+
+function getGroupTitle(genre: GenreValue): string {
+  return genreTitles[genre]
 }
 
 const isDialogOpen = ref(false)

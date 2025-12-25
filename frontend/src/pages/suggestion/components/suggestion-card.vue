@@ -82,11 +82,11 @@ const groupedItems = computed(() => {
 
 function getGroupTitle(genre: string): string {
   switch (genre) {
-    case RecordGenre.GAME: return 'Игры:'
-    case RecordGenre.MOVIE: return 'Фильмы:'
-    case RecordGenre.SERIES: return 'Сериалы:'
-    case RecordGenre.ANIME: return 'Аниме:'
-    case RecordGenre.CARTOON: return 'Мультфильмы:'
+    case RecordGenre.GAME: return 'Игры'
+    case RecordGenre.MOVIE: return 'Фильмы'
+    case RecordGenre.SERIES: return 'Сериалы'
+    case RecordGenre.ANIME: return 'Аниме'
+    case RecordGenre.CARTOON: return 'Мультфильмы'
     default: return 'Другое:'
   }
 }

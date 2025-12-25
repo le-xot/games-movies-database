@@ -6,6 +6,7 @@
       "language_servers": [
         "eslint",
         "vue-language-server",
+        "vtsls",
         "tailwindcss-language-server",
         "..."
       ],

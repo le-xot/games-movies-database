@@ -76,17 +76,20 @@ export class RecordService {
     const foundedRecord = await this.prisma.record.findUnique({
       where: { id },
     })
+
+    if (!foundedRecord) {
+      throw new NotFoundException('Record not found')
+    }
+
     await this.prisma.like.deleteMany({ where: { recordId: id } })
     await this.prisma.record.delete({ where: { id } })
-    if (foundedRecord.type === $Enums.RecordType.SUGGESTION && foundedRecord.type !== $Enums.RecordType.SUGGESTION) {
+
+    if (foundedRecord.type === $Enums.RecordType.SUGGESTION) {
       this.eventEmitter.emit('update-suggestions')
     }
 
     if (foundedRecord.status === $Enums.RecordStatus.QUEUE && foundedRecord.type === $Enums.RecordType.WRITTEN) {
       this.eventEmitter.emit('update-queue')
-    }
-    if (foundedRecord.type === $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
     }
     if (foundedRecord.type === $Enums.RecordType.AUCTION) {
       this.eventEmitter.emit('update-auction')

@@ -36,9 +36,13 @@ export class RecordsProvidersService {
       regex: /imdb\.com\/title\/(tt\d+)/,
       parse: m => m[1],
     },
-    reyohoho: {
-      regex: /reyohoho\.(?:github\.io\/reyohoho|gitlab\.io\/reyohoho|vercel\.app|onrender\.com|serv00\.net)\/movie\/(\d+)|reyohoho-gitlab\.vercel\.app\/movie\/(\d+)|reyohoho(?:-vue)?\.(?:surge\.sh|vercel\.app)#(\d+)/,
-      parse: m => Number(m[1] || m[2] || m[3]),
+    kinohub_movie: {
+      regex: /(?:tv\.kinohub\.vip|kinobox\.in)\/movie\/(\d+)/i,
+      parse: m => Number(m[1]),
+    },
+    kinohub_shikimori: {
+      regex: /(?:tv\.kinohub\.vip|kinobox\.in)\/(shikimori|shikimor)\/(\d+)/i,
+      parse: m => Number(m[2]),
     },
   }
 
@@ -48,7 +52,8 @@ export class RecordsProvidersService {
     igdb: id => this.fetchIGDB(id),
     steam: id => this.fetchIGDBFromSteam(id),
     imdb: id => this.fetchImdb(id),
-    reyohoho: id => this.fetchReyohoho(id),
+    kinohub_movie: id => this.fetchKinopoisk(id),
+    kinohub_shikimori: id => this.fetchShikimori(id),
   }
 
   private readonly recordValidationRules = [

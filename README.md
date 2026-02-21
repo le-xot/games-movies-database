@@ -13,7 +13,8 @@ A full-stack web application for managing games and movies database with Twitch 
   - [Twitch Authentication](#twitch-authentication)
   - [Spotify Integration](#spotify-integration)
   - [OpenWeatherMap Integration](#openweathermap-integration)
-  - [Kinopoisk API](#kinopoisk-api)
+- [Kinopoisk API](#kinopoisk-api)
+  - [KinoHub / Kinobox](#kinohub--kinobox)
   - [TMDB Integration](#tmdb-integration)
   - [TWIR Integration](#twir-integration)
   - [Proxy Configuration](#proxy-configuration)
@@ -140,6 +141,21 @@ To enable movie data fetching, add your Kinopoisk API key to `backend/.env`:
 ```
 KINOPOISK_API=your_api_key
 ```
+
+### KinoHub / Kinobox
+
+This project uses KinoHub/Kinobox as the canonical external viewer for generated "watch" links.
+
+Supported input link formats accepted by the parser (backend):
+
+- `https://tv.kinohub.vip/movie/<id>`
+- `https://tv.kinohub.vip/shikimori/<id>` (also accepts `shikimor` as a common typo)
+- `https://kinobox.in/movie/<id>`
+- `https://kinobox.in/shikimori/<id>`
+
+When generating watch links the frontend returns canonical Kinobox URLs like `https://kinobox.in/movie/<id>` or `https://kinobox.in/shikimori/<id>`.
+
+If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/lib/utils/generate-watch-link.ts` accordingly.
 
 ### TMDB Integration
 

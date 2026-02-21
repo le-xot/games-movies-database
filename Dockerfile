@@ -34,4 +34,4 @@ RUN cd backend && bun prisma generate
 
 RUN bun build:backend
 
-CMD ["bun", "run", "start:backend"]
+CMD ["bun", "run", "--cwd", "backend", "start"]

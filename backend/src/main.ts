@@ -7,7 +7,9 @@ import { AppModule } from './app.module'
 import { env } from './utils/enviroments'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    logger: ['log', 'warn', 'error'],
+  })
   app.use(cookieParser())
   app.enableCors()
   const config = new DocumentBuilder().setTitle('games-movies-database').build()

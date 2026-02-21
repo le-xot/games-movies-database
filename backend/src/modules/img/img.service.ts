@@ -23,9 +23,38 @@ export class ImgService {
     }
 
     try {
-      const response = await fetch(originalUrl, { proxy: env.PROXY })
+      const proxyBase = env.PROXY
+      const fetchUrl = proxyBase
+        ? `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(originalUrl)}`
+        : originalUrl
+
+      const defaultHeaders = { 'User-Agent': 'Mozilla/5.0' }
+      let response
+      try {
+        response = await fetch(fetchUrl, { headers: defaultHeaders })
+      } catch (err) {
+        if (proxyBase) {
+          try {
+            response = await fetch(originalUrl, { headers: defaultHeaders })
+          } catch (err2) {
+            throw new BadRequestException(`Failed to fetch image: ${err2.message}`)
+          }
+        } else {
+          throw new BadRequestException(`Failed to fetch image: ${err.message}`)
+        }
+      }
+
       if (!response.ok) {
-        throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+        if (proxyBase) {
+          const fallback = await fetch(originalUrl, { headers: defaultHeaders }).catch(() => null)
+          if (fallback && fallback.ok) {
+            response = fallback
+          } else {
+            throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+          }
+        } else {
+          throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+        }
       }
 
       const contentType = response.headers.get('content-type')

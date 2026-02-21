@@ -116,10 +116,26 @@ export class RecordsProvidersService {
   private async fetchTmdb(imdbId: string): Promise<PreparedData> {
     if (!env.TMBD_API) throw new BadRequestException('API ключ для TMDB не настроен')
 
-    const findResp = await fetch(
-      `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`,
-      { proxy: env.PROXY },
-    )
+    const tmdbUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`
+    const proxyBase = env.PROXY
+    const fetchUrl = proxyBase
+      ? `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(tmdbUrl)}`
+      : tmdbUrl
+
+    let findResp
+    try {
+      findResp = await fetch(fetchUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+    } catch (err) {
+      if (proxyBase) {
+        try {
+          findResp = await fetch(tmdbUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+        } catch (err2) {
+          throw new BadRequestException(`Ошибка TMDB find: ${err2.message}`)
+        }
+      } else {
+        throw new BadRequestException(`Ошибка TMDB find: ${err.message}`)
+      }
+    }
 
     if (findResp.status !== 200) throw new BadRequestException(`Ошибка TMDB find: ${findResp.status}`)
 

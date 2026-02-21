@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Logger, Param, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums, User } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
@@ -11,7 +11,7 @@ import { UserService } from './user.service'
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  private readonly logger = new Logger(UserController.name)
+  
 
   constructor(private userService: UserService) {}
 
@@ -19,7 +19,7 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.CREATED, type: UserEntity })
   async createUserByLogin(@Body() data: UserCreateByLoginDTO): Promise<UserEntity> {
-    this.logger.log(`createUserByLogin login=${data.login}`)
+    
     const user = await this.userService.createUserByLogin(data.login)
     return {
       id: user.id,
@@ -57,7 +57,6 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<User> {
-    this.logger.log(`patchUser id=${id}`)
     return await this.userService.upsertUser(id, data)
   }
 
@@ -65,7 +64,6 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async getUserByTwitchId(@Param('id') id: string): Promise<User> {
-    this.logger.log(`getUserByTwitchId id=${id}`)
     return await this.userService.getUserById(id)
   }
 
@@ -73,7 +71,6 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async getUserByLogin(@Param('login') login: string): Promise<User> {
-    this.logger.log(`getUserByLogin login=${login}`)
     return await this.userService.getUserByLogin(login)
   }
 
@@ -81,7 +78,6 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteUser(@Param('id') id: string): Promise<void> {
-    this.logger.log(`deleteUser id=${id}`)
     await this.userService.deleteUserById(id)
   }
 
@@ -89,7 +85,6 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteUserByLogin(@Param('login') login: string): Promise<void> {
-    this.logger.log(`deleteUserByLogin login=${login}`)
     await this.userService.deleteUserByLogin(login)
   }
 }

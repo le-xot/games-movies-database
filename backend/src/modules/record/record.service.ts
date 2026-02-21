@@ -151,7 +151,7 @@ export class RecordService {
       where.genre = filters.genre
     }
 
-    this.logger.log(`Fetching records page=${page} limit=${limit} filters=${JSON.stringify(filters)} orderBy=${orderBy} direction=${direction}`)
+    
     const total = await this.prisma.record.count({
       where: Object.keys(where).length > 0 ? where : undefined,
     })
@@ -166,12 +166,11 @@ export class RecordService {
       take: limit,
     })
 
-    this.logger.log(`Fetched ${records.length} records total=${total}`)
     return { records, total }
   }
 
   async findRecordById(id: number): Promise<RecordEntity> {
-    this.logger.log(`Finding record by id=${id}`)
+    
     const record = await this.prisma.record.findUnique({
       where: { id },
       include: {
@@ -182,7 +181,6 @@ export class RecordService {
     if (!record) {
       throw new NotFoundException('Record not found')
     }
-    this.logger.log(`Found record id=${id}`)
     return record
   }
 }

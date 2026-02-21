@@ -1,5 +1,5 @@
 import { PrismaService } from '@/database/prisma.service'
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
 import { RecordEntity } from '../record/record.entity'
@@ -125,12 +125,32 @@ export class UserService {
   }
 
   async deleteUserByLogin(login: string): Promise<void> {
-    await this.prisma.user.delete({ where: { login } })
+    const user = await this.prisma.user.findUnique({ where: { login } })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.like.deleteMany({ where: { userId: user.id } }),
+      this.prisma.record.updateMany({ where: { userId: user.id }, data: { userId: null } }),
+      this.prisma.user.delete({ where: { login } }),
+    ])
+
     this.eventEmitter.emit('update-users')
   }
 
   async deleteUserById(id: string): Promise<void> {
-    await this.prisma.user.delete({ where: { id } })
+    const user = await this.prisma.user.findUnique({ where: { id } })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.like.deleteMany({ where: { userId: id } }),
+      this.prisma.record.updateMany({ where: { userId: id }, data: { userId: null } }),
+      this.prisma.user.delete({ where: { id } }),
+    ])
+
     this.eventEmitter.emit('update-users')
   }
 }

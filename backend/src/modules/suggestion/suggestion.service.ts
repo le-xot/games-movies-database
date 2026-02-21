@@ -66,7 +66,11 @@ export class SuggestionService {
       throw new BadRequestException('Запись не является предложением')
     }
 
-    await this.prisma.record.delete({ where: { id } })
+    await this.prisma.$transaction([
+      this.prisma.like.deleteMany({ where: { recordId: id } }),
+      this.prisma.record.delete({ where: { id } }),
+    ])
+
     this.eventEmitter.emit('update-suggestions')
   }
 }

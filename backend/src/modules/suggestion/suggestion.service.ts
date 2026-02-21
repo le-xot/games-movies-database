@@ -1,11 +1,12 @@
 import { PrismaService } from '@/database/prisma.service'
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { RecordsProvidersService } from '../records-providers/records-providers.service'
 
 @Injectable()
 export class SuggestionService {
+  private readonly logger = new Logger(SuggestionService.name)
   constructor(
     private prisma: PrismaService,
     private recordsProviderService: RecordsProvidersService,
@@ -13,6 +14,7 @@ export class SuggestionService {
   ) {}
 
   async userSuggest(data: { link: string, userId: string }) {
+    this.logger.log(`User suggesting link=${data.link} userId=${data.userId}`)
     const limit = await this.prisma.limit.findUnique({
       where: { name: $Enums.LimitType.SUGGESTION },
     })
@@ -36,6 +38,7 @@ export class SuggestionService {
     })
 
     this.eventEmitter.emit('update-suggestions')
+    this.logger.log(`Suggestion created title=${preparedData.title} genre=${preparedData.genre}`)
     return {
       title: preparedData.title,
       genre: preparedData.genre,

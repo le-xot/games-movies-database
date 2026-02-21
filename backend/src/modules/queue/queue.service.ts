@@ -1,10 +1,12 @@
 import { PrismaService } from '@/database/prisma.service'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import { QueueDto, QueueItemDto } from './queue.dto'
 
 @Injectable()
 export class QueueService {
+  private readonly logger = new Logger(QueueService.name)
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getQueue(): Promise<QueueDto> {
@@ -21,6 +23,7 @@ export class QueueService {
     const games = records.filter(r => r.genre === $Enums.RecordGenre.GAME)
     const videos = records.filter(r => r.genre !== $Enums.RecordGenre.GAME && r.genre !== null)
 
+    this.logger.log(`Queue fetched games=${games.length} videos=${videos.length}`)
     return {
       games: games.map((g): QueueItemDto => ({
         title: g.title,

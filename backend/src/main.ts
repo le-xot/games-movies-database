@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
@@ -7,6 +7,8 @@ import { AppModule } from './app.module'
 import { env } from './utils/enviroments'
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap')
+  logger.log('🚀 Starting application bootstrap')
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'warn', 'error'],
   })
@@ -54,8 +56,8 @@ async function bootstrap() {
       whitelist: true,
     }),
   )
-
   await app.listen(env.APP_PORT, '0.0.0.0')
+  logger.log(`✅ Application is listening on port ${env.APP_PORT}`)
 }
 
 bootstrap()

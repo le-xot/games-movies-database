@@ -1,5 +1,5 @@
 import { PrismaService } from '@/database/prisma.service'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
 import { RecordEntity } from '../record/record.entity'
@@ -7,6 +7,8 @@ import { TwitchService } from '../twitch/twitch.service'
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name)
+
   constructor(private prisma: PrismaService, private twitch: TwitchService, private readonly eventEmitter: EventEmitter2) {}
 
   async upsertUser(
@@ -80,7 +82,7 @@ export class UserService {
       this.eventEmitter.emit('update-users')
       return createdUser
     } catch (error) {
-      console.error('Error creating user by id:', error)
+      this.logger.error('Error creating user by id:', error as any)
       throw error
     }
   }
@@ -107,7 +109,7 @@ export class UserService {
       this.eventEmitter.emit('update-users')
       return createdUser
     } catch (error) {
-      console.error('Error creating user by login:', error)
+      this.logger.error('Error creating user by login:', error as any)
       throw error
     }
   }

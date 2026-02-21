@@ -1,5 +1,5 @@
 import { env } from '@/utils/enviroments'
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 
 interface TwitchToken {
   access_token: string
@@ -10,8 +10,10 @@ interface TwitchToken {
 @Injectable()
 export class TwitchService implements OnModuleInit {
   private token: TwitchToken | null = null
+  private readonly logger = new Logger(TwitchService.name)
 
   onModuleInit() {
+    this.logger.log('Initializing TwitchService and fetching app access token')
     this.getAppAccessToken()
   }
 
@@ -116,7 +118,7 @@ export class TwitchService implements OnModuleInit {
 
       return this.token.access_token
     } catch (error) {
-      console.error('Error fetching Twitch app access token:', error)
+      this.logger.error('Error fetching Twitch app access token:', error as any)
       throw error
     }
   }

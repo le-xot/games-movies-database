@@ -1,6 +1,6 @@
 import { env } from 'node:process'
 import { PrismaService } from '@/database/prisma.service'
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import { TwitchService } from '../twitch/twitch.service'
 
@@ -13,6 +13,8 @@ interface PreparedData {
 
 @Injectable()
 export class RecordsProvidersService {
+  private readonly logger = new Logger(RecordsProvidersService.name)
+
   constructor(private readonly prisma: PrismaService, private readonly twitch: TwitchService) { }
 
   private readonly linkPatterns: Record<string, { regex: RegExp, parse: (m: RegExpMatchArray) => number | string }> = {
@@ -92,6 +94,7 @@ export class RecordsProvidersService {
     })
 
     if (foundedRecord) {
+      this.logger.warn(`Found existing record for link=${data.link}`)
       this.validateExistingRecord(foundedRecord)
     }
 

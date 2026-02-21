@@ -3,11 +3,12 @@ import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
 import process, { env } from 'node:process'
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import sharp from 'sharp'
 
 @Injectable()
 export class ImgService {
+  private readonly logger = new Logger(ImgService.name)
   async getImageContent(urlBase64: string) {
     const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
 
@@ -37,9 +38,11 @@ export class ImgService {
           try {
             response = await fetch(originalUrl, { headers: defaultHeaders })
           } catch (err2) {
+            this.logger.error(`Failed to fetch image from original url: ${err2.message}`)
             throw new BadRequestException(`Failed to fetch image: ${err2.message}`)
           }
         } else {
+          this.logger.error(`Failed to fetch image: ${err.message}`)
           throw new BadRequestException(`Failed to fetch image: ${err.message}`)
         }
       }
@@ -59,6 +62,7 @@ export class ImgService {
 
       const contentType = response.headers.get('content-type')
       if (!contentType?.startsWith('image/')) {
+        this.logger.warn(`URL does not point to an image content-type=${contentType}`)
         throw new BadRequestException('URL does not point to an image')
       }
 

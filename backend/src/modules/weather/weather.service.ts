@@ -1,5 +1,5 @@
 import { env } from '@/utils/enviroments'
-import { Injectable, type OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 
 export interface WeatherData {
   main: {
@@ -19,24 +19,29 @@ export interface WeatherData {
 
 @Injectable()
 export class WeatherService implements OnModuleInit {
+  private readonly logger = new Logger(WeatherService.name)
   private cachedData: WeatherData | null = null
   private lastFetch: number = 0
   private readonly CACHE_DURATION = 5 * 60 * 1000
 
   onModuleInit() {
+    this.logger.log('Initializing WeatherService and fetching initial data')
     this.fetchWeatherData()
       .then(() => {
+        this.logger.log('Initial weather data fetched successfully')
         setInterval(() => {
           this.fetchWeatherData()
         }, this.CACHE_DURATION)
       })
       .catch((e) => {
+        this.logger.error(`Failed to initialize WeatherService: ${e.message}`, e.stack)
         throw new Error(`Failed to initialize WeatherService: ${e.message}`)
       })
   }
 
   private async fetchWeatherData(): Promise<void> {
     try {
+      this.logger.log('Fetching weather data from OpenWeatherMap')
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${env.WEATHER_LAT}&lon=${env.WEATHER_LON}&appid=${env.WEATHER_API_KEY}&units=metric&lang=ru`,
       )
@@ -47,8 +52,9 @@ export class WeatherService implements OnModuleInit {
 
       this.cachedData = await response.json()
       this.lastFetch = Date.now()
+      this.logger.log('Weather data updated')
     } catch (error) {
-      console.error('Failed to fetch weather data:', error)
+      this.logger.error('Failed to fetch weather data:', error as any)
     }
   }
 

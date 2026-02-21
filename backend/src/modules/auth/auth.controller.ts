@@ -1,5 +1,5 @@
 import { env } from '@/utils/enviroments'
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Logger, Post, Res, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { TwitchService } from '../twitch/twitch.service'
 import { UserEntity } from '../user/user.entity'
@@ -12,10 +12,13 @@ import type { Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name)
+
   constructor(private readonly authService: AuthService, private readonly userService: UserService, private readonly twitch: TwitchService) {}
 
   @Get('/twitch')
   twitchAuth(@Res() res: Response) {
+    this.logger.log('Redirecting to Twitch for auth')
     const redirectUri = 'https://id.twitch.tv/oauth2/authorize?'
       + `client_id=${env.TWITCH_CLIENT_ID}&`
       + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
@@ -26,6 +29,7 @@ export class AuthController {
 
   @Post('/twitch/callback')
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
+    this.logger.log('Handling twitch auth callback')
     const token = await this.authService.handleCallback(data.code)
     res.cookie('token', token, {
       httpOnly: true,
@@ -39,11 +43,13 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiResponse({ type: UserEntity, status: 200 })
   me(@User() user: UserEntity) {
+    this.logger.log(`Get current user id=${user?.id}`)
     return user
   }
 
   @Post('/logout')
   logout(@Res() res: Response) {
+    this.logger.log('Logging out user')
     res.clearCookie('token')
     res.end()
   }

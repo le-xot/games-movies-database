@@ -34,10 +34,6 @@ export class RecordsProvidersService {
       regex: /(?:store\.steampowered|steamcommunity)\.com\/app\/(\d+)/,
       parse: m => Number(m[1]),
     },
-    imdb: {
-      regex: /imdb\.com\/title\/(tt\d+)/,
-      parse: m => m[1],
-    },
     kinohub_movie: {
       regex: /(?:tv\.kinohub\.vip|kinobox\.in)\/movie\/(\d+)/i,
       parse: m => Number(m[1]),
@@ -53,7 +49,6 @@ export class RecordsProvidersService {
     kinopoisk: id => this.fetchKinopoisk(id),
     igdb: id => this.fetchIGDB(id),
     steam: id => this.fetchIGDBFromSteam(id),
-    imdb: id => this.fetchImdb(id),
     kinohub_movie: id => this.fetchKinopoisk(id),
     kinohub_shikimori: id => this.fetchShikimori(id),
   }
@@ -115,91 +110,6 @@ export class RecordsProvidersService {
     if (!rule?.permission) {
       throw new BadRequestException(message ?? `Жанр ${genre} временно не разрешён`)
     }
-  }
-
-  private async fetchImdb(id: string) {
-    return await this.fetchTmdb(id)
-  }
-
-  private async fetchTmdb(imdbId: string): Promise<PreparedData> {
-    if (!env.TMBD_API) throw new BadRequestException('API ключ для TMDB не настроен')
-
-    const tmdbUrl = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${env.TMBD_API}&language=ru-RU&external_source=imdb_id`
-    const proxyBase = env.PROXY
-    const fetchUrl = proxyBase
-      ? `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(tmdbUrl)}`
-      : tmdbUrl
-
-    let findResp
-    try {
-      findResp = await fetch(fetchUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })
-    } catch (err) {
-      if (proxyBase) {
-        try {
-          findResp = await fetch(tmdbUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })
-        } catch (err2) {
-          throw new BadRequestException(`Ошибка TMDB find: ${err2.message}`)
-        }
-      } else {
-        throw new BadRequestException(`Ошибка TMDB find: ${err.message}`)
-      }
-    }
-
-    if (findResp.status !== 200) throw new BadRequestException(`Ошибка TMDB find: ${findResp.status}`)
-
-    const findData = await findResp.json() as any
-    const movie = findData.movie_results?.[0]
-    const tv = findData.tv_results?.[0]
-
-    const item = movie ?? tv
-    if (!item) throw new BadRequestException('Не удалось найти объект в TMDB')
-
-    const genre = await this.mapTmdbGenre(movie, tv)
-
-    const posterUrl = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : ''
-
-    return {
-      title: movie?.title ?? tv?.name,
-      posterUrl,
-      genre,
-      link: `https://www.imdb.com/title/${imdbId}`,
-    }
-  }
-
-  private async mapTmdbGenre(
-    movie?: { genre_ids?: number[], origin_country?: string[], production_countries?: { iso_3166_1: string }[] },
-    tv?: { genre_ids?: number[], origin_country?: string[], production_countries?: { iso_3166_1: string }[] },
-  ): Promise<$Enums.RecordGenre> {
-    const item = movie ?? tv
-
-    const hasAnimation = item?.genre_ids?.includes(16)
-    const isJapanese
-      = item?.origin_country?.includes('JP')
-        || item?.production_countries?.some(c => c.iso_3166_1 === 'JP')
-
-    if (tv) {
-      if (hasAnimation && isJapanese) {
-        await this.checkGenrePermission($Enums.RecordGenre.ANIME, 'Прошу пока аниме не советовать')
-        return $Enums.RecordGenre.ANIME
-      }
-      await this.checkGenrePermission($Enums.RecordGenre.SERIES, 'Прошу пока сериалы не советовать')
-      return $Enums.RecordGenre.SERIES
-    }
-
-    if (movie) {
-      if (hasAnimation && isJapanese) {
-        await this.checkGenrePermission($Enums.RecordGenre.ANIME, 'Прошу пока аниме не советовать')
-        return $Enums.RecordGenre.ANIME
-      }
-      if (hasAnimation) {
-        await this.checkGenrePermission($Enums.RecordGenre.CARTOON, 'Прошу пока мультфильмы не советовать')
-        return $Enums.RecordGenre.CARTOON
-      }
-      await this.checkGenrePermission($Enums.RecordGenre.MOVIE, 'Прошу пока фильмы не советовать')
-      return $Enums.RecordGenre.MOVIE
-    }
-
-    throw new BadRequestException('Не удалось определить жанр из TMDB')
   }
 
   private async fetchShikimori(id: number): Promise<PreparedData> {

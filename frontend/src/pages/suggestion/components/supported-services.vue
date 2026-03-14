@@ -18,7 +18,6 @@
 const services = [
   { name: 'Kinopoisk', icon: '/icons/services/kinopoisk.svg', url: 'https://www.kinopoisk.ru/' },
   { name: 'Shikimori', icon: '/icons/services/shikimori.svg', url: 'https://shikimori.one/' },
-  { name: 'IMDb', icon: '/icons/services/imdb.svg', url: 'https://www.imdb.com/' },
   { name: 'Steam', icon: '/icons/services/steam.svg', url: 'https://store.steampowered.com/' },
   { name: 'IGDb', icon: '/icons/services/igdb.svg', url: 'https://www.igdb.com/' },
   { name: 'KinoHub', icon: '/icons/services/kinohub.png', url: 'https://kinobox.in/' },

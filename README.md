@@ -15,7 +15,6 @@ A full-stack web application for managing games and movies database with Twitch 
   - [OpenWeatherMap Integration](#openweathermap-integration)
 - [Kinopoisk API](#kinopoisk-api)
   - [KinoHub / Kinobox](#kinohub--kinobox)
-  - [TMDB Integration](#tmdb-integration)
   - [TWIR Integration](#twir-integration)
   - [Proxy Configuration](#proxy-configuration)
 - [Environment Setup](#environment-setup)
@@ -156,20 +155,6 @@ Supported input link formats accepted by the parser (backend):
 When generating watch links the frontend returns canonical Kinobox URLs like `https://kinobox.in/movie/<id>` or `https://kinobox.in/shikimori/<id>`.
 
 If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/lib/utils/generate-watch-link.ts` accordingly.
-
-### TMDB Integration
-
-To enable additional movie data fetching, add your TMDB API key to `backend/.env`:
-
-```
-TMBD_API=your_api_key
-```
-
-You can get your API key by:
-
-1. Creating an account at [The Movie Database](https://www.themoviedb.org/)
-2. Going to Settings > API
-3. Generating a new API key
 
 ### TWIR Integration
 

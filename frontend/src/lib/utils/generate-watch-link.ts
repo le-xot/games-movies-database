@@ -11,12 +11,6 @@ export function generateWatchLink(originalLink: string): string | null {
     return `https://kinobox.in/movie/${movieId}`
   }
 
-  const imdbMatch = originalLink.match(/imdb\.com\/title\/(tt\d+)/)
-  if (imdbMatch) {
-    const movieId = imdbMatch[1]
-    return `https://kinobox.in/movie/${movieId}`
-  }
-
   const igdbMatch = originalLink.match(/igdb\.com\/games\/([^/]+)/)
   if (igdbMatch) {
     return originalLink

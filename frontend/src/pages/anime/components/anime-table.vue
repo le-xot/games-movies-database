@@ -6,7 +6,7 @@ import { useAnime } from '../composables/use-anime.ts'
 import { useAnimeParams } from '../composables/use-anime-params.ts'
 import { useAnimeTable } from '../composables/use-anime-table.ts'
 
-const videos = useAnime()
+const animeStore = useAnime()
 const table = useAnimeTable()
 const params = useAnimeParams()
 </script>
@@ -18,13 +18,13 @@ const params = useAnimeParams()
   />
 
   <Table
-    :is-loading="videos.isLoading"
+    :is-loading="animeStore.isLoading"
     :table="table"
   >
     <template #pagination>
       <TablePagination
         v-model="params.pagination"
-        :total-records="videos.totalRecords"
+        :total-records="animeStore.totalRecords"
       />
     </template>
   </Table>

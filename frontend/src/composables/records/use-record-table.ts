@@ -1,0 +1,248 @@
+import { useDialog } from '@/components/dialog/composables/use-dialog'
+import DialogButton from '@/components/dialog/dialog-button.vue'
+import TableColEpisode from '@/components/table/table-col/table-col-episode.vue'
+import TableColSelect from '@/components/table/table-col/table-col-select.vue'
+import TableColTitle from '@/components/table/table-col/table-col-title.vue'
+import TableColUser from '@/components/table/table-col/table-col-user.vue'
+import TableFilterGrade from '@/components/table/table-filter-grade.vue'
+import TableFilterStatus from '@/components/table/table-filter-status.vue'
+import { useUser } from '@/composables/use-user'
+import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api'
+import {
+  ColumnDef,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useVueTable,
+} from '@tanstack/vue-table'
+import { Eraser } from 'lucide-vue-next'
+import { acceptHMRUpdate, defineStore, storeToRefs, StoreDefinition } from 'pinia'
+import { computed, h } from 'vue'
+
+export interface RecordTableConfig {
+  storeId: string
+  recordStore: StoreDefinition
+  paramsStore: StoreDefinition
+  deleteDialogTitle: string
+  hasEpisodeColumn?: boolean
+}
+
+export function createRecordTableStore(config: RecordTableConfig) {
+  const {
+    storeId,
+    recordStore,
+    paramsStore,
+    deleteDialogTitle,
+    hasEpisodeColumn = true,
+  } = config
+
+  const store = defineStore(storeId, () => {
+    const { isAdmin } = storeToRefs(useUser())
+    const recordStoreInstance = recordStore()
+    const paramsStoreInstance = paramsStore()
+    const columnVisibility = paramsStoreInstance.columnVisibility
+    const pagination = paramsStoreInstance.pagination
+    const records = recordStoreInstance.records
+    const totalPages = recordStoreInstance.totalPages
+    const updateRecord = recordStoreInstance.updateRecord
+    const deleteRecord = recordStoreInstance.deleteRecord
+    const dialog = useDialog()
+
+    const tableColumns = computed(() => {
+      const columns: ColumnDef<RecordEntity>[] = [
+        {
+          accessorKey: 'title',
+          header: 'Название',
+          size: isAdmin.value ? 45 : 50,
+          minSize: isAdmin.value ? 45 : 50,
+          maxSize: isAdmin.value ? 45 : 50,
+          enableResizing: false,
+          cell: ({ row }) => {
+            return h(TableColTitle, {
+              key: `title-${row.original.id}`,
+              title: row.original.title,
+              link: row.original.link,
+            })
+          },
+        },
+      ]
+
+      if (hasEpisodeColumn) {
+        columns.push({
+          accessorKey: 'episode',
+          header: 'Серии',
+          size: 10,
+          minSize: 10,
+          maxSize: 10,
+          enableResizing: false,
+          cell: ({ row }) => {
+            return h(TableColEpisode, {
+              key: `episode-${row.original.id}`,
+              episode: row.original.episode,
+              onUpdate: (episode: any) => {
+                if (episode !== undefined) {
+                  updateRecord({
+                    id: row.original.id,
+                    data: { episode },
+                  })
+                }
+              },
+            })
+          },
+        })
+      }
+
+      columns.push(
+        {
+          accessorKey: 'user',
+          header: 'Пользователь',
+          size: 20,
+          minSize: 20,
+          maxSize: 20,
+          enableResizing: false,
+          cell: ({ row }) => {
+            return h(TableColUser, {
+              key: `user-${row.original.id}`,
+              userId: row.original.userId,
+              onUpdate: (userId: any) => {
+                if (userId !== undefined) {
+                  updateRecord({
+                    id: row.original.id,
+                    data: { userId },
+                  })
+                }
+              },
+            })
+          },
+        },
+        {
+          accessorKey: 'status',
+          header: () => {
+            return h('div', { class: 'flex justify-between items-center mx-3' }, [
+              h('span', {}, 'Статус'),
+              h(TableFilterStatus, {
+                value: null,
+                onUpdate: (value: RecordStatus[] | null) => {
+                  paramsStoreInstance.setStatusFilter(value)
+                },
+              }),
+            ])
+          },
+          size: 10,
+          minSize: 10,
+          maxSize: 10,
+          enableResizing: false,
+          cell: ({ row }) => {
+            return h(TableColSelect, {
+              key: `status-${row.original.id}`,
+              value: row.original.status as RecordStatus,
+              kind: 'status',
+              onUpdate: (value: any) => {
+                if (value !== undefined) {
+                  updateRecord({
+                    id: row.original.id,
+                    data: {
+                      status: value as RecordStatus,
+                    },
+                  })
+                }
+              },
+            })
+          },
+        },
+        {
+          accessorKey: 'grade',
+          header: () => {
+            return h('div', { class: 'flex justify-between items-center mx-3' }, [
+              h('span', {}, 'Оценка'),
+              h(TableFilterGrade, {
+                value: null,
+                onUpdate: (value: RecordGrade[] | null) => {
+                  paramsStoreInstance.setGradeFilter(value)
+                },
+              }),
+            ])
+          },
+          size: 10,
+          minSize: 10,
+          maxSize: 10,
+          enableResizing: false,
+          cell: ({ row }) => {
+            return h(TableColSelect, {
+              key: `grade-${row.original.id}`,
+              value: row.original.grade as RecordGrade,
+              kind: 'grade',
+              onUpdate: (value: any) => {
+                if (value !== undefined) {
+                  updateRecord({
+                    id: row.original.id,
+                    data: { grade: value as RecordGrade },
+                  })
+                }
+              },
+            })
+          },
+        },
+      )
+
+      if (isAdmin.value) {
+        columns.unshift({
+          accessorKey: 'id',
+          size: 5,
+          minSize: 5,
+          maxSize: 5,
+          enableResizing: false,
+          header: '',
+          cell: ({ row }) => {
+            return h('div', {}, {
+              default: () => [
+                h(DialogButton, {
+                  key: `id-${row.original.id}`,
+                  icon: Eraser,
+                  onClick: () => dialog.openDialog({
+                    title: deleteDialogTitle,
+                    content: '',
+                    description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
+                    onSubmit: () => deleteRecord(row.original.id),
+                  }),
+                }),
+              ],
+            })
+          },
+        })
+      }
+
+      return columns
+    })
+
+    const table = useVueTable({
+      get data() {
+        return records.value
+      },
+      get columns() {
+        return tableColumns.value
+      },
+      get pageCount() {
+        return totalPages.value
+      },
+      state: {
+        get columnVisibility() {
+          return columnVisibility.value
+        },
+        get pagination() {
+          return pagination.value
+        },
+      },
+      manualPagination: true,
+      getCoreRowModel: getCoreRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+    })
+
+    return table
+  })
+
+  if (import.meta.hot) {
+    import.meta.hot.accept(acceptHMRUpdate(store, import.meta.hot))
+  }
+
+  return store
+}

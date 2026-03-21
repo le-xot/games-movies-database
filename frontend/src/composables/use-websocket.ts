@@ -41,26 +41,26 @@ export function useWebSocket() {
       .on('update-records', (payload) => {
         switch (payload.genre) {
           case 'ANIME':
-            animeStore.refetchVideos()
+            animeStore.refetchRecords()
             break
           case 'CARTOON':
-            cartoonStore.refetchVideos()
+            cartoonStore.refetchRecords()
             break
           case 'SERIES':
-            seriesStore.refetchVideos()
+            seriesStore.refetchRecords()
             break
           case 'MOVIE':
-            movieStore.refetchVideos()
+            movieStore.refetchRecords()
             break
           case 'GAME':
-            gamesStore.refetchGames()
+            gamesStore.refetchRecords()
             break
           default:
-            animeStore.refetchVideos()
-            cartoonStore.refetchVideos()
-            seriesStore.refetchVideos()
-            movieStore.refetchVideos()
-            gamesStore.refetchGames()
+            animeStore.refetchRecords()
+            cartoonStore.refetchRecords()
+            seriesStore.refetchRecords()
+            movieStore.refetchRecords()
+            gamesStore.refetchRecords()
             break
         }
       })

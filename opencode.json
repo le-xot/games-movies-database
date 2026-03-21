@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "shadcn-vue": {
+      "type": "local",
+      "command": ["npx", "-y", "@magnusrodseth/shadcn-mcp-server"],
+      "enabled": true
+    }
+  },
+  "tools": {
+    "shadcn-vue*": true
+  }
+}

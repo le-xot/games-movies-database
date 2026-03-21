@@ -6,7 +6,7 @@ import { useCartoon } from '../composables/use-cartoon.ts'
 import { useCartoonParams } from '../composables/use-cartoon-params.ts'
 import { useCartoonTable } from '../composables/use-cartoon-table.ts'
 
-const videos = useCartoon()
+const cartoonStore = useCartoon()
 const table = useCartoonTable()
 const params = useCartoonParams()
 </script>
@@ -18,13 +18,13 @@ const params = useCartoonParams()
   />
 
   <Table
-    :is-loading="videos.isLoading"
+    :is-loading="cartoonStore.isLoading"
     :table="table"
   >
     <template #pagination>
       <TablePagination
         v-model="params.pagination"
-        :total-records="videos.totalRecords"
+        :total-records="cartoonStore.totalRecords"
       />
     </template>
   </Table>

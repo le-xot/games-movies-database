@@ -83,6 +83,8 @@ export const router = createRouter({
 
 router.beforeEach(async (to, _, next) => {
   const userStore = useUser()
+  
+  // Only fetch user if not initialized (caching)
   if (!userStore.isInitialized) {
     try {
       await userStore.fetchUser()
@@ -91,19 +93,15 @@ router.beforeEach(async (to, _, next) => {
     }
   }
 
-  if (to.meta.requiresAdmin) {
-    if (!userStore.isAdmin) {
-      next({ path: ROUTER_PATHS.home })
-    } else {
-      next()
-    }
-  } else if (to.meta.requiresAuth) {
-    if (!userStore.isLoggedIn) {
-      next({ path: ROUTER_PATHS.home })
-    } else {
-      next()
-    }
-  } else {
-    next()
+  // Check admin access
+  if (to.meta.requiresAdmin && !userStore.isAdmin) {
+    return next({ path: ROUTER_PATHS.home })
   }
+  
+  // Check auth access
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    return next({ path: ROUTER_PATHS.home })
+  }
+  
+  next()
 })

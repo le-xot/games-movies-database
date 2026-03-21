@@ -2,7 +2,7 @@ import { useBreakpoints as _useBreakpoints, breakpointsTailwind } from '@vueuse/
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
 
-export const useBreakpoints = defineStore('', () => {
+export const useBreakpoints = defineStore('globals/use-breakpoints', () => {
   const breakpoints = _useBreakpoints(breakpointsTailwind)
   const isDesktop = computed(() => breakpoints.greaterOrEqual('md').value)
 

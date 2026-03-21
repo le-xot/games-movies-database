@@ -3,70 +3,37 @@ import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useApi } from '@/composables/use-api'
-import { UserEntity } from '@/lib/api'
 import { getImageUrl } from '@/lib/utils/image.ts'
 import { useTitle } from '@vueuse/core'
 import { PlusIcon, Trash2Icon } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
+import { useAdminActions } from './composables/use-admin-actions'
+import { useAdminUsers } from './composables/use-admin-users'
 
 const title = useTitle()
 onMounted(() => title.value = 'Админка')
 
-const api = useApi()
 const dialog = useDialog()
-const users = ref<UserEntity[]>([])
-const isLoading = ref(true)
+const { users, isLoading } = useAdminUsers()
+const { deleteUser, createUser, isCreatingUser, errorMessage } = useAdminActions()
+
 const newUsername = ref('')
-const isCreatingUser = ref(false)
-const errorMessage = ref('')
 
-onMounted(async () => {
-  await fetchUsers()
-})
-
-async function fetchUsers() {
-  isLoading.value = true
-  try {
-    const { data } = await api.users.userControllerGetAllUsers()
-    users.value = data
-  } catch (error) {
-    console.error('Failed to fetch users:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-function deleteUser(userId: string, username: string) {
+function handleDeleteUser(userId: string, username: string) {
   dialog.openDialog({
     title: 'Удалить пользователя?',
     content: '',
     description: `Вы уверены, что хотите удалить пользователя ${username}?`,
     onSubmit: async () => {
-      try {
-        await api.users.userControllerDeleteUser(userId)
-        await fetchUsers()
-      } catch (error) {
-        console.error('Failed to delete user:', error)
-      }
+      await deleteUser(userId)
     },
   })
 }
 
-async function createUser() {
-  if (!newUsername.value.trim() || isCreatingUser.value) return
-
-  errorMessage.value = ''
-  isCreatingUser.value = true
-  try {
-    await api.users.userControllerCreateUserByLogin({ login: newUsername.value })
-    await fetchUsers()
+async function handleCreateUser() {
+  const success = await createUser(newUsername.value)
+  if (success) {
     newUsername.value = ''
-  } catch (error) {
-    console.error('Failed to create user:', error)
-    errorMessage.value = 'Не удалось создать пользователя. Проверьте правильность ника Twitch.'
-  } finally {
-    isCreatingUser.value = false
   }
 }
 </script>
@@ -93,11 +60,11 @@ async function createUser() {
               v-model="newUsername"
               placeholder="Введите ник Twitch"
               class="flex-1"
-              @keyup.enter="createUser"
+              @keyup.enter="handleCreateUser"
             />
             <Button
               :disabled="isCreatingUser || !newUsername.trim()"
-              @click="createUser"
+              @click="handleCreateUser"
             >
               <PlusIcon class="size-4 mr-2" />
               Добавить
@@ -130,7 +97,7 @@ async function createUser() {
             <Button
               variant="destructive"
               size="icon"
-              @click="deleteUser(user.id, user.login)"
+              @click="handleDeleteUser(user.id, user.login)"
             >
               <Trash2Icon class="size-4" color="#ffffff" />
             </Button>

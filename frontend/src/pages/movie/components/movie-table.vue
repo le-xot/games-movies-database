@@ -6,7 +6,7 @@ import { useMovie } from '../composables/use-movie.ts'
 import { useMovieParams } from '../composables/use-movie-params.ts'
 import { useMovieTable } from '../composables/use-movie-table.ts'
 
-const videos = useMovie()
+const movieStore = useMovie()
 const table = useMovieTable()
 const params = useMovieParams()
 </script>
@@ -18,13 +18,13 @@ const params = useMovieParams()
   />
 
   <Table
-    :is-loading="videos.isLoading"
+    :is-loading="movieStore.isLoading"
     :table="table"
   >
     <template #pagination>
       <TablePagination
         v-model="params.pagination"
-        :total-records="videos.totalRecords"
+        :total-records="movieStore.totalRecords"
       />
     </template>
   </Table>

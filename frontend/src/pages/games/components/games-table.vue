@@ -6,7 +6,7 @@ import { useGames } from '../composables/use-games'
 import { useGamesParams } from '../composables/use-games-params'
 import { useGamesTable } from '../composables/use-games-table'
 
-const games = useGames()
+const gamesStore = useGames()
 const table = useGamesTable()
 const params = useGamesParams()
 </script>
@@ -18,13 +18,13 @@ const params = useGamesParams()
   />
 
   <Table
-    :is-loading="games.isLoading"
+    :is-loading="gamesStore.isLoading"
     :table="table"
   >
     <template #pagination>
       <TablePagination
         v-model="params.pagination"
-        :total-records="games.totalRecords"
+        :total-records="gamesStore.totalRecords"
       />
     </template>
   </Table>

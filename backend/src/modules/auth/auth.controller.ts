@@ -1,6 +1,7 @@
 import { env } from '@/utils/enviroments'
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { TwitchService } from '../twitch/twitch.service'
 import { UserEntity } from '../user/user.entity'
 import { UserService } from '../user/user.service'
@@ -15,6 +16,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService, private readonly userService: UserService, private readonly twitch: TwitchService) {}
 
   @Get('/twitch')
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   twitchAuth(@Res() res: Response) {
     const redirectUri = 'https://id.twitch.tv/oauth2/authorize?'
       + `client_id=${env.TWITCH_CLIENT_ID}&`
@@ -25,6 +27,7 @@ export class AuthController {
   }
 
   @Post('/twitch/callback')
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
     const token = await this.authService.handleCallback(data.code)
     res.cookie('token', token, {

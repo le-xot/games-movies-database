@@ -3,6 +3,7 @@ import { LikeEntity } from '@/modules/like/like.entity'
 import { LikeService } from '@/modules/like/like.service'
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
@@ -15,6 +16,7 @@ export class LikeController {
   constructor(private likeService: LikeService) {}
 
   @Post()
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ type: LikeEntity, status: 200, description: 'Returns created like' })
   async createLike(@Body() data: LikeCreateDTO, @User() user: UserEntity): Promise<LikeEntity> {
@@ -22,6 +24,7 @@ export class LikeController {
   }
 
   @Delete(':id')
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Like deleted successfully' })
   async deleteLike(@Param('id') id: number, @User() user: UserEntity): Promise<void> {

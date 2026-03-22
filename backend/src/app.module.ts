@@ -2,8 +2,10 @@ import { join } from 'node:path'
 import { AppController } from '@/app.controller'
 import { LikeModule } from '@/modules/like/like.module'
 import { Module } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { PrismaModule } from './database/prisma.module'
 import { AuctionModule } from './modules/auction/auction.module'
 import { AuthModule } from './modules/auth/auth.module'
@@ -26,6 +28,12 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 60,
+      },
+    ]),
     AuctionModule,
     TwirModule,
     TwitchModule,
@@ -44,6 +52,12 @@ import { WebsocketModule } from './modules/websocket/websocket.module'
     // SpotifyModule,
     WebsocketModule,
     ImgModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { $Enums } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guard'
 import { RolesGuard } from '../auth/auth.roles.guard'
@@ -21,6 +22,7 @@ export class SuggestionController {
   }
 
   @Post()
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns created suggestion' })
   async userSuggest(@Body() suggest: UserSuggestionDTO, @User() user: UserEntity): Promise<any> {

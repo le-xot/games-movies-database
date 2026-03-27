@@ -13,7 +13,7 @@ A full-stack web application for managing games and movies database with Twitch 
   - [Twitch Authentication](#twitch-authentication)
   - [Spotify Integration](#spotify-integration)
   - [OpenWeatherMap Integration](#openweathermap-integration)
-- [Kinopoisk API](#kinopoisk-api)
+  - [Kinopoisk API](#kinopoisk-api)
   - [KinoHub / Kinobox](#kinohub--kinobox)
   - [TWIR Integration](#twir-integration)
   - [Proxy Configuration](#proxy-configuration)
@@ -148,7 +148,7 @@ This project uses KinoHub/Kinobox as the canonical external viewer for generated
 Supported input link formats accepted by the parser (backend):
 
 - `https://tv.kinohub.vip/movie/<id>`
-- `https://tv.kinohub.vip/shikimori/<id>` (also accepts `shikimor` as a common typo)
+- `https://tv.kinohub.vip/shikimori/<id>`
 - `https://kinobox.in/movie/<id>`
 - `https://kinobox.in/shikimori/<id>`
 
@@ -171,7 +171,7 @@ This API key is used for authenticating requests from TWIR to your application.
 If you need to use a proxy for external API requests, add to `backend/.env`:
 
 ```
-PROXY=socks5://your-proxy-url:port
+PROXY=https://your-proxy-domain/
 ```
 
 ## Environment Setup

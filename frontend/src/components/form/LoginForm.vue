@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { CircleUserRound, Lock, LogOutIcon } from 'lucide-vue-next'
+import { CircleUserRound, Loader2, Lock, LogOutIcon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
+import { nextTick, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,9 +15,12 @@ import { useUser } from '@/stores/use-user'
 const userStore = useUser()
 const { user } = storeToRefs(userStore)
 const loginHref = `${window.location.origin}/api/auth/twitch`
+const isLoading = ref(false)
 
-function handleLogin() {
+async function handleLogin() {
   localStorage.setItem('loginReturnUrl', window.location.pathname)
+  isLoading.value = true
+  await nextTick()
   window.location.href = loginHref
 }
 </script>
@@ -54,5 +58,8 @@ function handleLogin() {
     </DropdownMenuContent>
   </DropdownMenu>
 
-  <Button v-else @click="handleLogin"> Логин </Button>
+  <Button v-else :disabled="isLoading" @click="handleLogin">
+    <Loader2 v-if="isLoading" class="animate-spin" />
+    <span v-else>Логин</span>
+  </Button>
 </template>

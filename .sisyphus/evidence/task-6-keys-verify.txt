@@ -1,0 +1,14 @@
+# Task 6: columnsVisibility key verification
+
+## grep -rn "'columnsVisibility'" frontend/src/ | grep -v 'columnsVisibility:'
+# Only migration code in main.ts reading/deleting old key (NOT writing):
+frontend/src/main.ts:9:const oldVisibility = localStorage.getItem('columnsVisibility')
+frontend/src/main.ts:16:  localStorage.removeItem('columnsVisibility')
+frontend/src/main.ts:23:  'columnsVisibility',
+
+## Per-genre keys in params stores (grep -rn "columnsVisibility:" frontend/src/pages/):
+frontend/src/pages/games/composables/use-games-params.ts:15:  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:games', {
+frontend/src/pages/anime/composables/use-anime-params.ts:15:  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:anime', {
+frontend/src/pages/movie/composables/use-movie-params.ts:15:  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:movie', {
+frontend/src/pages/cartoon/composables/use-cartoon-params.ts:15:  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:cartoon', {
+frontend/src/pages/series/composables/use-series-params.ts:15:  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:series', {

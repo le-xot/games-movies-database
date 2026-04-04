@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useUser } from '@/composables/use-user';
+import { useUser } from '@/stores/use-user';
 import { RecordGenre } from '@/lib/api';
 import { useAnime } from '@/pages/anime/composables/use-anime';
 import { useAuctions } from '@/pages/auction/composables/use-auctions';

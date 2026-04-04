@@ -1,0 +1,44 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUser } from '@/stores/use-user';
+import { ROUTER_PATHS } from '@/router/router-paths';
+
+const userApi = useUser();
+const router = useRouter();
+
+const error = ref('');
+
+onMounted(async () => {
+  const url = new URL(window.location.href);
+  const loginError = url.searchParams.get('error');
+  if (loginError) {
+    error.value = loginError;
+    return;
+  }
+
+  const code = url.searchParams.get('code');
+  if (typeof code !== 'string') {
+    error.value = 'Incorrect code';
+    return;
+  }
+
+  const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db;
+
+  try {
+    await userApi.userLogin({ code });
+    localStorage.removeItem('loginReturnUrl');
+    await router.push(returnUrl);
+  } catch (e) {
+    if (e instanceof Error) {
+      error.value = e.toString();
+    }
+  }
+});
+</script>
+
+<template>
+  <div v-if="error" class="bg-zinc-800 flex justify-center items-center">
+    {{ error }}
+  </div>
+</template>

@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from '@pinia/colada';
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import { useApi } from '@/composables/use-api';
-import { useUser } from '@/composables/use-user';
+import { useApi } from '@/stores/use-api';
+import { useUser } from '@/stores/use-user';
 import { RecordEntity } from '@/lib/api';
 import { generateWatchLink } from '@/utils/generate-watch-link';
 

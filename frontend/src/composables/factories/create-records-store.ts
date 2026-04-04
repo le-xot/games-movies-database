@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@pinia/colada';
 import { StoreDefinition, defineStore } from 'pinia';
 import { ComputedRef, computed } from 'vue';
-import { useApi } from '@/composables/use-api';
+import { useApi } from '@/stores/use-api';
 import { useRecordCreate } from '@/composables/use-record-create';
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api';
 

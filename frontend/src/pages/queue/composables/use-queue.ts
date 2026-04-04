@@ -1,7 +1,7 @@
 import { useQuery } from '@pinia/colada';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
-import { useApi } from '@/composables/use-api';
+import { useApi } from '@/stores/use-api';
 import { QueueDto } from '@/lib/api';
 
 export const QUEUE_QUERY_KEY = 'queue';

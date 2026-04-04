@@ -33,9 +33,9 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 | Database schema      | `backend/prisma/schema.prisma`                  | Run `bun prisma` after changes                                               |
 | API types            | `frontend/src/lib/api.ts`                       | AUTO-GENERATED from Swagger. Never edit manually                             |
 | Environment vars     | `backend/.env.example`                          | Copy to `backend/.env`                                                       |
-| Router paths         | `frontend/src/lib/router/router-paths.ts`       | ROUTER_PATHS constant                                                        |
-| Image proxy          | `frontend/src/lib/utils/image.ts`               | Routes through `/api/img`                                                    |
-| Watch links          | `frontend/src/lib/utils/generate-watch-link.ts` | Kinobox canonical URLs                                                       |
+| Router paths         | `frontend/src/router/router-paths.ts`           | ROUTER_PATHS constant                                                        |
+| Image proxy          | `frontend/src/utils/image.ts`                   | Routes through `/api/img`                                                    |
+| Watch links          | `frontend/src/utils/generate-watch-link.ts`     | Kinobox canonical URLs                                                       |
 | Env validation       | `backend/src/utils/enviroments.ts`              | envalid; note the typo in filename                                           |
 | Media page factories | `frontend/src/composables/factories/`           | `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
 
@@ -48,7 +48,9 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 - **Brace style**: `1tbs`
 - **Indent**: 2 spaces, max line 100 chars
 - **Vue blocks**: `<script setup lang="ts">` or `<template>` first, `<style>` last
+- **Vue file naming**: PascalCase for all `.vue` files (e.g., `AnimePage.vue`, `DataTable.vue`). Exceptions: `app.vue`. `.ts` files stay kebab-case.
 - **Vue events**: kebab-case enforced
+- **Stores**: Pinia stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
 - **Icons**: lucide-vue-next primary, vue3-simple-icons for brands. No other icon libs
 - **Path alias**: `@/` → `./src/` in both frontend and backend
 - **TypeScript**: Frontend strict, backend relaxed (decorators enabled)
@@ -61,6 +63,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 - **NEVER** use icon libraries other than lucide-vue-next / vue3-simple-icons
 - **NEVER** edit `backend/prisma/migrations/migration_lock.toml`
 - **NEVER** commit `backend/.env` (contains secrets; .gitignore should exclude it but the file exists locally)
+- **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
 - `CustomJwtModule` is imported twice in `app.module.ts` — harmless but known duplication
 - `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
 

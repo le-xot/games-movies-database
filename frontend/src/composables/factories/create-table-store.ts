@@ -8,14 +8,14 @@ import { Eraser } from 'lucide-vue-next';
 import { StoreDefinition, defineStore, storeToRefs } from 'pinia';
 import { computed, h } from 'vue';
 import { useDialog } from '@/components/dialog/composables/use-dialog';
-import DialogButton from '@/components/dialog/dialog-button.vue';
-import TableColEpisode from '@/components/table/table-col/table-col-episode.vue';
-import TableColSelect from '@/components/table/table-col/table-col-select.vue';
-import TableColTitle from '@/components/table/table-col/table-col-title.vue';
-import TableColUser from '@/components/table/table-col/table-col-user.vue';
-import TableFilterGrade from '@/components/table/table-filter-grade.vue';
-import TableFilterStatus from '@/components/table/table-filter-status.vue';
-import { useUser } from '@/composables/use-user';
+import DialogButton from '@/components/dialog/DialogButton.vue';
+import TableColEpisode from '@/components/table/table-col/TableColEpisode.vue';
+import TableColSelect from '@/components/table/table-col/TableColSelect.vue';
+import TableColTitle from '@/components/table/table-col/TableColTitle.vue';
+import TableColUser from '@/components/table/table-col/TableColUser.vue';
+import TableFilterGrade from '@/components/table/TableFilterGrade.vue';
+import TableFilterStatus from '@/components/table/TableFilterStatus.vue';
+import { useUser } from '@/stores/use-user';
 import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api';
 
 interface DataStoreReturn {

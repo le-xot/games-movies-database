@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@pinia/colada';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed } from 'vue';
-import { useApi } from '@/composables/use-api';
+import { useApi } from '@/stores/use-api';
 import { UserUpdateDTO } from '@/lib/api';
 
 export const USERS_QUERY_KEY = 'users';

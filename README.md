@@ -156,7 +156,7 @@ Supported input link formats accepted by the parser (backend):
 
 When generating watch links the frontend returns canonical Kinobox URLs like `https://kinobox.in/movie/<id>` or `https://kinobox.in/shikimori/<id>`.
 
-If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/lib/utils/generate-watch-link.ts` accordingly.
+If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/utils/generate-watch-link.ts` accordingly.
 
 ### TWIR Integration
 

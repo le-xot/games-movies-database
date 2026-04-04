@@ -1,5 +1,5 @@
 import { useMutation } from '@pinia/colada';
-import { useApi } from '@/composables/use-api';
+import { useApi } from '@/stores/use-api';
 import { RecordCreateFromLinkDTO, RecordStatus, RecordType } from '@/lib/api';
 
 export function useRecordCreate(queryKey: string, onSuccess?: () => void) {

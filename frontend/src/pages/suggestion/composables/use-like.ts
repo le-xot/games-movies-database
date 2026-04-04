@@ -1,7 +1,7 @@
 import { useMutation } from '@pinia/colada';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
-import { useApi } from '@/composables/use-api';
+import { useApi } from '@/stores/use-api';
 
 export const LIKE_QUERY_KEY = 'like';
 export const useLike = defineStore('queue/use-like', () => {

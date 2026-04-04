@@ -1,3 +1,0 @@
-Moved SVGs from frontend/src/pages/pc/components/ to frontend/src/pages/pc/assets/.
-Updated imports in frontend/src/pages/pc/constants/parts-links.ts.
-Build: cd frontend && bun run build ✅

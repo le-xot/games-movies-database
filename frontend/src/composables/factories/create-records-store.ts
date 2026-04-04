@@ -6,7 +6,7 @@ import { StoreDefinition, defineStore } from 'pinia'
 import { ComputedRef, computed } from 'vue'
 
 export interface ParamsStoreReturn {
-  params: ComputedRef<any>
+  params: Record<string, any>
   pagination: { pageIndex: number, pageSize: number }
 }
 
@@ -39,14 +39,14 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       data,
       refetch,
     } = useQuery({
-      key: () => [config.queryKey, paramsStoreInstance.params.value],
+      key: () => [config.queryKey, paramsStoreInstance.params],
       placeholderData(previousData): { records: RecordEntity[], total: number } {
         if (!previousData) return { records: [], total: 0 }
         return previousData
       },
       query: async () => {
         const { data } = await api.records.recordControllerGetAllRecords(
-          paramsStoreInstance.params.value,
+          paramsStoreInstance.params,
         )
         return data
       },

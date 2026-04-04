@@ -61,7 +61,6 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 - **NEVER** commit `backend/.env` (contains secrets; .gitignore should exclude it but the file exists locally)
 - `CustomJwtModule` is imported twice in `app.module.ts` — harmless but known duplication
 - `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
-- `frontend/src/lib/lib/utils.ts` duplicates `frontend/src/lib/utils.ts` (cn helper) — use the latter
 
 ## COMMANDS
 

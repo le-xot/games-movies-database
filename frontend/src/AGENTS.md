@@ -25,6 +25,8 @@ frontend/src/
 | Route | `lib/router/` | Add to `router-paths.ts` then `router.ts` |
 | Styling | `assets/index.css` | Tailwind 4 CSS variables + global overrides |
 | Utils | `lib/utils.ts` | Primary `cn()` helper (clsx + tailwind-merge) |
+| Add media page composable | `composables/factories/` | 3 factories: `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
+| Generic filter | `components/table/` | `table-filter-generic.vue` + `use-table-filter.ts` |
 
 ## COMPOSABLES (GLOBAL STORES)
 | Name | Purpose |
@@ -39,17 +41,17 @@ frontend/src/
 
 ## COMPONENT PATTERNS
 - **Setup**: Always use `<script setup lang="ts">`.
-- **Imports**: Always include `.vue` extension. Use `@/` alias for all internal paths.
+- **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension. Use `@/` alias for all internal paths.
 - **UI Primitives**: shadcn-vue + reka-ui. Import via barrel: `import { Button } from '@/components/ui/button'`.
 - **Validation**: vee-validate 5 + zod 4.
 - **Data Tables**: @tanstack/vue-table for logic, virtua for virtualization.
 - **Toasts**: vue-sonner (wrapper in `components/ui/sonner`).
 - **Events**: Kebab-case enforced for custom events.
 - **Order**: `<template>` or `<script>` first, `<style>` last.
+- **LocalStorage**: Per-genre keys for column visibility: `columnsVisibility:<genre>` (e.g. `columnsVisibility:anime`).
 
 ## ANTI-PATTERNS
 - **NEVER** edit `lib/api.ts`. It's overwritten on every frontend dev start.
-- **Avoid** `lib/lib/utils.ts`. It's a duplicate; use `@/lib/utils` for `cn()`.
 - **Don't** remove the autofill hack in `index.css` (9999s transition delay).
 - **Don't** use icon libraries other than lucide-vue-next or vue3-simple-icons.
 - **Don't** bypass `useUser` guards for auth-protected routes.

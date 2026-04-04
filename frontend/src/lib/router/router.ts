@@ -1,6 +1,6 @@
 import { useUser } from '@/composables/use-user'
 import { createRouter, createWebHistory } from 'vue-router'
-import { ROUTER_PATHS } from './router-paths.ts'
+import { ROUTER_PATHS } from './router-paths'
 
 export const router = createRouter({
   history: createWebHistory(),

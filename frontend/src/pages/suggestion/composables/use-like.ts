@@ -1,4 +1,4 @@
-import { useApi } from '@/composables/use-api.ts'
+import { useApi } from '@/composables/use-api'
 import { useMutation } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'

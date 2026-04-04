@@ -1,10 +1,10 @@
 import { useApi } from '@/composables/use-api'
-import { useRecordCreate } from '@/composables/use-record-create.ts'
-import { RecordEntity, RecordUpdateDTO } from '@/lib/api.ts'
+import { useRecordCreate } from '@/composables/use-record-create'
+import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import { useAnimeParams } from './use-anime-params.ts'
+import { useAnimeParams } from './use-anime-params'
 
 export const VIDEOS_QUERY_KEY = 'anime'
 

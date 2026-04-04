@@ -1,5 +1,5 @@
 import { usePagination } from '@/components/table/composables/use-pagination'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api.ts'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
 import { VisibilityState } from '@tanstack/vue-table'
 import { refDebounced, useLocalStorage } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { useNewRecords } from '@/composables/use-new-records.ts'
+import { useNewRecords } from '@/composables/use-new-records'
 import { useUser } from '@/composables/use-user'
 import { useLocalStorage } from '@vueuse/core'
 import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'

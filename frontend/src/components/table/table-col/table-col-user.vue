@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/command'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useUser } from '@/composables/use-user.ts'
+import { useUser } from '@/composables/use-user'
 import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, watch } from 'vue'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { RecordStatus } from '@/lib/api.ts'
+import { RecordStatus } from '@/lib/api'
 import { ListFilter } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { statusTags } from './composables/use-table-select'

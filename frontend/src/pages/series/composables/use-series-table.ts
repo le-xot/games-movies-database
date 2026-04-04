@@ -7,7 +7,7 @@ import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
+import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -17,8 +17,8 @@ import {
 import { Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
-import { useSeries } from './use-series.ts'
-import { useSeriesParams } from './use-series-params.ts'
+import { useSeries } from './use-series'
+import { useSeriesParams } from './use-series-params'
 
 export const useSeriesTable = defineStore('series/use-series-table', () => {
   const { isAdmin } = storeToRefs(useUser())

@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useApi } from '@/composables/use-api'
 import { useUser } from '@/composables/use-user'
 import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
-import { getImageUrl } from '@/lib/utils/image.ts'
+import { getImageUrl } from '@/lib/utils/image'
 import { useTitle } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'

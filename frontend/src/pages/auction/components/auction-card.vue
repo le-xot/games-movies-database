@@ -2,8 +2,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUser } from '@/composables/use-user'
-import { RecordEntity } from '@/lib/api.ts'
-import { getImageUrl } from '@/lib/utils/image.ts'
+import { RecordEntity } from '@/lib/api'
+import { getImageUrl } from '@/lib/utils/image'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 

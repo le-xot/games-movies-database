@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWebSocket } from '@/composables/use-websocket.ts'
+import { useWebSocket } from '@/composables/use-websocket'
 import { onMounted, ref } from 'vue'
 
 const maintenanceMode = ref(false)

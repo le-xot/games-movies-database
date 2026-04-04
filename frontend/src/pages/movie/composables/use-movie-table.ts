@@ -6,7 +6,7 @@ import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
+import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -16,8 +16,8 @@ import {
 import { Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
-import { useMovie } from './use-movie.ts'
-import { useMovieParams } from './use-movie-params.ts'
+import { useMovie } from './use-movie'
+import { useMovieParams } from './use-movie-params'
 
 export const useMovieTable = defineStore('movies/use-movies-table', () => {
   const { isAdmin } = storeToRefs(useUser())

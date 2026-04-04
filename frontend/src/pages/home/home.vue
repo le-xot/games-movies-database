@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items.ts'
+import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 import { useTitle } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'

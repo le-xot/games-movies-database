@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { QueueItemDto } from '@/lib/api.ts'
+import { QueueItemDto } from '@/lib/api'
 import { generateWatchLink } from '@/lib/utils/generate-watch-link'
-import { getImageUrl } from '@/lib/utils/image.ts'
+import { getImageUrl } from '@/lib/utils/image'
 
 defineProps<{ items: QueueItemDto[] }>()
 

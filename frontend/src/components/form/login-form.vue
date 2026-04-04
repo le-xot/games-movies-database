@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useUser } from '@/composables/use-user.ts'
+import { useUser } from '@/composables/use-user'
 import { CircleUserRound, Lock, LogOutIcon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'

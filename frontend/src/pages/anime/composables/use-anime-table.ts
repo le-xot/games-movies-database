@@ -7,7 +7,7 @@ import TableColUser from '@/components/table/table-col/table-col-user.vue'
 import TableFilterGrade from '@/components/table/table-filter-grade.vue'
 import TableFilterStatus from '@/components/table/table-filter-status.vue'
 import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api.ts'
+import { RecordEntity, RecordGrade, RecordStatus } from '@/lib/api'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -17,8 +17,8 @@ import {
 import { Eraser } from 'lucide-vue-next'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
-import { useAnime } from './use-anime.ts'
-import { useAnimeParams } from './use-anime-params.ts'
+import { useAnime } from './use-anime'
+import { useAnimeParams } from './use-anime-params'
 
 export const useAnimeTable = defineStore('anime/use-anime-table', () => {
   const { isAdmin } = storeToRefs(useUser())

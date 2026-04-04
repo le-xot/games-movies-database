@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { RecordEntity } from '@/lib/api'
-import { getImageUrl } from '@/lib/utils/image.ts'
+import { getImageUrl } from '@/lib/utils/image'
 import { X } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 

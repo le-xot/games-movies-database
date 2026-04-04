@@ -2,9 +2,9 @@
 import Table from '@/components/table/table.vue'
 import TablePagination from '@/components/table/table-pagination.vue'
 import TableSearch from '@/components/table/table-search.vue'
-import { useCartoon } from '../composables/use-cartoon.ts'
-import { useCartoonParams } from '../composables/use-cartoon-params.ts'
-import { useCartoonTable } from '../composables/use-cartoon-table.ts'
+import { useCartoon } from '../composables/use-cartoon'
+import { useCartoonParams } from '../composables/use-cartoon-params'
+import { useCartoonTable } from '../composables/use-cartoon-table'
 
 const videos = useCartoon()
 const table = useCartoonTable()

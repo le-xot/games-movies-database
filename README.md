@@ -78,8 +78,10 @@ bun dev
 - `bun build:backend` - Build only the backend
 - `bun start:backend` - Start the backend server in production mode
 - `bun prisma` - Run Prisma migrations and generate client
-- `bun lint` - Run ESLint on the entire project
-- `bun lint:fix` - Fix ESLint issues automatically
+- `bun lint` - Run oxlint on the entire project
+- `bun lint:fix` - Fix oxlint issues automatically
+- `bun format` - Format the entire project with oxfmt
+- `bun format:check` - Check formatting without writing changes
 
 ## Third-party Integrations
 
@@ -214,7 +216,7 @@ Or use the provided GitHub Actions workflow for automated deployment.
 
 - Please make sure that you pull request to new branch
 - To become an ADMIN please change `backend/prisma/seed.js` with your actual Twitch login and ID
-- Follow the ESLint configuration for code style
+- Follow the oxlint/oxfmt configuration for code style
 - Use TypeScript for all new code
 - Follow Vue 3 Composition API patterns in the frontend
 

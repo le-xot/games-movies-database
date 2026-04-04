@@ -17,7 +17,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 ├── docker-compose.yml # Production stack (dokploy-network)
 ├── docker-compose-dev.yml # Dev: postgres + adminer
 ├── Dockerfile         # Multi-stage bun build (frontend → backend → serve)
-├── eslint.config.js   # @antfu/eslint-config (shared frontend+backend)
+├── .oxlintrc.json     # oxlint configuration (linting rules)
+├── .oxfmtrc.json      # oxfmt configuration (formatting + import sorting)
 └── .github/workflows/ # Docker build + Dokploy deploy on push to master
 ```
 
@@ -41,9 +42,9 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 ## CONVENTIONS
 
 - **Package manager**: Bun only. `bun install`, `bun dev`, `bun build`
-- **Formatter**: ESLint only (Prettier disabled). `@antfu/eslint-config` with stylistic rules
+- **Formatter**: oxlint (linter) + oxfmt (formatter). Prettier disabled.
 - **Quotes**: Single quotes enforced (`avoidEscape: false`)
-- **Imports**: Sorted by `perfectionist/sort-imports` — builtin → external → internal → parent/sibling → type → side-effect
+- **Imports**: Sorted by oxfmt `sortImports` — builtin → external → internal → parent/sibling → type → side-effect
 - **Brace style**: `1tbs`
 - **Indent**: 2 spaces, max line 100 chars
 - **Vue blocks**: `<script setup lang="ts">` or `<template>` first, `<style>` last
@@ -78,8 +79,10 @@ bun dev:backend                # Backend only
 
 # Build
 bun build                      # Build both
-bun lint                       # Lint check
-bun lint:fix                   # Auto-fix
+bun lint                       # Lint check (oxlint)
+bun lint:fix                   # Auto-fix (oxlint)
+bun format                     # Format codebase (oxfmt)
+bun format:check               # Check formatting (oxfmt)
 
 # Database
 bun prisma                     # Migrate + generate (root script)

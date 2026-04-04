@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["frontend/src/lib/api.ts"],
+  "printWidth": 100,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "useTabs": false,
+  "semi": true,
+  "sortImports": {
+    "groups": [
+      "builtin",
+      "external",
+      "internal",
+      ["parent", "sibling", "index"],
+      "type",
+      "side_effect",
+      "unknown"
+    ],
+    "internalPattern": ["@/"],
+    "newlinesBetween": false,
+    "sortSideEffects": true
+  }
+}

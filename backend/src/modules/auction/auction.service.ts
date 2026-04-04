@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
+import { UpdateAuctionPayload, UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class AuctionService {
@@ -59,8 +60,15 @@ export class AuctionService {
         },
       })
 
-      this.eventEmitter.emit('update-auction')
-      this.eventEmitter.emit('update-records', { genre: winner.genre })
+      this.eventEmitter.emit('update-auction', {
+        id,
+        action: 'ended',
+      } satisfies UpdateAuctionPayload)
+      this.eventEmitter.emit('update-records', {
+        genre: winner.genre,
+        id,
+        action: 'updated',
+      } satisfies UpdateRecordsPayload)
       this.logger.log(`Auction winner chosen id=${id}`)
       return winner
     })

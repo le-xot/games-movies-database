@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { PrismaService } from '@/database/prisma.service'
+import { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class LikeService {
@@ -26,7 +27,11 @@ export class LikeService {
         recordId,
       },
     })
-    this.eventEmitter.emit('update-likes')
+    this.eventEmitter.emit('update-likes', {
+      recordId,
+      userId,
+      action: 'created',
+    } satisfies UpdateLikesPayload)
     this.logger.log(`Like created id=${createdLike.id}`)
     return createdLike
   }
@@ -41,7 +46,11 @@ export class LikeService {
       throw new NotFoundException('Лайк не найден')
     }
 
-    this.eventEmitter.emit('update-likes')
+    this.eventEmitter.emit('update-likes', {
+      recordId,
+      userId,
+      action: 'deleted',
+    } satisfies UpdateLikesPayload)
     this.logger.log(`Like deleted count=${deletedLike.count}`)
   }
 

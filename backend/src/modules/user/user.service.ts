@@ -4,6 +4,7 @@ import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { TwitchService } from '@/modules/twitch/twitch.service'
+import { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class UserService {
@@ -38,7 +39,10 @@ export class UserService {
           color: data.color,
         },
       })
-      this.eventEmitter.emit('update-users')
+      this.eventEmitter.emit('update-users', {
+        userId: id,
+        action: 'created',
+      } satisfies UpdateUsersPayload)
       return createdUser
     }
 
@@ -55,7 +59,10 @@ export class UserService {
         color: data.color,
       },
     })
-    this.eventEmitter.emit('update-users')
+    this.eventEmitter.emit('update-users', {
+      userId: id,
+      action: 'updated',
+    } satisfies UpdateUsersPayload)
     return updatedUser
   }
 
@@ -85,7 +92,10 @@ export class UserService {
           color: '#333333',
         },
       })
-      this.eventEmitter.emit('update-users')
+      this.eventEmitter.emit('update-users', {
+        userId: id,
+        action: 'created',
+      } satisfies UpdateUsersPayload)
       return createdUser
     } catch (error) {
       this.logger.error('Error creating user by id:', error as any)
@@ -114,7 +124,10 @@ export class UserService {
           color: '#333333',
         },
       })
-      this.eventEmitter.emit('update-users')
+      this.eventEmitter.emit('update-users', {
+        userId: createdUser.id,
+        action: 'created',
+      } satisfies UpdateUsersPayload)
       return createdUser
     } catch (error) {
       this.logger.error('Error creating user by login:', error as any)
@@ -146,7 +159,10 @@ export class UserService {
       this.prisma.user.delete({ where: { login } }),
     ])
 
-    this.eventEmitter.emit('update-users')
+    this.eventEmitter.emit('update-users', {
+      userId: user.id,
+      action: 'deleted',
+    } satisfies UpdateUsersPayload)
   }
 
   async deleteUserById(id: string): Promise<void> {
@@ -161,6 +177,9 @@ export class UserService {
       this.prisma.user.delete({ where: { id } }),
     ])
 
-    this.eventEmitter.emit('update-users')
+    this.eventEmitter.emit('update-users', {
+      userId: id,
+      action: 'deleted',
+    } satisfies UpdateUsersPayload)
   }
 }

@@ -9,6 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
+import { UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class SuggestionService {
@@ -35,7 +36,7 @@ export class SuggestionService {
 
     const preparedData = await this.recordsProviderService.prepareData(data)
 
-    await this.prisma.record.create({
+    const createdRecord = await this.prisma.record.create({
       data: {
         ...preparedData,
         link: data.link,
@@ -45,7 +46,10 @@ export class SuggestionService {
       },
     })
 
-    this.eventEmitter.emit('update-suggestions')
+    this.eventEmitter.emit('update-suggestions', {
+      id: createdRecord.id,
+      action: 'created',
+    } satisfies UpdateSuggestionsPayload)
     this.logger.log(`Suggestion created title=${preparedData.title} genre=${preparedData.genre}`)
     return {
       title: preparedData.title,
@@ -82,6 +86,9 @@ export class SuggestionService {
       this.prisma.record.delete({ where: { id } }),
     ])
 
-    this.eventEmitter.emit('update-suggestions')
+    this.eventEmitter.emit('update-suggestions', {
+      id,
+      action: 'deleted',
+    } satisfies UpdateSuggestionsPayload)
   }
 }

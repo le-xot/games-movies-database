@@ -6,6 +6,12 @@ import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/recor
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { UserEntity } from '@/modules/user/user.entity'
+import {
+  UpdateAuctionPayload,
+  UpdateQueuePayload,
+  UpdateRecordsPayload,
+  UpdateSuggestionsPayload,
+} from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class RecordService {
@@ -41,10 +47,20 @@ export class RecordService {
       createdData.status === $Enums.RecordStatus.QUEUE &&
       createdData.type === $Enums.RecordType.WRITTEN
     )
-      this.eventEmitter.emit('update-queue')
+      this.eventEmitter.emit('update-queue', {
+        id: createdData.id,
+        action: 'created',
+      } satisfies UpdateQueuePayload)
     if (createdData.type === $Enums.RecordType.SUGGESTION)
-      this.eventEmitter.emit('update-suggestions')
-    if (createdData.type === $Enums.RecordType.AUCTION) this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit('update-suggestions', {
+        id: createdData.id,
+        action: 'created',
+      } satisfies UpdateSuggestionsPayload)
+    if (createdData.type === $Enums.RecordType.AUCTION)
+      this.eventEmitter.emit('update-auction', {
+        id: createdData.id,
+        action: 'created',
+      } satisfies UpdateAuctionPayload)
     this.logger.log(
       `Record created id=${createdData.id} type=${createdData.type} status=${createdData.status}`,
     )
@@ -69,7 +85,10 @@ export class RecordService {
       foundedRecord.type === $Enums.RecordType.SUGGESTION &&
       updatedRecord.type !== $Enums.RecordType.SUGGESTION
     ) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit('update-suggestions', {
+        id: updatedRecord.id,
+        action: 'updated',
+      } satisfies UpdateSuggestionsPayload)
     }
 
     if (
@@ -80,16 +99,26 @@ export class RecordService {
       (foundedRecord.type === $Enums.RecordType.WRITTEN &&
         updatedRecord.type !== $Enums.RecordType.WRITTEN)
     ) {
-      this.eventEmitter.emit('update-queue')
+      this.eventEmitter.emit('update-queue', {
+        id: updatedRecord.id,
+        action: 'updated',
+      } satisfies UpdateQueuePayload)
     }
 
     if (
       foundedRecord.type !== $Enums.RecordType.AUCTION &&
       updatedRecord.type === $Enums.RecordType.AUCTION
     ) {
-      this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit('update-auction', {
+        id: updatedRecord.id,
+        action: 'created',
+      } satisfies UpdateAuctionPayload)
     }
-    this.eventEmitter.emit('update-records', { genre: updatedRecord.genre })
+    this.eventEmitter.emit('update-records', {
+      genre: updatedRecord.genre,
+      id: updatedRecord.id,
+      action: 'updated',
+    } satisfies UpdateRecordsPayload)
     this.logger.log(`Record patched id=${id}`)
     return updatedRecord
   }
@@ -108,19 +137,32 @@ export class RecordService {
     await this.prisma.record.delete({ where: { id } })
 
     if (foundedRecord.type === $Enums.RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions')
+      this.eventEmitter.emit('update-suggestions', {
+        id: foundedRecord.id,
+        action: 'deleted',
+      } satisfies UpdateSuggestionsPayload)
     }
 
     if (
       foundedRecord.status === $Enums.RecordStatus.QUEUE &&
       foundedRecord.type === $Enums.RecordType.WRITTEN
     ) {
-      this.eventEmitter.emit('update-queue')
+      this.eventEmitter.emit('update-queue', {
+        id: foundedRecord.id,
+        action: 'deleted',
+      } satisfies UpdateQueuePayload)
     }
     if (foundedRecord.type === $Enums.RecordType.AUCTION) {
-      this.eventEmitter.emit('update-auction')
+      this.eventEmitter.emit('update-auction', {
+        id: foundedRecord.id,
+        action: 'deleted',
+      } satisfies UpdateAuctionPayload)
     }
-    this.eventEmitter.emit('update-records', { genre: foundedRecord.genre })
+    this.eventEmitter.emit('update-records', {
+      genre: foundedRecord.genre,
+      id: foundedRecord.id,
+      action: 'deleted',
+    } satisfies UpdateRecordsPayload)
     this.logger.log(`Record deleted id=${id}`)
   }
 

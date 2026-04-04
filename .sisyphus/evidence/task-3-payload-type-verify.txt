@@ -1,0 +1,6 @@
+Verified in frontend/src/composables/use-websocket.ts:
+- update-records handler uses an explicit payload type annotation
+- payload is typed as { genre: RecordGenre }
+
+Command evidence:
+- grep -n 'update-records' frontend/src/composables/use-websocket.ts

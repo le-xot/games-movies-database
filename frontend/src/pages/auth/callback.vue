@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUser } from '@/composables/use-user';
-import { ROUTER_PATHS } from '@/lib/router/router-paths';
+import { ROUTER_PATHS } from '@/router/router-paths';
 
 const userApi = useUser();
 const router = useRouter();

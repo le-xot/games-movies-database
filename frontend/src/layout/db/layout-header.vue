@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTitle } from '@/composables/use-title';
 import { useUser } from '@/composables/use-user';
-import { ROUTER_PATHS } from '@/lib/router/router-paths';
+import { ROUTER_PATHS } from '@/router/router-paths';
 
 const route = useRoute();
 const { updateTitle } = useTitle();

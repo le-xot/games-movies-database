@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import { RecordType } from '@/lib/api';
-import { ROUTER_PATHS } from '@/lib/router/router-paths';
+import { ROUTER_PATHS } from '@/router/router-paths';
 import QueueCard from './components/queue-card.vue';
 import { useQueue } from './composables/use-queue';
 

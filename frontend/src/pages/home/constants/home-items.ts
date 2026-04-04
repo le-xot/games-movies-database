@@ -8,7 +8,7 @@ import {
   TwitchIcon,
   YouTubeIcon,
 } from 'vue3-simple-icons';
-import { ROUTER_PATHS } from '@/lib/router/router-paths';
+import { ROUTER_PATHS } from '@/router/router-paths';
 
 export interface GridItem {
   title: string;

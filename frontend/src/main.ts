@@ -1,7 +1,7 @@
 import { PiniaColada } from '@pinia/colada';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
-import { router } from '@/lib/router/router';
+import { router } from '@/router/router';
 import App from './app.vue';
 import './assets/index.css';
 

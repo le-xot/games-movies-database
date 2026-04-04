@@ -56,7 +56,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
           return h(TableColEpisode, {
             key: `episode-${row.original.id}`,
             episode: row.original.episode,
-            onUpdate: (episode) => animeStore.updateVideo({
+            onUpdate: (episode: string | undefined) => animeStore.updateVideo({
               id: row.original.id,
               data: { episode },
             }),
@@ -74,7 +74,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
           return h(TableColUser, {
             key: `user-${row.original.id}`,
             userId: row.original.userId,
-            onUpdate: (userId) => animeStore.updateVideo({
+            onUpdate: (userId: string | undefined) => animeStore.updateVideo({
               id: row.original.id,
               data: { userId },
             }),
@@ -88,7 +88,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
             h('span', {}, 'Статус'),
             h(TableFilterStatus, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordStatus[] | null) => {
                 animeParams.setStatusFilter(value)
               },
             }),
@@ -103,7 +103,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
             key: `status-${row.original.id}`,
             value: row.original.status as RecordStatus,
             kind: 'status',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               animeStore.updateVideo({
                 id: row.original.id,
                 data: {
@@ -121,7 +121,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
             h('span', {}, 'Оценка'),
             h(TableFilterGrade, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordGrade[] | null) => {
                 animeParams.setGradeFilter(value)
               },
             }),
@@ -136,7 +136,7 @@ export const useAnimeTable = defineStore('anime/use-anime-table', () => {
             key: `grade-${row.original.id}`,
             value: row.original.grade as RecordGrade,
             kind: 'grade',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               animeStore.updateVideo({
                 id: row.original.id,
                 data: { grade: value as RecordGrade },

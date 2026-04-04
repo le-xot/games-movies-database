@@ -54,7 +54,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
           return h(TableColUser, {
             key: `user-${row.original.id}`,
             userId: row.original.userId,
-            onUpdate: (userId) => gamesStore.updateGame({
+            onUpdate: (userId: string | undefined) => gamesStore.updateGame({
               id: row.original.id,
               data: { userId },
             }),
@@ -68,7 +68,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             h('span', {}, 'Статус'),
             h(TableFilterStatus, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordStatus[] | null) => {
                 gamesParams.setStatusFilter(value)
               },
             }),
@@ -83,7 +83,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             key: `status-${row.original.id}`,
             value: row.original.status as RecordStatus,
             kind: 'status',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               gamesStore.updateGame({
                 id: row.original.id,
                 data: {
@@ -101,7 +101,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             h('span', {}, 'Оценка'),
             h(TableFilterGrade, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordGrade[] | null) => {
                 gamesParams.setGradeFilter(value)
               },
             }),
@@ -116,7 +116,7 @@ export const useGamesTable = defineStore('games/use-games-table', () => {
             key: `grade-${row.original.id}`,
             value: row.original.grade as RecordGrade,
             kind: 'grade',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               gamesStore.updateGame({
                 id: row.original.id,
                 data: { grade: value as RecordGrade },

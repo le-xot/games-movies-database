@@ -56,7 +56,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
           return h(TableColEpisode, {
             key: `episode-${row.original.id}`,
             episode: row.original.episode,
-            onUpdate: (episode) => seriesStore.updateVideo({
+            onUpdate: (episode: string | undefined) => seriesStore.updateVideo({
               id: row.original.id,
               data: { episode },
             }),
@@ -74,7 +74,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
           return h(TableColUser, {
             key: `user-${row.original.id}`,
             userId: row.original.userId,
-            onUpdate: (userId) => seriesStore.updateVideo({
+            onUpdate: (userId: string | undefined) => seriesStore.updateVideo({
               id: row.original.id,
               data: { userId },
             }),
@@ -88,7 +88,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
             h('span', {}, 'Статус'),
             h(TableFilterStatus, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordStatus[] | null) => {
                 seriesParams.setStatusFilter(value)
               },
             }),
@@ -103,7 +103,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
             key: `status-${row.original.id}`,
             value: row.original.status as RecordStatus,
             kind: 'status',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               seriesStore.updateVideo({
                 id: row.original.id,
                 data: {
@@ -121,7 +121,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
             h('span', {}, 'Оценка'),
             h(TableFilterGrade, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordGrade[] | null) => {
                 seriesParams.setGradeFilter(value)
               },
             }),
@@ -136,7 +136,7 @@ export const useSeriesTable = defineStore('series/use-series-table', () => {
             key: `grade-${row.original.id}`,
             value: row.original.grade as RecordGrade,
             kind: 'grade',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               seriesStore.updateVideo({
                 id: row.original.id,
                 data: { grade: value as RecordGrade },

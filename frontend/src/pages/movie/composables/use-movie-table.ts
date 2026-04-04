@@ -55,7 +55,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
           return h(TableColUser, {
             key: `user-${row.original.id}`,
             userId: row.original.userId,
-            onUpdate: (userId) => moviesStore.updateVideo({
+            onUpdate: (userId: string | undefined) => moviesStore.updateVideo({
               id: row.original.id,
               data: { userId },
             }),
@@ -69,7 +69,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
             h('span', {}, 'Статус'),
             h(TableFilterStatus, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordStatus[] | null) => {
                 moviesParams.setStatusFilter(value)
               },
             }),
@@ -84,7 +84,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
             key: `status-${row.original.id}`,
             value: row.original.status as RecordStatus,
             kind: 'status',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               moviesStore.updateVideo({
                 id: row.original.id,
                 data: {
@@ -102,7 +102,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
             h('span', {}, 'Оценка'),
             h(TableFilterGrade, {
               value: null,
-              onUpdate: (value) => {
+              onUpdate: (value: RecordGrade[] | null) => {
                 moviesParams.setGradeFilter(value)
               },
             }),
@@ -117,7 +117,7 @@ export const useMovieTable = defineStore('movies/use-movies-table', () => {
             key: `grade-${row.original.id}`,
             value: row.original.grade as RecordGrade,
             kind: 'grade',
-            onUpdate: (value) => {
+            onUpdate: (value: string | undefined) => {
               moviesStore.updateVideo({
                 id: row.original.id,
                 data: { grade: value as RecordGrade },

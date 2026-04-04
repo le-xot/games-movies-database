@@ -71,3 +71,6 @@ vite.config.ts.timestamp-*.mjs
 
 backend/images/*
 !backend/images/.gitkeep
+
+# AI orchestrator state
+.sisyphus/

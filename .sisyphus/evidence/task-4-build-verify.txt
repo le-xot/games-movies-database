@@ -1,6 +1,0 @@
-Build verification
-
-- bun run build exited 0.
-- frontend build completed successfully.
-- backend build completed successfully.
-- bun lint did not pass because the repository already contains unrelated pre-existing lint errors outside this change.

@@ -1,7 +1,0 @@
-Verified in frontend/src/composables/use-websocket.ts:
-- userStore is used directly from useUser()
-- admin guard uses userStore.isAdmin
-- no .value access is needed on the store instance
-
-Command evidence:
-- grep -n 'isAdmin' frontend/src/composables/use-websocket.ts

@@ -1,9 +1,0 @@
-bun lint
-result: failed due to pre-existing unrelated repo lint errors
-
-bun run build
-result: passed
-
-frontend build summary:
-- vue-tsc exited 0
-- vite build completed successfully

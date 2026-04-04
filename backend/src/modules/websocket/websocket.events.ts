@@ -17,7 +17,7 @@ export interface UpdateRecordsPayload {
 
 export interface UpdateSuggestionsPayload {
   id: number
-  action: 'created' | 'deleted'
+  action: 'created' | 'updated' | 'deleted'
 }
 
 export interface UpdateQueuePayload {
@@ -27,7 +27,7 @@ export interface UpdateQueuePayload {
 
 export interface UpdateAuctionPayload {
   id: number
-  action: 'created' | 'updated' | 'ended'
+  action: 'created' | 'updated' | 'deleted' | 'ended'
 }
 
 export interface UpdateLikesPayload {

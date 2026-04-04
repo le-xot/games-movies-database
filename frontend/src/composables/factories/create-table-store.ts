@@ -16,7 +16,7 @@ import {
 } from '@tanstack/vue-table'
 import { Eraser } from 'lucide-vue-next'
 import { StoreDefinition, defineStore, storeToRefs } from 'pinia'
-import { ComputedRef, Ref, computed, h } from 'vue'
+import { ComputedRef, computed, h } from 'vue'
 
 interface DataStoreReturn {
   videos?: ComputedRef<RecordEntity[]>
@@ -27,8 +27,8 @@ interface DataStoreReturn {
 }
 
 interface ParamsStoreReturn {
-  columnVisibility: Ref<Record<string, boolean>>
-  pagination: Ref<{ pageIndex: number, pageSize: number }>
+  columnVisibility: Record<string, boolean>
+  pagination: { pageIndex: number, pageSize: number }
   setStatusFilter: (value: RecordStatus[] | null) => void
   setGradeFilter: (value: RecordGrade[] | null) => void
 }
@@ -225,10 +225,10 @@ export function createTableStore(config: TableStoreConfig) {
       },
       state: {
         get columnVisibility() {
-          return paramsStoreInstance.columnVisibility.value
+          return paramsStoreInstance.columnVisibility
         },
         get pagination() {
-          return paramsStoreInstance.pagination.value
+          return paramsStoreInstance.pagination
         },
       },
       manualPagination: true,

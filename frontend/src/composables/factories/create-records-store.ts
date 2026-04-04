@@ -3,11 +3,11 @@ import { useRecordCreate } from '@/composables/use-record-create'
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { StoreDefinition, defineStore } from 'pinia'
-import { ComputedRef, Ref, computed } from 'vue'
+import { ComputedRef, computed } from 'vue'
 
 export interface ParamsStoreReturn {
   params: ComputedRef<any>
-  pagination: Ref<{ pageIndex: number, pageSize: number }>
+  pagination: { pageIndex: number, pageSize: number }
 }
 
 export interface RecordsStoreConfig<TItems extends string, TRefetch extends string> {
@@ -59,7 +59,7 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
 
     const totalPages = computed(() => {
       if (!data.value) return 0
-      return Math.ceil(data.value.total / paramsStoreInstance.pagination.value.pageSize)
+      return Math.ceil(data.value.total / paramsStoreInstance.pagination.pageSize)
     })
 
     const { mutateAsync: updateRecord } = useMutation({

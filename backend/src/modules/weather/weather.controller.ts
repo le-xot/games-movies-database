@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { WeatherService } from '@/modules/weather/weather.service'
 

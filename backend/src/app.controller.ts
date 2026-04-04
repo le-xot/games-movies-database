@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { Controller, Get, Logger, OnModuleInit } from '@nestjs/common'
+import { Controller, Get, OnModuleInit } from '@nestjs/common'
 
 @Controller()
 export class AppController implements OnModuleInit {

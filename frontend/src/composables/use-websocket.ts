@@ -77,7 +77,6 @@ export function useWebSocket() {
         suggestionStore.refetchSuggestions()
       })
       .on('update-users', () => {
-        const userStore = useUser()
         userStore.refetchUser()
       })
       .on('connect_error', (error) => {

@@ -42,8 +42,10 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
         return previousData
       },
       query: async () => {
-        const { data } = await api.records.recordControllerGetAllRecords(paramsStoreInstance.params)
-        return data
+        const { data: response } = await api.records.recordControllerGetAllRecords(
+          paramsStoreInstance.params,
+        )
+        return response
       },
     })
 
@@ -59,8 +61,8 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
 
     const { mutateAsync: updateRecord } = useMutation({
       key: [config.queryKey, 'update'],
-      mutation: ({ id, data }: { id: number; data: RecordUpdateDTO }) => {
-        return api.records.recordControllerPatchRecord(id, data)
+      mutation: ({ id, data: body }: { id: number; data: RecordUpdateDTO }) => {
+        return api.records.recordControllerPatchRecord(id, body)
       },
     })
 

@@ -16,7 +16,9 @@
     "eslint/require-await": "error",
     "eslint/no-unused-vars": "warn",
     "eslint/no-console": "off",
-    "eslint/no-alert": "off"
+    "eslint/no-alert": "off",
+    "typescript/no-extraneous-class": ["warn", { "allowWithDecorator": true }],
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
   },
   "ignorePatterns": [
     "dist",

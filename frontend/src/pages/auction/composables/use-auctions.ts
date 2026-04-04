@@ -26,8 +26,8 @@ export const useAuctions = defineStore('auction/use-auction', () => {
 
       try {
         error.value = null
-        const { data } = await api.auction.auctionControllerGetAuctions()
-        return data
+        const { data: response } = await api.auction.auctionControllerGetAuctions()
+        return response
       } catch (err: any) {
         error.value = err.message || 'Failed to load suggestions'
         throw err

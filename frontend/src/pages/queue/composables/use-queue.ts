@@ -15,8 +15,8 @@ export const useQueue = defineStore('queue/use-queue', () => {
     query: async () => {
       try {
         error.value = null
-        const { data } = await api.queue.queueControllerGetQueue()
-        return data
+        const { data: response } = await api.queue.queueControllerGetQueue()
+        return response
       } catch (err: any) {
         let errorMessage = 'Неизвестная ошибка'
 

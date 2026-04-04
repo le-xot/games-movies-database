@@ -108,9 +108,7 @@ function selectUser(userId: string | null) {
 
 const filteredUsers = computed(() => {
   if (!searchValue.value) return users.value
-  return users.value.filter((user) =>
-    user.login.toLowerCase().includes(searchValue.value.toLowerCase()),
-  )
+  return users.value.filter((u) => u.login.toLowerCase().includes(searchValue.value.toLowerCase()))
 })
 
 function handleImageError(event: Event) {

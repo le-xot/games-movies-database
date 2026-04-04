@@ -123,7 +123,7 @@ function handleCardHover(recordId: number) {
 }
 
 function isLikedByCurrentUser(item: RecordEntity) {
-  return item.likes?.some((like) => like.userId === currentUserId.value) || false
+  return item.likes?.some((likeItem) => likeItem.userId === currentUserId.value) || false
 }
 
 function getLikesCount(item: RecordEntity) {

@@ -36,6 +36,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 | Image proxy | `frontend/src/lib/utils/image.ts` | Routes through `/api/img` |
 | Watch links | `frontend/src/lib/utils/generate-watch-link.ts` | Kinobox canonical URLs |
 | Env validation | `backend/src/utils/enviroments.ts` | envalid; note the typo in filename |
+| Media page factories | `frontend/src/composables/factories/` | `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
 
 ## CONVENTIONS
 

@@ -7,9 +7,9 @@ import { useMovie } from '@/pages/movie/composables/use-movie.ts'
 import { useQueue } from '@/pages/queue/composables/use-queue.ts'
 import { useSeries } from '@/pages/series/composables/use-series.ts'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion.ts'
+import { RecordGenre } from '@/lib/api'
 import { io } from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
-import type { RecordGenre } from '@/lib/api'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 export function useWebSocket() {

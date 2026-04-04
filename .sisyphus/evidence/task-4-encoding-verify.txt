@@ -1,0 +1,8 @@
+Frontend image URL encoding verification
+
+- frontend/src/lib/utils/image.ts now uses a try/catch wrapper around Unicode-safe base64 encoding:
+  - btoa(unescape(encodeURIComponent(url)))
+  - fallback: encodeURIComponent(url)
+- grep -n 'btoa\|try' frontend/src/lib/utils/image.ts output confirmed the wrapped version.
+- Backend image proxy decoding is symmetric:
+  - backend/src/modules/img/img.service.ts decodes with Buffer.from(urlBase64, 'base64').toString('utf-8')

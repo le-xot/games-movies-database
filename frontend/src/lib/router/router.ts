@@ -83,27 +83,32 @@ export const router = createRouter({
 
 router.beforeEach(async (to, _, next) => {
   const userStore = useUser()
-  if (!userStore.isInitialized) {
-    try {
-      await userStore.fetchUser()
-    } catch (error) {
-      console.error('Failed to fetch user data:', error)
-    }
-  }
+  const requiresAuth = to.meta.requiresAuth || to.meta.requiresAdmin
 
-  if (to.meta.requiresAdmin) {
-    if (!userStore.isAdmin) {
-      next({ path: ROUTER_PATHS.home })
-    } else {
-      next()
+  if (requiresAuth) {
+    if (!userStore.isInitialized) {
+      try {
+        await userStore.fetchUser()
+      } catch (error) {
+        console.error('Failed to fetch user data:', error)
+      }
     }
-  } else if (to.meta.requiresAuth) {
-    if (!userStore.isLoggedIn) {
+
+    if (to.meta.requiresAdmin) {
+      if (!userStore.isAdmin) {
+        next({ path: ROUTER_PATHS.home })
+      } else {
+        next()
+      }
+    } else if (!userStore.isLoggedIn) {
       next({ path: ROUTER_PATHS.home })
     } else {
       next()
     }
   } else {
+    if (!userStore.isInitialized) {
+      void userStore.fetchUser()
+    }
     next()
   }
 })

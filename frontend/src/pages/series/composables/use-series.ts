@@ -12,7 +12,7 @@ export const useSeries = defineStore('series/use-series', () => {
   const api = useApi()
   const {
     pagination,
-    cartoonParams,
+    seriesParams,
   } = storeToRefs(useSeriesParams())
 
   const {
@@ -20,13 +20,13 @@ export const useSeries = defineStore('series/use-series', () => {
     data,
     refetch: refetchVideos,
   } = useQuery({
-    key: () => [VIDEOS_QUERY_KEY, cartoonParams.value],
+    key: () => [VIDEOS_QUERY_KEY, seriesParams.value],
     placeholderData(previousData): { records: RecordEntity[], total: number } {
       if (!previousData) return { records: [], total: 0 }
       return previousData
     },
     query: async () => {
-      const { data } = await api.records.recordControllerGetAllRecords(cartoonParams.value)
+      const { data } = await api.records.recordControllerGetAllRecords(seriesParams.value)
       return data
     },
   })

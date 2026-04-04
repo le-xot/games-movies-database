@@ -12,7 +12,7 @@ export const useGamesParams = defineStore('games/use-games-params', () => {
   const statusesFilter = ref<RecordStatus[] | null>(null)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:games', {
     title: true,
     user: true,
     status: true,

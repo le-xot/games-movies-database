@@ -12,7 +12,7 @@ export const useSeriesParams = defineStore('series/use-series-params', () => {
   const statusesFilter = ref<RecordStatus[] | null>(null)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:series', {
     title: true,
     episode: true,
     user: true,
@@ -20,7 +20,7 @@ export const useSeriesParams = defineStore('series/use-series-params', () => {
     grade: true,
   })
 
-  const cartoonParams = computed(() => {
+  const seriesParams = computed(() => {
     const params: Record<string, any> = {
       genre: RecordGenre.SERIES,
       type: RecordType.WRITTEN,
@@ -63,7 +63,7 @@ export const useSeriesParams = defineStore('series/use-series-params', () => {
     debouncedSearch,
     pagination,
     columnVisibility,
-    cartoonParams,
+    seriesParams,
     setGradeFilter,
     setStatusFilter,
   }

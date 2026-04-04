@@ -12,7 +12,7 @@ export const useCartoonParams = defineStore('cartoon/use-cartoon-params', () => 
   const statusesFilter = ref<RecordStatus[] | null>(null)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:cartoon', {
     title: true,
     episode: true,
     user: true,

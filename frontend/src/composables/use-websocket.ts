@@ -7,7 +7,9 @@ import { useMovie } from '@/pages/movie/composables/use-movie.ts'
 import { useQueue } from '@/pages/queue/composables/use-queue.ts'
 import { useSeries } from '@/pages/series/composables/use-series.ts'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion.ts'
-import { io, Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
+import type { RecordGenre } from '@/lib/api'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 export function useWebSocket() {
@@ -21,7 +23,7 @@ export function useWebSocket() {
   const gamesStore = useGames()
   const suggestionStore = useSuggestion()
   const auctionStore = useAuctions()
-  const { isAdmin } = useUser()
+  const userStore = useUser()
 
   function connect() {
     socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ['websocket'] })
@@ -34,11 +36,11 @@ export function useWebSocket() {
 
       .on('update-auction', () => {
         suggestionStore.refetchSuggestions()
-        if (isAdmin) {
+        if (userStore.isAdmin) {
           auctionStore.refetchAuctions()
         }
       })
-      .on('update-records', (payload) => {
+      .on('update-records', (payload: { genre: RecordGenre }) => {
         switch (payload.genre) {
           case 'ANIME':
             animeStore.refetchVideos()

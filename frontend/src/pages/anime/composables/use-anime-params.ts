@@ -12,7 +12,7 @@ export const useAnimeParams = defineStore('anime/use-anime-params', () => {
   const statusesFilter = ref<RecordStatus[] | null>(null)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:anime', {
     title: true,
     episode: true,
     user: true,

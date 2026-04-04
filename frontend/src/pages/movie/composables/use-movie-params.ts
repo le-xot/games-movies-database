@@ -12,7 +12,7 @@ export const useMovieParams = defineStore('movies/use-movie-params', () => {
   const statusesFilter = ref<RecordStatus[] | null>(null)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility', {
+  const columnVisibility = useLocalStorage<VisibilityState>('columnsVisibility:movie', {
     title: true,
     user: true,
     status: true,

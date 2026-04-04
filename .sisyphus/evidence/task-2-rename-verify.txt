@@ -1,0 +1,7 @@
+grep -rn 'cartoonParams' frontend/src/pages/series/
+result: zero matches
+
+grep -n 'seriesParams' frontend/src/pages/series/composables/use-series.ts
+15:    seriesParams,
+23:    key: () => [VIDEOS_QUERY_KEY, seriesParams.value],
+29:      const { data } = await api.records.recordControllerGetAllRecords(seriesParams.value)

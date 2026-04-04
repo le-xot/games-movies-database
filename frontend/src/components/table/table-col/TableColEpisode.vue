@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
+import { useTableCol } from '@/components/table/composables/use-table-col'
 import { Input } from '@/components/ui/input'
 import { useBreakpoints } from '@/stores/use-breakpoints'
-import { useTableCol } from '../composables/use-table-col'
 
 type EpisodeType = string | undefined
 

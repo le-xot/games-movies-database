@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends RowData">
 import { FlexRender, RowData, Table } from '@tanstack/vue-table'
 import { provide } from 'vue'
+import { tableInjectionKey } from '@/components/table/table-injection-key'
 import {
   TableBody,
   TableCell,
@@ -9,7 +10,6 @@ import {
   Table as TableRoot,
   TableRow,
 } from '@/components/ui/table'
-import { tableInjectionKey } from './table-injection-key'
 
 const props = defineProps<{
   isLoading: boolean

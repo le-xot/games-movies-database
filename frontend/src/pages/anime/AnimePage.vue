@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AnimeTable from './components/AnimeTable.vue'
+import AnimeTable from '@/pages/anime/components/AnimeTable.vue'
 </script>
 
 <template>

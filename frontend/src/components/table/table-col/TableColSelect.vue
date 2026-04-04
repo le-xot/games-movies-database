@@ -1,11 +1,15 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
 import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, useId } from 'vue'
+import { useTableCol } from '@/components/table/composables/use-table-col'
+import {
+  BadgeOptions,
+  SelectKind,
+  useTableSelect,
+} from '@/components/table/composables/use-table-select'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
-import { useTableCol } from '../composables/use-table-col'
-import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select'
 
 type ValueSelect = T | undefined
 

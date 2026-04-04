@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CircleUserRound, Lock, LogOutIcon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useUser } from '@/stores/use-user'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
 const userStore = useUser()
 const { user } = storeToRefs(userStore)

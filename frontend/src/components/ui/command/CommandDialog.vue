@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useForwardPropsEmits } from 'reka-ui'
+import Command from '@/components/ui/command/Command.vue'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import Command from './Command.vue'
 import type { DialogRootEmits, DialogRootProps } from 'reka-ui'
 
 const props = defineProps<DialogRootProps>()

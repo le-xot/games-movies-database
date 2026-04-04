@@ -2,9 +2,9 @@
 import DataTable from '@/components/table/DataTable.vue'
 import TablePagination from '@/components/table/TablePagination.vue'
 import TableSearch from '@/components/table/TableSearch.vue'
-import { useSeries } from '../composables/use-series'
-import { useSeriesParams } from '../composables/use-series-params'
-import { useSeriesTable } from '../composables/use-series-table'
+import { useSeries } from '@/pages/series/composables/use-series'
+import { useSeriesParams } from '@/pages/series/composables/use-series-params'
+import { useSeriesTable } from '@/pages/series/composables/use-series-table'
 
 const videos = useSeries()
 const table = useSeriesTable()

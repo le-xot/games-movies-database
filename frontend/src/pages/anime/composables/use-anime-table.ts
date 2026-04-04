@@ -1,6 +1,6 @@
 import { createTableStore } from '@/composables/factories/create-table-store'
-import { useAnime } from './use-anime'
-import { useAnimeParams } from './use-anime-params'
+import { useAnime } from '@/pages/anime/composables/use-anime'
+import { useAnimeParams } from '@/pages/anime/composables/use-anime-params'
 
 export const useAnimeTable = createTableStore({
   storeId: 'anime/use-anime-table',

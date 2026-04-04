@@ -1,9 +1,9 @@
 import { PiniaColada } from '@pinia/colada'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import App from '@/app.vue'
 import { router } from '@/router/router'
-import App from './app.vue'
-import './assets/index.css'
+import '@/assets/index.css'
 
 // Migrate old shared columnsVisibility key to per-genre keys
 const oldVisibility = localStorage.getItem('columnsVisibility')

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { statusTags } from '@/components/table/composables/use-table-select'
+import TableFilterGeneric from '@/components/table/TableFilterGeneric.vue'
 import { RecordStatus } from '@/lib/api'
-import { statusTags } from './composables/use-table-select'
-import TableFilterGeneric from './TableFilterGeneric.vue'
 
 const props = defineProps<{
   value: RecordStatus[] | null

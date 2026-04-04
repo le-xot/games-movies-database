@@ -2,9 +2,9 @@
 import DataTable from '@/components/table/DataTable.vue'
 import TablePagination from '@/components/table/TablePagination.vue'
 import TableSearch from '@/components/table/TableSearch.vue'
-import { useMovie } from '../composables/use-movie'
-import { useMovieParams } from '../composables/use-movie-params'
-import { useMovieTable } from '../composables/use-movie-table'
+import { useMovie } from '@/pages/movie/composables/use-movie'
+import { useMovieParams } from '@/pages/movie/composables/use-movie-params'
+import { useMovieTable } from '@/pages/movie/composables/use-movie-table'
 
 const videos = useMovie()
 const table = useMovieTable()

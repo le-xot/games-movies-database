@@ -2,8 +2,8 @@
 import { reactiveOmit, useCurrentElement } from '@vueuse/core'
 import { ListboxItem, useForwardPropsEmits, useId } from 'reka-ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useCommand, useCommandGroup } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
-import { useCommand, useCommandGroup } from '.'
 import type { ListboxItemEmits, ListboxItemProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 

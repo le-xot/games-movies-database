@@ -1,5 +1,5 @@
 import { createRecordsStore } from '@/composables/factories/create-records-store'
-import { useCartoonParams } from './use-cartoon-params'
+import { useCartoonParams } from '@/pages/cartoon/composables/use-cartoon-params'
 
 export const useCartoon = createRecordsStore({
   storeId: 'cartoon/use-cartoon',

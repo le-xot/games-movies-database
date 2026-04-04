@@ -1,5 +1,5 @@
 import { createRecordsStore } from '@/composables/factories/create-records-store'
-import { useAnimeParams } from './use-anime-params'
+import { useAnimeParams } from '@/pages/anime/composables/use-anime-params'
 
 export const useAnime = createRecordsStore({
   storeId: 'anime/use-anime',

@@ -1,6 +1,6 @@
 import { createTableStore } from '@/composables/factories/create-table-store'
-import { useMovie } from './use-movie'
-import { useMovieParams } from './use-movie-params'
+import { useMovie } from '@/pages/movie/composables/use-movie'
+import { useMovieParams } from '@/pages/movie/composables/use-movie-params'
 
 export const useMovieTable = createTableStore({
   storeId: 'movies/use-movies-table',

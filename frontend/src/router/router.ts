@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
-import { ROUTER_PATHS } from './router-paths'
 
 export const router = createRouter({
   history: createWebHistory(),

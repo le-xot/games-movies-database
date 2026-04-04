@@ -15,8 +15,8 @@ import {
   PcCase,
   Webcam,
 } from 'lucide-vue-next'
-import Arch from '../assets/archlinux.svg'
-import Atlas from '../assets/atlasos.svg'
+import Arch from '@/pages/pc/assets/archlinux.svg'
+import Atlas from '@/pages/pc/assets/atlasos.svg'
 
 interface PartLink {
   name: string

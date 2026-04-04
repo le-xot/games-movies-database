@@ -2,11 +2,11 @@
 import { VisibilityState } from '@tanstack/vue-table'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { Button } from '@/components/ui/button'
 import { CommandGroup } from '@/components/ui/command'
+import { Command, CommandItem, CommandList } from '@/components/ui/command'
+import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '../ui/button'
-import { Command, CommandItem, CommandList } from '../ui/command'
-import { Input } from '../ui/input'
 
 const searchValue = defineModel<string>('value', { required: true })
 const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })

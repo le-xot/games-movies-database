@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDialog } from '@/components/dialog/composables/use-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,7 +9,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useDialog } from './composables/use-dialog'
 
 const dialog = useDialog()
 </script>

@@ -1,4 +1,4 @@
-export { default as LayoutHeader } from './db/LayoutHeader.vue'
-export { default as LayoutBody } from './db/LayoutBody.vue'
-export { default as LayoutDatabase } from './db/LayoutDatabase.vue'
-export { default as LayoutHome } from './home/LayoutHome.vue'
+export { default as LayoutHeader } from '@/components/layout/db/LayoutHeader.vue'
+export { default as LayoutBody } from '@/components/layout/db/LayoutBody.vue'
+export { default as LayoutDatabase } from '@/components/layout/db/LayoutDatabase.vue'
+export { default as LayoutHome } from '@/components/layout/home/LayoutHome.vue'

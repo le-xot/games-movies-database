@@ -6,7 +6,7 @@ import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useSuggestion } from '../composables/use-suggestion'
+import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 
 const dialog = useDialog()
 const suggestion = useSuggestion()

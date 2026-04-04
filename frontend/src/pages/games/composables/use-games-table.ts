@@ -1,6 +1,6 @@
 import { createTableStore } from '@/composables/factories/create-table-store'
-import { useGames } from './use-games'
-import { useGamesParams } from './use-games-params'
+import { useGames } from '@/pages/games/composables/use-games'
+import { useGamesParams } from '@/pages/games/composables/use-games-params'
 
 export const useGamesTable = createTableStore({
   storeId: 'games/use-games-table',

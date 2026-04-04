@@ -1,2 +1,2 @@
-export { getImageUrl } from './image'
-export { generateWatchLink } from './generate-watch-link'
+export { getImageUrl } from '@/utils/image'
+export { generateWatchLink } from '@/utils/generate-watch-link'

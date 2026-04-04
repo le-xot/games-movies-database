@@ -1,6 +1,6 @@
 import { createTableStore } from '@/composables/factories/create-table-store'
-import { useSeries } from './use-series'
-import { useSeriesParams } from './use-series-params'
+import { useSeries } from '@/pages/series/composables/use-series'
+import { useSeriesParams } from '@/pages/series/composables/use-series-params'
 
 export const useSeriesTable = createTableStore({
   storeId: 'series/use-series-table',

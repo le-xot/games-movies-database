@@ -2,9 +2,9 @@
 import DataTable from '@/components/table/DataTable.vue'
 import TablePagination from '@/components/table/TablePagination.vue'
 import TableSearch from '@/components/table/TableSearch.vue'
-import { useGames } from '../composables/use-games'
-import { useGamesParams } from '../composables/use-games-params'
-import { useGamesTable } from '../composables/use-games-table'
+import { useGames } from '@/pages/games/composables/use-games'
+import { useGamesParams } from '@/pages/games/composables/use-games-params'
+import { useGamesTable } from '@/pages/games/composables/use-games-table'
 
 const games = useGames()
 const table = useGamesTable()

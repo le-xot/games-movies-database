@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import { useFormField } from '@/components/ui/form/useFormField'
 import { cn } from '@/lib/utils'
-import { useFormField } from './useFormField'
 import type { HTMLAttributes } from 'vue'
 
 const props = defineProps<{

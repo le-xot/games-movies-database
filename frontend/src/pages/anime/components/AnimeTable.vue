@@ -2,9 +2,9 @@
 import DataTable from '@/components/table/DataTable.vue'
 import TablePagination from '@/components/table/TablePagination.vue'
 import TableSearch from '@/components/table/TableSearch.vue'
-import { useAnime } from '../composables/use-anime'
-import { useAnimeParams } from '../composables/use-anime-params'
-import { useAnimeTable } from '../composables/use-anime-table'
+import { useAnime } from '@/pages/anime/composables/use-anime'
+import { useAnimeParams } from '@/pages/anime/composables/use-anime-params'
+import { useAnimeTable } from '@/pages/anime/composables/use-anime-table'
 
 const videos = useAnime()
 const table = useAnimeTable()

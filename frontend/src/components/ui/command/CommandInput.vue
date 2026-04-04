@@ -2,8 +2,8 @@
 import { reactiveOmit } from '@vueuse/core'
 import { Search } from 'lucide-vue-next'
 import { ListboxFilter, useForwardProps } from 'reka-ui'
+import { useCommand } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
-import { useCommand } from '.'
 import type { ListboxFilterProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 

@@ -4,10 +4,10 @@ import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
+import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
+import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
-import SuggestionCard from './components/SuggestionCard.vue'
-import { useSuggestion } from './composables/use-suggestion'
 
 const suggestion = useSuggestion()
 const user = useUser()

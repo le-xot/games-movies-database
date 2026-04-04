@@ -3,6 +3,8 @@ import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, watch } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
+import { useTableCol } from '@/components/table/composables/use-table-col'
+import { useTableUsers } from '@/components/table/composables/use-table-users'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -18,8 +20,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useUser } from '@/stores/use-user'
-import { useTableCol } from '../composables/use-table-col'
-import { useTableUsers } from '../composables/use-table-users'
 
 type UserValue = string | undefined
 

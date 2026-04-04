@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { gradeTags } from '@/components/table/composables/use-table-select'
+import TableFilterGeneric from '@/components/table/TableFilterGeneric.vue'
 import { RecordGrade } from '@/lib/api'
-import { gradeTags } from './composables/use-table-select'
-import TableFilterGeneric from './TableFilterGeneric.vue'
 
 const props = defineProps<{
   value: RecordGrade[] | null

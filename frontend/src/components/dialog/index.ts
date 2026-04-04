@@ -1,2 +1,2 @@
-export { default as Dialog } from './Dialog.vue'
-export { default as DialogButton } from './DialogButton.vue'
+export { default as Dialog } from '@/components/dialog/Dialog.vue'
+export { default as DialogButton } from '@/components/dialog/DialogButton.vue'

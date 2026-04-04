@@ -2,8 +2,8 @@
 import { reactiveOmit } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { computed } from 'vue'
+import { useCommand } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
-import { useCommand } from '.'
 import type { PrimitiveProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 

@@ -2,8 +2,8 @@
 import { reactiveOmit } from '@vueuse/core'
 import { ListboxRoot, useFilter, useForwardPropsEmits } from 'reka-ui'
 import { reactive, ref, watch } from 'vue'
+import { provideCommandContext } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
-import { provideCommandContext } from '.'
 import type { ListboxRootEmits, ListboxRootProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 

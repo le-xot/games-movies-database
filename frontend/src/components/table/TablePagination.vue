@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
+import { PAGE_SIZES } from '@/components/table/composables/use-pagination'
+import { tableInjectionKey } from '@/components/table/table-injection-key'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,8 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { PAGE_SIZES } from './composables/use-pagination'
-import { tableInjectionKey } from './table-injection-key'
 import type { PaginationState } from '@tanstack/vue-table'
 
 const props = defineProps<{

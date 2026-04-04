@@ -1,6 +1,6 @@
 import { createTableStore } from '@/composables/factories/create-table-store'
-import { useCartoon } from './use-cartoon'
-import { useCartoonParams } from './use-cartoon-params'
+import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
+import { useCartoonParams } from '@/pages/cartoon/composables/use-cartoon-params'
 
 export const useCartoonTable = createTableStore({
   storeId: 'cartoon/use-cartoon-table',

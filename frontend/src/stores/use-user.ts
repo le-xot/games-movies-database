@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { UserRole } from '@/lib/api'
-import { useApi } from './use-api'
+import { useApi } from '@/stores/use-api'
 
 export const USER_QUERY_KEY = 'user'
 

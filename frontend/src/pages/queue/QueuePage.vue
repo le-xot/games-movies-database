@@ -4,9 +4,9 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { RecordType } from '@/lib/api'
+import QueueCard from '@/pages/queue/components/QueueCard.vue'
+import { useQueue } from '@/pages/queue/composables/use-queue'
 import { ROUTER_PATHS } from '@/router/router-paths'
-import QueueCard from './components/QueueCard.vue'
-import { useQueue } from './composables/use-queue'
 
 const queue = useQueue()
 const router = useRouter()

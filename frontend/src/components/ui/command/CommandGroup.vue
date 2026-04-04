@@ -2,8 +2,8 @@
 import { reactiveOmit } from '@vueuse/core'
 import { ListboxGroup, ListboxGroupLabel, useId } from 'reka-ui'
 import { computed, onMounted, onUnmounted } from 'vue'
+import { provideCommandGroupContext, useCommand } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
-import { provideCommandGroupContext, useCommand } from '.'
 import type { ListboxGroupProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 

@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
 import { useLike } from '@/pages/suggestion/composables/use-like'
+import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 import { getImageUrl } from '@/utils/image'
-import { useSuggestion } from '../composables/use-suggestion'
 
 const props = defineProps<{
   items: RecordEntity[]

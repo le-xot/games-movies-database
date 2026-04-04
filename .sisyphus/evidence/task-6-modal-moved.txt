@@ -1,0 +1,2 @@
+Moved frontend/src/pages/auction/winner-selection-modal.vue to frontend/src/pages/auction/components/winner-selection-modal.vue.
+Updated auction.vue import to './components/winner-selection-modal.vue'.

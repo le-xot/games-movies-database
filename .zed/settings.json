@@ -4,33 +4,23 @@
   "languages": {
     "Vue.js": {
       "language_servers": [
-        "eslint",
         "vue-language-server",
         "vtsls",
         "tailwindcss-language-server",
         "..."
       ],
       "formatter": [],
-      "prettier": { "allowed": false },
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true
-      }
+      "prettier": { "allowed": false }
     },
     "TypeScript": {
-      "language_servers": ["vtsls", "eslint"],
+      "language_servers": ["vtsls"],
       "formatter": [],
-      "prettier": { "allowed": false },
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true
-      }
+      "prettier": { "allowed": false }
     },
     "JavaScript": {
-      "language_servers": ["vtsls", "eslint"],
+      "language_servers": ["vtsls"],
       "formatter": [],
-      "prettier": { "allowed": false },
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true
-      }
+      "prettier": { "allowed": false }
     }
   },
   "auto_install_extensions": {
@@ -38,25 +28,5 @@
     "vue": true,
     "dockerfile": true,
     "docker-compose": true
-  },
-  "lsp": {
-    "eslint": {
-      "settings": {
-        "rulesCustomizations": [
-          {
-            "rule": "style/*",
-            "severity": "off"
-          },
-          {
-            "rule": "*-{indent,spacing,spaces,order,dangle,newline}",
-            "severity": "off"
-          },
-          {
-            "rule": "*{quotes,semi}",
-            "severity": "off"
-          }
-        ]
-      }
-    }
   }
 }

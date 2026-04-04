@@ -1,0 +1,3 @@
+Build verification:
+1. bun lint failed due to pre-existing repo-wide issues outside scope
+2. bun run build succeeded

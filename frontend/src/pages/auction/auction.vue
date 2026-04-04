@@ -4,7 +4,7 @@ import { Award } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import AuctionCard from './components/auction-card.vue'
-import { useAuctions } from './composables/use-autions'
+import { useAuctions } from './composables/use-auctions'
 import WinnerSelectionModal from './winner-selection-modal.vue'
 
 const auctions = useAuctions()

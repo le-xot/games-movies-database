@@ -1,0 +1,6 @@
+Verified rename and import updates:
+1. frontend/src/pages/auction/composables/use-auctions.ts exists
+2. frontend/src/pages/auction/composables/use-autions.ts removed
+3. store ID fixed to auction/use-auction
+4. stale use-autions references removed from frontend/src
+5. bun run build succeeded

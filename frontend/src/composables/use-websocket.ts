@@ -1,6 +1,6 @@
 import { useUser } from '@/composables/use-user.ts'
 import { useAnime } from '@/pages/anime/composables/use-anime.ts'
-import { useAuctions } from '@/pages/auction/composables/use-autions.ts'
+import { useAuctions } from '@/pages/auction/composables/use-auctions'
 import { useCartoon } from '@/pages/cartoon/composables/use-cartoon.ts'
 import { useGames } from '@/pages/games/composables/use-games.ts'
 import { useMovie } from '@/pages/movie/composables/use-movie.ts'

@@ -8,7 +8,7 @@ import { computed, ref } from 'vue'
 
 export const AUCTION_QUERY_KEY = 'auction'
 
-export const useAuctions = defineStore('queue/use-auction', () => {
+export const useAuctions = defineStore('auction/use-auction', () => {
   const api = useApi()
   const error = ref<string | null>(null)
   const { isAdmin, isInitialized } = storeToRefs(useUser())

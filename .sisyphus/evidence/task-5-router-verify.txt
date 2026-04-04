@@ -1,0 +1,22 @@
+Task 5 router guard verification
+
+Changed file:
+- frontend/src/lib/router/router.ts
+
+Guard behavior:
+- Protected routes (`requiresAuth || requiresAdmin`) still await `fetchUser()` when the store is not initialized.
+- Public routes now skip awaiting `fetchUser()` and continue navigation immediately.
+- Existing auth redirects were preserved:
+  - non-admin users are redirected away from admin routes
+  - logged-out users are redirected away from auth routes
+
+Verification:
+- frontend/src/lib/router/router.ts read back and confirmed `await userStore.fetchUser()` only appears inside the protected-route branch.
+- LSP diagnostics for frontend/src/lib/router/router.ts: clean.
+
+Commands:
+- `bun lint && bun build` -> failed because repo has pre-existing lint errors outside this change and `bun build` is not a valid root Bun command here.
+- `bun run build:frontend` -> passed.
+
+Notes:
+- The lint failure includes unrelated files such as `.sisyphus/plans/frontend-standardization.md`, `.zed/settings.json`, and multiple backend/frontend files not touched by this task.

@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 import { onMounted, onUnmounted, ref } from 'vue'
-import { RecordGenre } from '@/lib/api'
+import { createEventCoalescer } from '@/composables/use-event-coalescer'
 import { useAnime } from '@/pages/anime/composables/use-anime'
 import { useAuctions } from '@/pages/auction/composables/use-auctions'
 import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
@@ -24,6 +24,22 @@ export function useWebSocket() {
   const auctionStore = useAuctions()
   const userStore = useUser()
 
+  const coalescer = createEventCoalescer({
+    handlers: {
+      suggestions: () => suggestionStore.refetchSuggestions(),
+      queue: () => queueStore.refetchQueue(),
+      auction: () => {
+        if (userStore.isAdmin) auctionStore.refetchAuctions()
+      },
+      user: () => userStore.refetchUser(),
+      'records:ANIME': () => animeStore.refetchVideos(),
+      'records:CARTOON': () => cartoonStore.refetchVideos(),
+      'records:SERIES': () => seriesStore.refetchVideos(),
+      'records:MOVIE': () => movieStore.refetchVideos(),
+      'records:GAME': () => gamesStore.refetchGames(),
+    },
+  })
+
   function connect() {
     socket.value = io(`${window.location.protocol}//${window.location.host}`, {
       transports: ['websocket'],
@@ -34,50 +50,32 @@ export function useWebSocket() {
       .on('disconnect', () => {
         isConnected.value = false
       })
-
       .on('update-auction', () => {
-        suggestionStore.refetchSuggestions()
-        if (userStore.isAdmin) {
-          auctionStore.refetchAuctions()
-        }
+        coalescer.enqueue('suggestions')
+        coalescer.enqueue('auction')
       })
-      .on('update-records', (payload: { genre: RecordGenre }) => {
-        switch (payload.genre) {
-          case 'ANIME':
-            animeStore.refetchVideos()
-            break
-          case 'CARTOON':
-            cartoonStore.refetchVideos()
-            break
-          case 'SERIES':
-            seriesStore.refetchVideos()
-            break
-          case 'MOVIE':
-            movieStore.refetchVideos()
-            break
-          case 'GAME':
-            gamesStore.refetchGames()
-            break
-          default:
-            animeStore.refetchVideos()
-            cartoonStore.refetchVideos()
-            seriesStore.refetchVideos()
-            movieStore.refetchVideos()
-            gamesStore.refetchGames()
-            break
+      .on('update-records', (payload?: { genre?: string }) => {
+        if (payload?.genre) {
+          coalescer.enqueue('records:' + payload.genre)
+        } else {
+          coalescer.enqueue('records:ANIME')
+          coalescer.enqueue('records:CARTOON')
+          coalescer.enqueue('records:SERIES')
+          coalescer.enqueue('records:MOVIE')
+          coalescer.enqueue('records:GAME')
         }
       })
       .on('update-likes', () => {
-        suggestionStore.refetchSuggestions()
+        coalescer.enqueue('suggestions')
       })
       .on('update-queue', () => {
-        queueStore.refetchQueue()
+        coalescer.enqueue('queue')
       })
       .on('update-suggestions', () => {
-        suggestionStore.refetchSuggestions()
+        coalescer.enqueue('suggestions')
       })
       .on('update-users', () => {
-        userStore.refetchUser()
+        coalescer.enqueue('user')
       })
       .on('connect_error', (error) => {
         console.error('WebSocket connection error:', error)
@@ -86,6 +84,7 @@ export function useWebSocket() {
   }
 
   function disconnect() {
+    coalescer.cancel()
     socket.value?.disconnect()
     socket.value = null
   }

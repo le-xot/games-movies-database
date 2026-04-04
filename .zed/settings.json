@@ -3,12 +3,7 @@
   "format_on_save": "on",
   "languages": {
     "Vue.js": {
-      "language_servers": [
-        "vue-language-server",
-        "vtsls",
-        "tailwindcss-language-server",
-        "..."
-      ],
+      "language_servers": ["vue-language-server", "vtsls", "tailwindcss-language-server", "..."],
       "formatter": [],
       "prettier": { "allowed": false }
     },

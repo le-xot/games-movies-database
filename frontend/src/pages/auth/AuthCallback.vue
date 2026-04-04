@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Loader2 } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTER_PATHS } from '@/router/router-paths'
@@ -8,17 +9,20 @@ const userApi = useUser()
 const router = useRouter()
 
 const error = ref('')
+const isLoading = ref(true)
 
 onMounted(async () => {
   const url = new URL(window.location.href)
   const loginError = url.searchParams.get('error')
   if (loginError) {
+    isLoading.value = false
     error.value = loginError
     return
   }
 
   const code = url.searchParams.get('code')
   if (typeof code !== 'string') {
+    isLoading.value = false
     error.value = 'Incorrect code'
     return
   }
@@ -32,13 +36,20 @@ onMounted(async () => {
   } catch (e) {
     if (e instanceof Error) {
       error.value = e.toString()
+    } else {
+      error.value = 'Ошибка авторизации'
     }
+  } finally {
+    isLoading.value = false
   }
 })
 </script>
 
 <template>
-  <div v-if="error" class="bg-zinc-800 flex justify-center items-center">
+  <div v-if="isLoading" class="flex h-screen items-center justify-center">
+    <Loader2 class="size-8 animate-spin text-muted-foreground" />
+  </div>
+  <div v-else-if="error" class="flex h-screen items-center justify-center bg-zinc-800">
     {{ error }}
   </div>
 </template>

@@ -11,12 +11,12 @@ import {
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums, User } from '@prisma/client'
-import { AuthGuard } from '../auth/auth.guard'
-import { RolesGuard } from '../auth/auth.roles.guard'
-import { RecordEntity } from '../record/record.entity'
-import { UserCreateByLoginDTO, UserUpdateDTO } from './user.dto'
-import { UserEntity } from './user.entity'
-import { UserService } from './user.service'
+import { AuthGuard } from '@/modules/auth/auth.guard'
+import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { RecordEntity } from '@/modules/record/record.entity'
+import { UserCreateByLoginDTO, UserUpdateDTO } from '@/modules/user/user.dto'
+import { UserEntity } from '@/modules/user/user.entity'
+import { UserService } from '@/modules/user/user.service'
 
 @ApiTags('users')
 @Controller('users')

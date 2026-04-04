@@ -2,7 +2,7 @@ import { env } from 'node:process'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
-import { TwitchService } from '../twitch/twitch.service'
+import { TwitchService } from '@/modules/twitch/twitch.service'
 
 interface PreparedData {
   title: string

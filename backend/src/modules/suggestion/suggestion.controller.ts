@@ -2,13 +2,13 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/c
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import { $Enums } from '@prisma/client'
-import { AuthGuard } from '../auth/auth.guard'
-import { RolesGuard } from '../auth/auth.roles.guard'
-import { User } from '../auth/auth.user.decorator'
-import { RecordEntity } from '../record/record.entity'
-import { UserEntity } from '../user/user.entity'
-import { SuggestionService } from './suggestion.service'
-import { UserSuggestionDTO } from './suggesttion.dto'
+import { AuthGuard } from '@/modules/auth/auth.guard'
+import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { User } from '@/modules/auth/auth.user.decorator'
+import { RecordEntity } from '@/modules/record/record.entity'
+import { SuggestionService } from '@/modules/suggestion/suggestion.service'
+import { UserSuggestionDTO } from '@/modules/suggestion/suggesttion.dto'
+import { UserEntity } from '@/modules/user/user.entity'
 
 @ApiTags('suggestions')
 @Controller('suggestions')

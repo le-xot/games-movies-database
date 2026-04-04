@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
 import { LikeEntity } from '@/modules/like/like.entity'
-import { UserEntity } from '../user/user.entity'
+import { UserEntity } from '@/modules/user/user.entity'
 
 export class RecordEntity {
   @ApiProperty()

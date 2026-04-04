@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
-import { QueueDto, QueueItemDto } from './queue.dto'
+import { QueueDto, QueueItemDto } from '@/modules/queue/queue.dto'
 
 @Injectable()
 export class QueueService {

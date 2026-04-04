@@ -2,13 +2,13 @@ import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@n
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import { $Enums } from '@prisma/client'
+import { AuthGuard } from '@/modules/auth/auth.guard'
+import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { User } from '@/modules/auth/auth.user.decorator'
 import { GetLikesByIdDTO, GetLikesDTO, LikeCreateDTO } from '@/modules/like/like.dto'
 import { LikeEntity } from '@/modules/like/like.entity'
 import { LikeService } from '@/modules/like/like.service'
-import { AuthGuard } from '../auth/auth.guard'
-import { RolesGuard } from '../auth/auth.roles.guard'
-import { User } from '../auth/auth.user.decorator'
-import { UserEntity } from '../user/user.entity'
+import { UserEntity } from '@/modules/user/user.entity'
 
 @ApiTags('likes')
 @Controller('likes')

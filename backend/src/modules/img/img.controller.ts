@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { stat } from 'node:fs/promises'
 import { Controller, Get, Logger, Query, Res } from '@nestjs/common'
-import { ImgService } from './img.service'
+import { ImgService } from '@/modules/img/img.service'
 import type { Response } from 'express'
 
 @Controller('img')

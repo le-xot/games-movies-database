@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { TwitchService } from '../twitch/twitch.service'
-import { UserService } from '../user/user.service'
+import { TwitchService } from '@/modules/twitch/twitch.service'
+import { UserService } from '@/modules/user/user.service'
 
 @Injectable()
 export class AuthService {

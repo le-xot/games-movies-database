@@ -1,6 +1,6 @@
 import { Controller, Get, Logger } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { WeatherService } from './weather.service'
+import { WeatherService } from '@/modules/weather/weather.service'
 
 @ApiTags('weather')
 @Controller('weather')

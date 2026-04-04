@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
 import { PrismaModule } from '@/database/prisma.module'
-import { RecordsProvidersModule } from '../records-providers/records-providers.module'
-import { UserModule } from '../user/user.module'
-import { WebsocketModule } from '../websocket/websocket.module'
-import { RecordController } from './record.controller'
-import { RecordService } from './record.service'
+import { RecordController } from '@/modules/record/record.controller'
+import { RecordService } from '@/modules/record/record.service'
+import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
+import { UserModule } from '@/modules/user/user.module'
+import { WebsocketModule } from '@/modules/websocket/websocket.module'
 
 @Module({
   imports: [PrismaModule, UserModule, RecordsProvidersModule, WebsocketModule],

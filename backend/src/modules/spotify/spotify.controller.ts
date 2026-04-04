@@ -1,8 +1,8 @@
 import { Controller, Get, Header, Post, Query, UseGuards } from '@nestjs/common'
 import { $Enums } from '@prisma/client'
-import { AuthGuard } from '../auth/auth.guard'
-import { RolesGuard } from '../auth/auth.roles.guard'
-import { SpotifyService } from './spotify.service'
+import { AuthGuard } from '@/modules/auth/auth.guard'
+import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { SpotifyService } from '@/modules/spotify/spotify.service'
 
 @Controller('/auth/spotify')
 @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))

@@ -8,7 +8,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
-import { RecordsProvidersService } from '../records-providers/records-providers.service'
+import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 
 @Injectable()
 export class SuggestionService {

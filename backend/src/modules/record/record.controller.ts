@@ -12,18 +12,18 @@ import {
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
-import { AuthGuard } from '../auth/auth.guard'
-import { RolesGuard } from '../auth/auth.roles.guard'
-import { User } from '../auth/auth.user.decorator'
-import { UserEntity } from '../user/user.entity'
+import { AuthGuard } from '@/modules/auth/auth.guard'
+import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { User } from '@/modules/auth/auth.user.decorator'
 import {
   GetAllRecordsDTO,
   RecordCreateFromLinkDTO,
   RecordGetDTO,
   RecordUpdateDTO,
-} from './record.dto'
-import { RecordEntity } from './record.entity'
-import { RecordService } from './record.service'
+} from '@/modules/record/record.dto'
+import { RecordEntity } from '@/modules/record/record.entity'
+import { RecordService } from '@/modules/record/record.service'
+import { UserEntity } from '@/modules/user/user.entity'
 
 @ApiTags('records')
 @Controller('records')

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { addItemToPlaybackQueue } from '@soundify/web-api'
-import { SpotifyService } from './spotify.service'
+import { SpotifyService } from '@/modules/spotify/spotify.service'
 
 @Injectable()
 export class SpotifyQueueService {

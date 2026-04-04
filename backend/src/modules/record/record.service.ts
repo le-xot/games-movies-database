@@ -2,10 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, Prisma } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
-import { RecordsProvidersService } from '../records-providers/records-providers.service'
-import { UserEntity } from '../user/user.entity'
-import { RecordCreateFromLinkDTO, RecordUpdateDTO } from './record.dto'
-import { RecordEntity } from './record.entity'
+import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/record.dto'
+import { RecordEntity } from '@/modules/record/record.entity'
+import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
+import { UserEntity } from '@/modules/user/user.entity'
 
 @Injectable()
 export class RecordService {

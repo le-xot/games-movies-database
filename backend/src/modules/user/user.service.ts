@@ -2,8 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
-import { RecordEntity } from '../record/record.entity'
-import { TwitchService } from '../twitch/twitch.service'
+import { RecordEntity } from '@/modules/record/record.entity'
+import { TwitchService } from '@/modules/twitch/twitch.service'
 
 @Injectable()
 export class UserService {

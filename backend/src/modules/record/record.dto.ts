@@ -3,7 +3,7 @@ import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
-import { RecordEntity } from './record.entity'
+import { RecordEntity } from '@/modules/record/record.entity'
 
 export class RecordCreateFromLinkDTO {
   @ApiProperty({ example: 'https://example.com/record' })

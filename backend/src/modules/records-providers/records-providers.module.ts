@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { PrismaModule } from '@/database/prisma.module'
-import { TwitchModule } from '../twitch/twitch.module'
-import { RecordsProvidersService } from './records-providers.service'
+import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
+import { TwitchModule } from '@/modules/twitch/twitch.module'
 
 @Module({
   imports: [PrismaModule, TwitchModule],

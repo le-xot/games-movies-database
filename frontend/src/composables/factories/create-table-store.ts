@@ -16,12 +16,12 @@ import {
 } from '@tanstack/vue-table'
 import { Eraser } from 'lucide-vue-next'
 import { StoreDefinition, defineStore, storeToRefs } from 'pinia'
-import { ComputedRef, computed, h } from 'vue'
+import { computed, h } from 'vue'
 
 interface DataStoreReturn {
-  videos?: ComputedRef<RecordEntity[]>
-  games?: ComputedRef<RecordEntity[]>
-  totalPages: ComputedRef<number>
+  videos?: RecordEntity[]
+  games?: RecordEntity[]
+  totalPages: number
   updateRecord: (payload: { id: number, data: RecordUpdateDTO }) => Promise<any>
   deleteRecord: (id: number) => Promise<any>
 }
@@ -55,10 +55,10 @@ export function createTableStore(config: TableStoreConfig) {
       const raw = config.itemsKey === 'games'
         ? dataStoreInstance.games
         : dataStoreInstance.videos
-      return raw?.value ?? []
+      return raw ?? []
     })
 
-    const totalPages = computed(() => dataStoreInstance.totalPages.value)
+    const totalPages = computed(() => dataStoreInstance.totalPages)
 
     const tableColumns = computed(() => {
       const columns: ColumnDef<RecordEntity>[] = [

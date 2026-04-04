@@ -1,5 +1,4 @@
 import { createTableStore } from '@/composables/factories/create-table-store'
-import { acceptHMRUpdate } from 'pinia'
 import { useAnime } from './use-anime'
 import { useAnimeParams } from './use-anime-params'
 
@@ -13,7 +12,3 @@ export const useAnimeTable = createTableStore({
   deleteConfirmTitle: 'Удалить анимешку?',
   itemsKey: 'videos',
 })
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAnimeTable, import.meta.hot))
-}

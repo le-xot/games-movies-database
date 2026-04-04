@@ -1,6 +1,5 @@
 import { createParamsStore } from '@/composables/factories/create-params-store'
 import { RecordGenre } from '@/lib/api'
-import { acceptHMRUpdate } from 'pinia'
 
 export const useSeriesParams = createParamsStore({
   storeId: 'series/use-series-params',
@@ -14,7 +13,3 @@ export const useSeriesParams = createParamsStore({
   },
   genre: RecordGenre.SERIES,
 })
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useSeriesParams, import.meta.hot))
-}

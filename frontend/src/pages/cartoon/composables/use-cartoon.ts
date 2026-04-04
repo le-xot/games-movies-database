@@ -1,5 +1,4 @@
 import { createRecordsStore } from '@/composables/factories/create-records-store'
-import { acceptHMRUpdate } from 'pinia'
 import { useCartoonParams } from './use-cartoon-params'
 
 export const useCartoon = createRecordsStore({
@@ -9,7 +8,3 @@ export const useCartoon = createRecordsStore({
   itemsName: 'videos',
   refetchName: 'refetchVideos',
 })
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useCartoon, import.meta.hot))
-}

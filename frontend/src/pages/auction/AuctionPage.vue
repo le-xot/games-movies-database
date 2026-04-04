@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { Award } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
-import { toast } from 'vue-sonner';
-import { Button } from '@/components/ui/button';
-import AuctionCard from './components/AuctionCard.vue';
-import { useAuctions } from './composables/use-auctions';
-import WinnerSelectionModal from './components/WinnerSelectionModal.vue';
+import { Award } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
+import { toast } from 'vue-sonner'
+import { Button } from '@/components/ui/button'
+import AuctionCard from './components/AuctionCard.vue'
+import WinnerSelectionModal from './components/WinnerSelectionModal.vue'
+import { useAuctions } from './composables/use-auctions'
 
-const auctions = useAuctions();
-const showWinnerModal = ref(false);
+const auctions = useAuctions()
+const showWinnerModal = ref(false)
 
-const hasAuctions = computed(() => (auctions.auctions?.length ?? 0) > 0);
+const hasAuctions = computed(() => (auctions.auctions?.length ?? 0) > 0)
 
 async function handleApproveSuggestion(id: number) {
   try {
-    await auctions.approveAuction(id);
+    await auctions.approveAuction(id)
     toast('Успешно', {
       description: 'Совет был одобрен.',
-    });
+    })
   } catch {
     toast.error('Ошибка', {
       description: auctions.error || 'Не удалось одобрить совет.',
-    });
+    })
   }
 }
 </script>

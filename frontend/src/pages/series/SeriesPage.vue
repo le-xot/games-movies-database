@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SeriesTable from '@/pages/series/components/SeriesTable.vue';
+import SeriesTable from '@/pages/series/components/SeriesTable.vue'
 </script>
 
 <template>

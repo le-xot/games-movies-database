@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { VisibilityState } from '@tanstack/vue-table';
-import { CheckIcon, XIcon } from 'lucide-vue-next';
-import { computed } from 'vue';
-import { CommandGroup } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '../ui/button';
-import { Command, CommandItem, CommandList } from '../ui/command';
-import { Input } from '../ui/input';
+import { VisibilityState } from '@tanstack/vue-table'
+import { CheckIcon, XIcon } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { CommandGroup } from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Button } from '../ui/button'
+import { Command, CommandItem, CommandList } from '../ui/command'
+import { Input } from '../ui/input'
 
-const searchValue = defineModel<string>('value', { required: true });
-const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true });
-const placeholder = computed(() => 'Искать по названию или пользователю');
+const searchValue = defineModel<string>('value', { required: true })
+const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })
+const placeholder = computed(() => 'Искать по названию или пользователю')
 
 function clearSearch() {
-  searchValue.value = '';
+  searchValue.value = ''
 }
 
 const columnText: Record<string, string> = {
@@ -23,13 +23,13 @@ const columnText: Record<string, string> = {
   user: 'Пользователь',
   status: 'Статус',
   grade: 'Оценка',
-};
+}
 
 function updateVisibility(key: string, value: boolean) {
   // columnVisibility somehow is shallowRef in tanstack table
   // so we need to mutate whole object to make it reactive in useVueTable() from tanstack
   // https://tanstack.com/table/latest/docs/framework/vue/guide/table-state#using-reactive-data
-  columnVisibility.value = { ...columnVisibility.value, [key]: value };
+  columnVisibility.value = { ...columnVisibility.value, [key]: value }
 }
 </script>
 

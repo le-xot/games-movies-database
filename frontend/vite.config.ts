@@ -1,14 +1,14 @@
-import { fileURLToPath } from 'node:url';
-import tailwindcss from '@tailwindcss/vite';
-import vue from '@vitejs/plugin-vue';
-import autoprefixer from 'autoprefixer';
-import { generateApi } from 'swagger-typescript-api';
-import { defineConfig } from 'vite';
-import svgLoader from 'vite-svg-loader';
+import { fileURLToPath } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
+import vue from '@vitejs/plugin-vue'
+import autoprefixer from 'autoprefixer'
+import { generateApi } from 'swagger-typescript-api'
+import { defineConfig } from 'vite'
+import svgLoader from 'vite-svg-loader'
 
 export default defineConfig(({ isPreview, mode }) => {
   if (mode !== 'production' && !isPreview) {
-    generateSwagger();
+    generateSwagger()
   }
 
   return {
@@ -44,11 +44,11 @@ export default defineConfig(({ isPreview, mode }) => {
         },
       },
     },
-  };
-});
+  }
+})
 
 async function generateSwagger() {
-  let tryCount = 0;
+  let tryCount = 0
   while (tryCount < 10) {
     try {
       await generateApi({
@@ -59,11 +59,11 @@ async function generateSwagger() {
         httpClientType: 'fetch',
         singleHttpClient: true,
         extractEnums: true,
-      });
-      break;
+      })
+      break
     } catch {
-      tryCount++;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      tryCount++
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     }
   }
 }

@@ -1,8 +1,8 @@
-import { Controller, Get, Header, Post, Query, UseGuards } from '@nestjs/common';
-import { $Enums } from '@prisma/client';
-import { AuthGuard } from '../auth/auth.guard';
-import { RolesGuard } from '../auth/auth.roles.guard';
-import { SpotifyService } from './spotify.service';
+import { Controller, Get, Header, Post, Query, UseGuards } from '@nestjs/common'
+import { $Enums } from '@prisma/client'
+import { AuthGuard } from '../auth/auth.guard'
+import { RolesGuard } from '../auth/auth.roles.guard'
+import { SpotifyService } from './spotify.service'
 
 @Controller('/auth/spotify')
 @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
@@ -12,11 +12,11 @@ export class SpotifyController {
   @Get()
   @Header('Content-Type', 'text/plain')
   getAuthLink() {
-    return this.service.createAuthorizationUrl();
+    return this.service.createAuthorizationUrl()
   }
 
   @Post()
   async performAuthorization(@Query('code') code: string) {
-    await this.service.authorize(code);
+    await this.service.authorize(code)
   }
 }

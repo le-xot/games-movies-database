@@ -1,8 +1,8 @@
-import process from 'node:process';
+import process from 'node:process'
 
-const { PrismaClient, RecordGenre } = require('@prisma/client');
+const { PrismaClient, RecordGenre } = require('@prisma/client')
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function seed() {
   await prisma.user.upsert({
@@ -17,7 +17,7 @@ async function seed() {
       profileImageUrl:
         'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
     },
-  });
+  })
   await prisma.limit.upsert({
     where: { name: 'SUGGESTION' },
     update: {},
@@ -25,8 +25,8 @@ async function seed() {
       name: 'SUGGESTION',
       quantity: 3,
     },
-  });
-  const genres = Object.values(RecordGenre);
+  })
+  const genres = Object.values(RecordGenre)
 
   for (const genre of genres) {
     await prisma.suggestionRules.upsert({
@@ -36,16 +36,16 @@ async function seed() {
         genre,
         permission: true,
       },
-    });
+    })
   }
 }
 
 seed()
   .then(async () => {
-    await prisma.$disconnect();
+    await prisma.$disconnect()
   })
   .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })

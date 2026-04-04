@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useUser } from '@/stores/use-user';
-import { ROUTER_PATHS } from './router-paths';
+import { createRouter, createWebHistory } from 'vue-router'
+import { useUser } from '@/stores/use-user'
+import { ROUTER_PATHS } from './router-paths'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -79,36 +79,36 @@ export const router = createRouter({
       redirect: ROUTER_PATHS.home,
     },
   ],
-});
+})
 
 router.beforeEach(async (to, _, next) => {
-  const userStore = useUser();
-  const requiresAuth = to.meta.requiresAuth || to.meta.requiresAdmin;
+  const userStore = useUser()
+  const requiresAuth = to.meta.requiresAuth || to.meta.requiresAdmin
 
   if (requiresAuth) {
     if (!userStore.isInitialized) {
       try {
-        await userStore.fetchUser();
+        await userStore.fetchUser()
       } catch (error) {
-        console.error('Failed to fetch user data:', error);
+        console.error('Failed to fetch user data:', error)
       }
     }
 
     if (to.meta.requiresAdmin) {
       if (!userStore.isAdmin) {
-        next({ path: ROUTER_PATHS.home });
+        next({ path: ROUTER_PATHS.home })
       } else {
-        next();
+        next()
       }
     } else if (!userStore.isLoggedIn) {
-      next({ path: ROUTER_PATHS.home });
+      next({ path: ROUTER_PATHS.home })
     } else {
-      next();
+      next()
     }
   } else {
     if (!userStore.isInitialized) {
-      void userStore.fetchUser();
+      void userStore.fetchUser()
     }
-    next();
+    next()
   }
-});
+})

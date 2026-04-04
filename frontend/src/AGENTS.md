@@ -43,20 +43,20 @@ frontend/src/
 
 ## STORES (Pinia — `stores/`)
 
-| Name              | Purpose                                                      |
-| ----------------- | ------------------------------------------------------------ |
-| `useApi`          | Singleton API client (baseUrl: /api, credentials: include)   |
-| `useUser`         | Auth state, login/logout, /auth/me data, admin/login getters |
-| `useBreakpoints`  | Tailwind breakpoint tracking via @vueuse/core                |
-| `useNewRecords`   | localStorage tracking for "new" record badges                |
-| `useTitle`        | Document title management                                    |
+| Name             | Purpose                                                      |
+| ---------------- | ------------------------------------------------------------ |
+| `useApi`         | Singleton API client (baseUrl: /api, credentials: include)   |
+| `useUser`        | Auth state, login/logout, /auth/me data, admin/login getters |
+| `useBreakpoints` | Tailwind breakpoint tracking via @vueuse/core                |
+| `useNewRecords`  | localStorage tracking for "new" record badges                |
+| `useTitle`       | Document title management                                    |
 
 ## COMPOSABLES (Plain — `composables/`)
 
-| Name              | Purpose                                                      |
-| ----------------- | ------------------------------------------------------------ |
-| `useWebSocket`    | Socket.io client; triggers refetches on server events        |
-| `useRecordCreate` | Mutation for creating records from links                     |
+| Name              | Purpose                                               |
+| ----------------- | ----------------------------------------------------- |
+| `useWebSocket`    | Socket.io client; triggers refetches on server events |
+| `useRecordCreate` | Mutation for creating records from links              |
 
 ## COMPONENT PATTERNS
 

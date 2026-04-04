@@ -1,13 +1,13 @@
-import { useMutation, useQuery } from '@pinia/colada';
-import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed } from 'vue';
-import { useApi } from '@/stores/use-api';
-import { UserUpdateDTO } from '@/lib/api';
+import { useMutation, useQuery } from '@pinia/colada'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { computed } from 'vue'
+import { UserUpdateDTO } from '@/lib/api'
+import { useApi } from '@/stores/use-api'
 
-export const USERS_QUERY_KEY = 'users';
+export const USERS_QUERY_KEY = 'users'
 
 export const useTableUsers = defineStore('use-table-users', () => {
-  const api = useApi();
+  const api = useApi()
   const {
     isLoading,
     data: users,
@@ -16,45 +16,45 @@ export const useTableUsers = defineStore('use-table-users', () => {
     key: [USERS_QUERY_KEY],
     placeholderData: (prev) => prev ?? [],
     query: async () => {
-      const { data } = await api.users.userControllerGetAllUsers();
-      return data;
+      const { data } = await api.users.userControllerGetAllUsers()
+      return data
     },
-  });
+  })
 
   const { mutateAsync: patchUser } = useMutation({
     key: [USERS_QUERY_KEY, 'create'],
     mutation: async (opts: { id: string; data: UserUpdateDTO }) => {
-      return await api.users.userControllerPatchUser(opts.id, opts.data);
+      return await api.users.userControllerPatchUser(opts.id, opts.data)
     },
     onSettled: () => refetchUsers(),
-  });
+  })
 
   const { mutateAsync: createUserByLogin } = useMutation({
     key: [USERS_QUERY_KEY, 'create-by-login'],
     mutation: async (login: string) => {
-      return await api.users.userControllerCreateUserByLogin({ login });
+      return await api.users.userControllerCreateUserByLogin({ login })
     },
     onSettled: () => refetchUsers(),
-  });
+  })
 
   const { mutateAsync: deleteUserById } = useMutation({
     key: [USERS_QUERY_KEY, 'delete'],
     mutation: async (id: string) => {
-      return await api.users.userControllerDeleteUser(id);
+      return await api.users.userControllerDeleteUser(id)
     },
     onSettled: () => refetchUsers(),
-  });
+  })
 
   const userOptions = computed(() => {
-    if (!users.value) return [];
+    if (!users.value) return []
     return users.value.map((item) => {
       return {
         id: item.id,
         name: item.login,
         color: item.color,
-      };
-    });
-  });
+      }
+    })
+  })
 
   return {
     isLoading,
@@ -64,9 +64,9 @@ export const useTableUsers = defineStore('use-table-users', () => {
     refetchUsers,
     createOrUpdateUser: patchUser,
     deleteUserById,
-  };
-});
+  }
+})
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useTableUsers, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useTableUsers, import.meta.hot))
 }

@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useUser } from '@/stores/use-user';
-import { RecordEntity } from '@/lib/api';
-import { getImageUrl } from '@/utils/image';
+import { storeToRefs } from 'pinia'
+import { ref } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { RecordEntity } from '@/lib/api'
+import { useUser } from '@/stores/use-user'
+import { getImageUrl } from '@/utils/image'
 
-defineProps<{ items: RecordEntity[] }>();
+defineProps<{ items: RecordEntity[] }>()
 
-const { isAdmin } = storeToRefs(useUser());
+const { isAdmin } = storeToRefs(useUser())
 
-const isDialogOpen = ref(false);
+const isDialogOpen = ref(false)
 
-isDialogOpen.value = false;
+isDialogOpen.value = false
 
-defineExpose({ isDialogOpen });
+defineExpose({ isDialogOpen })
 </script>
 
 <template>

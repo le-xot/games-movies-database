@@ -1,123 +1,121 @@
 <script setup lang="ts">
-import { useTitle } from '@vueuse/core';
-import { Check, ChevronsUpDown } from 'lucide-vue-next';
-import { computed, onMounted, ref, watch } from 'vue';
-import { gradeTags } from '@/components/table/composables/use-table-select';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTitle } from '@vueuse/core'
+import { Check, ChevronsUpDown } from 'lucide-vue-next'
+import { computed, onMounted, ref, watch } from 'vue'
+import { gradeTags } from '@/components/table/composables/use-table-select'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useApi } from '@/stores/use-api';
-import { useUser } from '@/stores/use-user';
-import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api';
-import { getImageUrl } from '@/utils/image';
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
+import { useApi } from '@/stores/use-api'
+import { useUser } from '@/stores/use-user'
+import { getImageUrl } from '@/utils/image'
 
-const title = useTitle();
-onMounted(() => (title.value = 'Профиль'));
+const title = useTitle()
+onMounted(() => (title.value = 'Профиль'))
 
-const user = useUser();
-const api = useApi();
+const user = useUser()
+const api = useApi()
 
-const data = ref<RecordEntity[]>([]);
-const users = ref<UserEntity[]>([]);
-const selectedUserId = ref<string | null>(null);
-const isUsersLoading = ref(false);
-const isUserSelectorOpen = ref(false);
-const searchValue = ref('');
+const data = ref<RecordEntity[]>([])
+const users = ref<UserEntity[]>([])
+const selectedUserId = ref<string | null>(null)
+const isUsersLoading = ref(false)
+const isUserSelectorOpen = ref(false)
+const searchValue = ref('')
 
 async function fetchUsers() {
-  isUsersLoading.value = true;
+  isUsersLoading.value = true
   try {
-    const response = await api.users.userControllerGetAllUsers();
-    users.value = response.data;
+    const response = await api.users.userControllerGetAllUsers()
+    users.value = response.data
   } catch (error) {
-    console.error('Error fetching users:', error);
-    users.value = [];
+    console.error('Error fetching users:', error)
+    users.value = []
   } finally {
-    isUsersLoading.value = false;
+    isUsersLoading.value = false
   }
 }
 
 async function fetchUserRecords() {
   const targetUser = selectedUserId.value
     ? users.value.find((u) => u.id === selectedUserId.value)
-    : user.user;
+    : user.user
 
-  if (!targetUser?.login) return;
+  if (!targetUser?.login) return
 
   try {
-    const response = await api.users.userControllerGetUserRecords({ login: targetUser.login });
-    data.value = response.data;
+    const response = await api.users.userControllerGetUserRecords({ login: targetUser.login })
+    data.value = response.data
   } catch (error) {
-    console.error('Error fetching user records:', error);
-    data.value = [];
+    console.error('Error fetching user records:', error)
+    data.value = []
   }
 }
 
 const selectedUser = computed(() => {
-  if (!selectedUserId.value) return user.user;
-  return users.value.find((u) => u.id === selectedUserId.value) || user.user;
-});
+  if (!selectedUserId.value) return user.user
+  return users.value.find((u) => u.id === selectedUserId.value) || user.user
+})
 
 const userGames = computed(
   () => data.value?.filter((item: RecordEntity) => item.genre === 'GAME') || [],
-);
+)
 
 const userVideos = computed(
   () =>
     data.value?.filter((item: RecordEntity) => item.genre !== 'GAME' && item.genre !== null) || [],
-);
+)
 
-const isOwnProfile = computed(
-  () => !selectedUserId.value || selectedUserId.value === user.user?.id,
-);
+const isOwnProfile = computed(() => !selectedUserId.value || selectedUserId.value === user.user?.id)
 
 onMounted(async () => {
-  await fetchUsers();
+  await fetchUsers()
   if (user.user?.login) {
-    await fetchUserRecords();
+    await fetchUserRecords()
   }
-});
+})
 
 watch(selectedUserId, () => {
   if (selectedUser.value?.login) {
-    fetchUserRecords();
+    fetchUserRecords()
   } else {
-    data.value = [];
+    data.value = []
   }
-});
+})
 
 watch(
   () => user.user?.login,
   (newLogin) => {
     if (newLogin && !selectedUserId.value) {
-      fetchUserRecords();
+      fetchUserRecords()
     }
   },
-);
+)
 
 function selectUser(userId: string | null) {
-  selectedUserId.value = userId;
-  isUserSelectorOpen.value = false;
+  selectedUserId.value = userId
+  isUserSelectorOpen.value = false
 }
 
 const filteredUsers = computed(() => {
-  if (!searchValue.value) return users.value;
+  if (!searchValue.value) return users.value
   return users.value.filter((user) =>
     user.login.toLowerCase().includes(searchValue.value.toLowerCase()),
-  );
-});
+  )
+})
 
 function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement;
-  img.src = '/images/aga.webp';
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
 }
 </script>
 

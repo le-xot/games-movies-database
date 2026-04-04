@@ -1,5 +1,5 @@
-import { createRecordsStore } from '@/composables/factories/create-records-store';
-import { useMovieParams } from './use-movie-params';
+import { createRecordsStore } from '@/composables/factories/create-records-store'
+import { useMovieParams } from './use-movie-params'
 
 export const useMovie = createRecordsStore({
   storeId: 'movies/use-movie',
@@ -7,4 +7,4 @@ export const useMovie = createRecordsStore({
   paramsStore: useMovieParams,
   itemsName: 'videos',
   refetchName: 'refetchVideos',
-});
+})

@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '@/database/prisma.module';
-import { UserModule } from '../user/user.module';
-import { QueueController } from './queue.controller';
-import { QueueService } from './queue.service';
+import { Module } from '@nestjs/common'
+import { PrismaModule } from '@/database/prisma.module'
+import { UserModule } from '../user/user.module'
+import { QueueController } from './queue.controller'
+import { QueueService } from './queue.service'
 
 @Module({
   imports: [PrismaModule, UserModule],

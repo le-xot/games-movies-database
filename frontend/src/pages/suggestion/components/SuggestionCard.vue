@@ -1,79 +1,79 @@
 <script setup lang="ts">
-import { useThrottleFn } from '@vueuse/core';
-import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next';
-import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useNewRecords } from '@/stores/use-new-records';
-import { useUser } from '@/stores/use-user';
-import { RecordEntity, RecordGenre, UserRole } from '@/lib/api';
-import { generateWatchLink } from '@/utils/generate-watch-link';
-import { getImageUrl } from '@/utils/image';
-import { useLike } from '@/pages/suggestion/composables/use-like';
-import { useSuggestion } from '../composables/use-suggestion';
+import { useThrottleFn } from '@vueuse/core'
+import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
+import { computed, ref, watch } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
+import { useLike } from '@/pages/suggestion/composables/use-like'
+import { useNewRecords } from '@/stores/use-new-records'
+import { useUser } from '@/stores/use-user'
+import { generateWatchLink } from '@/utils/generate-watch-link'
+import { getImageUrl } from '@/utils/image'
+import { useSuggestion } from '../composables/use-suggestion'
 
 const props = defineProps<{
-  items: RecordEntity[];
-  sortBy: 'date' | 'likes';
-}>();
+  items: RecordEntity[]
+  sortBy: 'date' | 'likes'
+}>()
 
-const { isAdmin, currentUserId } = storeToRefs(useUser());
+const { isAdmin, currentUserId } = storeToRefs(useUser())
 
-const like = useLike();
-const suggestion = useSuggestion();
-const newRecords = useNewRecords();
+const like = useLike()
+const suggestion = useSuggestion()
+const newRecords = useNewRecords()
 
-const likingStates = ref<Map<number, boolean>>(new Map());
+const likingStates = ref<Map<number, boolean>>(new Map())
 
 const throttledLikeFunctions = computed(() => {
-  const map = new Map<number, ReturnType<typeof useThrottleFn>>();
+  const map = new Map<number, ReturnType<typeof useThrottleFn>>()
 
   for (const item of props.items) {
     if (!map.has(item.id)) {
       const throttledFn = useThrottleFn(async () => {
-        if (likingStates.value.get(item.id)) return;
+        if (likingStates.value.get(item.id)) return
 
-        likingStates.value.set(item.id, true);
+        likingStates.value.set(item.id, true)
         try {
           if (isLikedByCurrentUser(item)) {
-            await like.deleteLike(item.id);
+            await like.deleteLike(item.id)
           } else {
-            await like.createLike(item.id);
+            await like.createLike(item.id)
           }
         } finally {
-          likingStates.value.set(item.id, false);
+          likingStates.value.set(item.id, false)
         }
-      }, 1000);
+      }, 1000)
 
-      map.set(item.id, throttledFn);
+      map.set(item.id, throttledFn)
     }
   }
 
-  return map;
-});
+  return map
+})
 
 const groupedItems = computed(() => {
-  const groups = new Map<RecordGenre, RecordEntity[]>();
+  const groups = new Map<RecordGenre, RecordEntity[]>()
 
   for (const item of props.items) {
     // Skip elements without genre
-    if (!item.genre) continue;
+    if (!item.genre) continue
 
     if (!groups.has(item.genre)) {
-      groups.set(item.genre, []);
+      groups.set(item.genre, [])
     }
 
-    groups.get(item.genre)!.push(item);
+    groups.get(item.genre)!.push(item)
   }
 
   for (const items of groups.values()) {
     if (props.sortBy === 'date') {
-      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     } else {
-      items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
+      items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
     }
   }
 
@@ -83,14 +83,14 @@ const groupedItems = computed(() => {
     RecordGenre.ANIME,
     RecordGenre.CARTOON,
     RecordGenre.SERIES,
-  ];
+  ]
 
   return Array.from(groups.entries()).sort(([a], [b]) => {
-    return groupOrder.indexOf(a) - groupOrder.indexOf(b);
-  });
-});
+    return groupOrder.indexOf(a) - groupOrder.indexOf(b)
+  })
+})
 
-type GenreValue = `${RecordGenre}`;
+type GenreValue = `${RecordGenre}`
 
 const genreTitles: Record<GenreValue, string> = {
   [RecordGenre.GAME]: 'Игры',
@@ -98,59 +98,59 @@ const genreTitles: Record<GenreValue, string> = {
   [RecordGenre.SERIES]: 'Сериалы',
   [RecordGenre.ANIME]: 'Аниме',
   [RecordGenre.CARTOON]: 'Мультфильмы',
-} as const;
+} as const
 
 function getGroupTitle(genre: GenreValue): string {
-  return genreTitles[genre];
+  return genreTitles[genre]
 }
 
-const isDialogOpen = ref(false);
+const isDialogOpen = ref(false)
 
 function resetDialogState() {
-  isDialogOpen.value = false;
+  isDialogOpen.value = false
 }
 
-defineExpose({ isDialogOpen });
+defineExpose({ isDialogOpen })
 
 watch(isDialogOpen, (newValue) => {
   if (newValue) {
-    suggestion.openSuggestionDialog(resetDialogState);
+    suggestion.openSuggestionDialog(resetDialogState)
   }
-});
+})
 
 function handleCardHover(recordId: number) {
-  newRecords.markRecordAsViewed(recordId);
+  newRecords.markRecordAsViewed(recordId)
 }
 
 function isLikedByCurrentUser(item: RecordEntity) {
-  return item.likes?.some((like) => like.userId === currentUserId.value) || false;
+  return item.likes?.some((like) => like.userId === currentUserId.value) || false
 }
 
 function getLikesCount(item: RecordEntity) {
-  return item.likes?.length || 0;
+  return item.likes?.length || 0
 }
 
 function handleLikeClick(itemId: number) {
-  if (likingStates.value.get(itemId)) return;
+  if (likingStates.value.get(itemId)) return
 
-  const throttledFn = throttledLikeFunctions.value.get(itemId);
+  const throttledFn = throttledLikeFunctions.value.get(itemId)
   if (throttledFn) {
-    throttledFn();
+    throttledFn()
   }
 }
 
 function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement;
-  img.src = '/images/aga.webp';
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
 }
 
-const collapsedGenres = ref<Set<RecordGenre>>(new Set());
+const collapsedGenres = ref<Set<RecordGenre>>(new Set())
 
 function toggleGenreCollapse(genre: RecordGenre) {
   if (collapsedGenres.value.has(genre)) {
-    collapsedGenres.value.delete(genre);
+    collapsedGenres.value.delete(genre)
   } else {
-    collapsedGenres.value.add(genre);
+    collapsedGenres.value.add(genre)
   }
 }
 </script>

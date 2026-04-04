@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { reactiveOmit } from '@vueuse/core';
-import { SelectItem, SelectItemText, useForwardProps } from 'reka-ui';
-import { cn } from '@/lib/utils';
-import type { SelectItemProps } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
+import { reactiveOmit } from '@vueuse/core'
+import { SelectItem, SelectItemText, useForwardProps } from 'reka-ui'
+import { cn } from '@/lib/utils'
+import type { SelectItemProps } from 'reka-ui'
+import type { HTMLAttributes } from 'vue'
 
-const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'] }>();
+const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'] }>()
 
-const delegatedProps = reactiveOmit(props, 'class');
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwardedProps = useForwardProps(delegatedProps)
 </script>
 
 <template>

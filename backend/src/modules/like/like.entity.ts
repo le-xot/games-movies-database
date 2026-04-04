@@ -1,19 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
 
 export class LikeEntity {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  userId: string;
+  userId: string
 
   @ApiProperty()
-  recordId: number;
+  recordId: number
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt: Date
 
   constructor(partial: Partial<LikeEntity>) {
-    Object.assign(this, partial);
+    Object.assign(this, partial)
   }
 }

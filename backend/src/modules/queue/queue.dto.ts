@@ -1,37 +1,37 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { $Enums } from '@prisma/client';
-import { RecordGenre, RecordType } from '@/enums/enums.names';
+import { ApiProperty } from '@nestjs/swagger'
+import { $Enums } from '@prisma/client'
+import { RecordGenre, RecordType } from '@/enums/enums.names'
 
 export class QueueItemDto {
   @ApiProperty()
-  title: string;
+  title: string
 
   @ApiProperty({ nullable: true, default: 'John Doe', example: 'John Doe' })
-  login: string;
+  login: string
 
   @ApiProperty()
-  link: string;
+  link: string
 
   @ApiProperty()
-  profileImageUrl: string;
+  profileImageUrl: string
 
   @ApiProperty()
-  posterUrl: string;
+  posterUrl: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiProperty({ enum: $Enums.RecordType, enumName: RecordType, nullable: true })
-  type: $Enums.RecordType | null;
+  type: $Enums.RecordType | null
 
   @ApiProperty({ enum: $Enums.RecordGenre, enumName: RecordGenre, nullable: true })
-  genre: $Enums.RecordGenre | null;
+  genre: $Enums.RecordGenre | null
 }
 
 export class QueueDto {
   @ApiProperty({ type: QueueItemDto, isArray: true })
-  games: QueueItemDto[];
+  games: QueueItemDto[]
 
   @ApiProperty({ type: QueueItemDto, isArray: true })
-  videos: QueueItemDto[];
+  videos: QueueItemDto[]
 }

@@ -1,5 +1,5 @@
-export { useApi } from './use-api';
-export { useUser, USER_QUERY_KEY } from './use-user';
-export { useBreakpoints } from './use-breakpoints';
-export { useNewRecords } from './use-new-records';
-export { useTitle } from './use-title';
+export { useApi } from './use-api'
+export { useUser, USER_QUERY_KEY } from './use-user'
+export { useBreakpoints } from './use-breakpoints'
+export { useNewRecords } from './use-new-records'
+export { useTitle } from './use-title'

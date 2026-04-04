@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { reactiveOmit } from '@vueuse/core';
+import { reactiveOmit } from '@vueuse/core'
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -7,12 +7,12 @@ import {
   OctagonXIcon,
   TriangleAlertIcon,
   XIcon,
-} from 'lucide-vue-next';
-import { Toaster as Sonner } from 'vue-sonner';
-import type { ToasterProps } from 'vue-sonner';
+} from 'lucide-vue-next'
+import { Toaster as Sonner } from 'vue-sonner'
+import type { ToasterProps } from 'vue-sonner'
 
-const props = defineProps<ToasterProps>();
-const delegatedProps = reactiveOmit(props, 'toastOptions');
+const props = defineProps<ToasterProps>()
+const delegatedProps = reactiveOmit(props, 'toastOptions')
 </script>
 
 <template>

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { useTitle } from '@vueuse/core';
-import { Undo2Icon } from 'lucide-vue-next';
-import { onMounted } from 'vue';
-import { ROUTER_PATHS } from '@/router/router-paths';
-import { hardware } from '@/pages/pc/constants/parts-links';
+import { useTitle } from '@vueuse/core'
+import { Undo2Icon } from 'lucide-vue-next'
+import { onMounted } from 'vue'
+import { hardware } from '@/pages/pc/constants/parts-links'
+import { ROUTER_PATHS } from '@/router/router-paths'
 
-const title = useTitle();
-onMounted(() => (title.value = 'Железки Лешота'));
+const title = useTitle()
+onMounted(() => (title.value = 'Железки Лешота'))
 </script>
 
 <template>

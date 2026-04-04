@@ -7,10 +7,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useDialog } from './composables/use-dialog';
+} from '@/components/ui/alert-dialog'
+import { useDialog } from './composables/use-dialog'
 
-const dialog = useDialog();
+const dialog = useDialog()
 </script>
 
 <template>

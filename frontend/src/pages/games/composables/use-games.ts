@@ -1,5 +1,5 @@
-import { createRecordsStore } from '@/composables/factories/create-records-store';
-import { useGamesParams } from './use-games-params';
+import { createRecordsStore } from '@/composables/factories/create-records-store'
+import { useGamesParams } from './use-games-params'
 
 export const useGames = createRecordsStore({
   storeId: 'games/use-games',
@@ -7,4 +7,4 @@ export const useGames = createRecordsStore({
   paramsStore: useGamesParams,
   itemsName: 'games',
   refetchName: 'refetchGames',
-});
+})

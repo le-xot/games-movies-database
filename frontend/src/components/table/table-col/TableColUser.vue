@@ -1,67 +1,67 @@
 <script setup lang="ts">
-import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next';
-import { storeToRefs } from 'pinia';
-import { computed, ref, toRef, watch } from 'vue';
-import { useDialog } from '@/components/dialog/composables/use-dialog';
-import { Button } from '@/components/ui/button';
+import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
+import { computed, ref, toRef, watch } from 'vue'
+import { useDialog } from '@/components/dialog/composables/use-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from '@/components/ui/command'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useUser } from '@/stores/use-user';
-import { useTableCol } from '../composables/use-table-col';
-import { useTableUsers } from '../composables/use-table-users';
+} from '@/components/ui/dropdown-menu'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useUser } from '@/stores/use-user'
+import { useTableCol } from '../composables/use-table-col'
+import { useTableUsers } from '../composables/use-table-users'
 
-type UserValue = string | undefined;
+type UserValue = string | undefined
 
-const props = defineProps<{ userId: UserValue }>();
-const emits = defineEmits<{ update: [UserValue] }>();
-const userId = toRef(props, 'userId');
+const props = defineProps<{ userId: UserValue }>()
+const emits = defineEmits<{ update: [UserValue] }>()
+const userId = toRef(props, 'userId')
 
-const users = useTableUsers();
-const dialog = useDialog();
+const users = useTableUsers()
+const dialog = useDialog()
 
 const { isEdit, inputValue, handleClose, handleOpen, handleUpdateValue } = useTableCol(
   userId,
   emits,
-);
+)
 
-const isOpenPopover = ref(false);
-const isOpenDropdown = ref(false);
+const isOpenPopover = ref(false)
+const isOpenDropdown = ref(false)
 watch(isEdit, (value) => {
-  if (value) return;
-  isOpenDropdown.value = false;
-});
+  if (value) return
+  isOpenDropdown.value = false
+})
 
-const { isAdmin } = storeToRefs(useUser());
+const { isAdmin } = storeToRefs(useUser())
 
-const searchValue = ref('');
+const searchValue = ref('')
 const filteredUsers = computed(() => {
-  if (!searchValue.value) return users.userOptions;
+  if (!searchValue.value) return users.userOptions
   return users.userOptions.filter((user) =>
     user.name.toLowerCase().includes(searchValue.value.toLowerCase()),
-  );
-});
+  )
+})
 
 const currentUser = computed(() => {
-  return users.userOptions.find((user) => user.id === userId.value);
-});
+  return users.userOptions.find((user) => user.id === userId.value)
+})
 
 async function handleColorChange(user: any, color: string) {
   try {
-    await users.createOrUpdateUser({ id: user.id, data: { color } });
-    await users.refetchUsers();
+    await users.createOrUpdateUser({ id: user.id, data: { color } })
+    await users.refetchUsers()
   } catch (error) {
-    console.error('Failed to update user color:', error);
+    console.error('Failed to update user color:', error)
   }
 }
 
@@ -71,14 +71,14 @@ function invokeDeleteUser(user: any) {
     content: '',
     description: `Вы уверены что хотите удалить ${user.login}?`,
     onSubmit: () => {
-      users.deleteUserById(user.id);
-      inputValue.value = undefined;
+      users.deleteUserById(user.id)
+      inputValue.value = undefined
     },
-  });
+  })
 }
 
 function invokeRemoveUser() {
-  handleUpdateValue(null);
+  handleUpdateValue(null)
 }
 
 const BUTTONS_COLORS = [
@@ -91,7 +91,7 @@ const BUTTONS_COLORS = [
   '#854C1D',
   '#89632A',
   '#2B593F',
-];
+]
 </script>
 
 <template>
@@ -100,7 +100,7 @@ const BUTTONS_COLORS = [
       v-model:open="isOpenPopover"
       @update:open="
         (isOpen) => {
-          if (!isOpen) handleClose();
+          if (!isOpen) handleClose()
         }
       "
     >
@@ -154,8 +154,8 @@ const BUTTONS_COLORS = [
                 class="pr-1 m-1 h-8 flex justify-between group"
                 @select="
                   () => {
-                    handleUpdateValue(user.id);
-                    handleClose();
+                    handleUpdateValue(user.id)
+                    handleClose()
                   }
                 "
               >

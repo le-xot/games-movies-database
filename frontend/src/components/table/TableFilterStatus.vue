@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { RecordStatus } from '@/lib/api';
-import { statusTags } from './composables/use-table-select';
-import TableFilterGeneric from './TableFilterGeneric.vue';
+import { computed } from 'vue'
+import { RecordStatus } from '@/lib/api'
+import { statusTags } from './composables/use-table-select'
+import TableFilterGeneric from './TableFilterGeneric.vue'
 
 const props = defineProps<{
-  value: RecordStatus[] | null;
-}>();
+  value: RecordStatus[] | null
+}>()
 
 const emit = defineEmits<{
-  update: [value: RecordStatus[] | null];
-}>();
+  update: [value: RecordStatus[] | null]
+}>()
 
 const statusOptions = computed(() =>
   Object.entries(statusTags).map(([key, value]) => ({
@@ -18,7 +18,7 @@ const statusOptions = computed(() =>
     name: value.name,
     class: value.class,
   })),
-);
+)
 </script>
 
 <template>

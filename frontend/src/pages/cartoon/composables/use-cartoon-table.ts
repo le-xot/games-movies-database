@@ -1,6 +1,6 @@
-import { createTableStore } from '@/composables/factories/create-table-store';
-import { useCartoon } from './use-cartoon';
-import { useCartoonParams } from './use-cartoon-params';
+import { createTableStore } from '@/composables/factories/create-table-store'
+import { useCartoon } from './use-cartoon'
+import { useCartoonParams } from './use-cartoon-params'
 
 export const useCartoonTable = createTableStore({
   storeId: 'cartoon/use-cartoon-table',
@@ -11,4 +11,4 @@ export const useCartoonTable = createTableStore({
   episodeSize: 8,
   deleteConfirmTitle: 'Удалить мультик?',
   itemsKey: 'videos',
-});
+})

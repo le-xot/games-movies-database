@@ -1,75 +1,75 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
-import { Button } from '@/components/ui/button';
-import { RecordEntity } from '@/lib/api';
-import { getImageUrl } from '@/utils/image';
+import { X } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
+import { Button } from '@/components/ui/button'
+import { RecordEntity } from '@/lib/api'
+import { getImageUrl } from '@/utils/image'
 
-type Phase = 'idle' | 'selecting' | 'selected';
+type Phase = 'idle' | 'selecting' | 'selected'
 
 const props = defineProps<{
-  items: RecordEntity[];
-}>();
+  items: RecordEntity[]
+}>()
 
 const emit = defineEmits<{
-  (e: 'approve', id: number): void;
-}>();
+  (e: 'approve', id: number): void
+}>()
 
-const open = defineModel<boolean>('open', { required: true });
+const open = defineModel<boolean>('open', { required: true })
 
-const phase = ref<Phase>('idle');
-const currentItem = ref<RecordEntity>();
+const phase = ref<Phase>('idle')
+const currentItem = ref<RecordEntity>()
 
-const isSelecting = () => phase.value === 'selecting';
+const isSelecting = () => phase.value === 'selecting'
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function startSelection() {
-  if (props.items.length === 0) return;
+  if (props.items.length === 0) return
 
-  phase.value = 'selecting';
-  currentItem.value = undefined;
+  phase.value = 'selecting'
+  currentItem.value = undefined
 
-  const finalWinnerIndex = Math.floor(Math.random() * props.items.length);
-  const finalWinner = props.items[finalWinnerIndex];
+  const finalWinnerIndex = Math.floor(Math.random() * props.items.length)
+  const finalWinner = props.items[finalWinnerIndex]
 
-  const duration = 1000;
-  const startTime = Date.now();
-  const minDelay = 350;
-  const maxDelay = 550;
+  const duration = 1000
+  const startTime = Date.now()
+  const minDelay = 350
+  const maxDelay = 550
 
   while (Date.now() - startTime < duration) {
-    const randomIndex = Math.floor(Math.random() * props.items.length);
-    currentItem.value = props.items[randomIndex];
+    const randomIndex = Math.floor(Math.random() * props.items.length)
+    currentItem.value = props.items[randomIndex]
 
-    const progress = (Date.now() - startTime) / duration;
-    const easedProgress = progress ** 3;
-    const currentDelay = minDelay + (maxDelay - minDelay) * easedProgress;
+    const progress = (Date.now() - startTime) / duration
+    const easedProgress = progress ** 3
+    const currentDelay = minDelay + (maxDelay - minDelay) * easedProgress
 
-    await sleep(currentDelay);
+    await sleep(currentDelay)
   }
 
-  currentItem.value = finalWinner;
+  currentItem.value = finalWinner
 
-  await sleep(500);
+  await sleep(500)
 
-  phase.value = 'selected';
+  phase.value = 'selected'
 }
 
 function approve() {
   if (currentItem.value) {
-    emit('approve', currentItem.value.id);
-    open.value = false;
+    emit('approve', currentItem.value.id)
+    open.value = false
   }
 }
 
 watch(open, (isOpen) => {
   if (isOpen) {
-    startSelection();
+    startSelection()
   } else {
-    phase.value = 'idle';
+    phase.value = 'idle'
   }
-});
+})
 </script>
 
 <template>

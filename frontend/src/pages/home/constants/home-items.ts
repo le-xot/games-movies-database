@@ -1,5 +1,5 @@
-import { Cpu, LibraryBig } from 'lucide-vue-next';
-import { h, type VNode } from 'vue';
+import { Cpu, LibraryBig } from 'lucide-vue-next'
+import { h, type VNode } from 'vue'
 import {
   DiscordIcon,
   GitHubIcon,
@@ -7,16 +7,16 @@ import {
   TelegramIcon,
   TwitchIcon,
   YouTubeIcon,
-} from 'vue3-simple-icons';
-import { ROUTER_PATHS } from '@/router/router-paths';
+} from 'vue3-simple-icons'
+import { ROUTER_PATHS } from '@/router/router-paths'
 
 export interface GridItem {
-  title: string;
-  description: string;
-  path: string;
-  color: string;
-  external?: boolean;
-  icon: VNode;
+  title: string
+  description: string
+  path: string
+  color: string
+  external?: boolean
+  icon: VNode
 }
 
 export const HOME_GRID_ITEMS: GridItem[] = [
@@ -82,4 +82,4 @@ export const HOME_GRID_ITEMS: GridItem[] = [
     external: true,
     icon: h(YouTubeIcon),
   },
-];
+]

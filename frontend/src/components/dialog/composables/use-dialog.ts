@@ -1,41 +1,41 @@
-import { defineStore } from 'pinia';
-import { markRaw, ref } from 'vue';
+import { defineStore } from 'pinia'
+import { markRaw, ref } from 'vue'
 
 interface DialogState {
-  title: string;
-  description?: string;
-  customContent?: any;
-  onSubmit: (formData?: any) => void;
-  onCancel?: () => void;
-  content?: string;
-  formData?: { title: string; description: string };
-  component?: any;
-  props?: Record<string, any>;
+  title: string
+  description?: string
+  customContent?: any
+  onSubmit: (formData?: any) => void
+  onCancel?: () => void
+  content?: string
+  formData?: { title: string; description: string }
+  component?: any
+  props?: Record<string, any>
 }
 
 export const useDialog = defineStore('dialog', () => {
-  const isOpen = ref(false);
-  const dialogState = ref<DialogState | null>(null);
+  const isOpen = ref(false)
+  const dialogState = ref<DialogState | null>(null)
 
   function openDialog(state: DialogState) {
-    isOpen.value = true;
+    isOpen.value = true
     dialogState.value = {
       ...state,
       component: state.component ? markRaw(state.component) : undefined,
       customContent: state.customContent ? markRaw(state.customContent) : undefined,
-    };
+    }
   }
 
   function submitDialog(formData?: any) {
-    if (!dialogState.value) return;
-    dialogState.value.onSubmit(formData);
-    isOpen.value = false;
-    dialogState.value = null;
+    if (!dialogState.value) return
+    dialogState.value.onSubmit(formData)
+    isOpen.value = false
+    dialogState.value = null
   }
 
   function closeDialog() {
-    isOpen.value = false;
-    dialogState.value = null;
+    isOpen.value = false
+    dialogState.value = null
   }
 
   return {
@@ -44,5 +44,5 @@ export const useDialog = defineStore('dialog', () => {
     openDialog,
     submitDialog,
     closeDialog,
-  };
-});
+  }
+})

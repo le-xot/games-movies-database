@@ -6,7 +6,7 @@
   "tabWidth": 2,
   "trailingComma": "all",
   "useTabs": false,
-  "semi": true,
+  "semi": false,
   "sortImports": {
     "groups": [
       "builtin",

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import TablePagination from '@/components/table/TablePagination.vue';
-import TableSearch from '@/components/table/TableSearch.vue';
-import DataTable from '@/components/table/DataTable.vue';
-import { useMovie } from '../composables/use-movie';
-import { useMovieParams } from '../composables/use-movie-params';
-import { useMovieTable } from '../composables/use-movie-table';
+import DataTable from '@/components/table/DataTable.vue'
+import TablePagination from '@/components/table/TablePagination.vue'
+import TableSearch from '@/components/table/TableSearch.vue'
+import { useMovie } from '../composables/use-movie'
+import { useMovieParams } from '../composables/use-movie-params'
+import { useMovieTable } from '../composables/use-movie-table'
 
-const videos = useMovie();
-const table = useMovieTable();
-const params = useMovieParams();
+const videos = useMovie()
+const table = useMovieTable()
+const params = useMovieParams()
 </script>
 
 <template>

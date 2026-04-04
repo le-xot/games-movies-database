@@ -1,5 +1,5 @@
-import process from 'node:process';
-import { cleanEnv, num, str } from 'envalid';
+import process from 'node:process'
+import { cleanEnv, num, str } from 'envalid'
 
 export const env = cleanEnv(process.env, {
   DATASOURCE_URL: str({}),
@@ -26,4 +26,4 @@ export const env = cleanEnv(process.env, {
   TMBD_API: str({ default: null }),
 
   TWIR_API: str({ default: null }),
-});
+})

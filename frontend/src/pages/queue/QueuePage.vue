@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ListPlus } from 'lucide-vue-next';
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { Button } from '@/components/ui/button';
-import { RecordType } from '@/lib/api';
-import { ROUTER_PATHS } from '@/router/router-paths';
-import QueueCard from './components/QueueCard.vue';
-import { useQueue } from './composables/use-queue';
+import { ListPlus } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
+import { RecordType } from '@/lib/api'
+import { ROUTER_PATHS } from '@/router/router-paths'
+import QueueCard from './components/QueueCard.vue'
+import { useQueue } from './composables/use-queue'
 
-const queue = useQueue();
-const router = useRouter();
+const queue = useQueue()
+const router = useRouter()
 
 const filteredGames = computed(
   () => queue.data?.games?.filter((item) => item.type !== RecordType.SUGGESTION) ?? [],
-);
+)
 const filteredVideos = computed(
   () => queue.data?.videos?.filter((item) => item.type !== RecordType.SUGGESTION) ?? [],
-);
+)
 
 function navigateToSuggestions() {
-  router.push(ROUTER_PATHS.dbSuggestion);
+  router.push(ROUTER_PATHS.dbSuggestion)
 }
 </script>
 

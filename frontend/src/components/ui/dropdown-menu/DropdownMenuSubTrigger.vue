@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { reactiveOmit } from '@vueuse/core';
-import { ChevronRight } from 'lucide-vue-next';
-import { DropdownMenuSubTrigger, useForwardProps } from 'reka-ui';
-import { cn } from '@/lib/utils';
-import type { DropdownMenuSubTriggerProps } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
+import { reactiveOmit } from '@vueuse/core'
+import { ChevronRight } from 'lucide-vue-next'
+import { DropdownMenuSubTrigger, useForwardProps } from 'reka-ui'
+import { cn } from '@/lib/utils'
+import type { DropdownMenuSubTriggerProps } from 'reka-ui'
+import type { HTMLAttributes } from 'vue'
 
-const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }>();
+const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }>()
 
-const delegatedProps = reactiveOmit(props, 'class');
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwardedProps = useForwardProps(delegatedProps)
 </script>
 
 <template>

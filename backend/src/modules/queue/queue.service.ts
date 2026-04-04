@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { $Enums } from '@prisma/client';
-import { PrismaService } from '@/database/prisma.service';
-import { QueueDto, QueueItemDto } from './queue.dto';
+import { Injectable, Logger } from '@nestjs/common'
+import { $Enums } from '@prisma/client'
+import { PrismaService } from '@/database/prisma.service'
+import { QueueDto, QueueItemDto } from './queue.dto'
 
 @Injectable()
 export class QueueService {
-  private readonly logger = new Logger(QueueService.name);
+  private readonly logger = new Logger(QueueService.name)
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -18,12 +18,12 @@ export class QueueService {
       include: {
         user: true,
       },
-    });
+    })
 
-    const games = records.filter((r) => r.genre === $Enums.RecordGenre.GAME);
-    const videos = records.filter((r) => r.genre !== $Enums.RecordGenre.GAME && r.genre !== null);
+    const games = records.filter((r) => r.genre === $Enums.RecordGenre.GAME)
+    const videos = records.filter((r) => r.genre !== $Enums.RecordGenre.GAME && r.genre !== null)
 
-    this.logger.log(`Queue fetched games=${games.length} videos=${videos.length}`);
+    this.logger.log(`Queue fetched games=${games.length} videos=${videos.length}`)
     return {
       games: games.map(
         (g): QueueItemDto => ({
@@ -57,6 +57,6 @@ export class QueueService {
           genre: v.genre,
         }),
       ),
-    };
+    }
   }
 }

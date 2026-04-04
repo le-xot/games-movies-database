@@ -1,14 +1,14 @@
-import { acceptHMRUpdate, defineStore } from 'pinia';
-import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api';
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 
 export interface BadgeOptions {
-  name: string;
-  label?: string;
-  description?: string;
-  class?: string;
+  name: string
+  label?: string
+  description?: string
+  class?: string
 }
 
-export type SelectKind = 'genre' | 'status' | 'grade';
+export type SelectKind = 'genre' | 'status' | 'grade'
 
 export const statusTags: Record<RecordStatus, BadgeOptions> = {
   [RecordStatus.QUEUE]: {
@@ -40,7 +40,7 @@ export const statusTags: Record<RecordStatus, BadgeOptions> = {
     name: 'Не интересно',
     description: 'заказ не интересен.',
   },
-};
+}
 
 export const genreTags: Partial<Record<RecordGenre, BadgeOptions>> = {
   [RecordGenre.MOVIE]: {
@@ -59,7 +59,7 @@ export const genreTags: Partial<Record<RecordGenre, BadgeOptions>> = {
     name: 'Мультфильм',
     class: 'bg-[#89632a] border text-white/80',
   },
-};
+}
 
 export const gradeTags: Record<RecordGrade, BadgeOptions> = {
   [RecordGrade.RECOMMEND]: {
@@ -86,7 +86,7 @@ export const gradeTags: Record<RecordGrade, BadgeOptions> = {
     description: 'и считаю это пустой тратой времени и недостойным проведением досуга.',
     class: 'bg-[#6e3630] border',
   },
-};
+}
 
 export const useTableSelect = defineStore('use-table-select', () => {
   const options: Record<SelectKind, { label: string; value: string; class?: string }[]> = {
@@ -95,32 +95,32 @@ export const useTableSelect = defineStore('use-table-select', () => {
         label: value.name,
         value: key,
         class: value.class,
-      };
+      }
     }),
     genre: Object.entries(genreTags).map(([key, value]) => {
       return {
         label: value.name,
         value: key,
         class: value.class,
-      };
+      }
     }),
     grade: Object.entries(gradeTags).map(([key, value]) => {
       return {
         label: `${value.name} ${value.label}`,
         value: key,
         class: value.class,
-      };
+      }
     }),
-  };
+  }
 
   return {
     gradeTags,
     statusTags,
     genreTags,
     options,
-  };
-});
+  }
+})
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useTableSelect, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useTableSelect, import.meta.hot))
 }

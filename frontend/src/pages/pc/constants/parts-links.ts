@@ -14,14 +14,14 @@ import {
   Mouse,
   PcCase,
   Webcam,
-} from 'lucide-vue-next';
-import Arch from '../assets/archlinux.svg';
-import Atlas from '../assets/atlasos.svg';
+} from 'lucide-vue-next'
+import Arch from '../assets/archlinux.svg'
+import Atlas from '../assets/atlasos.svg'
 
 interface PartLink {
-  name: string;
-  icon: any;
-  url: string;
+  name: string
+  icon: any
+  url: string
 }
 
 const OS: PartLink[] = [
@@ -35,7 +35,7 @@ const OS: PartLink[] = [
     icon: Atlas,
     url: 'https://atlasos.net/',
   },
-];
+]
 
 const SYSTEM_PARTS: PartLink[] = [
   {
@@ -88,7 +88,7 @@ const SYSTEM_PARTS: PartLink[] = [
     icon: PcCase,
     url: 'https://www.xpg.com/us/xpg/840',
   },
-];
+]
 
 const MONITORS: PartLink[] = [
   {
@@ -106,7 +106,7 @@ const MONITORS: PartLink[] = [
     icon: Monitor,
     url: 'https://www.viewsonic.com/eu/products/sheet/VA2246-LED',
   },
-];
+]
 
 const DEVICES: PartLink[] = [
   {
@@ -139,11 +139,11 @@ const DEVICES: PartLink[] = [
     icon: Mouse,
     url: 'https://www.atk.store/products/vxe-dragonfly-r1-series-wireless-mouse?srsltid=AfmBOorRZkuQASlQ1p0HyaZ5ZUMbc7EXXAjDdObek9YtTCqIDnLM3Wuy',
   },
-];
+]
 
 export const hardware: Record<string, PartLink[]> = {
   'Операционные системы': OS,
   Железки: SYSTEM_PARTS,
   Мониторы: MONITORS,
   Девайсы: DEVICES,
-};
+}

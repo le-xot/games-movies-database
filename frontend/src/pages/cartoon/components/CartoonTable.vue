@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import TablePagination from '@/components/table/TablePagination.vue';
-import TableSearch from '@/components/table/TableSearch.vue';
-import DataTable from '@/components/table/DataTable.vue';
-import { useCartoon } from '../composables/use-cartoon';
-import { useCartoonParams } from '../composables/use-cartoon-params';
-import { useCartoonTable } from '../composables/use-cartoon-table';
+import DataTable from '@/components/table/DataTable.vue'
+import TablePagination from '@/components/table/TablePagination.vue'
+import TableSearch from '@/components/table/TableSearch.vue'
+import { useCartoon } from '../composables/use-cartoon'
+import { useCartoonParams } from '../composables/use-cartoon-params'
+import { useCartoonTable } from '../composables/use-cartoon-table'
 
-const videos = useCartoon();
-const table = useCartoonTable();
-const params = useCartoonParams();
+const videos = useCartoon()
+const table = useCartoonTable()
+const params = useCartoonParams()
 </script>
 
 <template>

@@ -1,1 +1,1 @@
-export { default as RecordCreateForm } from './RecordCreateForm.vue';
+export { default as RecordCreateForm } from './RecordCreateForm.vue'

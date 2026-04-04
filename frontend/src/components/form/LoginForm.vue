@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { CircleUserRound, Lock, LogOutIcon } from 'lucide-vue-next';
-import { storeToRefs } from 'pinia';
-import { Button } from '@/components/ui/button';
+import { CircleUserRound, Lock, LogOutIcon } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useUser } from '@/stores/use-user';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+} from '@/components/ui/dropdown-menu'
+import { useUser } from '@/stores/use-user'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
-const userStore = useUser();
-const { user } = storeToRefs(userStore);
-const loginHref = `${window.location.origin}/api/auth/twitch`;
+const userStore = useUser()
+const { user } = storeToRefs(userStore)
+const loginHref = `${window.location.origin}/api/auth/twitch`
 
 function handleLogin() {
-  localStorage.setItem('loginReturnUrl', window.location.pathname);
-  window.location.href = loginHref;
+  localStorage.setItem('loginReturnUrl', window.location.pathname)
+  window.location.href = loginHref
 }
 </script>
 

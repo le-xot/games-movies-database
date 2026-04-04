@@ -1,23 +1,23 @@
-import { PiniaColada } from '@pinia/colada';
-import { createPinia } from 'pinia';
-import { createApp } from 'vue';
-import { router } from '@/router/router';
-import App from './app.vue';
-import './assets/index.css';
+import { PiniaColada } from '@pinia/colada'
+import { createPinia } from 'pinia'
+import { createApp } from 'vue'
+import { router } from '@/router/router'
+import App from './app.vue'
+import './assets/index.css'
 
 // Migrate old shared columnsVisibility key to per-genre keys
-const oldVisibility = localStorage.getItem('columnsVisibility');
+const oldVisibility = localStorage.getItem('columnsVisibility')
 if (oldVisibility !== null) {
   for (const genre of ['anime', 'cartoon', 'movie', 'games', 'series']) {
     if (!localStorage.getItem(`columnsVisibility:${genre}`)) {
-      localStorage.setItem(`columnsVisibility:${genre}`, oldVisibility);
+      localStorage.setItem(`columnsVisibility:${genre}`, oldVisibility)
     }
   }
-  localStorage.removeItem('columnsVisibility');
+  localStorage.removeItem('columnsVisibility')
 }
 
-const APP_VERSION = '3.1.0';
-const STORAGE_VERSION_KEY = 'app_version';
+const APP_VERSION = '3.1.0'
+const STORAGE_VERSION_KEY = 'app_version'
 
 const KEYS_TO_CLEAR = [
   'columnsVisibility',
@@ -29,27 +29,27 @@ const KEYS_TO_CLEAR = [
   'table-page-size',
   'viewed-suggestions',
   'suggestion-sort-by',
-];
+]
 
-const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY);
+const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
 if (storedVersion !== APP_VERSION) {
   for (const key of KEYS_TO_CLEAR) {
-    localStorage.removeItem(key);
+    localStorage.removeItem(key)
   }
-  localStorage.setItem(STORAGE_VERSION_KEY, APP_VERSION);
+  localStorage.setItem(STORAGE_VERSION_KEY, APP_VERSION)
 }
 
-const app = createApp(App);
-const pinia = createPinia();
+const app = createApp(App)
+const pinia = createPinia()
 
-app.use(pinia);
-app.use(router);
+app.use(pinia)
+app.use(router)
 
 PiniaColada(app, {
   pinia,
   refetchOnMount: true,
   refetchOnWindowFocus: false,
-});
+})
 
 // highlight re-renders
 // if (import.meta.env.DEV) {
@@ -65,4 +65,4 @@ PiniaColada(app, {
 //   })
 // }
 
-app.mount('#app');
+app.mount('#app')

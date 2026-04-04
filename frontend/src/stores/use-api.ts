@@ -1,5 +1,5 @@
-import { acceptHMRUpdate, defineStore } from 'pinia';
-import { Api, HttpClient } from '@/lib/api';
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { Api, HttpClient } from '@/lib/api'
 
 export const useApi = defineStore('globals/use-api', () => {
   const httpClient = new HttpClient({
@@ -7,11 +7,11 @@ export const useApi = defineStore('globals/use-api', () => {
     baseApiParams: {
       credentials: 'include',
     },
-  });
+  })
 
-  return new Api(httpClient);
-});
+  return new Api(httpClient)
+})
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useApi, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useApi, import.meta.hot))
 }

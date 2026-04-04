@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { QueueItemDto } from '@/lib/api';
-import { generateWatchLink } from '@/utils/generate-watch-link';
-import { getImageUrl } from '@/utils/image';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { QueueItemDto } from '@/lib/api'
+import { generateWatchLink } from '@/utils/generate-watch-link'
+import { getImageUrl } from '@/utils/image'
 
-defineProps<{ items: QueueItemDto[] }>();
+defineProps<{ items: QueueItemDto[] }>()
 
 function isShow(item: QueueItemDto) {
-  return item.title && item.login;
+  return item.title && item.login
 }
 
 function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement;
-  img.src = '/images/aga.webp';
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
 }
 </script>
 

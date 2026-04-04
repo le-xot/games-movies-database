@@ -21,7 +21,7 @@ const services = [
   { name: 'Steam', icon: '/icons/services/steam.svg', url: 'https://store.steampowered.com/' },
   { name: 'IGDb', icon: '/icons/services/igdb.svg', url: 'https://www.igdb.com/' },
   { name: 'KinoHub', icon: '/icons/services/kinohub.png', url: 'https://kinobox.in/' },
-];
+]
 </script>
 
 <style scoped>

@@ -1,33 +1,33 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { apiReference } from '@scalar/nestjs-api-reference';
-import cookieParser from 'cookie-parser';
-import { AppModule } from './app.module';
-import { env } from './utils/enviroments';
+import { Logger, ValidationPipe } from '@nestjs/common'
+import { NestFactory } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { apiReference } from '@scalar/nestjs-api-reference'
+import cookieParser from 'cookie-parser'
+import { AppModule } from './app.module'
+import { env } from './utils/enviroments'
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
-  logger.log('🚀 Starting application bootstrap');
+  const logger = new Logger('Bootstrap')
+  logger.log('🚀 Starting application bootstrap')
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'warn', 'error'],
-  });
-  app.use(cookieParser());
-  app.enableCors();
-  const config = new DocumentBuilder().setTitle('games-movies-database').build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  })
+  app.use(cookieParser())
+  app.enableCors()
+  const config = new DocumentBuilder().setTitle('games-movies-database').build()
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('docs', app, document)
 
-  const globalPrefix = '/api';
+  const globalPrefix = '/api'
 
-  app.setGlobalPrefix(globalPrefix);
+  app.setGlobalPrefix(globalPrefix)
 
   const updatedDocument = {
     ...document,
     paths: Object.fromEntries(
       Object.entries(document.paths).map(([path, value]) => [`${globalPrefix}${path}`, value]),
     ),
-  };
+  }
 
   if (env) {
     app.use(
@@ -37,24 +37,24 @@ async function bootstrap() {
           content: updatedDocument,
         },
       }),
-    );
+    )
   }
 
-  const allowedCors = ['http://localhost:3000', 'http://localhost:5173'];
+  const allowedCors = ['http://localhost:3000', 'http://localhost:5173']
 
   app.enableCors({
     origin: allowedCors,
     credentials: true,
-  });
+  })
 
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
     }),
-  );
-  await app.listen(env.APP_PORT, '0.0.0.0');
-  logger.log(`✅ Application is listening on port ${env.APP_PORT}`);
+  )
+  await app.listen(env.APP_PORT, '0.0.0.0')
+  logger.log(`✅ Application is listening on port ${env.APP_PORT}`)
 }
 
-bootstrap();
+bootstrap()

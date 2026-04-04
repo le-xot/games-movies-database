@@ -1,13 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { $Enums, User } from '@prisma/client';
-import { PrismaService } from '@/database/prisma.service';
-import { RecordEntity } from '../record/record.entity';
-import { TwitchService } from '../twitch/twitch.service';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { $Enums, User } from '@prisma/client'
+import { PrismaService } from '@/database/prisma.service'
+import { RecordEntity } from '../record/record.entity'
+import { TwitchService } from '../twitch/twitch.service'
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
+  private readonly logger = new Logger(UserService.name)
 
   constructor(
     private prisma: PrismaService,
@@ -18,15 +18,15 @@ export class UserService {
   async upsertUser(
     id: string,
     data: {
-      login?: string;
-      role?: $Enums.UserRole;
-      profileImageUrl?: string;
-      color?: string;
+      login?: string
+      role?: $Enums.UserRole
+      profileImageUrl?: string
+      color?: string
     },
   ): Promise<User> {
     const foundedUser = await this.prisma.user.findFirst({
       where: { id },
-    });
+    })
 
     if (!foundedUser && data.login && data.profileImageUrl && data.role && data.color) {
       const createdUser = await this.prisma.user.create({
@@ -37,13 +37,13 @@ export class UserService {
           profileImageUrl: data.profileImageUrl,
           color: data.color,
         },
-      });
-      this.eventEmitter.emit('update-users');
-      return createdUser;
+      })
+      this.eventEmitter.emit('update-users')
+      return createdUser
     }
 
     if (!foundedUser) {
-      return this.createUserByLogin(data.login);
+      return this.createUserByLogin(data.login)
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -54,24 +54,24 @@ export class UserService {
         profileImageUrl: data.profileImageUrl,
         color: data.color,
       },
-    });
-    this.eventEmitter.emit('update-users');
-    return updatedUser;
+    })
+    this.eventEmitter.emit('update-users')
+    return updatedUser
   }
 
   getUserRecords(login: string): Promise<RecordEntity[]> {
     return this.prisma.record.findMany({
       where: { user: { login } },
       include: { user: true, likes: true },
-    });
+    })
   }
 
   async createUserById(id: string): Promise<User> {
     try {
-      const twitchUser = await this.twitch.getTwitchUserById(id);
+      const twitchUser = await this.twitch.getTwitchUserById(id)
 
       if (!twitchUser) {
-        throw new Error(`User with id ${id} not found on Twitch`);
+        throw new Error(`User with id ${id} not found on Twitch`)
       }
 
       const createdUser = await this.prisma.user.create({
@@ -84,24 +84,24 @@ export class UserService {
             'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
           color: '#333333',
         },
-      });
-      this.eventEmitter.emit('update-users');
-      return createdUser;
+      })
+      this.eventEmitter.emit('update-users')
+      return createdUser
     } catch (error) {
-      this.logger.error('Error creating user by id:', error as any);
-      throw error;
+      this.logger.error('Error creating user by id:', error as any)
+      throw error
     }
   }
 
   async createUserByLogin(login: string): Promise<User> {
     try {
-      const twitchUsers = await this.twitch.searchTwitchUsers(login);
+      const twitchUsers = await this.twitch.searchTwitchUsers(login)
 
       if (!twitchUsers || twitchUsers.length === 0) {
-        throw new Error(`User with login ${login} not found on Twitch`);
+        throw new Error(`User with login ${login} not found on Twitch`)
       }
 
-      const twitchUser = twitchUsers[0];
+      const twitchUser = twitchUsers[0]
 
       const createdUser = await this.prisma.user.create({
         data: {
@@ -113,54 +113,54 @@ export class UserService {
             'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
           color: '#333333',
         },
-      });
-      this.eventEmitter.emit('update-users');
-      return createdUser;
+      })
+      this.eventEmitter.emit('update-users')
+      return createdUser
     } catch (error) {
-      this.logger.error('Error creating user by login:', error as any);
-      throw error;
+      this.logger.error('Error creating user by login:', error as any)
+      throw error
     }
   }
 
   getUserByLogin(login: string): Promise<User> {
-    return this.prisma.user.findUnique({ where: { login } });
+    return this.prisma.user.findUnique({ where: { login } })
   }
 
   getUserById(id: string): Promise<User> {
-    return this.prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({ where: { id } })
   }
 
   getAllUsers(): Promise<User[]> {
-    return this.prisma.user.findMany();
+    return this.prisma.user.findMany()
   }
 
   async deleteUserByLogin(login: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { login } });
+    const user = await this.prisma.user.findUnique({ where: { login } })
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found')
     }
 
     await this.prisma.$transaction([
       this.prisma.like.deleteMany({ where: { userId: user.id } }),
       this.prisma.record.updateMany({ where: { userId: user.id }, data: { userId: null } }),
       this.prisma.user.delete({ where: { login } }),
-    ]);
+    ])
 
-    this.eventEmitter.emit('update-users');
+    this.eventEmitter.emit('update-users')
   }
 
   async deleteUserById(id: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({ where: { id } })
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found')
     }
 
     await this.prisma.$transaction([
       this.prisma.like.deleteMany({ where: { userId: id } }),
       this.prisma.record.updateMany({ where: { userId: id }, data: { userId: null } }),
       this.prisma.user.delete({ where: { id } }),
-    ]);
+    ])
 
-    this.eventEmitter.emit('update-users');
+    this.eventEmitter.emit('update-users')
   }
 }

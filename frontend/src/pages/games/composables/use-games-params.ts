@@ -1,5 +1,5 @@
-import { createParamsStore } from '@/composables/factories/create-params-store';
-import { RecordGenre } from '@/lib/api';
+import { createParamsStore } from '@/composables/factories/create-params-store'
+import { RecordGenre } from '@/lib/api'
 
 export const useGamesParams = createParamsStore({
   storeId: 'games/use-games-params',
@@ -11,4 +11,4 @@ export const useGamesParams = createParamsStore({
     grade: true,
   },
   genre: RecordGenre.GAME,
-});
+})

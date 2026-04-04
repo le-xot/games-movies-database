@@ -1,14 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { $Enums } from '@prisma/client';
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator';
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names';
-import { RecordEntity } from './record.entity';
+import { ApiProperty } from '@nestjs/swagger'
+import { $Enums } from '@prisma/client'
+import { Type } from 'class-transformer'
+import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
+import { RecordEntity } from './record.entity'
 
 export class RecordCreateFromLinkDTO {
   @ApiProperty({ example: 'https://example.com/record' })
   @IsUrl()
-  link: string;
+  link: string
 
   @ApiProperty({
     example: $Enums.RecordStatus.QUEUE,
@@ -18,7 +18,7 @@ export class RecordCreateFromLinkDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordStatus)
-  status?: $Enums.RecordStatus = $Enums.RecordStatus.QUEUE;
+  status?: $Enums.RecordStatus = $Enums.RecordStatus.QUEUE
 
   @ApiProperty({
     example: $Enums.RecordType.WRITTEN,
@@ -28,7 +28,7 @@ export class RecordCreateFromLinkDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordType)
-  type?: $Enums.RecordType = $Enums.RecordType.WRITTEN;
+  type?: $Enums.RecordType = $Enums.RecordType.WRITTEN
 }
 
 export class RecordUpdateDTO {
@@ -40,7 +40,7 @@ export class RecordUpdateDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordStatus)
-  status?: $Enums.RecordStatus;
+  status?: $Enums.RecordStatus
 
   @ApiProperty({
     example: $Enums.RecordGrade.LIKE,
@@ -50,12 +50,12 @@ export class RecordUpdateDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordGrade)
-  grade?: $Enums.RecordGrade;
+  grade?: $Enums.RecordGrade
 
   @ApiProperty({ example: 'S01E01', required: false })
   @IsOptional()
   @IsString()
-  episode?: string;
+  episode?: string
 
   @ApiProperty({
     example: $Enums.RecordType.WRITTEN,
@@ -65,33 +65,33 @@ export class RecordUpdateDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordType)
-  type?: $Enums.RecordType;
+  type?: $Enums.RecordType
 
   @ApiProperty({ example: '1', required: false })
   @IsOptional()
   @IsString()
-  userId?: string;
+  userId?: string
 }
 
 export class RecordGetDTO {
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
-  id?: number;
+  id?: number
 
   @ApiProperty({ example: 'My Record', required: false })
   @IsOptional()
   @IsString()
-  title?: string;
+  title?: string
 
   @ApiProperty({ example: 'https://example.com/record', required: false })
   @IsOptional()
   @IsUrl()
-  link?: string;
+  link?: string
 
   @ApiProperty({ example: 'https://example.com/poster.jpg', required: false })
   @IsOptional()
   @IsUrl()
-  posterUrl?: string;
+  posterUrl?: string
 
   @ApiProperty({
     example: $Enums.RecordStatus.PROGRESS,
@@ -101,7 +101,7 @@ export class RecordGetDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordStatus)
-  status?: $Enums.RecordStatus;
+  status?: $Enums.RecordStatus
 
   @ApiProperty({
     example: $Enums.RecordType.WRITTEN,
@@ -111,7 +111,7 @@ export class RecordGetDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordType)
-  type?: $Enums.RecordType;
+  type?: $Enums.RecordType
 
   @ApiProperty({
     example: $Enums.RecordGenre.GAME,
@@ -121,7 +121,7 @@ export class RecordGetDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordGenre)
-  genre?: $Enums.RecordGenre;
+  genre?: $Enums.RecordGenre
 
   @ApiProperty({
     example: $Enums.RecordGrade.LIKE,
@@ -131,48 +131,48 @@ export class RecordGetDTO {
   })
   @IsOptional()
   @IsEnum($Enums.RecordGrade)
-  grade?: $Enums.RecordGrade;
+  grade?: $Enums.RecordGrade
 
   @ApiProperty({ example: 'S01E01', required: false })
   @IsOptional()
   @IsString()
-  episode?: string;
+  episode?: string
 
   @ApiProperty({ example: '1', required: false })
   @IsOptional()
   @IsString()
-  userId?: string;
+  userId?: string
 
   @ApiProperty({ example: 'minecraft', required: false })
   @IsOptional()
   @IsString()
-  search?: string;
+  search?: string
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  page?: number;
+  page?: number
 
   @ApiProperty({ example: 10, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  limit?: number;
+  limit?: number
 
   @ApiProperty({ example: 'id', required: false, enum: ['id', 'title'] })
   @IsOptional()
-  orderBy?: 'id' | 'title';
+  orderBy?: 'id' | 'title'
 
   @ApiProperty({ example: 'asc', required: false, enum: ['asc', 'desc'] })
   @IsOptional()
-  direction?: 'asc' | 'desc';
+  direction?: 'asc' | 'desc'
 }
 
 export class GetAllRecordsDTO {
   @ApiProperty({ type: RecordEntity, isArray: true })
-  records: RecordEntity[];
+  records: RecordEntity[]
 
   @ApiProperty()
-  total: number;
+  total: number
 }

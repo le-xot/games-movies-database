@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useTitle } from '@vueuse/core';
-import { onMounted } from 'vue';
-import { RouterLink } from 'vue-router';
-import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items';
+import { useTitle } from '@vueuse/core'
+import { onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 
-const title = useTitle();
+const title = useTitle()
 
 onMounted(() => {
-  title.value = 'Лешот.ру';
-});
+  title.value = 'Лешот.ру'
+})
 </script>
 
 <template>

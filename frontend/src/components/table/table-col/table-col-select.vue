@@ -1,63 +1,62 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { useUser } from '@/composables/use-user'
-import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
-import { storeToRefs } from 'pinia'
-import { computed, ref, toRef, useId } from 'vue'
-import { useTableCol } from '../composables/use-table-col'
-import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select'
+import { storeToRefs } from 'pinia';
+import { computed, ref, toRef, useId } from 'vue';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { useUser } from '@/composables/use-user';
+import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api';
+import { useTableCol } from '../composables/use-table-col';
+import { BadgeOptions, SelectKind, useTableSelect } from '../composables/use-table-select';
 
-type ValueSelect = T | undefined
+type ValueSelect = T | undefined;
 
 const props = defineProps<{
-  kind: SelectKind
-  value: ValueSelect
-}>()
-const emits = defineEmits<{ update: [ValueSelect] }>()
-const selectValue = toRef(props, 'value')
+  kind: SelectKind;
+  value: ValueSelect;
+}>();
+const emits = defineEmits<{ update: [ValueSelect] }>();
+const selectValue = toRef(props, 'value');
 
-const isOpen = ref(false)
-const { isAdmin } = storeToRefs(useUser())
+const isOpen = ref(false);
+const { isAdmin } = storeToRefs(useUser());
 
-const {
-  isEdit,
-  handleOpen,
-  handleClose,
-  handleUpdateValue,
-} = useTableCol<T>(selectValue, emits)
+const { isEdit, handleOpen, handleClose, handleUpdateValue } = useTableCol<T>(selectValue, emits);
 
-const id = useId()
-const select = useTableSelect()
+const id = useId();
+const select = useTableSelect();
 const data = computed(() => {
-  const tag = select[`${props.kind}Tags`]?.[selectValue.value] as BadgeOptions
+  const tag = select[`${props.kind}Tags`]?.[selectValue.value] as BadgeOptions;
   return {
     tag: tag ?? null,
     options: select.options[props.kind],
-  }
-})
+  };
+});
 
 const placeholder = computed(() => {
-  if (!data.value.tag) return 'Нет данных'
-  return data.value.tag.name
-})
+  if (!data.value.tag) return 'Нет данных';
+  return data.value.tag.name;
+});
 </script>
 
 <template>
   <div
-    @click="() => {
-      if (!isAdmin) return
-      handleOpen()
-      isOpen = true
-    }"
+    @click="
+      () => {
+        if (!isAdmin) return;
+        handleOpen();
+        isOpen = true;
+      }
+    "
   >
     <Select
       v-if="isEdit || data.tag"
       v-model:open="isOpen"
       :name="`${props.kind}-${id}`"
-      @update:model-value="(value) => {
-        handleUpdateValue(value as string)
-        handleClose()
-      }"
+      @update:model-value="
+        (value) => {
+          handleUpdateValue(value as string);
+          handleClose();
+        }
+      "
     >
       <SelectTrigger
         class="w-full cursor-default relative h-8 flex items-center justify-center text-xs font-semibold text-white/80! opacity-100 min-w-28 select-none"

@@ -12,4 +12,4 @@ export const ROUTER_PATHS = {
   dbSeries: '/db/series',
   dbSuggestion: '/db/suggestion',
   dbAuction: '/db/auction',
-}
+};

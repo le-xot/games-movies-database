@@ -1,73 +1,70 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { computed, inject } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import { computed, inject } from 'vue'
-import { PAGE_SIZES } from './composables/use-pagination'
-import { tableInjectionKey } from './table-injection-key'
-import type { PaginationState } from '@tanstack/vue-table'
+} from '@/components/ui/select';
+import { PAGE_SIZES } from './composables/use-pagination';
+import { tableInjectionKey } from './table-injection-key';
+import type { PaginationState } from '@tanstack/vue-table';
 
 const props = defineProps<{
-  totalRecords: number
-}>()
+  totalRecords: number;
+}>();
 
-const table = inject(tableInjectionKey)!
-const pagination = defineModel<PaginationState>({ required: true })
+const table = inject(tableInjectionKey)!;
+const pagination = defineModel<PaginationState>({ required: true });
 
 const totalPages = computed(() => {
-  return Math.min(
-    (pagination.value.pageIndex + 1) * pagination.value.pageSize,
-    props.totalRecords,
-  )
-})
+  return Math.min((pagination.value.pageIndex + 1) * pagination.value.pageSize, props.totalRecords);
+});
 
 const pageIndex = computed({
   get() {
-    return pagination.value.pageIndex + 1
+    return pagination.value.pageIndex + 1;
   },
   set(value) {
-    const validValue = Math.max(1, Math.min(value, table.getPageCount()))
-    pagination.value.pageIndex = validValue - 1
+    const validValue = Math.max(1, Math.min(value, table.getPageCount()));
+    pagination.value.pageIndex = validValue - 1;
   },
-})
+});
 
 const pageSize = computed({
   get() {
-    return `${pagination.value.pageSize}`
+    return `${pagination.value.pageSize}`;
   },
   set(value) {
     pagination.value = {
       pageIndex: 0,
       pageSize: Number(value),
-    }
+    };
   },
-})
+});
 
 function validateInput(event: Event) {
-  const input = event.target as HTMLInputElement
-  const value = Number.parseInt(input.value)
+  const input = event.target as HTMLInputElement;
+  const value = Number.parseInt(input.value);
 
   if (Number.isNaN(value) || value <= 0) {
-    input.value = '1'
-    pageIndex.value = 1
+    input.value = '1';
+    pageIndex.value = 1;
   }
 }
 
 function handlePageInput() {
-  const validValue = Math.max(1, Math.min(pageIndex.value, table.getPageCount()))
-  pageIndex.value = validValue
+  const validValue = Math.max(1, Math.min(pageIndex.value, table.getPageCount()));
+  pageIndex.value = validValue;
 }
 
 function handleBlur() {
   if (pageIndex.value <= 0) {
-    pageIndex.value = 1
+    pageIndex.value = 1;
   }
 }
 </script>
@@ -119,11 +116,7 @@ function handleBlur() {
             </div>
           </SelectTrigger>
           <SelectContent align="end">
-            <SelectItem
-              v-for="size in PAGE_SIZES"
-              :key="size"
-              :value="`${size}`"
-            >
+            <SelectItem v-for="size in PAGE_SIZES" :key="size" :value="`${size}`">
               {{ size }}
             </SelectItem>
           </SelectContent>
@@ -135,13 +128,13 @@ function handleBlur() {
 
 <style scoped>
 /* Скрываем стрелки для числового инпута */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
   appearance: textfield; /* Standard property for compatibility */
 }

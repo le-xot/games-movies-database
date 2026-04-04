@@ -1,31 +1,22 @@
 <script setup lang="ts">
-import Table from '@/components/table/table.vue'
-import TablePagination from '@/components/table/table-pagination.vue'
-import TableSearch from '@/components/table/table-search.vue'
-import { useSeries } from '../composables/use-series'
-import { useSeriesParams } from '../composables/use-series-params'
-import { useSeriesTable } from '../composables/use-series-table'
+import TablePagination from '@/components/table/table-pagination.vue';
+import TableSearch from '@/components/table/table-search.vue';
+import Table from '@/components/table/table.vue';
+import { useSeries } from '../composables/use-series';
+import { useSeriesParams } from '../composables/use-series-params';
+import { useSeriesTable } from '../composables/use-series-table';
 
-const videos = useSeries()
-const table = useSeriesTable()
-const params = useSeriesParams()
+const videos = useSeries();
+const table = useSeriesTable();
+const params = useSeriesParams();
 </script>
 
 <template>
-  <TableSearch
-    v-model:value="params.search"
-    v-model:column-visibility="params.columnVisibility"
-  />
+  <TableSearch v-model:value="params.search" v-model:column-visibility="params.columnVisibility" />
 
-  <Table
-    :is-loading="videos.isLoading"
-    :table="table"
-  >
+  <Table :is-loading="videos.isLoading" :table="table">
     <template #pagination>
-      <TablePagination
-        v-model="params.pagination"
-        :total-records="videos.totalRecords"
-      />
+      <TablePagination v-model="params.pagination" :total-records="videos.totalRecords" />
     </template>
   </Table>
 </template>

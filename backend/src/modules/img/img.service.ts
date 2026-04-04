@@ -1,89 +1,88 @@
-import { Buffer } from 'node:buffer'
-import { createHash } from 'node:crypto'
-import { stat } from 'node:fs/promises'
-import path from 'node:path'
-import process, { env } from 'node:process'
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
-import sharp from 'sharp'
+import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
+import { stat } from 'node:fs/promises';
+import path from 'node:path';
+import process, { env } from 'node:process';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import sharp from 'sharp';
 
 @Injectable()
 export class ImgService {
-  private readonly logger = new Logger(ImgService.name)
+  private readonly logger = new Logger(ImgService.name);
   async getImageContent(urlBase64: string) {
-    const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
+    const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8');
 
-    const urlHash = createHash('sha256').update(originalUrl).digest('hex')
-    const fileDiskPath = path.resolve(process.cwd(), 'images', `${urlHash}.webp`)
+    const urlHash = createHash('sha256').update(originalUrl).digest('hex');
+    const fileDiskPath = path.resolve(process.cwd(), 'images', `${urlHash}.webp`);
 
-    const isFileExists = await stat(fileDiskPath).then(() => true).catch(() => false)
+    const isFileExists = await stat(fileDiskPath)
+      .then(() => true)
+      .catch(() => false);
     if (isFileExists) {
       return {
         fileDiskPath,
         contentType: 'image/webp',
-      }
+      };
     }
 
     try {
-      const proxyBase = env.PROXY
+      const proxyBase = env.PROXY;
       const fetchUrl = proxyBase
         ? `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(originalUrl)}`
-        : originalUrl
+        : originalUrl;
 
-      const defaultHeaders = { 'User-Agent': 'Mozilla/5.0' }
-      let response
+      const defaultHeaders = { 'User-Agent': 'Mozilla/5.0' };
+      let response;
       try {
-        response = await fetch(fetchUrl, { headers: defaultHeaders })
+        response = await fetch(fetchUrl, { headers: defaultHeaders });
       } catch (err) {
         if (proxyBase) {
           try {
-            response = await fetch(originalUrl, { headers: defaultHeaders })
+            response = await fetch(originalUrl, { headers: defaultHeaders });
           } catch (err2) {
-            this.logger.error(`Failed to fetch image from original url: ${err2.message}`)
-            throw new BadRequestException(`Failed to fetch image: ${err2.message}`)
+            this.logger.error(`Failed to fetch image from original url: ${err2.message}`);
+            throw new BadRequestException(`Failed to fetch image: ${err2.message}`);
           }
         } else {
-          this.logger.error(`Failed to fetch image: ${err.message}`)
-          throw new BadRequestException(`Failed to fetch image: ${err.message}`)
+          this.logger.error(`Failed to fetch image: ${err.message}`);
+          throw new BadRequestException(`Failed to fetch image: ${err.message}`);
         }
       }
 
       if (!response.ok) {
         if (proxyBase) {
-          const fallback = await fetch(originalUrl, { headers: defaultHeaders }).catch(() => null)
+          const fallback = await fetch(originalUrl, { headers: defaultHeaders }).catch(() => null);
           if (fallback && fallback.ok) {
-            response = fallback
+            response = fallback;
           } else {
-            throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+            throw new BadRequestException(`Failed to fetch image: ${response.status}`);
           }
         } else {
-          throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+          throw new BadRequestException(`Failed to fetch image: ${response.status}`);
         }
       }
 
-      const contentType = response.headers.get('content-type')
+      const contentType = response.headers.get('content-type');
       if (!contentType?.startsWith('image/')) {
-        this.logger.warn(`URL does not point to an image content-type=${contentType}`)
-        throw new BadRequestException('URL does not point to an image')
+        this.logger.warn(`URL does not point to an image content-type=${contentType}`);
+        throw new BadRequestException('URL does not point to an image');
       }
 
-      const fileContent = await response.arrayBuffer()
+      const fileContent = await response.arrayBuffer();
 
-      const imageBuffer = await sharp(fileContent)
-        .resize(300, 450)
-        .webp()
-        .toBuffer()
+      const imageBuffer = await sharp(fileContent).resize(300, 450).webp().toBuffer();
 
-      await Bun.write(fileDiskPath, imageBuffer)
+      await Bun.write(fileDiskPath, imageBuffer);
 
       return {
         fileDiskPath,
         contentType: 'image/webp',
-      }
+      };
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw error
+        throw error;
       }
-      throw new BadRequestException(`Failed to process image: ${error.message}`)
+      throw new BadRequestException(`Failed to process image: ${error.message}`);
     }
   }
 }

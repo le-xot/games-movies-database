@@ -1,6 +1,6 @@
-import { createTableStore } from '@/composables/factories/create-table-store'
-import { useSeries } from './use-series'
-import { useSeriesParams } from './use-series-params'
+import { createTableStore } from '@/composables/factories/create-table-store';
+import { useSeries } from './use-series';
+import { useSeriesParams } from './use-series-params';
 
 export const useSeriesTable = createTableStore({
   storeId: 'series/use-series-table',
@@ -11,4 +11,4 @@ export const useSeriesTable = createTableStore({
   episodeSize: 8,
   deleteConfirmTitle: 'Удалить сирик?',
   itemsKey: 'videos',
-})
+});

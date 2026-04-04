@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import LoginForm from '@/components/form/login-form.vue'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useTitle } from '@/composables/use-title'
-import { useUser } from '@/composables/use-user'
-import { ROUTER_PATHS } from '@/lib/router/router-paths'
 import {
   Baby,
   Film,
@@ -15,20 +9,26 @@ import {
   JapaneseYen,
   ListOrdered,
   Popcorn,
-} from 'lucide-vue-next'
-import { computed, onMounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+} from 'lucide-vue-next';
+import { computed, onMounted } from 'vue';
+import { RouterLink, useRoute } from 'vue-router';
+import LoginForm from '@/components/form/login-form.vue';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useTitle } from '@/composables/use-title';
+import { useUser } from '@/composables/use-user';
+import { ROUTER_PATHS } from '@/lib/router/router-paths';
 
-const route = useRoute()
-const { updateTitle } = useTitle()
-const { isAdmin } = useUser()
+const route = useRoute();
+const { updateTitle } = useTitle();
+const { isAdmin } = useUser();
 
 interface RouteItem {
-  name: string
-  icon: any
-  path: string
-  group: number
-  requiresAdmin?: boolean
+  name: string;
+  icon: any;
+  path: string;
+  group: number;
+  requiresAdmin?: boolean;
 }
 
 const allRoutes: RouteItem[] = [
@@ -52,30 +52,28 @@ const allRoutes: RouteItem[] = [
   { name: 'Фильмы', icon: Film, path: ROUTER_PATHS.dbMovie, group: 3 },
   { name: 'Сериалы', icon: Popcorn, path: ROUTER_PATHS.dbSeries, group: 3 },
   { name: 'Мультфильмы', icon: Baby, path: ROUTER_PATHS.dbCartoon, group: 3 },
-]
+];
 
 const groupedRoutes = computed(() => {
-  const map = new Map<number, RouteItem[]>()
+  const map = new Map<number, RouteItem[]>();
   allRoutes
-    .filter(r => !r.requiresAdmin || isAdmin)
-    .forEach(r => {
-      const group = map.get(r.group) ?? []
-      group.push(r)
-      map.set(r.group, group)
-    })
-  return [...map.values()]
-})
+    .filter((r) => !r.requiresAdmin || isAdmin)
+    .forEach((r) => {
+      const group = map.get(r.group) ?? [];
+      group.push(r);
+      map.set(r.group, group);
+    });
+  return [...map.values()];
+});
 
 onMounted(() => {
-  const current = allRoutes.find(r => r.path === route.path)
-  if (current) updateTitle(current.name)
-})
+  const current = allRoutes.find((r) => r.path === route.path);
+  if (current) updateTitle(current.name);
+});
 </script>
 
 <template>
-  <div
-    class="h-[68px] flex sticky top-0 border-b border-border bg-black z-[100]"
-  >
+  <div class="h-[68px] flex sticky top-0 border-b border-border bg-black z-[100]">
     <div class="flex justify-between items-center gap-4 xl:gap-8 p-4 w-full">
       <div class="flex gap-1 xl:gap-2 h-[50px] items-center">
         <template v-for="(group, i) in groupedRoutes" :key="i">

@@ -1,64 +1,62 @@
-import { useDialog } from '@/components/dialog/composables/use-dialog'
-import DialogButton from '@/components/dialog/dialog-button.vue'
-import TableColEpisode from '@/components/table/table-col/table-col-episode.vue'
-import TableColSelect from '@/components/table/table-col/table-col-select.vue'
-import TableColTitle from '@/components/table/table-col/table-col-title.vue'
-import TableColUser from '@/components/table/table-col/table-col-user.vue'
-import TableFilterGrade from '@/components/table/table-filter-grade.vue'
-import TableFilterStatus from '@/components/table/table-filter-status.vue'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api'
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
   useVueTable,
-} from '@tanstack/vue-table'
-import { Eraser } from 'lucide-vue-next'
-import { StoreDefinition, defineStore, storeToRefs } from 'pinia'
-import { computed, h } from 'vue'
+} from '@tanstack/vue-table';
+import { Eraser } from 'lucide-vue-next';
+import { StoreDefinition, defineStore, storeToRefs } from 'pinia';
+import { computed, h } from 'vue';
+import { useDialog } from '@/components/dialog/composables/use-dialog';
+import DialogButton from '@/components/dialog/dialog-button.vue';
+import TableColEpisode from '@/components/table/table-col/table-col-episode.vue';
+import TableColSelect from '@/components/table/table-col/table-col-select.vue';
+import TableColTitle from '@/components/table/table-col/table-col-title.vue';
+import TableColUser from '@/components/table/table-col/table-col-user.vue';
+import TableFilterGrade from '@/components/table/table-filter-grade.vue';
+import TableFilterStatus from '@/components/table/table-filter-status.vue';
+import { useUser } from '@/composables/use-user';
+import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api';
 
 interface DataStoreReturn {
-  videos?: RecordEntity[]
-  games?: RecordEntity[]
-  totalPages: number
-  updateRecord: (payload: { id: number, data: RecordUpdateDTO }) => Promise<any>
-  deleteRecord: (id: number) => Promise<any>
+  videos?: RecordEntity[];
+  games?: RecordEntity[];
+  totalPages: number;
+  updateRecord: (payload: { id: number; data: RecordUpdateDTO }) => Promise<any>;
+  deleteRecord: (id: number) => Promise<any>;
 }
 
 interface ParamsStoreReturn {
-  columnVisibility: Record<string, boolean>
-  pagination: { pageIndex: number, pageSize: number }
-  setStatusFilter: (value: RecordStatus[] | null) => void
-  setGradeFilter: (value: RecordGrade[] | null) => void
+  columnVisibility: Record<string, boolean>;
+  pagination: { pageIndex: number; pageSize: number };
+  setStatusFilter: (value: RecordStatus[] | null) => void;
+  setGradeFilter: (value: RecordGrade[] | null) => void;
 }
 
 export interface TableStoreConfig {
-  storeId: string
-  dataStore: StoreDefinition<any, any, any, any>
-  paramsStore: StoreDefinition<any, any, any, any>
-  hasEpisodeColumn: boolean
-  titleSize: { admin: number, user: number }
-  episodeSize?: number
-  deleteConfirmTitle: string
-  itemsKey: 'videos' | 'games'
+  storeId: string;
+  dataStore: StoreDefinition<any, any, any, any>;
+  paramsStore: StoreDefinition<any, any, any, any>;
+  hasEpisodeColumn: boolean;
+  titleSize: { admin: number; user: number };
+  episodeSize?: number;
+  deleteConfirmTitle: string;
+  itemsKey: 'videos' | 'games';
 }
 
 export function createTableStore(config: TableStoreConfig) {
   return defineStore(config.storeId, () => {
-    const { isAdmin } = storeToRefs(useUser())
-    const dataStoreInstance = config.dataStore() as unknown as DataStoreReturn
-    const paramsStoreInstance = config.paramsStore() as unknown as ParamsStoreReturn
-    const dialog = useDialog()
+    const { isAdmin } = storeToRefs(useUser());
+    const dataStoreInstance = config.dataStore() as unknown as DataStoreReturn;
+    const paramsStoreInstance = config.paramsStore() as unknown as ParamsStoreReturn;
+    const dialog = useDialog();
 
     const items = computed(() => {
-      const raw = config.itemsKey === 'games'
-        ? dataStoreInstance.games
-        : dataStoreInstance.videos
-      return raw ?? []
-    })
+      const raw = config.itemsKey === 'games' ? dataStoreInstance.games : dataStoreInstance.videos;
+      return raw ?? [];
+    });
 
-    const totalPages = computed(() => dataStoreInstance.totalPages)
+    const totalPages = computed(() => dataStoreInstance.totalPages);
 
     const tableColumns = computed(() => {
       const columns: ColumnDef<RecordEntity>[] = [
@@ -74,10 +72,10 @@ export function createTableStore(config: TableStoreConfig) {
               key: `title-${row.original.id}`,
               title: row.original.title,
               link: row.original.link,
-            })
+            });
           },
         },
-      ]
+      ];
 
       if (config.hasEpisodeColumn) {
         columns.push({
@@ -91,13 +89,14 @@ export function createTableStore(config: TableStoreConfig) {
             return h(TableColEpisode, {
               key: `episode-${row.original.id}`,
               episode: row.original.episode,
-              onUpdate: (episode: string | undefined) => dataStoreInstance.updateRecord({
-                id: row.original.id,
-                data: { episode },
-              }),
-            })
+              onUpdate: (episode: string | undefined) =>
+                dataStoreInstance.updateRecord({
+                  id: row.original.id,
+                  data: { episode },
+                }),
+            });
           },
-        })
+        });
       }
 
       columns.push(
@@ -112,11 +111,12 @@ export function createTableStore(config: TableStoreConfig) {
             return h(TableColUser, {
               key: `user-${row.original.id}`,
               userId: row.original.userId,
-              onUpdate: (userId: string | undefined) => dataStoreInstance.updateRecord({
-                id: row.original.id,
-                data: { userId },
-              }),
-            })
+              onUpdate: (userId: string | undefined) =>
+                dataStoreInstance.updateRecord({
+                  id: row.original.id,
+                  data: { userId },
+                }),
+            });
           },
         },
         {
@@ -127,10 +127,10 @@ export function createTableStore(config: TableStoreConfig) {
               h(TableFilterStatus, {
                 value: null,
                 onUpdate: (value: RecordStatus[] | null) => {
-                  paramsStoreInstance.setStatusFilter(value)
+                  paramsStoreInstance.setStatusFilter(value);
                 },
               }),
-            ])
+            ]);
           },
           size: 10,
           minSize: 10,
@@ -145,9 +145,9 @@ export function createTableStore(config: TableStoreConfig) {
                 dataStoreInstance.updateRecord({
                   id: row.original.id,
                   data: { status: value as RecordStatus },
-                })
+                });
               },
-            })
+            });
           },
         },
         {
@@ -158,10 +158,10 @@ export function createTableStore(config: TableStoreConfig) {
               h(TableFilterGrade, {
                 value: null,
                 onUpdate: (value: RecordGrade[] | null) => {
-                  paramsStoreInstance.setGradeFilter(value)
+                  paramsStoreInstance.setGradeFilter(value);
                 },
               }),
-            ])
+            ]);
           },
           size: 10,
           minSize: 10,
@@ -176,12 +176,12 @@ export function createTableStore(config: TableStoreConfig) {
                 dataStoreInstance.updateRecord({
                   id: row.original.id,
                   data: { grade: value as RecordGrade },
-                })
+                });
               },
-            })
+            });
           },
         },
-      )
+      );
 
       if (isAdmin.value) {
         columns.unshift({
@@ -192,50 +192,55 @@ export function createTableStore(config: TableStoreConfig) {
           enableResizing: false,
           header: '',
           cell: ({ row }) => {
-            return h('div', {}, {
-              default: () => [
-                h(DialogButton, {
-                  key: `id-${row.original.id}`,
-                  icon: Eraser,
-                  onClick: () => dialog.openDialog({
-                    title: config.deleteConfirmTitle,
-                    content: '',
-                    description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
-                    onSubmit: () => dataStoreInstance.deleteRecord(row.original.id),
+            return h(
+              'div',
+              {},
+              {
+                default: () => [
+                  h(DialogButton, {
+                    key: `id-${row.original.id}`,
+                    icon: Eraser,
+                    onClick: () =>
+                      dialog.openDialog({
+                        title: config.deleteConfirmTitle,
+                        content: '',
+                        description: `Вы уверены, что хотите удалить ${row.original.title ? `"${row.original.title}"` : 'эту запись'}?`,
+                        onSubmit: () => dataStoreInstance.deleteRecord(row.original.id),
+                      }),
                   }),
-                }),
-              ],
-            })
+                ],
+              },
+            );
           },
-        })
+        });
       }
 
-      return columns
-    })
+      return columns;
+    });
 
     const table = useVueTable({
       get data() {
-        return items.value
+        return items.value;
       },
       get columns() {
-        return tableColumns.value
+        return tableColumns.value;
       },
       get pageCount() {
-        return totalPages.value
+        return totalPages.value;
       },
       state: {
         get columnVisibility() {
-          return paramsStoreInstance.columnVisibility
+          return paramsStoreInstance.columnVisibility;
         },
         get pagination() {
-          return paramsStoreInstance.pagination
+          return paramsStoreInstance.pagination;
         },
       },
       manualPagination: true,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
-    })
+    });
 
-    return table
-  })
+    return table;
+  });
 }

@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { useDialog } from './composables/use-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useDialog } from './composables/use-dialog';
 
-const dialog = useDialog()
+const dialog = useDialog();
 </script>
 
 <template>
@@ -12,7 +20,11 @@ const dialog = useDialog()
         <AlertDialogTitle class="text-center w-full">
           {{ dialog.dialogState?.title }}
         </AlertDialogTitle>
-        <div v-if="dialog.dialogState?.description" class="text-muted-foreground text-sm" v-html="dialog.dialogState?.description" />
+        <div
+          v-if="dialog.dialogState?.description"
+          class="text-muted-foreground text-sm"
+          v-html="dialog.dialogState?.description"
+        />
         <component
           :is="dialog.dialogState.customContent"
           v-if="dialog.dialogState?.customContent"
@@ -25,12 +37,8 @@ const dialog = useDialog()
         v-bind="dialog.dialogState?.props || {}"
       />
       <AlertDialogFooter v-if="!dialog.dialogState?.component">
-        <AlertDialogCancel @click="dialog.dialogState?.onCancel?.()">
-          Отменить
-        </AlertDialogCancel>
-        <AlertDialogAction @click="dialog.submitDialog">
-          Подтвердить
-        </AlertDialogAction>
+        <AlertDialogCancel @click="dialog.dialogState?.onCancel?.()"> Отменить </AlertDialogCancel>
+        <AlertDialogAction @click="dialog.submitDialog"> Подтвердить </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>

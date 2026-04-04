@@ -1,66 +1,67 @@
 <script setup lang="ts">
-import { useDialog } from '@/components/dialog/composables/use-dialog'
-import { Button } from '@/components/ui/button'
+import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
+import { computed, ref, toRef, watch } from 'vue';
+import { useDialog } from '@/components/dialog/composables/use-dialog';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useUser } from '@/composables/use-user'
-import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
-import { storeToRefs } from 'pinia'
-import { computed, ref, toRef, watch } from 'vue'
-import { useTableCol } from '../composables/use-table-col'
-import { useTableUsers } from '../composables/use-table-users'
+} from '@/components/ui/command';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useUser } from '@/composables/use-user';
+import { useTableCol } from '../composables/use-table-col';
+import { useTableUsers } from '../composables/use-table-users';
 
-type UserValue = string | undefined
+type UserValue = string | undefined;
 
-const props = defineProps<{ userId: UserValue }>()
-const emits = defineEmits<{ update: [UserValue] }>()
-const userId = toRef(props, 'userId')
+const props = defineProps<{ userId: UserValue }>();
+const emits = defineEmits<{ update: [UserValue] }>();
+const userId = toRef(props, 'userId');
 
-const users = useTableUsers()
-const dialog = useDialog()
+const users = useTableUsers();
+const dialog = useDialog();
 
-const {
-  isEdit,
-  inputValue,
-  handleClose,
-  handleOpen,
-  handleUpdateValue,
-} = useTableCol(userId, emits)
+const { isEdit, inputValue, handleClose, handleOpen, handleUpdateValue } = useTableCol(
+  userId,
+  emits,
+);
 
-const isOpenPopover = ref(false)
-const isOpenDropdown = ref(false)
+const isOpenPopover = ref(false);
+const isOpenDropdown = ref(false);
 watch(isEdit, (value) => {
-  if (value) return
-  isOpenDropdown.value = false
-})
+  if (value) return;
+  isOpenDropdown.value = false;
+});
 
-const { isAdmin } = storeToRefs(useUser())
+const { isAdmin } = storeToRefs(useUser());
 
-const searchValue = ref('')
+const searchValue = ref('');
 const filteredUsers = computed(() => {
-  if (!searchValue.value) return users.userOptions
+  if (!searchValue.value) return users.userOptions;
   return users.userOptions.filter((user) =>
     user.name.toLowerCase().includes(searchValue.value.toLowerCase()),
-  )
-})
+  );
+});
 
 const currentUser = computed(() => {
-  return users.userOptions.find((user) => user.id === userId.value)
-})
+  return users.userOptions.find((user) => user.id === userId.value);
+});
 
 async function handleColorChange(user: any, color: string) {
   try {
-    await users.createOrUpdateUser({ id: user.id, data: { color } })
-    await users.refetchUsers()
+    await users.createOrUpdateUser({ id: user.id, data: { color } });
+    await users.refetchUsers();
   } catch (error) {
-    console.error('Failed to update user color:', error)
+    console.error('Failed to update user color:', error);
   }
 }
 
@@ -70,26 +71,38 @@ function invokeDeleteUser(user: any) {
     content: '',
     description: `Вы уверены что хотите удалить ${user.login}?`,
     onSubmit: () => {
-      users.deleteUserById(user.id)
-      inputValue.value = undefined
+      users.deleteUserById(user.id);
+      inputValue.value = undefined;
     },
-  })
+  });
 }
 
 function invokeRemoveUser() {
-  handleUpdateValue(null)
+  handleUpdateValue(null);
 }
 
-const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '#69314C', '#854C1D', '#89632A', '#2B593F']
+const BUTTONS_COLORS = [
+  '#333333',
+  '#492F64',
+  '#28456C',
+  '#603B2C',
+  '#8f332a',
+  '#69314C',
+  '#854C1D',
+  '#89632A',
+  '#2B593F',
+];
 </script>
 
 <template>
   <div class="w-full" @click="handleOpen">
     <Popover
       v-model:open="isOpenPopover"
-      @update:open="(isOpen) => {
-        if (!isOpen) handleClose()
-      }"
+      @update:open="
+        (isOpen) => {
+          if (!isOpen) handleClose();
+        }
+      "
     >
       <PopoverTrigger as-child>
         <Button
@@ -101,9 +114,11 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
           :disabled="!isAdmin"
         >
           <span class="w-full absolute inset-0 flex items-center justify-center">
-            {{ inputValue
-              ? users.userOptions.find((user) => user.id === inputValue)?.name || "Нет данных"
-              : "Нет данных" }}
+            {{
+              inputValue
+                ? users.userOptions.find((user) => user.id === inputValue)?.name || 'Нет данных'
+                : 'Нет данных'
+            }}
           </span>
           <Button
             v-if="isOpenPopover"
@@ -123,7 +138,7 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
               v-model="searchValue"
               class="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
               placeholder="Искать пользователя..."
-            >
+            />
           </div>
           <CommandEmpty>Пользователь не найден.</CommandEmpty>
           <CommandList
@@ -137,10 +152,12 @@ const BUTTONS_COLORS = ['#333333', '#492F64', '#28456C', '#603B2C', '#8f332a', '
                 :value="user.id"
                 :style="{ backgroundColor: user.color }"
                 class="pr-1 m-1 h-8 flex justify-between group"
-                @select="() => {
-                  handleUpdateValue(user.id)
-                  handleClose()
-                }"
+                @select="
+                  () => {
+                    handleUpdateValue(user.id);
+                    handleClose();
+                  }
+                "
               >
                 {{ user.name }}
                 <DropdownMenu @update:open="isOpenDropdown = $event">

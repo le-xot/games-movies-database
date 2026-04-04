@@ -1,8 +1,8 @@
 {
   "name": "backend",
-  "type": "module",
   "version": "2.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "bunx --bun tsc --noEmit",
     "start": "bun run ./src/main.ts",

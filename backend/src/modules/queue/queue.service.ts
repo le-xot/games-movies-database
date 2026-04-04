@@ -1,11 +1,11 @@
-import { PrismaService } from '@/database/prisma.service'
-import { Injectable, Logger } from '@nestjs/common'
-import { $Enums } from '@prisma/client'
-import { QueueDto, QueueItemDto } from './queue.dto'
+import { Injectable, Logger } from '@nestjs/common';
+import { $Enums } from '@prisma/client';
+import { PrismaService } from '@/database/prisma.service';
+import { QueueDto, QueueItemDto } from './queue.dto';
 
 @Injectable()
 export class QueueService {
-  private readonly logger = new Logger(QueueService.name)
+  private readonly logger = new Logger(QueueService.name);
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -18,33 +18,45 @@ export class QueueService {
       include: {
         user: true,
       },
-    })
+    });
 
-    const games = records.filter(r => r.genre === $Enums.RecordGenre.GAME)
-    const videos = records.filter(r => r.genre !== $Enums.RecordGenre.GAME && r.genre !== null)
+    const games = records.filter((r) => r.genre === $Enums.RecordGenre.GAME);
+    const videos = records.filter((r) => r.genre !== $Enums.RecordGenre.GAME && r.genre !== null);
 
-    this.logger.log(`Queue fetched games=${games.length} videos=${videos.length}`)
+    this.logger.log(`Queue fetched games=${games.length} videos=${videos.length}`);
     return {
-      games: games.map((g): QueueItemDto => ({
-        title: g.title,
-        login: g.user?.login || 'John Doe',
-        profileImageUrl: g.user?.profileImageUrl || 'https://via.placeholder.com/150',
-        posterUrl: g.posterUrl,
-        createdAt: g.createdAt.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }),
-        link: g.link,
-        type: g.type,
-        genre: null,
-      })),
-      videos: videos.map((v): QueueItemDto => ({
-        title: v.title,
-        login: v.user?.login || 'John Doe',
-        profileImageUrl: v.user?.profileImageUrl || 'https://via.placeholder.com/150',
-        posterUrl: v.posterUrl,
-        createdAt: v.createdAt.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }),
-        link: v.link,
-        type: v.type,
-        genre: v.genre,
-      })),
-    }
+      games: games.map(
+        (g): QueueItemDto => ({
+          title: g.title,
+          login: g.user?.login || 'John Doe',
+          profileImageUrl: g.user?.profileImageUrl || 'https://via.placeholder.com/150',
+          posterUrl: g.posterUrl,
+          createdAt: g.createdAt.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          link: g.link,
+          type: g.type,
+          genre: null,
+        }),
+      ),
+      videos: videos.map(
+        (v): QueueItemDto => ({
+          title: v.title,
+          login: v.user?.login || 'John Doe',
+          profileImageUrl: v.user?.profileImageUrl || 'https://via.placeholder.com/150',
+          posterUrl: v.posterUrl,
+          createdAt: v.createdAt.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          link: v.link,
+          type: v.type,
+          genre: v.genre,
+        }),
+      ),
+    };
   }
 }

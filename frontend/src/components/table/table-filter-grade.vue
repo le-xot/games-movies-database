@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { RecordGrade } from '@/lib/api'
-import { computed } from 'vue'
-import TableFilterGeneric from './table-filter-generic.vue'
-import { gradeTags } from './composables/use-table-select'
+import { computed } from 'vue';
+import { RecordGrade } from '@/lib/api';
+import { gradeTags } from './composables/use-table-select';
+import TableFilterGeneric from './table-filter-generic.vue';
 
 const props = defineProps<{
-  value: RecordGrade[] | null
-}>()
+  value: RecordGrade[] | null;
+}>();
 
 const emit = defineEmits<{
-  update: [value: RecordGrade[] | null]
-}>()
+  update: [value: RecordGrade[] | null];
+}>();
 
-const gradeOptions = computed(() => Object.entries(gradeTags).map(([key, value]) => ({
-  value: key,
-  name: value.name,
-  label: value.label,
-  class: value.class,
-})))
+const gradeOptions = computed(() =>
+  Object.entries(gradeTags).map(([key, value]) => ({
+    value: key,
+    name: value.name,
+    label: value.label,
+    class: value.class,
+  })),
+);
 </script>
 
 <template>

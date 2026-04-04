@@ -1,44 +1,46 @@
 <script setup lang="ts" generic="T extends string">
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ListFilter } from 'lucide-vue-next'
+import { ListFilter } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export interface FilterOption {
-  value: string
-  name: string
-  label?: string
-  class?: string
+  value: string;
+  name: string;
+  label?: string;
+  class?: string;
 }
 
 const props = defineProps<{
-  value: T[] | null
-  options: FilterOption[]
-}>()
+  value: T[] | null;
+  options: FilterOption[];
+}>();
 
 const emit = defineEmits<{
-  update: [value: T[] | null]
-}>()
+  update: [value: T[] | null];
+}>();
 
 function toggleItem(item: string) {
-  const typed = item as T
+  const typed = item as T;
   const newValue = props.value
     ? props.value.includes(typed)
-      ? props.value.filter(s => s !== typed)
+      ? props.value.filter((s) => s !== typed)
       : [...props.value, typed]
-    : [typed]
-  emit('update', newValue.length ? newValue : null)
+    : [typed];
+  emit('update', newValue.length ? newValue : null);
 }
 
-const resetFilter = () => emit('update', null)
+const resetFilter = () => emit('update', null);
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button
-        variant="ghost"
-        size="icon"
-      >
+      <Button variant="ghost" size="icon">
         <ListFilter class="size-4" />
       </Button>
     </DropdownMenuTrigger>
@@ -64,10 +66,7 @@ const resetFilter = () => emit('update', null)
           </div>
         </div>
       </DropdownMenuItem>
-      <DropdownMenuItem
-        class="justify-center h-[45px]"
-        @select="resetFilter"
-      >
+      <DropdownMenuItem class="justify-center h-[45px]" @select="resetFilter">
         Сбросить фильтр
       </DropdownMenuItem>
     </DropdownMenuContent>

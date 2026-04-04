@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { ROUTER_PATHS } from '@/lib/router/router-paths'
-import { hardware } from '@/pages/pc/constants/parts-links'
-import { useTitle } from '@vueuse/core'
-import { Undo2Icon } from 'lucide-vue-next'
-import { onMounted } from 'vue'
+import { useTitle } from '@vueuse/core';
+import { Undo2Icon } from 'lucide-vue-next';
+import { onMounted } from 'vue';
+import { ROUTER_PATHS } from '@/lib/router/router-paths';
+import { hardware } from '@/pages/pc/constants/parts-links';
 
-const title = useTitle()
-onMounted(() => title.value = 'Железки Лешота')
+const title = useTitle();
+onMounted(() => (title.value = 'Железки Лешота'));
 </script>
 
 <template>
@@ -17,13 +17,7 @@ onMounted(() => title.value = 'Железки Лешота')
           {{ name }}
         </h3>
         <div class="buttons buttons--grid">
-          <a
-            v-for="link in parts"
-            :key="link.name"
-            class="button"
-            :href="link.url"
-            target="_blank"
-          >
+          <a v-for="link in parts" :key="link.name" class="button" :href="link.url" target="_blank">
             <component :is="link.icon" class="button__logo" size="32px" />
             <span class="button_text">{{ link.name }}</span>
           </a>
@@ -32,7 +26,7 @@ onMounted(() => title.value = 'Железки Лешота')
       <div style="margin-top: 20px" class="buttons buttons--grid">
         <router-link
           class="button"
-          style="background-color: #209852; margin-top: 10px;"
+          style="background-color: #209852; margin-top: 10px"
           :to="ROUTER_PATHS.home"
         >
           <Undo2Icon :size="32" />
@@ -46,7 +40,7 @@ onMounted(() => title.value = 'Железки Лешота')
 <style scoped>
 .container {
   padding: 2rem;
-  font-family: "Comfortaa", sans-serif;
+  font-family: 'Comfortaa', sans-serif;
   width: 100%;
   min-height: 100vh;
   display: flex;

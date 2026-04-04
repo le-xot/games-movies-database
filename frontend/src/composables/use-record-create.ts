@@ -1,9 +1,9 @@
-import { useApi } from '@/composables/use-api'
-import { RecordCreateFromLinkDTO, RecordStatus, RecordType } from '@/lib/api'
-import { useMutation } from '@pinia/colada'
+import { useMutation } from '@pinia/colada';
+import { useApi } from '@/composables/use-api';
+import { RecordCreateFromLinkDTO, RecordStatus, RecordType } from '@/lib/api';
 
 export function useRecordCreate(queryKey: string, onSuccess?: () => void) {
-  const api = useApi()
+  const api = useApi();
 
   const { mutateAsync: createRecord } = useMutation({
     key: [queryKey, 'create'],
@@ -12,16 +12,16 @@ export function useRecordCreate(queryKey: string, onSuccess?: () => void) {
         link,
         status: RecordStatus.QUEUE,
         type: RecordType.WRITTEN,
-      }
+      };
 
-      return await api.records.recordControllerCreateRecordFromLink(data)
+      return await api.records.recordControllerCreateRecordFromLink(data);
     },
     onSettled: () => {
-      if (onSuccess) onSuccess()
+      if (onSuccess) onSuccess();
     },
-  })
+  });
 
   return {
     createRecord,
-  }
+  };
 }

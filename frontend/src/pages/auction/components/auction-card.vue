@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity } from '@/lib/api'
-import { getImageUrl } from '@/lib/utils/image'
-import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useUser } from '@/composables/use-user';
+import { RecordEntity } from '@/lib/api';
+import { getImageUrl } from '@/lib/utils/image';
 
-defineProps<{ items: RecordEntity[] }>()
+defineProps<{ items: RecordEntity[] }>();
 
-const { isAdmin } = storeToRefs(useUser())
+const { isAdmin } = storeToRefs(useUser());
 
-const isDialogOpen = ref(false)
+const isDialogOpen = ref(false);
 
-isDialogOpen.value = false
+isDialogOpen.value = false;
 
-defineExpose({ isDialogOpen })
+defineExpose({ isDialogOpen });
 </script>
 
 <template>
@@ -37,7 +37,7 @@ defineExpose({ isDialogOpen })
               :src="getImageUrl(item.posterUrl)"
               class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
               alt="Poster"
-            >
+            />
           </div>
           <div class="flex flex-col flex-1 justify-between overflow-hidden">
             <CardHeader>
@@ -48,7 +48,9 @@ defineExpose({ isDialogOpen })
                 {{ item.title }}
               </CardTitle>
             </CardHeader>
-            <CardContent class="text-sm text-[#1e90ff] underline italic block whitespace-nowrap overflow-hidden text-ellipsis">
+            <CardContent
+              class="text-sm text-[#1e90ff] underline italic block whitespace-nowrap overflow-hidden text-ellipsis"
+            >
               <a :href="item.link" target="_blank">
                 {{ item.link }}
               </a>

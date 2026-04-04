@@ -1,31 +1,39 @@
-import { PrismaService } from '@/database/prisma.service'
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { $Enums } from '@prisma/client'
-import { RecordsProvidersService } from '../records-providers/records-providers.service'
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { $Enums } from '@prisma/client';
+import { PrismaService } from '@/database/prisma.service';
+import { RecordsProvidersService } from '../records-providers/records-providers.service';
 
 @Injectable()
 export class SuggestionService {
-  private readonly logger = new Logger(SuggestionService.name)
+  private readonly logger = new Logger(SuggestionService.name);
   constructor(
     private prisma: PrismaService,
     private recordsProviderService: RecordsProvidersService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async userSuggest(data: { link: string, userId: string }) {
-    this.logger.log(`User suggesting link=${data.link} userId=${data.userId}`)
+  async userSuggest(data: { link: string; userId: string }) {
+    this.logger.log(`User suggesting link=${data.link} userId=${data.userId}`);
     const limit = await this.prisma.limit.findUnique({
       where: { name: $Enums.LimitType.SUGGESTION },
-    })
+    });
 
-    const suggestionsCount = await this.prisma.record.count({ where: { userId: data.userId, type: $Enums.LimitType.SUGGESTION } })
+    const suggestionsCount = await this.prisma.record.count({
+      where: { userId: data.userId, type: $Enums.LimitType.SUGGESTION },
+    });
 
     if (suggestionsCount >= limit.quantity) {
-      throw new BadRequestException('Достигнут лимит предложений')
+      throw new BadRequestException('Достигнут лимит предложений');
     }
 
-    const preparedData = await this.recordsProviderService.prepareData(data)
+    const preparedData = await this.recordsProviderService.prepareData(data);
 
     await this.prisma.record.create({
       data: {
@@ -35,45 +43,45 @@ export class SuggestionService {
         type: $Enums.RecordType.SUGGESTION,
         user: { connect: { id: data.userId } },
       },
-    })
+    });
 
-    this.eventEmitter.emit('update-suggestions')
-    this.logger.log(`Suggestion created title=${preparedData.title} genre=${preparedData.genre}`)
+    this.eventEmitter.emit('update-suggestions');
+    this.logger.log(`Suggestion created title=${preparedData.title} genre=${preparedData.genre}`);
     return {
       title: preparedData.title,
       genre: preparedData.genre,
-    }
+    };
   }
 
   getSuggestions() {
     return this.prisma.record.findMany({
       where: { type: $Enums.RecordType.SUGGESTION },
       include: { user: true, likes: true },
-    })
+    });
   }
 
   async deleteUserSuggestion(id: number, userId: string): Promise<void> {
     const suggestion = await this.prisma.record.findUnique({
       where: { id },
-    })
+    });
 
     if (!suggestion) {
-      throw new NotFoundException('Предложение не найдено')
+      throw new NotFoundException('Предложение не найдено');
     }
 
     if (suggestion.userId !== userId) {
-      throw new ForbiddenException('Вы можете удалять только свои предложения')
+      throw new ForbiddenException('Вы можете удалять только свои предложения');
     }
 
     if (suggestion.type !== $Enums.RecordType.SUGGESTION) {
-      throw new BadRequestException('Запись не является предложением')
+      throw new BadRequestException('Запись не является предложением');
     }
 
     await this.prisma.$transaction([
       this.prisma.like.deleteMany({ where: { recordId: id } }),
       this.prisma.record.delete({ where: { id } }),
-    ])
+    ]);
 
-    this.eventEmitter.emit('update-suggestions')
+    this.eventEmitter.emit('update-suggestions');
   }
 }

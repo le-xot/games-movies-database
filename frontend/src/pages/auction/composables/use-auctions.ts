@@ -1,17 +1,17 @@
-import { useApi } from '@/composables/use-api'
-import { useUser } from '@/composables/use-user'
-import { RecordEntity } from '@/lib/api'
-import { generateWatchLink } from '@/lib/utils/generate-watch-link'
-import { useMutation, useQuery } from '@pinia/colada'
-import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { useMutation, useQuery } from '@pinia/colada';
+import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia';
+import { computed, ref } from 'vue';
+import { useApi } from '@/composables/use-api';
+import { useUser } from '@/composables/use-user';
+import { RecordEntity } from '@/lib/api';
+import { generateWatchLink } from '@/lib/utils/generate-watch-link';
 
-export const AUCTION_QUERY_KEY = 'auction'
+export const AUCTION_QUERY_KEY = 'auction';
 
 export const useAuctions = defineStore('auction/use-auction', () => {
-  const api = useApi()
-  const error = ref<string | null>(null)
-  const { isAdmin, isInitialized } = storeToRefs(useUser())
+  const api = useApi();
+  const error = ref<string | null>(null);
+  const { isAdmin, isInitialized } = storeToRefs(useUser());
 
   const {
     isLoading: isLoadingData,
@@ -21,61 +21,61 @@ export const useAuctions = defineStore('auction/use-auction', () => {
     key: () => [AUCTION_QUERY_KEY],
     query: async () => {
       if (!isInitialized.value || !isAdmin.value) {
-        return []
+        return [];
       }
 
       try {
-        error.value = null
-        const { data } = await api.auction.auctionControllerGetAuctions()
-        return data
+        error.value = null;
+        const { data } = await api.auction.auctionControllerGetAuctions();
+        return data;
       } catch (err: any) {
-        error.value = err.message || 'Failed to load suggestions'
-        throw err
+        error.value = err.message || 'Failed to load suggestions';
+        throw err;
       }
     },
     enabled: () => isInitialized.value,
-  })
+  });
 
   const { mutateAsync: approveAuction } = useMutation({
     key: [AUCTION_QUERY_KEY, 'approve'],
     mutation: async (id: number) => {
       try {
-        error.value = null
-        const response = await api.auction.auctionControllerGetWinner({ id })
-        const winner = response.data
+        error.value = null;
+        const response = await api.auction.auctionControllerGetWinner({ id });
+        const winner = response.data;
 
-        const watchLink = generateWatchLink(winner.link)
+        const watchLink = generateWatchLink(winner.link);
         if (watchLink) {
-          window.open(watchLink, '_blank')
+          window.open(watchLink, '_blank');
         }
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
+        let errorMessage = 'Неизвестная ошибка';
 
         try {
           if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
+            const errorData = await err.clone().json();
+            errorMessage = errorData.message || errorMessage;
           } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
+            errorMessage = err.error.message || errorMessage;
           } else if (err.message) {
-            errorMessage = err.message
+            errorMessage = err.message;
           }
         } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
+          console.error('Failed to parse error response:', parseError);
         }
 
-        error.value = errorMessage
-        throw err
+        error.value = errorMessage;
+        throw err;
       }
     },
-  })
+  });
 
   const auctions = computed<RecordEntity[]>(() => {
-    if (!data.value) return []
-    return data.value
-  })
+    if (!data.value) return [];
+    return data.value;
+  });
 
-  const isLoading = computed(() => isLoadingData.value)
+  const isLoading = computed(() => isLoadingData.value);
 
   return {
     isLoading,
@@ -83,9 +83,9 @@ export const useAuctions = defineStore('auction/use-auction', () => {
     auctions,
     refetchAuctions,
     approveAuction,
-  }
-})
+  };
+});
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAuctions, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useAuctions, import.meta.hot));
 }

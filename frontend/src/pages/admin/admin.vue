@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import { useDialog } from '@/components/dialog/composables/use-dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useApi } from '@/composables/use-api'
-import { UserEntity } from '@/lib/api'
-import { getImageUrl } from '@/lib/utils/image'
-import { useTitle } from '@vueuse/core'
-import { PlusIcon, Trash2Icon } from 'lucide-vue-next'
-import { onMounted, ref } from 'vue'
+import { useTitle } from '@vueuse/core';
+import { PlusIcon, Trash2Icon } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
+import { useDialog } from '@/components/dialog/composables/use-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useApi } from '@/composables/use-api';
+import { UserEntity } from '@/lib/api';
+import { getImageUrl } from '@/lib/utils/image';
 
-const title = useTitle()
-onMounted(() => title.value = 'Админка')
+const title = useTitle();
+onMounted(() => (title.value = 'Админка'));
 
-const api = useApi()
-const dialog = useDialog()
-const users = ref<UserEntity[]>([])
-const isLoading = ref(true)
-const newUsername = ref('')
-const isCreatingUser = ref(false)
-const errorMessage = ref('')
+const api = useApi();
+const dialog = useDialog();
+const users = ref<UserEntity[]>([]);
+const isLoading = ref(true);
+const newUsername = ref('');
+const isCreatingUser = ref(false);
+const errorMessage = ref('');
 
 onMounted(async () => {
-  await fetchUsers()
-})
+  await fetchUsers();
+});
 
 async function fetchUsers() {
-  isLoading.value = true
+  isLoading.value = true;
   try {
-    const { data } = await api.users.userControllerGetAllUsers()
-    users.value = data
+    const { data } = await api.users.userControllerGetAllUsers();
+    users.value = data;
   } catch (error) {
-    console.error('Failed to fetch users:', error)
+    console.error('Failed to fetch users:', error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 
@@ -44,29 +44,29 @@ function deleteUser(userId: string, username: string) {
     description: `Вы уверены, что хотите удалить пользователя ${username}?`,
     onSubmit: async () => {
       try {
-        await api.users.userControllerDeleteUser(userId)
-        await fetchUsers()
+        await api.users.userControllerDeleteUser(userId);
+        await fetchUsers();
       } catch (error) {
-        console.error('Failed to delete user:', error)
+        console.error('Failed to delete user:', error);
       }
     },
-  })
+  });
 }
 
 async function createUser() {
-  if (!newUsername.value.trim() || isCreatingUser.value) return
+  if (!newUsername.value.trim() || isCreatingUser.value) return;
 
-  errorMessage.value = ''
-  isCreatingUser.value = true
+  errorMessage.value = '';
+  isCreatingUser.value = true;
   try {
-    await api.users.userControllerCreateUserByLogin({ login: newUsername.value })
-    await fetchUsers()
-    newUsername.value = ''
+    await api.users.userControllerCreateUserByLogin({ login: newUsername.value });
+    await fetchUsers();
+    newUsername.value = '';
   } catch (error) {
-    console.error('Failed to create user:', error)
-    errorMessage.value = 'Не удалось создать пользователя. Проверьте правильность ника Twitch.'
+    console.error('Failed to create user:', error);
+    errorMessage.value = 'Не удалось создать пользователя. Проверьте правильность ника Twitch.';
   } finally {
-    isCreatingUser.value = false
+    isCreatingUser.value = false;
   }
 }
 </script>
@@ -74,18 +74,12 @@ async function createUser() {
 <template>
   <div class="container">
     <div class="container__items">
-      <h1 class="text-2xl font-bold mb-6">
-        Админка
-      </h1>
+      <h1 class="text-2xl font-bold mb-6">Админка</h1>
 
-      <div v-if="isLoading" class="text-center py-4">
-        Загрузка...
-      </div>
+      <div v-if="isLoading" class="text-center py-4">Загрузка...</div>
 
       <div v-else class="grid gap-4">
-        <h2 class="text-xl font-semibold mb-2">
-          Пользователи
-        </h2>
+        <h2 class="text-xl font-semibold mb-2">Пользователи</h2>
 
         <div class="flex flex-col gap-2 mb-4">
           <div class="flex gap-2">
@@ -95,10 +89,7 @@ async function createUser() {
               class="flex-1"
               @keyup.enter="createUser"
             />
-            <Button
-              :disabled="isCreatingUser || !newUsername.trim()"
-              @click="createUser"
-            >
+            <Button :disabled="isCreatingUser || !newUsername.trim()" @click="createUser">
               <PlusIcon class="size-4 mr-2" />
               Добавить
             </Button>
@@ -109,7 +100,11 @@ async function createUser() {
         </div>
 
         <div class="grid gap-4">
-          <div v-for="user in users" :key="user.id" class="flex items-center justify-between gap-4 p-4 border rounded-md">
+          <div
+            v-for="user in users"
+            :key="user.id"
+            class="flex items-center justify-between gap-4 p-4 border rounded-md"
+          >
             <div class="flex items-center gap-4">
               <Avatar class="size-12">
                 <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
@@ -122,16 +117,10 @@ async function createUser() {
                 <div class="text-sm text-gray-500">
                   {{ user.role }}
                 </div>
-                <div class="text-xs text-gray-400">
-                  ID: {{ user.id }}
-                </div>
+                <div class="text-xs text-gray-400">ID: {{ user.id }}</div>
               </div>
             </div>
-            <Button
-              variant="destructive"
-              size="icon"
-              @click="deleteUser(user.id, user.login)"
-            >
+            <Button variant="destructive" size="icon" @click="deleteUser(user.id, user.login)">
               <Trash2Icon class="size-4" color="#ffffff" />
             </Button>
           </div>

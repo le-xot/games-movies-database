@@ -8,7 +8,7 @@
       target="_blank"
       rel="noopener noreferrer"
     >
-      <img :src="service.icon" :alt="service.name" class="service-icon">
+      <img :src="service.icon" :alt="service.name" class="service-icon" />
       <span class="service-label">{{ service.name }}</span>
     </a>
   </div>
@@ -21,7 +21,7 @@ const services = [
   { name: 'Steam', icon: '/icons/services/steam.svg', url: 'https://store.steampowered.com/' },
   { name: 'IGDb', icon: '/icons/services/igdb.svg', url: 'https://www.igdb.com/' },
   { name: 'KinoHub', icon: '/icons/services/kinohub.png', url: 'https://kinobox.in/' },
-]
+];
 </script>
 
 <style scoped>
@@ -41,7 +41,9 @@ const services = [
   border-radius: 10px;
   padding: 7px 10px;
   box-shadow: 0 2px 8px 0 hsla(240 3.7% 15.9% / 0.3);
-  transition: box-shadow 0.2s, background 0.2s;
+  transition:
+    box-shadow 0.2s,
+    background 0.2s;
   text-decoration: none;
   cursor: pointer;
 }

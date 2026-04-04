@@ -1,11 +1,11 @@
 {
   "name": "lexot-website",
-  "type": "module",
   "private": true,
   "workspaces": [
     "frontend",
     "backend"
   ],
+  "type": "module",
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "dev:frontend": "bun --filter=./frontend run dev",

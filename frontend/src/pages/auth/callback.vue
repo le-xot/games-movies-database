@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import { useUser } from '@/composables/use-user'
-import { ROUTER_PATHS } from '@/lib/router/router-paths'
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUser } from '@/composables/use-user';
+import { ROUTER_PATHS } from '@/lib/router/router-paths';
 
-const userApi = useUser()
-const router = useRouter()
+const userApi = useUser();
+const router = useRouter();
 
-const error = ref('')
+const error = ref('');
 
 onMounted(async () => {
-  const url = new URL(window.location.href)
-  const loginError = url.searchParams.get('error')
+  const url = new URL(window.location.href);
+  const loginError = url.searchParams.get('error');
   if (loginError) {
-    error.value = loginError
-    return
+    error.value = loginError;
+    return;
   }
 
-  const code = url.searchParams.get('code')
+  const code = url.searchParams.get('code');
   if (typeof code !== 'string') {
-    error.value = 'Incorrect code'
-    return
+    error.value = 'Incorrect code';
+    return;
   }
 
-  const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
+  const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db;
 
   try {
-    await userApi.userLogin({ code })
-    localStorage.removeItem('loginReturnUrl')
-    await router.push(returnUrl)
+    await userApi.userLogin({ code });
+    localStorage.removeItem('loginReturnUrl');
+    await router.push(returnUrl);
   } catch (e) {
     if (e instanceof Error) {
-      error.value = e.toString()
+      error.value = e.toString();
     }
   }
-})
+});
 </script>
 
 <template>

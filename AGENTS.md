@@ -23,20 +23,20 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series) with 
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add backend feature | `backend/src/modules/{name}/` | See `backend/src/modules/AGENTS.md` for template |
-| Add frontend page | `frontend/src/pages/{feature}/` | Each page = folder with .vue + composables/ |
-| Add UI primitive | `frontend/src/components/ui/{name}/` | shadcn-vue pattern: .vue files + index.ts barrel |
-| Modify auth flow | `backend/src/modules/auth/` | JWT in cookie, Twitch OAuth, guards |
-| Database schema | `backend/prisma/schema.prisma` | Run `bun prisma` after changes |
-| API types | `frontend/src/lib/api.ts` | AUTO-GENERATED from Swagger. Never edit manually |
-| Environment vars | `backend/.env.example` | Copy to `backend/.env` |
-| Router paths | `frontend/src/lib/router/router-paths.ts` | ROUTER_PATHS constant |
-| Image proxy | `frontend/src/lib/utils/image.ts` | Routes through `/api/img` |
-| Watch links | `frontend/src/lib/utils/generate-watch-link.ts` | Kinobox canonical URLs |
-| Env validation | `backend/src/utils/enviroments.ts` | envalid; note the typo in filename |
-| Media page factories | `frontend/src/composables/factories/` | `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
+| Task                 | Location                                        | Notes                                                                        |
+| -------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| Add backend feature  | `backend/src/modules/{name}/`                   | See `backend/src/modules/AGENTS.md` for template                             |
+| Add frontend page    | `frontend/src/pages/{feature}/`                 | Each page = folder with .vue + composables/                                  |
+| Add UI primitive     | `frontend/src/components/ui/{name}/`            | shadcn-vue pattern: .vue files + index.ts barrel                             |
+| Modify auth flow     | `backend/src/modules/auth/`                     | JWT in cookie, Twitch OAuth, guards                                          |
+| Database schema      | `backend/prisma/schema.prisma`                  | Run `bun prisma` after changes                                               |
+| API types            | `frontend/src/lib/api.ts`                       | AUTO-GENERATED from Swagger. Never edit manually                             |
+| Environment vars     | `backend/.env.example`                          | Copy to `backend/.env`                                                       |
+| Router paths         | `frontend/src/lib/router/router-paths.ts`       | ROUTER_PATHS constant                                                        |
+| Image proxy          | `frontend/src/lib/utils/image.ts`               | Routes through `/api/img`                                                    |
+| Watch links          | `frontend/src/lib/utils/generate-watch-link.ts` | Kinobox canonical URLs                                                       |
+| Env validation       | `backend/src/utils/enviroments.ts`              | envalid; note the typo in filename                                           |
+| Media page factories | `frontend/src/composables/factories/`           | `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
 
 ## CONVENTIONS
 

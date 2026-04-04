@@ -1,5 +1,5 @@
-import process from 'node:process'
-import { cleanEnv, num, str } from 'envalid'
+import process from 'node:process';
+import { cleanEnv, num, str } from 'envalid';
 
 export const env = cleanEnv(process.env, {
   DATASOURCE_URL: str({}),
@@ -10,7 +10,7 @@ export const env = cleanEnv(process.env, {
 
   TWITCH_CLIENT_ID: str({ default: null }),
   TWITCH_CLIENT_SECRET: str({ default: null }),
-  TWITCH_CALLBACK_URL: str({ }),
+  TWITCH_CALLBACK_URL: str({}),
   TWITCH_ADMIN_ID: str({ default: null }),
   TWITCH_ADMIN_LOGIN: str({ default: null }),
 
@@ -26,4 +26,4 @@ export const env = cleanEnv(process.env, {
   TMBD_API: str({ default: null }),
 
   TWIR_API: str({ default: null }),
-})
+});

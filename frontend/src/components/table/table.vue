@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="T extends RowData">
+import { FlexRender, RowData, Table } from '@tanstack/vue-table';
+import { provide } from 'vue';
 import {
   TableBody,
   TableCell,
@@ -6,21 +8,15 @@ import {
   TableHeader,
   Table as TableRoot,
   TableRow,
-} from '@/components/ui/table'
-import {
-  FlexRender,
-  RowData,
-  Table,
-} from '@tanstack/vue-table'
-import { provide } from 'vue'
-import { tableInjectionKey } from './table-injection-key'
+} from '@/components/ui/table';
+import { tableInjectionKey } from './table-injection-key';
 
 const props = defineProps<{
-  isLoading: boolean
-  table: Table<T>
-}>()
+  isLoading: boolean;
+  table: Table<T>;
+}>();
 
-provide(tableInjectionKey, props.table)
+provide(tableInjectionKey, props.table);
 </script>
 
 <template>
@@ -46,21 +42,20 @@ provide(tableInjectionKey, props.table)
 
       <TableBody>
         <template v-if="table.getRowModel().rows?.length">
-          <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="max-h-24" :data-state="row.getIsSelected() && 'selected'">
+          <TableRow
+            v-for="row in table.getRowModel().rows"
+            :key="row.id"
+            class="max-h-24"
+            :data-state="row.getIsSelected() && 'selected'"
+          >
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-              <FlexRender
-                :render="cell.column.columnDef.cell"
-                :props="cell.getContext()"
-              />
+              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
             </TableCell>
           </TableRow>
         </template>
 
         <TableRow v-else>
-          <TableCell
-            :colspan="table.getAllColumns().length"
-            class="h-24 text-center"
-          >
+          <TableCell :colspan="table.getAllColumns().length" class="h-24 text-center">
             No results.
           </TableCell>
         </TableRow>

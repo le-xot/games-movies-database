@@ -1,30 +1,34 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { useNewRecords } from '@/composables/use-new-records'
-import { useUser } from '@/composables/use-user'
-import { useLocalStorage } from '@vueuse/core'
-import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
-import { ref } from 'vue'
-import { toast } from 'vue-sonner'
-import SuggestionCard from './components/suggestion-card.vue'
-import { useSuggestion } from './composables/use-suggestion'
+import { useLocalStorage } from '@vueuse/core';
+import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { toast } from 'vue-sonner';
+import { Button } from '@/components/ui/button';
+import { useNewRecords } from '@/composables/use-new-records';
+import { useUser } from '@/composables/use-user';
+import SuggestionCard from './components/suggestion-card.vue';
+import { useSuggestion } from './composables/use-suggestion';
 
-const suggestion = useSuggestion()
-const user = useUser()
+const suggestion = useSuggestion();
+const user = useUser();
 
-const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
-const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
+const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null);
+const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date');
 
 function toggleSort() {
-  sortBy.value = sortBy.value === 'date' ? 'likes' : 'date'
+  sortBy.value = sortBy.value === 'date' ? 'likes' : 'date';
 }
 
 function handleMarkAllAsViewed() {
-  suggestion.suggestions?.forEach(record => {
-    const newRecords = useNewRecords()
-    newRecords.markRecordAsViewed(record.id)
-    toast({ title: 'Успешно', description: 'Все записи отмечены как просмотренные', variant: 'default' })
-  })
+  suggestion.suggestions?.forEach((record) => {
+    const newRecords = useNewRecords();
+    newRecords.markRecordAsViewed(record.id);
+    toast({
+      title: 'Успешно',
+      description: 'Все записи отмечены как просмотренные',
+      variant: 'default',
+    });
+  });
 }
 </script>
 
@@ -57,9 +61,7 @@ function handleMarkAllAsViewed() {
                 Посоветовать
                 <ListPlus class="icon" />
               </span>
-              <span v-else>
-                Авторизуйтесь, чтобы посоветовать
-              </span>
+              <span v-else> Авторизуйтесь, чтобы посоветовать </span>
             </Button>
           </div>
         </div>
@@ -68,19 +70,17 @@ function handleMarkAllAsViewed() {
 
     <div
       v-if="(suggestion.suggestions?.length ?? 0) === 0"
-      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"
+      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)"
       class="text-center flex flex-col items-center"
     >
-      <img class="w-[120px] h-[120px] mx-auto" src="/images/aga.webp" alt="Ага">
+      <img class="w-[120px] h-[120px] mx-auto" src="/images/aga.webp" alt="Ага" />
       <span class="text-xl font-bold block mt-4 mb-4">Пока советов нет</span>
       <Button class="w-fit" :disabled="!user.isLoggedIn" @click="suggestion.openSuggestionDialog()">
         <span v-if="user.isLoggedIn" class="flex items-center gap-2">
           Посоветовать
           <ListPlus class="icon" />
         </span>
-        <span v-else>
-          Авторизуйтесь, чтобы посоветовать
-        </span>
+        <span v-else> Авторизуйтесь, чтобы посоветовать </span>
       </Button>
     </div>
   </div>

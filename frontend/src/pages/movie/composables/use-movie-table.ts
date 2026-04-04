@@ -1,6 +1,6 @@
-import { createTableStore } from '@/composables/factories/create-table-store'
-import { useMovie } from './use-movie'
-import { useMovieParams } from './use-movie-params'
+import { createTableStore } from '@/composables/factories/create-table-store';
+import { useMovie } from './use-movie';
+import { useMovieParams } from './use-movie-params';
 
 export const useMovieTable = createTableStore({
   storeId: 'movies/use-movies-table',
@@ -10,4 +10,4 @@ export const useMovieTable = createTableStore({
   titleSize: { admin: 55, user: 60 },
   deleteConfirmTitle: 'Удалить кинчик?',
   itemsKey: 'videos',
-})
+});

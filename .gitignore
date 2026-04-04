@@ -74,3 +74,4 @@ backend/images/*
 
 # AI orchestrator state
 .sisyphus/
+/test-results/

@@ -8,7 +8,7 @@ import svgLoader from 'vite-svg-loader'
 
 export default defineConfig(({ isPreview, mode }) => {
   if (mode !== 'production' && !isPreview) {
-    generateSwagger()
+    void generateSwagger()
   }
 
   return {
@@ -21,7 +21,7 @@ export default defineConfig(({ isPreview, mode }) => {
       preprocessorOptions: {
         scss: {
           api: 'modern-compiler',
-        },
+        } as any,
       },
       postcss: {
         plugins: [autoprefixer()],

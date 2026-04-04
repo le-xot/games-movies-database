@@ -9,7 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
+import type { UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class SuggestionService {

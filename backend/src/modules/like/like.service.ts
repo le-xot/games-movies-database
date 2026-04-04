@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { PrismaService } from '@/database/prisma.service'
-import { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
+import type { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class LikeService {

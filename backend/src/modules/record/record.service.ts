@@ -6,7 +6,7 @@ import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/recor
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { UserEntity } from '@/modules/user/user.entity'
-import {
+import type {
   UpdateAuctionPayload,
   UpdateQueuePayload,
   UpdateRecordsPayload,

@@ -4,7 +4,7 @@ import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { TwitchService } from '@/modules/twitch/twitch.service'
-import { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
+import type { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class UserService {

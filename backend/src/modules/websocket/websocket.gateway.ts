@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
-import {
+import type {
   UpdateAuctionPayload,
   UpdateLikesPayload,
   UpdateQueuePayload,

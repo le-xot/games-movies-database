@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
-import { UpdateAuctionPayload, UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
+import type {
+  UpdateAuctionPayload,
+  UpdateRecordsPayload,
+} from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class AuctionService {

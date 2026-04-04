@@ -3,7 +3,7 @@ import { X } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { RecordEntity } from '@/lib/api';
-import { getImageUrl } from '@/lib/utils/image';
+import { getImageUrl } from '@/utils/image';
 
 type Phase = 'idle' | 'selecting' | 'selected';
 

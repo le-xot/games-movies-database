@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, toRef } from 'vue';
 import { useBreakpoints } from '@/composables/use-breakpoints';
-import { generateWatchLink } from '@/lib/utils/generate-watch-link';
+import { generateWatchLink } from '@/utils/generate-watch-link';
 import { useTableCol } from '../composables/use-table-col';
 
 type TitleType = string | undefined;

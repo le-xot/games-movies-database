@@ -1,0 +1,3 @@
+cd frontend && bun run build
+exit code: 0
+result: passed

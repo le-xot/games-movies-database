@@ -2,8 +2,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QueueItemDto } from '@/lib/api';
-import { generateWatchLink } from '@/lib/utils/generate-watch-link';
-import { getImageUrl } from '@/lib/utils/image';
+import { generateWatchLink } from '@/utils/generate-watch-link';
+import { getImageUrl } from '@/utils/image';
 
 defineProps<{ items: QueueItemDto[] }>();
 

@@ -4,7 +4,7 @@ import { computed, ref } from 'vue';
 import { useApi } from '@/composables/use-api';
 import { useUser } from '@/composables/use-user';
 import { RecordEntity } from '@/lib/api';
-import { generateWatchLink } from '@/lib/utils/generate-watch-link';
+import { generateWatchLink } from '@/utils/generate-watch-link';
 
 export const AUCTION_QUERY_KEY = 'auction';
 

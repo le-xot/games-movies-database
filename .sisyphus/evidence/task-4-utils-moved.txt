@@ -1,0 +1,5 @@
+grep -rn '@/lib/utils/' frontend/src/ -> 0 results
+frontend/src/utils/image.ts exists: yes
+frontend/src/utils/generate-watch-link.ts exists: yes
+frontend/src/lib/utils.ts exists: yes
+frontend/src/lib/utils/ directory exists: no

@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useApi } from '@/composables/use-api';
 import { useUser } from '@/composables/use-user';
 import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api';
-import { getImageUrl } from '@/lib/utils/image';
+import { getImageUrl } from '@/utils/image';
 
 const title = useTitle();
 onMounted(() => (title.value = 'Профиль'));

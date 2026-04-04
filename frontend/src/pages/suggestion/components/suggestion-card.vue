@@ -10,8 +10,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { useNewRecords } from '@/composables/use-new-records';
 import { useUser } from '@/composables/use-user';
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api';
-import { generateWatchLink } from '@/lib/utils/generate-watch-link';
-import { getImageUrl } from '@/lib/utils/image';
+import { generateWatchLink } from '@/utils/generate-watch-link';
+import { getImageUrl } from '@/utils/image';
 import { useLike } from '@/pages/suggestion/composables/use-like';
 import { useSuggestion } from '../composables/use-suggestion';
 

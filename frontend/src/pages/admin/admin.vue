@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApi } from '@/composables/use-api';
 import { UserEntity } from '@/lib/api';
-import { getImageUrl } from '@/lib/utils/image';
+import { getImageUrl } from '@/utils/image';
 
 const title = useTitle();
 onMounted(() => (title.value = 'Админка'));

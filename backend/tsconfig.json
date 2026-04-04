@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ESNext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "*": ["./*"],
-      "@/*": ["./src/*"] // @ → src
+      "@/*": ["./src/*"]
     },
     "resolveJsonModule": true,
     "strict": false,

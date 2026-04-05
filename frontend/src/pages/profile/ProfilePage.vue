@@ -2,10 +2,7 @@
 import { useTitle } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
-import { gradeTags } from '@/components/table/composables/use-table-select'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Command,
   CommandEmpty,
@@ -14,10 +11,10 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { RecordEntity, RecordGrade, UserEntity } from '@/lib/api'
+import ProfileRecordCard from '@/pages/profile/components/ProfileRecordCard.vue'
+import { RecordEntity, UserEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
-import { getImageUrl } from '@/utils/image'
 
 const title = useTitle()
 onMounted(() => (title.value = 'Профиль'))
@@ -111,10 +108,6 @@ const filteredUsers = computed(() => {
   return users.value.filter((u) => u.login.toLowerCase().includes(searchValue.value.toLowerCase()))
 })
 
-function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement
-  img.src = '/images/aga.webp'
-}
 </script>
 
 <template>
@@ -182,72 +175,11 @@ function handleImageError(event: Event) {
           {{ userVideos.length }}
         </p>
         <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
-          <Card
+          <ProfileRecordCard
             v-for="video in userVideos"
             :key="video.id"
-            class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col"
-          >
-            <div class="flex flex-1 h-full">
-              <div
-                v-if="video.posterUrl"
-                class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-              >
-                <img
-                  :src="getImageUrl(video.posterUrl)"
-                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] aspect-[2/3]"
-                  alt=""
-                  @error="handleImageError"
-                />
-              </div>
-              <div
-                v-else
-                class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]"
-              >
-                <span class="text-white text-xs text-center px-2"
-                  >{{ video.title?.slice(0, 20) }}...</span
-                >
-              </div>
-              <div class="flex flex-col flex-1 justify-between overflow-hidden">
-                <CardHeader>
-                  <CardTitle
-                    class="text-xl overflow-hidden line-clamp-2 max-w-full box-border"
-                    :title="video.title"
-                  >
-                    {{ video.title }}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent
-                  v-if="video.link"
-                  class="text-xs text-[#1e90ff] underline italic block whitespace-nowrap overflow-hidden text-ellipsis"
-                >
-                  <a :href="video.link" target="_blank">
-                    {{ video.link }}
-                  </a>
-                </CardContent>
-                <CardFooter class="flex flex-col items-start w-full">
-                  <div class="flex justify-between w-full items-center">
-                    <div v-if="video.createdAt" class="text-sm text-muted-foreground">
-                      {{
-                        new Date(video.createdAt).toLocaleDateString('ru-RU', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })
-                      }}
-                    </div>
-                    <Badge
-                      v-if="video.grade"
-                      :class="gradeTags[video.grade as RecordGrade]?.class"
-                      class="text-white pointer-events-none h-8 min-w-28 justify-center select-none"
-                    >
-                      {{ gradeTags[video.grade as RecordGrade]?.name }}
-                      {{ gradeTags[video.grade as RecordGrade]?.label }}
-                    </Badge>
-                  </div>
-                </CardFooter>
-              </div>
-            </div>
-          </Card>
+            :record="video"
+          />
         </div>
       </div>
 
@@ -257,72 +189,11 @@ function handleImageError(event: Event) {
           {{ userGames.length }}
         </p>
         <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
-          <Card
+          <ProfileRecordCard
             v-for="game in userGames"
             :key="game.id"
-            class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col"
-          >
-            <div class="flex flex-1 h-full">
-              <div
-                v-if="game.posterUrl"
-                class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-              >
-                <img
-                  :src="getImageUrl(game.posterUrl)"
-                  class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] aspect-[2/3]"
-                  alt=""
-                  @error="handleImageError"
-                />
-              </div>
-              <div
-                v-else
-                class="relative w-[150px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]"
-              >
-                <span class="text-white text-xs text-center px-2"
-                  >{{ game.title?.slice(0, 20) }}...</span
-                >
-              </div>
-              <div class="flex flex-col flex-1 justify-between overflow-hidden">
-                <CardHeader>
-                  <CardTitle
-                    class="text-xl overflow-hidden line-clamp-2 max-w-full box-border"
-                    :title="game.title"
-                  >
-                    {{ game.title }}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent
-                  v-if="game.link"
-                  class="text-xs text-[#1e90ff] underline italic block whitespace-nowrap overflow-hidden text-ellipsis"
-                >
-                  <a :href="game.link" target="_blank">
-                    {{ game.link }}
-                  </a>
-                </CardContent>
-                <CardFooter class="flex flex-col items-start w-full">
-                  <div class="flex justify-between w-full items-center">
-                    <div v-if="game.createdAt" class="text-sm text-muted-foreground">
-                      {{
-                        new Date(game.createdAt).toLocaleDateString('ru-RU', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })
-                      }}
-                    </div>
-                    <Badge
-                      v-if="game.grade"
-                      :class="gradeTags[game.grade as RecordGrade]?.class"
-                      class="text-white pointer-events-none h-8 min-w-28 justify-center select-none"
-                    >
-                      {{ gradeTags[game.grade as RecordGrade]?.name }}
-                      {{ gradeTags[game.grade as RecordGrade]?.label }}
-                    </Badge>
-                  </div>
-                </CardFooter>
-              </div>
-            </div>
-          </Card>
+            :record="game"
+          />
         </div>
       </div>
       <div

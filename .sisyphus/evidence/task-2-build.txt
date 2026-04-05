@@ -1,0 +1,3 @@
+$ bun typecheck && bunx --bun vite build
+$ vue-tsc
+tsconfig.json(23,18): error TS6310: Referenced project '/home/lexot/Documents/Github/games-movies-database/frontend/tsconfig.node.json' may not disable emit.

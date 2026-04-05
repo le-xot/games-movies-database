@@ -43,6 +43,10 @@ export const statusTags: Record<RecordStatus, BadgeOptions> = {
 }
 
 export const genreTags: Partial<Record<RecordGenre, BadgeOptions>> = {
+  [RecordGenre.GAME]: {
+    name: 'Игра',
+    class: 'bg-[#333333] border text-white/80',
+  },
   [RecordGenre.MOVIE]: {
     name: 'Фильм',
     class: 'bg-[#2b593f] border text-white/80',

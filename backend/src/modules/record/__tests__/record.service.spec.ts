@@ -101,9 +101,11 @@ describe('RecordService', () => {
       mockRepo.findById = mock(() => Promise.resolve(existing))
       mockRepo.update = mock(() => Promise.resolve(updated))
 
-      await service.patchRecord(5, { status: RecordStatus.DONE } as any)
+      const updateData = { status: RecordStatus.DONE }
+      await service.patchRecord(5, updateData as any)
 
       expect(mockRepo.update).toHaveBeenCalledTimes(1)
+      expect(mockRepo.update).toHaveBeenCalledWith(5, updateData)
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'update-records',
         expect.objectContaining({ id: 5, action: 'updated' }),
@@ -117,8 +119,10 @@ describe('RecordService', () => {
       mockRepo.findById = mock(() => Promise.resolve(existing))
       mockRepo.update = mock(() => Promise.resolve(updated))
 
-      await service.patchRecord(5, { type: RecordType.WRITTEN } as any)
+      const updateData = { type: RecordType.WRITTEN }
+      await service.patchRecord(5, updateData as any)
 
+      expect(mockRepo.update).toHaveBeenCalledWith(5, updateData)
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'update-suggestions',
         expect.objectContaining({ id: 5, action: 'updated' }),

@@ -71,7 +71,7 @@ export class RecordService {
     if (!foundedRecord) {
       throw new NotFoundException('Record not found')
     }
-    const updatedRecord = await this.recordRepository.update(id, { ...foundedRecord, ...data } as any)
+    const updatedRecord = await this.recordRepository.update(id, data)
 
     if (
       foundedRecord.type === RecordType.SUGGESTION &&

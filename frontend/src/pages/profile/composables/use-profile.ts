@@ -1,9 +1,9 @@
 import { computed, ref, watch } from 'vue'
-import type { Ref } from 'vue'
-import type { ProfileStatsEntity, RecordEntity } from '@/lib/api'
 import { RecordGenre } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
+import type { ProfileStatsEntity, RecordEntity } from '@/lib/api'
+import type { Ref } from 'vue'
 
 export function useProfile(login: Ref<string | undefined>) {
   const api = useApi()

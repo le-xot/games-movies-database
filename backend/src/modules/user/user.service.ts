@@ -3,8 +3,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import { RecordEntity } from '@/modules/record/record.entity'
-import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
 import { TwitchService } from '@/modules/twitch/twitch.service'
+import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
 import type { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()

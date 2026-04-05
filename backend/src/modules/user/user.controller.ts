@@ -14,9 +14,9 @@ import { $Enums, User } from '@prisma/client'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { RecordEntity } from '@/modules/record/record.entity'
+import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
 import { UserCreateByLoginDTO, UserUpdateDTO } from '@/modules/user/user.dto'
 import { UserEntity } from '@/modules/user/user.entity'
-import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
 import { UserService } from '@/modules/user/user.service'
 
 @ApiTags('users')

@@ -25,11 +25,7 @@ defineProps<{
       <div class="flex flex-col gap-2">
         <span class="text-sm font-medium text-muted-foreground">По категориям</span>
         <div class="flex flex-wrap gap-2">
-          <Badge 
-            v-for="item in stats.recordsByGenre" 
-            :key="item.genre"
-            variant="secondary"
-          >
+          <Badge v-for="item in stats.recordsByGenre" :key="item.genre" variant="secondary">
             {{ genreTags[item.genre as RecordGenre]?.name || item.genre }}: {{ item.count }}
           </Badge>
         </div>
@@ -38,11 +34,7 @@ defineProps<{
       <div class="flex flex-col gap-2">
         <span class="text-sm font-medium text-muted-foreground">Оценки</span>
         <div class="flex flex-wrap gap-2">
-          <Badge 
-            v-for="item in stats.gradeDistribution" 
-            :key="item.grade"
-            variant="outline"
-          >
+          <Badge v-for="item in stats.gradeDistribution" :key="item.grade" variant="outline">
             {{ gradeTags[item.grade as RecordGrade]?.name || item.grade }} {{ item.count }}
           </Badge>
         </div>

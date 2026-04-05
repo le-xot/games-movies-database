@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import type { UserEntity } from '@/lib/api'
 import { getImageUrl } from '@/utils/image'
+import type { UserEntity } from '@/lib/api'
 
 defineProps<{
   user: UserEntity
@@ -16,12 +16,10 @@ defineProps<{
       <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
       <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
     </Avatar>
-    
+
     <div class="flex flex-col gap-1">
       <h1 class="text-2xl font-bold">{{ user.login }}</h1>
-      <Badge v-if="isOwnProfile" variant="secondary" class="w-fit font-normal">
-        Мой профиль
-      </Badge>
+      <Badge v-if="isOwnProfile" variant="secondary" class="w-fit font-normal"> Мой профиль </Badge>
     </div>
   </div>
 </template>

@@ -36,7 +36,10 @@ function handleImageError(event: Event) {
       </div>
       <div class="flex flex-col flex-1 justify-between overflow-hidden">
         <CardHeader>
-          <CardTitle class="text-xl overflow-hidden line-clamp-2 max-w-full box-border" :title="record.title">
+          <CardTitle
+            class="text-xl overflow-hidden line-clamp-2 max-w-full box-border"
+            :title="record.title"
+          >
             {{ record.title }}
           </CardTitle>
         </CardHeader>

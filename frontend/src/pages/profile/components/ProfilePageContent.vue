@@ -1,16 +1,15 @@
 <script setup lang="ts">
+import { useTitle } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useTitle } from '@vueuse/core'
-import { RecordGenre } from '@/lib/api'
-import { useUser } from '@/stores/use-user'
-import { useProfile } from '@/pages/profile/composables/use-profile'
 import { genreTags } from '@/components/table/composables/use-table-select'
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RecordGenre } from '@/lib/api'
+import { useProfile } from '@/pages/profile/composables/use-profile'
+import { useUser } from '@/stores/use-user'
 import ProfileHeader from './ProfileHeader.vue'
-import ProfileStatsBlock from './ProfileStatsBlock.vue'
 import ProfileRecordCard from './ProfileRecordCard.vue'
+import ProfileStatsBlock from './ProfileStatsBlock.vue'
 
 useTitle('Профиль')
 
@@ -43,7 +42,10 @@ const TABS = [
     </div>
 
     <template v-else>
-      <div v-if="records.length === 0" class="flex flex-col items-center justify-center py-20 gap-6 text-center">
+      <div
+        v-if="records.length === 0"
+        class="flex flex-col items-center justify-center py-20 gap-6 text-center"
+      >
         <template v-if="isOwnProfile">
           <img src="/images/muh.webp" alt="Empty" class="max-w-[300px] object-contain" />
           <p class="text-2xl font-semibold">Вы ещё ничего не предложили</p>
@@ -55,35 +57,18 @@ const TABS = [
       </div>
 
       <template v-else>
-        <ProfileHeader
-          v-if="profileUser"
-          :user="profileUser"
-          :is-own-profile="isOwnProfile"
-        />
+        <ProfileHeader v-if="profileUser" :user="profileUser" :is-own-profile="isOwnProfile" />
 
-        <ProfileStatsBlock
-          v-if="profileStats"
-          :stats="profileStats"
-        />
+        <ProfileStatsBlock v-if="profileStats" :stats="profileStats" />
 
         <Tabs defaultValue="MOVIE" class="w-full">
           <TabsList class="w-full flex justify-start overflow-x-auto">
-            <TabsTrigger
-              v-for="genre in TABS"
-              :key="genre"
-              :value="genre"
-              class="min-w-fit"
-            >
+            <TabsTrigger v-for="genre in TABS" :key="genre" :value="genre" class="min-w-fit">
               {{ genreTags[genre]?.name || genre }}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent
-            v-for="genre in TABS"
-            :key="genre"
-            :value="genre"
-            class="mt-6"
-          >
+          <TabsContent v-for="genre in TABS" :key="genre" :value="genre" class="mt-6">
             <div
               v-if="recordsByGenre[genre] && recordsByGenre[genre].length > 0"
               class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4"

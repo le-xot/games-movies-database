@@ -312,7 +312,7 @@ function toggleGenreCollapse(genre: RecordGenre) {
                     </div>
                     <div v-if="item.user" class="flex justify-between w-full mb-3">
                       <div class="flex items-center">
-                        <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.login}`">
+                        <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.id}`">
                           <Avatar class="w-8 h-8 mr-2">
                             <AvatarImage :src="item.user.profileImageUrl" />
                             <AvatarFallback />

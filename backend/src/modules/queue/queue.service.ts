@@ -29,6 +29,7 @@ export class QueueService {
         (g): QueueItemDto => ({
           title: g.title,
           login: g.user?.login || 'John Doe',
+          userId: g.user?.id || null,
           profileImageUrl: g.user?.profileImageUrl || 'https://via.placeholder.com/150',
           posterUrl: g.posterUrl,
           createdAt: g.createdAt.toLocaleDateString('ru-RU', {
@@ -45,6 +46,7 @@ export class QueueService {
         (v): QueueItemDto => ({
           title: v.title,
           login: v.user?.login || 'John Doe',
+          userId: v.user?.id || null,
           profileImageUrl: v.user?.profileImageUrl || 'https://via.placeholder.com/150',
           posterUrl: v.posterUrl,
           createdAt: v.createdAt.toLocaleDateString('ru-RU', {

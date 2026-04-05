@@ -108,7 +108,7 @@ async function createUser() {
             class="flex items-center justify-between gap-4 p-4 border rounded-md"
           >
             <div class="flex items-center gap-4">
-              <RouterLink :to="`${ROUTER_PATHS.profile}/${user.login}`">
+              <RouterLink :to="`${ROUTER_PATHS.profile}/${user.id}`">
                 <Avatar class="size-12">
                   <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
                   <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>

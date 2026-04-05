@@ -61,6 +61,13 @@ export class UserController {
     return await this.userService.getUserRecords(login)
   }
 
+  @Get('user-records-by-id')
+  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
+  @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
+  async getUserRecordsById(@Query('id') id: string): Promise<RecordEntity[]> {
+    return await this.userService.getUserRecordsById(id)
+  }
+
   @Post(':id')
   @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
@@ -73,6 +80,13 @@ export class UserController {
   @ApiResponse({ type: ProfileStatsEntity })
   getUserProfileStats(@Param('login') login: string) {
     return this.userService.getUserProfileStats(login)
+  }
+
+  @Get('profile-by-id/:id')
+  @UseGuards(AuthGuard)
+  @ApiResponse({ type: ProfileStatsEntity })
+  getUserProfileStatsById(@Param('id') id: string) {
+    return this.userService.getUserProfileStatsById(id)
   }
 
   @Get(':id')

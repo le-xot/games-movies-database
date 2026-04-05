@@ -198,6 +198,7 @@ export interface QueueItemDto {
    * @example "John Doe"
    */
   login: string | null;
+  userId: string | null;
   link: string;
   profileImageUrl: string;
   posterUrl: string;
@@ -555,6 +556,27 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
+     * @name UserControllerGetUserRecordsById
+     * @request GET:/users/user-records-by-id
+     */
+    userControllerGetUserRecordsById: (
+      query: {
+        id: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RecordEntity[], any>({
+        path: `/users/user-records-by-id`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
      * @name UserControllerPatchUser
      * @request POST:/users/{id}
      */
@@ -605,6 +627,20 @@ export class Api<SecurityDataType extends unknown> {
     userControllerGetUserProfileStats: (login: string, params: RequestParams = {}) =>
       this.http.request<any, ProfileStatsEntity>({
         path: `/users/profile/${login}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerGetUserProfileStatsById
+     * @request GET:/users/profile-by-id/{id}
+     */
+    userControllerGetUserProfileStatsById: (id: string, params: RequestParams = {}) =>
+      this.http.request<any, ProfileStatsEntity>({
+        path: `/users/profile-by-id/${id}`,
         method: "GET",
         ...params,
       }),

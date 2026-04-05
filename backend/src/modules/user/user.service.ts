@@ -74,6 +74,13 @@ export class UserService {
     })
   }
 
+  getUserRecordsById(id: string): Promise<RecordEntity[]> {
+    return this.prisma.record.findMany({
+      where: { user: { id } },
+      include: { user: true, likes: true },
+    })
+  }
+
   async createUserById(id: string): Promise<User> {
     try {
       const twitchUser = await this.twitch.getTwitchUserById(id)
@@ -204,6 +211,42 @@ export class UserService {
           _count: { grade: true },
         }),
         this.prisma.like.count({ where: { record: { user: { login } } } }),
+      ])
+
+    return {
+      totalRecords,
+      recordsByGenre: recordsByGenreRaw.map((item) => ({
+        genre: item.genre ?? 'UNKNOWN',
+        count: item._count.genre,
+      })),
+      gradeDistribution: gradeDistributionRaw.map((item) => ({
+        grade: item.grade ?? 'UNKNOWN',
+        count: item._count.grade,
+      })),
+      totalLikesReceived,
+    }
+  }
+
+  async getUserProfileStatsById(id: string): Promise<ProfileStatsEntity> {
+    const user = await this.prisma.user.findUnique({ where: { id } })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    const [totalRecords, recordsByGenreRaw, gradeDistributionRaw, totalLikesReceived] =
+      await Promise.all([
+        this.prisma.record.count({ where: { userId: id } }),
+        this.prisma.record.groupBy({
+          by: ['genre'],
+          where: { userId: id },
+          _count: { genre: true },
+        }),
+        this.prisma.record.groupBy({
+          by: ['grade'],
+          where: { userId: id },
+          _count: { grade: true },
+        }),
+        this.prisma.like.count({ where: { record: { userId: id } } }),
       ])
 
     return {

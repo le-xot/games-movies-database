@@ -15,11 +15,11 @@ useTitle('Профиль')
 
 const route = useRoute()
 const userStore = useUser()
-const login = computed(() => (route.params.login as string) || undefined)
+const userId = computed(() => (route.params.userId as string) || undefined)
 
-const { records, profileStats, isLoading, error, recordsByGenre } = useProfile(login)
+const { records, profileStats, isLoading, error, recordsByGenre } = useProfile(userId)
 
-const isOwnProfile = computed(() => !login.value || login.value === userStore.user?.login)
+const isOwnProfile = computed(() => !userId.value || userId.value === userStore.user?.id)
 const profileUser = computed(() => records.value[0]?.user ?? null)
 
 const TABS = [

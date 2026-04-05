@@ -62,7 +62,7 @@ function handleImageError(event: Event) {
               <CardContent class="flex flex-col items-start gap-3 w-full px-6 py-2">
                 <div class="flex justify-between w-full">
                   <div class="flex items-center">
-                    <RouterLink :to="`${ROUTER_PATHS.profile}/${item.login}`">
+                    <RouterLink :to="`${ROUTER_PATHS.profile}/${item.userId}`">
                       <Avatar class="w-8 h-8 mr-2">
                         <AvatarImage :src="item.profileImageUrl" />
                         <AvatarFallback />

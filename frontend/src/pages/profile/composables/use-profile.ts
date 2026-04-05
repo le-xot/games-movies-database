@@ -5,7 +5,7 @@ import { useUser } from '@/stores/use-user'
 import type { ProfileStatsEntity, RecordEntity } from '@/lib/api'
 import type { Ref } from 'vue'
 
-export function useProfile(login: Ref<string | undefined>) {
+export function useProfile(userId: Ref<string | undefined>) {
   const api = useApi()
   const userStore = useUser()
 
@@ -14,7 +14,7 @@ export function useProfile(login: Ref<string | undefined>) {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  const targetLogin = computed(() => login.value ?? userStore.user?.login)
+  const targetUserId = computed(() => userId.value ?? userStore.user?.id)
 
   const recordsByGenre = computed(() => {
     const result: Partial<Record<RecordGenre, RecordEntity[]>> = {}
@@ -24,13 +24,13 @@ export function useProfile(login: Ref<string | undefined>) {
     return result
   })
 
-  async function fetchProfileData(loginValue: string) {
+  async function fetchProfileData(id: string) {
     isLoading.value = true
     error.value = null
     try {
       const [recordsRes, statsRes] = await Promise.all([
-        api.users.userControllerGetUserRecords({ login: loginValue }),
-        api.users.userControllerGetUserProfileStats(loginValue),
+        api.users.userControllerGetUserRecordsById({ id }),
+        api.users.userControllerGetUserProfileStatsById(id),
       ])
       records.value = recordsRes.data
       profileStats.value = statsRes.data as unknown as ProfileStatsEntity
@@ -48,10 +48,10 @@ export function useProfile(login: Ref<string | undefined>) {
   }
 
   watch(
-    targetLogin,
-    (newLogin) => {
-      if (newLogin) {
-        fetchProfileData(newLogin)
+    targetUserId,
+    (newId) => {
+      if (newId) {
+        fetchProfileData(newId)
       }
     },
     { immediate: true },

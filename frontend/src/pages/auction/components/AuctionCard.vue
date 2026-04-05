@@ -59,7 +59,7 @@ defineExpose({ isDialogOpen })
             </CardContent>
             <CardFooter class="flex flex-col items-start gap-3 w-full">
               <div v-if="item.user" class="flex items-center gap-2">
-                <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.login}`">
+                <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.id}`">
                   <Avatar class="w-8 h-8 mr-2">
                     <AvatarImage :src="item.user.profileImageUrl" />
                     <AvatarFallback />

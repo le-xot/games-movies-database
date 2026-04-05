@@ -1,7 +1,9 @@
 import process from 'node:process'
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient, RecordGenre } from '../src/generated/prisma/client'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: process.env.DATASOURCE_URL ?? '' })
+const prisma = new PrismaClient({ adapter })
 
 async function seed() {
   await prisma.user.upsert({

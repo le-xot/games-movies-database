@@ -1,6 +1,5 @@
 import process from 'node:process'
-
-const { PrismaClient, RecordGenre } = require('@prisma/client')
+import { PrismaClient, RecordGenre } from '../src/generated/prisma/client'
 
 const prisma = new PrismaClient()
 

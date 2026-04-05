@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import { $Enums } from '@prisma/client'
+import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
@@ -17,13 +17,13 @@ export class SuggestionController {
 
   @Get()
   @ApiResponse({ status: 200, type: RecordEntity, isArray: true })
-  getSuggestions(): Promise<RecordEntity[]> {
-    return this.suggestionService.getSuggestions()
+  async getSuggestions(): Promise<RecordEntity[]> {
+    return await this.suggestionService.getSuggestions() as unknown as RecordEntity[]
   }
 
   @Post()
   @Throttle({ default: { ttl: 60000, limit: 10 } })
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.USER, $Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns created suggestion' })
   async userSuggest(@Body() suggest: UserSuggestionDTO, @User() user: UserEntity): Promise<any> {
     return await this.suggestionService.userSuggest({ link: suggest.link, userId: user.id })

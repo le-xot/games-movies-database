@@ -1,4 +1,4 @@
-import { $Enums } from '@prisma/client'
+import { RecordGenre } from '@/enums'
 
 export const WsEvents = {
   UPDATE_RECORDS: 'update-records',
@@ -10,7 +10,7 @@ export const WsEvents = {
 } as const
 
 export interface UpdateRecordsPayload {
-  genre: $Enums.RecordGenre
+  genre: RecordGenre
   id: number
   action: 'created' | 'updated' | 'deleted'
 }

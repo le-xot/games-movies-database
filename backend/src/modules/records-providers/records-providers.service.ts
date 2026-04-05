@@ -1,13 +1,13 @@
 import { env } from 'node:process'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
-import { $Enums } from '@prisma/client'
-import { PrismaService } from '@/database/prisma.service'
+import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { TwitchService } from '@/modules/twitch/twitch.service'
+import { RecordsProvidersRepository } from './repositories/records-providers.repository'
 
 interface PreparedData {
   title: string
   posterUrl: string
-  genre: $Enums.RecordGenre
+  genre: RecordGenre
   link: string
 }
 
@@ -16,7 +16,7 @@ export class RecordsProvidersService {
   private readonly logger = new Logger(RecordsProvidersService.name)
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly repo: RecordsProvidersRepository,
     private readonly twitch: TwitchService,
   ) {}
 
@@ -60,43 +60,43 @@ export class RecordsProvidersService {
   }
 
   private readonly recordValidationRules = [
-    { condition: (r: any) => r.type === $Enums.RecordType.AUCTION, message: 'Уже есть в аукционе' },
+    { condition: (r: any) => r.type === RecordType.AUCTION, message: 'Уже есть в аукционе' },
     {
-      condition: (r: any) => r.type === $Enums.RecordType.SUGGESTION,
+      condition: (r: any) => r.type === RecordType.SUGGESTION,
       message: 'Уже есть в советах',
     },
     {
       condition: (r: any) =>
-        r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.DONE,
+        r.type === RecordType.WRITTEN && r.status === RecordStatus.DONE,
       message: 'Уже есть в базе со статусом "Готово"',
     },
     {
       condition: (r: any) =>
-        r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.DROP,
+        r.type === RecordType.WRITTEN && r.status === RecordStatus.DROP,
       message: 'Уже есть в базе со статусом "Дроп"',
     },
     {
       condition: (r: any) =>
-        r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.NOTINTERESTED,
+        r.type === RecordType.WRITTEN && r.status === RecordStatus.NOTINTERESTED,
       message: 'Уже есть в базе со статусом "Не интересно"',
     },
     {
       condition: (r: any) =>
-        r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.PROGRESS,
+        r.type === RecordType.WRITTEN && r.status === RecordStatus.PROGRESS,
       message: 'Уже есть в базе со статусом "В процессе"',
     },
     {
       condition: (r: any) =>
-        r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.QUEUE,
+        r.type === RecordType.WRITTEN && r.status === RecordStatus.QUEUE,
       message: 'Уже есть в очереди',
     },
     {
       condition: (r: any) =>
-        r.type === $Enums.RecordType.WRITTEN && r.status === $Enums.RecordStatus.UNFINISHED,
+        r.type === RecordType.WRITTEN && r.status === RecordStatus.UNFINISHED,
       message: 'Уже есть в базе со статусом "Нет концовки"',
     },
     {
-      condition: (r: any) => r.type === $Enums.RecordType.WRITTEN && r.status === null,
+      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === null,
       message: 'Уже есть в базе',
     },
   ]
@@ -117,12 +117,7 @@ export class RecordsProvidersService {
     const newRecord = await fetcher(id)
     if (!newRecord.title) throw new BadRequestException('Не удалось получить данные из API')
 
-    const foundedRecord = await this.prisma.record.findFirst({
-      where: {
-        link: newRecord.link,
-        genre: newRecord.genre,
-      },
-    })
+    const foundedRecord = await this.repo.findRecordByLinkAndGenre(newRecord.link, newRecord.genre)
 
     if (foundedRecord) {
       this.logger.warn(`Found existing record for link=${data.link}`)
@@ -141,15 +136,15 @@ export class RecordsProvidersService {
     throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
   }
 
-  private async checkGenrePermission(genre: $Enums.RecordGenre, message?: string) {
-    const rule = await this.prisma.suggestionRules.findUnique({ where: { genre } })
+  private async checkGenrePermission(genre: RecordGenre, message?: string) {
+    const rule = await this.repo.findSuggestionRulesByGenre(genre)
     if (!rule?.permission) {
       throw new BadRequestException(message ?? `Жанр ${genre} временно не разрешён`)
     }
   }
 
   private async fetchShikimori(id: number): Promise<PreparedData> {
-    await this.checkGenrePermission($Enums.RecordGenre.ANIME, 'Прошу пока аниме не советовать')
+    await this.checkGenrePermission(RecordGenre.ANIME, 'Прошу пока аниме не советовать')
 
     const response = await fetch('https://shikimori.one/api/graphql', {
       method: 'POST',
@@ -178,7 +173,7 @@ export class RecordsProvidersService {
     return {
       title: anime.russian,
       posterUrl: anime.poster.originalUrl ?? '',
-      genre: $Enums.RecordGenre.ANIME,
+      genre: RecordGenre.ANIME,
       link: `https://shikimori.one/animes/${id}`,
     }
   }
@@ -213,38 +208,38 @@ export class RecordsProvidersService {
   private async mapKinopoiskGenre(
     genres: Array<{ genre: string }>,
     type: string,
-  ): Promise<$Enums.RecordGenre> {
+  ): Promise<RecordGenre> {
     if (!genres?.length)
       throw new BadRequestException('Не удалось определить жанр из API Кинопоиска')
 
     if (genres.some((g) => g.genre.toLowerCase() === 'аниме')) {
-      await this.checkGenrePermission($Enums.RecordGenre.ANIME, 'Прошу пока аниме не советовать')
-      return $Enums.RecordGenre.ANIME
+      await this.checkGenrePermission(RecordGenre.ANIME, 'Прошу пока аниме не советовать')
+      return RecordGenre.ANIME
     }
 
     if (genres.some((g) => g.genre.toLowerCase() === 'мультфильм')) {
       await this.checkGenrePermission(
-        $Enums.RecordGenre.CARTOON,
+        RecordGenre.CARTOON,
         'Прошу пока мультфильмы не советовать',
       )
-      return $Enums.RecordGenre.CARTOON
+      return RecordGenre.CARTOON
     }
 
     return this.mapKinopoiskType(type)
   }
 
-  private async mapKinopoiskType(type: string): Promise<$Enums.RecordGenre> {
+  private async mapKinopoiskType(type: string): Promise<RecordGenre> {
     const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
     if (seriesTypes.includes(type)) {
-      await this.checkGenrePermission($Enums.RecordGenre.SERIES, 'Прошу пока сериалы не советовать')
-      return $Enums.RecordGenre.SERIES
+      await this.checkGenrePermission(RecordGenre.SERIES, 'Прошу пока сериалы не советовать')
+      return RecordGenre.SERIES
     }
-    await this.checkGenrePermission($Enums.RecordGenre.MOVIE, 'Прошу пока фильмы не советовать')
-    return $Enums.RecordGenre.MOVIE
+    await this.checkGenrePermission(RecordGenre.MOVIE, 'Прошу пока фильмы не советовать')
+    return RecordGenre.MOVIE
   }
 
   private async fetchIGDBGame(where: string): Promise<PreparedData> {
-    await this.checkGenrePermission($Enums.RecordGenre.GAME, 'Прошу пока игры не советовать')
+    await this.checkGenrePermission(RecordGenre.GAME, 'Прошу пока игры не советовать')
 
     const accessToken = await this.twitch.getAppAccessToken()
     const response = await fetch('https://api.igdb.com/v4/games', {
@@ -268,7 +263,7 @@ export class RecordsProvidersService {
     return {
       title: game.name,
       posterUrl: coverUrl,
-      genre: $Enums.RecordGenre.GAME,
+      genre: RecordGenre.GAME,
       link: `https://www.igdb.com/games/${game.slug}`,
     }
   }

@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
+import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
@@ -31,24 +31,24 @@ export class RecordController {
   constructor(private recordServices: RecordService) {}
 
   @Post('link')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
-  createRecordFromLink(
+  async createRecordFromLink(
     @User() user: UserEntity,
     @Body() data: RecordCreateFromLinkDTO,
   ): Promise<RecordEntity> {
-    return this.recordServices.createRecordFromLink(user, data)
+    return await this.recordServices.createRecordFromLink(user, data)
   }
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
-  createRecord(@Body() id: number, record: RecordUpdateDTO): Promise<RecordEntity> {
-    return this.recordServices.patchRecord(id, record)
+  async createRecord(@Body() id: number, record: RecordUpdateDTO): Promise<RecordEntity> {
+    return await this.recordServices.patchRecord(id, record)
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
   @ApiResponse({ status: 404, description: 'Record not found' })
   async findRecordById(@Param('id') id: number): Promise<RecordEntity> {
@@ -60,14 +60,14 @@ export class RecordController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
-  patchRecord(@Param('id') id: number, @Body() record: RecordUpdateDTO): Promise<RecordEntity> {
-    return this.recordServices.patchRecord(id, record)
+  async patchRecord(@Param('id') id: number, @Body() record: RecordUpdateDTO): Promise<RecordEntity> {
+    return await this.recordServices.patchRecord(id, record)
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 204 })
   async deleteRecord(@Param('id') id: number): Promise<void> {
     await this.recordServices.deleteRecord(id)

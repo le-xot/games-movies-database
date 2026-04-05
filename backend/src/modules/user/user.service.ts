@@ -1,10 +1,11 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { $Enums, User } from '@prisma/client'
-import { PrismaService } from '@/database/prisma.service'
+import { UserRole } from '@/enums'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { TwitchService } from '@/modules/twitch/twitch.service'
-import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
+import { UserDomain } from '@/modules/user/entities/user-domain.entity'
+import { UserRepository } from '@/modules/user/repositories/user.repository'
+import { ProfileStatsDomain } from '@/modules/user/entities/user-domain.entity'
 import type { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
@@ -12,8 +13,8 @@ export class UserService {
   private readonly logger = new Logger(UserService.name)
 
   constructor(
-    private prisma: PrismaService,
-    private twitch: TwitchService,
+    private readonly userRepository: UserRepository,
+    private readonly twitch: TwitchService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -21,24 +22,20 @@ export class UserService {
     id: string,
     data: {
       login?: string
-      role?: $Enums.UserRole
+      role?: UserRole
       profileImageUrl?: string
       color?: string
     },
-  ): Promise<User> {
-    const foundedUser = await this.prisma.user.findFirst({
-      where: { id },
-    })
+  ): Promise<UserDomain> {
+    const foundedUser = await this.userRepository.findByTwitchId(id)
 
     if (!foundedUser && data.login && data.profileImageUrl && data.role && data.color) {
-      const createdUser = await this.prisma.user.create({
-        data: {
-          id,
-          login: data.login,
-          role: data.role,
-          profileImageUrl: data.profileImageUrl,
-          color: data.color,
-        },
+      const createdUser = await this.userRepository.create({
+        id,
+        login: data.login,
+        role: data.role,
+        profileImageUrl: data.profileImageUrl,
+        color: data.color,
       })
       this.eventEmitter.emit('update-users', {
         userId: id,
@@ -51,14 +48,11 @@ export class UserService {
       return this.createUserByLogin(data.login)
     }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: {
-        login: data.login,
-        role: data.role,
-        profileImageUrl: data.profileImageUrl,
-        color: data.color,
-      },
+    const updatedUser = await this.userRepository.update(id, {
+      login: data.login,
+      role: data.role,
+      profileImageUrl: data.profileImageUrl,
+      color: data.color,
     })
     this.eventEmitter.emit('update-users', {
       userId: id,
@@ -68,20 +62,14 @@ export class UserService {
   }
 
   getUserRecords(login: string): Promise<RecordEntity[]> {
-    return this.prisma.record.findMany({
-      where: { user: { login } },
-      include: { user: true, likes: true },
-    })
+    return this.userRepository.getRecordsByLogin(login)
   }
 
   getUserRecordsById(id: string): Promise<RecordEntity[]> {
-    return this.prisma.record.findMany({
-      where: { user: { id } },
-      include: { user: true, likes: true },
-    })
+    return this.userRepository.getRecordsById(id)
   }
 
-  async createUserById(id: string): Promise<User> {
+  async createUserById(id: string): Promise<UserDomain> {
     try {
       const twitchUser = await this.twitch.getTwitchUserById(id)
 
@@ -89,16 +77,14 @@ export class UserService {
         throw new Error(`User with id ${id} not found on Twitch`)
       }
 
-      const createdUser = await this.prisma.user.create({
-        data: {
-          id: twitchUser.id,
-          login: twitchUser.login,
-          role: $Enums.UserRole.USER,
-          profileImageUrl:
-            twitchUser.profile_image_url ||
-            'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-          color: '#333333',
-        },
+      const createdUser = await this.userRepository.create({
+        id: twitchUser.id,
+        login: twitchUser.login,
+        role: UserRole.USER,
+        profileImageUrl:
+          twitchUser.profile_image_url ||
+          'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
+        color: '#333333',
       })
       this.eventEmitter.emit('update-users', {
         userId: id,
@@ -111,7 +97,7 @@ export class UserService {
     }
   }
 
-  async createUserByLogin(login: string): Promise<User> {
+  async createUserByLogin(login: string): Promise<UserDomain> {
     try {
       const twitchUsers = await this.twitch.searchTwitchUsers(login)
 
@@ -121,16 +107,14 @@ export class UserService {
 
       const twitchUser = twitchUsers[0]
 
-      const createdUser = await this.prisma.user.create({
-        data: {
-          id: twitchUser.id,
-          login: twitchUser.login,
-          role: $Enums.UserRole.USER,
-          profileImageUrl:
-            twitchUser.profile_image_url ||
-            'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-          color: '#333333',
-        },
+      const createdUser = await this.userRepository.create({
+        id: twitchUser.id,
+        login: twitchUser.login,
+        role: UserRole.USER,
+        profileImageUrl:
+          twitchUser.profile_image_url ||
+          'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
+        color: '#333333',
       })
       this.eventEmitter.emit('update-users', {
         userId: createdUser.id,
@@ -143,29 +127,25 @@ export class UserService {
     }
   }
 
-  getUserByLogin(login: string): Promise<User> {
-    return this.prisma.user.findUnique({ where: { login } })
+  getUserByLogin(login: string): Promise<UserDomain | null> {
+    return this.userRepository.findByLogin(login)
   }
 
-  getUserById(id: string): Promise<User> {
-    return this.prisma.user.findUnique({ where: { id } })
+  getUserById(id: string): Promise<UserDomain | null> {
+    return this.userRepository.findById(id)
   }
 
-  getAllUsers(): Promise<User[]> {
-    return this.prisma.user.findMany()
+  getAllUsers(): Promise<UserDomain[]> {
+    return this.userRepository.findAll()
   }
 
   async deleteUserByLogin(login: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { login } })
+    const user = await this.userRepository.findByLogin(login)
     if (!user) {
       throw new NotFoundException('User not found')
     }
 
-    await this.prisma.$transaction([
-      this.prisma.like.deleteMany({ where: { userId: user.id } }),
-      this.prisma.record.updateMany({ where: { userId: user.id }, data: { userId: null } }),
-      this.prisma.user.delete({ where: { login } }),
-    ])
+    await this.userRepository.deleteWithCascade(user.id)
 
     this.eventEmitter.emit('update-users', {
       userId: user.id,
@@ -174,16 +154,12 @@ export class UserService {
   }
 
   async deleteUserById(id: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { id } })
+    const user = await this.userRepository.findById(id)
     if (!user) {
       throw new NotFoundException('User not found')
     }
 
-    await this.prisma.$transaction([
-      this.prisma.like.deleteMany({ where: { userId: id } }),
-      this.prisma.record.updateMany({ where: { userId: id }, data: { userId: null } }),
-      this.prisma.user.delete({ where: { id } }),
-    ])
+    await this.userRepository.deleteWithCascade(id)
 
     this.eventEmitter.emit('update-users', {
       userId: id,
@@ -191,75 +167,19 @@ export class UserService {
     } satisfies UpdateUsersPayload)
   }
 
-  async getUserProfileStats(login: string): Promise<ProfileStatsEntity> {
-    const user = await this.prisma.user.findUnique({ where: { login } })
+  async getUserProfileStats(login: string): Promise<ProfileStatsDomain> {
+    const user = await this.userRepository.findByLogin(login)
     if (!user) {
       throw new NotFoundException('User not found')
     }
-
-    const [totalRecords, recordsByGenreRaw, gradeDistributionRaw, totalLikesReceived] =
-      await Promise.all([
-        this.prisma.record.count({ where: { user: { login } } }),
-        this.prisma.record.groupBy({
-          by: ['genre'],
-          where: { user: { login } },
-          _count: { genre: true },
-        }),
-        this.prisma.record.groupBy({
-          by: ['grade'],
-          where: { user: { login } },
-          _count: { grade: true },
-        }),
-        this.prisma.like.count({ where: { record: { user: { login } } } }),
-      ])
-
-    return {
-      totalRecords,
-      recordsByGenre: recordsByGenreRaw.map((item) => ({
-        genre: item.genre ?? 'UNKNOWN',
-        count: item._count.genre,
-      })),
-      gradeDistribution: gradeDistributionRaw.map((item) => ({
-        grade: item.grade ?? 'UNKNOWN',
-        count: item._count.grade,
-      })),
-      totalLikesReceived,
-    }
+    return this.userRepository.getProfileStats(login)
   }
 
-  async getUserProfileStatsById(id: string): Promise<ProfileStatsEntity> {
-    const user = await this.prisma.user.findUnique({ where: { id } })
+  async getUserProfileStatsById(id: string): Promise<ProfileStatsDomain> {
+    const user = await this.userRepository.findById(id)
     if (!user) {
       throw new NotFoundException('User not found')
     }
-
-    const [totalRecords, recordsByGenreRaw, gradeDistributionRaw, totalLikesReceived] =
-      await Promise.all([
-        this.prisma.record.count({ where: { userId: id } }),
-        this.prisma.record.groupBy({
-          by: ['genre'],
-          where: { userId: id },
-          _count: { genre: true },
-        }),
-        this.prisma.record.groupBy({
-          by: ['grade'],
-          where: { userId: id },
-          _count: { grade: true },
-        }),
-        this.prisma.like.count({ where: { record: { userId: id } } }),
-      ])
-
-    return {
-      totalRecords,
-      recordsByGenre: recordsByGenreRaw.map((item) => ({
-        genre: item.genre ?? 'UNKNOWN',
-        count: item._count.genre,
-      })),
-      gradeDistribution: gradeDistributionRaw.map((item) => ({
-        grade: item.grade ?? 'UNKNOWN',
-        count: item._count.grade,
-      })),
-      totalLikesReceived,
-    }
+    return this.userRepository.getProfileStatsById(id)
   }
 }

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "bunx --bun tsc --noEmit",
+    "test": "bun test",
     "start": "bun run ./src/main.ts",
     "dev": "bun run --watch --no-clear-screen ./src/main.ts",
     "seed": "bun run ./prisma/seed.js",

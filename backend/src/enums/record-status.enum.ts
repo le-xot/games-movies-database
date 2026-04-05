@@ -1,0 +1,8 @@
+export enum RecordStatus {
+  QUEUE = 'QUEUE',
+  PROGRESS = 'PROGRESS',
+  DROP = 'DROP',
+  NOTINTERESTED = 'NOTINTERESTED',
+  UNFINISHED = 'UNFINISHED',
+  DONE = 'DONE',
+}

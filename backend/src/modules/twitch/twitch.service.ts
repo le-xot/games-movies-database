@@ -12,9 +12,9 @@ export class TwitchService implements OnModuleInit {
   private token: TwitchToken | null = null
   private readonly logger = new Logger(TwitchService.name)
 
-  onModuleInit() {
+  async onModuleInit() {
     this.logger.log('Initializing TwitchService and fetching app access token')
-    this.getAppAccessToken()
+    await this.getAppAccessToken()
   }
 
   async getTwitchUser(accessToken: string) {

@@ -1,32 +1,25 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { PrismaService } from '@/database/prisma.service'
 import type { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
+import { LikeRepository } from './repositories/like.repository'
 
 @Injectable()
 export class LikeService {
   private readonly logger = new Logger(LikeService.name)
   constructor(
-    private prisma: PrismaService,
+    private readonly likeRepository: LikeRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createLike(userId: string, recordId: number) {
     this.logger.log(`Creating like userId=${userId} recordId=${recordId}`)
-    const existingLike = await this.prisma.like.findFirst({
-      where: { userId, recordId },
-    })
+    const existingLike = await this.likeRepository.findByUserAndRecord(userId, recordId)
 
     if (existingLike) {
       throw new BadRequestException('Вы уже поставили лайк этой записи')
     }
 
-    const createdLike = await this.prisma.like.create({
-      data: {
-        userId,
-        recordId,
-      },
-    })
+    const createdLike = await this.likeRepository.create(userId, recordId)
     this.eventEmitter.emit('update-likes', {
       recordId,
       userId,
@@ -38,11 +31,9 @@ export class LikeService {
 
   async deleteLike(userId: string, recordId: number) {
     this.logger.log(`Deleting like userId=${userId} recordId=${recordId}`)
-    const deletedLike = await this.prisma.like.deleteMany({
-      where: { userId, recordId },
-    })
+    const deletedCount = await this.likeRepository.deleteByUserAndRecord(userId, recordId)
 
-    if (deletedLike.count === 0) {
+    if (deletedCount === 0) {
       throw new NotFoundException('Лайк не найден')
     }
 
@@ -51,31 +42,24 @@ export class LikeService {
       userId,
       action: 'deleted',
     } satisfies UpdateLikesPayload)
-    this.logger.log(`Like deleted count=${deletedLike.count}`)
+    this.logger.log(`Like deleted count=${deletedCount}`)
   }
 
   async getLikesByRecordId(recordId: number) {
-    const likes = await this.prisma.like.findMany({
-      where: { recordId },
-    })
+    const likes = await this.likeRepository.findByRecord(recordId)
     return { likes, total: likes.length }
   }
 
   async getLikesByUserId(userId: string) {
-    const likes = await this.prisma.like.findMany({
-      where: { userId },
-    })
+    const likes = await this.likeRepository.findByUser(userId)
     return { likes, total: likes.length }
   }
 
   async getLikes(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit
 
-    const total = await this.prisma.like.count()
-    const likes = await this.prisma.like.findMany({
-      skip,
-      take: limit,
-    })
+    const total = await this.likeRepository.countAll()
+    const likes = await this.likeRepository.findMany(skip, limit)
 
     return { likes, total }
   }

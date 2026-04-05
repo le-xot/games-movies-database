@@ -24,19 +24,20 @@ export class WeatherService implements OnModuleInit {
   private lastFetch: number = 0
   private readonly CACHE_DURATION = 5 * 60 * 1000
 
-  onModuleInit() {
+  async onModuleInit() {
     this.logger.log('Initializing WeatherService and fetching initial data')
-    this.fetchWeatherData()
-      .then(() => {
-        this.logger.log('Initial weather data fetched successfully')
-        setInterval(() => {
-          this.fetchWeatherData()
-        }, this.CACHE_DURATION)
-      })
-      .catch((e) => {
-        this.logger.error(`Failed to initialize WeatherService: ${e.message}`, e.stack)
-        throw new Error(`Failed to initialize WeatherService: ${e.message}`)
-      })
+    try {
+      await this.fetchWeatherData()
+      this.logger.log('Initial weather data fetched successfully')
+      setInterval(() => {
+        this.fetchWeatherData().catch((e) => {
+          this.logger.error(`Failed to fetch weather data: ${e.message}`, e.stack)
+        })
+      }, this.CACHE_DURATION)
+    } catch (e) {
+      this.logger.error(`Failed to initialize WeatherService: ${(e as Error).message}`, (e as Error).stack)
+      throw new Error(`Failed to initialize WeatherService: ${(e as Error).message}`, { cause: e })
+    }
   }
 
   private async fetchWeatherData(): Promise<void> {

@@ -1,6 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums/enums.names'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
+import {
+  RecordGenre as RecordGenreName,
+  RecordGrade as RecordGradeName,
+  RecordStatus as RecordStatusName,
+  RecordType as RecordTypeName,
+} from '@/enums/enums.names'
 import { LikeEntity } from '@/modules/like/like.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 
@@ -17,17 +22,17 @@ export class RecordEntity {
   @ApiProperty()
   posterUrl: string
 
-  @ApiProperty({ enum: $Enums.RecordStatus, enumName: RecordStatus })
-  status: $Enums.RecordStatus | null
+  @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName })
+  status: RecordStatus | null
 
-  @ApiProperty({ enum: $Enums.RecordType, enumName: RecordType })
-  type: $Enums.RecordType | null
+  @ApiProperty({ enum: RecordType, enumName: RecordTypeName })
+  type: RecordType | null
 
-  @ApiProperty({ enum: $Enums.RecordGenre, enumName: RecordGenre })
-  genre: $Enums.RecordGenre | null
+  @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName })
+  genre: RecordGenre | null
 
-  @ApiProperty({ enum: $Enums.RecordGrade, enumName: RecordGrade })
-  grade: $Enums.RecordGrade | null
+  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName })
+  grade: RecordGrade | null
 
   @ApiProperty()
   episode: string | null

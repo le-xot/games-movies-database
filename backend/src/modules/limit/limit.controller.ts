@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
+import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { ChangeLimitDTO, LimitEntity } from '@/modules/limit/limit.dto'
@@ -12,7 +12,7 @@ export class LimitController {
   constructor(private limitService: LimitService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard([$Enums.UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({
     status: 200,
     description: 'Returns updated limit',

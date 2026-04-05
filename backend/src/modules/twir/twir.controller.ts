@@ -1,8 +1,8 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
-import { ApikeyGuard } from '../auth/auth.apikey.guard'
-import { SuggestionCreateByTwirDTO } from './twir.dto'
-import { TwirService } from './twir.service'
+import { ApikeyGuard } from '@/modules/auth/auth.apikey.guard'
+import { SuggestionCreateByTwirDTO } from '@/modules/twir/twir.dto'
+import { TwirService } from '@/modules/twir/twir.service'
 
 @Controller('twir')
 export class TwirController {

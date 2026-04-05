@@ -28,24 +28,24 @@ A full-stack web application for managing games and movies database with Twitch 
 
 ### Dependencies
 
-* [Bun](https://bun.sh/) - JavaScript runtime and package manager
-* [Docker](https://docs.docker.com/engine/)
+- [Bun](https://bun.sh/) - JavaScript runtime and package manager
+- [Docker](https://docs.docker.com/engine/)
 
 ### Setup
 
-* Install dependencies
+- Install dependencies
 
 ```bash
 bun install
 ```
 
-* Run needed services (postgres)
+- Run needed services (postgres)
 
 ```bash
 docker compose -f ./docker-compose-dev.yml up -d
 ```
 
-* Generate prisma schema and migrate dev database
+- Generate prisma schema and migrate dev database
 
 ```bash
 cd backend
@@ -53,33 +53,35 @@ bun prisma generate
 bun prisma migrate dev
 ```
 
-* Start development
+- Start development
 
 ```bash
 bun dev
 ```
 
-* Visit [http://localhost:5173](http://localhost:5173)
+- Visit [http://localhost:5173](http://localhost:5173)
 
 ### Project Structure
 
-* `frontend/` - Vue 3 application with TypeScript, Tailwind CSS, and Composition API
-* `backend/` - NestJS API server with Prisma ORM and PostgreSQL
-* `docker-compose-dev.yml` - Development environment configuration
-* `Dockerfile` - Production build configuration
+- `frontend/` - Vue 3 application with TypeScript, Tailwind CSS, and Composition API
+- `backend/` - NestJS API server with Prisma ORM and PostgreSQL
+- `docker-compose-dev.yml` - Development environment configuration
+- `Dockerfile` - Production build configuration
 
 ### Available Scripts
 
-* `bun dev` - Start both frontend and backend in development mode
-* `bun dev:frontend` - Start only the frontend development server
-* `bun dev:backend` - Start only the backend development server
-* `bun build` - Build both frontend and backend for production
-* `bun build:frontend` - Build only the frontend
-* `bun build:backend` - Build only the backend
-* `bun start:backend` - Start the backend server in production mode
-* `bun prisma` - Run Prisma migrations and generate client
-* `bun lint` - Run ESLint on the entire project
-* `bun lint:fix` - Fix ESLint issues automatically
+- `bun dev` - Start both frontend and backend in development mode
+- `bun dev:frontend` - Start only the frontend development server
+- `bun dev:backend` - Start only the backend development server
+- `bun build` - Build both frontend and backend for production
+- `bun build:frontend` - Build only the frontend
+- `bun build:backend` - Build only the backend
+- `bun start:backend` - Start the backend server in production mode
+- `bun prisma` - Run Prisma migrations and generate client
+- `bun lint` - Run oxlint on the entire project
+- `bun lint:fix` - Fix oxlint issues automatically
+- `bun format` - Format the entire project with oxfmt
+- `bun format:check` - Check formatting without writing changes
 
 ## Third-party Integrations
 
@@ -154,7 +156,7 @@ Supported input link formats accepted by the parser (backend):
 
 When generating watch links the frontend returns canonical Kinobox URLs like `https://kinobox.in/movie/<id>` or `https://kinobox.in/shikimori/<id>`.
 
-If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/lib/utils/generate-watch-link.ts` accordingly.
+If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/utils/generate-watch-link.ts` accordingly.
 
 ### TWIR Integration
 
@@ -183,6 +185,7 @@ cp backend/.env.example backend/.env
 ```
 
 Required environment variables:
+
 - `DATASOURCE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret for JWT token signing
 - `APP_PORT` - Backend server port (default: 3000)
@@ -195,8 +198,8 @@ A web-based database admin interface is available at [http://localhost:54321](ht
 
 API documentation is available at:
 
-* Swagger UI: [http://localhost:3000/docs](http://localhost:3000/docs)
-* Scalar API Reference: [http://localhost:3000/reference](http://localhost:3000/reference)
+- Swagger UI: [http://localhost:3000/docs](http://localhost:3000/docs)
+- Scalar API Reference: [http://localhost:3000/reference](http://localhost:3000/reference)
 
 ## Deployment
 
@@ -211,16 +214,16 @@ Or use the provided GitHub Actions workflow for automated deployment.
 
 ## Contributing
 
-* Please make sure that you pull request to new branch
-* To become an ADMIN please change `backend/prisma/seed.js` with your actual Twitch login and ID
-* Follow the ESLint configuration for code style
-* Use TypeScript for all new code
-* Follow Vue 3 Composition API patterns in the frontend
+- Please make sure that you pull request to new branch
+- To become an ADMIN please change `backend/prisma/seed.js` with your actual Twitch login and ID
+- Follow the oxlint/oxfmt configuration for code style
+- Use TypeScript for all new code
+- Follow Vue 3 Composition API patterns in the frontend
 
 ## Troubleshooting
 
-* If you encounter database connection issues, make sure the PostgreSQL container is running
-* For authentication problems, verify your Twitch API credentials
-* Check the port configuration if services are not accessible (frontend: 5173, backend: 3000, database: 6543)
-* If Bun is not available, you can use npm/pnpm as an alternative package manager
-* For TypeScript errors, ensure all dependencies are installed and run `bun install`
+- If you encounter database connection issues, make sure the PostgreSQL container is running
+- For authentication problems, verify your Twitch API credentials
+- Check the port configuration if services are not accessible (frontend: 5173, backend: 3000, database: 6543)
+- If Bun is not available, you can use npm/pnpm as an alternative package manager
+- For TypeScript errors, ensure all dependencies are installed and run `bun install`

@@ -1,8 +1,8 @@
 {
   "name": "frontend",
-  "type": "module",
   "version": "2.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite --host",
     "typecheck": "vue-tsc",

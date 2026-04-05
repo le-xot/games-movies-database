@@ -1,8 +1,8 @@
-import { useApi } from '@/composables/use-api'
-import { UserUpdateDTO } from '@/lib/api'
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed } from 'vue'
+import { UserUpdateDTO } from '@/lib/api'
+import { useApi } from '@/stores/use-api'
 
 export const USERS_QUERY_KEY = 'users'
 
@@ -23,7 +23,7 @@ export const useTableUsers = defineStore('use-table-users', () => {
 
   const { mutateAsync: patchUser } = useMutation({
     key: [USERS_QUERY_KEY, 'create'],
-    mutation: async (opts: { id: string, data: UserUpdateDTO }) => {
+    mutation: async (opts: { id: string; data: UserUpdateDTO }) => {
       return await api.users.userControllerPatchUser(opts.id, opts.data)
     },
     onSettled: () => refetchUsers(),

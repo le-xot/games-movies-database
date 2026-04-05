@@ -1,6 +1,6 @@
-import { useApi } from '@/composables/use-api'
-import { RecordCreateFromLinkDTO, RecordStatus, RecordType } from '@/lib/api'
 import { useMutation } from '@pinia/colada'
+import { RecordCreateFromLinkDTO, RecordStatus, RecordType } from '@/lib/api'
+import { useApi } from '@/stores/use-api'
 
 export function useRecordCreate(queryKey: string, onSuccess?: () => void) {
   const api = useApi()

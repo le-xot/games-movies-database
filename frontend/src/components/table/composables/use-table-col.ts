@@ -1,12 +1,9 @@
-import { useUser } from '@/composables/use-user'
 import { useMagicKeys } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { Ref, ref, unref, watch } from 'vue'
+import { useUser } from '@/stores/use-user'
 
-export function useTableCol<T>(
-  initialValue: Ref<T>,
-  emits: (name: 'update', value: T) => void,
-) {
+export function useTableCol<T>(initialValue: Ref<T>, emits: (name: 'update', value: T) => void) {
   const { isAdmin } = storeToRefs(useUser())
 
   const isEdit = ref(false)

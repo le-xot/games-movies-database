@@ -1,7 +1,14 @@
-import { ROUTER_PATHS } from '@/lib/router/router-paths'
 import { Cpu, LibraryBig } from 'lucide-vue-next'
 import { h, type VNode } from 'vue'
-import { DiscordIcon, GitHubIcon, SteamIcon, TelegramIcon, TwitchIcon, YouTubeIcon } from 'vue3-simple-icons'
+import {
+  DiscordIcon,
+  GitHubIcon,
+  SteamIcon,
+  TelegramIcon,
+  TwitchIcon,
+  YouTubeIcon,
+} from 'vue3-simple-icons'
+import { ROUTER_PATHS } from '@/router/router-paths'
 
 export interface GridItem {
   title: string

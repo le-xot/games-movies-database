@@ -15,9 +15,8 @@ import {
   PcCase,
   Webcam,
 } from 'lucide-vue-next'
-
-import Arch from '../components/archlinux.svg'
-import Atlas from '../components/atlasos.svg'
+import Arch from '@/pages/pc/assets/archlinux.svg'
+import Atlas from '@/pages/pc/assets/atlasos.svg'
 
 interface PartLink {
   name: string
@@ -144,7 +143,7 @@ const DEVICES: PartLink[] = [
 
 export const hardware: Record<string, PartLink[]> = {
   'Операционные системы': OS,
-  'Железки': SYSTEM_PARTS,
-  'Мониторы': MONITORS,
-  'Девайсы': DEVICES,
+  Железки: SYSTEM_PARTS,
+  Мониторы: MONITORS,
+  Девайсы: DEVICES,
 }

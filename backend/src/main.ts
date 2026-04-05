@@ -3,8 +3,8 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import cookieParser from 'cookie-parser'
-import { AppModule } from './app.module'
-import { env } from './utils/enviroments'
+import { AppModule } from '@/app.module'
+import { env } from '@/utils/enviroments'
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
@@ -25,10 +25,7 @@ async function bootstrap() {
   const updatedDocument = {
     ...document,
     paths: Object.fromEntries(
-      Object.entries(document.paths).map(([path, value]) => [
-        `${globalPrefix}${path}`,
-        value,
-      ]),
+      Object.entries(document.paths).map(([path, value]) => [`${globalPrefix}${path}`, value]),
     ),
   }
 

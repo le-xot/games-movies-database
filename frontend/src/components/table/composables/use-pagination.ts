@@ -12,9 +12,13 @@ export function usePagination() {
     pageSize: storagePageSize.value.pageSize ?? PAGE_SIZES[0]!,
   })
 
-  watch(pagination, (newVal) => {
-    storagePageSize.value.pageSize = newVal.pageSize
-  }, { deep: true })
+  watch(
+    pagination,
+    (newVal) => {
+      storagePageSize.value.pageSize = newVal.pageSize
+    },
+    { deep: true },
+  )
 
   return pagination
 }

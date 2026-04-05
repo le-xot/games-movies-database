@@ -1,11 +1,11 @@
 {
   "name": "lexot-website",
-  "type": "module",
   "private": true,
   "workspaces": [
     "frontend",
     "backend"
   ],
+  "type": "module",
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "dev:frontend": "bun --filter=./frontend run dev",
@@ -15,15 +15,18 @@
     "build:backend": "bun --filter=./backend run build",
     "start:backend": "bun --filter=./backend run start",
     "prisma": "bun --filter=./backend run prisma migrate dev && bun --filter=./backend run prisma generate",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check ."
   },
   "dependencies": {
     "typescript": "5.9.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "3.8.0",
-    "@types/node": "20.17.6"
+    "@types/node": "20.17.6",
+    "oxfmt": "0.43.0",
+    "oxlint": "1.58.0"
   },
   "trustedDependencies": [
     "@nestjs/core",

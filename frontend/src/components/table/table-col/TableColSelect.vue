@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
 import { storeToRefs } from 'pinia'
-import { computed, ref, toRef, useId } from 'vue'
+import { computed, ref, toRef, useId, type Ref } from 'vue'
 import { useTableCol } from '@/components/table/composables/use-table-col'
 import {
   BadgeOptions,
@@ -23,12 +23,12 @@ const selectValue = toRef(props, 'value')
 const isOpen = ref(false)
 const { isAdmin } = storeToRefs(useUser())
 
-const { isEdit, handleOpen, handleClose, handleUpdateValue } = useTableCol<T>(selectValue, emits)
+const { isEdit, handleOpen, handleClose, handleUpdateValue } = useTableCol<T | undefined>(selectValue as Ref<T | undefined>, emits)
 
 const id = useId()
 const select = useTableSelect()
 const data = computed(() => {
-  const tag = select[`${props.kind}Tags`]?.[selectValue.value] as BadgeOptions
+  const tag = select[`${props.kind}Tags`]?.[selectValue.value as RecordStatus & RecordGrade & RecordGenre] as BadgeOptions
   return {
     tag: tag ?? null,
     options: select.options[props.kind],

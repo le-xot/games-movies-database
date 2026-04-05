@@ -9,7 +9,7 @@ import {
   JapaneseYen,
   ListOrdered,
   Popcorn,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import LoginForm from '@/components/form/LoginForm.vue'

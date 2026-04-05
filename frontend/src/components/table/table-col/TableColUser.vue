@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DeleteIcon, EllipsisIcon, Trash2Icon } from 'lucide-vue-next'
+import { DeleteIcon, EllipsisIcon, Trash2Icon } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref, toRef, watch } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'

@@ -76,7 +76,7 @@ frontend/src/
 
 - **NEVER** edit `lib/api.ts`. It's overwritten on every frontend dev start.
 - **Don't** remove the autofill hack in `index.css` (9999s transition delay).
-- **Don't** use icon libraries other than lucide-vue-next or vue3-simple-icons.
+- **Don't** use icon libraries other than @lucide/vue or vue3-simple-icons.
 - **Don't** bypass `useUser` guards for auth-protected routes.
 - **Don't** import stores from `@/composables/` — use `@/stores/` instead
 - **Don't** rename `.vue` files to kebab-case — PascalCase is enforced

@@ -1,4 +1,4 @@
-import { Cpu, LibraryBig } from 'lucide-vue-next'
+import { Cpu, LibraryBig } from '@lucide/vue'
 import { h, type VNode } from 'vue'
 import {
   DiscordIcon,

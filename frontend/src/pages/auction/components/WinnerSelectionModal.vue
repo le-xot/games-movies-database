@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 import { ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { RecordEntity } from '@/lib/api'

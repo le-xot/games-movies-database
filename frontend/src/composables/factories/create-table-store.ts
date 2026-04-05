@@ -1,5 +1,5 @@
 import { ColumnDef, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
-import { Eraser } from 'lucide-vue-next'
+import { Eraser } from '@lucide/vue'
 import { StoreDefinition, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'

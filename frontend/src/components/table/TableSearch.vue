@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { VisibilityState } from '@tanstack/vue-table'
-import { CheckIcon, XIcon } from 'lucide-vue-next'
+import { CheckIcon, XIcon } from '@lucide/vue'
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { CommandGroup } from '@/components/ui/command'

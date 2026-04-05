@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertCircle } from 'lucide-vue-next'
+import { AlertCircle } from '@lucide/vue'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, watch } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'

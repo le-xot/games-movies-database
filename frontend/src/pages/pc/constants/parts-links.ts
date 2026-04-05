@@ -14,7 +14,7 @@ import {
   Mouse,
   PcCase,
   Webcam,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import Arch from '@/pages/pc/assets/archlinux.svg'
 import Atlas from '@/pages/pc/assets/atlasos.svg'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight } from '@lucide/vue'
 import { computed, inject } from 'vue'
 import { PAGE_SIZES } from '@/components/table/composables/use-pagination'
 import { tableInjectionKey } from '@/components/table/table-injection-key'

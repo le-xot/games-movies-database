@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Award } from 'lucide-vue-next'
+import { Award } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'

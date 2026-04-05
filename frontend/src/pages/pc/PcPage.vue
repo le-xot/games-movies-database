@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useTitle } from '@vueuse/core'
-import { Undo2Icon } from 'lucide-vue-next'
+import { Undo2Icon } from '@lucide/vue'
 import { onMounted } from 'vue'
 import { hardware } from '@/pages/pc/constants/parts-links'
 import { ROUTER_PATHS } from '@/router/router-paths'

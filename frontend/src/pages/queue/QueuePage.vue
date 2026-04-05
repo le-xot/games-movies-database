@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ListPlus } from 'lucide-vue-next'
+import { ListPlus } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'

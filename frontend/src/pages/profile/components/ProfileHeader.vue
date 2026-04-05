@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Share2 } from 'lucide-vue-next'
+import { Share2 } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleUserRound, Loader2, Lock, LogOutIcon } from 'lucide-vue-next'
+import { CircleUserRound, Loader2, Lock, LogOutIcon } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'

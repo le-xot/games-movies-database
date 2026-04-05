@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTitle } from '@vueuse/core'
-import { PlusIcon, Trash2Icon } from 'lucide-vue-next'
+import { PlusIcon, Trash2Icon } from '@lucide/vue'
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useDialog } from '@/components/dialog/composables/use-dialog'

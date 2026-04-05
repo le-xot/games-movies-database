@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLocalStorage } from '@vueuse/core'
-import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
+import { ArrowUpDown, EyeOff, ListPlus } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends string">
-import { ListFilter } from 'lucide-vue-next'
+import { ListFilter } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

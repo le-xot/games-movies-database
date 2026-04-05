@@ -2,11 +2,13 @@
 import { useTitle } from '@vueuse/core'
 import { PlusIcon, Trash2Icon } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { UserEntity } from '@/lib/api'
+import { ROUTER_PATHS } from '@/router/router-paths'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
 
@@ -106,10 +108,12 @@ async function createUser() {
             class="flex items-center justify-between gap-4 p-4 border rounded-md"
           >
             <div class="flex items-center gap-4">
-              <Avatar class="size-12">
-                <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
-                <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
-              </Avatar>
+              <RouterLink :to="`${ROUTER_PATHS.profile}/${user.login}`">
+                <Avatar class="size-12">
+                  <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
+                  <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
+                </Avatar>
+              </RouterLink>
               <div>
                 <div class="font-medium">
                   {{ user.login }}

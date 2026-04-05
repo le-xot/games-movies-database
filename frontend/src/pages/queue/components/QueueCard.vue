@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { QueueItemDto } from '@/lib/api'
+import { ROUTER_PATHS } from '@/router/router-paths'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 import { getImageUrl } from '@/utils/image'
 
@@ -60,10 +62,12 @@ function handleImageError(event: Event) {
               <CardContent class="flex flex-col items-start gap-3 w-full px-6 py-2">
                 <div class="flex justify-between w-full">
                   <div class="flex items-center">
-                    <Avatar class="w-8 h-8 mr-2">
-                      <AvatarImage :src="item.profileImageUrl" />
-                      <AvatarFallback />
-                    </Avatar>
+                    <RouterLink :to="`${ROUTER_PATHS.profile}/${item.login}`">
+                      <Avatar class="w-8 h-8 mr-2">
+                        <AvatarImage :src="item.profileImageUrl" />
+                        <AvatarFallback />
+                      </Avatar>
+                    </RouterLink>
                     <div class="text-base text-white font-medium">
                       {{ item.login }}
                     </div>

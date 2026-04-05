@@ -3,11 +3,13 @@ import { useThrottleFn } from '@vueuse/core'
 import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
+import { ROUTER_PATHS } from '@/router/router-paths'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
@@ -310,10 +312,12 @@ function toggleGenreCollapse(genre: RecordGenre) {
                     </div>
                     <div v-if="item.user" class="flex justify-between w-full mb-3">
                       <div class="flex items-center">
-                        <Avatar class="w-8 h-8 mr-2">
-                          <AvatarImage :src="item.user.profileImageUrl" />
-                          <AvatarFallback />
-                        </Avatar>
+                        <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.login}`">
+                          <Avatar class="w-8 h-8 mr-2">
+                            <AvatarImage :src="item.user.profileImageUrl" />
+                            <AvatarFallback />
+                          </Avatar>
+                        </RouterLink>
                         <div class="text-base text-white font-medium">
                           {{ item.user?.login }}
                         </div>

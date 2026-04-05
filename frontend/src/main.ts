@@ -45,10 +45,9 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
-PiniaColada(app, {
+app.use(PiniaColada, {
   pinia,
-  refetchOnMount: true,
-  refetchOnWindowFocus: false,
+  queryOptions: { refetchOnMount: true, refetchOnWindowFocus: false },
 })
 
 // highlight re-renders

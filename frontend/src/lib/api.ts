@@ -102,6 +102,23 @@ export interface UserUpdateDTO {
   color?: string;
 }
 
+export interface RecordsByGenreItem {
+  genre: string;
+  count: number;
+}
+
+export interface GradeDistributionItem {
+  grade: string;
+  count: number;
+}
+
+export interface ProfileStatsEntity {
+  totalRecords: number;
+  recordsByGenre: RecordsByGenreItem[];
+  gradeDistribution: GradeDistributionItem[];
+  totalLikesReceived: number;
+}
+
 export interface SuggestionCreateByTwirDTO {
   /** @example "12345" */
   userId: string;
@@ -575,6 +592,20 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/users/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerGetUserProfileStats
+     * @request GET:/users/profile/{login}
+     */
+    userControllerGetUserProfileStats: (login: string, params: RequestParams = {}) =>
+      this.http.request<any, ProfileStatsEntity>({
+        path: `/users/profile/${login}`,
+        method: "GET",
         ...params,
       }),
 

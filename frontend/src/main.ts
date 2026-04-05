@@ -47,7 +47,7 @@ app.use(router)
 
 PiniaColada(app, {
   pinia,
-  refetchOnMount: false,
+  refetchOnMount: true,
   refetchOnWindowFocus: false,
 })
 

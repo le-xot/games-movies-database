@@ -15,7 +15,7 @@ useTitle('Профиль')
 
 const route = useRoute()
 const userStore = useUser()
-const login = computed(() => route.params.login as string | undefined)
+const login = computed(() => (route.params.login as string) || undefined)
 
 const { records, profileStats, isLoading, error, recordsByGenre } = useProfile(login)
 

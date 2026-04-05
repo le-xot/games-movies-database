@@ -14,6 +14,8 @@ export function useProfile(login: Ref<string | undefined>) {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
+  const targetLogin = computed(() => login.value ?? userStore.user?.login)
+
   const recordsByGenre = computed(() => {
     const result: Partial<Record<RecordGenre, RecordEntity[]>> = {}
     for (const genre of Object.values(RecordGenre)) {
@@ -22,13 +24,13 @@ export function useProfile(login: Ref<string | undefined>) {
     return result
   })
 
-  async function fetchProfileData(targetLogin: string) {
+  async function fetchProfileData(loginValue: string) {
     isLoading.value = true
     error.value = null
     try {
       const [recordsRes, statsRes] = await Promise.all([
-        api.users.userControllerGetUserRecords({ login: targetLogin }),
-        api.users.userControllerGetUserProfileStats(targetLogin),
+        api.users.userControllerGetUserRecords({ login: loginValue }),
+        api.users.userControllerGetUserProfileStats(loginValue),
       ])
       records.value = recordsRes.data
       profileStats.value = statsRes.data as unknown as ProfileStatsEntity
@@ -46,11 +48,10 @@ export function useProfile(login: Ref<string | undefined>) {
   }
 
   watch(
-    login,
+    targetLogin,
     (newLogin) => {
-      const targetLogin = newLogin ?? userStore.user?.login
-      if (targetLogin) {
-        fetchProfileData(targetLogin)
+      if (newLogin) {
+        fetchProfileData(newLogin)
       }
     },
     { immediate: true },

@@ -21,7 +21,7 @@
     "format:check": "oxfmt --check ."
   },
   "dependencies": {
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   },
   "devDependencies": {
     "@types/node": "20.17.6",

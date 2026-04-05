@@ -43,6 +43,6 @@
     "@types/express": "5.0.0",
     "prisma": "6.2.1",
     "source-map-support": "0.5.21",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   }
 }

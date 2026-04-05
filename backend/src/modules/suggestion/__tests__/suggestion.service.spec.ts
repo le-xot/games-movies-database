@@ -38,7 +38,7 @@ describe('SuggestionService', () => {
 
   describe('userSuggest', () => {
     it('creates a suggestion when under the limit and emits event', async () => {
-      const limit: LimitDomain = { name: LimitType.SUGGESTION, value: 5 }
+      const limit: LimitDomain = { name: LimitType.SUGGESTION, quantity: 5 }
       const preparedData = { title: 'Test Anime', posterUrl: 'http://img', genre: RecordType.SUGGESTION as any }
       const createdRecord = makeRecord({ id: 42 })
 
@@ -60,7 +60,7 @@ describe('SuggestionService', () => {
     })
 
     it('throws BadRequestException when suggestion count meets the limit', async () => {
-      const limit: LimitDomain = { name: LimitType.SUGGESTION, value: 3 }
+      const limit: LimitDomain = { name: LimitType.SUGGESTION, quantity: 3 }
 
       mockRepo.findLimit = mock(() => Promise.resolve(limit))
       mockRepo.countUserSuggestions = mock(() => Promise.resolve(3))

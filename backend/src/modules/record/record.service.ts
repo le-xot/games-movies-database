@@ -62,7 +62,7 @@ export class RecordService {
     this.logger.log(
       `Record created id=${createdData.id} type=${createdData.type} status=${createdData.status}`,
     )
-    return createdData as unknown as RecordEntity
+    return createdData as RecordEntity
   }
 
   async patchRecord(id: number, data: RecordUpdateDTO): Promise<RecordEntity> {
@@ -107,12 +107,12 @@ export class RecordService {
       } satisfies UpdateAuctionPayload)
     }
     this.eventEmitter.emit('update-records', {
-      genre: updatedRecord.genre as unknown as RecordGenre,
+      genre: updatedRecord.genre,
       id: updatedRecord.id,
       action: 'updated',
     } satisfies UpdateRecordsPayload)
     this.logger.log(`Record patched id=${id}`)
-    return updatedRecord as unknown as RecordEntity
+    return updatedRecord as RecordEntity
   }
 
   async deleteRecord(id: number): Promise<void> {
@@ -148,7 +148,7 @@ export class RecordService {
       } satisfies UpdateAuctionPayload)
     }
     this.eventEmitter.emit('update-records', {
-      genre: foundedRecord.genre as unknown as RecordGenre,
+      genre: foundedRecord.genre,
       id: foundedRecord.id,
       action: 'deleted',
     } satisfies UpdateRecordsPayload)
@@ -185,7 +185,7 @@ export class RecordService {
       this.recordRepository.findAll(filterOptions, sortOptions, { skip, take: limit }),
     ])
 
-    return { records: records as unknown as RecordEntity[], total }
+    return { records: records as RecordEntity[], total }
   }
 
   async findRecordById(id: number): Promise<RecordEntity> {
@@ -193,6 +193,6 @@ export class RecordService {
     if (!record) {
       throw new NotFoundException('Record not found')
     }
-    return record as unknown as RecordEntity
+    return record as RecordEntity
   }
 }

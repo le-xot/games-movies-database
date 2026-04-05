@@ -19,6 +19,6 @@ export class PrismaQueueRepository extends QueueRepository {
       include: {
         user: true,
       },
-    }) as unknown as RecordWithRelations[]
+    })
   }
 }

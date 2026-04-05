@@ -1,3 +1,4 @@
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import {
   RecordFilterOptions,
   RecordSortOptions,
@@ -7,20 +8,20 @@ import {
 export interface CreateRecordData {
   title: string
   posterUrl: string
-  genre?: string
+  genre?: RecordGenre
   link: string
-  status?: string
-  type?: string
+  status?: RecordStatus
+  type?: RecordType
   userId: string
 }
 
 export interface UpdateRecordData {
   title?: string
   posterUrl?: string
-  genre?: string
-  status?: string
-  type?: string
-  grade?: string
+  genre?: RecordGenre
+  status?: RecordStatus
+  type?: RecordType
+  grade?: RecordGrade
   episode?: string
 }
 

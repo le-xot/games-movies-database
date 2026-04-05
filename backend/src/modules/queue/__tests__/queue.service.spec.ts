@@ -28,7 +28,7 @@ describe('QueueService', () => {
           genre: RecordGenre.GAME,
           type: RecordType.WRITTEN,
           createdAt,
-          user: { id: 'u1', login: 'alice', displayName: 'Alice', avatarUrl: 'avatar-1' },
+          user: { id: 'u1', login: 'alice', role: 'USER', profileImageUrl: 'avatar-1', color: '#fff', createdAt },
         },
         {
           id: 2,
@@ -38,7 +38,7 @@ describe('QueueService', () => {
           genre: RecordGenre.MOVIE,
           type: RecordType.WRITTEN,
           createdAt,
-          user: { id: 'u2', login: 'bob', displayName: 'Bob', avatarUrl: 'avatar-2' },
+          user: { id: 'u2', login: 'bob', role: 'USER', profileImageUrl: 'avatar-2', color: '#fff', createdAt },
         },
       ])
     }) as any

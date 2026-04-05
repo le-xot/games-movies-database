@@ -33,7 +33,7 @@ export class UserController {
     return {
       id: user.id,
       login: user.login,
-      role: user.role as unknown as UserRole,
+      role: user.role,
       profileImageUrl: user.profileImageUrl,
       color: user.color,
       createdAt: user.createdAt,
@@ -48,7 +48,7 @@ export class UserController {
     return users.map((user) => ({
       id: user.id,
       login: user.login,
-      role: user.role as unknown as UserRole,
+      role: user.role,
       profileImageUrl: user.profileImageUrl,
       color: user.color,
       createdAt: user.createdAt,

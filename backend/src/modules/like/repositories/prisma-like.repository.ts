@@ -10,17 +10,15 @@ export class PrismaLikeRepository extends LikeRepository {
   }
 
   async findByUserAndRecord(userId: string, recordId: number): Promise<LikeDomain | null> {
-    const like = await this.prisma.like.findFirst({
+    return await this.prisma.like.findFirst({
       where: { userId, recordId },
     })
-    return like as unknown as LikeDomain | null
   }
 
   async create(userId: string, recordId: number): Promise<LikeDomain> {
-    const like = await this.prisma.like.create({
+    return await this.prisma.like.create({
       data: { userId, recordId },
     })
-    return like as unknown as LikeDomain
   }
 
   async deleteByUserAndRecord(userId: string, recordId: number): Promise<number> {
@@ -31,22 +29,19 @@ export class PrismaLikeRepository extends LikeRepository {
   }
 
   async findByRecord(recordId: number): Promise<LikeDomain[]> {
-    const likes = await this.prisma.like.findMany({
+    return await this.prisma.like.findMany({
       where: { recordId },
     })
-    return likes as unknown as LikeDomain[]
   }
 
   async findByUser(userId: string): Promise<LikeDomain[]> {
-    const likes = await this.prisma.like.findMany({
+    return await this.prisma.like.findMany({
       where: { userId },
     })
-    return likes as unknown as LikeDomain[]
   }
 
   async findMany(skip: number, take: number): Promise<LikeDomain[]> {
-    const likes = await this.prisma.like.findMany({ skip, take })
-    return likes as unknown as LikeDomain[]
+    return await this.prisma.like.findMany({ skip, take })
   }
 
   async countAll(): Promise<number> {

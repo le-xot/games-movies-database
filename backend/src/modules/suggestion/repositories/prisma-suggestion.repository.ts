@@ -16,9 +16,7 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
   }
 
   async findLimit(limitType: LimitType): Promise<LimitDomain | null> {
-    const limit = await this.prisma.limit.findUnique({ where: { name: limitType } })
-    if (!limit) return null
-    return { name: limit.name as unknown as LimitType, value: limit.quantity }
+    return await this.prisma.limit.findUnique({ where: { name: limitType } })
   }
 
   async countUserSuggestions(userId: string, type: RecordType): Promise<number> {
@@ -30,26 +28,26 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
       data: {
         title: data.title,
         posterUrl: data.posterUrl,
-        genre: data.genre as any,
+        genre: data.genre,
         link: data.link,
         status: RecordStatus.QUEUE,
         type: RecordType.SUGGESTION,
         user: { connect: { id: data.userId } },
       },
-    }) as unknown as RecordWithRelations
+    })
   }
 
   async findSuggestions(filters: SuggestionFilters): Promise<RecordWithRelations[]> {
     return await this.prisma.record.findMany({
       where: { type: filters.type },
       include: { user: true, likes: true },
-    }) as unknown as RecordWithRelations[]
+    })
   }
 
   async findSuggestionById(id: number): Promise<RecordWithRelations | null> {
     return await this.prisma.record.findUnique({
       where: { id },
-    }) as unknown as RecordWithRelations | null
+    })
   }
 
   async deleteSuggestionWithLikes(recordId: number): Promise<void> {

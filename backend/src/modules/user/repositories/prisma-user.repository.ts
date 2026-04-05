@@ -15,30 +15,30 @@ export class PrismaUserRepository extends UserRepository {
   }
 
   async findByTwitchId(twitchId: string): Promise<UserDomain | null> {
-    return await this.prisma.user.findFirst({ where: { id: twitchId } }) as unknown as UserDomain | null
+    return await this.prisma.user.findFirst({ where: { id: twitchId } })
   }
 
   async findByLogin(login: string): Promise<UserDomain | null> {
-    return await this.prisma.user.findUnique({ where: { login } }) as unknown as UserDomain | null
+    return await this.prisma.user.findUnique({ where: { login } })
   }
 
   async findById(id: string): Promise<UserDomain | null> {
-    return await this.prisma.user.findUnique({ where: { id } }) as unknown as UserDomain | null
+    return await this.prisma.user.findUnique({ where: { id } })
   }
 
   async create(data: CreateUserData): Promise<UserDomain> {
-    return await this.prisma.user.create({ data }) as unknown as UserDomain
+    return await this.prisma.user.create({ data })
   }
 
   async update(id: string, data: UpdateUserData): Promise<UserDomain> {
     return await this.prisma.user.update({
       where: { id },
       data,
-    }) as unknown as UserDomain
+    })
   }
 
   async findAll(): Promise<UserDomain[]> {
-    return await this.prisma.user.findMany() as unknown as UserDomain[]
+    return await this.prisma.user.findMany()
   }
 
   async deleteWithCascade(userId: string): Promise<void> {
@@ -115,13 +115,13 @@ export class PrismaUserRepository extends UserRepository {
     return await this.prisma.record.findMany({
       where: { user: { login } },
       include: { user: true, likes: true },
-    }) as unknown as RecordEntity[]
+    })
   }
 
   async getRecordsById(id: string): Promise<RecordEntity[]> {
     return await this.prisma.record.findMany({
       where: { user: { id } },
       include: { user: true, likes: true },
-    }) as unknown as RecordEntity[]
+    })
   }
 }

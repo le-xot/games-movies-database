@@ -15,7 +15,7 @@ export class AuctionController {
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity, isArray: true })
   getAuctions(): Promise<RecordEntity[]> {
-    return this.auction.getAuctions() as unknown as Promise<RecordEntity[]>
+    return this.auction.getAuctions() as Promise<RecordEntity[]>
   }
 
   @Get('winner')
@@ -23,6 +23,6 @@ export class AuctionController {
   @ApiResponse({ status: 200, description: 'Winner selected successfully', type: RecordEntity })
   @HttpCode(HttpStatus.OK)
   getWinner(@Query('id') id: number): Promise<RecordEntity> {
-    return this.auction.getWinner(id) as unknown as Promise<RecordEntity>
+    return this.auction.getWinner(id) as Promise<RecordEntity>
   }
 }

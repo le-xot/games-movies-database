@@ -14,12 +14,12 @@ export class PrismaRecordsProvidersRepository extends RecordsProvidersRepository
   async findRecordByLinkAndGenre(link: string, genre: RecordGenre): Promise<RecordDomain | null> {
     return await this.prisma.record.findFirst({
       where: { link, genre },
-    }) as unknown as RecordDomain | null
+    })
   }
 
   async findSuggestionRulesByGenre(genre: RecordGenre): Promise<SuggestionRulesDomain | null> {
     return await this.prisma.suggestionRules.findUnique({
       where: { genre },
-    }) as unknown as SuggestionRulesDomain | null
+    })
   }
 }

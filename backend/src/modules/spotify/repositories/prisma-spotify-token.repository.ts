@@ -13,7 +13,7 @@ export class PrismaSpotifyTokenRepository extends SpotifyTokenRepository {
   async findByService(service: ThirdPartService): Promise<SpotifyTokenDomain | null> {
     return await this.prisma.thirdPartyOauthServiceToken.findUnique({
       where: { service },
-    }) as unknown as SpotifyTokenDomain | null
+    })
   }
 
   async upsert(
@@ -25,7 +25,7 @@ export class PrismaSpotifyTokenRepository extends SpotifyTokenRepository {
       where: { service },
       create: payload,
       update: payload,
-    }) as unknown as SpotifyTokenDomain
+    })
   }
 
   async update(
@@ -35,6 +35,6 @@ export class PrismaSpotifyTokenRepository extends SpotifyTokenRepository {
     return await this.prisma.thirdPartyOauthServiceToken.update({
       where: { service },
       data,
-    }) as unknown as SpotifyTokenDomain
+    })
   }
 }

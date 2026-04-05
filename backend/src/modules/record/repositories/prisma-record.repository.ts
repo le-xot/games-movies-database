@@ -23,20 +23,20 @@ export class PrismaRecordRepository extends RecordRepository {
       data: {
         title: data.title,
         posterUrl: data.posterUrl,
-        genre: data.genre as any,
+        genre: data.genre,
         link: data.link,
-        status: data.status as any,
-        type: data.type as any,
+        status: data.status,
+        type: data.type,
         user: { connect: { id: data.userId } },
       },
-    }) as unknown as RecordWithRelations
+    })
   }
 
   async findById(id: number): Promise<RecordWithRelations | null> {
     return await this.prisma.record.findUnique({
       where: { id },
       include: { user: true, likes: true },
-    }) as unknown as RecordWithRelations | null
+    })
   }
 
   private buildWhere(filters: RecordFilterOptions): Prisma.RecordWhereInput {
@@ -82,7 +82,7 @@ export class PrismaRecordRepository extends RecordRepository {
       orderBy: { [sort.orderBy || 'id']: sort.direction || 'asc' },
       skip: pagination.skip,
       take: pagination.take,
-    }) as unknown as RecordWithRelations[]
+    })
   }
 
   async count(filters: RecordFilterOptions): Promise<number> {
@@ -96,8 +96,8 @@ export class PrismaRecordRepository extends RecordRepository {
     return await this.prisma.record.update({
       where: { id },
       include: { user: true, likes: true },
-      data: data as any,
-    }) as unknown as RecordWithRelations
+      data,
+    })
   }
 
   async delete(id: number): Promise<void> {

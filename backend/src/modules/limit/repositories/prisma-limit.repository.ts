@@ -14,6 +14,6 @@ export class PrismaLimitRepository extends LimitRepository {
     return await this.prisma.limit.update({
       where: { name },
       data: { quantity: value },
-    }) as unknown as LimitDomain
+    })
   }
 }

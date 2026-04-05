@@ -30,7 +30,7 @@ export class SuggestionService {
       RecordType.SUGGESTION,
     )
 
-    if (suggestionsCount >= limit.value) {
+    if (suggestionsCount >= limit.quantity) {
       throw new BadRequestException('Достигнут лимит предложений')
     }
 
@@ -58,7 +58,7 @@ export class SuggestionService {
   getSuggestions() {
     return this.suggestionRepository.findSuggestions({
       type: RecordType.SUGGESTION,
-    }) as unknown as Promise<RecordEntity[]>
+    }) as Promise<RecordEntity[]>
   }
 
   async deleteUserSuggestion(id: number, userId: string): Promise<void> {

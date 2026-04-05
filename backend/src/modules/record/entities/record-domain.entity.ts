@@ -1,21 +1,29 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums';
+import { RecordGenre, RecordGrade, RecordStatus, RecordType, UserRole } from '@/enums'
 
 export interface RecordDomain {
-  id: number;
-  title: string;
-  link: string;
-  posterUrl: string;
-  status?: RecordStatus;
-  type?: RecordType;
-  genre?: RecordGenre;
-  grade?: RecordGrade;
-  episode?: string;
-  userId?: string;
+  id: number
+  title: string
+  link: string
+  posterUrl: string
+  status?: RecordStatus
+  type?: RecordType
+  genre?: RecordGenre
+  grade?: RecordGrade
+  episode?: string
+  userId?: string
+  createdAt?: Date
 }
 
 export interface RecordWithRelations extends RecordDomain {
-  user?: { id: string; login: string; displayName: string; avatarUrl: string };
-  likes?: Array<{ id: string; userId: string; recordId: number; createdAt: Date }>;
+  user?: {
+    id: string
+    login: string
+    role: UserRole
+    profileImageUrl: string
+    color: string
+    createdAt: Date
+  }
+  likes?: Array<{ id: string; userId: string; recordId: number; createdAt: Date }>
 }
 
 export interface RecordFilterOptions {

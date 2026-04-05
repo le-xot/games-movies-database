@@ -9,6 +9,6 @@ export class LimitService {
 
   changeLimit(limitData: ChangeLimitDTO): Promise<LimitEntity> {
     this.logger.log(`changeLimit name=${limitData.name} quantity=${limitData.quantity}`)
-    return this.limitRepository.update(limitData.name, limitData.quantity) as unknown as Promise<LimitEntity>
+    return this.limitRepository.update(limitData.name, limitData.quantity) as Promise<LimitEntity>
   }
 }

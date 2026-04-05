@@ -16,7 +16,7 @@ export class PrismaAuctionRepository extends AuctionRepository {
     return this.prisma.record.findMany({
       where: { type: RecordType.AUCTION },
       include: { user: true },
-    }) as unknown as Promise<RecordWithRelations[]>
+    })
   }
 
   selectWinner(id: number): Promise<RecordWithRelations> {
@@ -60,6 +60,6 @@ export class PrismaAuctionRepository extends AuctionRepository {
       })
 
       return winner
-    }) as unknown as Promise<RecordWithRelations>
+    })
   }
 }

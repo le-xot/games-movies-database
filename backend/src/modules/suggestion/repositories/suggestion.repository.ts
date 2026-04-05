@@ -1,11 +1,11 @@
-import { LimitType, RecordType } from '@/enums'
+import { LimitType, RecordGenre, RecordType } from '@/enums'
 import { LimitDomain } from '@/modules/limit/entities/limit.entity'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 export interface CreateSuggestionData {
   title: string
   posterUrl: string
-  genre: string
+  genre: RecordGenre
   link: string
   userId: string
 }

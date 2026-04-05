@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { RecordGenre } from '@/enums'
 import type {
   UpdateAuctionPayload,
   UpdateRecordsPayload,
@@ -28,7 +27,7 @@ export class AuctionService {
       action: 'ended',
     } satisfies UpdateAuctionPayload)
     this.eventEmitter.emit('update-records', {
-      genre: winner.genre as unknown as RecordGenre,
+      genre: winner.genre,
       id,
       action: 'updated',
     } satisfies UpdateRecordsPayload)

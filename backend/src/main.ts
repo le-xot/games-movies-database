@@ -33,9 +33,7 @@ async function bootstrap() {
     app.use(
       '/reference',
       apiReference({
-        spec: {
-          content: updatedDocument,
-        },
+        content: updatedDocument,
       }),
     )
   }

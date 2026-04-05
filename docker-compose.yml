@@ -2,53 +2,34 @@ services:
   postgres:
     image: postgres:17
     restart: unless-stopped
+    ports:
+      - 127.0.0.1:6543:5432
     environment:
       POSTGRES_USER: le_xot
       POSTGRES_PASSWORD: abc
       POSTGRES_DB: lists
-    networks:
-      - dokploy-network
     volumes:
       - pgdata:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 192M
 
   admin:
     image: adminer
     restart: unless-stopped
+    ports:
+      - 127.0.0.1:8081:8080
     depends_on:
       - postgres
-    networks:
-      - dokploy-network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 96M
 
   application:
     image: lexot/games-movies-database:latest
     restart: unless-stopped
+    ports:
+      - 127.0.0.1:3001:3000
     pull_policy: always
     depends_on:
       - postgres
-    networks:
-      - dokploy-network
     env_file: .env
     volumes:
       - images:/app/images
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 384M
-
 volumes:
   pgdata:
   images:
-networks:
-  dokploy-network:
-    external: true

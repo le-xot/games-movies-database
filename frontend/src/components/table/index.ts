@@ -1,0 +1,6 @@
+export { default as DataTable } from '@/components/table/DataTable.vue'
+export { default as TableSearch } from '@/components/table/TableSearch.vue'
+export { default as TablePagination } from '@/components/table/TablePagination.vue'
+export { default as TableFilterStatus } from '@/components/table/TableFilterStatus.vue'
+export { default as TableFilterGrade } from '@/components/table/TableFilterGrade.vue'
+export { default as TableFilterGeneric } from '@/components/table/TableFilterGeneric.vue'

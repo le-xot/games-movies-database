@@ -15,7 +15,9 @@ export class ImgService {
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
     const fileDiskPath = path.resolve(process.cwd(), 'images', `${urlHash}.webp`)
 
-    const isFileExists = await stat(fileDiskPath).then(() => true).catch(() => false)
+    const isFileExists = await stat(fileDiskPath)
+      .then(() => true)
+      .catch(() => false)
     if (isFileExists) {
       return {
         fileDiskPath,
@@ -68,10 +70,7 @@ export class ImgService {
 
       const fileContent = await response.arrayBuffer()
 
-      const imageBuffer = await sharp(fileContent)
-        .resize(300, 450)
-        .webp()
-        .toBuffer()
+      const imageBuffer = await sharp(fileContent).resize(300, 450).webp().toBuffer()
 
       await Bun.write(fileDiskPath, imageBuffer)
 

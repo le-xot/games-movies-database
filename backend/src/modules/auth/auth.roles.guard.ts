@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common'
-import { $Enums } from '@prisma/client'
+import { UserRole } from '@/enums'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   private readonly logger = new Logger(RolesGuard.name)
 
-  constructor(private roles: $Enums.UserRole[]) {}
+  constructor(private roles: UserRole[]) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest()

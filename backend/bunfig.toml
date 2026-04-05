@@ -1,0 +1,5 @@
+[test]
+preload = ["./src/__tests__/setup.ts"]
+
+[define]
+"process.env.NODE_ENV" = '"development"'

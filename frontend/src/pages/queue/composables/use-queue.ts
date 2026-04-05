@@ -1,8 +1,8 @@
-import { useApi } from '@/composables/use-api'
-import { QueueDto } from '@/lib/api'
 import { useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
+import { QueueDto } from '@/lib/api'
+import { useApi } from '@/stores/use-api'
 
 export const QUEUE_QUERY_KEY = 'queue'
 
@@ -10,16 +10,13 @@ export const useQueue = defineStore('queue/use-queue', () => {
   const api = useApi()
   const error = ref<string | null>(null)
 
-  const {
-    data,
-    refetch: refetchQueue,
-  } = useQuery<QueueDto>({
+  const { data, refetch: refetchQueue } = useQuery<QueueDto>({
     key: [QUEUE_QUERY_KEY],
     query: async () => {
       try {
         error.value = null
-        const { data } = await api.queue.queueControllerGetQueue()
-        return data
+        const { data: response } = await api.queue.queueControllerGetQueue()
+        return response
       } catch (err: any) {
         let errorMessage = 'Неизвестная ошибка'
 

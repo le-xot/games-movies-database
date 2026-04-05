@@ -1,8 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
-import { $Enums } from '@prisma/client'
 import { Server } from 'socket.io'
+import type {
+  UpdateAuctionPayload,
+  UpdateLikesPayload,
+  UpdateQueuePayload,
+  UpdateRecordsPayload,
+  UpdateSuggestionsPayload,
+  UpdateUsersPayload,
+} from '@/modules/websocket/websocket.events'
 
 @Injectable()
 @WebSocketGateway({ cors: true, transports: ['websocket'] })
@@ -11,32 +18,32 @@ export class WebsocketGateway {
   server: Server
 
   @OnEvent('update-likes')
-  handleUpdateLikes() {
-    this.server.emit('update-likes')
+  handleUpdateLikes(payload: UpdateLikesPayload) {
+    this.server.emit('update-likes', payload)
   }
 
   @OnEvent('update-auction')
-  handleUpdateAuction() {
-    this.server.emit('update-auction')
+  handleUpdateAuction(payload: UpdateAuctionPayload) {
+    this.server.emit('update-auction', payload)
   }
 
   @OnEvent('update-queue')
-  handleUpdateQueue() {
-    this.server.emit('update-queue')
+  handleUpdateQueue(payload: UpdateQueuePayload) {
+    this.server.emit('update-queue', payload)
   }
 
   @OnEvent('update-suggestions')
-  handleUpdateSuggestion() {
-    this.server.emit('update-suggestions')
+  handleUpdateSuggestion(payload: UpdateSuggestionsPayload) {
+    this.server.emit('update-suggestions', payload)
   }
 
   @OnEvent('update-records')
-  handleUpdateRecord(payload: { genre: $Enums.RecordGenre }) {
+  handleUpdateRecord(payload: UpdateRecordsPayload) {
     this.server.emit('update-records', payload)
   }
 
   @OnEvent('update-users')
-  handleUpdateUsers() {
-    this.server.emit('update-users')
+  handleUpdateUsers(payload: UpdateUsersPayload) {
+    this.server.emit('update-users', payload)
   }
 }

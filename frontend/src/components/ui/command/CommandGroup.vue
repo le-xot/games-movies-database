@@ -1,28 +1,29 @@
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
 import { reactiveOmit } from '@vueuse/core'
 import { ListboxGroup, ListboxGroupLabel, useId } from 'reka-ui'
 import { computed, onMounted, onUnmounted } from 'vue'
-import { provideCommandGroupContext, useCommand } from '.'
+import { provideCommandGroupContext, useCommand } from '@/components/ui/command'
+import { cn } from '@/lib/utils'
 import type { ListboxGroupProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 
-const props = defineProps<ListboxGroupProps & {
-  class?: HTMLAttributes['class']
-  heading?: string
-}>()
+const props = defineProps<
+  ListboxGroupProps & {
+    class?: HTMLAttributes['class']
+    heading?: string
+  }
+>()
 
 const delegatedProps = reactiveOmit(props, 'class')
 
 const { allGroups, filterState } = useCommand()
 const id = useId()
 
-const isRender = computed(() => !filterState.search ? true : filterState.filtered.groups.has(id))
+const isRender = computed(() => (!filterState.search ? true : filterState.filtered.groups.has(id)))
 
 provideCommandGroupContext({ id })
 onMounted(() => {
-  if (!allGroups.value.has(id))
-    allGroups.value.set(id, new Set())
+  if (!allGroups.value.has(id)) allGroups.value.set(id, new Set())
 })
 onUnmounted(() => {
   allGroups.value.delete(id)
@@ -33,7 +34,12 @@ onUnmounted(() => {
   <ListboxGroup
     v-bind="delegatedProps"
     :id="id"
-    :class="cn('overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground', props.class)"
+    :class="
+      cn(
+        'overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
+        props.class,
+      )
+    "
     :hidden="isRender ? undefined : true"
   >
     <ListboxGroupLabel v-if="heading" class="px-2 py-1.5 text-xs font-medium text-muted-foreground">

@@ -1,14 +1,13 @@
-import { PrismaService } from '@/database/prisma.service'
 import { Global, Module } from '@nestjs/common'
-import { TwitchService } from '../twitch/twitch.service'
-import { UserModule } from '../user/user.module'
-import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
+import { AuthController } from '@/modules/auth/auth.controller'
+import { AuthService } from '@/modules/auth/auth.service'
+import { TwitchService } from '@/modules/twitch/twitch.service'
+import { UserModule } from '@/modules/user/user.module'
 
 @Global()
 @Module({
   imports: [UserModule],
-  providers: [PrismaService, AuthService, TwitchService],
+  providers: [AuthService, TwitchService],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -1,6 +1,6 @@
-import { RecordGenre, RecordType } from '@/enums/enums.names'
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
+import { RecordGenre, RecordType } from '@/enums'
+import { RecordGenre as RecordGenreName, RecordType as RecordTypeName } from '@/enums/enums.names'
 
 export class QueueItemDto {
   @ApiProperty()
@@ -8,6 +8,9 @@ export class QueueItemDto {
 
   @ApiProperty({ nullable: true, default: 'John Doe', example: 'John Doe' })
   login: string
+
+  @ApiProperty({ nullable: true })
+  userId: string | null
 
   @ApiProperty()
   link: string
@@ -21,11 +24,11 @@ export class QueueItemDto {
   @ApiProperty()
   createdAt: string
 
-  @ApiProperty({ enum: $Enums.RecordType, enumName: RecordType, nullable: true })
-  type: $Enums.RecordType | null
+  @ApiProperty({ enum: RecordType, enumName: RecordTypeName, nullable: true })
+  type: RecordType | null
 
-  @ApiProperty({ enum: $Enums.RecordGenre, enumName: RecordGenre, nullable: true })
-  genre: $Enums.RecordGenre | null
+  @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName, nullable: true })
+  genre: RecordGenre | null
 }
 
 export class QueueDto {

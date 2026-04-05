@@ -12,10 +12,7 @@ const episode = toRef(props, 'episode')
 
 const breakpoints = useBreakpoints()
 
-const { isEdit, inputValue, handleChange, handleOpen, inputRef } = useTableCol<EpisodeType>(
-  episode,
-  emits,
-)
+const { isEdit, inputValue, handleChange, handleOpen } = useTableCol<EpisodeType>(episode, emits)
 
 const formattedEpisode = computed(() => {
   if (!inputValue.value) return []
@@ -31,7 +28,6 @@ const formattedEpisode = computed(() => {
   <div @click="handleOpen">
     <Input
       v-if="isEdit"
-      ref="inputRef"
       v-model="inputValue"
       class="h-8 text-left w-full"
       @blur="handleChange"

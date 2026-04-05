@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useLocalStorage } from '@vueuse/core'
 import { ArrowUpDown, EyeOff, ListPlus } from 'lucide-vue-next'
-import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
@@ -12,7 +11,6 @@ import { useUser } from '@/stores/use-user'
 const suggestion = useSuggestion()
 const user = useUser()
 
-const suggestionCard = ref<InstanceType<typeof SuggestionCard> | null>(null)
 const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
 
 function toggleSort() {
@@ -36,7 +34,6 @@ function handleMarkAllAsViewed() {
   <div class="flex flex-col gap-4 h-full">
     <SuggestionCard
       v-if="(suggestion.suggestions?.length ?? 0) > 0"
-      ref="suggestionCard"
       :items="suggestion.suggestions || []"
       :sort-by="sortBy"
     >

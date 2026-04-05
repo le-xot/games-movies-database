@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { $Enums, User } from '@prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import { RecordEntity } from '@/modules/record/record.entity'
+import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import type { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
@@ -181,5 +182,41 @@ export class UserService {
       userId: id,
       action: 'deleted',
     } satisfies UpdateUsersPayload)
+  }
+
+  async getUserProfileStats(login: string): Promise<ProfileStatsEntity> {
+    const user = await this.prisma.user.findUnique({ where: { login } })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    const [totalRecords, recordsByGenreRaw, gradeDistributionRaw, totalLikesReceived] =
+      await Promise.all([
+        this.prisma.record.count({ where: { user: { login } } }),
+        this.prisma.record.groupBy({
+          by: ['genre'],
+          where: { user: { login } },
+          _count: { genre: true },
+        }),
+        this.prisma.record.groupBy({
+          by: ['grade'],
+          where: { user: { login } },
+          _count: { grade: true },
+        }),
+        this.prisma.like.count({ where: { record: { user: { login } } } }),
+      ])
+
+    return {
+      totalRecords,
+      recordsByGenre: recordsByGenreRaw.map((item) => ({
+        genre: item.genre ?? 'UNKNOWN',
+        count: item._count.genre,
+      })),
+      gradeDistribution: gradeDistributionRaw.map((item) => ({
+        grade: item.grade ?? 'UNKNOWN',
+        count: item._count.grade,
+      })),
+      totalLikesReceived,
+    }
   }
 }

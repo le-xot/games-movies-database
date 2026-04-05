@@ -16,6 +16,7 @@ import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { UserCreateByLoginDTO, UserUpdateDTO } from '@/modules/user/user.dto'
 import { UserEntity } from '@/modules/user/user.entity'
+import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
 import { UserService } from '@/modules/user/user.service'
 
 @ApiTags('users')
@@ -65,6 +66,13 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.OK })
   async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<User> {
     return await this.userService.upsertUser(id, data)
+  }
+
+  @Get('profile/:login')
+  @UseGuards(AuthGuard)
+  @ApiResponse({ type: ProfileStatsEntity })
+  getUserProfileStats(@Param('login') login: string) {
+    return this.userService.getUserProfileStats(login)
   }
 
   @Get(':id')

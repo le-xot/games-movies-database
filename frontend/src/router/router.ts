@@ -34,7 +34,7 @@ export const router = createRouter({
           meta: { requiresAdmin: true },
         },
         {
-          path: ROUTER_PATHS.profile,
+          path: ROUTER_PATHS.profile + '/:login?',
           component: () => import('@/pages/profile/ProfilePage.vue'),
           meta: { requiresAuth: true },
         },

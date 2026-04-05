@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noEmit": true,
+    "emitDeclarationOnly": true,
     "skipLibCheck": true,
     "composite": true
   },

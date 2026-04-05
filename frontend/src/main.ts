@@ -50,18 +50,4 @@ app.use(PiniaColada, {
   queryOptions: { refetchOnMount: true, refetchOnWindowFocus: false },
 })
 
-// highlight re-renders
-// if (import.meta.env.DEV) {
-//   app.mixin({
-//     updated() {
-//       const el = this.$el
-//       if (el && el.style) {
-//         el.style.transition = 'box-shadow 0.3s ease'
-//         el.style.boxShadow = 'inset 0px 0px 0px 1px tomato'
-//         setTimeout(() => el.style.boxShadow = '', 300)
-//       }
-//     },
-//   })
-// }
-
 app.mount('#app')

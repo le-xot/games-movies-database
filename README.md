@@ -209,6 +209,8 @@ docker run -p 3000:3000 games-movies-database
 
 Or use the provided GitHub Actions workflow for automated deployment.
 
+The current production setup uses GitHub Actions to SSH into the server, pull the repo, and run `docker compose up --build` there.
+
 ## Contributing
 
 * Please make sure that you pull request to new branch

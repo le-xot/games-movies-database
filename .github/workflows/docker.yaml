@@ -1,4 +1,4 @@
-name: Build docker image
+name: Deploy to server
 
 on:
   push:
@@ -7,41 +7,18 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
-          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
-
-      - name: Build docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: lexot/games-movies-database:latest
-          cache-from: type=registry,ref=lexot/games-movies-database:latest
-          cache-to: type=inline
   deploy:
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy App to Dokploy
-        shell: bash
-        run: |
-          curl -X 'POST' \
-            'http://147.78.65.118:3000/api/compose.deploy' \
-            -H 'accept: application/json' \
-            -H 'Content-Type: application/json' \
-            -H 'x-api-key: ${{ secrets.DOKPLOY_API_KEY }}' \
-            -d '{
-            "composeId": "${{ secrets.DOKPLOY_COMPOSE_ID }}"
-          }'
+      - name: Build and deploy on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/lexot/games-movies-database
+            git fetch origin master
+            git reset --hard origin/master
+            docker compose up -d --build --remove-orphans

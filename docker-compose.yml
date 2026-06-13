@@ -2,34 +2,47 @@ services:
   postgres:
     image: postgres:17
     restart: unless-stopped
-    ports:
-      - 127.0.0.1:6543:5432
     environment:
-      POSTGRES_USER: le_xot
-      POSTGRES_PASSWORD: abc
-      POSTGRES_DB: lists
+      POSTGRES_USER: ${POSTGRES_USER:-le_xot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-lists}
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   admin:
     image: adminer
     restart: unless-stopped
-    ports:
-      - 127.0.0.1:8081:8080
     depends_on:
       - postgres
+    networks:
+      - default
+      - caddy
+    labels:
+      caddy: adminer.le-xot.dev
+      caddy.reverse_proxy: "{{upstreams 8080}}"
 
   application:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: lexot/games-movies-database:latest
     restart: unless-stopped
-    ports:
-      - 127.0.0.1:3001:3000
-    pull_policy: always
     depends_on:
       - postgres
     env_file: .env
     volumes:
       - images:/app/images
+    networks:
+      - default
+      - caddy
+    labels:
+      caddy: le-xot.dev
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+
 volumes:
   pgdata:
   images:
+
+networks:
+  caddy:
+    external: true

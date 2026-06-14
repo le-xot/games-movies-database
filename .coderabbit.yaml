@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "ru"
+reviews:
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  path_instructions:
+    - path: "backend/**"
+      instructions: |
+        Только кратко опиши что изменилось в бекенде (новые фичи, баг-фиксы, рефакторинг).
+        Не анализируй качество кода, не давай рекомендаций по улучшению.
+    - path: "frontend/**"
+      instructions: |
+        Только кратко опиши что изменилось во фронтенде (новые фичи, баг-фиксы, рефакторинг).
+        Не анализируй качество кода, не давай рекомендаций по улучшению.

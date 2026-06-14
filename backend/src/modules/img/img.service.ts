@@ -2,18 +2,21 @@ import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
-import process, { env } from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { env } from 'node:process'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import sharp from 'sharp'
 
 @Injectable()
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
+  private readonly imagesDir = fileURLToPath(new URL('../../../images', import.meta.url))
+
   async getImageContent(urlBase64: string) {
     const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
 
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
-    const fileDiskPath = path.resolve(process.cwd(), 'images', `${urlHash}.webp`)
+    const fileDiskPath = path.resolve(this.imagesDir, `${urlHash}.webp`)
 
     const isFileExists = await stat(fileDiskPath)
       .then(() => true)

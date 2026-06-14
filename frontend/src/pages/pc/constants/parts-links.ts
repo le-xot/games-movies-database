@@ -13,10 +13,11 @@ import {
   Monitor,
   Mouse,
   PcCase,
+  Smartphone,
+  Workflow,
   Webcam,
 } from '@lucide/vue'
-import Arch from '@/pages/pc/assets/archlinux.svg'
-import Atlas from '@/pages/pc/assets/atlasos.svg'
+import Arch from '@/pages/pc/assets/archlinux.svg?component'
 
 interface PartLink {
   name: string
@@ -29,11 +30,6 @@ const OS: PartLink[] = [
     name: 'Arch Linux LTS',
     icon: Arch,
     url: 'https://archlinux.org/download/',
-  },
-  {
-    name: 'AtlasOS',
-    icon: Atlas,
-    url: 'https://atlasos.net/',
   },
 ]
 
@@ -109,6 +105,26 @@ const MONITORS: PartLink[] = [
 ]
 
 const DEVICES: PartLink[] = [
+  {
+    name: 'Google Pixel 10a',
+    icon: Smartphone,
+    url: 'https://store.google.com/',
+  },
+  {
+    name: 'Thundeal TD92 Pro',
+    icon: Monitor,
+    url: 'https://www.thundeal.com/',
+  },
+  {
+    name: 'Nintendo Switch 2',
+    icon: Gamepad2,
+    url: 'https://www.nintendo.com/',
+  },
+  {
+    name: 'Fifine BM88',
+    icon: Workflow,
+    url: 'https://fifinemicrophone.com/',
+  },
   {
     name: 'Maono AU-A04',
     icon: Mic,

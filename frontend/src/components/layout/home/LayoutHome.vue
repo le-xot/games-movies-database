@@ -1,7 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Toaster } from '@/components/ui/sonner'
+</script>
 
 <template>
   <div class="home-layout">
+    <Toaster />
     <RouterView />
   </div>
 </template>

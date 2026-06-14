@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from '@/app.vue'
 import { router } from '@/router/router'
 import '@/assets/index.css'
+import 'vue-sonner/style.css'
 
 // Migrate old shared columnsVisibility key to per-genre keys
 const oldVisibility = localStorage.getItem('columnsVisibility')

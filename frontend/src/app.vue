@@ -23,7 +23,7 @@ useWebSocket()
   >
     <div class="text-center p-8 max-w-[700px]">
       <h1 class="text-4xl mb-4">Технические работы на сайте</h1>
-      <p class="text-xl opacity-80">ЛешотРу временно недоступен. Пожалуйста, зайдите позже.</p>
+      <p class="text-xl opacity-80">Сайт Лешота временно недоступен. Пожалуйста, зайдите позже.</p>
       <p class="mt-10 text-xl opacity-80 text-sky-500 underline">
         <a href="https://t.me/lexotdev" target="_blank"> https://t.me/lexotdev </a>
       </p>

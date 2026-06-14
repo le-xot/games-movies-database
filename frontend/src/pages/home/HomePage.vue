@@ -7,7 +7,7 @@ import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 const title = useTitle()
 
 onMounted(() => {
-  title.value = 'Лешот.ру'
+  title.value = 'Сайт Лешота'
 })
 </script>
 

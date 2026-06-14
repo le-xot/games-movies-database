@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
-import { SuggestionModule } from '../suggestion/suggestion.module'
-import { UserModule } from '../user/user.module'
-import { TwirController } from './twir.controller'
-import { TwirService } from './twir.service'
+import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
+import { TwirController } from '@/modules/twir/twir.controller'
+import { TwirService } from '@/modules/twir/twir.service'
+import { UserModule } from '@/modules/user/user.module'
 
 @Module({
   imports: [UserModule, SuggestionModule],

@@ -1,17 +1,18 @@
-import { useUser } from '@/composables/use-user.ts'
-import { useAnime } from '@/pages/anime/composables/use-anime.ts'
-import { useAuctions } from '@/pages/auction/composables/use-autions.ts'
-import { useCartoon } from '@/pages/cartoon/composables/use-cartoon.ts'
-import { useGames } from '@/pages/games/composables/use-games.ts'
-import { useMovie } from '@/pages/movie/composables/use-movie.ts'
-import { useQueue } from '@/pages/queue/composables/use-queue.ts'
-import { useSeries } from '@/pages/series/composables/use-series.ts'
-import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion.ts'
-import { io, Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
 import { onMounted, onUnmounted, ref } from 'vue'
+import { createEventCoalescer } from '@/composables/use-event-coalescer'
+import { useAnime } from '@/pages/anime/composables/use-anime'
+import { useAuctions } from '@/pages/auction/composables/use-auctions'
+import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
+import { useGames } from '@/pages/games/composables/use-games'
+import { useMovie } from '@/pages/movie/composables/use-movie'
+import { useQueue } from '@/pages/queue/composables/use-queue'
+import { useSeries } from '@/pages/series/composables/use-series'
+import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
+import { useUser } from '@/stores/use-user'
 
 export function useWebSocket() {
-  const socket = ref<Socket | null>(null)
+  const socket = ref<ReturnType<typeof io> | null>(null)
   const isConnected = ref(false)
   const queueStore = useQueue()
   const animeStore = useAnime()
@@ -21,61 +22,60 @@ export function useWebSocket() {
   const gamesStore = useGames()
   const suggestionStore = useSuggestion()
   const auctionStore = useAuctions()
-  const { isAdmin } = useUser()
+  const userStore = useUser()
+
+  const coalescer = createEventCoalescer({
+    handlers: {
+      suggestions: () => suggestionStore.refetchSuggestions(),
+      queue: () => queueStore.refetchQueue(),
+      auction: () => {
+        if (userStore.isAdmin) auctionStore.refetchAuctions()
+      },
+      user: () => userStore.refetchUser(),
+      'records:ANIME': () => animeStore.refetchVideos(),
+      'records:CARTOON': () => cartoonStore.refetchVideos(),
+      'records:SERIES': () => seriesStore.refetchVideos(),
+      'records:MOVIE': () => movieStore.refetchVideos(),
+      'records:GAME': () => gamesStore.refetchGames(),
+    },
+  })
 
   function connect() {
-    socket.value = io(`${window.location.protocol}//${window.location.host}`, { transports: ['websocket'] })
+    socket.value = io(`${window.location.protocol}//${window.location.host}`, {
+      transports: ['websocket'],
+    })
       .on('connect', () => {
         isConnected.value = true
       })
       .on('disconnect', () => {
         isConnected.value = false
       })
-
       .on('update-auction', () => {
-        suggestionStore.refetchSuggestions()
-        if (isAdmin) {
-          auctionStore.refetchAuctions()
-        }
+        coalescer.enqueue('suggestions')
+        coalescer.enqueue('auction')
       })
-      .on('update-records', (payload) => {
-        switch (payload.genre) {
-          case 'ANIME':
-            animeStore.refetchVideos()
-            break
-          case 'CARTOON':
-            cartoonStore.refetchVideos()
-            break
-          case 'SERIES':
-            seriesStore.refetchVideos()
-            break
-          case 'MOVIE':
-            movieStore.refetchVideos()
-            break
-          case 'GAME':
-            gamesStore.refetchGames()
-            break
-          default:
-            animeStore.refetchVideos()
-            cartoonStore.refetchVideos()
-            seriesStore.refetchVideos()
-            movieStore.refetchVideos()
-            gamesStore.refetchGames()
-            break
+      .on('update-records', (payload?: { genre?: string }) => {
+        if (payload?.genre) {
+          coalescer.enqueue('records:' + payload.genre)
+        } else {
+          coalescer.enqueue('records:ANIME')
+          coalescer.enqueue('records:CARTOON')
+          coalescer.enqueue('records:SERIES')
+          coalescer.enqueue('records:MOVIE')
+          coalescer.enqueue('records:GAME')
         }
       })
       .on('update-likes', () => {
-        suggestionStore.refetchSuggestions()
+        coalescer.enqueue('suggestions')
       })
       .on('update-queue', () => {
-        queueStore.refetchQueue()
+        coalescer.enqueue('queue')
       })
       .on('update-suggestions', () => {
-        suggestionStore.refetchSuggestions()
+        coalescer.enqueue('suggestions')
       })
       .on('update-users', () => {
-        const userStore = useUser()
-        userStore.refetchUser()
+        coalescer.enqueue('user')
       })
       .on('connect_error', (error) => {
         console.error('WebSocket connection error:', error)
@@ -84,6 +84,7 @@ export function useWebSocket() {
   }
 
   function disconnect() {
+    coalescer.cancel()
     socket.value?.disconnect()
     socket.value = null
   }

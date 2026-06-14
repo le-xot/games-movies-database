@@ -1,10 +1,17 @@
 import process from 'node:process'
 import { INestApplication, Injectable, Logger, OnModuleInit } from '@nestjs/common'
-import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from '../generated/prisma/client'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger(PrismaService.name)
+
+  constructor() {
+    const adapter = new PrismaPg({ connectionString: process.env.DATASOURCE_URL ?? '' })
+    super({ adapter })
+  }
+
   public async onModuleInit() {
     this.logger.log('🔌 Connecting to database')
     await this.$connect()

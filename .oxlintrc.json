@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "commonjs": true,
+    "es2024": true,
+    "node": true
+  },
+  "rules": {
+    "eslint/require-await": "error",
+    "eslint/no-unused-vars": "warn",
+    "eslint/no-console": "off",
+    "eslint/no-alert": "off",
+    "typescript/no-extraneous-class": ["warn", { "allowWithDecorator": true }],
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "coverage",
+    ".augment-guidelines",
+    "frontend/src/lib/api.ts"
+  ]
+}

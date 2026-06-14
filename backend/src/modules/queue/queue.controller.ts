@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
-import { QueueDto } from './queue.dto'
-import { QueueService } from './queue.service'
+import { QueueDto } from '@/modules/queue/queue.dto'
+import { QueueService } from '@/modules/queue/queue.service'
 
 @Controller('queue')
 export class QueueController {

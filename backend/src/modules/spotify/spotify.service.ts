@@ -1,16 +1,21 @@
 import { Buffer } from 'node:buffer'
-import { PrismaService } from '@/database/prisma.service'
-import { env } from '@/utils/enviroments'
-import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from '@nestjs/common'
-import { ThirdPartService } from '@prisma/client'
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  OnApplicationBootstrap,
+} from '@nestjs/common'
+import { ThirdPartService } from '@/enums'
 import { SpotifyClient } from '@soundify/web-api'
+import { env } from '@/utils/enviroments'
+import { SpotifyTokenRepository } from './repositories/spotify-token.repository'
 
 @Injectable()
 export class SpotifyService implements OnApplicationBootstrap {
   private readonly logger = new Logger(SpotifyService.name)
   client: SpotifyClient | null = null
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly tokenRepository: SpotifyTokenRepository) {}
 
   private createClient(accessToken: string | null): SpotifyClient {
     return new SpotifyClient(accessToken, {
@@ -24,11 +29,7 @@ export class SpotifyService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    const token = await this.prisma.thirdPartyOauthServiceToken.findUnique({
-      where: {
-        service: ThirdPartService.SPOTIFY,
-      },
-    })
+    const token = await this.tokenRepository.findByService(ThirdPartService.SPOTIFY)
 
     if (!token) {
       this.logger.warn('Spotify not authorized yet, skip creating client.')
@@ -38,23 +39,21 @@ export class SpotifyService implements OnApplicationBootstrap {
     this.client = this.createClient(token.accessToken)
   }
 
-  private async refreshTokens(): Promise<{ accessToken: string, refreshToken: string }> {
-    const dbTokens = await this.prisma.thirdPartyOauthServiceToken.findUnique({
-      where: {
-        service: ThirdPartService.SPOTIFY,
-      },
-    })
+  private async refreshTokens(): Promise<{ accessToken: string; refreshToken: string }> {
+    const dbTokens = await this.tokenRepository.findByService(ThirdPartService.SPOTIFY)
 
     if (!dbTokens) {
       throw new Error('Spotify tokens not created')
     }
 
-    const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
+    const authorization = Buffer.from(
+      `${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`,
+    ).toString('base64')
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authorization}`,
+        Authorization: `Basic ${authorization}`,
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
@@ -68,16 +67,11 @@ export class SpotifyService implements OnApplicationBootstrap {
 
     const data: TokensResponse = await response.json()
 
-    await this.prisma.thirdPartyOauthServiceToken.update({
-      where: {
-        service: ThirdPartService.SPOTIFY,
-      },
-      data: {
-        accessToken: data.access_token,
-        refreshToken: data.refresh_token,
-        obtainedAt: new Date(),
-        expiresAt: new Date(Date.now() + (Number(data.expires_in) * 1000)),
-      },
+    await this.tokenRepository.update(ThirdPartService.SPOTIFY, {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      obtainedAt: new Date(),
+      expiresAt: new Date(Date.now() + Number(data.expires_in) * 1000),
     })
 
     return {
@@ -100,12 +94,14 @@ export class SpotifyService implements OnApplicationBootstrap {
   }
 
   async authorize(code: string) {
-    const authorization = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
+    const authorization = Buffer.from(
+      `${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`,
+    ).toString('base64')
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authorization}`,
+        Authorization: `Basic ${authorization}`,
       },
       body: new URLSearchParams({
         redirect_uri: env.SPOTIFY_CALLBACK_URL,
@@ -119,20 +115,11 @@ export class SpotifyService implements OnApplicationBootstrap {
 
     const data: TokensResponse = await response.json()
 
-    const prismaData = {
-      service: ThirdPartService.SPOTIFY,
+    await this.tokenRepository.upsert(ThirdPartService.SPOTIFY, {
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
       obtainedAt: new Date(),
-      expiresAt: new Date(Date.now() + (Number(data.expires_in) * 1000)),
-    }
-
-    await this.prisma.thirdPartyOauthServiceToken.upsert({
-      where: {
-        service: ThirdPartService.SPOTIFY,
-      },
-      create: prismaData,
-      update: prismaData,
+      expiresAt: new Date(Date.now() + Number(data.expires_in) * 1000),
     })
 
     this.client = this.createClient(data.access_token)

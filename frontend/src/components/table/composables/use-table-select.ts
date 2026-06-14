@@ -1,5 +1,5 @@
-import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 
 export interface BadgeOptions {
   name: string
@@ -10,10 +10,7 @@ export interface BadgeOptions {
 
 export type SelectKind = 'genre' | 'status' | 'grade'
 
-export const statusTags: Record<
-  RecordStatus,
-  BadgeOptions
-> = {
+export const statusTags: Record<RecordStatus, BadgeOptions> = {
   [RecordStatus.QUEUE]: {
     name: 'В очереди',
     description: 'заказ ждёт своего часа.',
@@ -45,10 +42,11 @@ export const statusTags: Record<
   },
 }
 
-export const genreTags: Partial<Record<
-  RecordGenre,
-  BadgeOptions
->> = {
+export const genreTags: Partial<Record<RecordGenre, BadgeOptions>> = {
+  [RecordGenre.GAME]: {
+    name: 'Игра',
+    class: 'bg-[#333333] border text-white/80',
+  },
   [RecordGenre.MOVIE]: {
     name: 'Фильм',
     class: 'bg-[#2b593f] border text-white/80',
@@ -67,10 +65,7 @@ export const genreTags: Partial<Record<
   },
 }
 
-export const gradeTags: Record<
-  RecordGrade,
-  BadgeOptions
-> = {
+export const gradeTags: Record<RecordGrade, BadgeOptions> = {
   [RecordGrade.RECOMMEND]: {
     name: '🔥',
     label: 'Рекомендую',
@@ -98,7 +93,7 @@ export const gradeTags: Record<
 }
 
 export const useTableSelect = defineStore('use-table-select', () => {
-  const options: Record<SelectKind, { label: string, value: string, class?: string }[]> = {
+  const options: Record<SelectKind, { label: string; value: string; class?: string }[]> = {
     status: Object.entries(statusTags).map(([key, value]) => {
       return {
         label: value.name,

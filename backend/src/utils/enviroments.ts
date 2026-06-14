@@ -10,7 +10,7 @@ export const env = cleanEnv(process.env, {
 
   TWITCH_CLIENT_ID: str({ default: null }),
   TWITCH_CLIENT_SECRET: str({ default: null }),
-  TWITCH_CALLBACK_URL: str({ }),
+  TWITCH_CALLBACK_URL: str({}),
   TWITCH_ADMIN_ID: str({ default: null }),
   TWITCH_ADMIN_LOGIN: str({ default: null }),
 

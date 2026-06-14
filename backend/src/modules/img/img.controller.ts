@@ -1,18 +1,15 @@
 import { Buffer } from 'node:buffer'
 import { stat } from 'node:fs/promises'
-import { Controller, Get, Logger, Query, Res } from '@nestjs/common'
-import { ImgService } from './img.service'
+import { Controller, Get, Query, Res } from '@nestjs/common'
+import { ImgService } from '@/modules/img/img.service'
 import type { Response } from 'express'
 
 @Controller('img')
 export class ImgController {
-  
-
   constructor(private readonly imgService: ImgService) {}
 
   @Get()
   async getImageContent(@Query('urlEncoded') urlEncoded: string, @Res() res: Response) {
-    
     const { fileDiskPath, contentType } = await this.imgService.getImageContent(urlEncoded)
 
     const fileStats = await stat(fileDiskPath)

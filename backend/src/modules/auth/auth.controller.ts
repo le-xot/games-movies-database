@@ -1,28 +1,33 @@
-import { env } from '@/utils/enviroments'
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import { TwitchService } from '../twitch/twitch.service'
-import { UserEntity } from '../user/user.entity'
-import { UserService } from '../user/user.service'
-import { AuthGuard } from './auth.guard'
-import { AuthService } from './auth.service'
-import { User } from './auth.user.decorator'
-import { CallbackDto } from './dto/callback.dto'
+import { AuthGuard } from '@/modules/auth/auth.guard'
+import { AuthService } from '@/modules/auth/auth.service'
+import { User } from '@/modules/auth/auth.user.decorator'
+import { CallbackDto } from '@/modules/auth/dto/callback.dto'
+import { TwitchService } from '@/modules/twitch/twitch.service'
+import { UserEntity } from '@/modules/user/user.entity'
+import { UserService } from '@/modules/user/user.service'
+import { env } from '@/utils/enviroments'
 import type { Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly userService: UserService, private readonly twitch: TwitchService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+    private readonly twitch: TwitchService,
+  ) {}
 
   @Get('/twitch')
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   twitchAuth(@Res() res: Response) {
-    const redirectUri = 'https://id.twitch.tv/oauth2/authorize?'
-      + `client_id=${env.TWITCH_CLIENT_ID}&`
-      + `redirect_uri=${env.TWITCH_CALLBACK_URL}&`
-      + 'response_type=code&'
-      + 'scope=user:read:email'
+    const redirectUri =
+      'https://id.twitch.tv/oauth2/authorize?' +
+      `client_id=${env.TWITCH_CLIENT_ID}&` +
+      `redirect_uri=${env.TWITCH_CALLBACK_URL}&` +
+      'response_type=code&' +
+      'scope=user:read:email'
     res.redirect(redirectUri)
   }
 

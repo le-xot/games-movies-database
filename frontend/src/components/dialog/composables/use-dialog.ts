@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { markRaw, ref } from 'vue'
 
 interface DialogState {
   title: string
@@ -8,7 +8,7 @@ interface DialogState {
   onSubmit: (formData?: any) => void
   onCancel?: () => void
   content?: string
-  formData?: { title: string, description: string }
+  formData?: { title: string; description: string }
   component?: any
   props?: Record<string, any>
 }
@@ -19,7 +19,11 @@ export const useDialog = defineStore('dialog', () => {
 
   function openDialog(state: DialogState) {
     isOpen.value = true
-    dialogState.value = state
+    dialogState.value = {
+      ...state,
+      component: state.component ? markRaw(state.component) : undefined,
+      customContent: state.customContent ? markRaw(state.customContent) : undefined,
+    }
   }
 
   function submitDialog(formData?: any) {

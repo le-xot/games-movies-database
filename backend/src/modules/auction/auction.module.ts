@@ -1,13 +1,19 @@
-import { PrismaModule } from '@/database/prisma.module'
 import { Module } from '@nestjs/common'
-import { RecordsProvidersModule } from '../records-providers/records-providers.module'
-import { UserModule } from '../user/user.module'
-import { AuctionController } from './auction.controller'
-import { AuctionService } from './auction.service'
+import { PrismaModule } from '@/database/prisma.module'
+import { AuctionController } from '@/modules/auction/auction.controller'
+import { AuctionService } from '@/modules/auction/auction.service'
+import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
+import { UserModule } from '@/modules/user/user.module'
+import { AuctionRepository } from './repositories/auction.repository'
+import { PrismaAuctionRepository } from './repositories/prisma-auction.repository'
 
 @Module({
   imports: [PrismaModule, UserModule, RecordsProvidersModule],
-  providers: [AuctionService],
+  providers: [
+    AuctionService,
+    { provide: AuctionRepository, useClass: PrismaAuctionRepository },
+    PrismaAuctionRepository,
+  ],
   controllers: [AuctionController],
   exports: [AuctionService],
 })

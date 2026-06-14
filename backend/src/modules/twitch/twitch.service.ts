@@ -1,5 +1,5 @@
-import { env } from '@/utils/enviroments'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { env } from '@/utils/enviroments'
 
 interface TwitchToken {
   access_token: string
@@ -12,16 +12,16 @@ export class TwitchService implements OnModuleInit {
   private token: TwitchToken | null = null
   private readonly logger = new Logger(TwitchService.name)
 
-  onModuleInit() {
+  async onModuleInit() {
     this.logger.log('Initializing TwitchService and fetching app access token')
-    this.getAppAccessToken()
+    await this.getAppAccessToken()
   }
 
   async getTwitchUser(accessToken: string) {
     const response = await fetch('https://api.twitch.tv/helix/users', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Client-ID': env.TWITCH_CLIENT_ID,
       },
     })
@@ -39,7 +39,7 @@ export class TwitchService implements OnModuleInit {
     const response = await fetch(`https://api.twitch.tv/helix/users?id=${id}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Client-ID': env.TWITCH_CLIENT_ID,
       },
     })
@@ -57,7 +57,7 @@ export class TwitchService implements OnModuleInit {
     const response = await fetch(`https://api.twitch.tv/helix/users?login=${login}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Client-ID': env.TWITCH_CLIENT_ID,
       },
     })
@@ -128,7 +128,7 @@ export class TwitchService implements OnModuleInit {
     const response = await fetch(`https://api.twitch.tv/helix/users?login=${login}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Client-ID': env.TWITCH_CLIENT_ID,
       },
     })

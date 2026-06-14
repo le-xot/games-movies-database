@@ -1,11 +1,15 @@
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { env } from '@/utils/enviroments'
-import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 
 @Injectable()
 export class ApikeyGuard implements CanActivate {
   private readonly logger = new Logger(ApikeyGuard.name)
-
-  constructor() {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest()

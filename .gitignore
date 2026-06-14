@@ -71,3 +71,12 @@ vite.config.ts.timestamp-*.mjs
 
 backend/images/*
 !backend/images/.gitkeep
+
+backend/src/generated
+
+
+# AI orchestrator state — keep only plans and knowledge
+.sisyphus/*
+!.sisyphus/plans/
+!.sisyphus/notepads/
+/test-results/

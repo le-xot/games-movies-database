@@ -9,6 +9,7 @@ import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 import type { Response } from 'express'
 
 @Controller('auth')
@@ -20,7 +21,7 @@ export class AuthController {
   ) {}
 
   @Get('/twitch')
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Throttle({ default: THROTTLER_LIMITS.auth })
   twitchAuth(@Res() res: Response) {
     const redirectUri =
       'https://id.twitch.tv/oauth2/authorize?' +
@@ -32,7 +33,7 @@ export class AuthController {
   }
 
   @Post('/twitch/callback')
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Throttle({ default: THROTTLER_LIMITS.auth })
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
     const token = await this.authService.handleCallback(data.code)
     res.cookie('token', token, {
@@ -51,6 +52,7 @@ export class AuthController {
   }
 
   @Post('/logout')
+  @Throttle({ default: THROTTLER_LIMITS.auth })
   logout(@Res() res: Response) {
     res.clearCookie('token')
     res.end()

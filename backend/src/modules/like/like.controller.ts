@@ -9,6 +9,7 @@ import { GetLikesByIdDTO, GetLikesDTO, LikeCreateDTO } from '@/modules/like/like
 import { LikeEntity } from '@/modules/like/like.entity'
 import { LikeService } from '@/modules/like/like.service'
 import { UserEntity } from '@/modules/user/user.entity'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @ApiTags('likes')
 @Controller('likes')
@@ -16,7 +17,7 @@ export class LikeController {
   constructor(private likeService: LikeService) {}
 
   @Post()
-  @Throttle({ default: { ttl: 60000, limit: 30 } })
+  @Throttle({ default: THROTTLER_LIMITS.like })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ type: LikeEntity, status: 200, description: 'Returns created like' })
   async createLike(@Body() data: LikeCreateDTO, @User() user: UserEntity): Promise<LikeEntity> {
@@ -24,7 +25,7 @@ export class LikeController {
   }
 
   @Delete(':id')
-  @Throttle({ default: { ttl: 60000, limit: 30 } })
+  @Throttle({ default: THROTTLER_LIMITS.like })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Like deleted successfully' })
   async deleteLike(@Param('id') id: number, @User() user: UserEntity): Promise<void> {

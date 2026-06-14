@@ -20,6 +20,7 @@ import { TwirModule } from '@/modules/twir/twir.module'
 import { TwitchModule } from '@/modules/twitch/twitch.module'
 import { UserModule } from '@/modules/user/user.module'
 import { WebsocketModule } from '@/modules/websocket/websocket.module'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @Module({
   controllers: [AppController],
@@ -30,8 +31,8 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,
-        limit: 60,
+        ttl: THROTTLER_LIMITS.public.ttl,
+        limit: THROTTLER_LIMITS.public.limit,
       },
     ]),
     AuctionModule,

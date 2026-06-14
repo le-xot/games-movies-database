@@ -1,10 +1,12 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { ChangeLimitDTO, LimitEntity } from '@/modules/limit/limit.dto'
 import { LimitService } from '@/modules/limit/limit.service'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @ApiTags('limits')
 @Controller('limits')
@@ -12,6 +14,7 @@ export class LimitController {
   constructor(private limitService: LimitService) {}
 
   @Post()
+  @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({
     status: 200,

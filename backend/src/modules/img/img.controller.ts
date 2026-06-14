@@ -1,7 +1,9 @@
 import { Buffer } from 'node:buffer'
 import { stat } from 'node:fs/promises'
 import { Controller, Get, Query, Res } from '@nestjs/common'
+import { Throttle } from '@nestjs/throttler'
 import { ImgService } from '@/modules/img/img.service'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 import type { Response } from 'express'
 
 @Controller('img')
@@ -9,6 +11,7 @@ export class ImgController {
   constructor(private readonly imgService: ImgService) {}
 
   @Get()
+  @Throttle({ default: THROTTLER_LIMITS.img })
   async getImageContent(@Query('urlEncoded') urlEncoded: string, @Res() res: Response) {
     const { fileDiskPath, contentType } = await this.imgService.getImageContent(urlEncoded)
 

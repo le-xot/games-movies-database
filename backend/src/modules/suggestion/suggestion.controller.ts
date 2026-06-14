@@ -9,6 +9,7 @@ import { RecordEntity } from '@/modules/record/record.entity'
 import { SuggestionService } from '@/modules/suggestion/suggestion.service'
 import { UserSuggestionDTO } from '@/modules/suggestion/suggesttion.dto'
 import { UserEntity } from '@/modules/user/user.entity'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @ApiTags('suggestions')
 @Controller('suggestions')
@@ -22,7 +23,7 @@ export class SuggestionController {
   }
 
   @Post()
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @Throttle({ default: THROTTLER_LIMITS.suggestion })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns created suggestion' })
   async userSuggest(@Body() suggest: UserSuggestionDTO, @User() user: UserEntity): Promise<any> {

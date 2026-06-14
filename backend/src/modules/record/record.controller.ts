@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
@@ -24,6 +25,7 @@ import {
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
 import { UserEntity } from '@/modules/user/user.entity'
+import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @ApiTags('records')
 @Controller('records')
@@ -31,6 +33,7 @@ export class RecordController {
   constructor(private recordServices: RecordService) {}
 
   @Post('link')
+  @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
   async createRecordFromLink(
@@ -41,6 +44,7 @@ export class RecordController {
   }
 
   @Post()
+  @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
   async createRecord(@Body() id: number, record: RecordUpdateDTO): Promise<RecordEntity> {
@@ -60,6 +64,7 @@ export class RecordController {
   }
 
   @Patch(':id')
+  @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
   async patchRecord(@Param('id') id: number, @Body() record: RecordUpdateDTO): Promise<RecordEntity> {
@@ -67,6 +72,7 @@ export class RecordController {
   }
 
   @Delete(':id')
+  @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 204 })
   async deleteRecord(@Param('id') id: number): Promise<void> {

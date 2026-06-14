@@ -80,3 +80,4 @@ backend/src/generated
 !.sisyphus/plans/
 !.sisyphus/notepads/
 /test-results/
+.playwright-mcp/

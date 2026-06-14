@@ -15,6 +15,11 @@ const { isAdmin } = storeToRefs(useUser())
 
 const isDialogOpen = ref(false)
 
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
+}
+
 isDialogOpen.value = false
 
 defineExpose({ isDialogOpen })
@@ -39,6 +44,7 @@ defineExpose({ isDialogOpen })
               :src="getImageUrl(item.posterUrl)"
               class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
               alt="Poster"
+              @error="handleImageError"
             />
           </div>
           <div class="flex flex-col flex-1 justify-between overflow-hidden">

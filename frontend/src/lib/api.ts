@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -9,20 +10,20 @@
  * ---------------------------------------------------------------
  */
 
-export enum RecordStatus {
-  QUEUE = "QUEUE",
-  PROGRESS = "PROGRESS",
-  DROP = "DROP",
-  NOTINTERESTED = "NOTINTERESTED",
-  UNFINISHED = "UNFINISHED",
-  DONE = "DONE",
+export enum LimitType {
+  SUGGESTION = "SUGGESTION",
 }
 
-export enum RecordType {
-  WRITTEN = "WRITTEN",
-  SUGGESTION = "SUGGESTION",
-  AUCTION = "AUCTION",
-  ORDER = "ORDER",
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export enum RecordGrade {
+  DISLIKE = "DISLIKE",
+  BEER = "BEER",
+  LIKE = "LIKE",
+  RECOMMEND = "RECOMMEND",
 }
 
 export enum RecordGenre {
@@ -33,16 +34,20 @@ export enum RecordGenre {
   SERIES = "SERIES",
 }
 
-export enum RecordGrade {
-  DISLIKE = "DISLIKE",
-  BEER = "BEER",
-  LIKE = "LIKE",
-  RECOMMEND = "RECOMMEND",
+export enum RecordType {
+  WRITTEN = "WRITTEN",
+  SUGGESTION = "SUGGESTION",
+  AUCTION = "AUCTION",
+  ORDER = "ORDER",
 }
 
-export enum UserRole {
-  USER = "USER",
-  ADMIN = "ADMIN",
+export enum RecordStatus {
+  QUEUE = "QUEUE",
+  PROGRESS = "PROGRESS",
+  DROP = "DROP",
+  NOTINTERESTED = "NOTINTERESTED",
+  UNFINISHED = "UNFINISHED",
+  DONE = "DONE",
 }
 
 export interface UserEntity {
@@ -162,10 +167,6 @@ export interface GetAllRecordsDTO {
   total: number;
 }
 
-export enum LimitType {
-  SUGGESTION = "SUGGESTION",
-}
-
 export interface ChangeLimitDTO {
   name: LimitType;
   /**
@@ -246,16 +247,22 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
+export type RequestParams = Omit<
+  FullRequestParams,
+  "body" | "method" | "query" | "path"
+>;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (
+    securityData: SecurityDataType | null,
+  ) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+  extends Response {
   data: D;
   error: E;
 }
@@ -264,6 +271,7 @@ type CancelToken = Symbol | string | number;
 
 export enum ContentType {
   Json = "application/json",
+  JsonApi = "application/vnd.api+json",
   FormData = "multipart/form-data",
   UrlEncoded = "application/x-www-form-urlencoded",
   Text = "text/plain",
@@ -274,7 +282,8 @@ export class HttpClient<SecurityDataType = unknown> {
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
+    fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -307,9 +316,15 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
+    const keys = Object.keys(query).filter(
+      (key) => "undefined" !== typeof query[key],
+    );
     return keys
-      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
+      .map((key) =>
+        Array.isArray(query[key])
+          ? this.addArrayQueryParam(query, key)
+          : this.addQueryParam(query, key),
+      )
       .join("&");
   }
 
@@ -320,10 +335,23 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
-    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.JsonApi]: (input: any) =>
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.Text]: (input: any) =>
+      input !== null && typeof input !== "string"
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.FormData]: (input: any) => {
+      if (input instanceof FormData) {
+        return input;
+      }
+
+      return Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
@@ -334,11 +362,15 @@ export class HttpClient<SecurityDataType = unknown> {
               : `${property}`,
         );
         return formData;
-      }, new FormData()),
+      }, new FormData());
+    },
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
+  protected mergeRequestParams(
+    params1: RequestParams,
+    params2?: RequestParams,
+  ): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -351,7 +383,9 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
+  protected createAbortSignal = (
+    cancelToken: CancelToken,
+  ): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -395,22 +429,34 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
-      ...requestParams,
-      headers: {
-        ...(requestParams.headers || {}),
-        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
+    return this.customFetch(
+      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
+      {
+        ...requestParams,
+        headers: {
+          ...(requestParams.headers || {}),
+          ...(type && type !== ContentType.FormData
+            ? { "Content-Type": type }
+            : {}),
+        },
+        signal:
+          (cancelToken
+            ? this.createAbortSignal(cancelToken)
+            : requestParams.signal) || null,
+        body:
+          typeof body === "undefined" || body === null
+            ? null
+            : payloadFormatter(body),
       },
-      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
-      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
-    }).then(async (response) => {
-      const r = response.clone() as HttpResponse<T, E>;
+    ).then(async (response) => {
+      const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
+      const responseToParse = responseFormat ? response.clone() : response;
       const data = !responseFormat
         ? r
-        : await response[responseFormat]()
+        : await responseToParse[responseFormat]()
             .then((data) => {
               if (r.ok) {
                 r.data = data;
@@ -506,7 +552,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name UserControllerCreateUserByLogin
      * @request POST:/users/login
      */
-    userControllerCreateUserByLogin: (data: UserCreateByLoginDTO, params: RequestParams = {}) =>
+    userControllerCreateUserByLogin: (
+      data: UserCreateByLoginDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<UserEntity, any>({
         path: `/users/login`,
         method: "POST",
@@ -580,7 +629,11 @@ export class Api<SecurityDataType extends unknown> {
      * @name UserControllerPatchUser
      * @request POST:/users/{id}
      */
-    userControllerPatchUser: (id: string, data: UserUpdateDTO, params: RequestParams = {}) =>
+    userControllerPatchUser: (
+      id: string,
+      data: UserUpdateDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/users/${id}`,
         method: "POST",
@@ -624,7 +677,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name UserControllerGetUserProfileStats
      * @request GET:/users/profile/{login}
      */
-    userControllerGetUserProfileStats: (login: string, params: RequestParams = {}) =>
+    userControllerGetUserProfileStats: (
+      login: string,
+      params: RequestParams = {},
+    ) =>
       this.http.request<any, ProfileStatsEntity>({
         path: `/users/profile/${login}`,
         method: "GET",
@@ -638,7 +694,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name UserControllerGetUserProfileStatsById
      * @request GET:/users/profile-by-id/{id}
      */
-    userControllerGetUserProfileStatsById: (id: string, params: RequestParams = {}) =>
+    userControllerGetUserProfileStatsById: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
       this.http.request<any, ProfileStatsEntity>({
         path: `/users/profile-by-id/${id}`,
         method: "GET",
@@ -666,7 +725,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name UserControllerDeleteUserByLogin
      * @request DELETE:/users/{login}
      */
-    userControllerDeleteUserByLogin: (login: string, params: RequestParams = {}) =>
+    userControllerDeleteUserByLogin: (
+      login: string,
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/users/${login}`,
         method: "DELETE",
@@ -681,7 +743,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name TwirControllerCreateSuggestionWithTwir
      * @request POST:/twir/suggestion
      */
-    twirControllerCreateSuggestionWithTwir: (data: SuggestionCreateByTwirDTO, params: RequestParams = {}) =>
+    twirControllerCreateSuggestionWithTwir: (
+      data: SuggestionCreateByTwirDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/twir/suggestion`,
         method: "POST",
@@ -713,7 +778,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name SuggestionControllerUserSuggest
      * @request POST:/suggestions
      */
-    suggestionControllerUserSuggest: (data: UserSuggestionDTO, params: RequestParams = {}) =>
+    suggestionControllerUserSuggest: (
+      data: UserSuggestionDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/suggestions`,
         method: "POST",
@@ -729,7 +797,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name SuggestionControllerDeleteUserSuggestion
      * @request DELETE:/suggestions/{id}
      */
-    suggestionControllerDeleteUserSuggestion: (id: number, params: RequestParams = {}) =>
+    suggestionControllerDeleteUserSuggestion: (
+      id: number,
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/suggestions/${id}`,
         method: "DELETE",
@@ -758,7 +829,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name AuthControllerTwitchAuthCallback
      * @request POST:/auth/twitch/callback
      */
-    authControllerTwitchAuthCallback: (data: CallbackDto, params: RequestParams = {}) =>
+    authControllerTwitchAuthCallback: (
+      data: CallbackDto,
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
         path: `/auth/twitch/callback`,
         method: "POST",
@@ -804,7 +878,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name RecordControllerCreateRecordFromLink
      * @request POST:/records/link
      */
-    recordControllerCreateRecordFromLink: (data: RecordCreateFromLinkDTO, params: RequestParams = {}) =>
+    recordControllerCreateRecordFromLink: (
+      data: RecordCreateFromLinkDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<RecordEntity, any>({
         path: `/records/link`,
         method: "POST",
@@ -899,7 +976,11 @@ export class Api<SecurityDataType extends unknown> {
      * @name RecordControllerPatchRecord
      * @request PATCH:/records/{id}
      */
-    recordControllerPatchRecord: (id: number, data: RecordUpdateDTO, params: RequestParams = {}) =>
+    recordControllerPatchRecord: (
+      id: number,
+      data: RecordUpdateDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<RecordEntity, any>({
         path: `/records/${id}`,
         method: "PATCH",
@@ -931,7 +1012,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name LimitControllerChangeLimit
      * @request POST:/limits
      */
-    limitControllerChangeLimit: (data: ChangeLimitDTO, params: RequestParams = {}) =>
+    limitControllerChangeLimit: (
+      data: ChangeLimitDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<LimitEntity, any>({
         path: `/limits`,
         method: "POST",
@@ -949,7 +1033,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name LikeControllerCreateLike
      * @request POST:/likes
      */
-    likeControllerCreateLike: (data: LikeCreateDTO, params: RequestParams = {}) =>
+    likeControllerCreateLike: (
+      data: LikeCreateDTO,
+      params: RequestParams = {},
+    ) =>
       this.http.request<LikeEntity, any>({
         path: `/likes`,
         method: "POST",
@@ -980,7 +1067,10 @@ export class Api<SecurityDataType extends unknown> {
      * @name LikeControllerGetLikesByRecordId
      * @request GET:/likes/records/{id}
      */
-    likeControllerGetLikesByRecordId: (id: number, params: RequestParams = {}) =>
+    likeControllerGetLikesByRecordId: (
+      id: number,
+      params: RequestParams = {},
+    ) =>
       this.http.request<GetLikesByIdDTO, any>({
         path: `/likes/records/${id}`,
         method: "GET",

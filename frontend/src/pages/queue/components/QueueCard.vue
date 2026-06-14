@@ -25,7 +25,7 @@ function handleImageError(event: Event) {
       <slot name="title" />
     </p>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
-      <template v-for="(item, index) in items" :key="index">
+      <template v-for="item in items" :key="item.link">
         <Card v-if="isShow(item)" class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col">
           <div class="flex flex-1 h-full">
             <div

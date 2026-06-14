@@ -22,6 +22,11 @@ const currentItem = ref<RecordEntity>()
 
 const isSelecting = () => phase.value === 'selecting'
 
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  img.src = '/images/aga.webp'
+}
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function startSelection() {
@@ -96,6 +101,7 @@ watch(open, (isOpen) => {
             :src="getImageUrl(currentItem.posterUrl)"
             class="max-h-full max-w-full object-contain mx-auto opacity-70 animate-in fade-in aspect-[2/3]"
             alt="Постер"
+            @error="handleImageError"
           />
           <div v-else class="text-muted-foreground">Крутим барабан...</div>
         </div>
@@ -110,6 +116,7 @@ watch(open, (isOpen) => {
             :src="getImageUrl(currentItem.posterUrl)"
             class="max-h-full max-w-full object-contain mx-auto aspect-[2/3]"
             alt="Постер"
+            @error="handleImageError"
           />
           <div v-else class="text-muted-foreground">Нет изображения</div>
         </div>

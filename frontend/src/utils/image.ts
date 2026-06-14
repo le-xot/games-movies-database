@@ -10,5 +10,5 @@ export function getImageUrl(originalUrl: string): string {
   }
 
   const urlEncoded = encodeUrl(originalUrl)
-  return `/api/img?urlEncoded=${urlEncoded}`
+  return `/api/img?urlEncoded=${encodeURIComponent(urlEncoded)}`
 }

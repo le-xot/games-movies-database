@@ -11,53 +11,75 @@ interface PreparedData {
   link: string
 }
 
+interface LinkRoute {
+  pattern: RegExp
+  fetch: (match: RegExpMatchArray) => Promise<PreparedData>
+}
+
+interface LinkProvider {
+  hosts: string[]
+  routes: LinkRoute[]
+}
+
 @Injectable()
 export class RecordsProvidersService {
   private readonly logger = new Logger(RecordsProvidersService.name)
+  private readonly linkProviders: LinkProvider[] = [
+    {
+      hosts: ['shikimori.one'],
+      routes: [
+        {
+          pattern: /^\/animes\/[a-z]?(\d+)$/,
+          fetch: (match) => this.fetchShikimori(Number(match[1])),
+        },
+      ],
+    },
+    {
+      hosts: ['kinopoisk.ru'],
+      routes: [
+        {
+          pattern: /^\/(film|series)\/(\d+)$/,
+          fetch: (match) => this.fetchKinopoisk(Number(match[2])),
+        },
+      ],
+    },
+    {
+      hosts: ['igdb.com'],
+      routes: [
+        {
+          pattern: /^\/games\/([^/]+)$/,
+          fetch: (match) => this.fetchIGDB(match[1]),
+        },
+      ],
+    },
+    {
+      hosts: ['store.steampowered.com', 'steamcommunity.com'],
+      routes: [
+        {
+          pattern: /^\/app\/(\d+)$/,
+          fetch: (match) => this.fetchIGDBFromSteam(match[1]),
+        },
+      ],
+    },
+    {
+      hosts: ['on.kinohub.vip', 'tv.kinohub.vip', 'kinobox.in'],
+      routes: [
+        {
+          pattern: /^\/movie\/(\d+)$/i,
+          fetch: (match) => this.fetchKinopoisk(Number(match[1])),
+        },
+        {
+          pattern: /^\/(shikimori|shikimor)\/(\d+)$/i,
+          fetch: (match) => this.fetchShikimori(Number(match[2])),
+        },
+      ],
+    },
+  ]
 
   constructor(
     private readonly repo: RecordsProvidersRepository,
     private readonly twitch: TwitchService,
   ) {}
-
-  private readonly linkPatterns: Record<
-    string,
-    { regex: RegExp; parse: (m: RegExpMatchArray) => number | string }
-  > = {
-    shikimori: {
-      regex: /shikimori\.one\/animes\/[a-z]?(\d+)/,
-      parse: (m) => Number(m[1]),
-    },
-    kinopoisk: {
-      regex: /kinopoisk\.ru\/(film|series)\/(\d+)/,
-      parse: (m) => Number(m[2]),
-    },
-    igdb: {
-      regex: /igdb\.com\/games\/([^/]+)/,
-      parse: (m) => m[1],
-    },
-    steam: {
-      regex: /(?:store\.steampowered|steamcommunity)\.com\/app\/(\d+)/,
-      parse: (m) => Number(m[1]),
-    },
-    kinohub_movie: {
-      regex: /(?:on\.kinohub\.vip|tv\.kinohub\.vip|kinobox\.in)\/movie\/(\d+)/i,
-      parse: (m) => Number(m[1]),
-    },
-    kinohub_shikimori: {
-      regex: /(?:on\.kinohub\.vip|tv\.kinohub\.vip|kinobox\.in)\/(shikimori|shikimor)\/(\d+)/i,
-      parse: (m) => Number(m[2]),
-    },
-  }
-
-  private readonly serviceFetchers: Record<string, (id: any) => Promise<PreparedData>> = {
-    shikimori: (id) => this.fetchShikimori(id),
-    kinopoisk: (id) => this.fetchKinopoisk(id),
-    igdb: (id) => this.fetchIGDB(id),
-    steam: (id) => this.fetchIGDBFromSteam(id),
-    kinohub_movie: (id) => this.fetchKinopoisk(id),
-    kinohub_shikimori: (id) => this.fetchShikimori(id),
-  }
 
   private readonly recordValidationRules = [
     { condition: (r: any) => r.type === RecordType.AUCTION, message: 'Уже есть в аукционе' },
@@ -110,11 +132,7 @@ export class RecordsProvidersService {
   }
 
   async prepareData(data: { link: string; userId: string }): Promise<PreparedData> {
-    const { service, id } = this.parseLink(data.link)
-    const fetcher = this.serviceFetchers[service]
-    if (!fetcher) throw new BadRequestException('Неподдерживаемый сервис')
-
-    const newRecord = await fetcher(id)
+    const newRecord = await this.resolveLink(data.link)
     if (!newRecord.title) throw new BadRequestException('Не удалось получить данные из API')
 
     const foundedRecord = await this.repo.findRecordByLinkAndGenre(newRecord.link, newRecord.genre)
@@ -128,12 +146,31 @@ export class RecordsProvidersService {
     return newRecord
   }
 
-  private parseLink(link: string) {
-    for (const [service, { regex, parse }] of Object.entries(this.linkPatterns)) {
-      const match = link.match(regex)
-      if (match) return { service, id: parse(match) }
+  private async resolveLink(link: string): Promise<PreparedData> {
+    const url = this.parseUrl(link)
+    const normalizedHost = this.normalizeHost(url.hostname)
+
+    for (const provider of this.linkProviders) {
+      if (!provider.hosts.includes(normalizedHost)) continue
+
+      for (const route of provider.routes) {
+        const match = url.pathname.match(route.pattern)
+        if (match) return route.fetch(match)
+      }
     }
     throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
+  }
+
+  private parseUrl(link: string) {
+    try {
+      return new URL(link)
+    } catch {
+      throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
+    }
+  }
+
+  private normalizeHost(hostname: string) {
+    return hostname.replace(/^www\./i, '')
   }
 
   private async checkGenrePermission(genre: RecordGenre, message?: string) {

@@ -41,11 +41,11 @@ export class RecordsProvidersService {
       parse: (m) => Number(m[1]),
     },
     kinohub_movie: {
-      regex: /(?:tv\.kinohub\.vip|kinobox\.in)\/movie\/(\d+)/i,
+      regex: /(?:on\.kinohub\.vip|tv\.kinohub\.vip|kinobox\.in)\/movie\/(\d+)/i,
       parse: (m) => Number(m[1]),
     },
     kinohub_shikimori: {
-      regex: /(?:tv\.kinohub\.vip|kinobox\.in)\/(shikimori|shikimor)\/(\d+)/i,
+      regex: /(?:on\.kinohub\.vip|tv\.kinohub\.vip|kinobox\.in)\/(shikimori|shikimor)\/(\d+)/i,
       parse: (m) => Number(m[2]),
     },
   }

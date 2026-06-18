@@ -88,13 +88,11 @@ export class RecordsProvidersService {
       message: 'Уже есть в советах',
     },
     {
-      condition: (r: any) =>
-        r.type === RecordType.WRITTEN && r.status === RecordStatus.DONE,
+      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.DONE,
       message: 'Уже есть в базе со статусом "Готово"',
     },
     {
-      condition: (r: any) =>
-        r.type === RecordType.WRITTEN && r.status === RecordStatus.DROP,
+      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.DROP,
       message: 'Уже есть в базе со статусом "Дроп"',
     },
     {
@@ -103,18 +101,15 @@ export class RecordsProvidersService {
       message: 'Уже есть в базе со статусом "Не интересно"',
     },
     {
-      condition: (r: any) =>
-        r.type === RecordType.WRITTEN && r.status === RecordStatus.PROGRESS,
+      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.PROGRESS,
       message: 'Уже есть в базе со статусом "В процессе"',
     },
     {
-      condition: (r: any) =>
-        r.type === RecordType.WRITTEN && r.status === RecordStatus.QUEUE,
+      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.QUEUE,
       message: 'Уже есть в очереди',
     },
     {
-      condition: (r: any) =>
-        r.type === RecordType.WRITTEN && r.status === RecordStatus.UNFINISHED,
+      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.UNFINISHED,
       message: 'Уже есть в базе со статусом "Нет концовки"',
     },
     {
@@ -146,7 +141,7 @@ export class RecordsProvidersService {
     return newRecord
   }
 
-  private async resolveLink(link: string): Promise<PreparedData> {
+  private resolveLink(link: string): Promise<PreparedData> {
     const url = this.parseUrl(link)
     const normalizedHost = this.normalizeHost(url.hostname)
 
@@ -255,10 +250,7 @@ export class RecordsProvidersService {
     }
 
     if (genres.some((g) => g.genre.toLowerCase() === 'мультфильм')) {
-      await this.checkGenrePermission(
-        RecordGenre.CARTOON,
-        'Прошу пока мультфильмы не советовать',
-      )
+      await this.checkGenrePermission(RecordGenre.CARTOON, 'Прошу пока мультфильмы не советовать')
       return RecordGenre.CARTOON
     }
 

@@ -1,11 +1,9 @@
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
-import { RecordEntity } from '@/modules/record/record.entity'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { LinkPlatformData, UserRepository } from '@/modules/user/repositories/user.repository'
-import { ProfileStatsDomain } from '@/modules/user/entities/user-domain.entity'
 import type { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
@@ -63,14 +61,6 @@ export class UserService {
       action: 'updated',
     } satisfies UpdateUsersPayload)
     return updatedUser
-  }
-
-  getUserRecords(login: string): Promise<RecordEntity[]> {
-    return this.userRepository.getRecordsByLogin(login)
-  }
-
-  getUserRecordsById(id: string): Promise<RecordEntity[]> {
-    return this.userRepository.getRecordsById(id)
   }
 
   async createUserById(id: string): Promise<UserDomain> {
@@ -179,22 +169,6 @@ export class UserService {
       userId: id,
       action: 'deleted',
     } satisfies UpdateUsersPayload)
-  }
-
-  async getUserProfileStats(login: string): Promise<ProfileStatsDomain> {
-    const user = await this.userRepository.findByLogin(login)
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-    return this.userRepository.getProfileStats(login)
-  }
-
-  async getUserProfileStatsById(id: string): Promise<ProfileStatsDomain> {
-    const user = await this.userRepository.findById(id)
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-    return this.userRepository.getProfileStatsById(id)
   }
 
   async updateLogin(userId: string, login: string): Promise<UserDomain> {

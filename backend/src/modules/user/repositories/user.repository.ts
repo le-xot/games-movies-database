@@ -1,6 +1,5 @@
 import { UserRole } from '@/enums'
-import { ProfileStatsDomain, UserDomain } from '@/modules/user/entities/user-domain.entity'
-import { RecordEntity } from '@/modules/record/record.entity'
+import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 
 export interface CreateUserData {
   login: string
@@ -35,9 +34,5 @@ export abstract class UserRepository {
   abstract update(id: string, data: UpdateUserData): Promise<UserDomain>
   abstract findAll(): Promise<UserDomain[]>
   abstract deleteWithCascade(userId: string): Promise<void>
-  abstract getProfileStats(login: string): Promise<ProfileStatsDomain>
-  abstract getProfileStatsById(id: string): Promise<ProfileStatsDomain>
-  abstract getRecordsByLogin(login: string): Promise<RecordEntity[]>
-  abstract getRecordsById(id: string): Promise<RecordEntity[]>
   abstract linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void>
 }

@@ -39,10 +39,10 @@ describe('UserService', () => {
         ...existingUser,
         login: 'new-login',
       }
-      const findByPlatformId = mock(() => Promise.resolve(existingUser)) as unknown as
-        UserRepository['findByPlatformId']
-      const update = mock(() => Promise.resolve(updatedUser)) as unknown as
-        UserRepository['update']
+      const findByPlatformId = mock(() =>
+        Promise.resolve(existingUser),
+      ) as unknown as UserRepository['findByPlatformId']
+      const update = mock(() => Promise.resolve(updatedUser)) as unknown as UserRepository['update']
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
@@ -76,10 +76,10 @@ describe('UserService', () => {
         color: '#333333',
         createdAt: new Date('2024-01-02'),
       }
-      const findByPlatformId = mock(() => Promise.resolve(null)) as unknown as
-        UserRepository['findByPlatformId']
-      const create = mock(() => Promise.resolve(createdUser)) as unknown as
-        UserRepository['create']
+      const findByPlatformId = mock(() =>
+        Promise.resolve(null),
+      ) as unknown as UserRepository['findByPlatformId']
+      const create = mock(() => Promise.resolve(createdUser)) as unknown as UserRepository['create']
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.create = create
 
@@ -109,8 +109,9 @@ describe('UserService', () => {
     })
 
     it('creates a user by login when no user exists and data is incomplete', async () => {
-      const findByPlatformId = mock(() => Promise.resolve(null)) as unknown as
-        UserRepository['findByPlatformId']
+      const findByPlatformId = mock(() =>
+        Promise.resolve(null),
+      ) as unknown as UserRepository['findByPlatformId']
       const createUserByLogin = mock(() => Promise.resolve({} as UserDomain))
       mockRepo.findByPlatformId = findByPlatformId
       service.createUserByLogin = createUserByLogin as unknown as UserService['createUserByLogin']
@@ -120,34 +121,6 @@ describe('UserService', () => {
       expect(result).toEqual({} as UserDomain)
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-3')
       expect(createUserByLogin).toHaveBeenCalledWith('partial-login')
-    })
-  })
-
-  describe('getUserRecords', () => {
-    it('delegates to repository.getRecordsByLogin', async () => {
-      const records: any[] = [{ id: 1 }, { id: 2 }]
-      const getRecordsByLogin = mock(() => Promise.resolve(records)) as unknown as
-        UserRepository['getRecordsByLogin']
-      mockRepo.getRecordsByLogin = getRecordsByLogin
-
-      const result = await service.getUserRecords('test-login')
-
-      expect(result).toEqual(records)
-      expect(getRecordsByLogin).toHaveBeenCalledWith('test-login')
-    })
-  })
-
-  describe('getUserRecordsById', () => {
-    it('delegates to repository.getRecordsById', async () => {
-      const records: any[] = [{ id: 1 }]
-      const getRecordsById = mock(() => Promise.resolve(records)) as unknown as
-        UserRepository['getRecordsById']
-      mockRepo.getRecordsById = getRecordsById
-
-      const result = await service.getUserRecordsById('user-1')
-
-      expect(result).toEqual(records)
-      expect(getRecordsById).toHaveBeenCalledWith('user-1')
     })
   })
 
@@ -166,8 +139,9 @@ describe('UserService', () => {
         color: '#333333',
         createdAt: new Date('2024-01-03'),
       }
-      const getTwitchUserById = mock(() => Promise.resolve(twitchUser)) as unknown as
-        typeof mockTwitch.getTwitchUserById
+      const getTwitchUserById = mock(() =>
+        Promise.resolve(twitchUser),
+      ) as unknown as typeof mockTwitch.getTwitchUserById
       const create = mock(() => Promise.resolve(createdUser)) as unknown as UserRepository['create']
       mockTwitch.getTwitchUserById = getTwitchUserById
       mockRepo.create = create
@@ -193,8 +167,9 @@ describe('UserService', () => {
     })
 
     it('throws when Twitch does not return a user', async () => {
-      const getTwitchUserById = mock(() => Promise.resolve(null)) as unknown as
-        typeof mockTwitch.getTwitchUserById
+      const getTwitchUserById = mock(() =>
+        Promise.resolve(null),
+      ) as unknown as typeof mockTwitch.getTwitchUserById
       mockTwitch.getTwitchUserById = getTwitchUserById
 
       await expect(service.createUserById('missing-id')).rejects.toThrow(
@@ -223,8 +198,9 @@ describe('UserService', () => {
         color: '#333333',
         createdAt: new Date('2024-01-04'),
       }
-      const searchTwitchUsers = mock(() => Promise.resolve(twitchUsers)) as unknown as
-        typeof mockTwitch.searchTwitchUsers
+      const searchTwitchUsers = mock(() =>
+        Promise.resolve(twitchUsers),
+      ) as unknown as typeof mockTwitch.searchTwitchUsers
       const create = mock(() => Promise.resolve(createdUser)) as unknown as UserRepository['create']
       mockTwitch.searchTwitchUsers = searchTwitchUsers
       mockRepo.create = create
@@ -252,8 +228,9 @@ describe('UserService', () => {
     })
 
     it('throws when Twitch search returns no results', async () => {
-      const searchTwitchUsers = mock(() => Promise.resolve([])) as unknown as
-        typeof mockTwitch.searchTwitchUsers
+      const searchTwitchUsers = mock(() =>
+        Promise.resolve([]),
+      ) as unknown as typeof mockTwitch.searchTwitchUsers
       mockTwitch.searchTwitchUsers = searchTwitchUsers
 
       await expect(service.createUserByLogin('missing-login')).rejects.toThrow(
@@ -273,8 +250,9 @@ describe('UserService', () => {
         color: '#444444',
         createdAt: new Date('2024-01-05'),
       }
-      const findByLogin = mock(() => Promise.resolve(user)) as unknown as
-        UserRepository['findByLogin']
+      const findByLogin = mock(() =>
+        Promise.resolve(user),
+      ) as unknown as UserRepository['findByLogin']
       mockRepo.findByLogin = findByLogin
 
       const result = await service.getUserByLogin('login-4')
@@ -336,10 +314,12 @@ describe('UserService', () => {
         color: '#777777',
         createdAt: new Date('2024-01-08'),
       }
-      const findByLogin = mock(() => Promise.resolve(user)) as unknown as
-        UserRepository['findByLogin']
-      const deleteWithCascade = mock(() => Promise.resolve()) as unknown as
-        UserRepository['deleteWithCascade']
+      const findByLogin = mock(() =>
+        Promise.resolve(user),
+      ) as unknown as UserRepository['findByLogin']
+      const deleteWithCascade = mock(() =>
+        Promise.resolve(),
+      ) as unknown as UserRepository['deleteWithCascade']
       mockRepo.findByLogin = findByLogin
       mockRepo.deleteWithCascade = deleteWithCascade
 
@@ -354,13 +334,12 @@ describe('UserService', () => {
     })
 
     it('throws NotFoundException when the user does not exist', async () => {
-      const findByLogin = mock(() => Promise.resolve(null)) as unknown as
-        UserRepository['findByLogin']
+      const findByLogin = mock(() =>
+        Promise.resolve(null),
+      ) as unknown as UserRepository['findByLogin']
       mockRepo.findByLogin = findByLogin
 
-      await expect(service.deleteUserByLogin('missing-login')).rejects.toThrow(
-        NotFoundException,
-      )
+      await expect(service.deleteUserByLogin('missing-login')).rejects.toThrow(NotFoundException)
       expect(mockRepo.deleteWithCascade).not.toHaveBeenCalled()
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
@@ -377,8 +356,9 @@ describe('UserService', () => {
         createdAt: new Date('2024-01-09'),
       }
       const findById = mock(() => Promise.resolve(user)) as unknown as UserRepository['findById']
-      const deleteWithCascade = mock(() => Promise.resolve()) as unknown as
-        UserRepository['deleteWithCascade']
+      const deleteWithCascade = mock(() =>
+        Promise.resolve(),
+      ) as unknown as UserRepository['deleteWithCascade']
       mockRepo.findById = findById
       mockRepo.deleteWithCascade = deleteWithCascade
 
@@ -399,88 +379,6 @@ describe('UserService', () => {
       await expect(service.deleteUserById('missing-id')).rejects.toThrow(NotFoundException)
       expect(mockRepo.deleteWithCascade).not.toHaveBeenCalled()
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('getUserProfileStats', () => {
-    it('returns profile stats when the user exists', async () => {
-      const user: UserDomain = {
-        id: 'user-9',
-        login: 'login-9',
-        role: UserRole.USER,
-        profileImageUrl: 'url',
-        color: '#999999',
-        createdAt: new Date('2024-01-10'),
-      }
-      const stats = {
-        totalRecords: 3,
-        recordsByGenre: [{ genre: 'game', count: 2 }],
-        gradeDistribution: [{ grade: 'A', count: 1 }],
-        totalLikesReceived: 5,
-      }
-      const findByLogin = mock(() => Promise.resolve(user)) as unknown as
-        UserRepository['findByLogin']
-      const getProfileStats = mock(() => Promise.resolve(stats)) as unknown as
-        UserRepository['getProfileStats']
-      mockRepo.findByLogin = findByLogin
-      mockRepo.getProfileStats = getProfileStats
-
-      const result = await service.getUserProfileStats('login-9')
-
-      expect(result).toEqual(stats)
-      expect(findByLogin).toHaveBeenCalledWith('login-9')
-      expect(getProfileStats).toHaveBeenCalledWith('login-9')
-    })
-
-    it('throws NotFoundException when the user does not exist', async () => {
-      const findByLogin = mock(() => Promise.resolve(null)) as unknown as
-        UserRepository['findByLogin']
-      mockRepo.findByLogin = findByLogin
-
-      await expect(service.getUserProfileStats('missing-login')).rejects.toThrow(
-        NotFoundException,
-      )
-      expect(mockRepo.getProfileStats).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('getUserProfileStatsById', () => {
-    it('returns profile stats when the user exists', async () => {
-      const user: UserDomain = {
-        id: 'user-10',
-        login: 'login-10',
-        role: UserRole.USER,
-        profileImageUrl: 'url',
-        color: '#aaaaaa',
-        createdAt: new Date('2024-01-11'),
-      }
-      const stats = {
-        totalRecords: 1,
-        recordsByGenre: [],
-        gradeDistribution: [],
-        totalLikesReceived: 0,
-      }
-      const findById = mock(() => Promise.resolve(user)) as unknown as UserRepository['findById']
-      const getProfileStatsById = mock(() => Promise.resolve(stats)) as unknown as
-        UserRepository['getProfileStatsById']
-      mockRepo.findById = findById
-      mockRepo.getProfileStatsById = getProfileStatsById
-
-      const result = await service.getUserProfileStatsById('user-10')
-
-      expect(result).toEqual(stats)
-      expect(findById).toHaveBeenCalledWith('user-10')
-      expect(getProfileStatsById).toHaveBeenCalledWith('user-10')
-    })
-
-    it('throws NotFoundException when the user does not exist', async () => {
-      const findById = mock(() => Promise.resolve(null)) as unknown as UserRepository['findById']
-      mockRepo.findById = findById
-
-      await expect(service.getUserProfileStatsById('missing-id')).rejects.toThrow(
-        NotFoundException,
-      )
-      expect(mockRepo.getProfileStatsById).not.toHaveBeenCalled()
     })
   })
 })

@@ -1,23 +1,11 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpStatus,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
-import { RecordEntity } from '@/modules/record/record.entity'
-import { ProfileStatsEntity } from '@/modules/user/profile-stats.entity'
-import { UserCreateByLoginDTO, UserUpdateDTO } from '@/modules/user/user.dto'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
+import { UserCreateByLoginDTO, UserUpdateDTO } from '@/modules/user/user.dto'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { THROTTLER_LIMITS } from '@/utils/throttler'
@@ -58,40 +46,12 @@ export class UserController {
     }))
   }
 
-  @Get('user-records')
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
-  @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
-  async getUserRecords(@Query('login') login: string): Promise<RecordEntity[]> {
-    return await this.userService.getUserRecords(login)
-  }
-
-  @Get('user-records-by-id')
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
-  @ApiResponse({ status: HttpStatus.OK, type: RecordEntity, isArray: true })
-  async getUserRecordsById(@Query('id') id: string): Promise<RecordEntity[]> {
-    return await this.userService.getUserRecordsById(id)
-  }
-
   @Post(':id')
   @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
   async patchUser(@Body() data: UserUpdateDTO, @Param('id') id: string): Promise<UserDomain> {
     return await this.userService.upsertUser(id, data)
-  }
-
-  @Get('profile/:login')
-  @UseGuards(AuthGuard)
-  @ApiResponse({ type: ProfileStatsEntity })
-  async getUserProfileStats(@Param('login') login: string) {
-    return await this.userService.getUserProfileStats(login)
-  }
-
-  @Get('profile-by-id/:id')
-  @UseGuards(AuthGuard)
-  @ApiResponse({ type: ProfileStatsEntity })
-  async getUserProfileStatsById(@Param('id') id: string) {
-    return await this.userService.getUserProfileStatsById(id)
   }
 
   @Get(':id')

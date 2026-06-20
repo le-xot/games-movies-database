@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Cpu, Gamepad2, Monitor, ShieldCheck, Undo2Icon } from '@lucide/vue'
+import { Cpu, Gamepad2, Monitor, ShieldCheck } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -23,29 +23,25 @@ const workspaceParts = [
 const categoryCards = computed(() => [
   {
     name: 'ПК',
-    kicker: 'Main setup',
-    note: 'Плата, CPU, GPU, память, питание, охлаждение и накопители.',
+    kicker: 'MAIN SETUP',
     icon: Cpu,
     parts: systemParts,
   },
   {
     name: 'Рабочее место',
-    kicker: 'Desk setup',
-    note: 'Мониторы, микрофон, наушники, камера, мышь, клавиатура и пантограф.',
+    kicker: 'DESK SETUP',
     icon: Monitor,
     parts: workspaceParts,
   },
   {
     name: 'Гаджеты',
-    kicker: 'Portable',
-    note: 'Телефон, консоль и остальное портативное железо.',
+    kicker: 'PORTABLE',
     icon: Gamepad2,
     parts: gadgetParts,
   },
   {
     name: 'ОС',
-    kicker: 'Software',
-    note: 'Система, на которой я работаю каждый день.',
+    kicker: 'SOFTWARE',
     icon: ShieldCheck,
     parts: osParts,
   },
@@ -67,55 +63,53 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground">
-    <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-6 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-background font-mono text-foreground">
+    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
       <RouterLink
         :to="ROUTER_PATHS.home"
         class="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        <Undo2Icon class="size-4" />
+        <span class="text-primary">←</span>
         На главную
       </RouterLink>
 
-      <header>
-        <h1 class="max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-          Мой сетап: ПК, рабочее место, гаджеты и ОС.
-        </h1>
+      <header class="text-4xl font-semibold tracking-tight sm:text-5xl">
+        <span class="text-muted-foreground">~/$</span> setup
       </header>
 
-      <section class="grid gap-x-5 gap-y-8 md:grid-cols-2 md:gap-y-10">
+      <section class="grid gap-6 md:grid-cols-2">
         <article
           v-for="card in categoryCards"
           :key="card.name"
-          class="flex flex-col gap-5 rounded-[28px] px-1 py-2 sm:px-2 sm:py-3"
+          class="flex flex-col rounded-md border border-border/50 bg-muted/30"
         >
-          <div class="space-y-3 px-4 sm:px-3">
-            <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">
-              {{ card.name }}
-            </h2>
-
-            <div class="h-px w-full bg-border/70" />
+          <div class="border-b border-border/50 px-5 py-4">
+            <div class="flex items-baseline gap-3">
+              <span class="text-xl font-semibold text-primary">&gt; {{ card.name }}_</span>
+              <span class="text-sm tracking-widest text-muted-foreground uppercase">
+                {{ card.kicker }}
+              </span>
+            </div>
           </div>
 
-          <div class="space-y-2">
+          <div class="px-3 py-3">
             <button
-              v-for="part in card.parts"
+              v-for="(part, index) in card.parts"
               :key="part.name"
               type="button"
-              class="group flex w-full cursor-pointer items-center justify-between rounded-2xl border border-border/60 bg-background/45 px-4 py-3 text-left transition-colors hover:bg-background/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              class="group flex w-full cursor-pointer items-center gap-3 rounded px-3 py-2 text-left text-base transition-colors hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               :aria-label="`Скопировать ${part.name}`"
               @click="copyText(part.name)"
             >
-              <span
-                class="flex min-w-0 items-center gap-3 text-base font-medium leading-6 text-foreground sm:text-lg"
-              >
-                <component
-                  :is="typeof part.icon === 'string' ? 'img' : part.icon"
-                  :src="typeof part.icon === 'string' ? part.icon : undefined"
-                  class="size-4 shrink-0 text-muted-foreground"
-                />
-                <span class="truncate">{{ part.name }}</span>
+              <span class="w-7 shrink-0 text-center text-lg text-muted-foreground">
+                {{ index === card.parts.length - 1 ? '└──' : '├──' }}
               </span>
+              <component
+                :is="typeof part.icon === 'string' ? 'img' : part.icon"
+                :src="typeof part.icon === 'string' ? part.icon : undefined"
+                class="size-5 shrink-0 text-muted-foreground"
+              />
+              <span class="truncate">{{ part.name }}</span>
             </button>
           </div>
         </article>

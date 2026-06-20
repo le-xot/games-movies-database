@@ -7,7 +7,6 @@ export interface CreateSuggestionData {
   posterUrl: string
   genre: RecordGenre
   link: string
-  userId: string
 }
 
 export interface SuggestionFilters {
@@ -17,8 +16,12 @@ export interface SuggestionFilters {
 export abstract class SuggestionRepository {
   abstract findLimit(limitType: LimitType): Promise<LimitDomain | null>
   abstract countUserSuggestions(userId: string, type: RecordType): Promise<number>
-  abstract createSuggestion(data: CreateSuggestionData): Promise<RecordWithRelations>
+  abstract createSuggestion(
+    data: CreateSuggestionData,
+    userId: string,
+  ): Promise<RecordWithRelations>
   abstract findSuggestions(filters: SuggestionFilters): Promise<RecordWithRelations[]>
   abstract findSuggestionById(id: number): Promise<RecordWithRelations | null>
+  abstract findSuggestionOwner(recordId: number): Promise<{ userId: string } | null>
   abstract deleteSuggestionWithLikes(recordId: number): Promise<void>
 }

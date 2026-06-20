@@ -1,4 +1,4 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType, UserRole } from '@/enums'
 
 export interface RecordDomain {
   id: number
@@ -14,18 +14,30 @@ export interface RecordDomain {
 }
 
 export interface RecordWithRelations extends RecordDomain {
+  suggestionOwnership?: {
+    id: number
+    userId: string
+    user?: {
+      id: string
+      login: string
+      role: UserRole
+      profileImageUrl: string
+      color: string
+      createdAt: Date
+    }
+  } | null
   likes?: Array<{ id: string; userId: string; recordId: number; createdAt: Date }>
 }
 
 export interface RecordFilterOptions {
-  search?: string;
-  status?: RecordStatus;
-  type?: RecordType;
-  grade?: RecordGrade;
-  genre?: RecordGenre;
+  search?: string
+  status?: RecordStatus
+  type?: RecordType
+  grade?: RecordGrade
+  genre?: RecordGenre
 }
 
 export interface RecordSortOptions {
-  orderBy?: 'title' | 'id';
-  direction?: 'asc' | 'desc';
+  orderBy?: 'title' | 'id'
+  direction?: 'asc' | 'desc'
 }

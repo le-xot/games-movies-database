@@ -1,11 +1,11 @@
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { LimitType, RecordStatus, RecordType } from '@/enums'
-import type { LimitDomain } from '@/modules/limit/entities/limit.entity'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 import { SuggestionRepository } from '../repositories/suggestion.repository'
 import { SuggestionService } from '../suggestion.service'
+import type { LimitDomain } from '@/modules/limit/entities/limit.entity'
+import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations => ({
   id: 1,
@@ -29,17 +29,17 @@ describe('SuggestionService', () => {
     mockRepo = createMock(SuggestionRepository)
     mockRecordsProvider = { prepareData: mock(() => {}) }
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new SuggestionService(
-      mockRepo,
-      mockRecordsProvider as any,
-      mockEventEmitter as any,
-    )
+    service = new SuggestionService(mockRepo, mockRecordsProvider as any, mockEventEmitter as any)
   })
 
   describe('userSuggest', () => {
     it('creates a suggestion when under the limit and emits event', async () => {
       const limit: LimitDomain = { name: LimitType.SUGGESTION, quantity: 5 }
-      const preparedData = { title: 'Test Anime', posterUrl: 'http://img', genre: RecordType.SUGGESTION as any }
+      const preparedData = {
+        title: 'Test Anime',
+        posterUrl: 'http://img',
+        genre: RecordType.SUGGESTION as any,
+      }
       const createdRecord = makeRecord({ id: 42 })
 
       mockRepo.findLimit = mock(() => Promise.resolve(limit))
@@ -47,7 +47,10 @@ describe('SuggestionService', () => {
       mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
       mockRepo.createSuggestion = mock(() => Promise.resolve(createdRecord))
 
-      const result = await service.userSuggest({ link: 'https://shikimori.one/animes/1', userId: 'user-1' })
+      const result = await service.userSuggest({
+        link: 'https://shikimori.one/animes/1',
+        userId: 'user-1',
+      })
 
       expect(mockRepo.findLimit).toHaveBeenCalledWith(LimitType.SUGGESTION)
       expect(mockRepo.countUserSuggestions).toHaveBeenCalledWith('user-1', RecordType.SUGGESTION)

@@ -20,10 +20,15 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
   }
 
   async countUserSuggestions(userId: string, type: RecordType): Promise<number> {
-    return await this.prisma.record.count({ where: { userId, type } })
+    return await this.prisma.suggestionOwnership.count({
+      where: {
+        userId,
+        record: { type },
+      },
+    })
   }
 
-  async createSuggestion(data: CreateSuggestionData): Promise<RecordWithRelations> {
+  async createSuggestion(data: CreateSuggestionData, userId: string): Promise<RecordWithRelations> {
     return await this.prisma.record.create({
       data: {
         title: data.title,
@@ -32,7 +37,15 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
         link: data.link,
         status: RecordStatus.QUEUE,
         type: RecordType.SUGGESTION,
-        user: { connect: { id: data.userId } },
+        suggestionOwnership: {
+          create: {
+            userId,
+          },
+        },
+      },
+      include: {
+        suggestionOwnership: true,
+        likes: true,
       },
     })
   }
@@ -40,19 +53,33 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
   async findSuggestions(filters: SuggestionFilters): Promise<RecordWithRelations[]> {
     return await this.prisma.record.findMany({
       where: { type: filters.type },
-      include: { user: true, likes: true },
+      include: {
+        suggestionOwnership: { include: { user: true } },
+        likes: true,
+      },
     })
   }
 
   async findSuggestionById(id: number): Promise<RecordWithRelations | null> {
     return await this.prisma.record.findUnique({
       where: { id },
+      include: {
+        suggestionOwnership: true,
+      },
+    })
+  }
+
+  async findSuggestionOwner(recordId: number): Promise<{ userId: string } | null> {
+    return await this.prisma.suggestionOwnership.findUnique({
+      where: { recordId },
+      select: { userId: true },
     })
   }
 
   async deleteSuggestionWithLikes(recordId: number): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       await tx.like.deleteMany({ where: { recordId } })
+      await tx.suggestionOwnership.deleteMany({ where: { recordId } })
       await tx.record.delete({ where: { id: recordId } })
     })
   }

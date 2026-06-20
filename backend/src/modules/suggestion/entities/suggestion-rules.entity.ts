@@ -1,6 +1,6 @@
-import { RecordGenre } from '@/enums';
+import { RecordGenre } from '@/enums'
 
 export interface SuggestionRulesDomain {
-  genre: RecordGenre;
-  permission: boolean;
+  genre: RecordGenre
+  permission: boolean
 }

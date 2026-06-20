@@ -8,8 +8,8 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LimitType, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import type { RecordEntity } from '@/modules/record/record.entity'
 import { SuggestionRepository } from '@/modules/suggestion/repositories/suggestion.repository'
+import type { RecordEntity } from '@/modules/record/record.entity'
 import type { UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
@@ -34,15 +34,19 @@ export class SuggestionService {
       throw new BadRequestException('Достигнут лимит предложений')
     }
 
-    const preparedData = await this.recordsProviderService.prepareData(data)
-
-    const createdRecord = await this.suggestionRepository.createSuggestion({
-      title: preparedData.title,
-      posterUrl: preparedData.posterUrl,
-      genre: preparedData.genre,
+    const preparedData = await this.recordsProviderService.prepareData({
       link: data.link,
-      userId: data.userId,
     })
+
+    const createdRecord = await this.suggestionRepository.createSuggestion(
+      {
+        title: preparedData.title,
+        posterUrl: preparedData.posterUrl,
+        genre: preparedData.genre,
+        link: data.link,
+      },
+      data.userId,
+    )
 
     this.eventEmitter.emit('update-suggestions', {
       id: createdRecord.id,
@@ -68,7 +72,8 @@ export class SuggestionService {
       throw new NotFoundException('Предложение не найдено')
     }
 
-    if (suggestion.userId !== userId) {
+    const owner = await this.suggestionRepository.findSuggestionOwner(id)
+    if (!owner || owner.userId !== userId) {
       throw new ForbiddenException('Вы можете удалять только свои предложения')
     }
 

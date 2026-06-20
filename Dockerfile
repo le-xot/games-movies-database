@@ -4,7 +4,8 @@ COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
 
-RUN bun install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
 
 FROM oven/bun:1-alpine AS frontend-builder
 WORKDIR /app
@@ -15,15 +16,23 @@ COPY ./frontend ./frontend
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
 
-RUN bun build:frontend
+RUN bunx --bun vite build
+
+FROM oven/bun:1-alpine AS backend-deps
+WORKDIR /app
+COPY package.json bun.lock ./
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
 
 FROM oven/bun:1-alpine
 RUN apk add --no-cache openssl
 WORKDIR /app
 
 COPY ./backend ./backend
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/node_modules ./backend/node_modules
+COPY --from=backend-deps /app/node_modules ./node_modules
+COPY --from=backend-deps /app/backend/node_modules ./backend/node_modules
 
 COPY package.json ./
 RUN cd backend && bunx prisma generate

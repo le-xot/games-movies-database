@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import {
   Body,
   Controller,
@@ -12,7 +13,6 @@ import {
 } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import crypto from 'node:crypto'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { AuthService } from '@/modules/auth/auth.service'
 import { User } from '@/modules/auth/auth.user.decorator'
@@ -78,11 +78,7 @@ export class AuthController {
   @Post('/twitch/link')
   @Throttle({ default: THROTTLER_LIMITS.auth })
   @UseGuards(AuthGuard)
-  async linkTwitch(
-    @Body() data: CallbackDto,
-    @User() user: UserEntity,
-    @Res() res: Response,
-  ) {
+  async linkTwitch(@Body() data: CallbackDto, @User() user: UserEntity, @Res() res: Response) {
     await this.authService.linkTwitchAccount(user.id, data.code)
     res.clearCookie('twitch_linking')
     res.status(200).send('Twitch account linked')
@@ -92,10 +88,7 @@ export class AuthController {
   @Throttle({ default: THROTTLER_LIMITS.auth })
   kickAuth(@Res() res: Response) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url')
-    const codeChallenge = crypto
-      .createHash('sha256')
-      .update(codeVerifier)
-      .digest('base64url')
+    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
 
     res.cookie('kick_code_verifier', codeVerifier, {
       httpOnly: true,
@@ -120,10 +113,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   kickLinkAuth(@Res() res: Response) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url')
-    const codeChallenge = crypto
-      .createHash('sha256')
-      .update(codeVerifier)
-      .digest('base64url')
+    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
 
     res.cookie('kick_code_verifier', codeVerifier, {
       httpOnly: true,
@@ -149,11 +139,7 @@ export class AuthController {
 
   @Post('/kick/callback')
   @Throttle({ default: THROTTLER_LIMITS.auth })
-  async kickAuthCallback(
-    @Body() data: CallbackDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
+  async kickAuthCallback(@Body() data: CallbackDto, @Req() req: Request, @Res() res: Response) {
     const codeVerifier = (req as any).cookies?.kick_code_verifier
     if (!codeVerifier) {
       throw new HttpException('Missing code verifier', HttpStatus.BAD_REQUEST)

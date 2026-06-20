@@ -3,8 +3,9 @@
 ## TL;DR
 
 > **Quick Summary**: Полная замена ESLint (@antfu/eslint-config) на oxlint + oxfmt в Bun monorepo. Удаление всех ESLint-зависимостей, создание конфигов oxlint/oxfmt, обновление скриптов, IDE-настроек и документации.
-> 
+>
 > **Deliverables**:
+>
 > - `.oxlintrc.json` — конфиг линтера с эквивалентными правилами
 > - `.oxfmtrc.json` — конфиг форматтера (single quotes, 2-space, 1tbs, printWidth 100, sortImports)
 > - Обновлённый `package.json` (скрипты lint/format)
@@ -12,7 +13,7 @@
 > - Удалённый `eslint.config.js` и `@antfu/eslint-config`
 > - Обновлённые `README.md` и `AGENTS.md`
 > - Кодовая база переформатирована oxfmt
-> 
+>
 > **Estimated Effort**: Medium
 > **Parallel Execution**: YES — 2 waves + final verification
 > **Critical Path**: Task 1 → Task 2 → Task 3 → Task 4 → Task 5 → Task 6 → F1-F4
@@ -22,10 +23,13 @@
 ## Context
 
 ### Original Request
+
 Пользователь хочет полностью мигрировать с ESLint (@antfu/eslint-config) на oxlint + oxfmt. Мотивация: скорость, упрощение конфигурации, уход от Node-зависимостей.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - Vue `<template>` linting теряется — приемлемо, агент проверит конвенции вручную при QA
 - Markdown/YAML linting — не нужно, убираем
 - oxfmt beta — устраивает, ставим последние версии
@@ -35,6 +39,7 @@
 - Документация (README.md, AGENTS.md) — обновить в рамках миграции
 
 **Research Findings**:
+
 - oxlint v1.56.0: стабильный, 700+ правил, TypeScript + NestJS decorators поддерживаются
 - oxfmt beta: все нужные опции форматирования есть, sortImports на базе perfectionist
 - Vue SFC: `<script>` linting ✅, `<template>` linting ❌, formatting — экспериментально (возможные проблемы idempotency)
@@ -42,7 +47,9 @@
 - Migration tool: `@oxlint/migrate` конвертирует eslint flat config → .oxlintrc.json
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - oxfmt может крашиться на Vue файлах (Issue #20525) → добавлен dry-run шаг проверки
 - `frontend/src/lib/api.ts` содержит `/* eslint-disable */` → добавить в ignorePatterns oxlint
 - `.augment-guidelines` в ESLint ignores → перенести в oxlint ignorePatterns
@@ -55,9 +62,11 @@
 ## Work Objectives
 
 ### Core Objective
+
 Полностью заменить ESLint на oxlint (линтинг) + oxfmt (форматирование) во всём monorepo, сохраняя эквивалентное качество кода.
 
 ### Concrete Deliverables
+
 - `.oxlintrc.json` — конфигурация линтера
 - `.oxfmtrc.json` — конфигурация форматтера
 - Обновлённые скрипты в `package.json`
@@ -67,6 +76,7 @@
 - Удалённые: `eslint.config.js`, `@antfu/eslint-config` из devDependencies
 
 ### Definition of Done
+
 - [x] `bun oxlint .` — выполняется без ошибок конфига (warnings допустимы)
 - [x] `bun oxfmt --check .` — exit 0 (все файлы отформатированы)
 - [x] `grep -ri "eslint" --include="*.json" --include="*.js" --include="*.md" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.sisyphus` — ноль упоминаний вне `frontend/src/lib/api.ts`
@@ -74,6 +84,7 @@
 - [x] `@antfu/eslint-config` отсутствует в package.json
 
 ### Must Have
+
 - Конфиг oxlint с правилами: require-await (error), no-unused-vars (warn), unused imports detection (warn)
 - Конфиг oxfmt: singleQuote, tabWidth 2, printWidth 100, sortImports с группами builtin→external→internal→parent/sibling→type→side-effect (опции должны соответствовать текущей документации oxfmt — проверить через `bunx oxfmt --help` и docs)
 - NestJS decorator support — oxlint должен корректно парсить файлы с декораторами (проверить на `backend/src/modules/auth/auth.controller.ts`)
@@ -82,6 +93,7 @@
 - Idempotency check после реформата (oxfmt дважды → zero diff)
 
 ### Must NOT Have (Guardrails)
+
 - НЕ редактировать `frontend/src/lib/api.ts` — авто-генерируемый файл
 - НЕ добавлять новые правила линтинга, которых не было в ESLint конфиге
 - НЕ включать type-aware linting (--type-aware)
@@ -100,11 +112,13 @@
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO (нет тестов в проекте)
 - **Automated tests**: NO
 - **Framework**: none
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios.
 Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
@@ -139,14 +153,14 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 
 ### Dependency Matrix
 
-| Task | Depends On | Blocks |
-|------|-----------|--------|
-| 1    | —         | 2, 3, 4, 5 |
-| 2    | 1         | 4, 5   |
-| 3    | 1         | 4      |
-| 4    | 2, 3      | 5, 6   |
-| 5    | 4         | 6      |
-| 6    | 5         | F1-F4  |
+| Task | Depends On | Blocks     |
+| ---- | ---------- | ---------- |
+| 1    | —          | 2, 3, 4, 5 |
+| 2    | 1          | 4, 5       |
+| 3    | 1          | 4          |
+| 4    | 2, 3       | 5, 6       |
+| 5    | 4          | 6          |
+| 6    | 5          | F1-F4      |
 
 ### Agent Dispatch Summary
 
@@ -789,20 +803,20 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 
 - [x] F1. **Plan Compliance Audit** — `oracle`
-  Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
-  Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
+      Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
+      Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
 - [x] F2. **Code Quality Review** — `unspecified-high`
-  Run `bun oxlint .` and `bun oxfmt --check .`. Verify configs are valid JSON. Check no `eslint` references remain outside `frontend/src/lib/api.ts`, `node_modules`, and `.sisyphus/` (plan files intentionally mention ESLint for documentation). Verify `.vscode/settings.json` has no ESLint references. Verify `.vscode/extensions.json` recommends `oxc.oxc-vscode`. Use: `grep -ri "eslint" --include="*.json" --include="*.js" --include="*.md" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.sisyphus`
-  Output: `oxlint [PASS/FAIL] | oxfmt [PASS/FAIL] | ESLint remnants [CLEAN/N issues] | VERDICT`
+      Run `bun oxlint .` and `bun oxfmt --check .`. Verify configs are valid JSON. Check no `eslint` references remain outside `frontend/src/lib/api.ts`, `node_modules`, and `.sisyphus/` (plan files intentionally mention ESLint for documentation). Verify `.vscode/settings.json` has no ESLint references. Verify `.vscode/extensions.json` recommends `oxc.oxc-vscode`. Use: `grep -ri "eslint" --include="*.json" --include="*.js" --include="*.md" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.sisyphus`
+      Output: `oxlint [PASS/FAIL] | oxfmt [PASS/FAIL] | ESLint remnants [CLEAN/N issues] | VERDICT`
 
 - [x] F3. **Real Manual QA** — `unspecified-high`
-  Spot-check 5 representative files for correct formatting: 1 Vue SFC with `<script setup>`, 1 backend .ts with decorators, 1 file with many imports, 1 deeply nested component, 1 Prisma-related file. Verify single quotes, 2-space indent, 1tbs braces, import order. Check idempotency: `bun oxfmt --write . && git diff --stat` — must show zero changes.
-  Output: `Formatting [N/N correct] | Idempotency [PASS/FAIL] | VERDICT`
+      Spot-check 5 representative files for correct formatting: 1 Vue SFC with `<script setup>`, 1 backend .ts with decorators, 1 file with many imports, 1 deeply nested component, 1 Prisma-related file. Verify single quotes, 2-space indent, 1tbs braces, import order. Check idempotency: `bun oxfmt --write . && git diff --stat` — must show zero changes.
+      Output: `Formatting [N/N correct] | Idempotency [PASS/FAIL] | VERDICT`
 
 - [x] F4. **Scope Fidelity Check** — `deep`
-  For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Verify no application logic was changed — only config/tooling/docs/formatting.
-  Output: `Tasks [N/N compliant] | Scope Creep [CLEAN/N issues] | VERDICT`
+      For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Verify no application logic was changed — only config/tooling/docs/formatting.
+      Output: `Tasks [N/N compliant] | Scope Creep [CLEAN/N issues] | VERDICT`
 
 ---
 
@@ -818,6 +832,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 bun oxlint .              # Expected: runs without config errors (warnings OK)
 bun oxfmt --check .       # Expected: exit 0 (all formatted)
@@ -826,6 +841,7 @@ grep -c "eslint" package.json  # Expected: 0
 ```
 
 ### Final Checklist
+
 - [x] All "Must Have" present
 - [x] All "Must NOT Have" absent
 - [x] oxlint runs cleanly

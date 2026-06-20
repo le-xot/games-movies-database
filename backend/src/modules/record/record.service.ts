@@ -35,10 +35,7 @@ export class RecordService {
       type: data.type || RecordType.WRITTEN,
     })
 
-    if (
-      createdData.status === RecordStatus.QUEUE &&
-      createdData.type === RecordType.WRITTEN
-    )
+    if (createdData.status === RecordStatus.QUEUE && createdData.type === RecordType.WRITTEN)
       this.eventEmitter.emit('update-queue', {
         id: createdData.id,
         action: 'created',
@@ -80,10 +77,8 @@ export class RecordService {
     if (
       (foundedRecord.status === RecordStatus.QUEUE &&
         updatedRecord.status !== RecordStatus.QUEUE) ||
-      (updatedRecord.status === RecordStatus.QUEUE &&
-        updatedRecord.type === RecordType.WRITTEN) ||
-      (foundedRecord.type === RecordType.WRITTEN &&
-        updatedRecord.type !== RecordType.WRITTEN)
+      (updatedRecord.status === RecordStatus.QUEUE && updatedRecord.type === RecordType.WRITTEN) ||
+      (foundedRecord.type === RecordType.WRITTEN && updatedRecord.type !== RecordType.WRITTEN)
     ) {
       this.eventEmitter.emit('update-queue', {
         id: updatedRecord.id,
@@ -91,10 +86,7 @@ export class RecordService {
       } satisfies UpdateQueuePayload)
     }
 
-    if (
-      foundedRecord.type !== RecordType.AUCTION &&
-      updatedRecord.type === RecordType.AUCTION
-    ) {
+    if (foundedRecord.type !== RecordType.AUCTION && updatedRecord.type === RecordType.AUCTION) {
       this.eventEmitter.emit('update-auction', {
         id: updatedRecord.id,
         action: 'created',
@@ -126,10 +118,7 @@ export class RecordService {
       } satisfies UpdateSuggestionsPayload)
     }
 
-    if (
-      foundedRecord.status === RecordStatus.QUEUE &&
-      foundedRecord.type === RecordType.WRITTEN
-    ) {
+    if (foundedRecord.status === RecordStatus.QUEUE && foundedRecord.type === RecordType.WRITTEN) {
       this.eventEmitter.emit('update-queue', {
         id: foundedRecord.id,
         action: 'deleted',

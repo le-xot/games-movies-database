@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { LimitType } from '@/enums'
-import { LimitRepository } from '../repositories/limit.repository'
 import { LimitService } from '../limit.service'
+import { LimitRepository } from '../repositories/limit.repository'
 
 describe('LimitService', () => {
   let service: LimitService

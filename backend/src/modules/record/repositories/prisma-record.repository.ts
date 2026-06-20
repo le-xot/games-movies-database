@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '../../../generated/prisma/client'
 import { PrismaService } from '@/database/prisma.service'
 import {
   RecordFilterOptions,
   RecordSortOptions,
   RecordWithRelations,
 } from '@/modules/record/entities/record-domain.entity'
-import {
-  CreateRecordData,
-  RecordRepository,
-  UpdateRecordData,
-} from './record.repository'
+import { Prisma } from '../../../generated/prisma/client'
+import { CreateRecordData, RecordRepository, UpdateRecordData } from './record.repository'
 
 @Injectable()
 export class PrismaRecordRepository extends RecordRepository {

@@ -1,6 +1,6 @@
-import { LimitType } from '@/enums';
+import { LimitType } from '@/enums'
 
 export interface LimitDomain {
-  name: LimitType;
-  quantity: number;
+  name: LimitType
+  quantity: number
 }

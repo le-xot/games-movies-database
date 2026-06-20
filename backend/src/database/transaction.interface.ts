@@ -1,3 +1,3 @@
 export interface TransactionManager {
-  transaction<T>(fn: () => Promise<T>): Promise<T>;
+  transaction<T>(fn: () => Promise<T>): Promise<T>
 }

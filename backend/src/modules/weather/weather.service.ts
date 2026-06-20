@@ -35,7 +35,10 @@ export class WeatherService implements OnModuleInit {
         })
       }, this.CACHE_DURATION)
     } catch (e) {
-      this.logger.error(`Failed to initialize WeatherService: ${(e as Error).message}`, (e as Error).stack)
+      this.logger.error(
+        `Failed to initialize WeatherService: ${(e as Error).message}`,
+        (e as Error).stack,
+      )
       throw new Error(`Failed to initialize WeatherService: ${(e as Error).message}`, { cause: e })
     }
   }

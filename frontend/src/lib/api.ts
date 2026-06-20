@@ -50,16 +50,6 @@ export enum RecordStatus {
   DONE = "DONE",
 }
 
-export interface UserEntity {
-  id: string;
-  login: string;
-  role: UserRole;
-  profileImageUrl: string;
-  color: string;
-  /** @format date-time */
-  createdAt: string;
-}
-
 export interface LikeEntity {
   id: string;
   userId: string;
@@ -78,8 +68,6 @@ export interface RecordEntity {
   genre: RecordGenre;
   grade: RecordGrade;
   episode: string;
-  userId: string;
-  user?: UserEntity | null;
   likes?: LikeEntity[] | null;
   /** @format date-time */
   createdAt: string;
@@ -91,6 +79,16 @@ export interface UserCreateByLoginDTO {
    * @example "john_doe"
    */
   login: string;
+}
+
+export interface UserEntity {
+  id: string;
+  login: string;
+  role: UserRole;
+  profileImageUrl: string;
+  color: string;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface UserUpdateDTO {
@@ -107,23 +105,6 @@ export interface UserUpdateDTO {
   color?: string;
 }
 
-export interface RecordsByGenreItem {
-  genre: string;
-  count: number;
-}
-
-export interface GradeDistributionItem {
-  grade: string;
-  count: number;
-}
-
-export interface ProfileStatsEntity {
-  totalRecords: number;
-  recordsByGenre: RecordsByGenreItem[];
-  gradeDistribution: GradeDistributionItem[];
-  totalLikesReceived: number;
-}
-
 export interface SuggestionCreateByTwirDTO {
   /** @example "12345" */
   userId: string;
@@ -138,6 +119,14 @@ export interface UserSuggestionDTO {
 
 export interface CallbackDto {
   code: string;
+}
+
+export interface UpdateNicknameDTO {
+  /**
+   * New display name
+   * @example "cool_user"
+   */
+  login: string;
 }
 
 export interface RecordCreateFromLinkDTO {
@@ -158,8 +147,6 @@ export interface RecordUpdateDTO {
   episode?: string;
   /** @example "WRITTEN" */
   type?: RecordType;
-  /** @example "1" */
-  userId?: string;
 }
 
 export interface GetAllRecordsDTO {
@@ -194,14 +181,7 @@ export interface GetLikesByIdDTO {
 
 export interface QueueItemDto {
   title: string;
-  /**
-   * @default "John Doe"
-   * @example "John Doe"
-   */
-  login: string | null;
-  userId: string | null;
   link: string;
-  profileImageUrl: string;
   posterUrl: string;
   createdAt: string;
   type: RecordType | null;
@@ -584,48 +564,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerGetUserRecords
-     * @request GET:/users/user-records
-     */
-    userControllerGetUserRecords: (
-      query: {
-        login: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RecordEntity[], any>({
-        path: `/users/user-records`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetUserRecordsById
-     * @request GET:/users/user-records-by-id
-     */
-    userControllerGetUserRecordsById: (
-      query: {
-        id: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RecordEntity[], any>({
-        path: `/users/user-records-by-id`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
      * @name UserControllerPatchUser
      * @request POST:/users/{id}
      */
@@ -667,40 +605,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/users/${id}`,
         method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetUserProfileStats
-     * @request GET:/users/profile/{login}
-     */
-    userControllerGetUserProfileStats: (
-      login: string,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<any, ProfileStatsEntity>({
-        path: `/users/profile/${login}`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetUserProfileStatsById
-     * @request GET:/users/profile-by-id/{id}
-     */
-    userControllerGetUserProfileStatsById: (
-      id: string,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<any, ProfileStatsEntity>({
-        path: `/users/profile-by-id/${id}`,
-        method: "GET",
         ...params,
       }),
 
@@ -826,6 +730,36 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthControllerTwitchLinkAuth
+     * @request GET:/auth/twitch/link
+     */
+    authControllerTwitchLinkAuth: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch/link`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerLinkTwitch
+     * @request POST:/auth/twitch/link
+     */
+    authControllerLinkTwitch: (data: CallbackDto, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/twitch/link`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthControllerTwitchAuthCallback
      * @request POST:/auth/twitch/callback
      */
@@ -937,6 +871,25 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthControllerUpdateNickname
+     * @request PATCH:/auth/me
+     */
+    authControllerUpdateNickname: (
+      data: UpdateNicknameDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/me`,
+        method: "PATCH",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthControllerLogout
      * @request POST:/auth/logout
      */
@@ -1008,8 +961,6 @@ export class Api<SecurityDataType extends unknown> {
         grade?: RecordGrade;
         /** @example "S01E01" */
         episode?: string;
-        /** @example "1" */
-        userId?: string;
         /** @example "minecraft" */
         search?: string;
         /** @example 1 */

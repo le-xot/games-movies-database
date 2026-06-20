@@ -3,14 +3,15 @@
 ## TL;DR
 
 > **Quick Summary**: Add structured payloads (entity ID + action type) to all 6 WebSocket events and implement frontend event coalescing to deduplicate cascading refetches from single backend operations.
-> 
+>
 > **Deliverables**:
+>
 > - Backend payload type definitions for all 6 events
 > - All backend service `.emit()` calls updated with typed payloads
 > - WebSocket gateway forwarding payloads for all events
 > - Frontend event coalescer composable (debounce + store-level dedup)
 > - Refactored `use-websocket.ts` with payload-aware handlers + fallback
-> 
+>
 > **Estimated Effort**: Medium
 > **Parallel Execution**: YES — 3 waves
 > **Critical Path**: Task 1 → Tasks 2-6 → Task 7 → Tasks 8-9
@@ -20,10 +21,13 @@
 ## Context
 
 ### Original Request
+
 Make current WebSocket events more granular/targeted. Currently 5 of 6 events carry no payload — frontend responds by blindly refetching entire lists. A single backend operation can emit 2-3 events, causing redundant API calls.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - **Scope**: Payloads only — no surgical cache updates, no room-based broadcasting, no event name changes
 - **Payload shape**: Minimal — entity ID + action (`created`/`updated`/`deleted`). `update-records` also keeps `genre`.
 - **Coalescing**: Frontend-side debounce to batch rapid events; deduplicate at store/refetch-target level
@@ -31,6 +35,7 @@ Make current WebSocket events more granular/targeted. Currently 5 of 6 events ca
 - **Priority**: All 6 events equally — single pass
 
 **Research Findings**:
+
 - Backend uses `EventEmitter2` in 5 services → `WebsocketGateway` listens via `@OnEvent` → broadcasts via `server.emit()`
 - Only `update-records` carries payload `{ genre: RecordGenre }`; all others are fire-and-forget
 - `update-likes` is worst offender: single like → full suggestions list refetch
@@ -39,7 +44,9 @@ Make current WebSocket events more granular/targeted. Currently 5 of 6 events ca
 - No test infrastructure exists
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - Debounce must deduplicate at **store level**, not event level (3 events all call `refetchSuggestions`)
 - Must use optional chaining (`payload?.genre`) for backwards compat — current code would crash on `undefined` payload
 - `useDebounceFn` doesn't accumulate — need custom coalescer with accumulation + debounced flush
@@ -52,9 +59,11 @@ Make current WebSocket events more granular/targeted. Currently 5 of 6 events ca
 ## Work Objectives
 
 ### Core Objective
+
 Add structured payloads to all 6 WebSocket events so frontend handlers can make informed refetch decisions, and coalesce rapid cascading events into batched refetches.
 
 ### Concrete Deliverables
+
 - `backend/src/modules/websocket/websocket.events.ts` — payload interfaces + event name constants
 - Updated `.emit()` calls in 5 backend services with typed payloads
 - Updated `websocket.gateway.ts` — all `@OnEvent` handlers accept and forward payloads
@@ -62,6 +71,7 @@ Add structured payloads to all 6 WebSocket events so frontend handlers can make 
 - Refactored `frontend/src/composables/use-websocket.ts` — payload-aware handlers with fallback
 
 ### Definition of Done
+
 - [x] `bun run build` succeeds with zero errors
 - [x] `bun run lint` passes with zero warnings/errors
 - [x] `bun run format:check` passes
@@ -70,6 +80,7 @@ Add structured payloads to all 6 WebSocket events so frontend handlers can make 
 - [x] Cascading events from single operations are coalesced into fewer refetches
 
 ### Must Have
+
 - Typed payload interfaces for all 6 events
 - Entity ID + action in payloads (plus genre for update-records)
 - Store-level deduplication in coalescer (not event-level)
@@ -78,6 +89,7 @@ Add structured payloads to all 6 WebSocket events so frontend handlers can make 
 - Optional chaining on ALL payload access in frontend handlers
 
 ### Must NOT Have (Guardrails)
+
 - DO NOT change event names — only add payloads to existing events
 - DO NOT modify store refetch implementations — only change when/how they're called
 - DO NOT add surgical cache updates (no in-place store data mutations)
@@ -97,12 +109,14 @@ Add structured payloads to all 6 WebSocket events so frontend handlers can make 
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **Automated tests**: NO
 - **Framework**: None
 - **QA**: Agent-executed QA scenarios only
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios.
 Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
@@ -145,17 +159,17 @@ Max Concurrent: 6 (Wave 2)
 
 ### Dependency Matrix
 
-| Task | Depends On | Blocks | Wave |
-|------|-----------|--------|------|
-| 1 | — | 2, 3, 4, 5, 6, 7 | 1 |
-| 2 | 1 | 9 | 2 |
-| 3 | 1 | 9 | 2 |
-| 4 | 1 | 9 | 2 |
-| 5 | 1 | 9 | 2 |
-| 6 | 1 | 9 | 2 |
-| 7 | 1 | 8, 9 | 2 |
-| 8 | 7 | 9 | 3 |
-| 9 | 7, 8 | F1-F4 | 3 |
+| Task | Depends On | Blocks           | Wave |
+| ---- | ---------- | ---------------- | ---- |
+| 1    | —          | 2, 3, 4, 5, 6, 7 | 1    |
+| 2    | 1          | 9                | 2    |
+| 3    | 1          | 9                | 2    |
+| 4    | 1          | 9                | 2    |
+| 5    | 1          | 9                | 2    |
+| 6    | 1          | 9                | 2    |
+| 7    | 1          | 8, 9             | 2    |
+| 8    | 7          | 9                | 3    |
+| 9    | 7, 8       | F1-F4            | 3    |
 
 ### Agent Dispatch Summary
 
@@ -639,18 +653,18 @@ Max Concurrent: 6 (Wave 2)
     ```ts
     const coalescer = createEventCoalescer({
       handlers: {
-        'suggestions': () => suggestionStore.refetchSuggestions(),
-        'queue': () => queueStore.refetchQueue(),
-        'auction': () => auctionStore.refetchAuctions(),
-        'user': () => userStore.refetchUser(),
+        suggestions: () => suggestionStore.refetchSuggestions(),
+        queue: () => queueStore.refetchQueue(),
+        auction: () => auctionStore.refetchAuctions(),
+        user: () => userStore.refetchUser(),
         'records:ANIME': () => animeStore.refetchVideos(),
         // ... etc
       },
       delay: 150, // ms
     })
-    coalescer.enqueue('suggestions')  // adds to pending set
-    coalescer.enqueue('suggestions')  // deduped — already pending
-    coalescer.cancel()                // clear set + cancel timer
+    coalescer.enqueue('suggestions') // adds to pending set
+    coalescer.enqueue('suggestions') // deduped — already pending
+    coalescer.cancel() // clear set + cancel timer
     ```
 
   **Must NOT do**:
@@ -833,37 +847,38 @@ Max Concurrent: 6 (Wave 2)
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 
 - [x] F1. **Plan Compliance Audit** — `oracle`
-  Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in `.sisyphus/evidence/`. Compare deliverables against plan.
-  Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
+      Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in `.sisyphus/evidence/`. Compare deliverables against plan.
+      Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
 - [x] F2. **Code Quality Review** — `unspecified-high`
-  Run `bunx --bun tsc --noEmit` + `bun lint` + `bun run build`. Review all changed files for: `as any`/`@ts-ignore`, empty catches, console.log in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names (data/result/item/temp).
-  Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
+      Run `bunx --bun tsc --noEmit` + `bun lint` + `bun run build`. Review all changed files for: `as any`/`@ts-ignore`, empty catches, console.log in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names (data/result/item/temp).
+      Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
 
 - [x] F3. **Real Manual QA** — `unspecified-high`
-  Start from clean state. Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration (features working together). Save to `.sisyphus/evidence/final-qa/`.
-  Output: `Scenarios [N/N pass] | Integration [N/N] | VERDICT`
+      Start from clean state. Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration (features working together). Save to `.sisyphus/evidence/final-qa/`.
+      Output: `Scenarios [N/N pass] | Integration [N/N] | VERDICT`
 
 - [x] F4. **Scope Fidelity Check** — `deep`
-  For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Flag unaccounted changes.
-  Output: `Tasks [N/N compliant] | Unaccounted [CLEAN/N files] | VERDICT`
+      For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Flag unaccounted changes.
+      Output: `Tasks [N/N compliant] | Unaccounted [CLEAN/N files] | VERDICT`
 
 ---
 
 ## Commit Strategy
 
-| # | Commit | Files | Pre-commit |
-|---|--------|-------|------------|
-| 1 | `feat(ws): add WebSocket event payload types and constants` | `backend/src/modules/websocket/websocket.events.ts` | `bun run build` |
-| 2 | `feat(ws): add payloads to all backend event emitters` | `record.service.ts`, `suggestion.service.ts`, `like.service.ts`, `auction.service.ts`, `user.service.ts` | `bun run build` |
-| 3 | `feat(ws): forward payloads through WebSocket gateway` | `websocket.gateway.ts` | `bun run build` |
-| 4 | `feat(ws): add frontend event coalescer and integrate into WebSocket handlers` | `use-event-coalescer.ts`, `use-websocket.ts` | `bun run build && bun run lint && bun run format:check` |
+| #   | Commit                                                                         | Files                                                                                                    | Pre-commit                                              |
+| --- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1   | `feat(ws): add WebSocket event payload types and constants`                    | `backend/src/modules/websocket/websocket.events.ts`                                                      | `bun run build`                                         |
+| 2   | `feat(ws): add payloads to all backend event emitters`                         | `record.service.ts`, `suggestion.service.ts`, `like.service.ts`, `auction.service.ts`, `user.service.ts` | `bun run build`                                         |
+| 3   | `feat(ws): forward payloads through WebSocket gateway`                         | `websocket.gateway.ts`                                                                                   | `bun run build`                                         |
+| 4   | `feat(ws): add frontend event coalescer and integrate into WebSocket handlers` | `use-event-coalescer.ts`, `use-websocket.ts`                                                             | `bun run build && bun run lint && bun run format:check` |
 
 ---
 
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 bun run build          # Expected: exit 0, no errors
 bun run lint           # Expected: 0 warnings, 0 errors
@@ -872,6 +887,7 @@ bunx --bun tsc --noEmit  # Expected: exit 0
 ```
 
 ### Final Checklist
+
 - [x] All "Must Have" present
 - [x] All "Must NOT Have" absent
 - [x] All builds pass

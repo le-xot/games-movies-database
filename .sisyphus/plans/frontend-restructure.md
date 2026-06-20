@@ -3,15 +3,16 @@
 ## TL;DR
 
 > **Quick Summary**: Полный рефакторинг файловой структуры и нейминга `frontend/src/` — все `.vue` файлы → PascalCase, разделение stores/composables, реорганизация lib/, перемещение layout/, удаление мёртвого кода, добавление barrel files.
-> 
+>
 > **Deliverables**:
+>
 > - Единый стиль нейминга PascalCase для всех .vue файлов
 > - Чёткое разделение Pinia stores и composables
 > - Реорганизованная структура: router/, utils/ на верхнем уровне src/
 > - layout/ перемещён в components/layout/
 > - Barrel files для всех shared-директорий
 > - Обновлённые AGENTS.md (frontend + root)
-> 
+>
 > **Estimated Effort**: Medium
 > **Parallel Execution**: YES — 4 waves
 > **Critical Path**: T1 → T2-T7 (parallel) → T8-T9 (parallel) → T10-T12 (parallel)
@@ -21,10 +22,13 @@
 ## Context
 
 ### Original Request
+
 Полный аудит и рефакторинг файловой структуры и нейминга фронтенда по современным best practices (Vue 3, 2024-2026).
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - Структура: сохранить pages/ как есть, НЕ переходить на features/
 - Нейминг: ВСЕ .vue файлы → PascalCase (единый стандарт)
 - lib/: разнести по назначению — router/ и utils/ на верхний уровень
@@ -35,13 +39,16 @@
 - Верификация: tsc + bun build (тестов нет)
 
 **Research Findings**:
+
 - Vue Style Guide: PascalCase для SFC — официальная рекомендация
 - VueUse: composables как use-xxx.ts (kebab-case) — стандарт
 - shadcn-vue: components/ui/ с PascalCase + index.ts barrels — уже корректно, не трогаем
 - Консенсус 2024-2026: feature-based или гибрид, co-located composables
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - `lib/utils.ts` (cn helper): 84 импорта из shadcn-vue → ОСТАВИТЬ НА МЕСТЕ, не перемещать
 - Мёртвый код: `spinner.vue` и `value-updater.ts` — 0 импортов → удалить
 - `winner-selection-modal.vue` — не "misplaced", а page-local → переместить в auction/components/
@@ -58,9 +65,11 @@
 ## Work Objectives
 
 ### Core Objective
+
 Привести файловую структуру и нейминг `frontend/src/` к единому стандарту: PascalCase для .vue, разделение ответственности директорий, barrel files для shared-модулей.
 
 ### Concrete Deliverables
+
 - ~38 .vue файлов переименованы в PascalCase
 - 5 Pinia stores → `src/stores/`
 - `lib/router/` → `src/router/`
@@ -72,6 +81,7 @@
 - AGENTS.md обновлён
 
 ### Definition of Done
+
 - [x] `cd frontend && bun run build` → exit code 0
 - [x] `grep -rn "import.*from.*@/" frontend/src/ | grep -v node_modules | grep -v '/ui/' | grep -v 'app\.vue' | grep -oP "[^/]+\.vue" | grep -E '^[a-z]'` → 0 результатов (нет kebab-case .vue файлов в импортах вне ui/ и app.vue)
 - [x] `grep -rn 'defineStore' frontend/src/composables/ --exclude-dir=factories` → 0 результатов (все stores в stores/, factories исключены)
@@ -79,6 +89,7 @@
 - [x] `grep -rn '@/lib/utils/' frontend/src/` → 0 результатов (с trailing slash)
 
 ### Must Have
+
 - Единый PascalCase для всех .vue файлов (кроме app.vue и ui/)
 - Pinia stores в отдельной директории stores/
 - Router на верхнем уровне src/router/
@@ -86,11 +97,12 @@
 - AGENTS.md отражает новую структуру
 
 ### Must NOT Have (Guardrails)
+
 - НЕ редактировать `lib/api.ts` (auto-generated)
 - НЕ трогать файлы внутри `components/ui/` (shadcn-vue managed)
 - НЕ перемещать `lib/utils.ts` (84 импорта из ui/, shadcn-vue CLI зависит от пути)
 - НЕ переименовывать `.ts` файлы в PascalCase (только .vue)
-- НЕ переименовывать директории pages/* (только файлы внутри)
+- НЕ переименовывать директории pages/\* (только файлы внутри)
 - НЕ менять Vite aliases/tsconfig paths
 - НЕ добавлять новые зависимости
 - НЕ рефакторить бизнес-логику
@@ -105,12 +117,14 @@
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **Automated tests**: None
 - **Framework**: none
 - **Verification method**: `bun run build` + `tsc --noEmit` (если поддерживается) + grep для проверки старых путей
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios.
 Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
@@ -169,23 +183,24 @@ Max Concurrent: 3 (Wave 2A)
 
 ### Dependency Matrix
 
-| Task | Depends On | Blocks | Wave |
-|------|-----------|--------|------|
-| 1    | —         | 2,3,4,5,6,7 | 1 |
-| 3    | 1         | 2,8,9 | 2A |
-| 4    | 1         | 6,8,9 | 2A |
-| 7    | 1         | 8 | 2A |
-| 6    | 1,4       | 8 | 2B (sequential after 4) |
-| 2    | 1,3       | 5,8,9 | 2B (sequential after 6) |
-| 5    | 1,2       | 8,9 | 2B (sequential after 2) |
-| 8    | 2,3,4,5,6,7 | 9,10,11 | 3 (first) |
-| 9    | 8         | 10,11 | 3 (after 8) |
-| 10   | 8,9       | 11 | 4 |
-| 11   | 10        | 12 | 4 |
-| 12   | 11        | F1-F4 | 4 |
-| F1-F4| 12        | — | FINAL |
+| Task  | Depends On  | Blocks      | Wave                    |
+| ----- | ----------- | ----------- | ----------------------- |
+| 1     | —           | 2,3,4,5,6,7 | 1                       |
+| 3     | 1           | 2,8,9       | 2A                      |
+| 4     | 1           | 6,8,9       | 2A                      |
+| 7     | 1           | 8           | 2A                      |
+| 6     | 1,4         | 8           | 2B (sequential after 4) |
+| 2     | 1,3         | 5,8,9       | 2B (sequential after 6) |
+| 5     | 1,2         | 8,9         | 2B (sequential after 2) |
+| 8     | 2,3,4,5,6,7 | 9,10,11     | 3 (first)               |
+| 9     | 8           | 10,11       | 3 (after 8)             |
+| 10    | 8,9         | 11          | 4                       |
+| 11    | 10          | 12          | 4                       |
+| 12    | 11          | F1-F4       | 4                       |
+| F1-F4 | 12          | —           | FINAL                   |
 
 > **File ownership per wave**:
+>
 > - **Wave 2A** (parallel): T3 owns `lib/router/` + `main.ts`; T4 owns `lib/utils/` dir + image/watch-link importers; T7 owns `pages/pc/components/*.svg`
 > - **Wave 2B** (sequential): T6 owns `winner-selection-modal.vue` move (after T4 updates its import); T2 owns `layout/` + `router.ts` layout imports; T5 owns store files + `router.ts` store imports + layout file store imports
 > - **Wave 3** (sequential): T8 renames all `pages/**/*.vue` + updates relative imports within pages; T9 renames all `components/**/*.vue` (excl. ui/) + updates ALL imports across entire codebase (including pages/ files renamed by T8)
@@ -674,11 +689,11 @@ Max Concurrent: 3 (Wave 2A)
   - Files: `pages/pc/components/*.svg` → `pages/pc/assets/`, `pages/pc/constants/parts-links.ts`
   - Pre-commit: `cd frontend && bun run build`
 
-- [x] 8. PascalCase Rename — pages/**/*.vue
+- [x] 8. PascalCase Rename — pages/\*_/_.vue
 
   **What to do**:
   This is the LARGEST task — rename ALL .vue files inside `pages/` to PascalCase.
-  
+
   **Page entry points** (13 files):
   - `pages/admin/admin.vue` → `pages/admin/AdminPage.vue`
   - `pages/anime/anime.vue` → `pages/anime/AnimePage.vue`
@@ -787,7 +802,7 @@ Max Concurrent: 3 (Wave 2A)
   - Files: ~23 .vue files + router.ts + relative imports
   - Pre-commit: `cd frontend && bun run build`
 
-- [x] 9. PascalCase Rename — components/**/*.vue (non-ui)
+- [x] 9. PascalCase Rename — components/\*_/_.vue (non-ui)
 
   **What to do**:
   Rename ALL .vue files inside `components/` (EXCEPT `components/ui/`) to PascalCase.
@@ -905,6 +920,7 @@ Max Concurrent: 3 (Wave 2A)
   - `frontend/src/utils/index.ts` — export image utilities, generate-watch-link
 
   **Barrel file pattern** (follow existing shadcn-vue convention):
+
   ```typescript
   // Example: components/table/index.ts
   export { default as DataTable } from './DataTable.vue'
@@ -913,6 +929,7 @@ Max Concurrent: 3 (Wave 2A)
   ```
 
   **For .ts composables/stores** (named exports, not default):
+
   ```typescript
   // Example: stores/index.ts
   export { useApi } from './use-api'
@@ -1145,8 +1162,8 @@ Max Concurrent: 3 (Wave 2A)
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 
 - [x] F1. **Plan Compliance Audit** — `oracle`
-  Read the plan end-to-end. For each "Must Have": verify implementation exists (check file locations, run grep). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
-  Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
+      Read the plan end-to-end. For each "Must Have": verify implementation exists (check file locations, run grep). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
+      Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
   **QA Scenarios:**
 
@@ -1182,8 +1199,8 @@ Max Concurrent: 3 (Wave 2A)
   ```
 
 - [x] F2. **Code Quality Review** — `unspecified-high`
-  Run `bun run build` in frontend/. Review all changed files for: broken imports, missing files, case mismatches. Check that barrel files use explicit named exports (not wildcard). Verify no `@/lib/router`, `@/lib/utils/` (with slash) paths remain.
-  Output: `Build [PASS/FAIL] | Imports [N clean/N issues] | Barrels [N valid] | VERDICT`
+      Run `bun run build` in frontend/. Review all changed files for: broken imports, missing files, case mismatches. Check that barrel files use explicit named exports (not wildcard). Verify no `@/lib/router`, `@/lib/utils/` (with slash) paths remain.
+      Output: `Build [PASS/FAIL] | Imports [N clean/N issues] | Barrels [N valid] | VERDICT`
 
   **QA Scenarios:**
 
@@ -1217,8 +1234,8 @@ Max Concurrent: 3 (Wave 2A)
   ```
 
 - [x] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill)
-  Start dev server and navigate to every page to verify no runtime errors after restructuring.
-  Output: `Pages [N/N load] | Console Errors [N] | Navigation [PASS/FAIL] | VERDICT`
+      Start dev server and navigate to every page to verify no runtime errors after restructuring.
+      Output: `Pages [N/N load] | Console Errors [N] | Navigation [PASS/FAIL] | VERDICT`
 
   **QA Scenarios:**
 
@@ -1269,8 +1286,8 @@ Max Concurrent: 3 (Wave 2A)
   ```
 
 - [x] F4. **Scope Fidelity Check** — `deep`
-  For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance: no lib/api.ts edits, no ui/ changes, no .ts renames, no business logic changes. Flag unaccounted changes.
-  Output: `Tasks [N/N compliant] | Scope Violations [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
+      For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance: no lib/api.ts edits, no ui/ changes, no .ts renames, no business logic changes. Flag unaccounted changes.
+      Output: `Tasks [N/N compliant] | Scope Violations [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
 
   **QA Scenarios:**
 
@@ -1299,25 +1316,26 @@ Max Concurrent: 3 (Wave 2A)
 
 ## Commit Strategy
 
-| Commit | Message | Files | Pre-commit check |
-|--------|---------|-------|-----------------|
-| 1 | `chore: remove dead code (spinner, value-updater)` | components/utils/ | `bun run build` |
-| 2 | `refactor: move router/ from lib/ to src/` | lib/router/*, main.ts | `bun run build` |
-| 3 | `refactor: move lib/utils/ to src/utils/` | lib/utils/*, 10 imports | `bun run build` |
-| 4 | `refactor: move winner-selection-modal to components/` | auction/* | `bun run build` |
-| 5 | `refactor: move SVGs to pages/pc/assets/` | pages/pc/* | `bun run build` |
-| 6 | `refactor: move layout/ to components/layout/` | layout/*, router.ts | `bun run build` |
-| 7 | `refactor: separate Pinia stores into src/stores/` | composables/*, stores/* | `bun run build` |
-| 8 | `refactor: rename page .vue files to PascalCase` | pages/**/*.vue, router.ts | `bun run build` |
-| 9 | `refactor: rename component .vue files to PascalCase` | components/**/*.vue | `bun run build` |
-| 10 | `refactor: add barrel files for shared directories` | */index.ts | `bun run build` |
-| 11 | `docs: update AGENTS.md for new structure` | AGENTS.md, frontend/src/AGENTS.md | `bun run build` |
+| Commit | Message                                                | Files                             | Pre-commit check |
+| ------ | ------------------------------------------------------ | --------------------------------- | ---------------- |
+| 1      | `chore: remove dead code (spinner, value-updater)`     | components/utils/                 | `bun run build`  |
+| 2      | `refactor: move router/ from lib/ to src/`             | lib/router/\*, main.ts            | `bun run build`  |
+| 3      | `refactor: move lib/utils/ to src/utils/`              | lib/utils/\*, 10 imports          | `bun run build`  |
+| 4      | `refactor: move winner-selection-modal to components/` | auction/\*                        | `bun run build`  |
+| 5      | `refactor: move SVGs to pages/pc/assets/`              | pages/pc/\*                       | `bun run build`  |
+| 6      | `refactor: move layout/ to components/layout/`         | layout/\*, router.ts              | `bun run build`  |
+| 7      | `refactor: separate Pinia stores into src/stores/`     | composables/_, stores/_           | `bun run build`  |
+| 8      | `refactor: rename page .vue files to PascalCase`       | pages/\*_/_.vue, router.ts        | `bun run build`  |
+| 9      | `refactor: rename component .vue files to PascalCase`  | components/\*_/_.vue              | `bun run build`  |
+| 10     | `refactor: add barrel files for shared directories`    | \*/index.ts                       | `bun run build`  |
+| 11     | `docs: update AGENTS.md for new structure`             | AGENTS.md, frontend/src/AGENTS.md | `bun run build`  |
 
 ---
 
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 cd frontend && bun run build      # Expected: exit code 0, no errors
 grep -rn '@/lib/router' frontend/src/  # Expected: 0 results
@@ -1327,6 +1345,7 @@ grep -rn "import.*from.*@/" frontend/src/ | grep -v node_modules | grep -v '/ui/
 ```
 
 ### Final Checklist
+
 - [x] All "Must Have" present
 - [x] All "Must NOT Have" absent
 - [x] Build passes

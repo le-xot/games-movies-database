@@ -19,7 +19,7 @@ services:
       - caddy
     labels:
       caddy: adminer.le-xot.dev
-      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.reverse_proxy: '{{upstreams 8080}}'
 
   application:
     build:
@@ -39,7 +39,7 @@ services:
       - caddy
     labels:
       caddy: le-xot.dev
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy.reverse_proxy: '{{upstreams 3000}}'
 
 volumes:
   pgdata:

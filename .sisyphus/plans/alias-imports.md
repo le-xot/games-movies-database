@@ -3,12 +3,13 @@
 ## TL;DR
 
 > **Quick Summary**: Конвертировать все относительные импорты (`./`, `../`) в alias-импорты (`@/`) по всему проекту (frontend + backend). Чистый рефакторинг без изменения поведения.
-> 
+>
 > **Deliverables**:
+>
 > - Ноль относительных импортов в `backend/src/` и `frontend/src/` (кроме auto-generated `api.ts`)
 > - Исправленный `backend/tsconfig.json` (добавлен `baseUrl`, убран wildcard `*`)
 > - Чистый `tsc --noEmit`, `bun build`, `bun lint`, `bun format:check`
-> 
+>
 > **Estimated Effort**: Medium (~119 файлов, чисто механическая замена)
 > **Parallel Execution**: YES — 3 waves
 > **Critical Path**: Task 1 (tsconfig fix) → Tasks 2-3 (backend + frontend barrels) → Tasks 4-6 (frontend pages/components) → Task 7 (final validation)
@@ -18,15 +19,19 @@
 ## Context
 
 ### Original Request
+
 Перевести все импорты по всему проекту на alias `@/`. Конвертировать абсолютно все относительные импорты без исключений.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - Scope: абсолютно все `./` и `../` → `@/`, включая barrel re-exports, co-located composables, page components
 - Проект: Bun monorepo — Vue 3 frontend (Vite) + NestJS backend (Prisma)
 - Alias `@/` → `./src/*` уже настроен в обоих пакетах
 
 **Research Findings**:
+
 - Frontend: 76 файлов с relative imports, 154 уже на `@/`
 - Backend: 43 файла с relative imports, 33 уже на `@/`
 - Backend tsconfig имеет опасный wildcard `"*": ["./*"]` и отсутствует `baseUrl`
@@ -37,7 +42,9 @@
 - `oxfmt` с `sortImports` переставит порядок импортов после конвертации — это ожидаемо
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - Backend tsconfig нуждается в `baseUrl: "."` и удалении wildcard `"*": ["./*"]` — добавлено как Task 1 (prerequisite)
 - Side-effect imports (e.g., `import './assets/index.css'`) не были упомянуты — включены в scope
 - `bun format` должен запускаться после каждого батча для нормализации порядка импортов — добавлен в каждый task
@@ -48,15 +55,18 @@
 ## Work Objectives
 
 ### Core Objective
+
 Заменить все относительные импорты (`./`, `../`) на alias-импорты (`@/`) во всех `.ts` и `.vue` файлах в `frontend/src/` и `backend/src/`.
 
 ### Concrete Deliverables
+
 - `backend/tsconfig.json` — добавлен `baseUrl: "."`, удалён `"*": ["./*"]`
 - 43 файла в `backend/src/` — relative → `@/`
 - 76 файлов в `frontend/src/` — relative → `@/`
 - Все файлы отформатированы через `bun format`
 
 ### Definition of Done
+
 - [x] `grep -rE "from ['\"]\\.\\.?/" backend/src/ | wc -l` → `0`
 - [x] `grep -rE "from ['\"]\\.\\.?/" frontend/src/ --include='*.ts' --include='*.vue' | grep -v 'lib/api.ts' | wc -l` → `0`
 - [x] `grep -rE "^import ['\"]\\.\\.?/" frontend/src/ backend/src/ | wc -l` → `0` (side-effect imports)
@@ -65,6 +75,7 @@
 - [x] `bun format:check` → exit 0
 
 ### Must Have
+
 - Все `./` и `../` импорты в backend/src/ конвертированы в `@/`
 - Все `./` и `../` импорты в frontend/src/ конвертированы в `@/` (кроме api.ts)
 - Все side-effect imports конвертированы (`import './foo'` → `import '@/foo'`)
@@ -75,6 +86,7 @@
 - tsc/build валидация после каждого коммита
 
 ### Must NOT Have (Guardrails)
+
 - НЕ трогать `frontend/src/lib/api.ts` (auto-generated)
 - НЕ добавлять `.ts` расширения к импортам
 - НЕ удалять `.vue` расширения из импортов
@@ -95,11 +107,13 @@
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **Automated tests**: None
 - **Framework**: None
 
 ### QA Policy
+
 Every task uses compilation + grep as verification. Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
 - **TypeScript check**: `bunx --bun tsc --noEmit` (backend), `bunx vue-tsc --noEmit` (frontend — verify installed first, fallback to `vite build`)
@@ -137,15 +151,15 @@ Max Concurrent: 3 (Wave 3)
 
 ### Dependency Matrix
 
-| Task | Depends On | Blocks |
-|------|-----------|--------|
-| 1 | — | 2, 3 |
-| 2 | 1 | 7 |
-| 3 | 1 | 4, 5, 6 |
-| 4 | 3 | 7 |
-| 5 | 3 | 7 |
-| 6 | 3 | 7 |
-| 7 | 2, 4, 5, 6 | — |
+| Task | Depends On | Blocks  |
+| ---- | ---------- | ------- |
+| 1    | —          | 2, 3    |
+| 2    | 1          | 7       |
+| 3    | 1          | 4, 5, 6 |
+| 4    | 3          | 7       |
+| 5    | 3          | 7       |
+| 6    | 3          | 7       |
+| 7    | 2, 4, 5, 6 | —       |
 
 ### Agent Dispatch Summary
 
@@ -238,7 +252,7 @@ Max Concurrent: 3 (Wave 3)
   - НЕ добавлять `.ts` расширения
   - Запустить `bun format` из корня для нормализации порядка импортов
   - Валидировать: `bunx --bun tsc --noEmit` из `backend/`
-  
+
   **Категории файлов для конвертации** (все в `backend/src/`):
   - `main.ts` — `./app.module`, `./utils/enviroments` → `@/app.module`, `@/utils/enviroments`
   - `app.module.ts` — `./modules/...`, `./database/...` → `@/modules/...`, `@/database/...`
@@ -246,7 +260,7 @@ Max Concurrent: 3 (Wave 3)
   - `modules/record/*` — `../records-providers/...` → `@/modules/records-providers/...`
   - Все остальные `modules/*/` файлы с относительными imports
   - `database/prisma.module.ts` — `./prisma.service` → `@/database/prisma.service`
-  
+
   **Must NOT do**:
   - НЕ трогать npm-пакеты (`@nestjs/...`, `@prisma/...`)
   - НЕ переименовывать `suggesttion.dto.ts`
@@ -337,7 +351,7 @@ Max Concurrent: 3 (Wave 3)
   - Конвертировать `./X.vue` → `@/components/ui/{name}/X.vue` (сохранять `.vue` расширение!)
   - Конвертировать `./y` → `@/path/to/y` (БЕЗ `.ts` расширения)
   - Запустить `bun format` после конвертации
-  
+
   **Файлы для конвертации** (~24 barrel files):
   - `components/ui/button/index.ts`
   - `components/ui/badge/index.ts`
@@ -365,7 +379,7 @@ Max Concurrent: 3 (Wave 3)
   - `components/layout/index.ts`
   - `components/table/index.ts`
   - `components/table/table-col/index.ts`
-  
+
   **Также конвертировать внутренние импорты в shadcn-vue компонентах:**
   - `components/ui/form/FormControl.vue` — `from './useFormField'` → `from '@/components/ui/form/useFormField'`
   - `components/ui/form/FormItem.vue` — `from './injectionKeys'` → `from '@/components/ui/form/injectionKeys'`
@@ -465,7 +479,7 @@ Max Concurrent: 3 (Wave 3)
     - `import { X } from '../constants/...'` → `import { X } from '@/pages/{page}/constants/...'`
   - Сохранять `.vue` расширения, НЕ добавлять `.ts`
   - Запустить `bun format` после конвертации
-  
+
   **Страницы для обработки** (~30 files):
   - `pages/movie/` — MoviePage.vue, composables/use-movie.ts, use-movie-params.ts, use-movie-table.ts, components/MovieTable.vue
   - `pages/anime/` — AnimePage.vue, composables/use-anime.ts, use-anime-params.ts, use-anime-table.ts, components/AnimeTable.vue
@@ -543,7 +557,7 @@ Max Concurrent: 3 (Wave 3)
 
   **What to do**:
   - Конвертировать relative imports в shared-компонентах вне `pages/` и `ui/`:
-    - `components/table/` — DataTable.vue, TableSearch.vue, TablePagination.vue, TableFilter*.vue, composables/use-table-*.ts, table-col/*.vue
+    - `components/table/` — DataTable.vue, TableSearch.vue, TablePagination.vue, TableFilter*.vue, composables/use-table-*.ts, table-col/\*.vue
     - `components/layout/` — db/LayoutDatabase.vue, db/LayoutBody.vue, db/LayoutHeader.vue
     - `components/dialog/` — Dialog.vue
     - `components/form/` — LoginForm.vue
@@ -749,28 +763,29 @@ Max Concurrent: 3 (Wave 3)
 ## Final Verification Wave
 
 - [x] F1. **Comprehensive Grep Check** — `quick`
-  Run `grep -rE "from ['\"]\\.\\.?/" backend/src/ frontend/src/ --include='*.ts' --include='*.vue' | grep -v 'lib/api.ts'` — must return 0 results. Also check side-effect imports: `grep -rE "^import ['\"]\\.\\.?/" backend/src/ frontend/src/`. Verify `git diff frontend/src/lib/api.ts` is empty.
-  Output: `Relative imports [0] | Side-effect relative [0] | api.ts [UNMODIFIED] | VERDICT: APPROVE/REJECT`
+      Run `grep -rE "from ['\"]\\.\\.?/" backend/src/ frontend/src/ --include='*.ts' --include='*.vue' | grep -v 'lib/api.ts'` — must return 0 results. Also check side-effect imports: `grep -rE "^import ['\"]\\.\\.?/" backend/src/ frontend/src/`. Verify `git diff frontend/src/lib/api.ts` is empty.
+      Output: `Relative imports [0] | Side-effect relative [0] | api.ts [UNMODIFIED] | VERDICT: APPROVE/REJECT`
 
 - [x] F2. **Full Build + Lint + Format Validation** — `quick`
-  Run: `bun lint && bun format:check && bun build`. All must exit 0. Run `bunx --bun tsc --noEmit` from backend/. If `vue-tsc` available, run `bunx vue-tsc --noEmit` from frontend/.
-  Output: `Lint [PASS/FAIL] | Format [PASS/FAIL] | Build [PASS/FAIL] | TSC Backend [PASS/FAIL] | TSC Frontend [PASS/FAIL] | VERDICT`
+      Run: `bun lint && bun format:check && bun build`. All must exit 0. Run `bunx --bun tsc --noEmit` from backend/. If `vue-tsc` available, run `bunx vue-tsc --noEmit` from frontend/.
+      Output: `Lint [PASS/FAIL] | Format [PASS/FAIL] | Build [PASS/FAIL] | TSC Backend [PASS/FAIL] | TSC Frontend [PASS/FAIL] | VERDICT`
 
 ---
 
 ## Commit Strategy
 
-| Commit | Scope | Message | Validation |
-|--------|-------|---------|------------|
-| 1 | Task 1 | `chore(backend): fix tsconfig paths — add baseUrl, remove wildcard` | `bunx --bun tsc --noEmit` |
-| 2 | Task 2 | `refactor(backend): convert all relative imports to @/ aliases` | `bunx --bun tsc --noEmit` + `bun lint` |
-| 3 | Tasks 3-6 | `refactor(frontend): convert all relative imports to @/ aliases` | `bun build` + `bun lint` + `bun format:check` |
+| Commit | Scope     | Message                                                             | Validation                                    |
+| ------ | --------- | ------------------------------------------------------------------- | --------------------------------------------- |
+| 1      | Task 1    | `chore(backend): fix tsconfig paths — add baseUrl, remove wildcard` | `bunx --bun tsc --noEmit`                     |
+| 2      | Task 2    | `refactor(backend): convert all relative imports to @/ aliases`     | `bunx --bun tsc --noEmit` + `bun lint`        |
+| 3      | Tasks 3-6 | `refactor(frontend): convert all relative imports to @/ aliases`    | `bun build` + `bun lint` + `bun format:check` |
 
 ---
 
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 # Zero relative imports in backend
 grep -rE "from ['\"]\\.\\.?/" backend/src/ | wc -l  # Expected: 0
@@ -791,6 +806,7 @@ bun build  # Expected: exit 0
 ```
 
 ### Final Checklist
+
 - [x] All "Must Have" present
 - [x] All "Must NOT Have" absent
 - [x] Backend compiles and starts

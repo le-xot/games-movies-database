@@ -1,5 +1,5 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { LikeService } from '../like.service'
 import { LikeRepository } from '../repositories/like.repository'

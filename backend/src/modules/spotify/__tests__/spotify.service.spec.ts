@@ -10,9 +10,9 @@ mock.module('../../../utils/enviroments', () => ({
 
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { ThirdPartService } from '@/enums'
-import type { SpotifyTokenDomain } from '../entities/spotify-token.entity'
 import { SpotifyTokenRepository } from '../repositories/spotify-token.repository'
 import { SpotifyService } from '../spotify.service'
+import type { SpotifyTokenDomain } from '../entities/spotify-token.entity'
 
 const mockToken: SpotifyTokenDomain = {
   id: 1,

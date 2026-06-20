@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactiveOmit } from '@vueuse/core'
 import { Search } from '@lucide/vue'
+import { reactiveOmit } from '@vueuse/core'
 import { ListboxFilter, useForwardProps } from 'reka-ui'
 import { useCommand } from '@/components/ui/command'
 import { cn } from '@/lib/utils'

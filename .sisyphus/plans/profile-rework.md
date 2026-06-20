@@ -5,6 +5,7 @@
 > **Quick Summary**: Полная переработка страницы профиля — рефакторинг монолитного ProfilePage.vue в модульную структуру (thin wrapper + composables + sub-components), добавление маршрутизации `/db/profile/:login`, шапки профиля со статистикой, 5 категорийных табов, и кликабельных аватарок по всему приложению.
 >
 > **Deliverables**:
+>
 > - Новый backend-эндпоинт статистики профиля (`GET /users/profile/:login`)
 > - Переработанная страница профиля с модульной архитектурой
 > - Маршруты `/db/profile` (свой) и `/db/profile/:login` (чужой)
@@ -21,10 +22,13 @@
 ## Context
 
 ### Original Request
+
 Переработать страницу "Мой профиль" — и дизайн, и функциональность, и кодовую базу. Совместить с issue #195 (кликабельные аватарки → навигация в профиль пользователя).
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - **Маршрутизация**: Отдельный URL `/db/profile/:login` для каждого пользователя; `/db/profile` без параметра = свой профиль
 - **Селектор пользователей**: Убрать (заменяется маршрутизацией)
 - **Контент**: То же содержимое (предложения), но красивее + статистика
@@ -35,6 +39,7 @@
 - **Доступ**: Только авторизованные пользователи
 
 **Research Findings**:
+
 - ProfilePage.vue — 352 строки, монолитный файл с дублированием карточек (~70 строк × 2)
 - Все остальные страницы — thin wrappers (AnimePage.vue = 7 строк)
 - Аватарки найдены в 5 местах: LoginForm (кликабельна), AuctionCard, SuggestionCard, QueueCard, AdminPage (все не кликабельны)
@@ -43,7 +48,9 @@
 - genreTags в use-table-select.ts НЕ содержит GAME
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - **Backend route conflict**: Существующие `@Get(':id')` и `@Get(':login')` в user.controller.ts конфликтуют. Решение: использовать путь `/users/profile/:login` для нового эндпоинта
 - **RecordType vs RecordGenre семантика**: Профиль показывает ВСЕ записи пользователя (не только suggestions). Решение: статистика и карточки показывают все записи по жанрам
 - **genreTags не содержит GAME**: Нужно добавить GAME в genreTags или создать отдельную структуру для табов. Решение: добавить GAME в genreTags
@@ -56,9 +63,11 @@
 ## Work Objectives
 
 ### Core Objective
+
 Переработать страницу профиля из монолитного компонента в модульную структуру, добавить персональные URL-маршруты, шапку со статистикой, категорийные табы, и сделать аватарки кликабельными по всему приложению.
 
 ### Concrete Deliverables
+
 - `backend/src/modules/user/user.service.ts` — метод `getUserProfileStats(login)`
 - `backend/src/modules/user/user.controller.ts` — эндпоинт `GET /users/profile/:login`
 - `backend/src/modules/user/profile-stats.entity.ts` — response DTO
@@ -73,6 +82,7 @@
 - Обновлённые `AuctionCard.vue`, `SuggestionCard.vue`, `QueueCard.vue`, `AdminPage.vue` — кликабельные аватарки
 
 ### Definition of Done
+
 - [ ] `bun build` (root) — успешная сборка без ошибок
 - [ ] `bun lint` — 0 новых ошибок линтера
 - [ ] `bun format:check` — форматирование соответствует стандарту
@@ -82,6 +92,7 @@
 - [ ] Все аватарки (кроме LoginForm) кликабельны и ведут на профиль
 
 ### Must Have
+
 - Thin wrapper ProfilePage.vue (≤10 строк), как AnimePage/GamesPage
 - Composable use-profile.ts для логики загрузки данных
 - Отдельный компонент ProfileRecordCard.vue (без дублирования)
@@ -93,6 +104,7 @@
 - Кликабельные аватарки через RouterLink в 4 компонентах
 
 ### Must NOT Have (Guardrails)
+
 - НЕ редактировать `frontend/src/lib/api.ts` — автогенерируемый файл
 - НЕ исправлять существующий конфликт маршрутов `:id`/`:login` в user.controller.ts
 - НЕ удалять `@UseGuards()` на `getAllUsers`
@@ -114,11 +126,13 @@
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **Automated tests**: None (проект без тестовой инфраструктуры)
 - **Framework**: none
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios.
 Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
@@ -133,6 +147,7 @@ Auth requires a valid JWT cookie (`token`). Twitch OAuth cannot be faked via cur
 **Step-by-step auth cookie creation:**
 
 1. Read `JWT_SECRET` and `TWITCH_ADMIN_ID` from `backend/.env`:
+
    ```bash
    source backend/.env
    echo "JWT_SECRET=$JWT_SECRET"
@@ -140,6 +155,7 @@ Auth requires a valid JWT cookie (`token`). Twitch OAuth cannot be faked via cur
    ```
 
 2. Sign a JWT token using `bun` inline script:
+
    ```bash
    JWT_TOKEN=$(cd backend && bun -e "
      const jwt = require('jsonwebtoken');
@@ -150,23 +166,27 @@ Auth requires a valid JWT cookie (`token`). Twitch OAuth cannot be faked via cur
    ```
 
 3. **For curl (backend QA)**: Use as cookie header:
+
    ```bash
    curl -b "token=$JWT_TOKEN" http://localhost:3000/api/users/profile/{login} -s
    ```
 
 4. **For Playwright (frontend QA)**: Set cookie in browser context before navigating:
    ```javascript
-   await context.addCookies([{
-     name: 'token',
-     value: JWT_TOKEN,
-     domain: 'localhost',
-     path: '/',
-   }])
+   await context.addCookies([
+     {
+       name: 'token',
+       value: JWT_TOKEN,
+       domain: 'localhost',
+       path: '/',
+     },
+   ])
    ```
 
 **Admin user login**: Read from `TWITCH_ADMIN_LOGIN` env var — this is the login to use for "own profile" QA.
 
 **Second user for "other profile" QA**: The seed only creates the admin user. For Tasks 7 and 8 QA scenarios that need a second user, create one via Prisma before testing:
+
 ```bash
 cd backend && bun -e "
   const { PrismaClient } = require('@prisma/client');
@@ -185,6 +205,7 @@ cd backend && bun -e "
   console.log('QA test user created: qa_test_user');
 "
 ```
+
 This user can be used for testing `/db/profile/qa_test_user` (other user's profile with empty records).
 
 ---
@@ -193,7 +214,7 @@ This user can be used for testing `/db/profile/qa_test_user` (other user's profi
 
 ### Parallel Execution Waves
 
-```
+````
 Wave 1 (Start Immediately — foundation):
 ├── Task 1: Backend — endpoint статистики профиля [unspecified-high]
 ├── Task 2: Frontend — утилиты и подготовка (date formatter, genreTags fix) [quick]
@@ -241,21 +262,21 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 ├── Task F3: Real manual QA (unspecified-high)
 └── Task F4: Scope fidelity check (deep)
 -> Present results -> Get explicit user okay
-```
+````
 
 ### Dependency Matrix
 
-| Task | Depends On | Blocks | Wave |
-|------|-----------|--------|------|
-| 1 | — | 3, 6 | 1 |
-| 2 | — | 3, 4, 6, 7 | 1 |
-| 3 | 1, 2 | 7 | 2 |
-| 4 | 2 | 7 | 2 |
-| 5 | — | 7 | 2 |
-| 6 | 1, 2 | 7 | 3 |
-| 7 | 3, 4, 5, 6 | 8, 9 | 3 |
-| 8 | 5 | 9 | 3 |
-| 9 | 7, 8 | F1-F4 | 3 |
+| Task | Depends On | Blocks     | Wave |
+| ---- | ---------- | ---------- | ---- |
+| 1    | —          | 3, 6       | 1    |
+| 2    | —          | 3, 4, 6, 7 | 1    |
+| 3    | 1, 2       | 7          | 2    |
+| 4    | 2          | 7          | 2    |
+| 5    | —          | 7          | 2    |
+| 6    | 1, 2       | 7          | 3    |
+| 7    | 3, 4, 5, 6 | 8, 9       | 3    |
+| 8    | 5          | 9          | 3    |
+| 9    | 7, 8       | F1-F4      | 3    |
 
 ### Agent Dispatch Summary
 
@@ -677,7 +698,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
     - Минималистичный стиль: аватар слева, login справа
     - Если это свой профиль (isOwnProfile) — показать визуальный индикатор (напр. текст «Мой профиль»)
   - Создать `frontend/src/pages/profile/components/ProfileStatsBlock.vue`:
-    - Props: `stats: ProfileStatsEntity`  (тип из сгенерированного API после Task 1)
+    - Props: `stats: ProfileStatsEntity` (тип из сгенерированного API после Task 1)
     - Рендерит блок статистики:
       - Общее количество записей (totalRecords)
       - Количество по категориям (recordsByGenre) — маленькие бейджи или числа с подписями
@@ -764,6 +785,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
       6. Общее пустое состояние с иллюстрацией если нет записей вообще (сохранить текущие иллюстрации /images/muh.webp и /images/aga.webp)
     - Различать «свой профиль» vs «чужой» для текстов пустых состояний
   - Переписать `frontend/src/pages/profile/ProfilePage.vue` как thin wrapper:
+
     ```vue
     <script setup lang="ts">
     import ProfilePageContent from './components/ProfilePageContent.vue'
@@ -773,6 +795,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
       <ProfilePageContent />
     </template>
     ```
+
   - Удалить всё старое содержимое ProfilePage.vue (весь текущий код)
 
   **Must NOT do**:
@@ -944,7 +967,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 
   **QA Scenarios (MANDATORY):**
 
-  ```
+  ````
   Scenario: AuctionCard avatar is wrapped in RouterLink
     Tool: Bash (grep)
     Preconditions: Task 8 код применён
@@ -1032,7 +1055,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
       2. cd frontend && bun run build
     Expected Result: exit code 0
     Evidence: .sisyphus/evidence/task-8-build.txt
-  ```
+  ````
 
   **Commit**: YES
   - Message: `feat(frontend): make avatars clickable across app (closes #195)`
@@ -1118,40 +1141,41 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 
 - [x] F1. **Plan Compliance Audit** — `oracle`
-  Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, curl endpoint, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
-  Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
+      Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, curl endpoint, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
+      Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
 - [x] F2. **Code Quality Review** — `unspecified-high`
-  Run `bun build` + `bun lint` + `bun format:check`. Review all changed files for: `as any`/`@ts-ignore`, empty catches, console.log in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names (data/result/item/temp). Verify ProfilePage.vue is ≤10 lines. Verify no duplicated card markup.
-  Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Format [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
+      Run `bun build` + `bun lint` + `bun format:check`. Review all changed files for: `as any`/`@ts-ignore`, empty catches, console.log in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names (data/result/item/temp). Verify ProfilePage.vue is ≤10 lines. Verify no duplicated card markup.
+      Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Format [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
 
 - [x] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill if UI)
-  Start from clean state. Create JWT cookie using "Auth Setup for QA" instructions from Verification Strategy section. Create QA test user via Prisma upsert (see same section). Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration (navigation avatar → profile → tabs → stats). Test edge cases: non-existent user, empty profile, all tabs empty. Save to `.sisyphus/evidence/final-qa/`.
-  Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`
+      Start from clean state. Create JWT cookie using "Auth Setup for QA" instructions from Verification Strategy section. Create QA test user via Prisma upsert (see same section). Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration (navigation avatar → profile → tabs → stats). Test edge cases: non-existent user, empty profile, all tabs empty. Save to `.sisyphus/evidence/final-qa/`.
+      Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`
 
 - [x] F4. **Scope Fidelity Check** — `deep`
-  For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Detect cross-task contamination: Task N touching Task M's files. Flag unaccounted changes.
-  Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
+      For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Detect cross-task contamination: Task N touching Task M's files. Flag unaccounted changes.
+      Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
 
 ---
 
 ## Commit Strategy
 
-| # | Message | Files | Pre-commit check |
-|---|---------|-------|-----------------|
-| 1 | `feat(backend): add profile stats endpoint` | user.service.ts, user.controller.ts, profile-stats.entity.ts | `cd backend && bun run build` |
-| 2 | `refactor(frontend): extract profile utilities` | utils/date.ts, use-table-select.ts | `bun lint` |
-| 3 | `refactor(frontend): extract profile composable and components` | use-profile.ts, ProfileRecordCard.vue, ProfilePageContent.vue, ProfilePage.vue | `cd frontend && bun run build` |
-| 4 | `feat(frontend): add profile routing with :login param` | router-paths.ts, router.ts | `cd frontend && bun run build` |
-| 5 | `feat(frontend): add profile header, stats and genre tabs` | ProfileHeader.vue, ProfileStatsBlock.vue, ProfilePageContent.vue | `cd frontend && bun run build` |
-| 6 | `feat(frontend): make avatars clickable across app (closes #195)` | AuctionCard.vue, SuggestionCard.vue, QueueCard.vue, AdminPage.vue | `bun lint && bun format:check` |
-| 7 | `chore: lint and format` | * | `bun build` |
+| #   | Message                                                           | Files                                                                          | Pre-commit check               |
+| --- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------ |
+| 1   | `feat(backend): add profile stats endpoint`                       | user.service.ts, user.controller.ts, profile-stats.entity.ts                   | `cd backend && bun run build`  |
+| 2   | `refactor(frontend): extract profile utilities`                   | utils/date.ts, use-table-select.ts                                             | `bun lint`                     |
+| 3   | `refactor(frontend): extract profile composable and components`   | use-profile.ts, ProfileRecordCard.vue, ProfilePageContent.vue, ProfilePage.vue | `cd frontend && bun run build` |
+| 4   | `feat(frontend): add profile routing with :login param`           | router-paths.ts, router.ts                                                     | `cd frontend && bun run build` |
+| 5   | `feat(frontend): add profile header, stats and genre tabs`        | ProfileHeader.vue, ProfileStatsBlock.vue, ProfilePageContent.vue               | `cd frontend && bun run build` |
+| 6   | `feat(frontend): make avatars clickable across app (closes #195)` | AuctionCard.vue, SuggestionCard.vue, QueueCard.vue, AdminPage.vue              | `bun lint && bun format:check` |
+| 7   | `chore: lint and format`                                          | \*                                                                             | `bun build`                    |
 
 ---
 
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 bun build                    # Expected: exits 0
 bun lint                     # Expected: exits 0
@@ -1160,6 +1184,7 @@ cd backend && bun run build  # Expected: exits 0
 ```
 
 ### Final Checklist
+
 - [ ] All "Must Have" present
 - [ ] All "Must NOT Have" absent
 - [ ] ProfilePage.vue ≤10 строк

@@ -71,7 +71,6 @@ export class RecordUpdateDTO {
   @IsOptional()
   @IsEnum(RecordType)
   type?: RecordType
-
 }
 
 export class RecordGetDTO {

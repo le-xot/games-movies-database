@@ -9,7 +9,11 @@ import { PrismaLimitRepository } from './repositories/prisma-limit.repository'
 @Module({
   imports: [PrismaModule, UserModule],
   controllers: [LimitController],
-  providers: [LimitService, { provide: LimitRepository, useClass: PrismaLimitRepository }, PrismaLimitRepository],
+  providers: [
+    LimitService,
+    { provide: LimitRepository, useClass: PrismaLimitRepository },
+    PrismaLimitRepository,
+  ],
   exports: [LimitService],
 })
 export class LimitModule {}

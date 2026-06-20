@@ -3,15 +3,16 @@
 ## TL;DR
 
 > **Quick Summary**: Декаплинг бизнес-логики NestJS бекенда от Prisma ORM через введение Repository + Entity паттерна. 9 сервисов переводятся на абстрактные репозитории с Prisma-адаптерами, $Enums заменяются на app-level enum-ы, добавляется тестовая инфраструктура (bun test).
-> 
+>
 > **Deliverables**:
+>
 > - App-level enum-ы, полностью заменяющие @prisma/client $Enums во всём бекенде
 > - Domain entities (plain TypeScript interfaces) для каждого агрегата
 > - Repository абстрактные классы + Prisma-реализации для 9 модулей
 > - Transaction callback механизм для 3 транзакционных сервисов
 > - Тестовая инфраструктура (bun test) + unit-тесты для всех 9 сервисов
 > - Все сервисы зависят от абстракций, не от PrismaService
-> 
+>
 > **Estimated Effort**: Large
 > **Parallel Execution**: YES — 4 waves
 > **Critical Path**: Task 1 → Task 2 → Task 3 → Tasks 4-6 → Tasks 7-9 → Tasks 10-12 → Task 13 → F1-F4
@@ -21,10 +22,13 @@
 ## Context
 
 ### Original Request
+
 Переписать бекенд на Entity и Repository паттерн. Будущая цель — замена Prisma на TypeORM или Drizzle без изменения бизнес-логики. Сейчас менять ORM не нужно — нужна абстракция.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - **Уровень абстракции**: Repository + Entity (plain interfaces), не полный DDD/Clean Architecture
 - **Транзакции**: Transaction callback — `repository.transaction(async (repos) => { ... })`
 - **Enums**: Заменить $Enums из @prisma/client на свои enum-ы, расширив enums.names.ts
@@ -33,17 +37,20 @@
 - **Тест-фреймворк**: bun test (встроенный, zero-config)
 
 **Research Findings**:
+
 - 9 сервисов напрямую зависят от PrismaService (limit, queue, like, spotify, records-providers, suggestion, record, user, auction)
 - 3 транзакционные точки: auction (callback), suggestion и user (array-style → конвертировать в callback)
 - ~22 файла импортируют $Enums или типы из @prisma/client
 - Нет Prisma middleware, extensions или raw SQL — чистый декаплинг возможен
-- Существующие *.entity.ts файлы — это Swagger response shapes, НЕ доменные сущности
+- Существующие \*.entity.ts файлы — это Swagger response shapes, НЕ доменные сущности
 - enums.names.ts содержит только строковые идентификаторы для Swagger, не сами enum-ы
 - RecordService.deleteRecord() делает like.deleteMany + record.delete БЕЗ транзакции (латентный баг)
 
 ### Metis Review
+
 **Identified Gaps (addressed)**:
-- **Naming collision**: Существующие *.entity.ts (Swagger shapes) vs новые domain entities → domain interfaces в подпапке entities/, существующие файлы не переименовывать
+
+- **Naming collision**: Существующие \*.entity.ts (Swagger shapes) vs новые domain entities → domain interfaces в подпапке entities/, существующие файлы не переименовывать
 - **DI strategy**: NestJS не рефлектит interfaces → использовать abstract classes для repository contracts
 - **Enum values must match**: App-level enum-ы должны иметь идентичные строковые значения с Prisma enum-ами для сохранения Swagger контракта
 - **ThirdPartService enum**: Отсутствует в enums.names.ts → добавить
@@ -56,9 +63,11 @@
 ## Work Objectives
 
 ### Core Objective
+
 Декаплинг бизнес-логики бекенда от Prisma ORM через Repository + Entity pattern, чтобы в будущем можно было заменить Prisma на другую ORM без изменения сервисов.
 
 ### Concrete Deliverables
+
 - `backend/src/enums/*.enum.ts` — 7 enum файлов (UserRole, RecordStatus, RecordType, RecordGenre, RecordGrade, LimitType, ThirdPartService)
 - `backend/src/modules/*/entities/*.entity.ts` — domain interfaces для каждого модуля
 - `backend/src/modules/*/repositories/*.repository.ts` — abstract classes (контракты)
@@ -68,6 +77,7 @@
 - Обновление 9 модулей: DI wiring через `{ provide: XRepository, useClass: PrismaXRepository }`
 
 ### Definition of Done
+
 - [ ] `bun run build` в backend проходит без ошибок
 - [ ] `bun test` в backend — все тесты проходят
 - [ ] Ни один сервис (из 9 целевых) не импортирует PrismaService напрямую
@@ -75,6 +85,7 @@
 - [ ] Swagger `/docs-json` output идентичен до и после рефакторинга (enum values не изменились)
 
 ### Must Have
+
 - Абстрактные классы репозиториев (не interfaces) для совместимости с NestJS DI
 - App-level string enum-ы с идентичными значениями Prisma enum-ам
 - Transaction callback для auction, suggestion, user сервисов
@@ -83,6 +94,7 @@
 - Каждый коммит независимо деплоим (`bun run build` проходит)
 
 ### Must NOT Have (Guardrails)
+
 - ❌ Изменение модулей без Prisma (img, twitch, jwt, twir, weather) — **исключения**: файлы auth и websocket модулей, которые используют $Enums, можно менять ТОЛЬКО для замены $Enums на app-level enum (Task 2) и для исправления DI аномалии в auth.module.ts (Task 13). Никакие другие изменения в auth/ws не допускаются.
 - ❌ Изменение seed.js или миграций
 - ❌ Изменение frontend кода или api.ts
@@ -93,7 +105,7 @@
 - ❌ Использование `const enum` (не совместим с IsEnum() и includes())
 - ❌ Добавление логирования, валидации или error handling сверх существующего
 - ❌ Создание центрального RepositoriesModule — репозитории привязаны к своим модулям
-- ❌ Переименование существующих *.entity.ts файлов (Swagger shapes)
+- ❌ Переименование существующих \*.entity.ts файлов (Swagger shapes)
 - ❌ Использование @nestjs/testing Test.createTestingModule() — совместимость с bun не гарантирована
 
 ---
@@ -103,12 +115,14 @@
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO → будет создана в Task 1
 - **Automated tests**: YES (Test-first: write tests BEFORE refactoring each service)
 - **Framework**: bun test (built-in)
 - **Approach**: Mock dependencies → test current behavior → refactor → same tests pass with mock repositories
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios.
 Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
@@ -152,22 +166,22 @@ Wave FINAL (After ALL tasks):
 
 ### Dependency Matrix
 
-| Task | Depends On | Blocks | Wave |
-|------|-----------|--------|------|
-| 1 | — | 4-12 | 1 |
-| 2 | — | 3-12 | 1 |
-| 3 | 2 | 4-12 | 1 |
-| 4 | 1, 3 | 13 | 2 |
-| 5 | 1, 3 | 13 | 2 |
-| 6 | 1, 3 | 13 | 2 |
-| 7 | 1, 3 | 13 | 3 |
-| 8 | 1, 3 | 13 | 3 |
-| 9 | 1, 3, 8 | 13 | 3 |
-| 10 | 1, 3 | 13 | 3 |
-| 11 | 1, 3 | 13 | 3 |
-| 12 | 1, 3 | 13 | 3 |
-| 13 | 4-12 | F1-F4 | Final |
-| F1-F4 | 13 | — | Final |
+| Task  | Depends On | Blocks | Wave  |
+| ----- | ---------- | ------ | ----- |
+| 1     | —          | 4-12   | 1     |
+| 2     | —          | 3-12   | 1     |
+| 3     | 2          | 4-12   | 1     |
+| 4     | 1, 3       | 13     | 2     |
+| 5     | 1, 3       | 13     | 2     |
+| 6     | 1, 3       | 13     | 2     |
+| 7     | 1, 3       | 13     | 3     |
+| 8     | 1, 3       | 13     | 3     |
+| 9     | 1, 3, 8    | 13     | 3     |
+| 10    | 1, 3       | 13     | 3     |
+| 11    | 1, 3       | 13     | 3     |
+| 12    | 1, 3       | 13     | 3     |
+| 13    | 4-12       | F1-F4  | Final |
+| F1-F4 | 13         | —      | Final |
 
 ### Agent Dispatch Summary
 
@@ -219,7 +233,6 @@ Wave FINAL (After ALL tasks):
   - Bun test docs — to understand bun's built-in test API (describe/it/expect/mock) which differs from jest
 
   **Acceptance Criteria**:
-
   - [ ] `backend/package.json` has `"test": "bun test"` script
   - [ ] `backend/src/__tests__/helpers/mock-factory.ts` exists with createMock function
   - [ ] `bun test` in backend directory → PASS (1 test, 0 failures)
@@ -311,7 +324,6 @@ Wave FINAL (After ALL tasks):
   - `enums.names.ts` — existing pattern for Swagger enum naming, must be consistent
 
   **Acceptance Criteria**:
-
   - [ ] 7 enum files created in `backend/src/enums/`
   - [ ] `backend/src/enums/index.ts` barrel export exists
   - [ ] `bun run build` in backend → no errors
@@ -375,25 +387,27 @@ Wave FINAL (After ALL tasks):
   - All domain interfaces use app-level enums (from Task 2), NOT @prisma/client types
   - Field names and types must match Prisma schema 1:1 (same names, same optionality)
   - Create `RecordFilterOptions` in record entities — domain-level filter type to replace `Prisma.RecordWhereInput`:
+
     ```typescript
     export interface RecordFilterOptions {
-      search?: string; // case-insensitive search on title and user login
-      status?: RecordStatus;
-      type?: RecordType;
-      grade?: RecordGrade;
-      genre?: RecordGenre;
-      userId?: string;
+      search?: string // case-insensitive search on title and user login
+      status?: RecordStatus
+      type?: RecordType
+      grade?: RecordGrade
+      genre?: RecordGenre
+      userId?: string
     }
 
     export interface RecordSortOptions {
-      orderBy?: 'title' | 'id';
-      direction?: 'asc' | 'desc';
+      orderBy?: 'title' | 'id'
+      direction?: 'asc' | 'desc'
     }
     ```
+
   - Create `TransactionContext` interface in `backend/src/database/transaction.interface.ts`:
     ```typescript
     export interface TransactionManager {
-      transaction<T>(fn: (ctx: TransactionContext) => Promise<T>): Promise<T>;
+      transaction<T>(fn: (ctx: TransactionContext) => Promise<T>): Promise<T>
     }
     ```
     The concrete `TransactionContext` will provide access to transactional repository instances — exact shape defined per-module during Tasks 9-12.
@@ -401,7 +415,7 @@ Wave FINAL (After ALL tasks):
 
   **Must NOT do**:
   - Add @ApiProperty() decorators to domain interfaces
-  - Rename or modify existing *.entity.ts files (Swagger response shapes)
+  - Rename or modify existing \*.entity.ts files (Swagger response shapes)
   - Create repository implementations yet (those come in Tasks 4-12)
   - Create a base/generic repository class
 
@@ -433,7 +447,6 @@ Wave FINAL (After ALL tasks):
   - App enums — domain entities must use app enums, not Prisma types
 
   **Acceptance Criteria**:
-
   - [ ] Domain entity interfaces created for: Limit, Like, SpotifyToken, SuggestionRules, Record (+ RecordWithRelations + RecordFilterOptions + RecordSortOptions), User (+ ProfileStats), AuctionHistory
   - [ ] All domain entities use app-level enums from `@/enums`
   - [ ] `TransactionManager` interface created in `backend/src/database/transaction.interface.ts`
@@ -521,7 +534,6 @@ Wave FINAL (After ALL tasks):
   - `mock-factory.ts` — create typed mocks for tests
 
   **Acceptance Criteria**:
-
   - [ ] `limit.service.spec.ts` exists with tests for changeLimit()
   - [ ] `LimitRepository` abstract class with `update()` method
   - [ ] `PrismaLimitRepository` implements LimitRepository
@@ -607,7 +619,6 @@ Wave FINAL (After ALL tasks):
   - Task 4 repository — follow the established pattern
 
   **Acceptance Criteria**:
-
   - [ ] `queue.service.spec.ts` exists with tests for getQueue()
   - [ ] `QueueRepository` abstract class with findQueueRecords()
   - [ ] `PrismaQueueRepository` implements QueueRepository
@@ -695,7 +706,6 @@ Wave FINAL (After ALL tasks):
   - `websocket.events.ts` — event names and payloads must remain identical after refactoring
 
   **Acceptance Criteria**:
-
   - [ ] `like.service.spec.ts` with tests for createLike, deleteLike, getLikes, getLikesCount
   - [ ] `LikeRepository` abstract class with 6 methods
   - [ ] `PrismaLikeRepository` implements LikeRepository
@@ -781,7 +791,6 @@ Wave FINAL (After ALL tasks):
   - `spotify-queue.service.ts` — confirm it doesn't need changes (no Prisma)
 
   **Acceptance Criteria**:
-
   - [ ] `spotify.service.spec.ts` with tests for bootstrap, callback, refreshToken
   - [ ] `SpotifyTokenRepository` abstract class with findByService/upsert/update
   - [ ] SpotifyService depends on SpotifyTokenRepository (not PrismaService)
@@ -860,7 +869,6 @@ Wave FINAL (After ALL tasks):
   - External API calls are NOT being changed — only DB access layer
 
   **Acceptance Criteria**:
-
   - [ ] `records-providers.service.spec.ts` with tests for duplicate check and rules validation
   - [ ] `RecordsProvidersRepository` abstract class with findRecordByLinkAndGenre/findSuggestionRulesByGenre
   - [ ] RecordsProvidersService depends on RecordsProvidersRepository (not PrismaService)
@@ -947,7 +955,6 @@ Wave FINAL (After ALL tasks):
   - Transaction interface — follow established pattern for transactional repository methods
 
   **Acceptance Criteria**:
-
   - [ ] `suggestion.service.spec.ts` with tests for create, list, delete (including transaction verification)
   - [ ] `SuggestionRepository` abstract class with 6 methods including transactional deleteSuggestionWithLikes
   - [ ] Array-style $transaction converted to callback-style in PrismaSuggestionRepository
@@ -1041,7 +1048,6 @@ Wave FINAL (After ALL tasks):
   - Event types — many different events emitted based on status/type transitions
 
   **Acceptance Criteria**:
-
   - [ ] `record.service.spec.ts` with tests for all CRUD operations
   - [ ] `RecordRepository` abstract class with 6 methods
   - [ ] `PrismaRecordRepository` translates RecordFilterOptions → Prisma.RecordWhereInput internally
@@ -1137,7 +1143,6 @@ Wave FINAL (After ALL tasks):
   - `profile-stats.entity.ts` — existing Swagger shape that ProfileStatsDomain must mirror
 
   **Acceptance Criteria**:
-
   - [ ] `user.service.spec.ts` with tests for upsert, create, delete (cascade + transaction), getProfileStats (aggregation)
   - [ ] `UserRepository` abstract class with 8 methods including deleteWithCascade and getProfileStats
   - [ ] Array-style $transaction converted to callback-style in PrismaUserRepository
@@ -1228,7 +1233,6 @@ Wave FINAL (After ALL tasks):
   - Task 9 repository — follow established transaction-in-repository pattern
 
   **Acceptance Criteria**:
-
   - [ ] `auction.service.spec.ts` with tests for getAuctions and getWinner (transaction)
   - [ ] `AuctionRepository` abstract class with findAuctions/selectWinner
   - [ ] Callback-style transaction preserved in PrismaAuctionRepository.selectWinner
@@ -1301,7 +1305,6 @@ Wave FINAL (After ALL tasks):
   - `app.module.ts` — verify nothing is broken in root module
 
   **Acceptance Criteria**:
-
   - [ ] AuthModule no longer provides PrismaService directly
   - [ ] No service file (outside repositories/ and database/) imports PrismaService
   - [ ] No file outside repositories/ and database/ imports from @prisma/client (except seed.js)
@@ -1412,6 +1415,7 @@ Wave FINAL (After ALL tasks):
   Start backend with `cd backend && bun dev:backend`. Ensure DB is seeded (admin user from `TWITCH_ADMIN_ID` / `TWITCH_ADMIN_LOGIN` env vars).
 
   **Authentication setup**: Generate a JWT token deterministically using `bun` and the backend's `JWT_SECRET` env var. The JWT payload must be `{ id: "<TWITCH_ADMIN_ID>" }` (matching the seeded admin user). Use `jsonwebtoken` or the backend's own JwtService:
+
   ```bash
   # Generate JWT for the seeded admin user using bun
   TOKEN=$(cd backend && bun -e "
@@ -1520,27 +1524,28 @@ Wave FINAL (After ALL tasks):
 
 ## Commit Strategy
 
-| Task | Commit Message | Files | Pre-commit Check |
-|------|---------------|-------|-----------------|
-| 1 | `feat(backend): add bun test infrastructure` | package.json, test helpers | `bun test` runs |
-| 2 | `refactor(backend): replace prisma $Enums with app-level enums` | enums/*.enum.ts, ~22 files | `bun run build` |
-| 3 | `feat(backend): add domain entities and base repository pattern` | entities/, repositories/ | `bun run build` |
-| 4 | `refactor(backend): extract LimitRepository and decouple limit service` | limit module | `bun test && bun run build` |
-| 5 | `refactor(backend): extract QueueRepository and decouple queue service` | queue module | `bun test && bun run build` |
-| 6 | `refactor(backend): extract LikeRepository and decouple like service` | like module | `bun test && bun run build` |
-| 7 | `refactor(backend): extract SpotifyTokenRepository and decouple spotify service` | spotify module | `bun test && bun run build` |
-| 8 | `refactor(backend): extract RecordsProvidersRepository and decouple service` | records-providers module | `bun test && bun run build` |
-| 9 | `refactor(backend): extract SuggestionRepository with transaction support` | suggestion module | `bun test && bun run build` |
-| 10 | `refactor(backend): extract RecordRepository with filter abstraction` | record module | `bun test && bun run build` |
-| 11 | `refactor(backend): extract UserRepository with aggregation and transaction` | user module | `bun test && bun run build` |
-| 12 | `refactor(backend): extract AuctionRepository with callback transaction` | auction module | `bun test && bun run build` |
-| 13 | `chore(backend): cleanup PrismaModule imports and fix AuthModule DI` | module files | `bun test && bun run build` |
+| Task | Commit Message                                                                   | Files                       | Pre-commit Check            |
+| ---- | -------------------------------------------------------------------------------- | --------------------------- | --------------------------- |
+| 1    | `feat(backend): add bun test infrastructure`                                     | package.json, test helpers  | `bun test` runs             |
+| 2    | `refactor(backend): replace prisma $Enums with app-level enums`                  | enums/\*.enum.ts, ~22 files | `bun run build`             |
+| 3    | `feat(backend): add domain entities and base repository pattern`                 | entities/, repositories/    | `bun run build`             |
+| 4    | `refactor(backend): extract LimitRepository and decouple limit service`          | limit module                | `bun test && bun run build` |
+| 5    | `refactor(backend): extract QueueRepository and decouple queue service`          | queue module                | `bun test && bun run build` |
+| 6    | `refactor(backend): extract LikeRepository and decouple like service`            | like module                 | `bun test && bun run build` |
+| 7    | `refactor(backend): extract SpotifyTokenRepository and decouple spotify service` | spotify module              | `bun test && bun run build` |
+| 8    | `refactor(backend): extract RecordsProvidersRepository and decouple service`     | records-providers module    | `bun test && bun run build` |
+| 9    | `refactor(backend): extract SuggestionRepository with transaction support`       | suggestion module           | `bun test && bun run build` |
+| 10   | `refactor(backend): extract RecordRepository with filter abstraction`            | record module               | `bun test && bun run build` |
+| 11   | `refactor(backend): extract UserRepository with aggregation and transaction`     | user module                 | `bun test && bun run build` |
+| 12   | `refactor(backend): extract AuctionRepository with callback transaction`         | auction module              | `bun test && bun run build` |
+| 13   | `chore(backend): cleanup PrismaModule imports and fix AuthModule DI`             | module files                | `bun test && bun run build` |
 
 ---
 
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 cd backend && bun run build    # Expected: no errors
 cd backend && bun test         # Expected: all tests pass
@@ -1550,6 +1555,7 @@ diff .sisyphus/evidence/swagger-baseline.json /tmp/swagger-after.json  # Expecte
 ```
 
 ### Final Checklist
+
 - [ ] All "Must Have" present
 - [ ] All "Must NOT Have" absent
 - [ ] `bun run build` passes

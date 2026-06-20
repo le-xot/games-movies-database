@@ -5,8 +5,8 @@ import {
   Logger,
   OnApplicationBootstrap,
 } from '@nestjs/common'
-import { ThirdPartService } from '@/enums'
 import { SpotifyClient } from '@soundify/web-api'
+import { ThirdPartService } from '@/enums'
 import { env } from '@/utils/enviroments'
 import { SpotifyTokenRepository } from './repositories/spotify-token.repository'
 

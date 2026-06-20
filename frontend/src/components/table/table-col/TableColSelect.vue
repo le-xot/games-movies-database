@@ -23,12 +23,17 @@ const selectValue = toRef(props, 'value')
 const isOpen = ref(false)
 const { isAdmin } = storeToRefs(useUser())
 
-const { isEdit, handleOpen, handleClose, handleUpdateValue } = useTableCol<T | undefined>(selectValue as Ref<T | undefined>, emits)
+const { isEdit, handleOpen, handleClose, handleUpdateValue } = useTableCol<T | undefined>(
+  selectValue as Ref<T | undefined>,
+  emits,
+)
 
 const id = useId()
 const select = useTableSelect()
 const data = computed(() => {
-  const tag = select[`${props.kind}Tags`]?.[selectValue.value as RecordStatus & RecordGrade & RecordGenre] as BadgeOptions
+  const tag = select[`${props.kind}Tags`]?.[
+    selectValue.value as RecordStatus & RecordGrade & RecordGenre
+  ] as BadgeOptions
   return {
     tag: tag ?? null,
     options: select.options[props.kind],

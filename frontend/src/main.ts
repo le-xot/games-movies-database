@@ -17,7 +17,7 @@ if (oldVisibility !== null) {
   localStorage.removeItem('columnsVisibility')
 }
 
-const APP_VERSION = '3.1.0'
+const APP_VERSION = '3.2.0'
 const STORAGE_VERSION_KEY = 'app_version'
 
 const KEYS_TO_CLEAR = [

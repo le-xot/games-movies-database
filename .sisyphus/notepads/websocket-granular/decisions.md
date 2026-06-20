@@ -1,6 +1,7 @@
 # Decisions — websocket-granular
 
 ## [2026-04-04] Architecture Decisions
+
 - Payloads only: no surgical cache updates, no room-based broadcasting, no event name changes
 - Payload shape: entity ID + action. update-records also keeps genre.
 - Coalescing: frontend-side debounce at store/refetch-target level (not event level)

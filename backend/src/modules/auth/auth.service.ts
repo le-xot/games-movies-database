@@ -31,10 +31,14 @@ export class AuthService {
     const autorizationCode = await this.twitch.getAuthorizationCode(code)
     const twitchUser = await this.twitch.getTwitchUser(autorizationCode)
 
-    await this.userService.upsertUser(twitchUser.id, {
-      login: twitchUser.login,
-      profileImageUrl: twitchUser.profile_image_url,
-    }, 'TWITCH')
+    await this.userService.upsertUser(
+      twitchUser.id,
+      {
+        login: twitchUser.login,
+        profileImageUrl: twitchUser.profile_image_url,
+      },
+      'TWITCH',
+    )
 
     const user = await this.userService.getUserByPlatformId('TWITCH', twitchUser.id)
     if (!user) {
@@ -51,10 +55,14 @@ export class AuthService {
     const accessToken = await this.kick.getAuthorizationCode(code, codeVerifier)
     const kickUser = await this.kick.getKickUser(accessToken)
 
-    await this.userService.upsertUser(kickUser.user_id.toString(), {
-      login: kickUser.name,
-      profileImageUrl: kickUser.profile_picture,
-    }, 'KICK')
+    await this.userService.upsertUser(
+      kickUser.user_id.toString(),
+      {
+        login: kickUser.name,
+        profileImageUrl: kickUser.profile_picture,
+      },
+      'KICK',
+    )
 
     const user = await this.userService.getUserByPlatformId('KICK', kickUser.user_id.toString())
     if (!user) {

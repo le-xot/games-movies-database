@@ -5,6 +5,7 @@
 > **Quick Summary**: Добавить loading-индикаторы в два момента Twitch OAuth флоу, где пользователь видит чёрный экран: на кнопке "Логин" при редиректе и на странице callback пока идёт API-запрос.
 >
 > **Deliverables**:
+>
 > - Кнопка "Логин" показывает спиннер и становится disabled при нажатии
 > - Страница `/auth/callback` показывает спиннер вместо пустого экрана во время обработки
 >
@@ -17,16 +18,21 @@
 ## Context
 
 ### Original Request
+
 Пользователь видит чёрный экран в двух моментах при логине через Twitch:
+
 1. После нажатия кнопки "Логин" — пока браузер редиректит на `/api/auth/twitch`
 2. На странице `/auth/callback` — пока идёт API-запрос `userLogin({ code })`
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - Пользователь подтвердил, что оба момента нужно исправить
 - Задача чисто фронтенд — бэкенд изменений не нужно
 
 **Research Findings**:
+
 - `Loader2Icon` + `animate-spin` — устоявшийся паттерн спиннера в проекте (`Sonner.vue:44-47`)
 - `AdminPage.vue` использует `isLoading` ref паттерн с `"Загрузка..."` текстом
 - В проекте нет shared LoadingSpinner компонента — спиннеры инлайнятся
@@ -34,12 +40,16 @@
 - `AuthCallback.vue` template полностью пуст во время загрузки — рендерится только `v-if="error"`
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - Early return paths в `AuthCallback.vue` (`loginError` и `"Incorrect code"`) не сбрасывают loading — нужно обработать
 - Двойной клик по кнопке — решается через `disabled` состояние
 
 ### Momus Review (Round 1)
+
 **Blocking Issues** (fixed):
+
 - Task 1: `window.location.href` вызывает навигацию до рендера спиннера — добавлен `await nextTick()` перед редиректом + мок роута в QA
 - Task 2: API клиент (`api.ts:413`) бросает `HttpResponse` объект, не `Error` — catch блок расширен для обработки обоих типов
 
@@ -48,24 +58,29 @@
 ## Work Objectives
 
 ### Core Objective
+
 Устранить чёрный экран при Twitch OAuth флоу, добавив визуальные индикаторы загрузки.
 
 ### Concrete Deliverables
+
 - `frontend/src/components/form/LoginForm.vue` — кнопка с loading-спиннером
 - `frontend/src/pages/auth/AuthCallback.vue` — страница с loading-спиннером
 
 ### Definition of Done
+
 - [x] `bun build` завершается без ошибок
 - [x] `bun lint` проходит без новых предупреждений
 - [x] Кнопка "Логин" показывает спиннер и disabled при нажатии
 - [x] Страница callback показывает спиннер вместо пустого экрана
 
 ### Must Have
+
 - Spinner icon (`Loader2Icon` + `animate-spin`) — проектный паттерн
 - Disabled состояние кнопки во время loading
 - Обработка всех early return paths в AuthCallback (loginError, incorrect code)
 
 ### Must NOT Have (Guardrails)
+
 - НЕ создавать shared `LoadingSpinner.vue` компонент — инлайнить спиннер
 - НЕ модифицировать `Button.vue` / `button/index.ts` — не добавлять loading prop
 - НЕ модифицировать `DataTable.vue` или его `isLoading` prop
@@ -82,11 +97,13 @@
 > **ZERO HUMAN INTERVENTION** — ALL verification is agent-executed. No exceptions.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **Automated tests**: None
 - **Framework**: none
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios.
 Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
@@ -117,11 +134,11 @@ Max Concurrent: 2
 ### Dependency Matrix
 
 | Task | Depends On | Blocks |
-|------|-----------|--------|
-| 1    | —         | F1, F2 |
-| 2    | —         | F1, F2 |
-| F1   | 1, 2      | —      |
-| F2   | 1, 2      | —      |
+| ---- | ---------- | ------ |
+| 1    | —          | F1, F2 |
+| 2    | —          | F1, F2 |
+| F1   | 1, 2       | —      |
+| F2   | 1, 2       | —      |
 
 ### Agent Dispatch Summary
 
@@ -361,16 +378,16 @@ Max Concurrent: 2
 > 2 review tasks run in PARALLEL. Both must pass.
 
 - [x] F1. **Build & Lint Verification** — `quick`
-  Run `bun build` and `bun lint` from project root. Both must pass with zero errors/warnings on modified files. Also run `lsp_diagnostics` on both modified files.
-  Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Types [PASS/FAIL] | VERDICT`
+      Run `bun build` and `bun lint` from project root. Both must pass with zero errors/warnings on modified files. Also run `lsp_diagnostics` on both modified files.
+      Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Types [PASS/FAIL] | VERDICT`
 
 - [x] F2. **Visual QA** — `quick` (+ `playwright` skill)
-  Start dev server, test both loading states visually:
+      Start dev server, test both loading states visually:
   1. Intercept `/api/auth/twitch` route with pending delay (`await new Promise(() => {})`) → navigate to app logged out → trigger click on "Логин" (fire-and-forget, no await navigation) → verify spinner appears on button and button is disabled → screenshot
   2. Navigate to `/auth/callback?code=test` → verify spinner is shown → verify error displays after API fails
   3. Navigate to `/auth/callback?error=access_denied` → verify error is shown (no infinite spinner)
-  Screenshot evidence for each scenario.
-  Output: `Scenarios [N/N pass] | VERDICT`
+     Screenshot evidence for each scenario.
+     Output: `Scenarios [N/N pass] | VERDICT`
 
 ---
 
@@ -384,12 +401,14 @@ Max Concurrent: 2
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 bun build       # Expected: zero errors
 bun lint        # Expected: zero new warnings
 ```
 
 ### Final Checklist
+
 - [x] Кнопка "Логин" показывает Loader2Icon спиннер при нажатии
 - [x] Кнопка disabled во время loading (блокирует повторные клики)
 - [x] AuthCallback показывает центрированный спиннер во время загрузки

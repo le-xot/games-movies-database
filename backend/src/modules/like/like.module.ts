@@ -10,10 +10,7 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
 
 @Module({
   imports: [PrismaModule, UserModule, RecordModule, WebsocketModule],
-  providers: [
-    LikeService,
-    { provide: LikeRepository, useClass: PrismaLikeRepository },
-  ],
+  providers: [LikeService, { provide: LikeRepository, useClass: PrismaLikeRepository }],
   controllers: [LikeController],
 })
 export class LikeModule {}

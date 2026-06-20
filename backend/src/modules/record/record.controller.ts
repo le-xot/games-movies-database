@@ -62,7 +62,10 @@ export class RecordController {
   @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
-  async patchRecord(@Param('id') id: number, @Body() record: RecordUpdateDTO): Promise<RecordEntity> {
+  async patchRecord(
+    @Param('id') id: number,
+    @Body() record: RecordUpdateDTO,
+  ): Promise<RecordEntity> {
     return await this.recordServices.patchRecord(id, record)
   }
 

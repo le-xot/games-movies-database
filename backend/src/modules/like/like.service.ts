@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import type { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
 import { LikeRepository } from './repositories/like.repository'
+import type { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class LikeService {

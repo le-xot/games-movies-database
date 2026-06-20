@@ -6,7 +6,6 @@ export const useGamesParams = createParamsStore({
   localStorageKey: 'columnsVisibility:games',
   defaultColumnVisibility: {
     title: true,
-    user: true,
     status: true,
     grade: true,
   },

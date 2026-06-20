@@ -7,7 +7,6 @@ export const useCartoonParams = createParamsStore({
   defaultColumnVisibility: {
     title: true,
     episode: true,
-    user: true,
     status: true,
     grade: true,
   },

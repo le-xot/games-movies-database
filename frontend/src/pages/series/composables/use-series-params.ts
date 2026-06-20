@@ -7,7 +7,6 @@ export const useSeriesParams = createParamsStore({
   defaultColumnVisibility: {
     title: true,
     episode: true,
-    user: true,
     status: true,
     grade: true,
   },

@@ -6,7 +6,6 @@ export const useMovieParams = createParamsStore({
   localStorageKey: 'columnsVisibility:movie',
   defaultColumnVisibility: {
     title: true,
-    user: true,
     status: true,
     grade: true,
   },

@@ -1,5 +1,5 @@
-import { ColumnDef, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
 import { Eraser } from '@lucide/vue'
+import { ColumnDef, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
 import { StoreDefinition, defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
@@ -7,7 +7,6 @@ import DialogButton from '@/components/dialog/DialogButton.vue'
 import TableColEpisode from '@/components/table/table-col/TableColEpisode.vue'
 import TableColSelect from '@/components/table/table-col/TableColSelect.vue'
 import TableColTitle from '@/components/table/table-col/TableColTitle.vue'
-import TableColUser from '@/components/table/table-col/TableColUser.vue'
 import TableFilterGrade from '@/components/table/TableFilterGrade.vue'
 import TableFilterStatus from '@/components/table/TableFilterStatus.vue'
 import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api'
@@ -95,25 +94,6 @@ export function createTableStore(config: TableStoreConfig) {
       }
 
       columns.push(
-        {
-          accessorKey: 'user',
-          header: 'Пользователь',
-          size: 20,
-          minSize: 20,
-          maxSize: 20,
-          enableResizing: false,
-          cell: ({ row }) => {
-            return h(TableColUser, {
-              key: `user-${row.original.id}`,
-              userId: row.original.userId,
-              onUpdate: (userId: string | undefined) =>
-                dataStoreInstance.updateRecord({
-                  id: row.original.id,
-                  data: { userId },
-                }),
-            })
-          },
-        },
         {
           accessorKey: 'status',
           header: () => {

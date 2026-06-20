@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { VisibilityState } from '@tanstack/vue-table'
 import { CheckIcon, XIcon } from '@lucide/vue'
+import { VisibilityState } from '@tanstack/vue-table'
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { CommandGroup } from '@/components/ui/command'
@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 const searchValue = defineModel<string>('value', { required: true })
 const columnVisibility = defineModel<VisibilityState>('columnVisibility', { required: true })
-const placeholder = computed(() => 'Искать по названию или пользователю')
+const placeholder = computed(() => 'Искать по названию')
 
 function clearSearch() {
   searchValue.value = ''
@@ -20,7 +20,6 @@ const columnText: Record<string, string> = {
   title: 'Название',
   episode: 'Серии',
   genre: 'Жанр',
-  user: 'Пользователь',
   status: 'Статус',
   grade: 'Оценка',
 }

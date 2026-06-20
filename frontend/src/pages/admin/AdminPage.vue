@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Trash2Icon } from '@lucide/vue'
+import { Trash2Icon, Tv } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
+import { TwitchIcon } from 'vue3-simple-icons'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { UserEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
@@ -29,11 +31,6 @@ const users = ref<UserEntity[]>([])
 const accounts = ref<Record<string, UserAccount[]>>({})
 const isLoading = ref(true)
 
-const platformLabels: Record<string, string> = {
-  TWITCH: 'Twitch',
-  KICK: 'Kick',
-}
-
 onMounted(async () => {
   await fetchUsers()
 })
@@ -54,11 +51,10 @@ async function fetchUsers() {
 async function fetchAllAccounts() {
   const results = await Promise.allSettled(
     users.value.map(async (user) => {
-      const { data } = await api.http.request<UserAccount[], any>({
-        path: `/users/${user.id}/accounts`,
-        method: 'GET',
-      })
-      return { userId: user.id, accounts: data }
+      const { data } = await api.users.userControllerGetUserAccounts(user.id, {
+        format: 'json',
+      } as any)
+      return { userId: user.id, accounts: data as unknown as UserAccount[] }
     }),
   )
   for (const result of results) {
@@ -86,53 +82,60 @@ function deleteUser(userId: string, username: string) {
 </script>
 
 <template>
-  <div class="container">
-    <div class="container__items">
-      <h1 class="text-2xl font-bold mb-6">Админка</h1>
+  <div class="flex flex-col gap-6">
+    <h1 class="text-2xl font-bold">Админка</h1>
 
-      <div v-if="isLoading" class="text-center py-4">Загрузка...</div>
+    <div v-if="isLoading" class="text-center py-8 text-muted-foreground">Загрузка...</div>
 
-      <div v-else class="grid gap-4">
-        <h2 class="text-xl font-semibold mb-2">Пользователи</h2>
+    <template v-else>
+      <h2 class="text-lg font-semibold text-muted-foreground">Пользователи</h2>
 
-        <div class="grid gap-4">
-          <div
-            v-for="user in users"
-            :key="user.id"
-            class="flex items-center justify-between gap-4 p-4 border rounded-md"
-          >
-            <div class="flex items-center gap-4">
-              <Avatar class="size-12">
-                <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
-                <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
-              </Avatar>
-              <div>
-                <div class="font-medium">
-                  {{ user.login }}
-                </div>
-                <div class="flex gap-1.5 mt-1">
-                  <Badge
-                    v-for="account in accounts[user.id]"
-                    :key="account.id"
-                    variant="secondary"
-                    class="text-xs"
-                  >
-                    {{ platformLabels[account.platform] ?? account.platform }}:
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
+        <Card v-for="user in users" :key="user.id">
+          <CardContent class="flex items-center gap-4 pt-6">
+            <Avatar class="size-10 shrink-0">
+              <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
+              <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
+            </Avatar>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-medium truncate">{{ user.login }}</span>
+                <Badge
+                  :variant="user.role === 'ADMIN' ? 'destructive' : 'secondary'"
+                  class="text-xs"
+                >
+                  {{ user.role }}
+                </Badge>
+              </div>
+
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                <template v-for="account in accounts[user.id]" :key="account.id">
+                  <Badge variant="secondary" class="text-xs gap-1">
+                    <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-3" />
+                    <Tv v-else class="size-3" />
                     {{ account.platformLogin }}
                   </Badge>
-                  <span v-if="!accounts[user.id]?.length" class="text-xs text-muted-foreground">
-                    Нет привязанных аккаунтов
-                  </span>
-                </div>
-                <div class="text-xs text-gray-400 mt-1">{{ user.role }} · ID: {{ user.id }}</div>
+                </template>
+                <span v-if="!accounts[user.id]?.length" class="text-xs text-muted-foreground">
+                  Нет привязанных аккаунтов
+                </span>
               </div>
+
+              <div class="text-xs text-muted-foreground mt-2">ID: {{ user.id }}</div>
             </div>
-            <Button variant="destructive" size="icon" @click="deleteUser(user.id, user.login)">
-              <Trash2Icon class="size-4" color="#ffffff" />
+
+            <Button
+              variant="ghost"
+              size="icon"
+              class="shrink-0 text-muted-foreground hover:text-destructive"
+              @click="deleteUser(user.id, user.login)"
+            >
+              <Trash2Icon class="size-4" />
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </template>
   </div>
 </template>

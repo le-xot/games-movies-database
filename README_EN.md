@@ -21,11 +21,11 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 
 ## Tech Stack
 
-| Layer | Technologies |
-|-------|-------------|
-| Frontend | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT |
-| Infrastructure | Docker, Bun, Caddy (reverse proxy), GitHub Actions |
+| Layer          | Technologies                                                                                                          |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
+| Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
+| Infrastructure | Docker, Bun, Caddy (reverse proxy), GitHub Actions                                                                    |
 
 ## Quick Start
 
@@ -85,27 +85,27 @@ bun dev
 
 File: `backend/.env` (copy from `backend/.env.example`)
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATASOURCE_URL` | PostgreSQL connection string | Yes |
-| `JWT_SECRET` | Secret for JWT token signing | Yes |
-| `APP_PORT` | Backend server port (default: 3000) | No |
-| `TWITCH_CLIENT_ID` | Twitch OAuth Client ID | No |
-| `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret | No |
-| `TWITCH_CALLBACK_URL` | URL callback after Twitch authorization | No |
-| `KICK_CLIENT_ID` | Kick OAuth Client ID | No |
-| `KICK_CLIENT_SECRET` | Kick OAuth Client Secret | No |
-| `KICK_CALLBACK_URL` | URL callback after Kick authorization | No |
-| `SPOTIFY_CLIENT_ID` | Spotify Client ID | No |
-| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret | No |
-| `SPOTIFY_CALLBACK_URL` | URL callback after Spotify authorization | No |
-| `KINOPOISK_API` | Kinopoisk API key | No |
-| `TMBD_API` | TMDB API key | No |
-| `WEATHER_API_KEY` | OpenWeatherMap API key | No |
-| `WEATHER_LAT` | Latitude for weather | No |
-| `WEATHER_LON` | Longitude for weather | No |
-| `PROXY` | Proxy URL for external APIs | No |
-| `TWIR_API` | API key for TWIR webhooks | No |
+| Variable                | Description                              | Required |
+| ----------------------- | ---------------------------------------- | -------- |
+| `DATASOURCE_URL`        | PostgreSQL connection string             | Yes      |
+| `JWT_SECRET`            | Secret for JWT token signing             | Yes      |
+| `APP_PORT`              | Backend server port (default: 3000)      | No       |
+| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                   | No       |
+| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret               | No       |
+| `TWITCH_CALLBACK_URL`   | URL callback after Twitch authorization  | No       |
+| `KICK_CLIENT_ID`        | Kick OAuth Client ID                     | No       |
+| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                 | No       |
+| `KICK_CALLBACK_URL`     | URL callback after Kick authorization    | No       |
+| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                        | No       |
+| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                    | No       |
+| `SPOTIFY_CALLBACK_URL`  | URL callback after Spotify authorization | No       |
+| `KINOPOISK_API`         | Kinopoisk API key                        | No       |
+| `TMBD_API`              | TMDB API key                             | No       |
+| `WEATHER_API_KEY`       | OpenWeatherMap API key                   | No       |
+| `WEATHER_LAT`           | Latitude for weather                     | No       |
+| `WEATHER_LON`           | Longitude for weather                    | No       |
+| `PROXY`                 | Proxy URL for external APIs              | No       |
+| `TWIR_API`              | API key for TWIR webhooks                | No       |
 
 ## Project Structure
 
@@ -184,20 +184,20 @@ games-movies-database/
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `bun dev` | Start frontend and backend in development mode |
-| `bun dev:frontend` | Frontend only (port 5173) |
-| `bun dev:backend` | Backend only (port 3000) |
-| `bun build` | Build frontend and backend for production |
-| `bun build:frontend` | Build frontend only |
-| `bun build:backend` | Build backend only |
-| `bun start:backend` | Start backend in production mode |
-| `bun prisma` | Run migrations + generate Prisma client |
-| `bun lint` | Run oxlint code check |
-| `bun lint:fix` | Auto-fix oxlint issues |
-| `bun format` | Format with oxfmt |
-| `bun format:check` | Check formatting without changes |
+| Command              | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| `bun dev`            | Start frontend and backend in development mode |
+| `bun dev:frontend`   | Frontend only (port 5173)                      |
+| `bun dev:backend`    | Backend only (port 3000)                       |
+| `bun build`          | Build frontend and backend for production      |
+| `bun build:frontend` | Build frontend only                            |
+| `bun build:backend`  | Build backend only                             |
+| `bun start:backend`  | Start backend in production mode               |
+| `bun prisma`         | Run migrations + generate Prisma client        |
+| `bun lint`           | Run oxlint code check                          |
+| `bun lint:fix`       | Auto-fix oxlint issues                         |
+| `bun format`         | Format with oxfmt                              |
+| `bun format:check`   | Check formatting without changes               |
 
 ## Third-party Integrations
 
@@ -206,6 +206,7 @@ games-movies-database/
 Authentication via Twitch OAuth. Allows users to log in with their Twitch account.
 
 Getting credentials:
+
 1. Go to [Twitch Developer Console](https://dev.twitch.tv/console)
 2. Create a new application
 3. Set OAuth Redirect URL: `http://localhost:5173/auth/callback`
@@ -222,6 +223,7 @@ TWITCH_CALLBACK_URL=http://localhost:5173/auth/callback
 Authentication via Kick OAuth.
 
 Getting credentials:
+
 1. Go to [Kick Developer Portal](https://developer.kick.com/)
 2. Create an application
 3. Set redirect URL
@@ -238,6 +240,7 @@ KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
 Spotify API integration for tracks and queue management.
 
 Getting credentials:
+
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new application
 3. Set Redirect URI: `http://127.0.0.1:5173/auth/callback/spotify`
@@ -284,6 +287,7 @@ WEATHER_LON=your_longitude
 This project uses KinoHub/Kinobox as the external service for watching content via generated watch links.
 
 Supported parser input formats:
+
 - `https://tv.kinohub.vip/movie/<id>`
 - `https://tv.kinohub.vip/shikimori/<id>`
 - `https://kinobox.in/movie/<id>`
@@ -345,6 +349,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 ### Docker Compose (production)
 
 Production configuration in `docker-compose.yml` includes:
+
 - **PostgreSQL 17** with persistent volume
 - **Adminer** with Caddy reverse proxy (`adminer.le-xot.dev`)
 - **Application** with Caddy reverse proxy (`le-xot.dev`)
@@ -354,11 +359,13 @@ Requires external `caddy` network for Caddy reverse proxy.
 ### GitHub Actions
 
 On push to `master`, automatically:
+
 1. SSH connection to server
 2. `git fetch` and `git reset --hard origin/master`
 3. `docker compose up -d --build --remove-orphans`
 
 To set up CI/CD, add secrets to GitHub:
+
 - `SERVER_HOST` — server address
 - `SERVER_USER` — SSH user
 - `SERVER_SSH_KEY` — SSH private key
@@ -375,12 +382,12 @@ To set up CI/CD, add secrets to GitHub:
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| Cannot connect to DB | Check that PostgreSQL container is running: `docker ps` |
-| Authentication errors | Verify Twitch/Kick API credentials in `.env` |
-| Services not accessible | Check ports: frontend 5173, backend 3000, DB 6543 (dev) / 5432 (prod) |
-| Bun not installed | Use npm/pnpm as alternative package manager |
-| TypeScript errors | Run `bun install` and ensure all dependencies are installed |
+| Problem                              | Solution                                                              |
+| ------------------------------------ | --------------------------------------------------------------------- |
+| Cannot connect to DB                 | Check that PostgreSQL container is running: `docker ps`               |
+| Authentication errors                | Verify Twitch/Kick API credentials in `.env`                          |
+| Services not accessible              | Check ports: frontend 5173, backend 3000, DB 6543 (dev) / 5432 (prod) |
+| Bun not installed                    | Use npm/pnpm as alternative package manager                           |
+| TypeScript errors                    | Run `bun install` and ensure all dependencies are installed           |
 | Frontend doesn't generate API client | Ensure backend is running on port 3000 (generation uses `/docs-json`) |
-| Prisma migration errors | Run `cd backend && bun prisma migrate dev` |
+| Prisma migration errors              | Run `cd backend && bun prisma migrate dev`                            |

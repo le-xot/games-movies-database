@@ -21,11 +21,11 @@
 
 ## Стек технологий
 
-| Слой | Технологии |
-|------|-----------|
-| Frontend | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT |
-| Инфраструктура | Docker, Bun, Caddy (reverse proxy), GitHub Actions |
+| Слой           | Технологии                                                                                                            |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
+| Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
+| Инфраструктура | Docker, Bun, Caddy (reverse proxy), GitHub Actions                                                                    |
 
 ## Быстрый старт
 
@@ -85,27 +85,27 @@ bun dev
 
 Файл: `backend/.env` (скопируйте из `backend/.env.example`)
 
-| Переменная | Описание | Обязательна |
-|-----------|----------|-------------|
-| `DATASOURCE_URL` | Строка подключения к PostgreSQL | Да |
-| `JWT_SECRET` | Секрет для подписи JWT токенов | Да |
-| `APP_PORT` | Порт backend сервера (по умолчанию: 3000) | Нет |
-| `TWITCH_CLIENT_ID` | Twitch OAuth Client ID | Нет |
-| `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret | Нет |
-| `TWITCH_CALLBACK_URL` | URL callback после Twitch авторизации | Нет |
-| `KICK_CLIENT_ID` | Kick OAuth Client ID | Нет |
-| `KICK_CLIENT_SECRET` | Kick OAuth Client Secret | Нет |
-| `KICK_CALLBACK_URL` | URL callback после Kick авторизации | Нет |
-| `SPOTIFY_CLIENT_ID` | Spotify Client ID | Нет |
-| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret | Нет |
-| `SPOTIFY_CALLBACK_URL` | URL callback после Spotify авторизации | Нет |
-| `KINOPOISK_API` | API ключ Кинопоиска | Нет |
-| `TMBD_API` | API ключ TMDB | Нет |
-| `WEATHER_API_KEY` | OpenWeatherMap API ключ | Нет |
-| `WEATHER_LAT` | Широта для погоды | Нет |
-| `WEATHER_LON` | Долгота для погоды | Нет |
-| `PROXY` | URL прокси для внешних API | Нет |
-| `TWIR_API` | API ключ для TWIR вебхуков | Нет |
+| Переменная              | Описание                                  | Обязательна |
+| ----------------------- | ----------------------------------------- | ----------- |
+| `DATASOURCE_URL`        | Строка подключения к PostgreSQL           | Да          |
+| `JWT_SECRET`            | Секрет для подписи JWT токенов            | Да          |
+| `APP_PORT`              | Порт backend сервера (по умолчанию: 3000) | Нет         |
+| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                    | Нет         |
+| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret                | Нет         |
+| `TWITCH_CALLBACK_URL`   | URL callback после Twitch авторизации     | Нет         |
+| `KICK_CLIENT_ID`        | Kick OAuth Client ID                      | Нет         |
+| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                  | Нет         |
+| `KICK_CALLBACK_URL`     | URL callback после Kick авторизации       | Нет         |
+| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                         | Нет         |
+| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                     | Нет         |
+| `SPOTIFY_CALLBACK_URL`  | URL callback после Spotify авторизации    | Нет         |
+| `KINOPOISK_API`         | API ключ Кинопоиска                       | Нет         |
+| `TMBD_API`              | API ключ TMDB                             | Нет         |
+| `WEATHER_API_KEY`       | OpenWeatherMap API ключ                   | Нет         |
+| `WEATHER_LAT`           | Широта для погоды                         | Нет         |
+| `WEATHER_LON`           | Долгота для погоды                        | Нет         |
+| `PROXY`                 | URL прокси для внешних API                | Нет         |
+| `TWIR_API`              | API ключ для TWIR вебхуков                | Нет         |
 
 ## Структура проекта
 
@@ -184,20 +184,20 @@ games-movies-database/
 
 ## Доступные скрипты
 
-| Команда | Описание |
-|---------|----------|
-| `bun dev` | Запуск frontend и backend в режиме разработки |
-| `bun dev:frontend` | Только frontend (порт 5173) |
-| `bun dev:backend` | Только backend (порт 3000) |
-| `bun build` | Сборка frontend и backend для продакшена |
-| `bun build:frontend` | Сборка только frontend |
-| `bun build:backend` | Сборка только backend |
-| `bun start:backend` | Запуск backend в продакшене |
-| `bun prisma` | Миграции + генерация Prisma клиента |
-| `bun lint` | Проверка кода oxlint |
-| `bun lint:fix` | Автоисправление oxlint |
-| `bun format` | Форматирование oxfmt |
-| `bun format:check` | Проверка форматирования без изменений |
+| Команда              | Описание                                      |
+| -------------------- | --------------------------------------------- |
+| `bun dev`            | Запуск frontend и backend в режиме разработки |
+| `bun dev:frontend`   | Только frontend (порт 5173)                   |
+| `bun dev:backend`    | Только backend (порт 3000)                    |
+| `bun build`          | Сборка frontend и backend для продакшена      |
+| `bun build:frontend` | Сборка только frontend                        |
+| `bun build:backend`  | Сборка только backend                         |
+| `bun start:backend`  | Запуск backend в продакшене                   |
+| `bun prisma`         | Миграции + генерация Prisma клиента           |
+| `bun lint`           | Проверка кода oxlint                          |
+| `bun lint:fix`       | Автоисправление oxlint                        |
+| `bun format`         | Форматирование oxfmt                          |
+| `bun format:check`   | Проверка форматирования без изменений         |
 
 ## Сторонние интеграции
 
@@ -206,6 +206,7 @@ games-movies-database/
 Авторизация через Twitch OAuth. Позволяет пользователям входить через Twitch аккаунт.
 
 Получение ключей:
+
 1. Перейти в [Twitch Developer Console](https://dev.twitch.tv/console)
 2. Создать новое приложение
 3. Указать OAuth Redirect URL: `http://localhost:5173/auth/callback`
@@ -222,6 +223,7 @@ TWITCH_CALLBACK_URL=http://localhost:5173/auth/callback
 Авторизация через Kick OAuth.
 
 Получение ключей:
+
 1. Перейти в [Kick Developer Portal](https://developer.kick.com/)
 2. Создать приложение
 3. Указать redirect URL
@@ -238,6 +240,7 @@ KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
 Интеграция со Spotify API для работы с треками и очередью.
 
 Получение ключей:
+
 1. Перейти в [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Создать новое приложение
 3. Указать Redirect URI: `http://127.0.0.1:5173/auth/callback/spotify`
@@ -284,6 +287,7 @@ WEATHER_LON=your_longitude
 Проект использует KinoHub/Kinobox как внешний сервис для просмотра контента по сгенерированным watch-ссылкам.
 
 Поддерживаемые форматы парсера:
+
 - `https://tv.kinohub.vip/movie/<id>`
 - `https://tv.kinohub.vip/shikimori/<id>`
 - `https://kinobox.in/movie/<id>`
@@ -345,6 +349,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 ### Docker Compose (продакшен)
 
 Продакшен конфигурация в `docker-compose.yml` включает:
+
 - **PostgreSQL 17** с persistent volume
 - **Adminer** с Caddy reverse proxy (`adminer.le-xot.dev`)
 - **Приложение** с Caddy reverse proxy (`le-xot.dev`)
@@ -354,11 +359,13 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 ### GitHub Actions
 
 При пуше в `master` автоматически:
+
 1. SSH подключение к серверу
 2. `git fetch` и `git reset --hard origin/master`
 3. `docker compose up -d --build --remove-orphans`
 
 Для настройки CI/CD добавьте секреты в GitHub:
+
 - `SERVER_HOST` — адрес сервера
 - `SERVER_USER` — SSH пользователь
 - `SERVER_SSH_KEY` — SSH приватный ключ
@@ -375,12 +382,12 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 
 ## Troubleshooting
 
-| Проблема | Решение |
-|----------|---------|
-| Не подключается к БД | Проверьте, что контейнер PostgreSQL запущен: `docker ps` |
-| Ошибки авторизации | Проверьте Twitch/Kick API ключи в `.env` |
-| Сервисы недоступны | Проверьте порты: frontend 5173, backend 3000, БД 6543 (dev) / 5432 (prod) |
-| Bun не установлен | Используйте npm/pnpm как альтернативу |
-| Ошибки TypeScript | Выполните `bun install` и убедитесь, что все зависимости установлены |
+| Проблема                          | Решение                                                                       |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| Не подключается к БД              | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                      |
+| Ошибки авторизации                | Проверьте Twitch/Kick API ключи в `.env`                                      |
+| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 6543 (dev) / 5432 (prod)     |
+| Bun не установлен                 | Используйте npm/pnpm как альтернативу                                         |
+| Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены          |
 | Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`) |
-| Prisma ошибки миграций | Выполните `cd backend && bun prisma migrate dev` |
+| Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                              |

@@ -38,11 +38,6 @@ export const router = createRouter({
           meta: { requiresAdmin: true },
         },
         {
-          path: ROUTER_PATHS.dbAccounts,
-          component: () => import('@/pages/accounts/AccountsPage.vue'),
-          meta: { requiresAuth: true },
-        },
-        {
           path: ROUTER_PATHS.profile + '/:userId?',
           component: () => import('@/pages/profile/ProfilePage.vue'),
           meta: { requiresAuth: true },

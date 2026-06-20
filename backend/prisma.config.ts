@@ -1,8 +1,7 @@
-import { defineConfig } from 'prisma/config'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { defineConfig } from 'prisma/config'
 
 export default defineConfig({
-  earlyAccess: true,
   datasource: {
     url: process.env.DATASOURCE_URL ?? '',
   },

@@ -14,6 +14,7 @@ const accounts = ref<UserAccount[]>([])
 const isLoading = ref(true)
 
 const hasKick = computed(() => accounts.value.some((a) => a.platform === 'KICK'))
+const hasTwitch = computed(() => accounts.value.some((a) => a.platform === 'TWITCH'))
 
 onMounted(async () => {
   try {
@@ -32,6 +33,10 @@ onMounted(async () => {
 
 function connectKick() {
   window.location.href = `${window.location.origin}/api/auth/kick/link`
+}
+
+function connectTwitch() {
+  window.location.href = `${window.location.origin}/api/auth/twitch/link`
 }
 </script>
 
@@ -67,6 +72,9 @@ function connectKick() {
       </div>
 
       <Button v-if="!hasKick" variant="outline" @click="connectKick"> Подключить Kick </Button>
+      <Button v-if="!hasTwitch" variant="outline" @click="connectTwitch">
+        Подключить Twitch
+      </Button>
     </div>
   </div>
 </template>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { CircleUserRound, Link2, Loader2, Lock, LogOutIcon, Tv } from '@lucide/vue'
+import { CircleUserRound, Loader2, Lock, LogOutIcon, Tv } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
+import { TwitchIcon } from 'vue3-simple-icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,9 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
-import { TwitchIcon } from 'vue3-simple-icons'
 
 const userStore = useUser()
 const { user } = storeToRefs(userStore)
@@ -50,12 +49,6 @@ async function handleLogin(platform: 'twitch' | 'kick') {
         <RouterLink to="/db/profile">
           <CircleUserRound class="size-6 mr-2" />
           Профиль
-        </RouterLink>
-      </DropdownMenuItem>
-      <DropdownMenuItem v-if="userStore.isLoggedIn" as-child>
-        <RouterLink :to="ROUTER_PATHS.dbAccounts">
-          <Link2 class="size-6 mr-2" />
-          Привязки
         </RouterLink>
       </DropdownMenuItem>
       <DropdownMenuItem @click="userStore.userLogout">

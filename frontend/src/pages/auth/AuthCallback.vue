@@ -50,7 +50,7 @@ onMounted(async () => {
         body: JSON.stringify({ code }),
       })
       localStorage.removeItem('loginReturnUrl')
-      await router.push(ROUTER_PATHS.dbAccounts)
+      await router.push(ROUTER_PATHS.profile)
     } else {
       await userApi.userLogin({ code })
       localStorage.removeItem('loginReturnUrl')

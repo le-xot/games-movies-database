@@ -1,10 +1,13 @@
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
-import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { LinkPlatformData, UserRepository } from '@/modules/user/repositories/user.repository'
-import type { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
+
+interface UpdateUsersPayload {
+  userId: string
+  action: 'created' | 'updated' | 'deleted'
+}
 
 @Injectable()
 export class UserService {
@@ -12,119 +15,50 @@ export class UserService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly twitch: TwitchService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async upsertUser(
     platformId: string,
     data: {
-      login?: string
+      login: string
       role?: UserRole
-      profileImageUrl?: string
+      profileImageUrl: string
       color?: string
     },
-    platform: string = 'TWITCH',
+    platform: string,
   ): Promise<UserDomain> {
-    const foundedUser = await this.userRepository.findByPlatformId(platform, platformId)
+    const foundUser = await this.userRepository.findByPlatformId(platform, platformId)
 
-    if (!foundedUser && data.login && data.profileImageUrl) {
-      const createdUser = await this.userRepository.create({
+    if (foundUser) {
+      const updatedUser = await this.userRepository.update(foundUser.id, {
         login: data.login,
-        role: data.role ?? UserRole.USER,
+        role: data.role,
         profileImageUrl: data.profileImageUrl,
-        color: data.color ?? '#333333',
-        platform,
-        platformUserId: platformId,
-        platformLogin: data.login,
-        platformAvatar: data.profileImageUrl,
+        color: data.color,
       })
       this.eventEmitter.emit('update-users', {
-        userId: createdUser.id,
-        action: 'created',
+        userId: foundUser.id,
+        action: 'updated',
       } satisfies UpdateUsersPayload)
-      return createdUser
+      return updatedUser
     }
 
-    if (!foundedUser) {
-      return this.createUserByLogin(data.login)
-    }
-
-    const updatedUser = await this.userRepository.update(foundedUser.id, {
+    const createdUser = await this.userRepository.create({
       login: data.login,
-      role: data.role,
+      role: data.role ?? UserRole.USER,
       profileImageUrl: data.profileImageUrl,
-      color: data.color,
+      color: data.color ?? '#333333',
+      platform,
+      platformUserId: platformId,
+      platformLogin: data.login,
+      platformAvatar: data.profileImageUrl,
     })
     this.eventEmitter.emit('update-users', {
-      userId: foundedUser.id,
-      action: 'updated',
+      userId: createdUser.id,
+      action: 'created',
     } satisfies UpdateUsersPayload)
-    return updatedUser
-  }
-
-  async createUserById(id: string): Promise<UserDomain> {
-    try {
-      const twitchUser = await this.twitch.getTwitchUserById(id)
-
-      if (!twitchUser) {
-        throw new Error(`User with id ${id} not found on Twitch`)
-      }
-
-      const createdUser = await this.userRepository.create({
-        login: twitchUser.login,
-        role: UserRole.USER,
-        profileImageUrl:
-          twitchUser.profile_image_url ||
-          'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-        color: '#333333',
-        platform: 'TWITCH',
-        platformUserId: twitchUser.id,
-        platformLogin: twitchUser.login,
-        platformAvatar: twitchUser.profile_image_url,
-      })
-      this.eventEmitter.emit('update-users', {
-        userId: createdUser.id,
-        action: 'created',
-      } satisfies UpdateUsersPayload)
-      return createdUser
-    } catch (error) {
-      this.logger.error('Error creating user by id:', error as any)
-      throw error
-    }
-  }
-
-  async createUserByLogin(login: string): Promise<UserDomain> {
-    try {
-      const twitchUsers = await this.twitch.searchTwitchUsers(login)
-
-      if (!twitchUsers || twitchUsers.length === 0) {
-        throw new Error(`User with login ${login} not found on Twitch`)
-      }
-
-      const twitchUser = twitchUsers[0]
-
-      const createdUser = await this.userRepository.create({
-        login: twitchUser.login,
-        role: UserRole.USER,
-        profileImageUrl:
-          twitchUser.profile_image_url ||
-          'https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-        color: '#333333',
-        platform: 'TWITCH',
-        platformUserId: twitchUser.id,
-        platformLogin: twitchUser.login,
-        platformAvatar: twitchUser.profile_image_url,
-      })
-      this.eventEmitter.emit('update-users', {
-        userId: createdUser.id,
-        action: 'created',
-      } satisfies UpdateUsersPayload)
-      return createdUser
-    } catch (error) {
-      this.logger.error('Error creating user by login:', error as any)
-      throw error
-    }
+    return createdUser
   }
 
   getUserByLogin(login: string): Promise<UserDomain | null> {
@@ -193,9 +127,6 @@ export class UserService {
   }
 
   async getLinkedAccounts(userId: string) {
-    return await (this.userRepository as any).prisma.userAccount.findMany({
-      where: { userId },
-      select: { platform: true, platformLogin: true, platformAvatar: true },
-    })
+    return this.userRepository.findAccountsByUserId(userId)
   }
 }

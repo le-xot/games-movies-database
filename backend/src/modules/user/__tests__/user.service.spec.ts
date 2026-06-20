@@ -9,20 +9,12 @@ import { UserService } from '../user.service'
 describe('UserService', () => {
   let service: UserService
   let mockRepo: UserRepository
-  let mockTwitch: {
-    getTwitchUserById: ReturnType<typeof mock>
-    searchTwitchUsers: ReturnType<typeof mock>
-  }
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
 
   beforeEach(() => {
     mockRepo = createMock(UserRepository)
-    mockTwitch = {
-      getTwitchUserById: mock(() => undefined),
-      searchTwitchUsers: mock(() => undefined),
-    } as any
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new UserService(mockRepo, mockTwitch as any, mockEventEmitter as any)
+    service = new UserService(mockRepo, mockEventEmitter as any)
   })
 
   describe('upsertUser', () => {
@@ -46,12 +38,16 @@ describe('UserService', () => {
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
-      const result = await service.upsertUser('user-1', {
-        login: 'new-login',
-        role: UserRole.ADMIN,
-        profileImageUrl: 'new-url',
-        color: '#222222',
-      })
+      const result = await service.upsertUser(
+        'user-1',
+        {
+          login: 'new-login',
+          role: UserRole.ADMIN,
+          profileImageUrl: 'new-url',
+          color: '#222222',
+        },
+        'TWITCH',
+      )
 
       expect(result).toEqual(updatedUser)
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-1')
@@ -67,7 +63,7 @@ describe('UserService', () => {
       })
     })
 
-    it('creates a user when full data is provided and no user exists', async () => {
+    it('creates a user when no user exists', async () => {
       const createdUser: UserDomain = {
         id: 'user-2',
         login: 'new-user',
@@ -83,12 +79,16 @@ describe('UserService', () => {
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.create = create
 
-      const result = await service.upsertUser('user-2', {
-        login: 'new-user',
-        role: UserRole.USER,
-        profileImageUrl: 'new-url',
-        color: '#333333',
-      })
+      const result = await service.upsertUser(
+        'user-2',
+        {
+          login: 'new-user',
+          role: UserRole.USER,
+          profileImageUrl: 'new-url',
+          color: '#333333',
+        },
+        'TWITCH',
+      )
 
       expect(result).toEqual(createdUser)
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-2')
@@ -106,137 +106,6 @@ describe('UserService', () => {
         userId: 'user-2',
         action: 'created',
       })
-    })
-
-    it('creates a user by login when no user exists and data is incomplete', async () => {
-      const findByPlatformId = mock(() =>
-        Promise.resolve(null),
-      ) as unknown as UserRepository['findByPlatformId']
-      const createUserByLogin = mock(() => Promise.resolve({} as UserDomain))
-      mockRepo.findByPlatformId = findByPlatformId
-      service.createUserByLogin = createUserByLogin as unknown as UserService['createUserByLogin']
-
-      const result = await service.upsertUser('user-3', { login: 'partial-login' })
-
-      expect(result).toEqual({} as UserDomain)
-      expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-3')
-      expect(createUserByLogin).toHaveBeenCalledWith('partial-login')
-    })
-  })
-
-  describe('createUserById', () => {
-    it('creates a user from Twitch data and emits an update event', async () => {
-      const twitchUser = {
-        id: 'twitch-1',
-        login: 'twitch-login',
-        profile_image_url: 'https://image.url/avatar.png',
-      }
-      const createdUser: UserDomain = {
-        id: 'twitch-1',
-        login: 'twitch-login',
-        role: UserRole.USER,
-        profileImageUrl: 'https://image.url/avatar.png',
-        color: '#333333',
-        createdAt: new Date('2024-01-03'),
-      }
-      const getTwitchUserById = mock(() =>
-        Promise.resolve(twitchUser),
-      ) as unknown as typeof mockTwitch.getTwitchUserById
-      const create = mock(() => Promise.resolve(createdUser)) as unknown as UserRepository['create']
-      mockTwitch.getTwitchUserById = getTwitchUserById
-      mockRepo.create = create
-
-      const result = await service.createUserById('twitch-1')
-
-      expect(result).toEqual(createdUser)
-      expect(getTwitchUserById).toHaveBeenCalledWith('twitch-1')
-      expect(create).toHaveBeenCalledWith({
-        login: 'twitch-login',
-        role: UserRole.USER,
-        profileImageUrl: 'https://image.url/avatar.png',
-        color: '#333333',
-        platform: 'TWITCH',
-        platformUserId: 'twitch-1',
-        platformLogin: 'twitch-login',
-        platformAvatar: 'https://image.url/avatar.png',
-      })
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
-        userId: 'twitch-1',
-        action: 'created',
-      })
-    })
-
-    it('throws when Twitch does not return a user', async () => {
-      const getTwitchUserById = mock(() =>
-        Promise.resolve(null),
-      ) as unknown as typeof mockTwitch.getTwitchUserById
-      mockTwitch.getTwitchUserById = getTwitchUserById
-
-      await expect(service.createUserById('missing-id')).rejects.toThrow(
-        'User with id missing-id not found on Twitch',
-      )
-      expect(mockEventEmitter.emit).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('createUserByLogin', () => {
-    it('creates a user from Twitch search results and emits an update event', async () => {
-      const twitchUsers = [
-        {
-          id: 'twitch-2',
-          login: 'search-login',
-          profile_image_url: '',
-        },
-      ]
-      const createdUser: UserDomain = {
-        id: 'twitch-2',
-        login: 'search-login',
-        role: UserRole.USER,
-        profileImageUrl:
-          'https://static-cdn.jtvnw.net/user-default-pictures-uv/' +
-          'ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-        color: '#333333',
-        createdAt: new Date('2024-01-04'),
-      }
-      const searchTwitchUsers = mock(() =>
-        Promise.resolve(twitchUsers),
-      ) as unknown as typeof mockTwitch.searchTwitchUsers
-      const create = mock(() => Promise.resolve(createdUser)) as unknown as UserRepository['create']
-      mockTwitch.searchTwitchUsers = searchTwitchUsers
-      mockRepo.create = create
-
-      const result = await service.createUserByLogin('search-login')
-
-      expect(result).toEqual(createdUser)
-      expect(searchTwitchUsers).toHaveBeenCalledWith('search-login')
-      expect(create).toHaveBeenCalledWith({
-        login: 'search-login',
-        role: UserRole.USER,
-        profileImageUrl:
-          'https://static-cdn.jtvnw.net/user-default-pictures-uv/' +
-          'ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
-        color: '#333333',
-        platform: 'TWITCH',
-        platformUserId: 'twitch-2',
-        platformLogin: 'search-login',
-        platformAvatar: '',
-      })
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
-        userId: 'twitch-2',
-        action: 'created',
-      })
-    })
-
-    it('throws when Twitch search returns no results', async () => {
-      const searchTwitchUsers = mock(() =>
-        Promise.resolve([]),
-      ) as unknown as typeof mockTwitch.searchTwitchUsers
-      mockTwitch.searchTwitchUsers = searchTwitchUsers
-
-      await expect(service.createUserByLogin('missing-login')).rejects.toThrow(
-        'User with login missing-login not found on Twitch',
-      )
-      expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
   })
 

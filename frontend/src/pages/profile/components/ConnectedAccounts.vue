@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Tv } from '@lucide/vue'
 import { computed, onMounted, ref } from 'vue'
-import { Button } from '@/components/ui/button'
 import { TwitchIcon } from 'vue3-simple-icons'
+import { Button } from '@/components/ui/button'
 
 interface UserAccount {
   platform: string
@@ -66,9 +66,7 @@ function connectKick() {
         </div>
       </div>
 
-      <Button v-if="!hasKick" variant="outline" @click="connectKick">
-        Подключить Kick
-      </Button>
+      <Button v-if="!hasKick" variant="outline" @click="connectKick"> Подключить Kick </Button>
     </div>
   </div>
 </template>

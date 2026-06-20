@@ -2,15 +2,11 @@
 import { useTitle } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { genreTags } from '@/components/table/composables/use-table-select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RecordGenre } from '@/lib/api'
 import { useProfile } from '@/pages/profile/composables/use-profile'
 import { useUser } from '@/stores/use-user'
-import ProfileHeader from './ProfileHeader.vue'
-import ProfileRecordCard from './ProfileRecordCard.vue'
-import ProfileStatsBlock from './ProfileStatsBlock.vue'
 import ConnectedAccounts from './ConnectedAccounts.vue'
+import ProfileHeader from './ProfileHeader.vue'
 
 useTitle('Профиль')
 
@@ -18,18 +14,9 @@ const route = useRoute()
 const userStore = useUser()
 const userId = computed(() => (route.params.userId as string) || undefined)
 
-const { records, profileStats, isLoading, error, recordsByGenre } = useProfile(userId)
+const { likes, suggestions, isLoading, error } = useProfile(userId)
 
 const isOwnProfile = computed(() => !userId.value || userId.value === userStore.user?.id)
-const profileUser = computed(() => records.value[0]?.user ?? null)
-
-const TABS = [
-  RecordGenre.MOVIE,
-  RecordGenre.SERIES,
-  RecordGenre.ANIME,
-  RecordGenre.CARTOON,
-  RecordGenre.GAME,
-]
 </script>
 
 <template>
@@ -43,51 +30,30 @@ const TABS = [
     </div>
 
     <template v-else>
-      <div
-        v-if="records.length === 0"
-        class="flex flex-col items-center justify-center py-20 gap-6 text-center"
-      >
-        <template v-if="isOwnProfile">
-          <img src="/images/muh.webp" alt="Empty" class="max-w-[300px] object-contain" />
-          <p class="text-2xl font-semibold">Вы ещё ничего не предложили</p>
-        </template>
-        <template v-else>
-          <img src="/images/aga.webp" alt="Empty" class="max-w-[300px] object-contain" />
-          <p class="text-2xl font-semibold">Пользователь пока ничего не предложил</p>
-        </template>
-      </div>
+      <ProfileHeader v-if="userStore.user" :user="userStore.user" :is-own-profile="isOwnProfile" />
 
-      <template v-else>
-        <ProfileHeader v-if="profileUser" :user="profileUser" :is-own-profile="isOwnProfile" />
+      <ConnectedAccounts v-if="isOwnProfile" />
 
-        <ProfileStatsBlock v-if="profileStats" :stats="profileStats" />
+      <Tabs defaultValue="likes" class="w-full">
+        <TabsList class="w-full flex justify-start overflow-x-auto">
+          <TabsTrigger value="likes" class="min-w-fit"> Лайки ({{ likes.length }}) </TabsTrigger>
+          <TabsTrigger value="suggestions" class="min-w-fit">
+            Предложения ({{ suggestions.length }})
+          </TabsTrigger>
+        </TabsList>
 
-        <ConnectedAccounts v-if="isOwnProfile" />
+        <TabsContent value="likes" class="mt-6">
+          <div v-if="likes.length > 0" class="text-muted-foreground">Лайки: {{ likes.length }}</div>
+          <div v-else class="text-center py-10 text-muted-foreground">Пока нет лайков</div>
+        </TabsContent>
 
-        <Tabs defaultValue="MOVIE" class="w-full">
-          <TabsList class="w-full flex justify-start overflow-x-auto">
-            <TabsTrigger v-for="genre in TABS" :key="genre" :value="genre" class="min-w-fit">
-              {{ genreTags[genre]?.name || genre }}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent v-for="genre in TABS" :key="genre" :value="genre" class="mt-6">
-            <div
-              v-if="recordsByGenre[genre] && recordsByGenre[genre].length > 0"
-              class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4"
-            >
-              <ProfileRecordCard
-                v-for="record in recordsByGenre[genre]"
-                :key="record.id"
-                :record="record"
-              />
-            </div>
-            <div v-else class="text-center py-10 text-muted-foreground">
-              В этой категории пока нет записей
-            </div>
-          </TabsContent>
-        </Tabs>
-      </template>
+        <TabsContent value="suggestions" class="mt-6">
+          <div v-if="suggestions.length > 0" class="text-muted-foreground">
+            Предложения: {{ suggestions.length }}
+          </div>
+          <div v-else class="text-center py-10 text-muted-foreground">Пока нет предложений</div>
+        </TabsContent>
+      </Tabs>
     </template>
   </div>
 </template>

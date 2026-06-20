@@ -2,24 +2,24 @@ import { computed, ref, watch } from 'vue'
 import { RecordGenre } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
-import type { ProfileStatsEntity, RecordEntity } from '@/lib/api'
+import type { LikeEntity, RecordEntity } from '@/lib/api'
 import type { Ref } from 'vue'
 
 export function useProfile(userId: Ref<string | undefined>) {
   const api = useApi()
   const userStore = useUser()
 
-  const records = ref<RecordEntity[]>([])
-  const profileStats = ref<ProfileStatsEntity | null>(null)
+  const likes = ref<LikeEntity[]>([])
+  const suggestions = ref<RecordEntity[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
   const targetUserId = computed(() => userId.value ?? userStore.user?.id)
 
-  const recordsByGenre = computed(() => {
+  const suggestionsByGenre = computed(() => {
     const result: Partial<Record<RecordGenre, RecordEntity[]>> = {}
     for (const genre of Object.values(RecordGenre)) {
-      result[genre] = records.value.filter((r) => r.genre === genre)
+      result[genre] = suggestions.value.filter((r) => r.genre === genre)
     }
     return result
   })
@@ -28,20 +28,17 @@ export function useProfile(userId: Ref<string | undefined>) {
     isLoading.value = true
     error.value = null
     try {
-      const [recordsRes, statsRes] = await Promise.all([
-        api.users.userControllerGetUserRecordsById({ id }),
-        api.users.userControllerGetUserProfileStatsById(id),
-      ])
-      records.value = recordsRes.data
-      profileStats.value = statsRes.data as unknown as ProfileStatsEntity
+      const [likesRes] = await Promise.all([api.likes.likeControllerGetLikesByUserId(id)])
+      likes.value = likesRes.data.likes
+      suggestions.value = []
     } catch (e: any) {
       if (e?.status === 404 || e?.response?.status === 404) {
         error.value = 'Пользователь не найден'
       } else {
         error.value = 'Ошибка загрузки данных'
       }
-      records.value = []
-      profileStats.value = null
+      likes.value = []
+      suggestions.value = []
     } finally {
       isLoading.value = false
     }
@@ -58,10 +55,10 @@ export function useProfile(userId: Ref<string | undefined>) {
   )
 
   return {
-    records,
-    profileStats,
+    likes,
+    suggestions,
     isLoading,
     error,
-    recordsByGenre,
+    suggestionsByGenre,
   }
 }

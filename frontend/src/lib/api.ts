@@ -845,6 +845,83 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthControllerKickAuth
+     * @request GET:/auth/kick
+     */
+    authControllerKickAuth: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/kick`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerKickLinkAuth
+     * @request GET:/auth/kick/link
+     */
+    authControllerKickLinkAuth: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/kick/link`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerLinkKick
+     * @request POST:/auth/kick/link
+     */
+    authControllerLinkKick: (data: CallbackDto, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/kick/link`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerKickAuthCallback
+     * @request POST:/auth/kick/callback
+     */
+    authControllerKickAuthCallback: (
+      data: CallbackDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/kick/callback`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerGetLinkedAccounts
+     * @request GET:/auth/accounts
+     */
+    authControllerGetLinkedAccounts: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/accounts`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthControllerMe
      * @request GET:/auth/me
      */

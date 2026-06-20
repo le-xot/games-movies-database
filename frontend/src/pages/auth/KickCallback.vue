@@ -36,14 +36,14 @@ onMounted(async () => {
     return
   }
 
-  const isLinking = getCookie('twitch_linking') === '1'
-  deleteCookie('twitch_linking')
+  const isLinking = getCookie('kick_linking') === '1'
+  deleteCookie('kick_linking')
 
   const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
 
   try {
     if (isLinking) {
-      await fetch('/api/auth/twitch/link', {
+      await fetch('/api/auth/kick/link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -52,8 +52,19 @@ onMounted(async () => {
       localStorage.removeItem('loginReturnUrl')
       await router.push(ROUTER_PATHS.dbAccounts)
     } else {
-      await userApi.userLogin({ code })
+      const response = await fetch('/api/auth/kick/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Ошибка авторизации через Kick')
+      }
+
       localStorage.removeItem('loginReturnUrl')
+      await userApi.refetchUser()
       await router.push(returnUrl)
     }
   } catch (e) {

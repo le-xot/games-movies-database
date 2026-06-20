@@ -10,6 +10,7 @@ import { useUser } from '@/stores/use-user'
 import ProfileHeader from './ProfileHeader.vue'
 import ProfileRecordCard from './ProfileRecordCard.vue'
 import ProfileStatsBlock from './ProfileStatsBlock.vue'
+import ConnectedAccounts from './ConnectedAccounts.vue'
 
 useTitle('Профиль')
 
@@ -60,6 +61,8 @@ const TABS = [
         <ProfileHeader v-if="profileUser" :user="profileUser" :is-own-profile="isOwnProfile" />
 
         <ProfileStatsBlock v-if="profileStats" :stats="profileStats" />
+
+        <ConnectedAccounts v-if="isOwnProfile" />
 
         <Tabs defaultValue="MOVIE" class="w-full">
           <TabsList class="w-full flex justify-start overflow-x-auto">

@@ -6,8 +6,12 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/auth/callback',
+      path: '/auth/callback/twitch',
       component: () => import('@/pages/auth/AuthCallback.vue'),
+    },
+    {
+      path: '/auth/callback/kick',
+      component: () => import('@/pages/auth/KickCallback.vue'),
     },
     {
       path: ROUTER_PATHS.home,
@@ -32,6 +36,11 @@ export const router = createRouter({
           path: ROUTER_PATHS.admin,
           component: () => import('@/pages/admin/AdminPage.vue'),
           meta: { requiresAdmin: true },
+        },
+        {
+          path: ROUTER_PATHS.dbAccounts,
+          component: () => import('@/pages/accounts/AccountsPage.vue'),
+          meta: { requiresAuth: true },
         },
         {
           path: ROUTER_PATHS.profile + '/:userId?',

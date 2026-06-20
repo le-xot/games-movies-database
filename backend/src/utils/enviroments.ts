@@ -18,6 +18,10 @@ export const env = cleanEnv(process.env, {
   SPOTIFY_CLIENT_SECRET: str({ default: null }),
   SPOTIFY_CALLBACK_URL: str({ default: null }),
 
+  KICK_CLIENT_ID: str({ default: null }),
+  KICK_CLIENT_SECRET: str({ default: null }),
+  KICK_CALLBACK_URL: str({ default: null }),
+
   WEATHER_API_KEY: str({ default: null }),
   WEATHER_LAT: str({ default: null }),
   WEATHER_LON: str({ default: null }),

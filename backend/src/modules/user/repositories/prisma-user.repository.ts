@@ -4,6 +4,7 @@ import { ProfileStatsDomain, UserDomain } from '@/modules/user/entities/user-dom
 import { RecordEntity } from '@/modules/record/record.entity'
 import {
   CreateUserData,
+  LinkPlatformData,
   UpdateUserData,
   UserRepository,
 } from './user.repository'
@@ -14,8 +15,14 @@ export class PrismaUserRepository extends UserRepository {
     super()
   }
 
-  async findByTwitchId(twitchId: string): Promise<UserDomain | null> {
-    return await this.prisma.user.findFirst({ where: { id: twitchId } })
+  async findByPlatformId(platform: string, platformUserId: string): Promise<UserDomain | null> {
+    const account = await this.prisma.userAccount.findUnique({
+      where: {
+        platform_platformUserId: { platform: platform as any, platformUserId },
+      },
+      include: { user: true },
+    })
+    return account?.user ?? null
   }
 
   async findByLogin(login: string): Promise<UserDomain | null> {
@@ -27,7 +34,22 @@ export class PrismaUserRepository extends UserRepository {
   }
 
   async create(data: CreateUserData): Promise<UserDomain> {
-    return await this.prisma.user.create({ data })
+    return await this.prisma.user.create({
+      data: {
+        login: data.login,
+        role: data.role,
+        profileImageUrl: data.profileImageUrl,
+        color: data.color,
+        accounts: {
+          create: {
+            platform: data.platform as any,
+            platformUserId: data.platformUserId,
+            platformLogin: data.platformLogin,
+            platformAvatar: data.platformAvatar,
+          },
+        },
+      },
+    })
   }
 
   async update(id: string, data: UpdateUserData): Promise<UserDomain> {
@@ -122,6 +144,18 @@ export class PrismaUserRepository extends UserRepository {
     return await this.prisma.record.findMany({
       where: { user: { id } },
       include: { user: true, likes: true },
+    })
+  }
+
+  async linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void> {
+    await this.prisma.userAccount.create({
+      data: {
+        userId,
+        platform: data.platform as any,
+        platformUserId: data.platformUserId,
+        platformLogin: data.platformLogin,
+        platformAvatar: data.platformAvatar,
+      },
     })
   }
 }

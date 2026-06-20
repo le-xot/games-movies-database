@@ -10,15 +10,16 @@ generator client {
 // ----- User -----
 
 model User {
-  id              String   @id @unique
+  id              String   @id @unique @default(uuid())
   login           String   @unique
   role            UserRole @default(USER)
   profileImageUrl String
   color           String   @default("#333333")
   createdAt       DateTime @default(now())
 
-  record Record[]
-  likes  Like[]   @relation("UserLikes")
+  record   Record[]
+  likes    Like[]         @relation("UserLikes")
+  accounts UserAccount[]
 
   @@index([id, login])
   @@map("users")
@@ -134,6 +135,23 @@ model SuggestionRules {
   @@map("suggestion_rules")
 }
 
+// ----- UserAccount -----
+
+model UserAccount {
+  id             Int      @id @default(autoincrement())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  platform       Platform
+  platformUserId String
+  platformLogin  String
+  platformAvatar String?
+  createdAt      DateTime @default(now())
+
+  @@unique([platform, platformUserId])
+  @@unique([userId, platform])
+  @@map("user_accounts")
+}
+
 // ----- ThirdPartyOauthServiceToken -----
 
 model ThirdPartyOauthServiceToken {
@@ -149,4 +167,9 @@ model ThirdPartyOauthServiceToken {
 
 enum ThirdPartService {
   SPOTIFY
+}
+
+enum Platform {
+  TWITCH
+  KICK
 }

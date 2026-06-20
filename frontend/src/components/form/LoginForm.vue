@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleUserRound, Loader2, Lock, LogOutIcon } from '@lucide/vue'
+import { CircleUserRound, Link2, Loader2, Lock, LogOutIcon, Tv } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -10,18 +10,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
+import { TwitchIcon } from 'vue3-simple-icons'
 
 const userStore = useUser()
 const { user } = storeToRefs(userStore)
-const loginHref = `${window.location.origin}/api/auth/twitch`
 const isLoading = ref(false)
 
-async function handleLogin() {
+async function handleLogin(platform: 'twitch' | 'kick') {
   localStorage.setItem('loginReturnUrl', window.location.pathname)
   isLoading.value = true
   await nextTick()
-  window.location.href = loginHref
+  window.location.href = `${window.location.origin}/api/auth/${platform}`
 }
 </script>
 
@@ -51,6 +52,12 @@ async function handleLogin() {
           Профиль
         </RouterLink>
       </DropdownMenuItem>
+      <DropdownMenuItem v-if="userStore.isLoggedIn" as-child>
+        <RouterLink :to="ROUTER_PATHS.dbAccounts">
+          <Link2 class="size-6 mr-2" />
+          Привязки
+        </RouterLink>
+      </DropdownMenuItem>
       <DropdownMenuItem @click="userStore.userLogout">
         <LogOutIcon class="size-6 mr-2" />
         Выйти
@@ -58,8 +65,22 @@ async function handleLogin() {
     </DropdownMenuContent>
   </DropdownMenu>
 
-  <Button v-else :disabled="isLoading" @click="handleLogin">
-    <Loader2 v-if="isLoading" class="animate-spin" />
-    <span v-else>Логин</span>
-  </Button>
+  <DropdownMenu v-else>
+    <DropdownMenuTrigger as-child>
+      <Button :disabled="isLoading">
+        <Loader2 v-if="isLoading" class="animate-spin" />
+        <span v-else>Логин</span>
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent class="mt-4">
+      <DropdownMenuItem @click="handleLogin('twitch')">
+        <TwitchIcon class="size-4 mr-2" />
+        <span>Twitch</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem @click="handleLogin('kick')">
+        <Tv class="size-4 mr-2" />
+        <span>Kick</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
 </template>

@@ -39,11 +39,11 @@ describe('UserService', () => {
         ...existingUser,
         login: 'new-login',
       }
-      const findByTwitchId = mock(() => Promise.resolve(existingUser)) as unknown as
-        UserRepository['findByTwitchId']
+      const findByPlatformId = mock(() => Promise.resolve(existingUser)) as unknown as
+        UserRepository['findByPlatformId']
       const update = mock(() => Promise.resolve(updatedUser)) as unknown as
         UserRepository['update']
-      mockRepo.findByTwitchId = findByTwitchId
+      mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
       const result = await service.upsertUser('user-1', {
@@ -54,7 +54,7 @@ describe('UserService', () => {
       })
 
       expect(result).toEqual(updatedUser)
-      expect(findByTwitchId).toHaveBeenCalledWith('user-1')
+      expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-1')
       expect(update).toHaveBeenCalledWith('user-1', {
         login: 'new-login',
         role: UserRole.ADMIN,
@@ -76,11 +76,11 @@ describe('UserService', () => {
         color: '#333333',
         createdAt: new Date('2024-01-02'),
       }
-      const findByTwitchId = mock(() => Promise.resolve(null)) as unknown as
-        UserRepository['findByTwitchId']
+      const findByPlatformId = mock(() => Promise.resolve(null)) as unknown as
+        UserRepository['findByPlatformId']
       const create = mock(() => Promise.resolve(createdUser)) as unknown as
         UserRepository['create']
-      mockRepo.findByTwitchId = findByTwitchId
+      mockRepo.findByPlatformId = findByPlatformId
       mockRepo.create = create
 
       const result = await service.upsertUser('user-2', {
@@ -91,13 +91,16 @@ describe('UserService', () => {
       })
 
       expect(result).toEqual(createdUser)
-      expect(findByTwitchId).toHaveBeenCalledWith('user-2')
+      expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-2')
       expect(create).toHaveBeenCalledWith({
-        id: 'user-2',
         login: 'new-user',
         role: UserRole.USER,
         profileImageUrl: 'new-url',
         color: '#333333',
+        platform: 'TWITCH',
+        platformUserId: 'user-2',
+        platformLogin: 'new-user',
+        platformAvatar: 'new-url',
       })
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
         userId: 'user-2',
@@ -106,16 +109,16 @@ describe('UserService', () => {
     })
 
     it('creates a user by login when no user exists and data is incomplete', async () => {
-      const findByTwitchId = mock(() => Promise.resolve(null)) as unknown as
-        UserRepository['findByTwitchId']
+      const findByPlatformId = mock(() => Promise.resolve(null)) as unknown as
+        UserRepository['findByPlatformId']
       const createUserByLogin = mock(() => Promise.resolve({} as UserDomain))
-      mockRepo.findByTwitchId = findByTwitchId
+      mockRepo.findByPlatformId = findByPlatformId
       service.createUserByLogin = createUserByLogin as unknown as UserService['createUserByLogin']
 
       const result = await service.upsertUser('user-3', { login: 'partial-login' })
 
       expect(result).toEqual({} as UserDomain)
-      expect(findByTwitchId).toHaveBeenCalledWith('user-3')
+      expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-3')
       expect(createUserByLogin).toHaveBeenCalledWith('partial-login')
     })
   })
@@ -174,11 +177,14 @@ describe('UserService', () => {
       expect(result).toEqual(createdUser)
       expect(getTwitchUserById).toHaveBeenCalledWith('twitch-1')
       expect(create).toHaveBeenCalledWith({
-        id: 'twitch-1',
         login: 'twitch-login',
         role: UserRole.USER,
         profileImageUrl: 'https://image.url/avatar.png',
         color: '#333333',
+        platform: 'TWITCH',
+        platformUserId: 'twitch-1',
+        platformLogin: 'twitch-login',
+        platformAvatar: 'https://image.url/avatar.png',
       })
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
         userId: 'twitch-1',
@@ -228,13 +234,16 @@ describe('UserService', () => {
       expect(result).toEqual(createdUser)
       expect(searchTwitchUsers).toHaveBeenCalledWith('search-login')
       expect(create).toHaveBeenCalledWith({
-        id: 'twitch-2',
         login: 'search-login',
         role: UserRole.USER,
         profileImageUrl:
           'https://static-cdn.jtvnw.net/user-default-pictures-uv/' +
           'ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-300x300.png',
         color: '#333333',
+        platform: 'TWITCH',
+        platformUserId: 'twitch-2',
+        platformLogin: 'search-login',
+        platformAvatar: '',
       })
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
         userId: 'twitch-2',

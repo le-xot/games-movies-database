@@ -3,11 +3,14 @@ import { ProfileStatsDomain, UserDomain } from '@/modules/user/entities/user-dom
 import { RecordEntity } from '@/modules/record/record.entity'
 
 export interface CreateUserData {
-  id: string
   login: string
   role: UserRole
   profileImageUrl: string
   color: string
+  platform: string
+  platformUserId: string
+  platformLogin: string
+  platformAvatar?: string
 }
 
 export interface UpdateUserData {
@@ -17,8 +20,15 @@ export interface UpdateUserData {
   color?: string
 }
 
+export interface LinkPlatformData {
+  platform: string
+  platformUserId: string
+  platformLogin: string
+  platformAvatar?: string
+}
+
 export abstract class UserRepository {
-  abstract findByTwitchId(twitchId: string): Promise<UserDomain | null>
+  abstract findByPlatformId(platform: string, platformUserId: string): Promise<UserDomain | null>
   abstract findByLogin(login: string): Promise<UserDomain | null>
   abstract findById(id: string): Promise<UserDomain | null>
   abstract create(data: CreateUserData): Promise<UserDomain>
@@ -29,4 +39,5 @@ export abstract class UserRepository {
   abstract getProfileStatsById(id: string): Promise<ProfileStatsDomain>
   abstract getRecordsByLogin(login: string): Promise<RecordEntity[]>
   abstract getRecordsById(id: string): Promise<RecordEntity[]>
+  abstract linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void>
 }

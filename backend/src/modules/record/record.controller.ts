@@ -15,7 +15,6 @@ import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
-import { User } from '@/modules/auth/auth.user.decorator'
 import {
   GetAllRecordsDTO,
   RecordCreateFromLinkDTO,
@@ -24,7 +23,6 @@ import {
 } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
-import { UserEntity } from '@/modules/user/user.entity'
 import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @ApiTags('records')
@@ -36,11 +34,8 @@ export class RecordController {
   @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
-  async createRecordFromLink(
-    @User() user: UserEntity,
-    @Body() data: RecordCreateFromLinkDTO,
-  ): Promise<RecordEntity> {
-    return await this.recordServices.createRecordFromLink(user, data)
+  async createRecordFromLink(@Body() data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
+    return await this.recordServices.createRecordFromLink(data)
   }
 
   @Post()

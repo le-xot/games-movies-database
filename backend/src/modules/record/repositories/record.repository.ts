@@ -12,7 +12,6 @@ export interface CreateRecordData {
   link: string
   status?: RecordStatus
   type?: RecordType
-  userId: string
 }
 
 export interface UpdateRecordData {

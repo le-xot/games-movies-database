@@ -72,10 +72,6 @@ export class RecordUpdateDTO {
   @IsEnum(RecordType)
   type?: RecordType
 
-  @ApiProperty({ example: '1', required: false })
-  @IsOptional()
-  @IsString()
-  userId?: string
 }
 
 export class RecordGetDTO {
@@ -142,11 +138,6 @@ export class RecordGetDTO {
   @IsOptional()
   @IsString()
   episode?: string
-
-  @ApiProperty({ example: '1', required: false })
-  @IsOptional()
-  @IsString()
-  userId?: string
 
   @ApiProperty({ example: 'minecraft', required: false })
   @IsOptional()

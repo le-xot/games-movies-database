@@ -7,7 +7,6 @@ import {
   RecordType as RecordTypeName,
 } from '@/enums/enums.names'
 import { LikeEntity } from '@/modules/like/like.entity'
-import { UserEntity } from '@/modules/user/user.entity'
 
 export class RecordEntity {
   @ApiProperty()
@@ -36,12 +35,6 @@ export class RecordEntity {
 
   @ApiProperty()
   episode: string | null
-
-  @ApiProperty()
-  userId: string | null
-
-  @ApiProperty({ type: UserEntity, required: false, nullable: true })
-  user?: UserEntity | null
 
   @ApiProperty({ type: [LikeEntity], required: false, nullable: true })
   likes?: LikeEntity[] | null

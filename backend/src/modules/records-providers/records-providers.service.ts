@@ -126,7 +126,7 @@ export class RecordsProvidersService {
     }
   }
 
-  async prepareData(data: { link: string; userId: string }): Promise<PreparedData> {
+  async prepareData(data: { link: string }): Promise<PreparedData> {
     const newRecord = await this.resolveLink(data.link)
     if (!newRecord.title) throw new BadRequestException('Не удалось получить данные из API')
 

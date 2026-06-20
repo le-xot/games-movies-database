@@ -5,7 +5,6 @@ import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/recor
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordRepository } from '@/modules/record/repositories/record.repository'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { UserEntity } from '@/modules/user/user.entity'
 import type {
   UpdateAuctionPayload,
   UpdateQueuePayload,
@@ -23,14 +22,10 @@ export class RecordService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async createRecordFromLink(
-    user: UserEntity,
-    data: RecordCreateFromLinkDTO,
-  ): Promise<RecordEntity> {
-    this.logger.log(`Creating record from link for user=${user.id} link=${data.link}`)
+  async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
+    this.logger.log(`Creating record from link link=${data.link}`)
     const preparedData = await this.recordsProviderService.prepareData({
       link: data.link,
-      userId: user.id,
     })
 
     const createdData = await this.recordRepository.create({
@@ -38,7 +33,6 @@ export class RecordService {
       link: data.link,
       status: data.status || RecordStatus.QUEUE,
       type: data.type || RecordType.WRITTEN,
-      userId: user.id,
     })
 
     if (
@@ -163,7 +157,6 @@ export class RecordService {
       status?: RecordStatus
       type?: RecordType
       grade?: RecordGrade
-      userId?: string
       genre?: RecordGenre
     },
     orderBy?: 'title' | 'id',
@@ -175,7 +168,6 @@ export class RecordService {
       status: filters?.status,
       type: filters?.type,
       grade: filters?.grade,
-      userId: filters?.userId,
       genre: filters?.genre,
     }
     const sortOptions = { orderBy, direction }

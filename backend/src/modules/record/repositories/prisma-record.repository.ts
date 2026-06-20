@@ -27,7 +27,6 @@ export class PrismaRecordRepository extends RecordRepository {
         link: data.link,
         status: data.status,
         type: data.type,
-        user: { connect: { id: data.userId } },
       },
     })
   }
@@ -35,7 +34,7 @@ export class PrismaRecordRepository extends RecordRepository {
   async findById(id: number): Promise<RecordWithRelations | null> {
     return await this.prisma.record.findUnique({
       where: { id },
-      include: { user: true, likes: true },
+      include: { likes: true },
     })
   }
 
@@ -43,28 +42,15 @@ export class PrismaRecordRepository extends RecordRepository {
     const where: Prisma.RecordWhereInput = {}
 
     if (filters.search) {
-      where.OR = [
-        {
-          title: {
-            contains: filters.search.trim(),
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        {
-          user: {
-            login: {
-              contains: filters.search.trim(),
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-        },
-      ]
+      where.title = {
+        contains: filters.search.trim(),
+        mode: Prisma.QueryMode.insensitive,
+      }
     }
 
     if (filters.status) where.status = filters.status
     if (filters.type) where.type = filters.type
     if (filters.grade) where.grade = filters.grade
-    if (filters.userId) where.userId = filters.userId
     if (filters.genre) where.genre = filters.genre
 
     return where
@@ -78,7 +64,7 @@ export class PrismaRecordRepository extends RecordRepository {
     const where = this.buildWhere(filters)
     return await this.prisma.record.findMany({
       where: Object.keys(where).length > 0 ? where : undefined,
-      include: { user: true, likes: true },
+      include: { likes: true },
       orderBy: { [sort.orderBy || 'id']: sort.direction || 'asc' },
       skip: pagination.skip,
       take: pagination.take,
@@ -95,7 +81,7 @@ export class PrismaRecordRepository extends RecordRepository {
   async update(id: number, data: UpdateRecordData): Promise<RecordWithRelations> {
     return await this.prisma.record.update({
       where: { id },
-      include: { user: true, likes: true },
+      include: { likes: true },
       data,
     })
   }

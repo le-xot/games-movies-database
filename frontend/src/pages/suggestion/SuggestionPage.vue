@@ -18,14 +18,13 @@ function toggleSort() {
 }
 
 function handleMarkAllAsViewed() {
-  suggestion.suggestions?.forEach((record) => {
-    const newRecords = useNewRecords()
+  if (!suggestion.suggestions?.length) return
+  const newRecords = useNewRecords()
+  suggestion.suggestions.forEach((record) => {
     newRecords.markRecordAsViewed(record.id)
-    toast({
-      title: 'Успешно',
-      description: 'Все записи отмечены как просмотренные',
-      variant: 'default',
-    })
+  })
+  toast('Успешно', {
+    description: 'Все записи отмечены как просмотренные',
   })
 }
 </script>

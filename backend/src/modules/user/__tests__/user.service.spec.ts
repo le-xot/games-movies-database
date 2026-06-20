@@ -250,4 +250,29 @@ describe('UserService', () => {
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
   })
+
+  describe('getLinkedAccounts', () => {
+    it('delegates to repository.findAccountsByUserId', async () => {
+      const accounts = [
+        {
+          id: 1,
+          userId: 'user-1',
+          platform: 'TWITCH' as const,
+          platformUserId: 'twitch-123',
+          platformLogin: 'twitchuser',
+          platformAvatar: 'url',
+          createdAt: new Date('2024-01-10'),
+        },
+      ]
+      const findAccountsByUserId = mock(() =>
+        Promise.resolve(accounts),
+      ) as unknown as UserRepository['findAccountsByUserId']
+      mockRepo.findAccountsByUserId = findAccountsByUserId
+
+      const result = await service.getLinkedAccounts('user-1')
+
+      expect(result).toEqual(accounts)
+      expect(findAccountsByUserId).toHaveBeenCalledWith('user-1')
+    })
+  })
 })

@@ -4,6 +4,7 @@ import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { THROTTLER_LIMITS } from '@/utils/throttler'
@@ -31,15 +32,8 @@ export class UserController {
   @Get(':id')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
-  async getUserById(@Param('id') id: string) {
+  async getUserById(@Param('id') id: string): Promise<UserDomain | null> {
     return await this.userService.getUserById(id)
-  }
-
-  @Get(':login')
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
-  @ApiResponse({ status: HttpStatus.OK })
-  async getUserByLogin(@Param('login') login: string) {
-    return await this.userService.getUserByLogin(login)
   }
 
   @Delete(':id')
@@ -48,13 +42,5 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteUser(@Param('id') id: string): Promise<void> {
     await this.userService.deleteUserById(id)
-  }
-
-  @Delete(':login')
-  @Throttle({ default: THROTTLER_LIMITS.write })
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
-  @ApiResponse({ status: HttpStatus.NO_CONTENT })
-  async deleteUserByLogin(@Param('login') login: string): Promise<void> {
-    await this.userService.deleteUserByLogin(login)
   }
 }

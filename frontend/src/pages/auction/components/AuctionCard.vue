@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { RecordEntity } from '@/lib/api'
-import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 import { getImageUrl } from '@/utils/image'
 
@@ -63,19 +60,6 @@ defineExpose({ isDialogOpen })
                 {{ item.link }}
               </a>
             </CardContent>
-            <CardFooter class="flex flex-col items-start gap-3 w-full">
-              <div v-if="item.user" class="flex items-center gap-2">
-                <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.id}`">
-                  <Avatar class="w-8 h-8 mr-2">
-                    <AvatarImage :src="item.user.profileImageUrl" />
-                    <AvatarFallback />
-                  </Avatar>
-                </RouterLink>
-                <div class="text-base text-white font-medium">
-                  {{ item.user.login }}
-                </div>
-              </div>
-            </CardFooter>
           </div>
         </div>
       </Card>

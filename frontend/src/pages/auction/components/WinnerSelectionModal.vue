@@ -120,9 +120,6 @@ watch(open, (isOpen) => {
           />
           <div v-else class="text-muted-foreground">Нет изображения</div>
         </div>
-        <div v-if="currentItem.user" class="text-base font-medium">
-          Предложил: {{ currentItem.user!.login }}
-        </div>
         <div class="font-bold text-2xl text-green-500">🎉 Победитель! 🎉</div>
         <div class="flex gap-4 justify-center mt-4">
           <Button variant="default" size="lg" @click="approve"> Принять </Button>

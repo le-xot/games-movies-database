@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { QueueItemDto } from '@/lib/api'
-import { ROUTER_PATHS } from '@/router/router-paths'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 import { getImageUrl } from '@/utils/image'
 
 defineProps<{ items: QueueItemDto[] }>()
-
-function isShow(item: QueueItemDto) {
-  return item.title && item.login
-}
 
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
@@ -26,7 +19,7 @@ function handleImageError(event: Event) {
     </p>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
       <template v-for="item in items" :key="item.link">
-        <Card v-if="isShow(item)" class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col">
+        <Card v-if="item.title" class="bg-[var(--n-action-color)] min-h-[200px] flex flex-col">
           <div class="flex flex-1 h-full">
             <div
               v-if="item.posterUrl"
@@ -59,21 +52,6 @@ function handleImageError(event: Event) {
                   </a>
                 </CardTitle>
               </CardHeader>
-              <CardContent class="flex flex-col items-start gap-3 w-full px-6 py-2">
-                <div class="flex justify-between w-full">
-                  <div class="flex items-center">
-                    <RouterLink :to="`${ROUTER_PATHS.profile}/${item.userId}`">
-                      <Avatar class="w-8 h-8 mr-2">
-                        <AvatarImage :src="item.profileImageUrl" />
-                        <AvatarFallback />
-                      </Avatar>
-                    </RouterLink>
-                    <div class="text-base text-white font-medium">
-                      {{ item.login }}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
               <CardFooter class="text-sm block whitespace-nowrap overflow-hidden text-ellipsis">
                 <span class="text-xs text-muted-foreground">{{ item.createdAt }}</span>
               </CardFooter>

@@ -8,9 +8,7 @@
     "test": "bun test",
     "start": "bun run ./src/main.ts",
     "dev": "bun run --watch --no-clear-screen ./src/main.ts",
-    "seed": "bun run ./prisma/seed.js",
-    "prestart": "bun prisma migrate deploy && bun seed",
-    "predev": "bun seed",
+    "prestart": "bun prisma migrate deploy",
     "prisma": "bunx prisma"
   },
   "dependencies": {

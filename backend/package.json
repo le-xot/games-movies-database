@@ -12,6 +12,7 @@
     "prisma": "bunx prisma"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1073.0",
     "@nestjs/common": "11.1.18",
     "@nestjs/core": "11.1.18",
     "@nestjs/event-emitter": "3.0.1",

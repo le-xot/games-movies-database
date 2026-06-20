@@ -1,31 +1,35 @@
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
-import { stat } from 'node:fs/promises'
-import path from 'node:path'
-import { env } from 'node:process'
-import { fileURLToPath } from 'node:url'
+import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import sharp from 'sharp'
+import { env } from '@/utils/enviroments'
 
 @Injectable()
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
-  private readonly imagesDir = fileURLToPath(new URL('../../../images', import.meta.url))
+  private readonly s3 = new S3Client({
+    region: 'auto',
+    endpoint: env.R2_ENDPOINT,
+    credentials: {
+      accessKeyId: env.R2_ACCESS_KEY_ID,
+      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+    },
+  })
+  private readonly bucket = 'images'
 
   async getImageContent(urlBase64: string) {
     const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
-
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
-    const fileDiskPath = path.resolve(this.imagesDir, `${urlHash}.webp`)
+    const key = `${urlHash}.webp`
 
-    const isFileExists = await stat(fileDiskPath)
-      .then(() => true)
-      .catch(() => false)
-    if (isFileExists) {
-      return {
-        fileDiskPath,
-        contentType: 'image/webp',
-      }
+    try {
+      await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }))
+      const obj = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }))
+      const buffer = Buffer.from(await obj.Body.transformToByteArray())
+      return { buffer, contentType: 'image/webp' }
+    } catch {
+      // cache miss — continue to fetch
     }
 
     try {
@@ -72,15 +76,16 @@ export class ImgService {
       }
 
       const fileContent = await response.arrayBuffer()
-
       const imageBuffer = await sharp(fileContent).resize(300, 450).webp().toBuffer()
 
-      await Bun.write(fileDiskPath, imageBuffer)
+      await this.s3.send(new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: imageBuffer,
+        ContentType: 'image/webp',
+      }))
 
-      return {
-        fileDiskPath,
-        contentType: 'image/webp',
-      }
+      return { buffer: imageBuffer, contentType: 'image/webp' }
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error

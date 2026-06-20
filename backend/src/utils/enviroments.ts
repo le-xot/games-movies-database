@@ -30,4 +30,10 @@ export const env = cleanEnv(process.env, {
   TMBD_API: str({ default: null }),
 
   TWIR_API: str({ default: null }),
+
+  PROXY: str({ default: null }),
+
+  R2_ENDPOINT: str({}),
+  R2_ACCESS_KEY_ID: str({}),
+  R2_SECRET_ACCESS_KEY: str({}),
 })

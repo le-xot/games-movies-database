@@ -1,5 +1,3 @@
-import { Buffer } from 'node:buffer'
-import { stat } from 'node:fs/promises'
 import { Controller, Get, Query, Res } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
 import { ImgService } from '@/modules/img/img.service'
@@ -13,21 +11,13 @@ export class ImgController {
   @Get()
   @Throttle({ default: THROTTLER_LIMITS.img })
   async getImageContent(@Query('urlEncoded') urlEncoded: string, @Res() res: Response) {
-    const { fileDiskPath, contentType } = await this.imgService.getImageContent(urlEncoded)
-
-    const fileStats = await stat(fileDiskPath)
+    const { buffer, contentType } = await this.imgService.getImageContent(urlEncoded)
 
     res.setHeader('Content-Type', contentType)
-    res.setHeader('Content-Length', fileStats.size.toString())
+    res.setHeader('Content-Length', buffer.length.toString())
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
     res.setHeader('ETag', `"${urlEncoded}"`)
 
-    const file = Bun.file(fileDiskPath)
-
-    const bunStream = file.stream()
-    const response = new Response(bunStream)
-
-    const buffer = await response.arrayBuffer()
-    res.end(Buffer.from(buffer))
+    res.end(buffer)
   }
 }

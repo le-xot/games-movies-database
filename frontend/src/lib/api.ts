@@ -918,10 +918,10 @@ export class Api<SecurityDataType extends unknown> {
         link?: string;
         /** @example "https://example.com/poster.jpg" */
         posterUrl?: string;
-        status?: RecordStatus;
+        status?: RecordStatus[];
         type?: RecordType;
         genre?: RecordGenre;
-        grade?: RecordGrade;
+        grade?: RecordGrade[];
         /** @example "S01E01" */
         episode?: string;
         /** @example "minecraft" */

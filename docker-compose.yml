@@ -32,8 +32,6 @@ services:
     env_file: .env
     environment:
       DATASOURCE_URL: postgresql://${POSTGRES_USER:-le_xot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lists}?schema=public
-    volumes:
-      - images:/app/images
     networks:
       - default
       - caddy
@@ -43,7 +41,6 @@ services:
 
 volumes:
   pgdata:
-  images:
 
 networks:
   caddy:

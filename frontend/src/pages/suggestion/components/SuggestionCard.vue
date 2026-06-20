@@ -3,15 +3,19 @@ import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from '@lucide/vue'
 import { useThrottleFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
-import { ROUTER_PATHS } from '@/router/router-paths'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
 import { generateWatchLink } from '@/utils/generate-watch-link'
@@ -197,26 +201,52 @@ function toggleGenreCollapse(genre: RecordGenre) {
                 'border-2 border-primary': newRecords.isRecordNew(item.id),
               }"
             >
-              <button
-                size="sm"
-                :disabled="likingStates.get(item.id)"
-                :class="
-                  isLikedByCurrentUser(item)
-                    ? 'bg-red-500/50 border-red-500'
-                    : 'bg-[hsla(var(--primary-foreground))] border-white'
-                "
-                class="flex justify-center outline-1 backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
-                @click="handleLikeClick(item.id)"
-              >
-                <Heart
-                  v-if="isLikedByCurrentUser(item)"
-                  color="red"
-                  fill="rgb(239 68 68)"
-                  class="w-6 h-6"
-                />
-                <Heart v-else class="w-6 h-6" />
-                <span class="ml-1">{{ getLikesCount(item) }}</span>
-              </button>
+              <TooltipProvider :delay-duration="200">
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <button
+                      size="sm"
+                      :disabled="likingStates.get(item.id)"
+                      :class="
+                        isLikedByCurrentUser(item)
+                          ? 'bg-red-500/50 border-red-500'
+                          : 'bg-[hsla(var(--primary-foreground))] border-white'
+                      "
+                      class="flex justify-center outline-1 backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
+                      @click="handleLikeClick(item.id)"
+                    >
+                      <Heart
+                        v-if="isLikedByCurrentUser(item)"
+                        color="red"
+                        fill="rgb(239 68 68)"
+                        class="w-6 h-6"
+                      />
+                      <Heart v-else class="w-6 h-6" />
+                      <span class="ml-1">{{ getLikesCount(item) }}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    v-if="item.likes?.length"
+                    side="top"
+                    class="flex flex-col gap-1.5 p-2"
+                  >
+                    <div
+                      v-for="likeItem in item.likes"
+                      :key="likeItem.id"
+                      class="flex items-center gap-2"
+                    >
+                      <Avatar class="w-5 h-5">
+                        <AvatarImage
+                          v-if="likeItem.user?.profileImageUrl"
+                          :src="likeItem.user.profileImageUrl"
+                        />
+                        <AvatarFallback />
+                      </Avatar>
+                      <span class="text-sm">{{ likeItem.user?.login }}</span>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <div class="flex flex-1 h-full">
                 <div
                   v-if="item.posterUrl"
@@ -315,14 +345,10 @@ function toggleGenreCollapse(genre: RecordGenre) {
                       class="flex justify-between w-full mb-3"
                     >
                       <div class="flex items-center">
-                        <RouterLink
-                          :to="`${ROUTER_PATHS.profile}/${item.suggestionOwnership.user.id}`"
-                        >
-                          <Avatar class="w-8 h-8 mr-2">
-                            <AvatarImage :src="item.suggestionOwnership.user.profileImageUrl" />
-                            <AvatarFallback />
-                          </Avatar>
-                        </RouterLink>
+                        <Avatar class="w-8 h-8 mr-2">
+                          <AvatarImage :src="item.suggestionOwnership.user.profileImageUrl" />
+                          <AvatarFallback />
+                        </Avatar>
                         <div class="text-base text-white font-medium">
                           {{ item.suggestionOwnership.user.login }}
                         </div>

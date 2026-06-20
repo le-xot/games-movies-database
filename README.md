@@ -93,8 +93,6 @@ bun dev
 | `TWITCH_CLIENT_ID` | Twitch OAuth Client ID | Нет |
 | `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret | Нет |
 | `TWITCH_CALLBACK_URL` | URL callback после Twitch авторизации | Нет |
-| `TWITCH_ADMIN_ID` | Twitch User ID администратора | Нет |
-| `TWITCH_ADMIN_LOGIN` | Twitch username администратора | Нет |
 | `KICK_CLIENT_ID` | Kick OAuth Client ID | Нет |
 | `KICK_CLIENT_SECRET` | Kick OAuth Client Secret | Нет |
 | `KICK_CALLBACK_URL` | URL callback после Kick авторизации | Нет |
@@ -217,8 +215,6 @@ games-movies-database/
 TWITCH_CLIENT_ID=your_client_id
 TWITCH_CLIENT_SECRET=your_client_secret
 TWITCH_CALLBACK_URL=http://localhost:5173/auth/callback
-TWITCH_ADMIN_ID=your_twitch_user_id
-TWITCH_ADMIN_LOGIN=your_twitch_username
 ```
 
 ### Kick

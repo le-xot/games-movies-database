@@ -93,8 +93,6 @@ File: `backend/.env` (copy from `backend/.env.example`)
 | `TWITCH_CLIENT_ID` | Twitch OAuth Client ID | No |
 | `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret | No |
 | `TWITCH_CALLBACK_URL` | URL callback after Twitch authorization | No |
-| `TWITCH_ADMIN_ID` | Twitch User ID of admin | No |
-| `TWITCH_ADMIN_LOGIN` | Twitch username of admin | No |
 | `KICK_CLIENT_ID` | Kick OAuth Client ID | No |
 | `KICK_CLIENT_SECRET` | Kick OAuth Client Secret | No |
 | `KICK_CALLBACK_URL` | URL callback after Kick authorization | No |
@@ -217,8 +215,6 @@ Getting credentials:
 TWITCH_CLIENT_ID=your_client_id
 TWITCH_CLIENT_SECRET=your_client_secret
 TWITCH_CALLBACK_URL=http://localhost:5173/auth/callback
-TWITCH_ADMIN_ID=your_twitch_user_id
-TWITCH_ADMIN_LOGIN=your_twitch_username
 ```
 
 ### Kick

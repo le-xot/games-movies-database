@@ -310,9 +310,14 @@ function toggleGenreCollapse(genre: RecordGenre) {
                         </Button>
                       </div>
                     </div>
-                    <div v-if="item.suggestionOwnership?.user" class="flex justify-between w-full mb-3">
+                    <div
+                      v-if="item.suggestionOwnership?.user"
+                      class="flex justify-between w-full mb-3"
+                    >
                       <div class="flex items-center">
-                        <RouterLink :to="`${ROUTER_PATHS.profile}/${item.suggestionOwnership.user.id}`">
+                        <RouterLink
+                          :to="`${ROUTER_PATHS.profile}/${item.suggestionOwnership.user.id}`"
+                        >
                           <Avatar class="w-8 h-8 mr-2">
                             <AvatarImage :src="item.suggestionOwnership.user.profileImageUrl" />
                             <AvatarFallback />

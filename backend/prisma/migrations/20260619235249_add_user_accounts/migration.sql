@@ -41,32 +41,36 @@ WHERE "id" NOT IN (SELECT "platformUserId" FROM "user_accounts" WHERE "platform"
 ALTER TABLE "records" DROP CONSTRAINT IF EXISTS "records_userId_fkey";
 ALTER TABLE "likes" DROP CONSTRAINT IF EXISTS "likes_userId_fkey";
 
--- Data Migration: Update FK references (only if newId column exists and is populated)
+-- Clean up orphaned likes (likes referencing non-existent users)
+DELETE FROM "likes" WHERE "userId" NOT IN (SELECT "id" FROM "users");
+
+-- Clean up orphaned records (records referencing non-existent users)
+UPDATE "records" SET "userId" = NULL WHERE "userId" IS NOT NULL AND "userId" NOT IN (SELECT "id" FROM "users");
+
+-- Data Migration: Update FK references (only if newId column exists and id is still Twitch ID)
 DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'newId') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'newId')
+     AND EXISTS (SELECT 1 FROM "users" WHERE "id" ~ '^[0-9]+$') THEN
     UPDATE "records" SET "userId" = (
       SELECT "newId" FROM "users" WHERE "users"."id" = "records"."userId"
-    ) WHERE "userId" IS NOT NULL AND EXISTS (SELECT 1 FROM "users" WHERE "users"."id" = "records"."userId");
+    ) WHERE "userId" IS NOT NULL;
 
     UPDATE "likes" SET "userId" = (
       SELECT "newId" FROM "users" WHERE "users"."id" = "likes"."userId"
-    ) WHERE EXISTS (SELECT 1 FROM "users" WHERE "users"."id" = "likes"."userId");
+    );
   END IF;
 END $$;
 
 -- Data Migration: Swap columns (only if old "id" column still exists as Twitch ID)
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'newId')
-     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'id') THEN
-    -- Check if id is still the Twitch ID (not UUID) by checking if it matches platformUserId pattern
-    IF EXISTS (SELECT 1 FROM "users" WHERE "id" ~ '^[0-9]+$') THEN
-      ALTER TABLE "users" DROP CONSTRAINT "users_pkey";
-      ALTER TABLE "users" DROP COLUMN "id";
-      ALTER TABLE "users" RENAME COLUMN "newId" TO "id";
-      ALTER TABLE "users" ALTER COLUMN "id" SET NOT NULL;
-      ALTER TABLE "users" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()::text;
-      ALTER TABLE "users" ADD CONSTRAINT "users_pkey" PRIMARY KEY ("id");
-    END IF;
+     AND EXISTS (SELECT 1 FROM "users" WHERE "id" ~ '^[0-9]+$') THEN
+    ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "users_pkey";
+    ALTER TABLE "users" DROP COLUMN "id";
+    ALTER TABLE "users" RENAME COLUMN "newId" TO "id";
+    ALTER TABLE "users" ALTER COLUMN "id" SET NOT NULL;
+    ALTER TABLE "users" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()::text;
+    ALTER TABLE "users" ADD CONSTRAINT "users_pkey" PRIMARY KEY ("id");
   END IF;
 END $$;
 

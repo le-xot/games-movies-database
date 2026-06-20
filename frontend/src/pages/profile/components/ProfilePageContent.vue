@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Check, Pencil, X } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useUser } from '@/stores/use-user'
@@ -11,11 +10,7 @@ import ProfileHeader from './ProfileHeader.vue'
 
 useTitle('Профиль')
 
-const route = useRoute()
 const userStore = useUser()
-const userId = computed(() => (route.params.userId as string) || undefined)
-
-const isOwnProfile = computed(() => !userId.value || userId.value === userStore.user?.id)
 
 const isEditingNickname = ref(false)
 const nicknameInput = ref('')
@@ -72,9 +67,9 @@ async function saveNickname() {
 
 <template>
   <div class="container py-8 flex flex-col gap-8 h-full">
-    <ProfileHeader v-if="userStore.user" :user="userStore.user" :is-own-profile="isOwnProfile" />
+    <ProfileHeader v-if="userStore.user" :user="userStore.user" />
 
-    <div v-if="isOwnProfile" class="max-w-md space-y-2">
+    <div class="max-w-md space-y-2">
       <div class="text-sm text-muted-foreground">Никнейм</div>
       <div v-if="!isEditingNickname" class="flex items-center gap-2">
         <span class="text-lg font-medium">{{ userStore.user?.login }}</span>
@@ -112,6 +107,6 @@ async function saveNickname() {
       <p v-if="nicknameError" class="text-sm text-red-500">{{ nicknameError }}</p>
     </div>
 
-    <ConnectedAccounts v-if="isOwnProfile" />
+    <ConnectedAccounts />
   </div>
 </template>

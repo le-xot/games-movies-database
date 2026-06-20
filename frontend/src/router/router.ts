@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
@@ -90,12 +91,18 @@ router.beforeEach(async (to, _, next) => {
   const requiresAuth = to.meta.requiresAuth || to.meta.requiresAdmin
 
   if (requiresAuth) {
-    if (!userStore.isInitialized) {
-      try {
-        await userStore.fetchUser()
-      } catch (error) {
-        console.error('Failed to fetch user data:', error)
-      }
+    if (userStore.isLoading) {
+      await new Promise<void>((resolve) => {
+        const stop = watch(
+          () => userStore.isLoading,
+          (loading) => {
+            if (!loading) {
+              stop()
+              resolve()
+            }
+          },
+        )
+      })
     }
 
     if (to.meta.requiresAdmin) {
@@ -110,9 +117,6 @@ router.beforeEach(async (to, _, next) => {
       next()
     }
   } else {
-    if (!userStore.isInitialized) {
-      void userStore.fetchUser()
-    }
     next()
   }
 })

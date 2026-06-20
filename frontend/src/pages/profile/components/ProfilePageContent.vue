@@ -90,50 +90,52 @@ function deleteAccount() {
 </script>
 
 <template>
-  <div class="container py-8 flex flex-col gap-8 min-h-full">
-    <ProfileHeader v-if="userStore.user" :user="userStore.user" />
+  <div class="container py-8 flex flex-col sm:flex-row gap-8 min-h-full">
+    <div class="flex-1 flex flex-col gap-8">
+      <ProfileHeader v-if="userStore.user" :user="userStore.user" />
 
-    <div class="max-w-md space-y-2">
-      <div class="text-sm text-muted-foreground">Никнейм</div>
-      <div v-if="!isEditingNickname" class="flex items-center gap-2">
-        <span class="text-lg font-medium">{{ userStore.user?.login }}</span>
-        <Button variant="ghost" size="icon" class="size-8" @click="startEditNickname">
-          <Pencil class="size-4" />
-        </Button>
+      <div class="max-w-md space-y-2">
+        <div class="text-sm text-muted-foreground">Никнейм</div>
+        <div v-if="!isEditingNickname" class="flex items-center gap-2">
+          <span class="text-lg font-medium">{{ userStore.user?.login }}</span>
+          <Button variant="ghost" size="icon" class="size-8" @click="startEditNickname">
+            <Pencil class="size-4" />
+          </Button>
+        </div>
+        <div v-else class="flex items-center gap-2">
+          <Input
+            v-model="nicknameInput"
+            class="max-w-[200px]"
+            maxlength="32"
+            @keydown.enter="saveNickname"
+            @keydown.escape="cancelEditNickname"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-8"
+            :disabled="isSavingNickname"
+            @click="saveNickname"
+          >
+            <Check class="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-8"
+            :disabled="isSavingNickname"
+            @click="cancelEditNickname"
+          >
+            <X class="size-4" />
+          </Button>
+        </div>
+        <p v-if="nicknameError" class="text-sm text-red-500">{{ nicknameError }}</p>
       </div>
-      <div v-else class="flex items-center gap-2">
-        <Input
-          v-model="nicknameInput"
-          class="max-w-[200px]"
-          maxlength="32"
-          @keydown.enter="saveNickname"
-          @keydown.escape="cancelEditNickname"
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          class="size-8"
-          :disabled="isSavingNickname"
-          @click="saveNickname"
-        >
-          <Check class="size-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          class="size-8"
-          :disabled="isSavingNickname"
-          @click="cancelEditNickname"
-        >
-          <X class="size-4" />
-        </Button>
-      </div>
-      <p v-if="nicknameError" class="text-sm text-red-500">{{ nicknameError }}</p>
+
+      <ConnectedAccounts />
     </div>
 
-    <ConnectedAccounts />
-
-    <div class="max-w-md space-y-2 border border-destructive/30 rounded-md p-4 mt-auto">
+    <div class="sm:w-64 space-y-2 border border-destructive/30 rounded-md p-4 h-fit sm:mt-auto">
       <div class="text-sm font-semibold text-destructive">Опасная зона</div>
       <p class="text-sm text-muted-foreground">
         Удаление аккаунта необратимо. Все ваши данные будут удалены.

@@ -6,7 +6,6 @@ import { useAuctions } from '@/pages/auction/composables/use-auctions'
 import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
 import { useGames } from '@/pages/games/composables/use-games'
 import { useMovie } from '@/pages/movie/composables/use-movie'
-import { useQueue } from '@/pages/queue/composables/use-queue'
 import { useSeries } from '@/pages/series/composables/use-series'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useUser } from '@/stores/use-user'
@@ -14,7 +13,6 @@ import { useUser } from '@/stores/use-user'
 export function useWebSocket() {
   const socket = ref<ReturnType<typeof io> | null>(null)
   const isConnected = ref(false)
-  const queueStore = useQueue()
   const animeStore = useAnime()
   const cartoonStore = useCartoon()
   const seriesStore = useSeries()
@@ -27,7 +25,6 @@ export function useWebSocket() {
   const coalescer = createEventCoalescer({
     handlers: {
       suggestions: () => suggestionStore.refetchSuggestions(),
-      queue: () => queueStore.refetchQueue(),
       auction: () => {
         if (userStore.isAdmin) auctionStore.refetchAuctions()
       },
@@ -69,7 +66,7 @@ export function useWebSocket() {
         coalescer.enqueue('suggestions')
       })
       .on('update-queue', () => {
-        coalescer.enqueue('queue')
+        coalescer.enqueue('suggestions')
       })
       .on('update-suggestions', () => {
         coalescer.enqueue('suggestions')

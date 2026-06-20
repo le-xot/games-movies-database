@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Gavel, Heart, ListOrdered, PencilOff, Trash2 } from '@lucide/vue'
+import { Crown, Gavel, Heart, ListOrdered, PencilOff, Trash2 } from '@lucide/vue'
 import { useThrottleFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
+import { RecordEntity, RecordGenre, RecordType, UserRole } from '@/lib/api'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
@@ -60,7 +60,6 @@ const groupedItems = computed(() => {
   const groups = new Map<RecordGenre, RecordEntity[]>()
 
   for (const item of props.items) {
-    // Skip elements without genre
     if (!item.genre) continue
 
     if (!groups.has(item.genre)) {
@@ -76,6 +75,11 @@ const groupedItems = computed(() => {
     } else {
       items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
     }
+
+    const queued = items.filter((i) => isQueued(i))
+    const nonQueued = items.filter((i) => !isQueued(i))
+    items.length = 0
+    items.push(...queued, ...nonQueued)
   }
 
   const groupOrder: RecordGenre[] = [
@@ -129,6 +133,10 @@ function isLikedByCurrentUser(item: RecordEntity) {
 
 function getLikesCount(item: RecordEntity) {
   return item.likes?.length || 0
+}
+
+function isQueued(item: RecordEntity) {
+  return item.type === RecordType.WRITTEN
 }
 
 function handleLikeClick(itemId: number) {
@@ -193,13 +201,15 @@ function toggleGenreCollapse(genre: RecordGenre) {
               class="bg-[var(--n-action-color)] min-h-[250px] flex flex-col transition-[height,border-color,border-width] duration-300"
               :class="{
                 'h-[250px]': isAdmin,
-                'border-2 border-primary': newRecords.isRecordNew(item.id),
+                'border-2 border-primary': newRecords.isRecordNew(item.id) && !isQueued(item),
+                'border-2 border-yellow-400': isQueued(item),
               }"
             >
               <TooltipProvider :delay-duration="200">
                 <Tooltip>
                   <TooltipTrigger as-child>
                     <button
+                      v-if="!isQueued(item)"
                       size="sm"
                       :disabled="likingStates.get(item.id)"
                       :class="
@@ -219,9 +229,15 @@ function toggleGenreCollapse(genre: RecordGenre) {
                       <Heart v-else class="w-6 h-6" />
                       <span class="ml-1">{{ getLikesCount(item) }}</span>
                     </button>
+                    <div
+                      v-else
+                      class="flex justify-center outline-1 backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0 bg-yellow-400/30 border-yellow-400"
+                    >
+                      <Crown class="w-6 h-6 text-yellow-400" />
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent
-                    v-if="item.likes?.length"
+                    v-if="!isQueued(item) && item.likes?.length"
                     side="top"
                     class="flex flex-col gap-1.5 p-2"
                   >
@@ -283,6 +299,7 @@ function toggleGenreCollapse(genre: RecordGenre) {
                     <div class="flex justify-between w-full">
                       <div
                         v-if="
+                          !isQueued(item) &&
                           item.suggestionOwnership?.user &&
                           item.suggestionOwnership.user.role === UserRole.USER &&
                           item.suggestionOwnership.user.id === currentUserId
@@ -302,6 +319,7 @@ function toggleGenreCollapse(genre: RecordGenre) {
                     <div class="flex justify-between w-full">
                       <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-3 mb-3">
                         <Button
+                          v-if="!isQueued(item)"
                           variant="default"
                           size="sm"
                           class="text-sm w-36"

@@ -51,8 +51,25 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
   }
 
   async findSuggestions(filters: SuggestionFilters): Promise<RecordWithRelations[]> {
+    let where: Record<string, unknown>
+
+    if (filters.types && filters.types.length > 0) {
+      where = {
+        OR: filters.types.map((t) => {
+          if (filters.statuses && filters.statuses.length > 0 && t !== RecordType.SUGGESTION) {
+            return { type: t, status: { in: filters.statuses } }
+          }
+          return { type: t }
+        }),
+      }
+    } else if (filters.type) {
+      where = { type: filters.type }
+    } else {
+      where = {}
+    }
+
     return await this.prisma.record.findMany({
-      where: { type: filters.type },
+      where,
       include: {
         suggestionOwnership: { include: { user: true } },
         likes: { include: { user: true } },

@@ -31,7 +31,7 @@ export const router = createRouter({
     {
       path: ROUTER_PATHS.db,
       component: () => import('@/components/layout/db/LayoutDatabase.vue'),
-      redirect: { path: ROUTER_PATHS.dbQueue },
+      redirect: { path: ROUTER_PATHS.dbSuggestion },
       children: [
         {
           path: ROUTER_PATHS.admin,
@@ -47,10 +47,6 @@ export const router = createRouter({
           path: ROUTER_PATHS.dbAuction,
           component: () => import('@/pages/auction/AuctionPage.vue'),
           meta: { requiresAdmin: true },
-        },
-        {
-          path: ROUTER_PATHS.dbQueue,
-          component: () => import('@/pages/queue/QueuePage.vue'),
         },
         {
           path: ROUTER_PATHS.dbSuggestion,

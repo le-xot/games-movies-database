@@ -10,7 +10,9 @@ export interface CreateSuggestionData {
 }
 
 export interface SuggestionFilters {
-  type: RecordType
+  type?: RecordType
+  types?: RecordType[]
+  statuses?: string[]
 }
 
 export abstract class SuggestionRepository {

@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { LimitType, RecordType } from '@/enums'
+import { LimitType, RecordStatus, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { SuggestionRepository } from '@/modules/suggestion/repositories/suggestion.repository'
 import type { RecordEntity } from '@/modules/record/record.entity'
@@ -61,7 +61,8 @@ export class SuggestionService {
 
   getSuggestions() {
     return this.suggestionRepository.findSuggestions({
-      type: RecordType.SUGGESTION,
+      types: [RecordType.SUGGESTION, RecordType.WRITTEN],
+      statuses: [RecordStatus.QUEUE, RecordStatus.PROGRESS],
     }) as Promise<RecordEntity[]>
   }
 

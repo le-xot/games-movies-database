@@ -7,7 +7,6 @@ import {
   HandPlatter,
   HouseIcon,
   JapaneseYen,
-  ListOrdered,
   Popcorn,
 } from '@lucide/vue'
 import { computed, onMounted } from 'vue'
@@ -46,7 +45,6 @@ const allRoutes: RouteItem[] = [
     group: 2,
     requiresAdmin: true,
   },
-  { name: 'Очередь', icon: ListOrdered, path: ROUTER_PATHS.dbQueue, group: 2 },
   { name: 'Игры', icon: Gamepad2, path: ROUTER_PATHS.dbGames, group: 3 },
   { name: 'Аниме', icon: JapaneseYen, path: ROUTER_PATHS.dbAnime, group: 3 },
   { name: 'Фильмы', icon: Film, path: ROUTER_PATHS.dbMovie, group: 3 },

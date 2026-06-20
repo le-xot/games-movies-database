@@ -50,10 +50,12 @@ export enum RecordStatus {
   DONE = "DONE",
 }
 
-export interface LikeEntity {
+export interface UserEntity {
   id: string;
-  userId: string;
-  recordId: number;
+  login: string;
+  role: UserRole;
+  profileImageUrl: string;
+  color: string;
   /** @format date-time */
   createdAt: string;
 }
@@ -63,6 +65,14 @@ export interface SuggestionOwnershipEntity {
   recordId: number;
   userId: string;
   user?: UserEntity | null;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export interface LikeEntity {
+  id: string;
+  userId: string;
+  recordId: number;
   /** @format date-time */
   createdAt: string;
 }
@@ -81,38 +91,6 @@ export interface RecordEntity {
   likes?: LikeEntity[] | null;
   /** @format date-time */
   createdAt: string;
-}
-
-export interface UserCreateByLoginDTO {
-  /**
-   * Unique login of the user
-   * @example "john_doe"
-   */
-  login: string;
-}
-
-export interface UserEntity {
-  id: string;
-  login: string;
-  role: UserRole;
-  profileImageUrl: string;
-  color: string;
-  /** @format date-time */
-  createdAt: string;
-}
-
-export interface UserUpdateDTO {
-  /** @example "john_doe" */
-  login?: string;
-  /**
-   * @default "USER"
-   * @example "USER"
-   */
-  role?: UserRole;
-  /** @example "https://example.com/image.jpg" */
-  profileImageUrl?: string;
-  /** @example "#333333" */
-  color?: string;
 }
 
 export interface SuggestionCreateByTwirDTO {
@@ -539,26 +517,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerCreateUserByLogin
-     * @request POST:/users/login
-     */
-    userControllerCreateUserByLogin: (
-      data: UserCreateByLoginDTO,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<UserEntity, any>({
-        path: `/users/login`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
      * @name UserControllerGetAllUsers
      * @request GET:/users/users
      */
@@ -574,30 +532,10 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags users
-     * @name UserControllerPatchUser
-     * @request POST:/users/{id}
-     */
-    userControllerPatchUser: (
-      id: string,
-      data: UserUpdateDTO,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, any>({
-        path: `/users/${id}`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetUserByTwitchId
+     * @name UserControllerGetUserById
      * @request GET:/users/{id}
      */
-    userControllerGetUserByTwitchId: (id: string, params: RequestParams = {}) =>
+    userControllerGetUserById: (id: string, params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/users/${id}`,
         method: "GET",
@@ -614,37 +552,6 @@ export class Api<SecurityDataType extends unknown> {
     userControllerDeleteUser: (id: string, params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/users/${id}`,
-        method: "DELETE",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerGetUserByLogin
-     * @request GET:/users/{login}
-     */
-    userControllerGetUserByLogin: (login: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/users/${login}`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users
-     * @name UserControllerDeleteUserByLogin
-     * @request DELETE:/users/{login}
-     */
-    userControllerDeleteUserByLogin: (
-      login: string,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, any>({
-        path: `/users/${login}`,
         method: "DELETE",
         ...params,
       }),

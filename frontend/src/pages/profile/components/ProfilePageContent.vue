@@ -90,7 +90,7 @@ function deleteAccount() {
 </script>
 
 <template>
-  <div class="container py-8 flex flex-col gap-8 h-full">
+  <div class="container py-8 flex flex-col gap-8 min-h-[calc(100vh-4rem)]">
     <ProfileHeader v-if="userStore.user" :user="userStore.user" />
 
     <div class="max-w-md space-y-2">

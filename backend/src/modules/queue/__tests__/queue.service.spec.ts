@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordType } from '@/enums'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
-import { QueueRepository } from '../repositories/queue.repository'
 import { QueueService } from '../queue.service'
+import { QueueRepository } from '../repositories/queue.repository'
 
 describe('QueueService', () => {
   let service: QueueService
@@ -28,7 +28,6 @@ describe('QueueService', () => {
           genre: RecordGenre.GAME,
           type: RecordType.WRITTEN,
           createdAt,
-          user: { id: 'u1', login: 'alice', role: 'USER', profileImageUrl: 'avatar-1', color: '#fff', createdAt },
         },
         {
           id: 2,
@@ -38,7 +37,6 @@ describe('QueueService', () => {
           genre: RecordGenre.MOVIE,
           type: RecordType.WRITTEN,
           createdAt,
-          user: { id: 'u2', login: 'bob', role: 'USER', profileImageUrl: 'avatar-2', color: '#fff', createdAt },
         },
       ])
     }) as any
@@ -51,9 +49,6 @@ describe('QueueService', () => {
       games: [
         {
           title: 'Game 1',
-          login: 'alice',
-          userId: 'u1',
-          profileImageUrl: 'avatar-1',
           posterUrl: 'poster-1',
           createdAt: createdAt.toLocaleDateString('ru-RU', {
             year: 'numeric',
@@ -68,9 +63,6 @@ describe('QueueService', () => {
       videos: [
         {
           title: 'Movie 1',
-          login: 'bob',
-          userId: 'u2',
-          profileImageUrl: 'avatar-2',
           posterUrl: 'poster-2',
           createdAt: createdAt.toLocaleDateString('ru-RU', {
             year: 'numeric',

@@ -20,9 +20,6 @@ export class QueueService {
       games: games.map(
         (g): QueueItemDto => ({
           title: g.title,
-          login: g.user?.login || 'John Doe',
-          userId: g.user?.id || null,
-          profileImageUrl: g.user?.profileImageUrl || 'https://via.placeholder.com/150',
           posterUrl: g.posterUrl,
           createdAt: g.createdAt.toLocaleDateString('ru-RU', {
             year: 'numeric',
@@ -37,9 +34,6 @@ export class QueueService {
       videos: videos.map(
         (v): QueueItemDto => ({
           title: v.title,
-          login: v.user?.login || 'John Doe',
-          userId: v.user?.id || null,
-          profileImageUrl: v.user?.profileImageUrl || 'https://via.placeholder.com/150',
           posterUrl: v.posterUrl,
           createdAt: v.createdAt.toLocaleDateString('ru-RU', {
             year: 'numeric',

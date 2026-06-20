@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordType } from '@/enums'
-import { AuctionRepository } from '../repositories/auction.repository'
 import { AuctionService } from '../auction.service'
+import { AuctionRepository } from '../repositories/auction.repository'
 
 describe('AuctionService', () => {
   let service: AuctionService
@@ -25,10 +25,11 @@ describe('AuctionService', () => {
           posterUrl: 'http://example.com/poster.jpg',
           type: RecordType.AUCTION,
           genre: RecordGenre.GAME,
-          user: { id: 'user1', login: 'testuser', displayName: 'Test User', avatarUrl: '' },
         },
       ]
-      const findAuctions = mock(() => Promise.resolve(mockAuctions)) as unknown as AuctionRepository['findAuctions']
+      const findAuctions = mock(() =>
+        Promise.resolve(mockAuctions),
+      ) as unknown as AuctionRepository['findAuctions']
       mockRepo.findAuctions = findAuctions
 
       const result = await service.getAuctions()
@@ -48,9 +49,10 @@ describe('AuctionService', () => {
         posterUrl: 'http://example.com/winner-poster.jpg',
         type: RecordType.WRITTEN,
         genre: RecordGenre.GAME,
-        user: { id: 'user1', login: 'testuser', displayName: 'Test User', avatarUrl: '' },
       }
-      const selectWinner = mock(() => Promise.resolve(mockWinner)) as unknown as AuctionRepository['selectWinner']
+      const selectWinner = mock(() =>
+        Promise.resolve(mockWinner),
+      ) as unknown as AuctionRepository['selectWinner']
       mockRepo.selectWinner = selectWinner
 
       const result = await service.getWinner(winnerId)
@@ -69,7 +71,9 @@ describe('AuctionService', () => {
     })
 
     it('propagates errors from repository.selectWinner', async () => {
-      const selectWinner = mock(() => Promise.reject(new Error('Record not found'))) as unknown as AuctionRepository['selectWinner']
+      const selectWinner = mock(() =>
+        Promise.reject(new Error('Record not found')),
+      ) as unknown as AuctionRepository['selectWinner']
       mockRepo.selectWinner = selectWinner
 
       await expect(service.getWinner(999)).rejects.toThrow('Record not found')

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { AuctionRepository } from './repositories/auction.repository'
 import type {
   UpdateAuctionPayload,
   UpdateRecordsPayload,
 } from '@/modules/websocket/websocket.events'
-import { AuctionRepository } from './repositories/auction.repository'
 
 @Injectable()
 export class AuctionService {

@@ -6,17 +6,8 @@ export class QueueItemDto {
   @ApiProperty()
   title: string
 
-  @ApiProperty({ nullable: true, default: 'John Doe', example: 'John Doe' })
-  login: string
-
-  @ApiProperty({ nullable: true })
-  userId: string | null
-
   @ApiProperty()
   link: string
-
-  @ApiProperty()
-  profileImageUrl: string
 
   @ApiProperty()
   posterUrl: string

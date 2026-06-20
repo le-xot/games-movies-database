@@ -1,9 +1,9 @@
 import { Controller, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { UserRole } from '@/enums'
 import { AuctionService } from '@/modules/auction/auction.service'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
-import { UserRole } from '@/enums'
 import { RecordEntity } from '@/modules/record/record.entity'
 
 @ApiTags('auction')

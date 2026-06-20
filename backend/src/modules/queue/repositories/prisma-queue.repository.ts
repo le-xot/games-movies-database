@@ -16,9 +16,6 @@ export class PrismaQueueRepository extends QueueRepository {
         status: { in: [RecordStatus.QUEUE, RecordStatus.PROGRESS] },
         type,
       },
-      include: {
-        user: true,
-      },
     })
   }
 }

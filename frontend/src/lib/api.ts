@@ -788,6 +788,37 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthControllerUnlinkAccount
+     * @request DELETE:/auth/accounts/{platform}
+     */
+    authControllerUnlinkAccount: (
+      platform: string,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/accounts/${platform}`,
+        method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerDeleteMe
+     * @request DELETE:/auth/me
+     */
+    authControllerDeleteMe: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/me`,
+        method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthControllerMe
      * @request GET:/auth/me
      */

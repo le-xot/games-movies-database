@@ -2,10 +2,12 @@ import crypto from 'node:crypto'
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Logger,
+  Param,
   Patch,
   Post,
   Req,
@@ -193,6 +195,23 @@ export class AuthController {
   @UseGuards(AuthGuard)
   getLinkedAccounts(@User() user: UserEntity) {
     return this.userService.getLinkedAccounts(user.id)
+  }
+
+  @Delete('/accounts/:platform')
+  @Throttle({ default: THROTTLER_LIMITS.write })
+  @UseGuards(AuthGuard)
+  async unlinkAccount(@Param('platform') platform: string, @User() user: UserEntity) {
+    await this.userService.unlinkPlatformAccount(user.id, platform)
+    return { success: true }
+  }
+
+  @Delete('/me')
+  @Throttle({ default: THROTTLER_LIMITS.write })
+  @UseGuards(AuthGuard)
+  async deleteMe(@User() user: UserEntity, @Res() res: Response) {
+    await this.userService.deleteUserById(user.id)
+    res.clearCookie('token')
+    res.status(200).json({ success: true })
   }
 
   @Get('/me')

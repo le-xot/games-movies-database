@@ -3,5 +3,7 @@ import ProfilePageContent from './components/ProfilePageContent.vue'
 </script>
 
 <template>
-  <ProfilePageContent />
+  <div class="flex flex-col flex-1">
+    <ProfilePageContent />
+  </div>
 </template>

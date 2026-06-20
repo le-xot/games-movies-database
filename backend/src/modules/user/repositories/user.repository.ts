@@ -1,5 +1,6 @@
 import { UserRole } from '@/enums'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
+import type { UserAccount } from '../../../generated/prisma/client'
 
 export interface CreateUserData {
   login: string
@@ -35,4 +36,5 @@ export abstract class UserRepository {
   abstract findAll(): Promise<UserDomain[]>
   abstract deleteWithCascade(userId: string): Promise<void>
   abstract linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void>
+  abstract findAccountsByUserId(userId: string): Promise<UserAccount[]>
 }

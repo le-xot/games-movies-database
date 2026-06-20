@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Tv } from '@lucide/vue'
+import { Tv, Unlink } from '@lucide/vue'
 import { computed, onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
+import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Button } from '@/components/ui/button'
 
 interface UserAccount {
@@ -12,9 +13,11 @@ interface UserAccount {
 
 const accounts = ref<UserAccount[]>([])
 const isLoading = ref(true)
+const dialog = useDialog()
 
 const hasKick = computed(() => accounts.value.some((a) => a.platform === 'KICK'))
 const hasTwitch = computed(() => accounts.value.some((a) => a.platform === 'TWITCH'))
+const canUnlink = computed(() => accounts.value.length > 1)
 
 onMounted(async () => {
   try {
@@ -37,6 +40,26 @@ function connectKick() {
 
 function connectTwitch() {
   window.location.href = `${window.location.origin}/api/auth/twitch/link`
+}
+
+function unlinkAccount(platform: string, platformLogin: string) {
+  dialog.openDialog({
+    title: 'Отвязать аккаунт?',
+    description: `Вы уверены, что хотите отвязать ${platform} аккаунт <b>${platformLogin}</b>?`,
+    onSubmit: async () => {
+      try {
+        const response = await fetch(`/api/auth/accounts/${platform}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        })
+        if (response.ok) {
+          accounts.value = accounts.value.filter((a) => a.platform !== platform)
+        }
+      } catch (error) {
+        console.error('Failed to unlink account:', error)
+      }
+    },
+  })
 }
 </script>
 
@@ -61,7 +84,7 @@ function connectTwitch() {
           <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-5" />
           <Tv v-else class="size-5 text-muted-foreground" />
         </div>
-        <div>
+        <div class="flex-1">
           <div class="font-medium">{{ account.platformLogin }}</div>
           <div class="text-sm text-muted-foreground flex items-center gap-1.5">
             <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-3" />
@@ -69,6 +92,15 @@ function connectTwitch() {
             {{ account.platform }}
           </div>
         </div>
+        <Button
+          v-if="canUnlink"
+          variant="ghost"
+          size="icon"
+          class="size-8 text-muted-foreground hover:text-destructive"
+          @click="unlinkAccount(account.platform, account.platformLogin)"
+        >
+          <Unlink class="size-4" />
+        </Button>
       </div>
 
       <Button v-if="!hasKick" variant="outline" @click="connectKick"> Подключить Kick </Button>

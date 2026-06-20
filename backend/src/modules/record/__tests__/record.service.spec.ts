@@ -185,16 +185,16 @@ describe('RecordService', () => {
       const result = await service.getAllRecords(
         2,
         5,
-        { status: RecordStatus.QUEUE },
+        { status: [RecordStatus.QUEUE] },
         'title',
         'asc',
       )
 
       expect(mockRepo.count).toHaveBeenCalledWith(
-        expect.objectContaining({ status: RecordStatus.QUEUE }),
+        expect.objectContaining({ status: [RecordStatus.QUEUE] }),
       )
       expect(mockRepo.findAll).toHaveBeenCalledWith(
-        expect.objectContaining({ status: RecordStatus.QUEUE }),
+        expect.objectContaining({ status: [RecordStatus.QUEUE] }),
         { orderBy: 'title', direction: 'asc' },
         { skip: 5, take: 5 },
       )

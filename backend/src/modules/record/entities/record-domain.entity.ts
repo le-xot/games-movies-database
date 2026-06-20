@@ -37,9 +37,9 @@ export interface RecordWithRelations extends RecordDomain {
 
 export interface RecordFilterOptions {
   search?: string
-  status?: RecordStatus
+  status?: RecordStatus[]
   type?: RecordType
-  grade?: RecordGrade
+  grade?: RecordGrade[]
   genre?: RecordGenre
 }
 

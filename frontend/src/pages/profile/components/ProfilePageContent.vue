@@ -135,7 +135,9 @@ function deleteAccount() {
       <ConnectedAccounts />
     </div>
 
-    <div class="max-w-lg w-full mx-auto space-y-2 border border-destructive/30 rounded-md p-4 mt-auto">
+    <div
+      class="max-w-lg w-full mx-auto space-y-2 border border-destructive/30 rounded-md p-4 mt-auto"
+    >
       <div class="text-sm font-semibold text-destructive">Опасная зона</div>
       <p class="text-sm text-muted-foreground">
         Удаление аккаунта необратимо. Все ваши данные будут удалены.

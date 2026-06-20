@@ -44,9 +44,9 @@ export class PrismaRecordRepository extends RecordRepository {
       }
     }
 
-    if (filters.status) where.status = filters.status
+    if (filters.status?.length) where.status = { in: filters.status }
     if (filters.type) where.type = filters.type
-    if (filters.grade) where.grade = filters.grade
+    if (filters.grade?.length) where.grade = { in: filters.grade }
     if (filters.genre) where.genre = filters.genre
 
     return where

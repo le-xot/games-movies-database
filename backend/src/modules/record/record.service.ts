@@ -143,9 +143,9 @@ export class RecordService {
     limit: number = 10,
     filters?: {
       search?: string
-      status?: RecordStatus
+      status?: RecordStatus[]
       type?: RecordType
-      grade?: RecordGrade
+      grade?: RecordGrade[]
       genre?: RecordGenre
     },
     orderBy?: 'title' | 'id',

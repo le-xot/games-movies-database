@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
+import { IsArray, IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import {
   RecordGenre as RecordGenreName,
@@ -98,10 +98,12 @@ export class RecordGetDTO {
     enum: RecordStatus,
     enumName: RecordStatusName,
     required: false,
+    isArray: true,
   })
   @IsOptional()
-  @IsEnum(RecordStatus)
-  status?: RecordStatus
+  @IsArray()
+  @IsEnum(RecordStatus, { each: true })
+  status?: RecordStatus[]
 
   @ApiProperty({
     example: RecordType.WRITTEN,
@@ -128,10 +130,12 @@ export class RecordGetDTO {
     enum: RecordGrade,
     enumName: RecordGradeName,
     required: false,
+    isArray: true,
   })
   @IsOptional()
-  @IsEnum(RecordGrade)
-  grade?: RecordGrade
+  @IsArray()
+  @IsEnum(RecordGrade, { each: true })
+  grade?: RecordGrade[]
 
   @ApiProperty({ example: 'S01E01', required: false })
   @IsOptional()

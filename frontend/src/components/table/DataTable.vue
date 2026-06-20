@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends RowData">
-import { FlexRender, RowData, Table } from '@tanstack/vue-table'
+import { FlexRender, RowData, type Cell, Table } from '@tanstack/vue-table'
 import { provide } from 'vue'
 import { tableInjectionKey } from '@/components/table/table-injection-key'
 import {
@@ -10,6 +10,7 @@ import {
   Table as TableRoot,
   TableRow,
 } from '@/components/ui/table'
+import { RecordStatus } from '@/lib/api'
 
 const props = defineProps<{
   isLoading: boolean
@@ -17,6 +18,17 @@ const props = defineProps<{
 }>()
 
 provide(tableInjectionKey, props.table)
+
+function isNotInterested(row: T): boolean {
+  return (row as { status?: string })?.status === RecordStatus.NOTINTERESTED
+}
+
+function getVisibleCellsForRow(row: { getVisibleCells: () => Cell<T, unknown>[]; original: T }) {
+  const cells = row.getVisibleCells()
+  if (!isNotInterested(row.original)) return cells
+
+  return cells.filter((cell) => cell.column.id !== 'grade')
+}
 </script>
 
 <template>
@@ -48,7 +60,13 @@ provide(tableInjectionKey, props.table)
             class="max-h-24"
             :data-state="row.getIsSelected() && 'selected'"
           >
-            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+            <TableCell
+              v-for="cell in getVisibleCellsForRow(row)"
+              :key="cell.id"
+              :colspan="
+                cell.column.id === 'status' && isNotInterested(row.original) ? 2 : undefined
+              "
+            >
               <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
             </TableCell>
           </TableRow>

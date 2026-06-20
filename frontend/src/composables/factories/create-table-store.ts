@@ -23,6 +23,8 @@ interface DataStoreReturn {
 interface ParamsStoreReturn {
   columnVisibility: Record<string, boolean>
   pagination: { pageIndex: number; pageSize: number }
+  statusesFilter: RecordStatus[] | null
+  gradeFilter: RecordGrade[] | null
   setStatusFilter: (value: RecordStatus[] | null) => void
   setGradeFilter: (value: RecordGrade[] | null) => void
 }
@@ -100,7 +102,7 @@ export function createTableStore(config: TableStoreConfig) {
             return h('div', { class: 'flex justify-between items-center mx-3' }, [
               h('span', {}, 'Статус'),
               h(TableFilterStatus, {
-                value: null,
+                value: paramsStoreInstance.statusesFilter,
                 onUpdate: (value: RecordStatus[] | null) => {
                   paramsStoreInstance.setStatusFilter(value)
                 },
@@ -131,7 +133,7 @@ export function createTableStore(config: TableStoreConfig) {
             return h('div', { class: 'flex justify-between items-center mx-3' }, [
               h('span', {}, 'Оценка'),
               h(TableFilterGrade, {
-                value: null,
+                value: paramsStoreInstance.gradeFilter,
                 onUpdate: (value: RecordGrade[] | null) => {
                   paramsStoreInstance.setGradeFilter(value)
                 },

@@ -4,3 +4,4 @@ export { default as TablePagination } from '@/components/table/TablePagination.v
 export { default as TableFilterStatus } from '@/components/table/TableFilterStatus.vue'
 export { default as TableFilterGrade } from '@/components/table/TableFilterGrade.vue'
 export { default as TableFilterGeneric } from '@/components/table/TableFilterGeneric.vue'
+export { default as TableFilterPopover } from '@/components/table/TableFilterPopover.vue'

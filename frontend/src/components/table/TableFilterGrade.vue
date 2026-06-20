@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { gradeTags } from '@/components/table/composables/use-table-select'
-import TableFilterGeneric from '@/components/table/TableFilterGeneric.vue'
+import TableFilterPopover from '@/components/table/TableFilterPopover.vue'
 import { RecordGrade } from '@/lib/api'
 
 const props = defineProps<{
@@ -23,7 +23,7 @@ const gradeOptions = computed(() =>
 </script>
 
 <template>
-  <TableFilterGeneric
+  <TableFilterPopover
     :value="props.value"
     :options="gradeOptions"
     @update="emit('update', $event as RecordGrade[] | null)"

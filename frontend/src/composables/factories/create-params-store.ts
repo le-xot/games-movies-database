@@ -69,6 +69,8 @@ export function createParamsStore(config: ParamsStoreConfig) {
       pagination,
       columnVisibility,
       params,
+      statusesFilter,
+      gradeFilter,
       setGradeFilter,
       setStatusFilter,
     }

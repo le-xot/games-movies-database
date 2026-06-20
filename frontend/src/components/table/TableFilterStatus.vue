@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { statusTags } from '@/components/table/composables/use-table-select'
-import TableFilterGeneric from '@/components/table/TableFilterGeneric.vue'
+import TableFilterPopover from '@/components/table/TableFilterPopover.vue'
 import { RecordStatus } from '@/lib/api'
 
 const props = defineProps<{
@@ -22,7 +22,7 @@ const statusOptions = computed(() =>
 </script>
 
 <template>
-  <TableFilterGeneric
+  <TableFilterPopover
     :value="props.value"
     :options="statusOptions"
     @update="emit('update', $event as RecordStatus[] | null)"

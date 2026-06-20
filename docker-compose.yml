@@ -25,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        BUN_LOCK_HASH: ${BUN_LOCK_HASH:-default}
     image: lexot/games-movies-database:latest
     restart: unless-stopped
     depends_on:

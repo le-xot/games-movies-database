@@ -4,8 +4,8 @@ COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
 
-RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --frozen-lockfile
+ARG BUN_LOCK_HASH
+RUN bun install --frozen-lockfile
 
 FROM oven/bun:1-alpine AS frontend-builder
 WORKDIR /app
@@ -23,8 +23,8 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
-RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --frozen-lockfile
+ARG BUN_LOCK_HASH
+RUN bun install --frozen-lockfile
 
 FROM oven/bun:1-alpine
 RUN apk add --no-cache openssl

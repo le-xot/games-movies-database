@@ -16,7 +16,7 @@ COPY ./frontend ./frontend
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
 
-RUN bunx --bun vite build
+RUN bun --filter=./frontend run build:ci
 
 FROM oven/bun:1-alpine AS backend-deps
 WORKDIR /app

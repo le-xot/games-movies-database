@@ -55,7 +55,7 @@ export class PrismaSuggestionRepository extends SuggestionRepository {
       where: { type: filters.type },
       include: {
         suggestionOwnership: { include: { user: true } },
-        likes: true,
+        likes: { include: { user: true } },
       },
     })
   }

@@ -3,8 +3,8 @@ import { BadRequestException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
-import { RecordsProvidersRepository } from '../repositories/records-providers.repository'
 import { RecordsProvidersService } from '../records-providers.service'
+import { RecordsProvidersRepository } from '../repositories/records-providers.repository'
 
 const makeMockTwitch = () => ({ getAppAccessToken: mock(() => Promise.resolve('token')) })
 
@@ -51,10 +51,10 @@ describe('RecordsProvidersService', () => {
 
       try {
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
         ).rejects.toThrow(BadRequestException)
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
         ).rejects.toThrow('Уже есть в аукционе')
       } finally {
         globalThis.fetch = originalFetch
@@ -91,7 +91,7 @@ describe('RecordsProvidersService', () => {
 
       try {
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/2', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/2' }),
         ).rejects.toThrow('Уже есть в советах')
       } finally {
         globalThis.fetch = originalFetch
@@ -129,7 +129,7 @@ describe('RecordsProvidersService', () => {
 
       try {
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/3', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/3' }),
         ).rejects.toThrow('Уже есть в базе со статусом "Готово"')
       } finally {
         globalThis.fetch = originalFetch
@@ -158,7 +158,6 @@ describe('RecordsProvidersService', () => {
       try {
         const result = await service.prepareData({
           link: 'https://shikimori.one/animes/42',
-          userId: 'user1',
         })
         expect(result.title).toBe('Test Anime')
         expect(result.genre).toBe(RecordGenre.ANIME)
@@ -190,10 +189,10 @@ describe('RecordsProvidersService', () => {
 
       try {
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
         ).rejects.toThrow(BadRequestException)
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
         ).rejects.toThrow('Прошу пока аниме не советовать')
       } finally {
         globalThis.fetch = originalFetch
@@ -221,7 +220,7 @@ describe('RecordsProvidersService', () => {
 
       try {
         await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1', userId: 'user1' }),
+          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
         ).rejects.toThrow('Прошу пока аниме не советовать')
       } finally {
         globalThis.fetch = originalFetch
@@ -230,7 +229,7 @@ describe('RecordsProvidersService', () => {
 
     it('throws BadRequestException for unsupported link format', async () => {
       await expect(
-        service.prepareData({ link: 'https://unsupported.example.com/abc', userId: 'user1' }),
+        service.prepareData({ link: 'https://unsupported.example.com/abc' }),
       ).rejects.toThrow('Неверный или неподдерживаемый формат ссылки')
     })
   })
@@ -258,7 +257,7 @@ describe('RecordsProvidersService', () => {
       ) as any
 
       try {
-        await service.prepareData({ link: 'https://shikimori.one/animes/99', userId: 'user1' })
+        await service.prepareData({ link: 'https://shikimori.one/animes/99' })
         expect(findRecordByLinkAndGenre).toHaveBeenCalledWith(
           'https://shikimori.one/animes/99',
           RecordGenre.ANIME,
@@ -290,7 +289,7 @@ describe('RecordsProvidersService', () => {
       ) as any
 
       try {
-        await service.prepareData({ link: 'https://shikimori.one/animes/99', userId: 'user1' })
+        await service.prepareData({ link: 'https://shikimori.one/animes/99' })
         expect(findSuggestionRulesByGenre).toHaveBeenCalledWith(RecordGenre.ANIME)
       } finally {
         globalThis.fetch = originalFetch

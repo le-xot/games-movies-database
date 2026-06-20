@@ -1,10 +1,10 @@
-import { NotFoundException } from '@nestjs/common'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
-import { RecordRepository } from '../repositories/record.repository'
 import { RecordService } from '../record.service'
+import { RecordRepository } from '../repositories/record.repository'
+import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations => ({
   id: 1,
@@ -14,7 +14,6 @@ const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelatio
   status: RecordStatus.QUEUE,
   type: RecordType.WRITTEN,
   genre: RecordGenre.ANIME,
-  userId: 'user-1',
   ...overrides,
 })
 
@@ -28,25 +27,24 @@ describe('RecordService', () => {
     mockRepo = createMock(RecordRepository)
     mockRecordsProvider = { prepareData: mock(() => {}) }
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new RecordService(
-      mockRepo,
-      mockRecordsProvider as any,
-      mockEventEmitter as any,
-    )
+    service = new RecordService(mockRepo, mockRecordsProvider as any, mockEventEmitter as any)
   })
 
   describe('createRecordFromLink', () => {
     it('creates a record and emits update-queue event for QUEUE+WRITTEN', async () => {
-      const preparedData = { title: 'New Record', posterUrl: 'http://img', genre: RecordGenre.ANIME }
+      const preparedData = {
+        title: 'New Record',
+        posterUrl: 'http://img',
+        genre: RecordGenre.ANIME,
+      }
       const created = makeRecord({ id: 10, status: RecordStatus.QUEUE, type: RecordType.WRITTEN })
 
       mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
       mockRepo.create = mock(() => Promise.resolve(created))
 
-      const user: any = { id: 'user-1' }
       const dto: any = { link: 'https://example.com/1' }
 
-      await service.createRecordFromLink(user, dto)
+      await service.createRecordFromLink(dto)
 
       expect(mockRepo.create).toHaveBeenCalledTimes(1)
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
@@ -56,13 +54,21 @@ describe('RecordService', () => {
     })
 
     it('emits update-suggestions event for SUGGESTION type', async () => {
-      const preparedData = { title: 'Suggestion', posterUrl: 'http://img', genre: RecordGenre.ANIME }
-      const created = makeRecord({ id: 11, type: RecordType.SUGGESTION, status: RecordStatus.QUEUE })
+      const preparedData = {
+        title: 'Suggestion',
+        posterUrl: 'http://img',
+        genre: RecordGenre.ANIME,
+      }
+      const created = makeRecord({
+        id: 11,
+        type: RecordType.SUGGESTION,
+        status: RecordStatus.QUEUE,
+      })
 
       mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
       mockRepo.create = mock(() => Promise.resolve(created))
 
-      await service.createRecordFromLink({ id: 'user-1' } as any, { link: 'https://example.com' } as any)
+      await service.createRecordFromLink({ link: 'https://example.com' } as any)
 
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'update-suggestions',
@@ -71,13 +77,17 @@ describe('RecordService', () => {
     })
 
     it('emits update-auction event for AUCTION type', async () => {
-      const preparedData = { title: 'Auction Item', posterUrl: 'http://img', genre: RecordGenre.GAME }
+      const preparedData = {
+        title: 'Auction Item',
+        posterUrl: 'http://img',
+        genre: RecordGenre.GAME,
+      }
       const created = makeRecord({ id: 12, type: RecordType.AUCTION, status: RecordStatus.QUEUE })
 
       mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
       mockRepo.create = mock(() => Promise.resolve(created))
 
-      await service.createRecordFromLink({ id: 'user-1' } as any, { link: 'https://example.com' } as any)
+      await service.createRecordFromLink({ link: 'https://example.com' } as any)
 
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'update-auction',
@@ -172,7 +182,13 @@ describe('RecordService', () => {
       mockRepo.count = mock(() => Promise.resolve(10))
       mockRepo.findAll = mock(() => Promise.resolve(records))
 
-      const result = await service.getAllRecords(2, 5, { status: RecordStatus.QUEUE }, 'title', 'asc')
+      const result = await service.getAllRecords(
+        2,
+        5,
+        { status: RecordStatus.QUEUE },
+        'title',
+        'asc',
+      )
 
       expect(mockRepo.count).toHaveBeenCalledWith(
         expect.objectContaining({ status: RecordStatus.QUEUE }),

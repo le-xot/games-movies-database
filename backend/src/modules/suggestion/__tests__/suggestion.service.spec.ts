@@ -15,7 +15,6 @@ const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelatio
   status: RecordStatus.QUEUE,
   type: RecordType.SUGGESTION,
   genre: undefined,
-  userId: 'user-1',
   ...overrides,
 })
 
@@ -90,8 +89,9 @@ describe('SuggestionService', () => {
 
   describe('deleteUserSuggestion', () => {
     it('deletes the suggestion and emits event when ownership is valid', async () => {
-      const suggestion = makeRecord({ id: 5, userId: 'user-1', type: RecordType.SUGGESTION })
+      const suggestion = makeRecord({ id: 5, type: RecordType.SUGGESTION })
       mockRepo.findSuggestionById = mock(() => Promise.resolve(suggestion))
+      mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'user-1' }))
       mockRepo.deleteSuggestionWithLikes = mock(() => Promise.resolve())
 
       await service.deleteUserSuggestion(5, 'user-1')
@@ -112,16 +112,18 @@ describe('SuggestionService', () => {
     })
 
     it('throws ForbiddenException when userId does not match', async () => {
-      const suggestion = makeRecord({ id: 5, userId: 'other-user', type: RecordType.SUGGESTION })
+      const suggestion = makeRecord({ id: 5, type: RecordType.SUGGESTION })
       mockRepo.findSuggestionById = mock(() => Promise.resolve(suggestion))
+      mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'other-user' }))
 
       await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(ForbiddenException)
       expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
     })
 
     it('throws BadRequestException when record is not a suggestion', async () => {
-      const record = makeRecord({ id: 5, userId: 'user-1', type: RecordType.WRITTEN })
+      const record = makeRecord({ id: 5, type: RecordType.WRITTEN })
       mockRepo.findSuggestionById = mock(() => Promise.resolve(record))
+      mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'user-1' }))
 
       await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(BadRequestException)
       expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()

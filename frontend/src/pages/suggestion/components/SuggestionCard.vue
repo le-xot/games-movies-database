@@ -258,9 +258,9 @@ function toggleGenreCollapse(genre: RecordGenre) {
                     <div class="flex justify-between w-full">
                       <div
                         v-if="
-                          item.user &&
-                          item.user.role === UserRole.USER &&
-                          item.user.id === currentUserId
+                          item.suggestionOwnership?.user &&
+                          item.suggestionOwnership.user.role === UserRole.USER &&
+                          item.suggestionOwnership.user.id === currentUserId
                         "
                         class="flex justify-end w-full mt-auto gap-2"
                       >
@@ -310,16 +310,16 @@ function toggleGenreCollapse(genre: RecordGenre) {
                         </Button>
                       </div>
                     </div>
-                    <div v-if="item.user" class="flex justify-between w-full mb-3">
+                    <div v-if="item.suggestionOwnership?.user" class="flex justify-between w-full mb-3">
                       <div class="flex items-center">
-                        <RouterLink :to="`${ROUTER_PATHS.profile}/${item.user.id}`">
+                        <RouterLink :to="`${ROUTER_PATHS.profile}/${item.suggestionOwnership.user.id}`">
                           <Avatar class="w-8 h-8 mr-2">
-                            <AvatarImage :src="item.user.profileImageUrl" />
+                            <AvatarImage :src="item.suggestionOwnership.user.profileImageUrl" />
                             <AvatarFallback />
                           </Avatar>
                         </RouterLink>
                         <div class="text-base text-white font-medium">
-                          {{ item.user?.login }}
+                          {{ item.suggestionOwnership.user.login }}
                         </div>
                       </div>
                     </div>

@@ -7,6 +7,28 @@ import {
   RecordType as RecordTypeName,
 } from '@/enums/enums.names'
 import { LikeEntity } from '@/modules/like/like.entity'
+import { UserEntity } from '@/modules/user/user.entity'
+
+export class SuggestionOwnershipEntity {
+  @ApiProperty()
+  id: number
+
+  @ApiProperty()
+  recordId: number
+
+  @ApiProperty()
+  userId: string
+
+  @ApiProperty({ type: UserEntity, required: false, nullable: true })
+  user?: UserEntity | null
+
+  @ApiProperty()
+  createdAt: Date
+
+  constructor(partial: Partial<SuggestionOwnershipEntity>) {
+    Object.assign(this, partial)
+  }
+}
 
 export class RecordEntity {
   @ApiProperty()
@@ -35,6 +57,9 @@ export class RecordEntity {
 
   @ApiProperty()
   episode: string | null
+
+  @ApiProperty({ type: SuggestionOwnershipEntity, required: false, nullable: true })
+  suggestionOwnership?: SuggestionOwnershipEntity | null
 
   @ApiProperty({ type: [LikeEntity], required: false, nullable: true })
   likes?: LikeEntity[] | null

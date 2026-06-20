@@ -58,6 +58,15 @@ export interface LikeEntity {
   createdAt: string;
 }
 
+export interface SuggestionOwnershipEntity {
+  id: number;
+  recordId: number;
+  userId: string;
+  user?: UserEntity | null;
+  /** @format date-time */
+  createdAt: string;
+}
+
 export interface RecordEntity {
   id: number;
   title: string;
@@ -68,6 +77,7 @@ export interface RecordEntity {
   genre: RecordGenre;
   grade: RecordGrade;
   episode: string;
+  suggestionOwnership?: SuggestionOwnershipEntity | null;
   likes?: LikeEntity[] | null;
   /** @format date-time */
   createdAt: string;

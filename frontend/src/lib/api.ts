@@ -555,6 +555,20 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerGetUserAccounts
+     * @request GET:/users/{id}/accounts
+     */
+    userControllerGetUserAccounts: (id: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/users/${id}/accounts`,
+        method: "GET",
+        ...params,
+      }),
   };
   twir = {
     /**

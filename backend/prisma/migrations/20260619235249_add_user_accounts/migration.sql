@@ -26,7 +26,7 @@ UPDATE "users" SET "newId" = gen_random_uuid();
 
 -- Data Migration: Create user_accounts for existing Twitch users
 INSERT INTO "user_accounts" ("userId", "platform", "platformUserId", "platformLogin", "platformAvatar")
-SELECT "newId", 'TWITCH', "id", "login", "profileImageUrl" FROM "users";
+SELECT COALESCE("newId", gen_random_uuid()), 'TWITCH', "id", "login", "profileImageUrl" FROM "users";
 
 -- Data Migration: Drop FK constraints before updating
 ALTER TABLE "records" DROP CONSTRAINT IF EXISTS "records_userId_fkey";

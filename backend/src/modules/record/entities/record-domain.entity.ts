@@ -26,7 +26,13 @@ export interface RecordWithRelations extends RecordDomain {
       createdAt: Date
     }
   } | null
-  likes?: Array<{ id: string; userId: string; recordId: number; createdAt: Date }>
+  likes?: Array<{
+    id: string
+    userId: string
+    recordId: number
+    createdAt: Date
+    user?: { id: string; login: string; profileImageUrl: string; color: string }
+  }>
 }
 
 export interface RecordFilterOptions {

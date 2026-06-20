@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
@@ -102,10 +102,6 @@ export class UserService {
   }
 
   async updateLogin(userId: string, login: string): Promise<UserDomain> {
-    const existing = await this.userRepository.findByLogin(login)
-    if (existing && existing.id !== userId) {
-      throw new HttpException('This nickname is already taken', HttpStatus.CONFLICT)
-    }
     const user = await this.userRepository.update(userId, { login })
     this.eventEmitter.emit('update-users', {
       userId,
@@ -115,11 +111,20 @@ export class UserService {
   }
 
   async linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void> {
+    this.logger.log(
+      `linkPlatformAccount: userId=${userId}, platform=${data.platform}, platformUserId=${data.platformUserId}`,
+    )
     const existing = await this.userRepository.findByPlatformId(data.platform, data.platformUserId)
     if (existing) {
+      this.logger.warn(
+        `linkPlatformAccount: platform ${data.platform}/${data.platformUserId} already linked to userId=${existing.id}`,
+      )
       throw new Error('This platform account is already linked to another user')
     }
     await this.userRepository.linkPlatformAccount(userId, data)
+    this.logger.log(
+      `linkPlatformAccount: successfully linked ${data.platform}/${data.platformUserId} to userId=${userId}`,
+    )
   }
 
   getLinkedAccounts(userId: string) {

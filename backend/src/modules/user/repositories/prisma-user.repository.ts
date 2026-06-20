@@ -20,7 +20,7 @@ export class PrismaUserRepository extends UserRepository {
   }
 
   async findByLogin(login: string): Promise<UserDomain | null> {
-    return await this.prisma.user.findUnique({ where: { login } })
+    return await this.prisma.user.findFirst({ where: { login } })
   }
 
   async findById(id: string): Promise<UserDomain | null> {

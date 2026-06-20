@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Logger,
   Patch,
   Post,
   Req,
@@ -27,6 +28,8 @@ import type { Request, Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name)
+
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
@@ -79,9 +82,15 @@ export class AuthController {
   @Throttle({ default: THROTTLER_LIMITS.auth })
   @UseGuards(AuthGuard)
   async linkTwitch(@Body() data: CallbackDto, @User() user: UserEntity, @Res() res: Response) {
-    await this.authService.linkTwitchAccount(user.id, data.code)
-    res.clearCookie('twitch_linking')
-    res.status(200).send('Twitch account linked')
+    this.logger.log(`POST /twitch/link: userId=${user.id}`)
+    try {
+      await this.authService.linkTwitchAccount(user.id, data.code)
+      res.clearCookie('twitch_linking')
+      res.status(200).send('Twitch account linked')
+    } catch (error) {
+      this.logger.error(`POST /twitch/link failed for userId=${user.id}: ${error}`)
+      throw error
+    }
   }
 
   @Get('/kick')
@@ -163,14 +172,21 @@ export class AuthController {
     @User() user: UserEntity,
     @Res() res: Response,
   ) {
+    this.logger.log(`POST /kick/link: userId=${user.id}`)
     const codeVerifier = (req as any).cookies?.kick_code_verifier
     if (!codeVerifier) {
+      this.logger.warn(`POST /kick/link: missing code_verifier cookie for userId=${user.id}`)
       throw new HttpException('Missing code verifier', HttpStatus.BAD_REQUEST)
     }
 
-    await this.authService.linkKickAccount(user.id, data.code, codeVerifier)
-    res.clearCookie('kick_code_verifier')
-    res.status(200).send('Kick account linked')
+    try {
+      await this.authService.linkKickAccount(user.id, data.code, codeVerifier)
+      res.clearCookie('kick_code_verifier')
+      res.status(200).send('Kick account linked')
+    } catch (error) {
+      this.logger.error(`POST /kick/link failed for userId=${user.id}: ${error}`)
+      throw error
+    }
   }
 
   @Get('/accounts')

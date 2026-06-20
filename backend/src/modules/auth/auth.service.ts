@@ -75,8 +75,10 @@ export class AuthService {
   }
 
   async linkKickAccount(userId: string, code: string, codeVerifier: string) {
+    this.logger.log(`linkKickAccount: userId=${userId}`)
     const accessToken = await this.kick.getAuthorizationCode(code, codeVerifier)
     const kickUser = await this.kick.getKickUser(accessToken)
+    this.logger.log(`linkKickAccount: fetched Kick user=${kickUser.name} (id=${kickUser.user_id})`)
 
     await this.userService.linkPlatformAccount(userId, {
       platform: 'KICK',
@@ -85,12 +87,17 @@ export class AuthService {
       platformAvatar: kickUser.profile_picture,
     })
 
+    this.logger.log(`linkKickAccount: linked Kick/${kickUser.name} to userId=${userId}`)
     return kickUser
   }
 
   async linkTwitchAccount(userId: string, code: string) {
+    this.logger.log(`linkTwitchAccount: userId=${userId}`)
     const accessToken = await this.twitch.getAuthorizationCode(code)
     const twitchUser = await this.twitch.getTwitchUser(accessToken)
+    this.logger.log(
+      `linkTwitchAccount: fetched Twitch user=${twitchUser.login} (id=${twitchUser.id})`,
+    )
 
     await this.userService.linkPlatformAccount(userId, {
       platform: 'TWITCH',
@@ -99,6 +106,7 @@ export class AuthService {
       platformAvatar: twitchUser.profile_image_url,
     })
 
+    this.logger.log(`linkTwitchAccount: linked Twitch/${twitchUser.login} to userId=${userId}`)
     return twitchUser
   }
 }

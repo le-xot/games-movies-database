@@ -1,16 +1,26 @@
 <script setup lang="ts">
-import { PlusIcon, Trash2Icon } from '@lucide/vue'
+import { Trash2Icon } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { UserEntity } from '@/lib/api'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
+
+interface UserAccount {
+  id: number
+  userId: string
+  platform: 'TWITCH' | 'KICK'
+  platformUserId: string
+  platformLogin: string
+  platformAvatar: string | null
+  createdAt: string
+}
 
 const title = useTitle()
 onMounted(() => (title.value = 'Админка'))
@@ -18,10 +28,13 @@ onMounted(() => (title.value = 'Админка'))
 const api = useApi()
 const dialog = useDialog()
 const users = ref<UserEntity[]>([])
+const accounts = ref<Record<string, UserAccount[]>>({})
 const isLoading = ref(true)
-const newUsername = ref('')
-const isCreatingUser = ref(false)
-const errorMessage = ref('')
+
+const platformLabels: Record<string, string> = {
+  TWITCH: 'Twitch',
+  KICK: 'Kick',
+}
 
 onMounted(async () => {
   await fetchUsers()
@@ -32,10 +45,28 @@ async function fetchUsers() {
   try {
     const { data } = await api.users.userControllerGetAllUsers()
     users.value = data
+    await fetchAllAccounts()
   } catch (error) {
     console.error('Failed to fetch users:', error)
   } finally {
     isLoading.value = false
+  }
+}
+
+async function fetchAllAccounts() {
+  const results = await Promise.allSettled(
+    users.value.map(async (user) => {
+      const { data } = await api.http.request<UserAccount[], any>({
+        path: `/users/${user.id}/accounts`,
+        method: 'GET',
+      })
+      return { userId: user.id, accounts: data }
+    }),
+  )
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      accounts.value[result.value.userId] = result.value.accounts
+    }
   }
 }
 
@@ -54,23 +85,6 @@ function deleteUser(userId: string, username: string) {
     },
   })
 }
-
-async function createUser() {
-  if (!newUsername.value.trim() || isCreatingUser.value) return
-
-  errorMessage.value = ''
-  isCreatingUser.value = true
-  try {
-    await api.users.userControllerCreateUserByLogin({ login: newUsername.value })
-    await fetchUsers()
-    newUsername.value = ''
-  } catch (error) {
-    console.error('Failed to create user:', error)
-    errorMessage.value = 'Не удалось создать пользователя. Проверьте правильность ника Twitch.'
-  } finally {
-    isCreatingUser.value = false
-  }
-}
 </script>
 
 <template>
@@ -82,24 +96,6 @@ async function createUser() {
 
       <div v-else class="grid gap-4">
         <h2 class="text-xl font-semibold mb-2">Пользователи</h2>
-
-        <div class="flex flex-col gap-2 mb-4">
-          <div class="flex gap-2">
-            <Input
-              v-model="newUsername"
-              placeholder="Введите ник Twitch"
-              class="flex-1"
-              @keyup.enter="createUser"
-            />
-            <Button :disabled="isCreatingUser || !newUsername.trim()" @click="createUser">
-              <PlusIcon class="size-4 mr-2" />
-              Добавить
-            </Button>
-          </div>
-          <p v-if="errorMessage" class="text-sm text-red-500">
-            {{ errorMessage }}
-          </p>
-        </div>
 
         <div class="grid gap-4">
           <div
@@ -118,10 +114,21 @@ async function createUser() {
                 <div class="font-medium">
                   {{ user.login }}
                 </div>
-                <div class="text-sm text-gray-500">
-                  {{ user.role }}
+                <div class="flex gap-1.5 mt-1">
+                  <Badge
+                    v-for="account in accounts[user.id]"
+                    :key="account.id"
+                    variant="secondary"
+                    class="text-xs"
+                  >
+                    {{ platformLabels[account.platform] ?? account.platform }}:
+                    {{ account.platformLogin }}
+                  </Badge>
+                  <span v-if="!accounts[user.id]?.length" class="text-xs text-muted-foreground">
+                    Нет привязанных аккаунтов
+                  </span>
                 </div>
-                <div class="text-xs text-gray-400">ID: {{ user.id }}</div>
+                <div class="text-xs text-gray-400 mt-1">{{ user.role }} · ID: {{ user.id }}</div>
               </div>
             </div>
             <Button variant="destructive" size="icon" @click="deleteUser(user.id, user.login)">

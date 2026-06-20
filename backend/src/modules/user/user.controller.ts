@@ -36,6 +36,13 @@ export class UserController {
     return await this.userService.getUserById(id)
   }
 
+  @Get(':id/accounts')
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
+  @ApiResponse({ status: HttpStatus.OK })
+  async getUserAccounts(@Param('id') id: string) {
+    return await this.userService.getLinkedAccounts(id)
+  }
+
   @Delete(':id')
   @Throttle({ default: THROTTLER_LIMITS.write })
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))

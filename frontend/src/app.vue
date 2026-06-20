@@ -29,5 +29,7 @@ useWebSocket()
       </p>
     </div>
   </div>
-  <RouterView v-else />
+  <div v-else class="h-screen flex flex-col">
+    <RouterView />
+  </div>
 </template>

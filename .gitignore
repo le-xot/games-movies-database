@@ -74,6 +74,7 @@ backend/images/*
 
 backend/src/generated
 
+.superpowers
 
 # AI orchestrator state — keep only plans and knowledge
 .sisyphus/*

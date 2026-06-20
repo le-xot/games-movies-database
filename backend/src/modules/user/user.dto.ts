@@ -3,12 +3,6 @@ import { IsEnum, IsHexColor, IsOptional, IsString, IsUrl } from 'class-validator
 import { UserRole } from '@/enums'
 import { UserRole as UserRoleName } from '@/enums/enums.names'
 
-export class UserCreateByLoginDTO {
-  @ApiProperty({ description: 'Unique login of the user', example: 'john_doe' })
-  @IsString()
-  login: string
-}
-
 export class UserUpdateDTO {
   @ApiProperty({ example: 'john_doe', required: false })
   @IsOptional()

@@ -3,11 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { LinkPlatformData, UserRepository } from '@/modules/user/repositories/user.repository'
-
-interface UpdateUsersPayload {
-  userId: string
-  action: 'created' | 'updated' | 'deleted'
-}
+import { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class UserService {

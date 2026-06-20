@@ -1,11 +1,9 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
+import { Controller, Delete, Get, HttpStatus, Param, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
-import { UserDomain } from '@/modules/user/entities/user-domain.entity'
-import { UserUpdateDTO } from '@/modules/user/user.dto'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { THROTTLER_LIMITS } from '@/utils/throttler'
@@ -33,14 +31,14 @@ export class UserController {
   @Get(':id')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
-  async getUserById(@Param('id') id: string): Promise<UserDomain | null> {
+  async getUserById(@Param('id') id: string) {
     return await this.userService.getUserById(id)
   }
 
   @Get(':login')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK })
-  async getUserByLogin(@Param('login') login: string): Promise<UserDomain | null> {
+  async getUserByLogin(@Param('login') login: string) {
     return await this.userService.getUserByLogin(login)
   }
 

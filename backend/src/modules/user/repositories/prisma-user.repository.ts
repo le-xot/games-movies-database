@@ -77,7 +77,7 @@ export class PrismaUserRepository extends UserRepository {
     })
   }
 
-  async findAccountsByUserId(userId: string) {
+  findAccountsByUserId(userId: string) {
     return this.prisma.userAccount.findMany({
       where: { userId },
     })

@@ -122,7 +122,7 @@ export class UserService {
     await this.userRepository.linkPlatformAccount(userId, data)
   }
 
-  async getLinkedAccounts(userId: string) {
+  getLinkedAccounts(userId: string) {
     return this.userRepository.findAccountsByUserId(userId)
   }
 }

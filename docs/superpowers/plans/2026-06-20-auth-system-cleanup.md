@@ -21,10 +21,12 @@
 ### Task 1: Add `findAccountsByUserId` to UserRepository
 
 **Files:**
+
 - Modify: `backend/src/modules/user/repositories/user.repository.ts`
 - Modify: `backend/src/modules/user/repositories/prisma-user.repository.ts`
 
 **Interfaces:**
+
 - Produces: `UserRepository.findAccountsByUserId(userId: string): Promise<UserAccount[]>`
 
 - [ ] **Step 1: Add abstract method to UserRepository**
@@ -103,9 +105,11 @@ git commit -m "feat: add findAccountsByUserId to UserRepository"
 ### Task 2: Simplify UserService — Remove Twitch-specific methods
 
 **Files:**
+
 - Modify: `backend/src/modules/user/user.service.ts`
 
 **Interfaces:**
+
 - Consumes: `UserRepository.findAccountsByUserId` (from Task 1)
 - Produces: `UserService.upsertUser(platformId, data, platform)` — `login` and `profileImageUrl` now required, `platform` now required
 
@@ -265,6 +269,7 @@ git commit -m "refactor: remove Twitch-specific methods from UserService"
 ### Task 3: Remove TwitchModule from UserModule
 
 **Files:**
+
 - Modify: `backend/src/modules/user/user.module.ts`
 
 - [ ] **Step 1: Update UserModule**
@@ -307,6 +312,7 @@ git commit -m "refactor: remove TwitchModule from UserModule imports"
 ### Task 4: Remove unused admin endpoints from UserController
 
 **Files:**
+
 - Modify: `backend/src/modules/user/user.controller.ts`
 - Modify: `backend/src/modules/user/user.dto.ts`
 
@@ -436,6 +442,7 @@ git commit -m "refactor: remove unused admin endpoints and UserCreateByLoginDTO"
 ### Task 5: Update tests
 
 **Files:**
+
 - Modify: `backend/src/modules/user/__tests__/user.service.spec.ts`
 
 - [ ] **Step 1: Rewrite test file**
@@ -483,12 +490,16 @@ describe('UserService', () => {
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
-      const result = await service.upsertUser('user-1', {
-        login: 'new-login',
-        role: UserRole.ADMIN,
-        profileImageUrl: 'new-url',
-        color: '#222222',
-      }, 'TWITCH')
+      const result = await service.upsertUser(
+        'user-1',
+        {
+          login: 'new-login',
+          role: UserRole.ADMIN,
+          profileImageUrl: 'new-url',
+          color: '#222222',
+        },
+        'TWITCH',
+      )
 
       expect(result).toEqual(updatedUser)
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-1')
@@ -520,12 +531,16 @@ describe('UserService', () => {
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.create = create
 
-      const result = await service.upsertUser('user-2', {
-        login: 'new-user',
-        role: UserRole.USER,
-        profileImageUrl: 'new-url',
-        color: '#333333',
-      }, 'KICK')
+      const result = await service.upsertUser(
+        'user-2',
+        {
+          login: 'new-user',
+          role: UserRole.USER,
+          profileImageUrl: 'new-url',
+          color: '#333333',
+        },
+        'KICK',
+      )
 
       expect(result).toEqual(createdUser)
       expect(findByPlatformId).toHaveBeenCalledWith('KICK', 'user-2')
@@ -690,9 +705,7 @@ describe('UserService', () => {
 
   describe('getLinkedAccounts', () => {
     it('delegates to repository.findAccountsByUserId', async () => {
-      const accounts = [
-        { platform: 'TWITCH', platformLogin: 'twitchuser', platformAvatar: 'url' },
-      ]
+      const accounts = [{ platform: 'TWITCH', platformLogin: 'twitchuser', platformAvatar: 'url' }]
       const findAccountsByUserId = mock(() =>
         Promise.resolve(accounts),
       ) as unknown as UserRepository['findAccountsByUserId']

@@ -27,10 +27,12 @@
 ## Task 1: Database Schema + Migration
 
 **Files:**
+
 - Modify: `backend/prisma/schema.prisma`
 - Create: `backend/prisma/migrations/<timestamp>_add_user_accounts/migration.sql`
 
 **Interfaces:**
+
 - Produces: `UserAccount` model, `Platform` enum, `User.id` with `@default(uuid())`
 
 - [ ] Step 1: Add Platform enum to schema.prisma
@@ -45,11 +47,13 @@
 ## Task 2: Kick Service Module
 
 **Files:**
+
 - Create: `backend/src/modules/kick/kick.service.ts`
 - Create: `backend/src/modules/kick/kick.module.ts`
 - Modify: `backend/src/utils/enviroments.ts`
 
 **Interfaces:**
+
 - Produces: `KickService` with methods: `getAuthorizationCode(code, codeVerifier)`, `getKickUser(accessToken)`, `getAppAccessToken()`
 
 - [ ] Step 1: Add Kick env vars to enviroments.ts
@@ -62,11 +66,13 @@
 ## Task 3: User Repository Refactor
 
 **Files:**
+
 - Modify: `backend/src/modules/user/repositories/user.repository.ts`
 - Modify: `backend/src/modules/user/repositories/prisma-user.repository.ts`
 - Modify: `backend/src/modules/user/user.service.ts`
 
 **Interfaces:**
+
 - Produces: `UserRepository.findByPlatformId(platform, platformUserId)`, updated `create()` that accepts platform info
 
 - [ ] Step 1: Update CreateUserData interface
@@ -84,11 +90,13 @@
 ## Task 4: Auth Service + Controller Refactor
 
 **Files:**
+
 - Modify: `backend/src/modules/auth/auth.service.ts`
 - Modify: `backend/src/modules/auth/auth.controller.ts`
 - Modify: `backend/src/modules/auth/auth.module.ts`
 
 **Interfaces:**
+
 - Produces: `handleKickCallback(code, codeVerifier)`, `linkKickAccount(userId, code, codeVerifier)`, updated `handleTwitchCallback`
 
 - [ ] Step 1: Update auth.module.ts to import KickModule
@@ -103,11 +111,13 @@
 ## Task 5: UserService Platform Methods
 
 **Files:**
+
 - Modify: `backend/src/modules/user/user.service.ts`
 - Modify: `backend/src/modules/user/repositories/user.repository.ts`
 - Modify: `backend/src/modules/user/repositories/prisma-user.repository.ts`
 
 **Interfaces:**
+
 - Produces: `UserService.getUserByPlatformId()`, `UserService.linkPlatformAccount()`
 
 - [ ] Step 1: Add LinkPlatformData interface to user.repository.ts
@@ -121,6 +131,7 @@
 ## Task 6: Frontend — Login Dropdown
 
 **Files:**
+
 - Modify: `frontend/src/components/form/LoginForm.vue`
 - Modify: `frontend/src/pages/auth/AuthCallback.vue`
 - Create: `frontend/src/pages/auth/KickCallback.vue`
@@ -128,6 +139,7 @@
 - Modify: `frontend/src/stores/use-user.ts`
 
 **Interfaces:**
+
 - Produces: Login dropdown with Twitch/Kick options, separate callback routes, updated user store
 
 - [ ] Step 1: Update LoginForm.vue — add dropdown
@@ -141,10 +153,12 @@
 ## Task 7: Frontend — Account Linking UI
 
 **Files:**
+
 - Create: `frontend/src/pages/profile/components/ConnectedAccounts.vue`
 - Modify: `frontend/src/pages/profile/components/ProfilePageContent.vue`
 
 **Interfaces:**
+
 - Produces: Profile section showing linked platforms with connect buttons
 
 - [ ] Step 1: Create ConnectedAccounts.vue
@@ -157,6 +171,7 @@
 ## Task 8: Environment + Documentation
 
 **Files:**
+
 - Modify: `backend/.env.example`
 
 - [ ] Step 1: Add Kick vars to .env.example

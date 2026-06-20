@@ -25,11 +25,12 @@ export class ImgService {
 
     try {
       await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }))
+      this.logger.log(`R2 cache hit: ${key}`)
       const obj = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }))
       const buffer = Buffer.from(await obj.Body.transformToByteArray())
       return { buffer, contentType: 'image/webp' }
-    } catch {
-      // cache miss — continue to fetch
+    } catch (e) {
+      this.logger.warn(`R2 cache miss: ${key} — ${e.message}`)
     }
 
     try {
@@ -78,12 +79,17 @@ export class ImgService {
       const fileContent = await response.arrayBuffer()
       const imageBuffer = await sharp(fileContent).resize(300, 450).webp().toBuffer()
 
-      await this.s3.send(new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: imageBuffer,
-        ContentType: 'image/webp',
-      }))
+      try {
+        await this.s3.send(new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: imageBuffer,
+          ContentType: 'image/webp',
+        }))
+        this.logger.log(`R2 cache write: ${key}`)
+      } catch (e) {
+        this.logger.warn(`Failed to cache image in R2: ${e.message}`)
+      }
 
       return { buffer: imageBuffer, contentType: 'image/webp' }
     } catch (error) {

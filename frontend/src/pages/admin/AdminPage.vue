@@ -2,13 +2,11 @@
 import { Trash2Icon } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { UserEntity } from '@/lib/api'
-import { ROUTER_PATHS } from '@/router/router-paths'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
 
@@ -104,12 +102,10 @@ function deleteUser(userId: string, username: string) {
             class="flex items-center justify-between gap-4 p-4 border rounded-md"
           >
             <div class="flex items-center gap-4">
-              <RouterLink :to="`${ROUTER_PATHS.profile}/${user.id}`">
-                <Avatar class="size-12">
-                  <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
-                  <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
-                </Avatar>
-              </RouterLink>
+              <Avatar class="size-12">
+                <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
+                <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
+              </Avatar>
               <div>
                 <div class="font-medium">
                   {{ user.login }}

@@ -96,7 +96,7 @@ const groupedItems = computed(() => {
     }
   }
 
-  sortItems(queuedItems)
+  queuedItems.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   for (const items of groups.values()) {
     sortItems(items)
   }

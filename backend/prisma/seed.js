@@ -41,7 +41,7 @@ async function seed() {
     update: {},
     create: {
       name: 'SUGGESTION',
-      quantity: 3,
+      quantity: 5,
     },
   })
   const genres = Object.values(RecordGenre)

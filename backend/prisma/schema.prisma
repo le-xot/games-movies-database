@@ -17,8 +17,8 @@ model User {
   color           String   @default("#333333")
   createdAt       DateTime @default(now())
 
-  record   Record[]
-  likes    Like[]         @relation("UserLikes")
+  suggestionOwnerships SuggestionOwnership[]
+  likes                Like[]                @relation("UserLikes")
   accounts UserAccount[]
 
   @@index([id, login])
@@ -44,8 +44,7 @@ model Record {
   grade   RecordGrade?
   episode String?
 
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  suggestionOwnership SuggestionOwnership?
 
   likes           Like[]            @relation("RecordLikes")
 
@@ -133,6 +132,19 @@ model SuggestionRules {
   permission Boolean     @default(true)
 
   @@map("suggestion_rules")
+}
+
+// ----- SuggestionOwnership -----
+
+model SuggestionOwnership {
+  id        Int      @id @default(autoincrement())
+  record    Record   @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId  Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@map("suggestion_ownerships")
 }
 
 // ----- UserAccount -----

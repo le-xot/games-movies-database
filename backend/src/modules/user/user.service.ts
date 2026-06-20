@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
@@ -125,6 +125,15 @@ export class UserService {
     this.logger.log(
       `linkPlatformAccount: successfully linked ${data.platform}/${data.platformUserId} to userId=${userId}`,
     )
+  }
+
+  async unlinkPlatformAccount(userId: string, platform: string): Promise<void> {
+    const accounts = await this.userRepository.findAccountsByUserId(userId)
+    if (accounts.length <= 1) {
+      throw new HttpException('Cannot unlink the last account', HttpStatus.BAD_REQUEST)
+    }
+
+    await this.userRepository.unlinkPlatformAccount(userId, platform)
   }
 
   getLinkedAccounts(userId: string) {

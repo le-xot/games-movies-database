@@ -77,6 +77,14 @@ export class PrismaUserRepository extends UserRepository {
     })
   }
 
+  async unlinkPlatformAccount(userId: string, platform: string): Promise<void> {
+    await this.prisma.userAccount.delete({
+      where: {
+        userId_platform: { userId, platform: platform as any },
+      },
+    })
+  }
+
   findAccountsByUserId(userId: string) {
     return this.prisma.userAccount.findMany({
       where: { userId },

@@ -36,5 +36,6 @@ export abstract class UserRepository {
   abstract findAll(): Promise<UserDomain[]>
   abstract deleteWithCascade(userId: string): Promise<void>
   abstract linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void>
+  abstract unlinkPlatformAccount(userId: string, platform: string): Promise<void>
   abstract findAccountsByUserId(userId: string): Promise<UserAccount[]>
 }

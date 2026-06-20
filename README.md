@@ -1,51 +1,67 @@
 # Games Movies Database
 
-A full-stack web application for managing games and movies database with Twitch authentication, Spotify integration, and real-time features.
+Полнофункциональное веб-приложение для трекинга медиа: игры, аниме, фильмы, мультфильмы, сериалы и PC-игры. Авторизация через Twitch и Kick, интеграция со Spotify, реал-тайм обновления через WebSocket.
 
-## Table of Contents
+## Возможности
 
-- [Development](#development)
-  - [Dependencies](#dependencies)
-  - [Setup](#setup)
-  - [Project Structure](#project-structure)
-  - [Available Scripts](#available-scripts)
-- [Third-party Integrations](#third-party-integrations)
-  - [Twitch Authentication](#twitch-authentication)
-  - [Spotify Integration](#spotify-integration)
-  - [OpenWeatherMap Integration](#openweathermap-integration)
-  - [Kinopoisk API](#kinopoisk-api)
-  - [KinoHub / Kinobox](#kinohub--kinobox)
-  - [TWIR Integration](#twir-integration)
-  - [Proxy Configuration](#proxy-configuration)
-- [Environment Setup](#environment-setup)
-- [Database Administration](#database-administration)
-- [API Documentation](#api-documentation)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
+- **Трекинг медиа** — учёт игр, аниме, фильмов, мультфильмов, сериалов и PC-игр со статусами и оценками
+- **Авторизация** — OAuth через Twitch и Kick, JWT в httpOnly cookie
+- **Spotify** — интеграция с Spotify API, очередь треков
+- **Реал-тайм** — мгновенные обновления интерфейса через Socket.IO
+- **Система предложений** — пользователи предлагают новый контент для добавления
+- **Аукцион** — управление аукционами в реальном времени
+- **Система очередей** — управление очередью элементов
+- **Лайки** — избранное с каскадным удалением
+- **Профиль** — управление аккаунтом, привязка/отвязка провайдеров, удаление аккаунта
+- **Админка** — панель администрирования
+- **Прокси изображений** — ресайз через Sharp, проксирование через `/api/img`
+- **Генерация watch-ссылок** — автоматические ссылки на Kinobox для просмотра
+- **Погода** — виджет погоды через OpenWeatherMap
+- **TWIR** — вебхуки от внешнего бота с защитой API-ключом
 
-## Development
+## Стек технологий
 
-### Dependencies
+| Слой | Технологии |
+|------|-----------|
+| Frontend | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
+| Backend | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT |
+| Инфраструктура | Docker, Bun, Caddy (reverse proxy), GitHub Actions |
 
-- [Bun](https://bun.sh/) - JavaScript runtime and package manager
-- [Docker](https://docs.docker.com/engine/)
+## Быстрый старт
 
-### Setup
+### 1. Зависимости
 
-- Install dependencies
+- [Bun](https://bun.sh/) — JavaScript runtime и пакетный менеджер
+- [Docker](https://docs.docker.com/engine/) — для PostgreSQL
+
+### 2. Установка
 
 ```bash
+# Клонировать репозиторий
+git clone https://github.com/le-xot/games-movies-database.git
+cd games-movies-database
+
+# Установить зависимости
 bun install
 ```
 
-- Run needed services (postgres)
+### 3. Запуск PostgreSQL
 
 ```bash
-docker compose -f ./docker-compose-dev.yml up -d
+docker compose -f docker-compose-dev.yml up -d
 ```
 
-- Generate prisma schema and migrate dev database
+Это поднимет PostgreSQL на порту `5432` и Adminer на порту `54321`.
+
+### 4. Настройка окружения
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Отредактируйте `backend/.env` — как минимум заполните `JWT_SECRET`. Остальные переменные описаны в разделе [Переменные окружения](#переменные-окружения).
+
+### 5. Миграция базы данных
 
 ```bash
 cd backend
@@ -53,41 +69,149 @@ bun prisma generate
 bun prisma migrate dev
 ```
 
-- Start development
+### 6. Запуск
 
 ```bash
 bun dev
 ```
 
-- Visit [http://localhost:5173](http://localhost:5173)
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000/api
+- Swagger UI: http://localhost:3000/docs
+- Scalar API Reference: http://localhost:3000/reference
+- Adminer: http://localhost:54321
 
-### Project Structure
+## Переменные окружения
 
-- `frontend/` - Vue 3 application with TypeScript, Tailwind CSS, and Composition API
-- `backend/` - NestJS API server with Prisma ORM and PostgreSQL
-- `docker-compose-dev.yml` - Development environment configuration
-- `Dockerfile` - Production build configuration
+Файл: `backend/.env` (скопируйте из `backend/.env.example`)
 
-### Available Scripts
+| Переменная | Описание | Обязательна |
+|-----------|----------|-------------|
+| `DATASOURCE_URL` | Строка подключения к PostgreSQL | Да |
+| `JWT_SECRET` | Секрет для подписи JWT токенов | Да |
+| `APP_PORT` | Порт backend сервера (по умолчанию: 3000) | Нет |
+| `TWITCH_CLIENT_ID` | Twitch OAuth Client ID | Нет |
+| `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret | Нет |
+| `TWITCH_CALLBACK_URL` | URL callback после Twitch авторизации | Нет |
+| `TWITCH_ADMIN_ID` | Twitch User ID администратора | Нет |
+| `TWITCH_ADMIN_LOGIN` | Twitch username администратора | Нет |
+| `KICK_CLIENT_ID` | Kick OAuth Client ID | Нет |
+| `KICK_CLIENT_SECRET` | Kick OAuth Client Secret | Нет |
+| `KICK_CALLBACK_URL` | URL callback после Kick авторизации | Нет |
+| `SPOTIFY_CLIENT_ID` | Spotify Client ID | Нет |
+| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret | Нет |
+| `SPOTIFY_CALLBACK_URL` | URL callback после Spotify авторизации | Нет |
+| `KINOPOISK_API` | API ключ Кинопоиска | Нет |
+| `TMBD_API` | API ключ TMDB | Нет |
+| `WEATHER_API_KEY` | OpenWeatherMap API ключ | Нет |
+| `WEATHER_LAT` | Широта для погоды | Нет |
+| `WEATHER_LON` | Долгота для погоды | Нет |
+| `PROXY` | URL прокси для внешних API | Нет |
+| `TWIR_API` | API ключ для TWIR вебхуков | Нет |
 
-- `bun dev` - Start both frontend and backend in development mode
-- `bun dev:frontend` - Start only the frontend development server
-- `bun dev:backend` - Start only the backend development server
-- `bun build` - Build both frontend and backend for production
-- `bun build:frontend` - Build only the frontend
-- `bun build:backend` - Build only the backend
-- `bun start:backend` - Start the backend server in production mode
-- `bun prisma` - Run Prisma migrations and generate client
-- `bun lint` - Run oxlint on the entire project
-- `bun lint:fix` - Fix oxlint issues automatically
-- `bun format` - Format the entire project with oxfmt
-- `bun format:check` - Check formatting without writing changes
+## Структура проекта
 
-## Third-party Integrations
+```
+games-movies-database/
+├── frontend/                  # Vue 3 SPA
+│   ├── src/
+│   │   ├── assets/            # Глобальные стили, цвета OKLCH, тёмная тема
+│   │   ├── components/        # Переиспользуемые компоненты
+│   │   │   ├── dialog/        # Диалоги
+│   │   │   ├── form/          # Формы
+│   │   │   ├── layout/        # Layout компоненты (шапка, тело, БД)
+│   │   │   ├── record/        # Форма создания записи
+│   │   │   ├── table/         # DataTable, фильтры, пагинация, поиск
+│   │   │   └── ui/            # shadcn-vue примитивы (НЕ редактировать)
+│   │   ├── composables/       # Composables + фабрики для медиа-страниц
+│   │   ├── lib/               # API клиент (авто-генерируется), cn() утилита
+│   │   ├── pages/             # Страницы приложения
+│   │   │   ├── admin/         # Панель администратора
+│   │   │   ├── anime/         # Трекинг аниме
+│   │   │   ├── auction/       # Аукцион
+│   │   │   ├── auth/          # Авторизация и callback
+│   │   │   ├── cartoon/       # Трекинг мультфильмов
+│   │   │   ├── games/         # Трекинг игр
+│   │   │   ├── home/          # Домашняя страница
+│   │   │   ├── movie/         # Трекинг фильмов
+│   │   │   ├── pc/            # PC-игры
+│   │   │   ├── profile/       # Профиль пользователя
+│   │   │   ├── series/        # Трекинг сериалов
+│   │   │   └── suggestion/    # Предложения контента
+│   │   ├── router/            # Vue Router конфигурация
+│   │   ├── stores/            # Pinia stores (useApi, useUser, и др.)
+│   │   └── utils/             # Прокси изображений, генерация watch-ссылок
+│   ├── index.html
+│   ├── vite.config.ts
+│   ├── tailwind.config.ts
+│   └── package.json
+├── backend/                   # NestJS API сервер
+│   ├── src/
+│   │   ├── main.ts            # Точка входа, Swagger, CORS, cookieParser
+│   │   ├── app.module.ts      # Корневой модуль
+│   │   ├── database/          # PrismaModule + PrismaService
+│   │   ├── enums/             # Константы для Prisma enum
+│   │   ├── utils/             # Валидация окружения (envalid)
+│   │   └── modules/           # Фича-модули
+│   │       ├── auth/          # Twitch/Kick OAuth, JWT, guards
+│   │       ├── user/          # CRUD пользователей
+│   │       ├── record/        # Медиа-записи
+│   │       ├── like/          # Лайки/избранное
+│   │       ├── suggestion/    # Предложения контента
+│   │       ├── auction/       # Аукцион
+│   │       ├── queue/         # Очередь элементов
+│   │       ├── spotify/       # Spotify интеграция
+│   │       ├── twitch/        # Twitch API клиент
+│   │       ├── kick/          # Kick API клиент
+│   │       ├── websocket/     # Socket.IO gateway
+│   │       ├── records-providers/  # Внешние источники метаданных
+│   │       ├── img/           # Прокси и ресайз изображений (Sharp)
+│   │       ├── twir/          # TWIR вебхуки
+│   │       ├── weather/       # Погода (OpenWeatherMap)
+│   │       ├── jwt/           # CustomJwtModule обёртка
+│   │       └── limit/         # Rate limiting
+│   ├── prisma/
+│   │   ├── schema.prisma      # Схема базы данных
+│   │   └── migrations/        # Миграции Prisma
+│   └── package.json
+├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + приложение + Caddy)
+├── docker-compose-dev.yml     # Dev окружение (PostgreSQL + Adminer)
+├── Dockerfile                 # Многостадийная сборка (frontend → backend → serve)
+├── package.json               # Корневой package.json (workspaces)
+├── .oxlintrc.json             # Конфигурация oxlint
+├── .oxfmtrc.json              # Конфигурация oxfmt
+└── .github/workflows/
+    └── docker.yaml            # CI/CD: SSH deploy на push в master
+```
 
-### Twitch Authentication
+## Доступные скрипты
 
-To enable Twitch login functionality, fill in these environment variables in `backend/.env`:
+| Команда | Описание |
+|---------|----------|
+| `bun dev` | Запуск frontend и backend в режиме разработки |
+| `bun dev:frontend` | Только frontend (порт 5173) |
+| `bun dev:backend` | Только backend (порт 3000) |
+| `bun build` | Сборка frontend и backend для продакшена |
+| `bun build:frontend` | Сборка только frontend |
+| `bun build:backend` | Сборка только backend |
+| `bun start:backend` | Запуск backend в продакшене |
+| `bun prisma` | Миграции + генерация Prisma клиента |
+| `bun lint` | Проверка кода oxlint |
+| `bun lint:fix` | Автоисправление oxlint |
+| `bun format` | Форматирование oxfmt |
+| `bun format:check` | Проверка форматирования без изменений |
+
+## Сторонние интеграции
+
+### Twitch
+
+Авторизация через Twitch OAuth. Позволяет пользователям входить через Twitch аккаунт.
+
+Получение ключей:
+1. Перейти в [Twitch Developer Console](https://dev.twitch.tv/console)
+2. Создать новое приложение
+3. Указать OAuth Redirect URL: `http://localhost:5173/auth/callback`
+4. Скопировать Client ID и Client Secret в `.env`
 
 ```
 TWITCH_CLIENT_ID=your_client_id
@@ -97,15 +221,31 @@ TWITCH_ADMIN_ID=your_twitch_user_id
 TWITCH_ADMIN_LOGIN=your_twitch_username
 ```
 
-You can obtain these credentials by:
+### Kick
 
-1. Going to [Twitch Developer Console](https://dev.twitch.tv/console)
-2. Creating a new application
-3. Setting the OAuth Redirect URL to `http://localhost:5173/auth/callback`
+Авторизация через Kick OAuth.
 
-### Spotify Integration
+Получение ключей:
+1. Перейти в [Kick Developer Portal](https://developer.kick.com/)
+2. Создать приложение
+3. Указать redirect URL
+4. Скопировать Client ID и Client Secret в `.env`
 
-To enable Spotify functionality, add these environment variables to `backend/.env`:
+```
+KICK_CLIENT_ID=your_client_id
+KICK_CLIENT_SECRET=your_client_secret
+KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
+```
+
+### Spotify
+
+Интеграция со Spotify API для работы с треками и очередью.
+
+Получение ключей:
+1. Перейти в [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Создать новое приложение
+3. Указать Redirect URI: `http://127.0.0.1:5173/auth/callback/spotify`
+4. Скопировать Client ID и Client Secret в `.env`
 
 ```
 SPOTIFY_CLIENT_ID=your_client_id
@@ -113,15 +253,29 @@ SPOTIFY_CLIENT_SECRET=your_client_secret
 SPOTIFY_CALLBACK_URL=http://127.0.0.1:5173/auth/callback/spotify
 ```
 
-You can obtain these credentials by:
+### Кинопоиск
 
-1. Going to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Creating a new application
-3. Setting the Redirect URI to `http://127.0.0.1:5173/auth/callback/spotify`
+API для получения данных о фильмах и сериалах с Кинопоиска.
 
-### OpenWeatherMap Integration
+```
+KINOPOISK_API=your_api_key
+```
 
-To enable weather functionality, fill in these environment variables in `backend/.env`:
+### TMDB
+
+API для получения данных о фильмах и сериалах с The Movie Database.
+
+```
+TMBD_API=your_api_key
+```
+
+### OpenWeatherMap
+
+Виджет погоды на главной странице.
+
+1. Создать аккаунт на [OpenWeatherMap](https://openweathermap.org/)
+2. Перейти в раздел API keys
+3. Сгенерировать новый ключ
 
 ```
 WEATHER_API_KEY=your_api_key
@@ -129,103 +283,108 @@ WEATHER_LAT=your_latitude
 WEATHER_LON=your_longitude
 ```
 
-You can get your API key by:
+### Kinobox
 
-1. Creating an account at [OpenWeatherMap](https://openweathermap.org/)
-2. Going to API keys section
-3. Generating a new API key
+Проект использует KinoHub/Kinobox как внешний сервис для просмотра контента по сгенерированным watch-ссылкам.
 
-### Kinopoisk API
-
-To enable movie data fetching, add your Kinopoisk API key to `backend/.env`:
-
-```
-KINOPOISK_API=your_api_key
-```
-
-### KinoHub / Kinobox
-
-This project uses KinoHub/Kinobox as the canonical external viewer for generated "watch" links.
-
-Supported input link formats accepted by the parser (backend):
-
+Поддерживаемые форматы парсера:
 - `https://tv.kinohub.vip/movie/<id>`
 - `https://tv.kinohub.vip/shikimori/<id>`
 - `https://kinobox.in/movie/<id>`
 - `https://kinobox.in/shikimori/<id>`
 
-When generating watch links the frontend returns canonical Kinobox URLs like `https://kinobox.in/movie/<id>` or `https://kinobox.in/shikimori/<id>`.
+Генерация watch-ссылок возвращает каноничные URL Kinobox: `https://kinobox.in/movie/<id>` или `https://kinobox.in/shikimori/<id>`.
 
-If you need to change the canonical host (for example to `tv.kinohub.vip`), update `frontend/src/utils/generate-watch-link.ts` accordingly.
+Для смены каноничного хоста обновите `frontend/src/utils/generate-watch-link.ts`.
 
-### TWIR Integration
+### TWIR
 
-To enable TWIR API integration, add your TWIR API key to `backend/.env`:
+Вебхуки от внешнего TWIR бота. Защищены API-ключом через `ApikeyGuard`.
 
 ```
 TWIR_API=your_api_key
 ```
 
-This API key is used for authenticating requests from TWIR to your application.
+## Архитектура
 
-### Proxy Configuration
+### REST API
 
-If you need to use a proxy for external API requests, add to `backend/.env`:
+- Все маршруты автоматически префиксуются `/api`
+- Глобальная валидация через `ValidationPipe` с `transform: true` и `whitelist: true`
+- Swagger UI: http://localhost:3000/docs
+- Scalar API Reference: http://localhost:3000/reference
+- API клиент на фронте **авто-генерируется** из Swagger спецификации при запуске dev-сервера (НЕ редактировать `frontend/src/lib/api.ts`)
 
-```
-PROXY=https://your-proxy-domain/
-```
+### WebSocket
 
-## Environment Setup
+- Socket.IO для реал-тайм обновлений
+- Серверные модули отправляют события через `EventEmitter2`
+- `WebsocketModule` слушает события и пушит обновления на клиент
+- Фронтенд подключается через `useWebSocket` composable
 
-Copy the example environment file and update it with your settings:
+### База данных
 
-```bash
-cp backend/.env.example backend/.env
-```
+- PostgreSQL 17
+- Prisma ORM с миграциями
+- Модели используют `@@map()` для имён таблиц
+- Enum константы в `backend/src/enums/enums.names.ts`
+- Adminer доступен на порту `54321` в dev-режиме
 
-Required environment variables:
+### Guards и авторизация
 
-- `DATASOURCE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - Secret for JWT token signing
-- `APP_PORT` - Backend server port (default: 3000)
+- `AuthGuard` — JWT валидация (cookie `token`)
+- `ApikeyGuard` — защита TWIR эндпоинтов по API-ключу
+- `RolesGuard` — ролевой доступ
+- `ThrottlerGuard` — rate limiting (60 запросов / 60 секунд)
 
-## Database Administration
+## Деплой
 
-A web-based database admin interface is available at [http://localhost:54321](http://localhost:54321) when running the development environment.
-
-## API Documentation
-
-API documentation is available at:
-
-- Swagger UI: [http://localhost:3000/docs](http://localhost:3000/docs)
-- Scalar API Reference: [http://localhost:3000/reference](http://localhost:3000/reference)
-
-## Deployment
-
-The application can be deployed using Docker:
+### Docker
 
 ```bash
 docker build -t games-movies-database .
-docker run -p 3000:3000 games-movies-database
+docker run -p 3000:3000 --env-file .env games-movies-database
 ```
 
-Or use the provided GitHub Actions workflow for automated deployment.
+### Docker Compose (продакшен)
 
-The current production setup uses GitHub Actions to SSH into the server, pull the repo, and run `docker compose up --build` there.
+Продакшен конфигурация в `docker-compose.yml` включает:
+- **PostgreSQL 17** с persistent volume
+- **Adminer** с Caddy reverse proxy (`adminer.le-xot.dev`)
+- **Приложение** с Caddy reverse proxy (`le-xot.dev`)
 
-## Contributing
+Требуется внешняя сеть `caddy` для Caddy reverse proxy.
 
-- Please make sure that you pull request to new branch
-- To become an ADMIN please change `backend/prisma/seed.js` with your actual Twitch login and ID
-- Follow the oxlint/oxfmt configuration for code style
-- Use TypeScript for all new code
-- Follow Vue 3 Composition API patterns in the frontend
+### GitHub Actions
+
+При пуше в `master` автоматически:
+1. SSH подключение к серверу
+2. `git fetch` и `git reset --hard origin/master`
+3. `docker compose up -d --build --remove-orphans`
+
+Для настройки CI/CD добавьте секреты в GitHub:
+- `SERVER_HOST` — адрес сервера
+- `SERVER_USER` — SSH пользователь
+- `SERVER_SSH_KEY` — SSH приватный ключ
+
+## Контрибьютинг
+
+- Все PR — в новую ветку
+- Следуйте конфигурации oxlint/oxfmt для стиля кода
+- Используйте TypeScript для всего нового кода
+- На фронтенде — Vue 3 Composition API (`<script setup lang="ts">`)
+- Именование: `.vue` файлы — PascalCase, `.ts` файлы — kebab-case
+- Иконки: только lucide-vue-next и vue3-simple-icons
+- API клиент (`frontend/src/lib/api.ts`) **авто-генерируется** — не редактировать вручную
 
 ## Troubleshooting
 
-- If you encounter database connection issues, make sure the PostgreSQL container is running
-- For authentication problems, verify your Twitch API credentials
-- Check the port configuration if services are not accessible (frontend: 5173, backend: 3000, database: 6543)
-- If Bun is not available, you can use npm/pnpm as an alternative package manager
-- For TypeScript errors, ensure all dependencies are installed and run `bun install`
+| Проблема | Решение |
+|----------|---------|
+| Не подключается к БД | Проверьте, что контейнер PostgreSQL запущен: `docker ps` |
+| Ошибки авторизации | Проверьте Twitch/Kick API ключи в `.env` |
+| Сервисы недоступны | Проверьте порты: frontend 5173, backend 3000, БД 6543 (dev) / 5432 (prod) |
+| Bun не установлен | Используйте npm/pnpm как альтернативу |
+| Ошибки TypeScript | Выполните `bun install` и убедитесь, что все зависимости установлены |
+| Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`) |
+| Prisma ошибки миграций | Выполните `cd backend && bun prisma migrate dev` |

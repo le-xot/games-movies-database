@@ -90,7 +90,7 @@ function deleteAccount() {
 </script>
 
 <template>
-  <div class="container py-8 flex flex-col sm:flex-row gap-8 min-h-full">
+  <div class="container py-8 flex flex-col gap-8 min-h-full">
     <div class="flex-1 flex flex-col gap-8">
       <ProfileHeader v-if="userStore.user" :user="userStore.user" />
 
@@ -135,7 +135,7 @@ function deleteAccount() {
       <ConnectedAccounts />
     </div>
 
-    <div class="sm:w-64 space-y-2 border border-destructive/30 rounded-md p-4 h-fit sm:mt-auto">
+    <div class="max-w-lg w-full mx-auto space-y-2 border border-destructive/30 rounded-md p-4 mt-auto">
       <div class="text-sm font-semibold text-destructive">Опасная зона</div>
       <p class="text-sm text-muted-foreground">
         Удаление аккаунта необратимо. Все ваши данные будут удалены.

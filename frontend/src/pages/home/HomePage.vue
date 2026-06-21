@@ -2,6 +2,7 @@
 import { useTitle } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import TimeBadge from '@/pages/home/components/TimeBadge.vue'
 import WeatherBadge from '@/pages/home/components/WeatherBadge.vue'
 import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 
@@ -22,6 +23,7 @@ onMounted(() => {
             src="/images/lexot.webp"
             alt="Main Banner"
           />
+          <TimeBadge />
           <WeatherBadge />
         </div>
         <component

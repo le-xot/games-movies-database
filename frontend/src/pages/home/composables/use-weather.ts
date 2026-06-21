@@ -38,14 +38,23 @@ const weatherIcons: Record<string, Component> = {
   Tornado: Wind,
 }
 
+let cached: {
+  city: string
+  temp: number
+  condition: string
+  icon: Component
+} | null = null
+
 export function useWeather() {
-  const city = ref<string>('')
-  const temp = ref<number | null>(null)
-  const condition = ref<string>('')
-  const icon = ref<Component>(Cloud)
-  const loading = ref(true)
+  const city = ref(cached?.city ?? '')
+  const temp = ref<number | null>(cached?.temp ?? null)
+  const condition = ref(cached?.condition ?? '')
+  const icon = ref<Component>(cached?.icon ?? Cloud)
+  const loading = ref(!cached)
 
   onMounted(async () => {
+    if (cached) return
+
     try {
       const response = await fetch('/api/weather')
       if (!response.ok) return
@@ -54,6 +63,12 @@ export function useWeather() {
       temp.value = Math.round(data.main.temp)
       condition.value = data.weather[0]?.main ?? ''
       icon.value = weatherIcons[condition.value] ?? Cloud
+      cached = {
+        city: city.value,
+        temp: temp.value,
+        condition: condition.value,
+        icon: icon.value,
+      }
     } catch {
       // silently fail — weather is non-critical
     } finally {

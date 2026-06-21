@@ -25,7 +25,7 @@
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
 | Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Инфраструктура | Docker, Bun, Caddy (reverse proxy), GitHub Actions                                                                    |
+| Инфраструктура | Docker, Bun, RustFS (S3-хранилище), Caddy (reverse proxy), GitHub Actions                                              |
 
 ## Быстрый старт
 
@@ -51,7 +51,7 @@ bun install
 docker compose -f docker-compose-dev.yml up -d
 ```
 
-Это поднимет PostgreSQL на порту `5432` и Adminer на порту `54321`.
+Это поднимет PostgreSQL на порту `5432`, RustFS на портах `9000`/`9001` и Adminer на порту `54321`.
 
 ### 4. Настройка окружения
 
@@ -106,6 +106,12 @@ bun dev
 | `WEATHER_LON`           | Долгота для погоды                        | Нет         |
 | `PROXY`                 | URL прокси для внешних API                | Нет         |
 | `TWIR_API`              | API ключ для TWIR вебхуков                | Нет         |
+| `S3_ENDPOINT`           | Endpoint S3-хранилища (RustFS)            | Да          |
+| `S3_ACCESS_KEY_ID`      | S3 Access Key                             | Да          |
+| `S3_SECRET_ACCESS_KEY`  | S3 Secret Key                             | Да          |
+| `S3_BUCKET_IMAGES`      | Bucket для изображений (default: images)  | Нет         |
+| `S3_BUCKET_AVATARS`     | Bucket для аватаров (default: avatars)    | Нет         |
+| `S3_BUCKET_BACKUPS`     | Bucket для бекапов (default: backups)     | Нет         |
 
 ## Структура проекта
 
@@ -163,7 +169,7 @@ games-movies-database/
 │   │       ├── kick/          # Kick API клиент
 │   │       ├── websocket/     # Socket.IO gateway
 │   │       ├── records-providers/  # Внешние источники метаданных
-│   │       ├── img/           # Прокси и ресайз изображений (Sharp)
+│   │       ├── img/           # Прокси и ресайз изображений (RustFS/S3)
 │   │       ├── twir/          # TWIR вебхуки
 │   │       ├── weather/       # Погода (OpenWeatherMap)
 │   │       ├── jwt/           # CustomJwtModule обёртка
@@ -351,6 +357,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 Продакшен конфигурация в `docker-compose.yml` включает:
 
 - **PostgreSQL 17** с persistent volume
+- **RustFS** — S3-совместимое хранилище для изображений
 - **Adminer** с Caddy reverse proxy (`adminer.le-xot.dev`)
 - **Приложение** с Caddy reverse proxy (`le-xot.dev`)
 
@@ -391,3 +398,5 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 | Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены          |
 | Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`) |
 | Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                              |
+| S3 ошибки (InvalidAccessKeyId)    | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env` |
+| Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)          |

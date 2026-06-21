@@ -12,6 +12,7 @@ services:
   rustfs:
     image: rustfs/rustfs:latest
     restart: unless-stopped
+    env_file: .env
     volumes:
       - rustfs_data:/data
     environment:

@@ -64,7 +64,9 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-background font-mono text-foreground">
-    <div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-8 sm:px-6 sm:py-6 lg:px-8">
+    <div
+      class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-8 sm:px-6 sm:py-6 lg:px-8"
+    >
       <RouterLink
         :to="ROUTER_PATHS.home"
         class="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -85,7 +87,9 @@ onMounted(() => {
         >
           <div class="border-b border-border/50 px-3 py-3 sm:px-5 sm:py-4">
             <div class="flex items-baseline gap-3">
-              <span class="text-lg font-semibold text-primary sm:text-xl">&gt; {{ card.name }}_</span>
+              <span class="text-lg font-semibold text-primary sm:text-xl"
+                >&gt; {{ card.name }}_</span
+              >
               <span class="text-xs tracking-widest text-muted-foreground uppercase sm:text-sm">
                 {{ card.kicker }}
               </span>

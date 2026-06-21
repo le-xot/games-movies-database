@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { INestApplication, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '../generated/prisma/client'
+import { PrismaClient } from '@/generated/prisma/client'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {

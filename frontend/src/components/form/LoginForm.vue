@@ -2,6 +2,7 @@
 import { CircleUserRound, Loader2, Lock, LogOutIcon, Tv } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { TwitchIcon } from 'vue3-simple-icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -11,9 +12,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 
 const userStore = useUser()
+const router = useRouter()
 const { user } = storeToRefs(userStore)
 const isLoading = ref(false)
 
@@ -51,7 +54,14 @@ async function handleLogin(platform: 'twitch' | 'kick') {
           Профиль
         </RouterLink>
       </DropdownMenuItem>
-      <DropdownMenuItem @click="userStore.userLogout">
+      <DropdownMenuItem
+        @click="
+          async () => {
+            await userStore.userLogout()
+            router.push(ROUTER_PATHS.dbSuggestion)
+          }
+        "
+      >
         <LogOutIcon class="size-6 mr-2" />
         Выйти
       </DropdownMenuItem>

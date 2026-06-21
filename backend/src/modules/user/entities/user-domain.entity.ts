@@ -6,5 +6,6 @@ export interface UserDomain {
   role: UserRole
   profileImageUrl: string
   color: string
+  hasCustomAvatar: boolean
   createdAt: Date
 }

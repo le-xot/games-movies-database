@@ -1,29 +1,25 @@
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
 
 @Injectable()
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
-  private readonly s3 = new Bun.S3Client({
-    accessKeyId: env.S3_ACCESS_KEY_ID,
-    secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-    endpoint: env.S3_ENDPOINT,
-  })
+
+  constructor(private readonly s3Service: S3Service) {}
 
   async getImageContent(urlBase64: string) {
     const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
     const key = `${urlHash}.webp`
 
-    const s3file = this.s3.file(key, { bucket: env.S3_BUCKET_IMAGES })
-
     try {
-      if (await s3file.exists()) {
+      if (await this.s3Service.fileExists(key, env.S3_BUCKET_IMAGES)) {
         this.logger.log(`S3 cache hit: ${key}`)
-        const bytes = await s3file.bytes()
-        return { buffer: Buffer.from(bytes), contentType: 'image/webp' }
+        const buffer = await this.s3Service.getFileBytes(key, env.S3_BUCKET_IMAGES)
+        return { buffer, contentType: 'image/webp' }
       }
     } catch (e) {
       this.logger.warn(`S3 cache miss: ${key}`)
@@ -77,7 +73,12 @@ export class ImgService {
       const imageBytes = await new Bun.Image(fileContent).resize(300, 450).webp().bytes()
 
       try {
-        await s3file.write(imageBytes, { type: 'image/webp' })
+        await this.s3Service.uploadFile(
+          key,
+          Buffer.from(imageBytes),
+          env.S3_BUCKET_IMAGES,
+          'image/webp',
+        )
         this.logger.log(`S3 cache write: ${key}`)
       } catch (e) {
         this.logger.warn('Failed to cache image in S3')

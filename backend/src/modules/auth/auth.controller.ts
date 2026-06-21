@@ -12,8 +12,11 @@ import {
   Post,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
 import { ApiResponse } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import { AuthGuard } from '@/modules/auth/auth.guard'
@@ -226,6 +229,38 @@ export class AuthController {
   @UseGuards(AuthGuard)
   updateNickname(@Body() data: UpdateNicknameDTO, @User() user: UserEntity) {
     return this.userService.updateLogin(user.id, data.login)
+  }
+
+  @Post('/me/avatar')
+  @Throttle({ default: THROTTLER_LIMITS.write })
+  @UseGuards(AuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+          cb(null, true)
+        } else {
+          cb(new HttpException('Only image files are allowed', HttpStatus.BAD_REQUEST), false)
+        }
+      },
+    }),
+  )
+  uploadAvatar(
+    @UploadedFile() file: { buffer: Buffer; mimetype: string; size: number },
+    @User() user: UserEntity,
+  ) {
+    if (!file) {
+      throw new HttpException('No file provided', HttpStatus.BAD_REQUEST)
+    }
+    return this.userService.uploadAvatar(user.id, file.buffer)
+  }
+
+  @Delete('/me/avatar')
+  @Throttle({ default: THROTTLER_LIMITS.write })
+  @UseGuards(AuthGuard)
+  deleteAvatar(@User() user: UserEntity) {
+    return this.userService.deleteAvatar(user.id)
   }
 
   @Post('/logout')

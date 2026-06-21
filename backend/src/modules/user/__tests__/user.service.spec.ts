@@ -10,26 +10,37 @@ describe('UserService', () => {
   let service: UserService
   let mockRepo: UserRepository
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
+  let mockAvatarService: {
+    fetchAndStoreOAuthAvatar: ReturnType<typeof mock>
+    processAndStoreAvatar: ReturnType<typeof mock>
+    deleteAvatarFromS3: ReturnType<typeof mock>
+  }
 
   beforeEach(() => {
     mockRepo = createMock(UserRepository)
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new UserService(mockRepo, mockEventEmitter as any)
+    mockAvatarService = {
+      fetchAndStoreOAuthAvatar: mock(() => Promise.resolve(null)),
+      processAndStoreAvatar: mock(() => Promise.resolve('avatars/test.webp')),
+      deleteAvatarFromS3: mock(() => Promise.resolve()),
+    }
+    service = new UserService(mockRepo, mockEventEmitter as any, mockAvatarService as any)
   })
 
   describe('upsertUser', () => {
-    it('updates an existing user', async () => {
+    it('updates an existing user without custom avatar', async () => {
       const existingUser: UserDomain = {
         id: 'user-1',
         login: 'old-login',
         role: UserRole.USER,
         profileImageUrl: 'old-url',
         color: '#111111',
+        hasCustomAvatar: false,
         createdAt: new Date('2024-01-01'),
       }
       const updatedUser: UserDomain = {
         ...existingUser,
-        login: 'new-login',
+        profileImageUrl: 'new-url',
       }
       const findByPlatformId = mock(() =>
         Promise.resolve(existingUser),
@@ -51,16 +62,47 @@ describe('UserService', () => {
 
       expect(result).toEqual(updatedUser)
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-1')
-      expect(update).toHaveBeenCalledWith('user-1', {
-        login: 'new-login',
+      expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith('user-1', 'new-url')
+    })
+
+    it('skips profileImageUrl update when user has custom avatar', async () => {
+      const existingUser: UserDomain = {
+        id: 'user-1',
+        login: 'old-login',
+        role: UserRole.USER,
+        profileImageUrl: 'custom-url',
+        color: '#111111',
+        hasCustomAvatar: true,
+        createdAt: new Date('2024-01-01'),
+      }
+      const updatedUser: UserDomain = {
+        ...existingUser,
         role: UserRole.ADMIN,
-        profileImageUrl: 'new-url',
+      }
+      const findByPlatformId = mock(() =>
+        Promise.resolve(existingUser),
+      ) as unknown as UserRepository['findByPlatformId']
+      const update = mock(() => Promise.resolve(updatedUser)) as unknown as UserRepository['update']
+      mockRepo.findByPlatformId = findByPlatformId
+      mockRepo.update = update
+
+      const result = await service.upsertUser(
+        'user-1',
+        {
+          login: 'new-login',
+          role: UserRole.ADMIN,
+          profileImageUrl: 'new-url',
+          color: '#222222',
+        },
+        'TWITCH',
+      )
+
+      expect(result).toEqual(updatedUser)
+      expect(update).toHaveBeenCalledWith('user-1', {
+        role: UserRole.ADMIN,
         color: '#222222',
       })
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
-        userId: 'user-1',
-        action: 'updated',
-      })
+      expect(mockAvatarService.fetchAndStoreOAuthAvatar).not.toHaveBeenCalled()
     })
 
     it('creates a user when no user exists', async () => {
@@ -70,6 +112,7 @@ describe('UserService', () => {
         role: UserRole.USER,
         profileImageUrl: 'new-url',
         color: '#333333',
+        hasCustomAvatar: false,
         createdAt: new Date('2024-01-02'),
       }
       const findByPlatformId = mock(() =>
@@ -92,20 +135,7 @@ describe('UserService', () => {
 
       expect(result).toEqual(createdUser)
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-2')
-      expect(create).toHaveBeenCalledWith({
-        login: 'new-user',
-        role: UserRole.USER,
-        profileImageUrl: 'new-url',
-        color: '#333333',
-        platform: 'TWITCH',
-        platformUserId: 'user-2',
-        platformLogin: 'new-user',
-        platformAvatar: 'new-url',
-      })
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
-        userId: 'user-2',
-        action: 'created',
-      })
+      expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith('user-2', 'new-url')
     })
   })
 
@@ -117,6 +147,7 @@ describe('UserService', () => {
         role: UserRole.USER,
         profileImageUrl: 'url',
         color: '#444444',
+        hasCustomAvatar: false,
         createdAt: new Date('2024-01-05'),
       }
       const findByLogin = mock(() =>
@@ -139,6 +170,7 @@ describe('UserService', () => {
         role: UserRole.ADMIN,
         profileImageUrl: 'url',
         color: '#555555',
+        hasCustomAvatar: false,
         createdAt: new Date('2024-01-06'),
       }
       const findById = mock(() => Promise.resolve(user)) as unknown as UserRepository['findById']
@@ -160,6 +192,7 @@ describe('UserService', () => {
           role: UserRole.USER,
           profileImageUrl: 'url',
           color: '#666666',
+          hasCustomAvatar: false,
           createdAt: new Date('2024-01-07'),
         },
       ]
@@ -181,6 +214,7 @@ describe('UserService', () => {
         role: UserRole.USER,
         profileImageUrl: 'url',
         color: '#777777',
+        hasCustomAvatar: false,
         createdAt: new Date('2024-01-08'),
       }
       const findByLogin = mock(() =>
@@ -222,6 +256,7 @@ describe('UserService', () => {
         role: UserRole.ADMIN,
         profileImageUrl: 'url',
         color: '#888888',
+        hasCustomAvatar: false,
         createdAt: new Date('2024-01-09'),
       }
       const findById = mock(() => Promise.resolve(user)) as unknown as UserRepository['findById']

@@ -25,6 +25,7 @@ export class UserController {
       role: user.role,
       profileImageUrl: user.profileImageUrl,
       color: user.color,
+      hasCustomAvatar: user.hasCustomAvatar,
       createdAt: user.createdAt,
     }))
   }

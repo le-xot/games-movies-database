@@ -19,6 +19,9 @@ export class UserEntity {
   color: string
 
   @ApiProperty()
+  hasCustomAvatar: boolean
+
+  @ApiProperty()
   createdAt: Date
 
   constructor(partial: Partial<UserEntity>) {

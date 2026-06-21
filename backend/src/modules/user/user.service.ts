@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
+import { AvatarService } from '@/modules/avatar/avatar.service'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { LinkPlatformData, UserRepository } from '@/modules/user/repositories/user.repository'
 import { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
@@ -12,6 +13,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly eventEmitter: EventEmitter2,
+    private readonly avatarService: AvatarService,
   ) {}
 
   async upsertUser(
@@ -27,9 +29,26 @@ export class UserService {
     const foundUser = await this.userRepository.findByPlatformId(platform, platformId)
 
     if (foundUser) {
+      if (!foundUser.hasCustomAvatar) {
+        const s3Key = await this.avatarService.fetchAndStoreOAuthAvatar(
+          foundUser.id,
+          data.profileImageUrl,
+        )
+        const profileImageUrl = s3Key ?? data.profileImageUrl
+        const updatedUser = await this.userRepository.update(foundUser.id, {
+          role: data.role,
+          profileImageUrl,
+          color: data.color,
+        })
+        this.eventEmitter.emit('update-users', {
+          userId: foundUser.id,
+          action: 'updated',
+        } satisfies UpdateUsersPayload)
+        return updatedUser
+      }
+
       const updatedUser = await this.userRepository.update(foundUser.id, {
         role: data.role,
-        profileImageUrl: data.profileImageUrl,
         color: data.color,
       })
       this.eventEmitter.emit('update-users', {
@@ -39,10 +58,16 @@ export class UserService {
       return updatedUser
     }
 
+    const s3Key = await this.avatarService.fetchAndStoreOAuthAvatar(
+      platformId,
+      data.profileImageUrl,
+    )
+    const profileImageUrl = s3Key ?? data.profileImageUrl
+
     const createdUser = await this.userRepository.create({
       login: data.login,
       role: data.role ?? UserRole.USER,
-      profileImageUrl: data.profileImageUrl,
+      profileImageUrl,
       color: data.color ?? '#333333',
       platform,
       platformUserId: platformId,
@@ -137,5 +162,50 @@ export class UserService {
 
   getLinkedAccounts(userId: string) {
     return this.userRepository.findAccountsByUserId(userId)
+  }
+
+  async uploadAvatar(userId: string, imageBuffer: Buffer): Promise<UserDomain> {
+    const user = await this.userRepository.findById(userId)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    const s3Key = await this.avatarService.processAndStoreAvatar(userId, imageBuffer)
+    const updatedUser = await this.userRepository.update(userId, {
+      profileImageUrl: s3Key,
+      hasCustomAvatar: true,
+    })
+
+    this.eventEmitter.emit('update-users', {
+      userId,
+      action: 'updated',
+    } satisfies UpdateUsersPayload)
+
+    return updatedUser
+  }
+
+  async deleteAvatar(userId: string): Promise<UserDomain> {
+    const user = await this.userRepository.findById(userId)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    await this.avatarService.deleteAvatarFromS3(userId)
+
+    const accounts = await this.userRepository.findAccountsByUserId(userId)
+    const oauthAvatar =
+      accounts.find((a) => a.platformAvatar)?.platformAvatar ?? user.profileImageUrl
+
+    const updatedUser = await this.userRepository.update(userId, {
+      profileImageUrl: oauthAvatar,
+      hasCustomAvatar: false,
+    })
+
+    this.eventEmitter.emit('update-users', {
+      userId,
+      action: 'updated',
+    } satisfies UpdateUsersPayload)
+
+    return updatedUser
   }
 }

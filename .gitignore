@@ -82,3 +82,5 @@ backend/src/generated
 !.sisyphus/notepads/
 /test-results/
 .playwright-mcp/
+/.opencode/plans/
+/docs/superpowers/specs/

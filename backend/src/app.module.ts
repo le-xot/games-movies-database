@@ -8,6 +8,7 @@ import { AppController } from '@/app.controller'
 import { PrismaModule } from '@/database/prisma.module'
 import { AuctionModule } from '@/modules/auction/auction.module'
 import { AuthModule } from '@/modules/auth/auth.module'
+import { AvatarModule } from '@/modules/avatar/avatar.module'
 import { ImgModule } from '@/modules/img/img.module'
 import { CustomJwtModule } from '@/modules/jwt/jwt.module'
 import { KickModule } from '@/modules/kick/kick.module'
@@ -43,6 +44,7 @@ import { THROTTLER_LIMITS } from '@/utils/throttler'
     KickModule,
     CustomJwtModule,
     AuthModule,
+    AvatarModule,
     RecordModule,
     UserModule,
     PrismaModule,

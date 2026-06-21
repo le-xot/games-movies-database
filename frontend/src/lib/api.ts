@@ -56,6 +56,7 @@ export interface UserEntity {
   role: UserRole;
   profileImageUrl: string;
   color: string;
+  hasCustomAvatar: boolean;
   /** @format date-time */
   createdAt: string;
 }
@@ -571,6 +572,21 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  avatar = {
+    /**
+     * No description
+     *
+     * @tags Avatar
+     * @name AvatarControllerGetAvatar
+     * @request GET:/avatar/{userId}
+     */
+    avatarControllerGetAvatar: (userId: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/avatar/${userId}`,
+        method: "GET",
+        ...params,
+      }),
+  };
   twir = {
     /**
      * No description
@@ -846,6 +862,34 @@ export class Api<SecurityDataType extends unknown> {
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerUploadAvatar
+     * @request POST:/auth/me/avatar
+     */
+    authControllerUploadAvatar: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/me/avatar`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerDeleteAvatar
+     * @request DELETE:/auth/me/avatar
+     */
+    authControllerDeleteAvatar: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/me/avatar`,
+        method: "DELETE",
         ...params,
       }),
 

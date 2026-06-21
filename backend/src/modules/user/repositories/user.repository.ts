@@ -18,6 +18,7 @@ export interface UpdateUserData {
   role?: UserRole
   profileImageUrl?: string
   color?: string
+  hasCustomAvatar?: boolean
 }
 
 export interface LinkPlatformData {

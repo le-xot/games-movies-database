@@ -25,7 +25,7 @@
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
 | Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Инфраструктура | Docker, Bun, RustFS (S3-хранилище), Caddy (reverse proxy), GitHub Actions                                              |
+| Инфраструктура | Docker, Bun, RustFS (S3-хранилище), Caddy (reverse proxy), GitHub Actions                                             |
 
 ## Быстрый старт
 
@@ -389,14 +389,14 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 
 ## Troubleshooting
 
-| Проблема                          | Решение                                                                       |
-| --------------------------------- | ----------------------------------------------------------------------------- |
-| Не подключается к БД              | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                      |
-| Ошибки авторизации                | Проверьте Twitch/Kick API ключи в `.env`                                      |
-| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 6543 (dev) / 5432 (prod)     |
-| Bun не установлен                 | Используйте npm/pnpm как альтернативу                                         |
-| Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены          |
-| Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`) |
-| Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                              |
+| Проблема                          | Решение                                                                                                              |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Не подключается к БД              | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                             |
+| Ошибки авторизации                | Проверьте Twitch/Kick API ключи в `.env`                                                                             |
+| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 6543 (dev) / 5432 (prod)                                            |
+| Bun не установлен                 | Используйте npm/pnpm как альтернативу                                                                                |
+| Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены                                                 |
+| Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`)                                        |
+| Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                                                                     |
 | S3 ошибки (InvalidAccessKeyId)    | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env` |
-| Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)          |
+| Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)                                                 |

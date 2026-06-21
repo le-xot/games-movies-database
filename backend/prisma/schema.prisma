@@ -15,6 +15,7 @@ model User {
   role            UserRole @default(USER)
   profileImageUrl String
   color           String   @default("#333333")
+  hasCustomAvatar Boolean  @default(false)
   createdAt       DateTime @default(now())
 
   suggestionOwnerships SuggestionOwnership[]

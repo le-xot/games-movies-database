@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useTitle } from '@vueuse/core'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import TimeBadge from '@/pages/home/components/TimeBadge.vue'
 import WeatherBadge from '@/pages/home/components/WeatherBadge.vue'
 import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 
 const title = useTitle()
+const weatherExpanded = ref(false)
 
 onMounted(() => {
   title.value = 'Сайт Лешота'
@@ -23,8 +24,8 @@ onMounted(() => {
             src="/images/lexot.webp"
             alt="Main Banner"
           />
-          <TimeBadge />
-          <WeatherBadge />
+          <TimeBadge v-show="!weatherExpanded" />
+          <WeatherBadge @expand="weatherExpanded = true" @collapse="weatherExpanded = false" />
         </div>
         <component
           :is="item.external ? 'a' : RouterLink"

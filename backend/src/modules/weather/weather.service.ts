@@ -6,6 +6,7 @@ export interface WeatherData {
     temp: number
     feels_like: number
     humidity: number
+    pressure: number
   }
   weather: Array<{
     main: string
@@ -13,6 +14,14 @@ export interface WeatherData {
   }>
   wind: {
     speed: number
+  }
+  visibility: number
+  clouds: {
+    all: number
+  }
+  sys: {
+    sunrise: number
+    sunset: number
   }
   name: string
 }

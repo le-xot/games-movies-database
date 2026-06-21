@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-Full-stack personal media tracker (games, movies, anime, cartoons, series) with Twitch auth, Spotify integration, and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS backend + PostgreSQL via Prisma.
+Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick auth, Spotify integration, and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS backend + PostgreSQL via Prisma.
 
 ## STRUCTURE
 
@@ -101,8 +101,8 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Backend serves built frontend via `ServeStaticModule` (frontend/dist). In production, single container serves everything
 - Frontend dev requires backend running first — Vite config auto-generates API client from `localhost:3000/docs-json` (retries 10x on failure)
 - Vite proxies `/api` and `/socket.io` to `localhost:3000` in dev
-- CI: push to master → Docker Hub → Dokploy deploy (HTTP POST to external IP). Secrets: `DOCKER_REGISTRY_LOGIN`, `DOCKER_REGISTRY_TOKEN`, `DOKPLOY_API_KEY`, `DOKPLOY_COMPOSE_ID`
-- Production docker-compose expects external `dokploy-network`
+- CI: push to master → SSH to server → `git pull` → `docker compose up -d --build`. Secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
+- Production docker-compose expects external `caddy` network (Caddy reverse proxy)
 - No tests exist. No test framework configured
 - Prisma `prestart` hook runs migrations + seed automatically
 - `predev` hook runs seed on every dev start

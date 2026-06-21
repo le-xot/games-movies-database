@@ -85,33 +85,35 @@ bun dev
 
 Файл: `backend/.env` (скопируйте из `backend/.env.example`)
 
-| Переменная              | Описание                                  | Обязательна |
-| ----------------------- | ----------------------------------------- | ----------- |
-| `DATASOURCE_URL`        | Строка подключения к PostgreSQL           | Да          |
-| `JWT_SECRET`            | Секрет для подписи JWT токенов            | Да          |
-| `APP_PORT`              | Порт backend сервера (по умолчанию: 3000) | Нет         |
-| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                    | Нет         |
-| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret                | Нет         |
-| `TWITCH_CALLBACK_URL`   | URL callback после Twitch авторизации     | Нет         |
-| `KICK_CLIENT_ID`        | Kick OAuth Client ID                      | Нет         |
-| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                  | Нет         |
-| `KICK_CALLBACK_URL`     | URL callback после Kick авторизации       | Нет         |
-| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                         | Нет         |
-| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                     | Нет         |
-| `SPOTIFY_CALLBACK_URL`  | URL callback после Spotify авторизации    | Нет         |
-| `KINOPOISK_API`         | API ключ Кинопоиска                       | Нет         |
-| `TMBD_API`              | API ключ TMDB                             | Нет         |
-| `WEATHER_API_KEY`       | OpenWeatherMap API ключ                   | Нет         |
-| `WEATHER_LAT`           | Широта для погоды                         | Нет         |
-| `WEATHER_LON`           | Долгота для погоды                        | Нет         |
-| `PROXY`                 | URL прокси для внешних API                | Нет         |
-| `TWIR_API`              | API ключ для TWIR вебхуков                | Нет         |
-| `S3_ENDPOINT`           | Endpoint S3-хранилища (RustFS)            | Да          |
-| `S3_ACCESS_KEY_ID`      | S3 Access Key                             | Да          |
-| `S3_SECRET_ACCESS_KEY`  | S3 Secret Key                             | Да          |
-| `S3_BUCKET_IMAGES`      | Bucket для изображений (default: images)  | Нет         |
-| `S3_BUCKET_AVATARS`     | Bucket для аватаров (default: avatars)    | Нет         |
-| `S3_BUCKET_BACKUPS`     | Bucket для бекапов (default: backups)     | Нет         |
+| Переменная              | Описание                                  | Обязательна                         |
+| ----------------------- | ----------------------------------------- | ----------------------------------- |
+| `DATASOURCE_URL`        | Строка подключения к PostgreSQL           | Да                                  |
+| `JWT_SECRET`            | Секрет для подписи JWT токенов            | Да                                  |
+| `APP_PORT`              | Порт backend сервера (по умолчанию: 3000) | Нет                                 |
+| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                    | Нет                                 |
+| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret                | Нет                                 |
+| `TWITCH_CALLBACK_URL`   | URL callback после Twitch авторизации     | Нет                                 |
+| `TWITCH_ADMIN_ID`       | Twitch ID администратора                  | Нет                                 |
+| `TWITCH_ADMIN_LOGIN`    | Twitch login администратора               | Нет                                 |
+| `KICK_CLIENT_ID`        | Kick OAuth Client ID                      | Нет                                 |
+| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                  | Нет                                 |
+| `KICK_CALLBACK_URL`     | URL callback после Kick авторизации       | Нет                                 |
+| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                         | Нет                                 |
+| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                     | Нет                                 |
+| `SPOTIFY_CALLBACK_URL`  | URL callback после Spotify авторизации    | Нет                                 |
+| `KINOPOISK_API`         | API ключ Кинопоиска                       | Нет                                 |
+| `TMBD_API`              | API ключ TMDB                             | Нет                                 |
+| `WEATHER_API_KEY`       | OpenWeatherMap API ключ                   | Нет                                 |
+| `WEATHER_LAT`           | Широта для погоды                         | Нет                                 |
+| `WEATHER_LON`           | Долгота для погоды                        | Нет                                 |
+| `PROXY`                 | URL прокси для внешних API                | Нет                                 |
+| `TWIR_API`              | API ключ для TWIR вебхуков                | Нет                                 |
+| `S3_ENDPOINT`           | Endpoint S3-хранилища (RustFS)            | Нет (default: `http://rustfs:9000`) |
+| `S3_ACCESS_KEY_ID`      | S3 Access Key                             | Нет (default: `rustfsadmin`)        |
+| `S3_SECRET_ACCESS_KEY`  | S3 Secret Key                             | Нет (default: `rustfsadmin`)        |
+| `S3_BUCKET_IMAGES`      | Bucket для изображений (default: images)  | Нет                                 |
+| `S3_BUCKET_AVATARS`     | Bucket для аватаров (default: avatars)    | Нет                                 |
+| `S3_BUCKET_BACKUPS`     | Bucket для бекапов (default: backups)     | Нет                                 |
 
 ## Структура проекта
 
@@ -393,7 +395,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Не подключается к БД              | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                             |
 | Ошибки авторизации                | Проверьте Twitch/Kick API ключи в `.env`                                                                             |
-| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 6543 (dev) / 5432 (prod)                                            |
+| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                     |
 | Bun не установлен                 | Используйте npm/pnpm как альтернативу                                                                                |
 | Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены                                                 |
 | Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`)                                        |

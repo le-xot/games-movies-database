@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-NestJS API source directory. Boots Swagger, Prisma, and 16 feature modules.
+NestJS API source directory. Boots Swagger, Prisma, and 19 feature modules.
 
 ## STRUCTURE
 
@@ -40,7 +40,7 @@ backend/src/
 
 ## ANTI-PATTERNS
 
-- **Imports**: `WeatherModule` and `SpotifyModule` are commented out in `app.module.ts`.
+- **Imports**: `SpotifyModule` is commented out in `app.module.ts`.
 - **Typo**: Do not "fix" `utils/enviroments.ts` without updating every import.
 - **Duplicates**: `CustomJwtModule` is intentionally imported twice in `app.module.ts`.
 - **Prisma**: Never instantiate `PrismaClient` directly; always inject `PrismaService`.

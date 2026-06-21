@@ -14,24 +14,27 @@ Standard file set for new features:
 
 ## MODULE INVENTORY
 
-| Module                | Files | Purpose                                                  |
-| :-------------------- | :---- | :------------------------------------------------------- |
-| **auth**              | 8     | Twitch OAuth, JWT, @Global() guards, @User() decorator   |
-| **user**              | 5     | User CRUD, profile management, update-users events       |
-| **record**            | 5     | Media entries (games/movies), provider integration       |
-| **like**              | 5     | User favorites, $transaction cascade deletes             |
-| **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo) |
-| **auction**           | 3     | Real-time auction management logic                       |
-| **twir**              | 4     | External bot webhooks, ApikeyGuard protection            |
-| **spotify**           | 4     | Spotify API integration + background track queue         |
-| **websocket**         | 2     | Socket.IO gateway for real-time frontend updates         |
-| **records-providers** | 2     | External metadata fetchers (Kinopoisk, etc.)             |
-| **img**               | 3     | Image proxy and resizing via Sharp                       |
-| **jwt**               | 1     | CustomJwtModule wrapper for @nestjs/jwt                  |
-| **limit**             | 4     | Rate limiting and quantity constraints                   |
-| **queue**             | 4     | General purpose item queue management                    |
-| **twitch**            | 2     | Twitch API client for metadata and validation            |
-| **weather**           | 3     | Weather data fetcher (currently inactive)                |
+| Module                | Files | Purpose                                                     |
+| :-------------------- | :---- | :---------------------------------------------------------- |
+| **auth**              | 8     | Twitch/Kick OAuth, JWT, @Global() guards, @User() decorator |
+| **user**              | 5     | User CRUD, profile management, update-users events          |
+| **record**            | 5     | Media entries (games/movies), provider integration          |
+| **like**              | 5     | User favorites, $transaction cascade deletes                |
+| **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)    |
+| **auction**           | 3     | Real-time auction management logic                          |
+| **avatar**            | 3     | Avatar upload/delete via S3, Sharp image processing         |
+| **s3**                | 2     | S3/RustFS storage abstraction (upload, delete, exists)      |
+| **kick**              | 2     | Kick API client for user metadata                           |
+| **twir**              | 4     | External bot webhooks, ApikeyGuard protection               |
+| **spotify**           | 4     | Spotify API integration + background track queue            |
+| **websocket**         | 2     | Socket.IO gateway for real-time frontend updates            |
+| **records-providers** | 2     | External metadata fetchers (Kinopoisk, etc.)                |
+| **img**               | 3     | Image proxy and resizing via Sharp                          |
+| **jwt**               | 1     | CustomJwtModule wrapper for @nestjs/jwt                     |
+| **limit**             | 4     | Rate limiting and quantity constraints                      |
+| **queue**             | 4     | General purpose item queue management                       |
+| **twitch**            | 2     | Twitch API client for metadata and validation               |
+| **weather**           | 3     | Weather data fetcher (OpenWeatherMap)                       |
 
 ## MODULE INTERACTIONS
 
@@ -44,6 +47,8 @@ Standard file set for new features:
   - `LikeModule` -> `Record`, `User`, `Websocket`
   - `SuggestionModule` -> `Prisma`, `User`, `RecordsProviders`, `Websocket`
   - `TwirModule` -> `Suggestion`, `User`
+  - `AvatarModule` -> `S3`, `User`
+  - `ImgModule` -> `S3`
 
 ## ANTI-PATTERNS
 

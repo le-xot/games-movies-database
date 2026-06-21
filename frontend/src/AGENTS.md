@@ -21,7 +21,7 @@ frontend/src/
 │   └── ui/        # shadcn-vue primitives (managed, do not edit)
 ├── composables/   # Plain composables (useWebSocket, useRecordCreate) + factories/
 ├── lib/           # API client (auto-generated), cn() helper
-├── pages/         # Route components (13 feature folders, PascalCase .vue)
+├── pages/         # Route components (12 feature folders, PascalCase .vue)
 ├── router/        # Vue Router config + route paths
 ├── stores/        # Pinia stores (useApi, useUser, useBreakpoints, useNewRecords, useTitle)
 └── utils/         # Image proxy, watch link generation
@@ -53,10 +53,11 @@ frontend/src/
 
 ## COMPOSABLES (Plain — `composables/`)
 
-| Name              | Purpose                                               |
-| ----------------- | ----------------------------------------------------- |
-| `useWebSocket`    | Socket.io client; triggers refetches on server events |
-| `useRecordCreate` | Mutation for creating records from links              |
+| Name                   | Purpose                                               |
+| ---------------------- | ----------------------------------------------------- |
+| `useWebSocket`         | Socket.io client; triggers refetches on server events |
+| `useRecordCreate`      | Mutation for creating records from links              |
+| `createEventCoalescer` | Debounced event batching for WebSocket updates        |
 
 ## COMPONENT PATTERNS
 

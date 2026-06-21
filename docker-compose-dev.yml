@@ -9,6 +9,17 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+  rustfs:
+    image: rustfs/rustfs:latest
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - rustfs_data:/data
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+      RUSTFS_CONSOLE_ENABLE: 'true'
   admin:
     image: adminer
     depends_on:
@@ -17,4 +28,4 @@ services:
       - 54321:8080
 volumes:
   pgdata:
-  images:
+  rustfs_data:

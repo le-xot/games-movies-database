@@ -9,6 +9,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  rustfs:
+    image: rustfs/rustfs:latest
+    restart: unless-stopped
+    volumes:
+      - rustfs_data:/data
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
+      RUSTFS_CONSOLE_ENABLE: 'true'
+
   admin:
     image: adminer
     restart: unless-stopped
@@ -31,6 +41,7 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
+      - rustfs
     env_file: .env
     environment:
       DATASOURCE_URL: postgresql://${POSTGRES_USER:-le_xot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lists}?schema=public
@@ -43,6 +54,7 @@ services:
 
 volumes:
   pgdata:
+  rustfs_data:
 
 networks:
   caddy:

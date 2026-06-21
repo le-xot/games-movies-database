@@ -7,11 +7,9 @@ import { env } from '@/utils/enviroments'
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
   private readonly s3 = new Bun.S3Client({
-    accessKeyId: env.R2_ACCESS_KEY_ID,
-    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-    endpoint: env.R2_ENDPOINT,
-    bucket: 'images',
-    region: 'auto',
+    accessKeyId: env.S3_ACCESS_KEY_ID,
+    secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    endpoint: env.S3_ENDPOINT,
   })
 
   async getImageContent(urlBase64: string) {
@@ -19,16 +17,16 @@ export class ImgService {
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
     const key = `${urlHash}.webp`
 
-    const s3file = this.s3.file(key)
+    const s3file = this.s3.file(key, { bucket: env.S3_BUCKET_IMAGES })
 
     try {
       if (await s3file.exists()) {
-        this.logger.log(`R2 cache hit: ${key}`)
+        this.logger.log(`S3 cache hit: ${key}`)
         const bytes = await s3file.bytes()
         return { buffer: Buffer.from(bytes), contentType: 'image/webp' }
       }
     } catch (e) {
-      this.logger.warn(`R2 cache miss: ${key}`)
+      this.logger.warn(`S3 cache miss: ${key}`)
       this.logger.error(e)
     }
 
@@ -80,9 +78,9 @@ export class ImgService {
 
       try {
         await s3file.write(imageBytes, { type: 'image/webp' })
-        this.logger.log(`R2 cache write: ${key}`)
+        this.logger.log(`S3 cache write: ${key}`)
       } catch (e) {
-        this.logger.warn('Failed to cache image in R2')
+        this.logger.warn('Failed to cache image in S3')
         this.logger.error(e)
       }
 

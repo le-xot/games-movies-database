@@ -33,7 +33,10 @@ export const env = cleanEnv(process.env, {
 
   PROXY: str({ default: null }),
 
-  R2_ENDPOINT: str({}),
-  R2_ACCESS_KEY_ID: str({}),
-  R2_SECRET_ACCESS_KEY: str({}),
+  S3_ENDPOINT: str({ default: 'http://rustfs:9000' }),
+  S3_ACCESS_KEY_ID: str({ default: 'rustfsadmin' }),
+  S3_SECRET_ACCESS_KEY: str({ default: 'rustfsadmin' }),
+  S3_BUCKET_IMAGES: str({ default: 'images' }),
+  S3_BUCKET_AVATARS: str({ default: 'avatars' }),
+  S3_BUCKET_BACKUPS: str({ default: 'backups' }),
 })

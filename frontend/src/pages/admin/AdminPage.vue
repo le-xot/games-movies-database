@@ -101,10 +101,7 @@ function deleteUser(userId: string, username: string) {
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="font-medium truncate">{{ user.login }}</span>
-                <Badge
-                  :variant="user.role === 'ADMIN' ? 'destructive' : 'secondary'"
-                  class="text-xs"
-                >
+                <Badge :variant="user.role === 'ADMIN' ? 'destructive' : 'default'" class="text-xs">
                   {{ user.role }}
                 </Badge>
               </div>

@@ -2,6 +2,7 @@
 import { useTitle } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import WeatherBadge from '@/pages/home/components/WeatherBadge.vue'
 import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 
 const title = useTitle()
@@ -15,11 +16,14 @@ onMounted(() => {
   <div class="min-h-screen flex items-center justify-center p-8">
     <div class="w-full max-w-5xl">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <img
-          class="object-cover rounded-xl col-span-1 row-span-2 w-full h-full md:col-span-2"
-          src="/images/lexot.webp"
-          alt="Main Banner"
-        />
+        <div class="relative col-span-1 row-span-2 md:col-span-2">
+          <img
+            class="h-full w-full rounded-xl object-cover"
+            src="/images/lexot.webp"
+            alt="Main Banner"
+          />
+          <WeatherBadge />
+        </div>
         <component
           :is="item.external ? 'a' : RouterLink"
           v-for="item in HOME_GRID_ITEMS"

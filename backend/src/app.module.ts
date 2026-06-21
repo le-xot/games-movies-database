@@ -20,6 +20,7 @@ import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
 import { TwirModule } from '@/modules/twir/twir.module'
 import { TwitchModule } from '@/modules/twitch/twitch.module'
 import { UserModule } from '@/modules/user/user.module'
+import { WeatherModule } from '@/modules/weather/weather.module'
 import { WebsocketModule } from '@/modules/websocket/websocket.module'
 import { THROTTLER_LIMITS } from '@/utils/throttler'
 
@@ -50,7 +51,7 @@ import { THROTTLER_LIMITS } from '@/utils/throttler'
     LikeModule,
     QueueModule,
     SuggestionModule,
-    // WeatherModule,
+    WeatherModule,
     RecordsProvidersModule,
     // SpotifyModule,
     WebsocketModule,

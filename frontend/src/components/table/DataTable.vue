@@ -19,13 +19,15 @@ const props = defineProps<{
 
 provide(tableInjectionKey, props.table)
 
-function isNotInterested(row: T): boolean {
-  return (row as { status?: string })?.status === RecordStatus.NOTINTERESTED
+const spanTwoStatuses = [RecordStatus.NOTINTERESTED, RecordStatus.QUEUE, RecordStatus.PROGRESS]
+
+function shouldSpanTwoColumns(row: T): boolean {
+  return spanTwoStatuses.includes((row as { status?: RecordStatus })?.status as RecordStatus)
 }
 
 function getVisibleCellsForRow(row: { getVisibleCells: () => Cell<T, unknown>[]; original: T }) {
   const cells = row.getVisibleCells()
-  if (!isNotInterested(row.original)) return cells
+  if (!shouldSpanTwoColumns(row.original)) return cells
 
   return cells.filter((cell) => cell.column.id !== 'grade')
 }
@@ -64,7 +66,7 @@ function getVisibleCellsForRow(row: { getVisibleCells: () => Cell<T, unknown>[];
               v-for="cell in getVisibleCellsForRow(row)"
               :key="cell.id"
               :colspan="
-                cell.column.id === 'status' && isNotInterested(row.original) ? 2 : undefined
+                cell.column.id === 'status' && shouldSpanTwoColumns(row.original) ? 2 : undefined
               "
             >
               <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />

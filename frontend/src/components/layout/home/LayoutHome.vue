@@ -13,7 +13,13 @@ import { Toaster } from '@/components/ui/sonner'
 .home-layout {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .home-layout {
+    align-items: center;
+  }
 }
 </style>

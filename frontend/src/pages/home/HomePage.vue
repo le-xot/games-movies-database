@@ -14,12 +14,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-8">
+  <div class="min-h-screen flex items-start justify-center p-8 md:items-center">
     <div class="w-full max-w-5xl">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div class="relative col-span-1 row-span-2 md:col-span-2">
+        <div class="relative col-span-1 md:col-span-2 md:row-span-2">
           <img
-            class="h-full w-full rounded-xl object-cover"
+            class="w-full rounded-xl object-contain md:h-full md:object-cover"
             src="/images/lexot.webp"
             alt="Main Banner"
           />

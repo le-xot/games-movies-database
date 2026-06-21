@@ -1,34 +1,31 @@
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
-import sharp from 'sharp'
 import { env } from '@/utils/enviroments'
 
 @Injectable()
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
-  private readonly s3 = new S3Client({
-    region: 'auto',
+  private readonly s3 = new Bun.S3Client({
+    accessKeyId: env.R2_ACCESS_KEY_ID,
+    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
     endpoint: env.R2_ENDPOINT,
-    credentials: {
-      accessKeyId: env.R2_ACCESS_KEY_ID,
-      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-    },
+    bucket: 'images',
   })
-  private readonly bucket = 'images'
 
   async getImageContent(urlBase64: string) {
     const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
     const key = `${urlHash}.webp`
 
+    const s3file = this.s3.file(key)
+
     try {
-      await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }))
-      this.logger.log(`R2 cache hit: ${key}`)
-      const obj = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }))
-      const buffer = Buffer.from(await obj.Body.transformToByteArray())
-      return { buffer, contentType: 'image/webp' }
+      if (await s3file.exists()) {
+        this.logger.log(`R2 cache hit: ${key}`)
+        const bytes = await s3file.bytes()
+        return { buffer: Buffer.from(bytes), contentType: 'image/webp' }
+      }
     } catch (e) {
       this.logger.warn(`R2 cache miss: ${key} — ${e.message}`)
     }
@@ -77,23 +74,16 @@ export class ImgService {
       }
 
       const fileContent = await response.arrayBuffer()
-      const imageBuffer = await sharp(fileContent).resize(300, 450).webp().toBuffer()
+      const imageBytes = await new Bun.Image(fileContent).resize(300, 450).webp().bytes()
 
       try {
-        await this.s3.send(
-          new PutObjectCommand({
-            Bucket: this.bucket,
-            Key: key,
-            Body: imageBuffer,
-            ContentType: 'image/webp',
-          }),
-        )
+        await s3file.write(imageBytes, { type: 'image/webp' })
         this.logger.log(`R2 cache write: ${key}`)
       } catch (e) {
         this.logger.warn(`Failed to cache image in R2: ${e.message}`)
       }
 
-      return { buffer: imageBuffer, contentType: 'image/webp' }
+      return { buffer: Buffer.from(imageBytes), contentType: 'image/webp' }
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error

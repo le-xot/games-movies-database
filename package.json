@@ -31,7 +31,6 @@
   "trustedDependencies": [
     "@nestjs/core",
     "sass-embedded",
-    "sharp",
     "vite",
     "vue-tsc"
   ]

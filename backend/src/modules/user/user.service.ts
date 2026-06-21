@@ -28,7 +28,6 @@ export class UserService {
 
     if (foundUser) {
       const updatedUser = await this.userRepository.update(foundUser.id, {
-        login: data.login,
         role: data.role,
         profileImageUrl: data.profileImageUrl,
         color: data.color,

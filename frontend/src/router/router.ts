@@ -82,37 +82,31 @@ export const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, _, next) => {
+router.beforeEach(async (to) => {
   const userStore = useUser()
   const requiresAuth = to.meta.requiresAuth || to.meta.requiresAdmin
 
-  if (requiresAuth) {
-    if (userStore.isLoading) {
-      await new Promise<void>((resolve) => {
-        const stop = watch(
-          () => userStore.isLoading,
-          (loading) => {
-            if (!loading) {
-              stop()
-              resolve()
-            }
-          },
-        )
-      })
-    }
+  if (!requiresAuth) return
 
-    if (to.meta.requiresAdmin) {
-      if (!userStore.isAdmin) {
-        next({ path: ROUTER_PATHS.home })
-      } else {
-        next()
-      }
-    } else if (!userStore.isLoggedIn) {
-      next({ path: ROUTER_PATHS.home })
-    } else {
-      next()
-    }
-  } else {
-    next()
+  if (userStore.isLoading) {
+    await new Promise<void>((resolve) => {
+      const stop = watch(
+        () => userStore.isLoading,
+        (loading) => {
+          if (!loading) {
+            stop()
+            resolve()
+          }
+        },
+      )
+    })
+  }
+
+  if (to.meta.requiresAdmin && !userStore.isAdmin) {
+    return { path: ROUTER_PATHS.home }
+  }
+
+  if (!userStore.isLoggedIn) {
+    return { path: ROUTER_PATHS.home }
   }
 })

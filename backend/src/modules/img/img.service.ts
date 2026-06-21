@@ -11,6 +11,7 @@ export class ImgService {
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,
     endpoint: env.R2_ENDPOINT,
     bucket: 'images',
+    region: 'auto',
   })
 
   async getImageContent(urlBase64: string) {
@@ -27,7 +28,8 @@ export class ImgService {
         return { buffer: Buffer.from(bytes), contentType: 'image/webp' }
       }
     } catch (e) {
-      this.logger.warn(`R2 cache miss: ${key} — ${e.message}`)
+      this.logger.warn(`R2 cache miss: ${key}`)
+      this.logger.error(e)
     }
 
     try {
@@ -80,7 +82,8 @@ export class ImgService {
         await s3file.write(imageBytes, { type: 'image/webp' })
         this.logger.log(`R2 cache write: ${key}`)
       } catch (e) {
-        this.logger.warn(`Failed to cache image in R2: ${e.message}`)
+        this.logger.warn('Failed to cache image in R2')
+        this.logger.error(e)
       }
 
       return { buffer: Buffer.from(imageBytes), contentType: 'image/webp' }

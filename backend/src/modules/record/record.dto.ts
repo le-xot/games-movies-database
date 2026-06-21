@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { IsArray, IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import {
@@ -101,6 +101,7 @@ export class RecordGetDTO {
     isArray: true,
   })
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @IsArray()
   @IsEnum(RecordStatus, { each: true })
   status?: RecordStatus[]
@@ -133,6 +134,7 @@ export class RecordGetDTO {
     isArray: true,
   })
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @IsArray()
   @IsEnum(RecordGrade, { each: true })
   grade?: RecordGrade[]

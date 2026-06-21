@@ -80,12 +80,14 @@ export class ImgService {
       const imageBuffer = await sharp(fileContent).resize(300, 450).webp().toBuffer()
 
       try {
-        await this.s3.send(new PutObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-          Body: imageBuffer,
-          ContentType: 'image/webp',
-        }))
+        await this.s3.send(
+          new PutObjectCommand({
+            Bucket: this.bucket,
+            Key: key,
+            Body: imageBuffer,
+            ContentType: 'image/webp',
+          }),
+        )
         this.logger.log(`R2 cache write: ${key}`)
       } catch (e) {
         this.logger.warn(`Failed to cache image in R2: ${e.message}`)

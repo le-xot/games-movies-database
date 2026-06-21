@@ -42,6 +42,17 @@ const newRecords = useNewRecords()
 
 const likingStates = ref<Map<number, boolean>>(new Map())
 
+function triggerAnimation(itemId: number, direction: 'like' | 'unlike') {
+  const btn = document.querySelector(`[data-like-btn="${itemId}"]`) as HTMLElement | null
+  if (!btn) return
+  btn.animate(
+    direction === 'like'
+      ? [{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }]
+      : [{ transform: 'scale(1)' }, { transform: 'scale(0.8)' }, { transform: 'scale(1)' }],
+    { duration: 300, easing: 'ease-out' },
+  )
+}
+
 const throttledLikeFunctions = computed(() => {
   const map = new Map<number, ReturnType<typeof useThrottleFn>>()
 
@@ -54,14 +65,15 @@ const throttledLikeFunctions = computed(() => {
         try {
           if (isLikedByCurrentUser(item)) {
             await like.deleteLike(item.id)
+            triggerAnimation(item.id, 'unlike')
           } else {
             await like.createLike(item.id)
+            triggerAnimation(item.id, 'like')
           }
         } finally {
           likingStates.value.set(item.id, false)
         }
       }, 1000)
-
       map.set(item.id, throttledFn)
     }
   }
@@ -258,6 +270,7 @@ function toggleGenreCollapse(genre: string) {
                     <TooltipTrigger as-child>
                       <button
                         v-if="!isQueued(item)"
+                        :data-like-btn="item.id"
                         size="sm"
                         :disabled="likingStates.get(item.id)"
                         :class="

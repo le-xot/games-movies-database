@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { UserEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
-import { getImageUrl } from '@/utils/image'
 
 interface UserAccount {
   id: number
@@ -94,7 +93,7 @@ function deleteUser(userId: string, username: string) {
         <Card v-for="user in users" :key="user.id">
           <CardContent class="flex items-center gap-4 pt-6">
             <Avatar class="size-10 shrink-0">
-              <AvatarImage :src="getImageUrl(user.profileImageUrl)" :alt="user.login" />
+              <AvatarImage :src="user.profileImageUrl" :alt="user.login" />
               <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
             </Avatar>
 

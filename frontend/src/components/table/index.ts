@@ -1,5 +1,6 @@
 export { default as DataCards } from '@/components/table/DataCards.vue'
 export { default as DataTable } from '@/components/table/DataTable.vue'
+export { default as MobilePagination } from '@/components/table/MobilePagination.vue'
 export { default as TableSearch } from '@/components/table/TableSearch.vue'
 export { default as TablePagination } from '@/components/table/TablePagination.vue'
 export { default as TableFilterStatus } from '@/components/table/TableFilterStatus.vue'

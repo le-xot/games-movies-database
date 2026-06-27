@@ -13,6 +13,8 @@ export interface FilterOption {
 const props = defineProps<{
   value: T[] | null
   options: FilterOption[]
+  icon?: any
+  label?: string
 }>()
 
 const emit = defineEmits<{
@@ -79,15 +81,18 @@ const selectedCount = computed(() => props.value?.length ?? 0)
 
 <template>
   <div class="relative">
-    <Button ref="triggerRef" variant="ghost" size="icon" class="relative" @click="toggle">
-      <ListFilter class="size-4" />
-      <span
-        v-if="selectedCount > 0"
-        class="absolute -top-0.5 -right-1.5 h-4 min-w-4 px-1 flex items-center justify-center text-[10px] font-bold rounded-full bg-primary text-primary-foreground"
-      >
-        {{ selectedCount }}
-      </span>
-    </Button>
+    <div ref="triggerRef" @click="toggle">
+      <Button variant="outline" size="sm" class="h-9 gap-1.5 text-xs relative">
+        <component :is="props.icon ?? ListFilter" class="size-3.5" />
+        <span v-if="props.label" class="hidden md:inline">{{ props.label }}</span>
+        <span
+          v-if="selectedCount > 0"
+          class="ml-0.5 h-4 min-w-4 px-1 flex items-center justify-center text-[10px] font-bold rounded-full bg-primary text-primary-foreground"
+        >
+          {{ selectedCount }}
+        </span>
+      </Button>
+    </div>
 
     <Teleport to="body">
       <div

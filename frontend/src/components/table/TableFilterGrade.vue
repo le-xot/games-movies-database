@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Star } from '@lucide/vue'
 import { computed } from 'vue'
 import { gradeTags } from '@/components/table/composables/use-table-select'
 import TableFilterPopover from '@/components/table/TableFilterPopover.vue'
@@ -26,6 +27,8 @@ const gradeOptions = computed(() =>
   <TableFilterPopover
     :value="props.value"
     :options="gradeOptions"
+    :icon="Star"
+    label="Оценка"
     @update="emit('update', $event as RecordGrade[] | null)"
   />
 </template>

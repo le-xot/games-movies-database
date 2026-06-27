@@ -30,7 +30,7 @@ export function createParamsStore(config: ParamsStoreConfig) {
         genre: config.genre,
         type: RecordType.WRITTEN,
         page: pagination.value.pageIndex + 1,
-        limit: pagination.value.pageSize,
+        limit: 500,
         search: debouncedSearch.value,
         orderBy: 'id',
         direction: 'desc',

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@pinia/colada'
 import { StoreDefinition, defineStore } from 'pinia'
-import { ComputedRef, computed } from 'vue'
+import { ComputedRef, computed, ref, watch } from 'vue'
 import { useRecordCreate } from '@/composables/use-record-create'
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
@@ -86,9 +86,20 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       return data.value.records
     })
 
+    const cachedItems = ref<RecordEntity[]>([])
+    watch(items, (newItems) => {
+      if (newItems.length > 0) cachedItems.value = newItems
+    })
+
+    const displayItems = computed(() => {
+      if (items.value.length > 0) return items.value
+      if (isLoading.value && cachedItems.value.length > 0) return cachedItems.value
+      return items.value
+    })
+
     return {
       isLoading,
-      [config.itemsName]: items,
+      [config.itemsName]: displayItems,
       [config.refetchName]: refetch,
       updateRecord,
       deleteRecord,

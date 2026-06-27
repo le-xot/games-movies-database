@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SlidersHorizontal } from '@lucide/vue'
 import { computed } from 'vue'
 import { statusTags } from '@/components/table/composables/use-table-select'
 import TableFilterPopover from '@/components/table/TableFilterPopover.vue'
@@ -25,6 +26,8 @@ const statusOptions = computed(() =>
   <TableFilterPopover
     :value="props.value"
     :options="statusOptions"
+    :icon="SlidersHorizontal"
+    label="Статус"
     @update="emit('update', $event as RecordStatus[] | null)"
   />
 </template>

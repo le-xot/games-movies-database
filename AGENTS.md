@@ -86,6 +86,7 @@ bun lint                       # Lint check (oxlint)
 bun lint:fix                   # Auto-fix (oxlint)
 bun format                     # Format codebase (oxfmt)
 bun format:check               # Check formatting (oxfmt)
+bun typecheck                  # TypeScript check (vue-tsc)
 
 # Database
 bun prisma                     # Migrate + generate (root script)

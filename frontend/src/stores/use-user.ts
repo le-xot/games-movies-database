@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { UserRole } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 
@@ -27,8 +27,14 @@ export const useUser = defineStore('globals/use-user', () => {
   })
 
   const isLoggedIn = computed(() => !!user.value)
-  const isAdmin = computed(() => user.value?.role === UserRole.ADMIN)
+  const editorEnabled = ref(localStorage.getItem('editorEnabled') !== 'false')
+  const isRealAdmin = computed(() => user.value?.role === UserRole.ADMIN)
+  const isAdmin = computed(() => isRealAdmin.value && editorEnabled.value)
   const currentUserId = computed(() => user.value?.id)
+
+  watch(editorEnabled, (val) => {
+    localStorage.setItem('editorEnabled', String(val))
+  })
 
   const fetchUser = async () => {
     try {
@@ -63,6 +69,8 @@ export const useUser = defineStore('globals/use-user', () => {
     userRole,
     isLoggedIn,
     isAdmin,
+    isRealAdmin,
+    editorEnabled,
     isInitialized,
     currentUserId,
     fetchUser,

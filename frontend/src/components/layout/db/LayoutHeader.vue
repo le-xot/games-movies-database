@@ -22,7 +22,7 @@ import { useUser } from '@/stores/use-user'
 
 const route = useRoute()
 const { updateTitle } = useTitle()
-const { isAdmin } = useUser()
+const { isRealAdmin } = useUser()
 const isSheetOpen = ref(false)
 
 interface RouteItem {
@@ -55,7 +55,7 @@ const allRoutes: RouteItem[] = [
   { name: 'Мультфильмы', icon: Baby, path: ROUTER_PATHS.dbCartoon, group: 3 },
 ]
 
-const visibleRoutes = computed(() => allRoutes.filter((r) => !r.requiresAdmin || isAdmin))
+const visibleRoutes = computed(() => allRoutes.filter((r) => !r.requiresAdmin || isRealAdmin))
 
 const groupedRoutes = computed(() => {
   const map = new Map<number, RouteItem[]>()

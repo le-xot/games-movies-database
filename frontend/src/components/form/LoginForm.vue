@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleUserRound, Loader2, Lock, LogOutIcon, Tv } from '@lucide/vue'
+import { CircleUserRound, Loader2, Lock, LogOutIcon, Pencil, Tv } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ROUTER_PATHS } from '@/router/router-paths'
@@ -17,7 +18,7 @@ import { useUser } from '@/stores/use-user'
 
 const userStore = useUser()
 const router = useRouter()
-const { user } = storeToRefs(userStore)
+const { user, editorEnabled, isRealAdmin } = storeToRefs(userStore)
 const isLoading = ref(false)
 
 async function handleLogin(platform: 'twitch' | 'kick') {
@@ -42,7 +43,17 @@ async function handleLogin(platform: 'twitch' | 'kick') {
       </div>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="mt-4">
-      <DropdownMenuItem v-if="userStore.isAdmin" as-child>
+      <DropdownMenuItem v-if="isRealAdmin" @click="editorEnabled = !editorEnabled">
+        <Pencil
+          class="size-6 mr-2"
+          :class="editorEnabled ? 'text-primary' : 'text-muted-foreground'"
+        />
+        <span :class="editorEnabled ? 'text-primary' : 'text-muted-foreground line-through'">
+          Редактор
+        </span>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator v-if="isRealAdmin" />
+      <DropdownMenuItem v-if="isRealAdmin" as-child>
         <RouterLink to="/db/admin">
           <Lock class="size-6 mr-2" />
           Админка

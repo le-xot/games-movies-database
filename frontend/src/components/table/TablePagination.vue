@@ -12,13 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { PaginationState } from '@tanstack/vue-table'
+import type { PaginationState, Table } from '@tanstack/vue-table'
 
 const props = defineProps<{
   totalRecords: number
+  table?: Table<any>
 }>()
 
-const table = inject(tableInjectionKey)!
+const table = props.table ?? inject(tableInjectionKey)!
 const pagination = defineModel<PaginationState>({ required: true })
 
 const totalPages = computed(() => {

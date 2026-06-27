@@ -28,7 +28,11 @@ const expanded = ref(false)
 
 function toggle() {
   expanded.value = !expanded.value
-  emit(expanded.value ? 'expand' : 'collapse')
+  if (expanded.value) {
+    emit('expand')
+  } else {
+    emit('collapse')
+  }
 }
 </script>
 

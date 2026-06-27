@@ -102,7 +102,7 @@ router.beforeEach(async (to) => {
     })
   }
 
-  if (to.meta.requiresAdmin && !userStore.isAdmin) {
+  if (to.meta.requiresAdmin && !userStore.isRealAdmin) {
     return { path: ROUTER_PATHS.home }
   }
 

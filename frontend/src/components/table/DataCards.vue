@@ -217,13 +217,14 @@ const skeletonCount = 5
                 <button
                   v-for="btn in gradeButtons"
                   :key="btn.grade"
-                  class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-lg transition-all cursor-pointer"
-                  :class="
+                  class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-lg transition-all"
+                  :class="[
                     item.grade === btn.grade
                       ? `${btn.bg} ${btn.border}`
-                      : `bg-transparent ${btn.border} opacity-60 hover:opacity-100`
-                  "
-                  @click="handleGradeToggle(item.id, item.grade, btn.grade)"
+                      : `bg-transparent ${btn.border} opacity-60`,
+                    isAdmin ? 'cursor-pointer hover:opacity-100' : 'cursor-default',
+                  ]"
+                  @click="isAdmin && handleGradeToggle(item.id, item.grade, btn.grade)"
                 >
                   {{ btn.emoji }}
                 </button>

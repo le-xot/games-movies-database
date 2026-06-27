@@ -89,7 +89,7 @@ function deleteUser(userId: string, username: string) {
     <template v-else>
       <h2 class="text-lg font-semibold text-muted-foreground">Пользователи</h2>
 
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
         <Card v-for="user in users" :key="user.id">
           <CardContent class="flex items-center gap-4 pt-6">
             <Avatar class="size-10 shrink-0">

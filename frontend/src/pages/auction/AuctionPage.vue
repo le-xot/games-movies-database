@@ -36,7 +36,7 @@ async function handleApproveSuggestion(id: number) {
     />
     <AuctionCard v-if="hasAuctions" kind="auction" :items="auctions.auctions!">
       <template #title>
-        <div class="flex justify-between items-center w-full">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span>Аукцион: {{ auctions.auctions?.length }}</span>
           <Button @click="showWinnerModal = true">
             <Award class="h-4 w-4 mr-2" />

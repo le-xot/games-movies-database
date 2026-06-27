@@ -80,7 +80,7 @@ watch(open, (isOpen) => {
 <template>
   <div v-if="open" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
     <div
-      class="bg-background p-8 rounded-lg max-w-2xl w-full shadow-xl border border-border relative"
+      class="bg-background p-4 sm:p-8 rounded-lg max-w-[calc(100%-2rem)] sm:max-w-2xl w-full shadow-xl border border-border relative"
     >
       <Button
         variant="ghost"
@@ -93,8 +93,10 @@ watch(open, (isOpen) => {
         <span class="sr-only">Close</span>
       </Button>
       <div v-if="isSelecting()" class="flex flex-col gap-6">
-        <h1 class="text-4xl font-bold text-center animate-pulse">Выбираем победителя...</h1>
-        <div class="h-[300px] flex items-center justify-center p-4">
+        <h1 class="text-2xl sm:text-4xl font-bold text-center animate-pulse">
+          Выбираем победителя...
+        </h1>
+        <div class="h-[200px] sm:h-[300px] flex items-center justify-center p-4">
           <img
             v-if="currentItem?.posterUrl"
             :key="currentItem.id"
@@ -107,10 +109,10 @@ watch(open, (isOpen) => {
         </div>
       </div>
       <div v-else-if="phase === 'selected' && currentItem" class="flex flex-col gap-4 text-center">
-        <h1 class="text-4xl font-bold">
+        <h1 class="text-2xl sm:text-4xl font-bold">
           {{ currentItem.title || 'Без названия' }}
         </h1>
-        <div class="h-[300px] p-4 flex items-center justify-center">
+        <div class="h-[200px] sm:h-[300px] p-4 flex items-center justify-center">
           <img
             v-if="currentItem.posterUrl"
             :src="getImageUrl(currentItem.posterUrl)"

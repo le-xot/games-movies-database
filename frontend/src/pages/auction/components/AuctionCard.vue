@@ -28,7 +28,7 @@ defineExpose({ isDialogOpen })
       <slot name="title" />
     </p>
 
-    <div class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
       <Card
         v-for="item in items"
         :key="item.id"

@@ -241,7 +241,7 @@ function toggleGenreCollapse(genre: string) {
         <transition name="collapse">
           <div
             v-if="genre === 'queued' || !collapsedGenres.has(genre)"
-            class="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-8"
+            class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4 sm:gap-8"
           >
             <div
               v-for="item in groupItems"
@@ -260,7 +260,7 @@ function toggleGenreCollapse(genre: string) {
               <Card
                 class="bg-[var(--n-action-color)] min-h-[250px] flex flex-col transition-[height,border-color,border-width] duration-300"
                 :class="{
-                  'h-[250px]': isAdmin,
+                  'sm:h-[250px]': isAdmin,
                   'border-2 border-primary': newRecords.isRecordNew(item.id) && !isQueued(item),
                   'border-2 border-yellow-400': isQueued(item),
                 }"
@@ -378,12 +378,15 @@ function toggleGenreCollapse(genre: string) {
                         </div>
                       </div>
                       <div class="flex justify-between w-full">
-                        <div v-if="isAdmin" class="flex justify-between w-full mt-auto gap-3 mb-3">
+                        <div
+                          v-if="isAdmin"
+                          class="flex flex-wrap justify-between w-full mt-auto gap-2 mb-3"
+                        >
                           <Button
                             v-if="!isQueued(item)"
                             variant="default"
                             size="sm"
-                            class="text-sm w-36"
+                            class="text-sm flex-1 min-w-0"
                             @click="suggestion.handleApproveSuggestion(item.id)"
                           >
                             <ListOrdered />
@@ -391,7 +394,7 @@ function toggleGenreCollapse(genre: string) {
                           <Button
                             variant="secondary"
                             size="sm"
-                            class="text-sm w-36"
+                            class="text-sm flex-1 min-w-0"
                             @click="suggestion.handleMoveToAuction(item.id)"
                           >
                             <Gavel />
@@ -399,7 +402,7 @@ function toggleGenreCollapse(genre: string) {
                           <Button
                             variant="outline"
                             size="sm"
-                            class="text-sm w-36"
+                            class="text-sm flex-1 min-w-0"
                             @click="suggestion.handlePatchSuggestion(item.id)"
                           >
                             <PencilOff />
@@ -407,7 +410,7 @@ function toggleGenreCollapse(genre: string) {
                           <Button
                             variant="destructive"
                             size="sm"
-                            class="text-sm w-36"
+                            class="text-sm flex-1 min-w-0"
                             @click="suggestion.handleDeleteSuggestion(item.id)"
                           >
                             <Trash2 color="#ffffff" />

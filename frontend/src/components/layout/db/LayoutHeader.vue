@@ -7,13 +7,15 @@ import {
   HandPlatter,
   HouseIcon,
   JapaneseYen,
+  Menu,
   Popcorn,
 } from '@lucide/vue'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import LoginForm from '@/components/form/LoginForm.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
@@ -21,6 +23,7 @@ import { useUser } from '@/stores/use-user'
 const route = useRoute()
 const { updateTitle } = useTitle()
 const { isAdmin } = useUser()
+const isSheetOpen = ref(false)
 
 interface RouteItem {
   name: string
@@ -52,17 +55,22 @@ const allRoutes: RouteItem[] = [
   { name: 'Мультфильмы', icon: Baby, path: ROUTER_PATHS.dbCartoon, group: 3 },
 ]
 
+const visibleRoutes = computed(() => allRoutes.filter((r) => !r.requiresAdmin || isAdmin))
+
 const groupedRoutes = computed(() => {
   const map = new Map<number, RouteItem[]>()
-  allRoutes
-    .filter((r) => !r.requiresAdmin || isAdmin)
-    .forEach((r) => {
-      const group = map.get(r.group) ?? []
-      group.push(r)
-      map.set(r.group, group)
-    })
+  visibleRoutes.value.forEach((r) => {
+    const group = map.get(r.group) ?? []
+    group.push(r)
+    map.set(r.group, group)
+  })
   return [...map.values()]
 })
+
+function handleNavClick(name: string) {
+  updateTitle(name)
+  isSheetOpen.value = false
+}
 
 onMounted(() => {
   const current = allRoutes.find((r) => r.path === route.path)
@@ -72,8 +80,45 @@ onMounted(() => {
 
 <template>
   <div class="h-[68px] flex sticky top-0 border-b border-border bg-black z-[100]">
-    <div class="flex justify-between items-center gap-4 xl:gap-8 p-4 w-full">
-      <div class="flex gap-1 xl:gap-2 h-[50px] items-center">
+    <div class="flex justify-between items-center gap-2 p-3 xl:gap-8 xl:p-4 w-full">
+      <Sheet v-model:open="isSheetOpen">
+        <Button
+          variant="secondary"
+          size="icon"
+          class="xl:hidden shrink-0"
+          @click="isSheetOpen = !isSheetOpen"
+        >
+          <Menu class="w-5 h-5" />
+        </Button>
+        <SheetContent side="left" class="w-[260px]">
+          <SheetHeader>
+            <SheetTitle class="select-none">Навигация</SheetTitle>
+          </SheetHeader>
+          <div class="flex flex-col gap-1 mt-8">
+            <template v-for="(group, i) in groupedRoutes" :key="i">
+              <SheetClose v-for="r in group" :key="r.name" as-child>
+                <RouterLink :to="r.path">
+                  <Button
+                    variant="ghost"
+                    class="w-full justify-start gap-3"
+                    :class="{
+                      'bg-primary text-primary-foreground hover:bg-primary/70':
+                        route.path === r.path,
+                    }"
+                    @click="handleNavClick(r.name)"
+                  >
+                    <component :is="r.icon" class="w-4 h-4" />
+                    {{ r.name }}
+                  </Button>
+                </RouterLink>
+              </SheetClose>
+              <Separator v-if="i < groupedRoutes.length - 1" class="my-2" />
+            </template>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <div class="hidden xl:flex gap-1 xl:gap-2 h-[50px] items-center">
         <template v-for="(group, i) in groupedRoutes" :key="i">
           <RouterLink v-for="r in group" :key="r.name" :to="r.path">
             <Button
@@ -97,6 +142,7 @@ onMounted(() => {
           />
         </template>
       </div>
+
       <LoginForm />
     </div>
   </div>

@@ -37,15 +37,15 @@ function handleMarkAllAsViewed() {
       :sort-by="sortBy"
     >
       <template #title>
-        <div class="flex justify-between">
-          Советы: {{ suggestion.suggestions?.length ?? 0 }}
-          <div class="flex gap-2">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
+          <span>Советы: {{ suggestion.suggestions?.length ?? 0 }}</span>
+          <div class="flex flex-wrap gap-2">
             <Button variant="outline" class="flex w-10" @click="handleMarkAllAsViewed">
               <EyeOff class="icon" />
             </Button>
             <Button
               variant="secondary"
-              class="flex items-center gap-2 px-3 w-24"
+              class="flex items-center gap-2 px-3"
               :title="sortBy === 'date' ? 'Сортировка по дате' : 'Сортировка по лайкам'"
               @click="toggleSort"
             >
@@ -54,7 +54,7 @@ function handleMarkAllAsViewed() {
             </Button>
             <Button :disabled="!user.isLoggedIn" @click="suggestion.openSuggestionDialog()">
               <span v-if="user.isLoggedIn" class="flex items-center gap-2">
-                Посоветовать
+                <span class="hidden sm:inline">Посоветовать</span>
                 <ListPlus class="icon" />
               </span>
               <span v-else> Авторизуйтесь, чтобы посоветовать </span>

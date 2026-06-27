@@ -34,7 +34,7 @@ onMounted(() => {
           :to="!item.external ? item.path : undefined"
           :href="item.external ? item.path : undefined"
           :target="item.external ? '_blank' : undefined"
-          class="border-2 rounded-xl border-[#fafafa11] flex flex-col gap-4 p-4 text-white select-none cursor-pointer"
+          class="border-2 rounded-xl border-[#fafafa33] flex flex-col gap-4 p-4 text-white select-none cursor-pointer"
           :style="{ backgroundColor: item.color }"
         >
           <div class="flex items-center gap-2">

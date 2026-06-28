@@ -29,16 +29,16 @@ frontend/src/
 
 ## WHERE TO LOOK
 
-| Task                      | Location                 | Pattern                                                                                   |
-| ------------------------- | ------------------------ | ----------------------------------------------------------------------------------------- |
-| Add Page                  | `pages/{name}/`          | Create `{Name}Page.vue` + `composables/` if complex                                       |
-| Update API                | `lib/api.ts`             | **NEVER EDIT**. Generated from backend `/docs-json`                                       |
-| Route                     | `router/`                | Add to `router-paths.ts` then `router.ts`                                                 |
-| Styling                   | `assets/index.css`       | Tailwind 4 CSS variables + global overrides                                               |
-| Utils                     | `lib/utils.ts`           | Primary `cn()` helper (clsx + tailwind-merge)                                             |
-| Add media page composable | `composables/factories/` | 2 factories: `create-params-store.ts`, `create-records-store.ts`               |
-| Pinia stores              | `stores/`                | `defineStore` pattern, import via `@/stores/use-{name}`                                   |
-| Image/link utils          | `utils/`                 | `getImageUrl()`, `generateWatchLink()`                                                    |
+| Task                      | Location                 | Pattern                                                          |
+| ------------------------- | ------------------------ | ---------------------------------------------------------------- |
+| Add Page                  | `pages/{name}/`          | Create `{Name}Page.vue` + `composables/` if complex              |
+| Update API                | `lib/api.ts`             | **NEVER EDIT**. Generated from backend `/docs-json`              |
+| Route                     | `router/`                | Add to `router-paths.ts` then `router.ts`                        |
+| Styling                   | `assets/index.css`       | Tailwind 4 CSS variables + global overrides                      |
+| Utils                     | `lib/utils.ts`           | Primary `cn()` helper (clsx + tailwind-merge)                    |
+| Add media page composable | `composables/factories/` | 2 factories: `create-params-store.ts`, `create-records-store.ts` |
+| Pinia stores              | `stores/`                | `defineStore` pattern, import via `@/stores/use-{name}`          |
+| Image/link utils          | `utils/`                 | `getImageUrl()`, `generateWatchLink()`                           |
 
 ## STORES (Pinia — `stores/`)
 

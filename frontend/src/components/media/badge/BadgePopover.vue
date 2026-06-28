@@ -52,7 +52,7 @@ function handleSelect(value: string) {
     <Popover v-if="isAdmin">
       <PopoverTrigger as-child>
         <div
-          class="inline-flex cursor-pointer h-6 px-2.5 items-center justify-center text-[11px] font-semibold text-white/80! select-none rounded-full w-fit"
+          class="inline-flex cursor-pointer h-6 px-2 text-[10px] sm:h-7 sm:px-3 sm:text-xs items-center justify-center font-semibold text-white/80! select-none rounded-full w-fit"
           :class="data.tag?.class ?? 'border border-input'"
         >
           <span class="whitespace-nowrap">{{ placeholder }}</span>
@@ -74,7 +74,7 @@ function handleSelect(value: string) {
     </Popover>
     <div
       v-else
-      class="inline-flex cursor-default h-6 px-2.5 items-center justify-center text-[11px] font-semibold select-none rounded-full w-fit"
+      class="inline-flex cursor-default h-6 px-2 text-[10px] sm:h-7 sm:px-3 sm:text-xs items-center justify-center font-semibold select-none rounded-full w-fit"
       :class="data.tag?.class ?? 'border border-input'"
     >
       <span class="whitespace-nowrap text-white/80!">{{ placeholder }}</span>
@@ -86,7 +86,7 @@ function handleSelect(value: string) {
     <Popover v-if="isAdmin">
       <PopoverTrigger as-child>
         <div
-          class="w-full cursor-pointer relative h-8 flex items-center justify-center text-xs font-semibold text-white/80! min-w-28 select-none rounded-md"
+          class="w-full cursor-pointer relative h-9 flex items-center justify-center text-xs font-semibold text-white/80! min-w-28 select-none rounded-md"
           :class="data.tag?.class ?? 'border border-input'"
         >
           <span class="w-full absolute inset-0 flex items-center justify-center">
@@ -110,7 +110,7 @@ function handleSelect(value: string) {
     </Popover>
     <div
       v-else
-      class="w-full cursor-default relative h-8 flex items-center justify-center text-xs font-semibold min-w-28 select-none rounded-md"
+      class="w-full cursor-default relative h-9 flex items-center justify-center text-xs font-semibold min-w-28 select-none rounded-md"
       :class="data.tag?.class ?? 'border border-input'"
     >
       <span class="w-full absolute inset-0 flex items-center justify-center text-white/80!">

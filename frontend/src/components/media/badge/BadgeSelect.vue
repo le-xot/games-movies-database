@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
-import { SelectKind } from '@/components/media/badge/composables/use-badge-select'
 import BadgePopover from '@/components/media/badge/BadgePopover.vue'
+import { SelectKind } from '@/components/media/badge/composables/use-badge-select'
 import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 
 type ValueSelect = T | undefined

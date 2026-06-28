@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Eraser, Pencil } from '@lucide/vue'
+import { Eraser, ExternalLink, Pencil } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import BadgeSelect from '@/components/media/badge/BadgeSelect.vue'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
 import { generateWatchLink } from '@/utils/generate-watch-link'
@@ -99,19 +100,21 @@ const skeletonCount = 5
 </script>
 
 <template>
-  <div class="w-full grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
+  <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
     <template v-if="!items.length && isLoading">
       <Card v-for="n in skeletonCount" :key="n" class="bg-[var(--n-action-color)]">
-        <div class="flex h-[120px]">
+        <div class="flex flex-row sm:flex-col">
           <div
-            class="w-[80px] flex-shrink-0 rounded-l-[calc(var(--radius)+4px)] bg-zinc-700 animate-pulse"
+            class="w-[130px] sm:w-full flex-shrink-0 aspect-[2/3] bg-zinc-700 animate-pulse rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
           />
-          <div class="flex flex-col flex-1 gap-2 p-4">
+          <div class="flex flex-col gap-2 p-3 flex-1 min-w-0">
             <div class="h-4 w-3/4 bg-zinc-700 rounded animate-pulse" />
             <div class="h-3 w-1/2 bg-zinc-700 rounded animate-pulse" />
-            <div class="flex gap-2 mt-auto">
-              <div class="h-6 w-16 bg-zinc-700 rounded animate-pulse" />
-              <div class="h-6 w-16 bg-zinc-700 rounded animate-pulse" />
+            <div class="flex gap-2 mt-1">
+              <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
+              <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
+              <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
+              <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
             </div>
           </div>
         </div>
@@ -122,27 +125,19 @@ const skeletonCount = 5
       <Card
         v-for="item in items"
         :key="item.id"
-        class="bg-[var(--n-action-color)] min-h-[250px] overflow-hidden"
+        class="bg-[var(--n-action-color)] overflow-hidden h-full"
       >
-        <div class="flex h-full">
+        <div class="flex flex-row sm:flex-col h-full">
           <div
             v-if="item.posterUrl"
-            class="relative w-[160px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
+            class="relative w-[130px] sm:w-full flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
           >
             <img
               :src="getImageUrl(item.posterUrl)"
-              class="w-full h-full object-cover aspect-[2/3] rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
+              class="w-full h-full sm:h-auto object-cover aspect-[2/3] sm:aspect-[2/3] rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
               alt=""
               @error="handleImageError"
             />
-            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-              <BadgeSelect
-                :value="item.status"
-                kind="status"
-                compact
-                @update="(value) => handleStatusUpdate(item.id, value)"
-              />
-            </div>
             <div v-if="isAdmin" class="absolute top-1 left-1 z-10 flex gap-1">
               <Button
                 variant="outline"
@@ -161,23 +156,36 @@ const skeletonCount = 5
               >
                 <Pencil class="size-4" />
               </Button>
+            </div>
+            <a
+              :href="item.link"
+              target="_blank"
+              class="absolute bottom-1 left-1 z-10 flex items-center justify-center"
+            >
+              <Button
+                variant="outline"
+                size="icon"
+                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
+              >
+                <ExternalLink class="size-4" />
+              </Button>
+            </a>
+            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
+              <BadgeSelect
+                :value="item.status"
+                kind="status"
+                compact
+                @update="(value) => handleStatusUpdate(item.id, value)"
+              />
             </div>
           </div>
           <div
             v-else
-            class="relative w-[130px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]"
+            class="relative w-[130px] sm:w-full flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]"
           >
             <span class="text-white text-lg font-bold opacity-40">
               {{ getInitials(item.title) }}
             </span>
-            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-              <BadgeSelect
-                :value="item.status"
-                kind="status"
-                compact
-                @update="(value) => handleStatusUpdate(item.id, value)"
-              />
-            </div>
             <div v-if="isAdmin" class="absolute top-1 left-1 z-10 flex gap-1">
               <Button
                 variant="outline"
@@ -197,36 +205,62 @@ const skeletonCount = 5
                 <Pencil class="size-4" />
               </Button>
             </div>
+            <a
+              :href="item.link"
+              target="_blank"
+              class="absolute bottom-1 left-1 z-10 flex items-center justify-center"
+            >
+              <Button
+                variant="outline"
+                size="icon"
+                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
+              >
+                <ExternalLink class="size-4" />
+              </Button>
+            </a>
+            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
+              <BadgeSelect
+                :value="item.status"
+                kind="status"
+                compact
+                @update="(value) => handleStatusUpdate(item.id, value)"
+              />
+            </div>
           </div>
 
-          <div class="flex flex-col flex-1 justify-between min-w-0">
-            <CardHeader class="pb-1 pt-3 px-4">
-              <CardTitle class="text-xl leading-tight overflow-hidden line-clamp-2">
-                <a
-                  :href="generateWatchLink(item.link) || item.link"
-                  target="_blank"
-                  class="hover:underline"
-                >
-                  {{ item.title }}
-                </a>
-              </CardTitle>
+          <div class="flex flex-col flex-1 gap-2 p-3 min-w-0">
+            <CardHeader class="p-0">
+              <TooltipProvider :delay-duration="300">
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <CardTitle class="text-lg leading-tight overflow-hidden line-clamp-3">
+                      <a
+                        :href="generateWatchLink(item.link) || item.link"
+                        target="_blank"
+                        class="hover:underline"
+                      >
+                        {{ item.title }}
+                      </a>
+                    </CardTitle>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" class="max-w-[300px]">
+                    <p>{{ item.title }}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardHeader>
 
-            <CardContent class="px-4 pb-3 flex flex-col gap-2">
-              <div v-if="hasEpisodeColumn && item.episode" class="text-sm">
-                <span class="text-white">Серии: </span>
-                <span
-                  v-for="(char, i) in item.episode"
-                  :key="i"
-                  :class="/^[SE]$/.test(char) ? 'text-gray-400' : 'text-white'"
-                  >{{ char }}</span
-                >
-              </div>
+            <div v-if="hasEpisodeColumn && item.episode" class="text-sm">
+              <span class="text-white">Серии: </span>
+              <span
+                v-for="(char, i) in item.episode"
+                :key="i"
+                :class="/^[SE]$/.test(char) ? 'text-gray-400' : 'text-white'"
+                >{{ char }}</span
+              >
+            </div>
 
-              <div class="text-sm text-[#1e90ff] underline italic whitespace-nowrap overflow-hidden text-ellipsis">
-                <a :href="item.link" target="_blank">{{ item.link }}</a>
-              </div>
-
+            <div class="mt-auto flex flex-col gap-2">
               <BadgeSelect
                 v-if="!isPosterStatus(item.status)"
                 :value="item.status"
@@ -234,11 +268,11 @@ const skeletonCount = 5
                 @update="(value) => handleStatusUpdate(item.id, value)"
               />
 
-              <div v-if="!shouldHideGrade(item.status)" class="flex items-center gap-2">
+              <div v-if="!shouldHideGrade(item.status)" class="flex items-center gap-1.5">
                 <button
                   v-for="btn in gradeButtons"
                   :key="btn.grade"
-                  class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-lg transition-all"
+                  class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-base transition-all"
                   :class="[
                     item.grade === btn.grade
                       ? `${btn.bg} ${btn.border}`
@@ -250,7 +284,7 @@ const skeletonCount = 5
                   {{ btn.emoji }}
                 </button>
               </div>
-            </CardContent>
+            </div>
           </div>
         </div>
       </Card>

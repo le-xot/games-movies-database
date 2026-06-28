@@ -100,7 +100,9 @@ const skeletonCount = 5
 </script>
 
 <template>
-  <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+  <div
+    class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+  >
     <template v-if="!items.length && isLoading">
       <Card v-for="n in skeletonCount" :key="n" class="bg-[var(--n-action-color)]">
         <div class="flex flex-row sm:flex-col">

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { XIcon } from '@lucide/vue'
 import { computed } from 'vue'
-import TableFilterGrade from '@/components/table/TableFilterGrade.vue'
-import TableFilterStatus from '@/components/table/TableFilterStatus.vue'
+import FilterGrade from '@/components/media/FilterGrade.vue'
+import FilterStatus from '@/components/media/FilterStatus.vue'
 import { Input } from '@/components/ui/input'
 import { RecordGrade, RecordStatus } from '@/lib/api'
 
@@ -38,11 +38,11 @@ function clearSearch() {
     </div>
 
     <template v-if="props.statusesFilter !== undefined">
-      <TableFilterStatus
+      <FilterStatus
         :value="props.statusesFilter ?? null"
         @update="emit('update:statusesFilter', $event)"
       />
-      <TableFilterGrade
+      <FilterGrade
         :value="props.gradeFilter ?? null"
         @update="emit('update:gradeFilter', $event)"
       />

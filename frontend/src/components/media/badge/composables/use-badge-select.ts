@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
+import { RecordGrade, RecordStatus } from '@/lib/api'
 
 export interface BadgeOptions {
   name: string
@@ -8,7 +8,7 @@ export interface BadgeOptions {
   class?: string
 }
 
-export type SelectKind = 'genre' | 'status' | 'grade'
+export type SelectKind = 'status' | 'grade'
 
 export const statusTags: Record<RecordStatus, BadgeOptions> = {
   [RecordStatus.QUEUE]: {
@@ -42,29 +42,6 @@ export const statusTags: Record<RecordStatus, BadgeOptions> = {
   },
 }
 
-export const genreTags: Partial<Record<RecordGenre, BadgeOptions>> = {
-  [RecordGenre.GAME]: {
-    name: 'Игра',
-    class: 'bg-[#333333] border text-white/80',
-  },
-  [RecordGenre.MOVIE]: {
-    name: 'Фильм',
-    class: 'bg-[#2b593f] border text-white/80',
-  },
-  [RecordGenre.SERIES]: {
-    name: 'Сериал',
-    class: 'bg-[#28456c] border text-white/80',
-  },
-  [RecordGenre.ANIME]: {
-    name: 'Аниме',
-    class: 'bg-[#6e3630] border text-white/80',
-  },
-  [RecordGenre.CARTOON]: {
-    name: 'Мультфильм',
-    class: 'bg-[#89632a] border text-white/80',
-  },
-}
-
 export const gradeTags: Record<RecordGrade, BadgeOptions> = {
   [RecordGrade.RECOMMEND]: {
     name: '🔥',
@@ -92,16 +69,9 @@ export const gradeTags: Record<RecordGrade, BadgeOptions> = {
   },
 }
 
-export const useTableSelect = defineStore('use-table-select', () => {
+export const useBadgeSelect = defineStore('use-badge-select', () => {
   const options: Record<SelectKind, { label: string; value: string; class?: string }[]> = {
     status: Object.entries(statusTags).map(([key, value]) => {
-      return {
-        label: value.name,
-        value: key,
-        class: value.class,
-      }
-    }),
-    genre: Object.entries(genreTags).map(([key, value]) => {
       return {
         label: value.name,
         value: key,
@@ -120,11 +90,10 @@ export const useTableSelect = defineStore('use-table-select', () => {
   return {
     gradeTags,
     statusTags,
-    genreTags,
     options,
   }
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useTableSelect, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useBadgeSelect, import.meta.hot))
 }

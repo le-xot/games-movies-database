@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import DataCards from '@/components/table/DataCards.vue'
-import TableSearch from '@/components/table/TableSearch.vue'
-import { useAnime } from '@/pages/anime/composables/use-anime'
-import { useAnimeParams } from '@/pages/anime/composables/use-anime-params'
+import DataCards from '@/components/media/DataCards.vue'
+import Search from '@/components/media/Search.vue'
+import { useSeries } from '@/pages/series/composables/use-series'
+import { useSeriesParams } from '@/pages/series/composables/use-series-params'
 
-const videos = useAnime()
-const params = useAnimeParams()
+const videos = useSeries()
+const params = useSeriesParams()
 </script>
 
 <template>
-  <TableSearch
+  <Search
     v-model:value="params.search"
     :statuses-filter="params.statusesFilter"
     :grade-filter="params.gradeFilter"
@@ -21,7 +21,7 @@ const params = useAnimeParams()
     :items="videos.videos ?? []"
     :is-loading="videos.isLoading"
     :has-episode-column="true"
-    delete-confirm-title="Удалить анимешку?"
+    delete-confirm-title="Удалить сирик?"
     @update="videos.updateRecord"
     @delete="videos.deleteRecord"
   />

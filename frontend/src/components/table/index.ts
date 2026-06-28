@@ -1,5 +1,0 @@
-export { default as DataCards } from '@/components/table/DataCards.vue'
-export { default as TableSearch } from '@/components/table/TableSearch.vue'
-export { default as TableFilterStatus } from '@/components/table/TableFilterStatus.vue'
-export { default as TableFilterGrade } from '@/components/table/TableFilterGrade.vue'
-export { default as TableFilterPopover } from '@/components/table/TableFilterPopover.vue'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import MovieTable from '@/pages/movie/components/MovieTable.vue'
+import MovieMedia from '@/pages/movie/components/MovieMedia.vue'
 </script>
 
 <template>
-  <MovieTable />
+  <MovieMedia />
 </template>

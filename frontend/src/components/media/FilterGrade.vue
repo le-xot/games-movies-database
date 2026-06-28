@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Star } from '@lucide/vue'
 import { computed } from 'vue'
-import { gradeTags } from '@/components/table/composables/use-table-select'
-import TableFilterPopover from '@/components/table/TableFilterPopover.vue'
+import { gradeTags } from '@/components/media/badge/composables/use-badge-select'
+import FilterPopover from '@/components/media/FilterPopover.vue'
 import { RecordGrade } from '@/lib/api'
 
 const props = defineProps<{
@@ -24,7 +24,7 @@ const gradeOptions = computed(() =>
 </script>
 
 <template>
-  <TableFilterPopover
+  <FilterPopover
     :value="props.value"
     :options="gradeOptions"
     :icon="Star"

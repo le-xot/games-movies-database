@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import DataCards from '@/components/table/DataCards.vue'
-import TableSearch from '@/components/table/TableSearch.vue'
-import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
-import { useCartoonParams } from '@/pages/cartoon/composables/use-cartoon-params'
+import DataCards from '@/components/media/DataCards.vue'
+import Search from '@/components/media/Search.vue'
+import { useMovie } from '@/pages/movie/composables/use-movie'
+import { useMovieParams } from '@/pages/movie/composables/use-movie-params'
 
-const videos = useCartoon()
-const params = useCartoonParams()
+const videos = useMovie()
+const params = useMovieParams()
 </script>
 
 <template>
-  <TableSearch
+  <Search
     v-model:value="params.search"
     :statuses-filter="params.statusesFilter"
     :grade-filter="params.gradeFilter"
@@ -20,8 +20,8 @@ const params = useCartoonParams()
   <DataCards
     :items="videos.videos ?? []"
     :is-loading="videos.isLoading"
-    :has-episode-column="true"
-    delete-confirm-title="Удалить мультик?"
+    :has-episode-column="false"
+    delete-confirm-title="Удалить кинчик?"
     @update="videos.updateRecord"
     @delete="videos.deleteRecord"
   />

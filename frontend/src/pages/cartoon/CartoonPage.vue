@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import CartoonTable from '@/pages/cartoon/components/CartoonTable.vue'
+import CartoonMedia from '@/pages/cartoon/components/CartoonMedia.vue'
 </script>
 
 <template>
-  <CartoonTable />
+  <CartoonMedia />
 </template>

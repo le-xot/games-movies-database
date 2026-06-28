@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { SlidersHorizontal } from '@lucide/vue'
 import { computed } from 'vue'
-import { statusTags } from '@/components/table/composables/use-table-select'
-import TableFilterPopover from '@/components/table/TableFilterPopover.vue'
+import { statusTags } from '@/components/media/badge/composables/use-badge-select'
+import FilterPopover from '@/components/media/FilterPopover.vue'
 import { RecordStatus } from '@/lib/api'
 
 const props = defineProps<{
@@ -23,7 +23,7 @@ const statusOptions = computed(() =>
 </script>
 
 <template>
-  <TableFilterPopover
+  <FilterPopover
     :value="props.value"
     :options="statusOptions"
     :icon="SlidersHorizontal"

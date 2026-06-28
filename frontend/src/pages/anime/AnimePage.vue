@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AnimeTable from '@/pages/anime/components/AnimeTable.vue'
+import AnimeMedia from '@/pages/anime/components/AnimeMedia.vue'
 </script>
 
 <template>
-  <AnimeTable />
+  <AnimeMedia />
 </template>

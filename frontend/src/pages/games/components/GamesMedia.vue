@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DataCards from '@/components/table/DataCards.vue'
-import TableSearch from '@/components/table/TableSearch.vue'
+import DataCards from '@/components/media/DataCards.vue'
+import Search from '@/components/media/Search.vue'
 import { useGames } from '@/pages/games/composables/use-games'
 import { useGamesParams } from '@/pages/games/composables/use-games-params'
 
@@ -9,7 +9,7 @@ const params = useGamesParams()
 </script>
 
 <template>
-  <TableSearch
+  <Search
     v-model:value="params.search"
     :statuses-filter="params.statusesFilter"
     :grade-filter="params.gradeFilter"

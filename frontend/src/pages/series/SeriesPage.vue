@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import SeriesTable from '@/pages/series/components/SeriesTable.vue'
+import SeriesMedia from '@/pages/series/components/SeriesMedia.vue'
 </script>
 
 <template>
-  <SeriesTable />
+  <SeriesMedia />
 </template>

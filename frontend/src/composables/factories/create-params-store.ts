@@ -1,7 +1,7 @@
 import { refDebounced } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { usePagination } from '@/components/table/composables/use-pagination'
+import { usePagination } from '@/components/media/composables/use-pagination'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
 
 export interface ParamsStoreConfig {

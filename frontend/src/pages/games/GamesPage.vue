@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import GamesTable from '@/pages/games/components/GamesTable.vue'
+import GamesMedia from '@/pages/games/components/GamesMedia.vue'
 </script>
 
 <template>
-  <GamesTable />
+  <GamesMedia />
 </template>

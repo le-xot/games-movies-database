@@ -17,7 +17,7 @@ frontend/src/
 │   ├── form/      # LoginForm
 │   ├── layout/    # LayoutHeader, LayoutBody, LayoutDatabase, LayoutHome
 │   ├── record/    # RecordCreateForm
-│   ├── table/     # DataCards, filters, search, table-col/
+│   ├── media/     # DataCards, filters, search, badge/
 │   └── ui/        # shadcn-vue primitives (managed, do not edit)
 ├── composables/   # Plain composables (useWebSocket, useRecordCreate) + factories/
 ├── lib/           # API client (auto-generated), cn() helper
@@ -62,7 +62,7 @@ frontend/src/
 
 - **Setup**: Always use `<script setup lang="ts">`.
 - **Naming**: `.vue` files use PascalCase (e.g., `AnimePage.vue`, `DataCards.vue`). `.ts` files use kebab-case (e.g., `use-api.ts`). Exception: `app.vue` (root component).
-- **Barrel imports**: Shared component directories have `index.ts` barrels. Example: `import { DataCards } from '@/components/table'`
+- **Barrel imports**: Shared component directories have `index.ts` barrels. Example: `import { DataCards } from '@/components/media'`
 - **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension. Use `@/` alias for all internal paths.
 - **UI Primitives**: shadcn-vue + reka-ui. Import via barrel: `import { Button } from '@/components/ui/button'`.
 - **Validation**: vee-validate 5 + zod 4.

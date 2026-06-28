@@ -1,12 +1,12 @@
 <script setup lang="ts" generic="T extends RecordStatus | RecordGrade | RecordGenre">
 import { storeToRefs } from 'pinia'
 import { computed, toRef, type Ref } from 'vue'
-import { useTableCol } from '@/components/table/composables/use-table-col'
+import { useBadgeCol } from '@/components/media/badge/composables/use-badge-col'
 import {
   BadgeOptions,
   SelectKind,
-  useTableSelect,
-} from '@/components/table/composables/use-table-select'
+  useBadgeSelect,
+} from '@/components/media/badge/composables/use-badge-select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
@@ -23,9 +23,9 @@ const selectValue = toRef(props, 'value')
 
 const { isAdmin } = storeToRefs(useUser())
 
-const { handleUpdateValue } = useTableCol<T | undefined>(selectValue as Ref<T | undefined>, emits)
+const { handleUpdateValue } = useBadgeCol<T | undefined>(selectValue as Ref<T | undefined>, emits)
 
-const select = useTableSelect()
+const select = useBadgeSelect()
 const data = computed(() => {
   const tag = select[`${props.kind}Tags`]?.[
     selectValue.value as RecordStatus & RecordGrade & RecordGenre

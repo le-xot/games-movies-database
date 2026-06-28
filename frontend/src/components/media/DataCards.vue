@@ -3,7 +3,7 @@ import { Eraser, Pencil } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
-import TableColSelect from '@/components/table/table-col/TableColSelect.vue'
+import BadgeSelect from '@/components/media/badge/BadgeSelect.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -136,7 +136,7 @@ const skeletonCount = 5
               @error="handleImageError"
             />
             <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-              <TableColSelect
+              <BadgeSelect
                 :value="item.status"
                 kind="status"
                 compact
@@ -171,7 +171,7 @@ const skeletonCount = 5
               {{ getInitials(item.title) }}
             </span>
             <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-              <TableColSelect
+              <BadgeSelect
                 :value="item.status"
                 kind="status"
                 compact
@@ -227,7 +227,7 @@ const skeletonCount = 5
                 <a :href="item.link" target="_blank">{{ item.link }}</a>
               </div>
 
-              <TableColSelect
+              <BadgeSelect
                 v-if="!isPosterStatus(item.status)"
                 :value="item.status"
                 kind="status"

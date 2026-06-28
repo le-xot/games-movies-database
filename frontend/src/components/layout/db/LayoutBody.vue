@@ -16,6 +16,8 @@ import { Toaster } from '@/components/ui/sonner'
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   scrollbar-width: auto;
   scrollbar-color: oklch(0.4 0 0) transparent;
 }

@@ -17,7 +17,7 @@ frontend/src/
 │   ├── form/      # LoginForm
 │   ├── layout/    # LayoutHeader, LayoutBody, LayoutDatabase, LayoutHome
 │   ├── record/    # RecordCreateForm
-│   ├── table/     # DataTable, filters, pagination, search, table-col/
+│   ├── table/     # DataCards, filters, search, table-col/
 │   └── ui/        # shadcn-vue primitives (managed, do not edit)
 ├── composables/   # Plain composables (useWebSocket, useRecordCreate) + factories/
 ├── lib/           # API client (auto-generated), cn() helper
@@ -36,8 +36,7 @@ frontend/src/
 | Route                     | `router/`                | Add to `router-paths.ts` then `router.ts`                                                 |
 | Styling                   | `assets/index.css`       | Tailwind 4 CSS variables + global overrides                                               |
 | Utils                     | `lib/utils.ts`           | Primary `cn()` helper (clsx + tailwind-merge)                                             |
-| Add media page composable | `composables/factories/` | 3 factories: `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
-| Generic filter            | `components/table/`      | `TableFilterGeneric.vue + use-table-filter.ts`                                            |
+| Add media page composable | `composables/factories/` | 2 factories: `create-params-store.ts`, `create-records-store.ts`               |
 | Pinia stores              | `stores/`                | `defineStore` pattern, import via `@/stores/use-{name}`                                   |
 | Image/link utils          | `utils/`                 | `getImageUrl()`, `generateWatchLink()`                                                    |
 
@@ -62,16 +61,14 @@ frontend/src/
 ## COMPONENT PATTERNS
 
 - **Setup**: Always use `<script setup lang="ts">`.
-- **Naming**: `.vue` files use PascalCase (e.g., `AnimePage.vue`, `DataTable.vue`). `.ts` files use kebab-case (e.g., `use-api.ts`). Exception: `app.vue` (root component).
-- **Barrel imports**: Shared component directories have `index.ts` barrels. Example: `import { DataTable } from '@/components/table'`
+- **Naming**: `.vue` files use PascalCase (e.g., `AnimePage.vue`, `DataCards.vue`). `.ts` files use kebab-case (e.g., `use-api.ts`). Exception: `app.vue` (root component).
+- **Barrel imports**: Shared component directories have `index.ts` barrels. Example: `import { DataCards } from '@/components/table'`
 - **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension. Use `@/` alias for all internal paths.
 - **UI Primitives**: shadcn-vue + reka-ui. Import via barrel: `import { Button } from '@/components/ui/button'`.
 - **Validation**: vee-validate 5 + zod 4.
-- **Data Tables**: @tanstack/vue-table for logic, virtua for virtualization.
 - **Toasts**: vue-sonner (wrapper in `components/ui/sonner`).
 - **Events**: Kebab-case enforced for custom events.
 - **Order**: `<template>` or `<script>` first, `<style>` last.
-- **LocalStorage**: Per-genre keys for column visibility: `columnsVisibility:<genre>` (e.g. `columnsVisibility:anime`).
 
 ## ANTI-PATTERNS
 

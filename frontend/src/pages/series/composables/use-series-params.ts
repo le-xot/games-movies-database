@@ -3,12 +3,5 @@ import { RecordGenre } from '@/lib/api'
 
 export const useSeriesParams = createParamsStore({
   storeId: 'series/use-series-params',
-  localStorageKey: 'columnsVisibility:series',
-  defaultColumnVisibility: {
-    title: true,
-    episode: true,
-    status: true,
-    grade: true,
-  },
   genre: RecordGenre.SERIES,
 })

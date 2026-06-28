@@ -3,11 +3,5 @@ import { RecordGenre } from '@/lib/api'
 
 export const useMovieParams = createParamsStore({
   storeId: 'movies/use-movie-params',
-  localStorageKey: 'columnsVisibility:movie',
-  defaultColumnVisibility: {
-    title: true,
-    status: true,
-    grade: true,
-  },
   genre: RecordGenre.MOVIE,
 })

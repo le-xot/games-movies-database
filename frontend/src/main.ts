@@ -6,31 +6,10 @@ import { router } from '@/router/router'
 import '@/assets/index.css'
 import 'vue-sonner/style.css'
 
-// Migrate old shared columnsVisibility key to per-genre keys
-const oldVisibility = localStorage.getItem('columnsVisibility')
-if (oldVisibility !== null) {
-  for (const genre of ['anime', 'cartoon', 'movie', 'games', 'series']) {
-    if (!localStorage.getItem(`columnsVisibility:${genre}`)) {
-      localStorage.setItem(`columnsVisibility:${genre}`, oldVisibility)
-    }
-  }
-  localStorage.removeItem('columnsVisibility')
-}
-
 const APP_VERSION = '3.3.0'
 const STORAGE_VERSION_KEY = 'app_version'
 
-const KEYS_TO_CLEAR = [
-  'columnsVisibility',
-  'columnsVisibility:anime',
-  'columnsVisibility:cartoon',
-  'columnsVisibility:movie',
-  'columnsVisibility:games',
-  'columnsVisibility:series',
-  'table-page-size',
-  'viewed-suggestions',
-  'suggestion-sort-by',
-]
+const KEYS_TO_CLEAR = ['viewed-suggestions', 'suggestion-sort-by']
 
 const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
 if (storedVersion !== APP_VERSION) {

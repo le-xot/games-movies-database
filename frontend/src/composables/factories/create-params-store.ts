@@ -1,5 +1,4 @@
-import { VisibilityState } from '@tanstack/vue-table'
-import { refDebounced, useLocalStorage } from '@vueuse/core'
+import { refDebounced } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { usePagination } from '@/components/table/composables/use-pagination'
@@ -7,8 +6,6 @@ import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
 
 export interface ParamsStoreConfig {
   storeId: string
-  localStorageKey: string
-  defaultColumnVisibility: VisibilityState
   genre: RecordGenre
 }
 
@@ -19,11 +16,6 @@ export function createParamsStore(config: ParamsStoreConfig) {
     const pagination = usePagination()
     const statusesFilter = ref<RecordStatus[] | null>(null)
     const gradeFilter = ref<RecordGrade[] | null>(null)
-
-    const columnVisibility = useLocalStorage<VisibilityState>(
-      config.localStorageKey,
-      config.defaultColumnVisibility,
-    )
 
     const params = computed(() => {
       const p: Record<string, any> = {
@@ -67,7 +59,6 @@ export function createParamsStore(config: ParamsStoreConfig) {
       search,
       debouncedSearch,
       pagination,
-      columnVisibility,
       params,
       statusesFilter,
       gradeFilter,

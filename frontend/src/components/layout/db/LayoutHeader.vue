@@ -79,7 +79,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-[68px] flex sticky top-0 border-b border-border bg-black z-[100]">
+  <div class="h-[68px] flex border-b border-border bg-black z-[100]">
     <div class="flex justify-between items-center gap-2 p-3 xl:gap-8 xl:p-4 w-full">
       <Sheet v-model:open="isSheetOpen">
         <Button

@@ -37,7 +37,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Image proxy          | `frontend/src/utils/image.ts`               | Routes through `/api/img`                                                    |
 | Watch links          | `frontend/src/utils/generate-watch-link.ts` | Kinobox canonical URLs                                                       |
 | Env validation       | `backend/src/utils/enviroments.ts`          | envalid; note the typo in filename                                           |
-| Media page factories | `frontend/src/composables/factories/`       | `create-params-store.ts`, `create-records-store.ts`, `create-table-store.ts` |
+| Media page factories | `frontend/src/composables/factories/`       | `create-params-store.ts`, `create-records-store.ts`                          |
 
 ## CONVENTIONS
 
@@ -48,7 +48,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **Brace style**: `1tbs`
 - **Indent**: 2 spaces, max line 100 chars
 - **Vue blocks**: `<script setup lang="ts">` or `<template>` first, `<style>` last
-- **Vue file naming**: PascalCase for all `.vue` files (e.g., `AnimePage.vue`, `DataTable.vue`). Exceptions: `app.vue`. `.ts` files stay kebab-case.
+- **Vue file naming**: PascalCase for all `.vue` files (e.g., `AnimePage.vue`, `DataCards.vue`). Exceptions: `app.vue`. `.ts` files stay kebab-case.
 - **Vue events**: kebab-case enforced
 - **Stores**: Pinia stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
 - **Icons**: lucide-vue-next primary, vue3-simple-icons for brands. No other icon libs

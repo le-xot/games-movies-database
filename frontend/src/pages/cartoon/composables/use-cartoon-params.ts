@@ -3,12 +3,5 @@ import { RecordGenre } from '@/lib/api'
 
 export const useCartoonParams = createParamsStore({
   storeId: 'cartoon/use-cartoon-params',
-  localStorageKey: 'columnsVisibility:cartoon',
-  defaultColumnVisibility: {
-    title: true,
-    episode: true,
-    status: true,
-    grade: true,
-  },
   genre: RecordGenre.CARTOON,
 })

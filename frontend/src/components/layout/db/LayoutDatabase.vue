@@ -18,6 +18,5 @@ import LayoutHeader from '@/components/layout/db/LayoutHeader.vue'
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  scrollbar-width: none;
 }
 </style>

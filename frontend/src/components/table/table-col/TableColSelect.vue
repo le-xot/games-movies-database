@@ -8,6 +8,7 @@ type ValueSelect = T | undefined
 const props = defineProps<{
   kind: SelectKind
   value: ValueSelect
+  compact?: boolean
 }>()
 const emits = defineEmits<{ update: [ValueSelect] }>()
 </script>
@@ -16,6 +17,7 @@ const emits = defineEmits<{ update: [ValueSelect] }>()
   <TableColPopover
     :kind="props.kind"
     :value="props.value"
+    :compact="props.compact"
     @update="(value) => emits('update', value)"
   />
 </template>

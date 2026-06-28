@@ -52,6 +52,12 @@ function shouldHideGrade(status?: RecordStatus): boolean {
   return spanTwoStatuses.includes(status as RecordStatus)
 }
 
+const posterStatuses = [RecordStatus.DONE, RecordStatus.UNFINISHED, RecordStatus.DROP]
+
+function isPosterStatus(status?: RecordStatus): boolean {
+  return posterStatuses.includes(status as RecordStatus)
+}
+
 function handleDelete(item: RecordEntity) {
   dialog.openDialog({
     title: props.deleteConfirmTitle,
@@ -121,7 +127,7 @@ const skeletonCount = 5
         <div class="flex h-full">
           <div
             v-if="item.posterUrl"
-            class="relative w-[130px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
+            class="relative w-[160px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
           >
             <img
               :src="getImageUrl(item.posterUrl)"
@@ -129,7 +135,15 @@ const skeletonCount = 5
               alt=""
               @error="handleImageError"
             />
-            <div v-if="isAdmin" class="absolute bottom-1 left-1 z-10 flex gap-1">
+            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
+              <TableColSelect
+                :value="item.status"
+                kind="status"
+                compact
+                @update="(value) => handleStatusUpdate(item.id, value)"
+              />
+            </div>
+            <div v-if="isAdmin" class="absolute top-1 left-1 z-10 flex gap-1">
               <Button
                 variant="outline"
                 size="icon"
@@ -156,7 +170,15 @@ const skeletonCount = 5
             <span class="text-white text-lg font-bold opacity-40">
               {{ getInitials(item.title) }}
             </span>
-            <div v-if="isAdmin" class="absolute bottom-1 left-1 z-10 flex gap-1">
+            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
+              <TableColSelect
+                :value="item.status"
+                kind="status"
+                compact
+                @update="(value) => handleStatusUpdate(item.id, value)"
+              />
+            </div>
+            <div v-if="isAdmin" class="absolute top-1 left-1 z-10 flex gap-1">
               <Button
                 variant="outline"
                 size="icon"
@@ -190,12 +212,6 @@ const skeletonCount = 5
               </CardTitle>
             </CardHeader>
 
-            <CardContent
-              class="text-sm text-[#1e90ff] underline italic whitespace-nowrap overflow-hidden text-ellipsis px-4"
-            >
-              <a :href="item.link" target="_blank">{{ item.link }}</a>
-            </CardContent>
-
             <CardContent class="px-4 pb-3 flex flex-col gap-2">
               <div v-if="hasEpisodeColumn && item.episode" class="text-sm">
                 <span class="text-white">Серии: </span>
@@ -207,7 +223,12 @@ const skeletonCount = 5
                 >
               </div>
 
+              <div class="text-sm text-[#1e90ff] underline italic whitespace-nowrap overflow-hidden text-ellipsis">
+                <a :href="item.link" target="_blank">{{ item.link }}</a>
+              </div>
+
               <TableColSelect
+                v-if="!isPosterStatus(item.status)"
                 :value="item.status"
                 kind="status"
                 @update="(value) => handleStatusUpdate(item.id, value)"

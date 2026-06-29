@@ -26,10 +26,10 @@ export class RecordsProvidersService {
   private readonly logger = new Logger(RecordsProvidersService.name)
   private readonly linkProviders: LinkProvider[] = [
     {
-      hosts: ['shikimori.one'],
+      hosts: ['shikimori.one', 'shikimori.io'],
       routes: [
         {
-          pattern: /^\/animes\/[a-z]?(\d+)$/,
+          pattern: /^\/animes\/[a-z]?(\d+)(?:-[a-z0-9-]*)?$/i,
           fetch: (match) => this.fetchShikimori(Number(match[1])),
         },
       ],
@@ -178,33 +178,20 @@ export class RecordsProvidersService {
   private async fetchShikimori(id: number): Promise<PreparedData> {
     await this.checkGenrePermission(RecordGenre.ANIME, 'Прошу пока аниме не советовать')
 
-    const response = await fetch('https://shikimori.one/api/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Origin: 'https://shikimori.one',
-      },
-      body: JSON.stringify({
-        query: `{
-          animes(ids: "${id}", limit: 1, kind: "!special") {
-            russian
-            poster { originalUrl }
-          }
-        }`,
-      }),
+    const response = await fetch(`https://shikimori.one/api/animes/${id}`, {
+      headers: { Accept: 'application/json' },
     })
     if (!response.ok)
       throw new BadRequestException(
         `Не удалось получить данные из API Shikimori: ${response.status}`,
       )
 
-    const anime = ((await response.json()) as any).data?.animes?.[0]
+    const anime = (await response.json()) as any
     if (!anime) throw new BadRequestException('Аниме не найдено в API Shikimori')
 
     return {
-      title: anime.russian,
-      posterUrl: anime.poster.originalUrl ?? '',
+      title: anime.russian || anime.name,
+      posterUrl: anime.image?.original ?? '',
       genre: RecordGenre.ANIME,
       link: `https://shikimori.one/animes/${id}`,
     }

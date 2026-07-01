@@ -191,7 +191,7 @@ export class RecordsProvidersService {
 
     return {
       title: anime.russian || anime.name,
-      posterUrl: anime.image?.original ?? '',
+      posterUrl: anime.image?.original ? `https://shikimori.one${anime.image.original}` : '',
       genre: RecordGenre.ANIME,
       link: `https://shikimori.one/animes/${id}`,
     }

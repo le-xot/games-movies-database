@@ -20,6 +20,7 @@ import {
   RecordCreateFromLinkDTO,
   RecordGetDTO,
   RecordUpdateDTO,
+  RecordUpdatePosterDTO,
 } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
@@ -67,6 +68,17 @@ export class RecordController {
     @Body() record: RecordUpdateDTO,
   ): Promise<RecordEntity> {
     return await this.recordServices.patchRecord(id, record)
+  }
+
+  @Patch(':id/poster')
+  @Throttle({ default: THROTTLER_LIMITS.write })
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
+  @ApiResponse({ status: 200, type: RecordEntity })
+  async updatePoster(
+    @Param('id') id: number,
+    @Body() data: RecordUpdatePosterDTO,
+  ): Promise<RecordEntity> {
+    return await this.recordServices.updatePoster(id, data.url)
   }
 
   @Delete(':id')

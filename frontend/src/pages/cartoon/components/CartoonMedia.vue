@@ -23,6 +23,7 @@ const params = useCartoonParams()
     :has-episode-column="true"
     delete-confirm-title="Удалить мультик?"
     @update="videos.updateRecord"
+    @update-poster="videos.updatePoster"
     @delete="videos.deleteRecord"
   />
 </template>

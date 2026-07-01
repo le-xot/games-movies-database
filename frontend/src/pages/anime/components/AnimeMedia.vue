@@ -23,6 +23,7 @@ const params = useAnimeParams()
     :has-episode-column="true"
     delete-confirm-title="Удалить анимешку?"
     @update="videos.updateRecord"
+    @update-poster="videos.updatePoster"
     @delete="videos.deleteRecord"
   />
 </template>

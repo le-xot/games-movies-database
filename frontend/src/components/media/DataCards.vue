@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Eraser, ExternalLink, Pencil } from '@lucide/vue'
+import { Eraser, ExternalLink, Image, Pencil } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
@@ -29,6 +29,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   update: [{ id: number; data: RecordUpdateDTO }]
+  updatePoster: [{ id: number; url: string }]
   delete: [id: number]
 }>()
 
@@ -45,6 +46,18 @@ function saveEpisodeEdit() {
   if (!editingEpisode.value) return
   emit('update', { id: editingEpisode.value.id, data: { episode: editingEpisode.value.value } })
   editingEpisode.value = null
+}
+
+const editingPoster = ref<{ id: number; value: string } | null>(null)
+
+function openPosterEdit(item: RecordEntity) {
+  editingPoster.value = { id: item.id, value: '' }
+}
+
+function savePosterEdit() {
+  if (!editingPoster.value || !editingPoster.value.value) return
+  emit('updatePoster', { id: editingPoster.value.id, url: editingPoster.value.value })
+  editingPoster.value = null
 }
 
 const spanTwoStatuses = [RecordStatus.NOTINTERESTED, RecordStatus.QUEUE, RecordStatus.PROGRESS]
@@ -158,6 +171,14 @@ const skeletonCount = 5
               >
                 <Pencil class="size-4" />
               </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
+                @click="openPosterEdit(item)"
+              >
+                <Image class="size-4" />
+              </Button>
             </div>
             <a
               :href="item.link"
@@ -205,6 +226,14 @@ const skeletonCount = 5
                 @click="openEpisodeEdit(item)"
               >
                 <Pencil class="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
+                @click="openPosterEdit(item)"
+              >
+                <Image class="size-4" />
               </Button>
             </div>
             <a
@@ -311,6 +340,24 @@ const skeletonCount = 5
       <DialogFooter>
         <Button variant="outline" @click="editingEpisode = null">Отмена</Button>
         <Button @click="saveEpisodeEdit">Сохранить</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+
+  <Dialog :open="!!editingPoster" @update:open="editingPoster = null">
+    <DialogContent class="sm:max-w-[400px]">
+      <DialogHeader>
+        <DialogTitle>Обновить постер</DialogTitle>
+      </DialogHeader>
+      <Input
+        v-if="editingPoster"
+        v-model="editingPoster.value"
+        placeholder="https://example.com/poster.jpg"
+        @keydown.enter="savePosterEdit"
+      />
+      <DialogFooter>
+        <Button variant="outline" @click="editingPoster = null">Отмена</Button>
+        <Button @click="savePosterEdit">Сохранить</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

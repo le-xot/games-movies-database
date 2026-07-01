@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
@@ -11,6 +12,7 @@ import type {
   UpdateRecordsPayload,
   UpdateSuggestionsPayload,
 } from '@/modules/websocket/websocket.events'
+import { ImgService } from '@/modules/img/img.service'
 
 @Injectable()
 export class RecordService {
@@ -20,6 +22,7 @@ export class RecordService {
     private readonly recordRepository: RecordRepository,
     private readonly recordsProviderService: RecordsProvidersService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly imgService: ImgService,
   ) {}
 
   async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
@@ -98,6 +101,28 @@ export class RecordService {
       action: 'updated',
     } satisfies UpdateRecordsPayload)
     this.logger.log(`Record patched id=${id}`)
+    return updatedRecord as RecordEntity
+  }
+
+  async updatePoster(id: number, url: string): Promise<RecordEntity> {
+    this.logger.log(`Updating poster for record id=${id}`)
+    const record = await this.recordRepository.findById(id)
+    if (!record) {
+      throw new NotFoundException('Record not found')
+    }
+
+    const urlBase64 = Buffer.from(unescape(encodeURIComponent(url))).toString('base64')
+    await this.imgService.getImageContent(urlBase64)
+
+    const updatedRecord = await this.recordRepository.update(id, { posterUrl: url })
+
+    this.eventEmitter.emit('update-records', {
+      genre: updatedRecord.genre,
+      id: updatedRecord.id,
+      action: 'updated',
+    } satisfies UpdateRecordsPayload)
+
+    this.logger.log(`Poster updated for record id=${id}`)
     return updatedRecord as RecordEntity
   }
 

@@ -23,6 +23,7 @@ const params = useGamesParams()
     :has-episode-column="false"
     delete-confirm-title="Удалить игру?"
     @update="games.updateRecord"
+    @update-poster="games.updatePoster"
     @delete="games.deleteRecord"
   />
 </template>

@@ -23,6 +23,7 @@ type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
   totalRecords: number
   totalPages: number
   updateRecord: (payload: { id: number; data: RecordUpdateDTO }) => Promise<any>
+  updatePoster: (payload: { id: number; url: string }) => Promise<any>
   deleteRecord: (id: number) => Promise<any>
   createRecord: (link: string) => Promise<any>
 } & Record<TItems, ComputedRef<RecordEntity[]>> &
@@ -73,6 +74,13 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       },
     })
 
+    const { mutateAsync: updatePoster } = useMutation({
+      key: [config.queryKey, 'updatePoster'],
+      mutation: ({ id, url }: { id: number; url: string }) => {
+        return api.records.recordControllerUpdatePoster(id, { url })
+      },
+    })
+
     const { mutateAsync: createRecord } = useMutation({
       key: [config.queryKey, 'create'],
       mutation: async (link: string) => {
@@ -102,6 +110,7 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       [config.itemsName]: displayItems,
       [config.refetchName]: refetch,
       updateRecord,
+      updatePoster,
       deleteRecord,
       createRecord,
       totalRecords,

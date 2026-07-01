@@ -23,6 +23,7 @@ const params = useMovieParams()
     :has-episode-column="false"
     delete-confirm-title="Удалить кинчик?"
     @update="videos.updateRecord"
+    @update-poster="videos.updatePoster"
     @delete="videos.deleteRecord"
   />
 </template>

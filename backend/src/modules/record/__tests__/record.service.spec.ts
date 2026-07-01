@@ -22,12 +22,14 @@ describe('RecordService', () => {
   let mockRepo: RecordRepository
   let mockRecordsProvider: { prepareData: ReturnType<typeof mock> }
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
+  let mockImgService: { getImageContent: ReturnType<typeof mock> }
 
   beforeEach(() => {
     mockRepo = createMock(RecordRepository)
     mockRecordsProvider = { prepareData: mock(() => {}) }
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new RecordService(mockRepo, mockRecordsProvider as any, mockEventEmitter as any)
+    mockImgService = { getImageContent: mock(() => Promise.resolve({ buffer: Buffer.from([]), contentType: 'image/webp' })) }
+    service = new RecordService(mockRepo, mockRecordsProvider as any, mockEventEmitter as any, mockImgService as any)
   })
 
   describe('createRecordFromLink', () => {
@@ -137,6 +139,44 @@ describe('RecordService', () => {
         'update-suggestions',
         expect.objectContaining({ id: 5, action: 'updated' }),
       )
+    })
+  })
+
+  describe('updatePoster', () => {
+    it('throws NotFoundException when record does not exist', async () => {
+      mockRepo.findById = mock(() => Promise.resolve(null))
+
+      await expect(service.updatePoster(999, 'https://example.com/poster.jpg')).rejects.toThrow(
+        NotFoundException,
+      )
+      expect(mockRepo.update).not.toHaveBeenCalled()
+    })
+
+    it('fetches image, updates posterUrl with original url, and emits update-records', async () => {
+      const existing = makeRecord({ id: 8, genre: RecordGenre.ANIME })
+      const url = 'https://example.com/poster.jpg'
+      const updated = makeRecord({
+        id: 8,
+        genre: RecordGenre.ANIME,
+        posterUrl: url,
+      })
+
+      mockRepo.findById = mock(() => Promise.resolve(existing))
+      mockImgService.getImageContent = mock(() =>
+        Promise.resolve({ buffer: Buffer.from([]), contentType: 'image/webp' }),
+      )
+      mockRepo.update = mock(() => Promise.resolve(updated))
+
+      const result = await service.updatePoster(8, url)
+
+      const expectedBase64 = Buffer.from(unescape(encodeURIComponent(url))).toString('base64')
+      expect(mockImgService.getImageContent).toHaveBeenCalledWith(expectedBase64)
+      expect(mockRepo.update).toHaveBeenCalledWith(8, { posterUrl: url })
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'update-records',
+        expect.objectContaining({ id: 8, genre: RecordGenre.ANIME, action: 'updated' }),
+      )
+      expect(result).toEqual(updated as any)
     })
   })
 

@@ -23,6 +23,7 @@ const params = useSeriesParams()
     :has-episode-column="true"
     delete-confirm-title="Удалить сирик?"
     @update="videos.updateRecord"
+    @update-poster="videos.updatePoster"
     @delete="videos.deleteRecord"
   />
 </template>

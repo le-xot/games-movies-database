@@ -7,5 +7,6 @@ import { S3Module } from '@/modules/s3/s3.module'
   imports: [S3Module],
   controllers: [ImgController],
   providers: [ImgService],
+  exports: [ImgService],
 })
 export class ImgModule {}

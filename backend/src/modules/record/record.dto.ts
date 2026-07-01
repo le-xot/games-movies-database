@@ -73,6 +73,12 @@ export class RecordUpdateDTO {
   type?: RecordType
 }
 
+export class RecordUpdatePosterDTO {
+  @ApiProperty({ example: 'https://example.com/poster.jpg' })
+  @IsUrl()
+  url: string
+}
+
 export class RecordGetDTO {
   @ApiProperty({ example: 1, required: false })
   @IsOptional()

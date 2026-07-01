@@ -139,6 +139,11 @@ export interface RecordUpdateDTO {
   type?: RecordType;
 }
 
+export interface RecordUpdatePosterDTO {
+  /** @example "https://example.com/poster.jpg" */
+  url: string;
+}
+
 export interface GetAllRecordsDTO {
   records: RecordEntity[];
   total: number;
@@ -1038,6 +1043,48 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags records
+     * @name RecordControllerUpdatePoster
+     * @request PATCH:/records/{id}/poster
+     */
+    recordControllerUpdatePoster: (
+      id: number,
+      data: RecordUpdatePosterDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RecordEntity, any>({
+        path: `/records/${id}/poster`,
+        method: "PATCH",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  img = {
+    /**
+     * No description
+     *
+     * @tags Img
+     * @name ImgControllerGetImageContent
+     * @request GET:/img
+     */
+    imgControllerGetImageContent: (
+      query: {
+        urlEncoded: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/img`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
   };
   limits = {
     /**
@@ -1180,27 +1227,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/weather`,
         method: "GET",
-        ...params,
-      }),
-  };
-  img = {
-    /**
-     * No description
-     *
-     * @tags Img
-     * @name ImgControllerGetImageContent
-     * @request GET:/img
-     */
-    imgControllerGetImageContent: (
-      query: {
-        urlEncoded: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, any>({
-        path: `/img`,
-        method: "GET",
-        query: query,
         ...params,
       }),
   };

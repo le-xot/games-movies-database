@@ -82,7 +82,10 @@ describe('SuggestionService', () => {
 
       const result = await service.getSuggestions()
 
-      expect(mockRepo.findSuggestions).toHaveBeenCalledWith({ type: RecordType.SUGGESTION })
+      expect(mockRepo.findSuggestions).toHaveBeenCalledWith({
+        types: [RecordType.SUGGESTION, RecordType.WRITTEN],
+        statuses: [RecordStatus.QUEUE, RecordStatus.PROGRESS],
+      })
       expect(result).toEqual(suggestions as any)
     })
   })

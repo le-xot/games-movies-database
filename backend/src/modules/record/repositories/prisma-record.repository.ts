@@ -23,6 +23,7 @@ export class PrismaRecordRepository extends RecordRepository {
         link: data.link,
         status: data.status,
         type: data.type,
+        extra: data.extra ?? undefined,
       },
     })
   }

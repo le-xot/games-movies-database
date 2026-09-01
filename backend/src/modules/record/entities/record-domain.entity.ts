@@ -1,4 +1,5 @@
 import { RecordGenre, RecordGrade, RecordStatus, RecordType, UserRole } from '@/enums'
+import { Prisma } from '../../../generated/prisma/client'
 
 export interface RecordDomain {
   id: number
@@ -10,6 +11,7 @@ export interface RecordDomain {
   genre?: RecordGenre
   grade?: RecordGrade
   episode?: string
+  extra?: Prisma.JsonValue | null
   createdAt?: Date
 }
 

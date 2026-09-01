@@ -44,6 +44,7 @@ model Record {
   genre   RecordGenre?
   grade   RecordGrade?
   episode String?
+  extra   Json?
 
   suggestionOwnership SuggestionOwnership?
 

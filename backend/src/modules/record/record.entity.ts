@@ -8,6 +8,7 @@ import {
 } from '@/enums/enums.names'
 import { LikeEntity } from '@/modules/like/like.entity'
 import { UserEntity } from '@/modules/user/user.entity'
+import { Prisma } from '../../generated/prisma/client'
 
 export class SuggestionOwnershipEntity {
   @ApiProperty()
@@ -57,6 +58,9 @@ export class RecordEntity {
 
   @ApiProperty()
   episode: string | null
+
+  @ApiProperty({ required: false, nullable: true })
+  extra?: Prisma.JsonValue | null
 
   @ApiProperty({ type: SuggestionOwnershipEntity, required: false, nullable: true })
   suggestionOwnership?: SuggestionOwnershipEntity | null

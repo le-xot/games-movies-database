@@ -4,6 +4,7 @@ import {
   RecordSortOptions,
   RecordWithRelations,
 } from '@/modules/record/entities/record-domain.entity'
+import { Prisma } from '../../../generated/prisma/client'
 
 export interface CreateRecordData {
   title: string
@@ -12,6 +13,7 @@ export interface CreateRecordData {
   link: string
   status?: RecordStatus
   type?: RecordType
+  extra?: Prisma.InputJsonValue
 }
 
 export interface UpdateRecordData {

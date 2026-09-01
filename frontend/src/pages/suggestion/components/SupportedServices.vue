@@ -17,6 +17,7 @@
 <script setup lang="ts">
 const services = [
   { name: 'Kinopoisk', icon: '/icons/services/kinopoisk.svg', url: 'https://www.kinopoisk.ru/' },
+  { name: 'IMDb', icon: '/icons/services/imdb.svg', url: 'https://www.imdb.com/' },
   { name: 'Shikimori', icon: '/icons/services/shikimori.svg', url: 'https://shikimori.one/' },
   { name: 'Steam', icon: '/icons/services/steam.svg', url: 'https://store.steampowered.com/' },
   { name: 'IGDb', icon: '/icons/services/igdb.svg', url: 'https://www.igdb.com/' },

@@ -84,7 +84,7 @@ async function submitSuggestion(values: any) {
       <FormField v-slot="{ componentField }" name="link">
         <FormItem>
           <FormLabel>Ссылка</FormLabel>
-          <Input v-bind="componentField" placeholder="https://www.kinopoisk.ru/film/258687" />
+          <Input v-bind="componentField" placeholder="https://www.imdb.com/title/tt0111161" />
           <FormMessage />
         </FormItem>
       </FormField>

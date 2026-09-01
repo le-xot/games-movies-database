@@ -44,6 +44,15 @@ export class RecordsProvidersService {
       ],
     },
     {
+      hosts: ['imdb.com'],
+      routes: [
+        {
+          pattern: /^\/title\/(tt\d+)\/?$/,
+          fetch: (match) => this.fetchFromImdb(match[1]),
+        },
+      ],
+    },
+    {
       hosts: ['igdb.com'],
       routes: [
         {
@@ -221,6 +230,39 @@ export class RecordsProvidersService {
       posterUrl: result.posterUrl ?? '',
       genre,
       link: `https://www.kinopoisk.ru/${path}/${id}`,
+    }
+  }
+
+  private async fetchFromImdb(imdbId: string): Promise<PreparedData> {
+    if (!env.KINOPOISK_API) throw new BadRequestException('API ключ для Кинопоиска не настроен')
+
+    const response = await fetch(
+      `https://kinopoiskapiunofficial.tech/api/v2.2/films?imdbId=${imdbId}`,
+      {
+        headers: {
+          accept: 'application/json',
+          'X-API-KEY': env.KINOPOISK_API,
+        },
+      },
+    )
+    if (!response.ok)
+      throw new BadRequestException(
+        `Не удалось получить данные из API Кинопоиска: ${response.status}`,
+      )
+
+    const data = (await response.json()) as any
+    const film = data.items?.[0]
+    if (!film) throw new BadRequestException('Фильм не найден в API Кинопоиска по IMDB ID')
+
+    const genre = await this.mapKinopoiskGenre(film.genres, film.type)
+    const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
+    const path = seriesTypes.includes(film.type) ? 'series' : 'film'
+
+    return {
+      title: film.nameRu || film.nameEn || film.nameOriginal,
+      posterUrl: film.posterUrl ?? '',
+      genre,
+      link: `https://www.kinopoisk.ru/${path}/${film.kinopoiskId}`,
     }
   }
 

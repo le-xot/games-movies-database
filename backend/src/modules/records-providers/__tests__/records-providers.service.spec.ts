@@ -368,6 +368,138 @@ describe('RecordsProvidersService', () => {
     })
   })
 
+  describe('prepareData — imdb', () => {
+    const imdbLink = 'https://www.imdb.com/title/tt0111161'
+    let originalKey: string | undefined
+
+    beforeEach(() => {
+      originalKey = process.env.KINOPOISK_API
+      process.env.KINOPOISK_API = 'test-api-key'
+    })
+
+    afterEach(() => {
+      if (originalKey === undefined) delete process.env.KINOPOISK_API
+      else process.env.KINOPOISK_API = originalKey
+    })
+
+    it('fetches film by imdb id and returns kinopoisk link', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch((url) => {
+        expect(url).toContain('imdbId=tt0111161')
+        return jsonOk({
+          total: 1,
+          items: [
+            {
+              kinopoiskId: 326,
+              nameRu: 'Побег из Шоушенка',
+              nameEn: 'The Shawshank Redemption',
+              nameOriginal: 'The Shawshank Redemption',
+              genres: [{ genre: 'драма' }],
+              type: 'FILM',
+              posterUrl: 'http://example.com/poster.jpg',
+            },
+          ],
+        })
+      })
+
+      try {
+        const result = await service.prepareData({ link: imdbLink })
+        expect(result.title).toBe('Побег из Шоушенка')
+        expect(result.genre).toBe(RecordGenre.MOVIE)
+        expect(result.link).toBe('https://www.kinopoisk.ru/film/326')
+        expect(result.posterUrl).toBe('http://example.com/poster.jpg')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('accepts imdb link with trailing slash', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() =>
+        jsonOk({
+          total: 1,
+          items: [
+            {
+              kinopoiskId: 326,
+              nameRu: 'Побег из Шоушенка',
+              genres: [{ genre: 'драма' }],
+              type: 'FILM',
+              posterUrl: '',
+            },
+          ],
+        }),
+      )
+
+      try {
+        const result = await service.prepareData({
+          link: 'https://www.imdb.com/title/tt0111161/',
+        })
+        expect(result.link).toBe('https://www.kinopoisk.ru/film/326')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('maps TV_SERIES type to SERIES', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() =>
+        jsonOk({
+          total: 1,
+          items: [
+            {
+              kinopoiskId: 464963,
+              nameRu: 'Игра престолов',
+              genres: [{ genre: 'фэнтези' }],
+              type: 'TV_SERIES',
+              posterUrl: '',
+            },
+          ],
+        }),
+      )
+
+      try {
+        const result = await service.prepareData({ link: 'https://www.imdb.com/title/tt0944947' })
+        expect(result.genre).toBe(RecordGenre.SERIES)
+        expect(result.link).toBe('https://www.kinopoisk.ru/series/464963')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when film not found by imdb id', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk({ total: 0, items: [] }))
+
+      try {
+        await expect(
+          service.prepareData({ link: 'https://www.imdb.com/title/tt9999999' }),
+        ).rejects.toThrow('Фильм не найден в API Кинопоиска по IMDB ID')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when KINOPOISK_API is not configured', async () => {
+      setupRepo(mockRepo)
+
+      const savedKey = process.env.KINOPOISK_API
+      delete process.env.KINOPOISK_API
+
+      try {
+        await expect(service.prepareData({ link: imdbLink })).rejects.toThrow(
+          'API ключ для Кинопоиска не настроен',
+        )
+      } finally {
+        if (savedKey === undefined) delete process.env.KINOPOISK_API
+        else process.env.KINOPOISK_API = savedKey
+      }
+    })
+  })
+
   describe('prepareData — igdb', () => {
     it('fetches game by slug and maps fields', async () => {
       const { findSuggestionRulesByGenre } = setupRepo(mockRepo)

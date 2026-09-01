@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DownloadIcon, Gamepad2Icon, Loader2Icon, Trash2Icon, Tv } from '@lucide/vue'
+import { DownloadIcon, EyeIcon, EyeOffIcon, Gamepad2Icon, Loader2Icon, Trash2Icon, Tv } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
@@ -56,6 +56,7 @@ const isLoading = ref(true)
 const steamGames = ref<SteamGame[]>([])
 const existingAppIds = ref<Set<string>>(new Set())
 const selected = ref<Map<number, SelectedGame>>(new Map())
+const hiddenAppIds = ref<Set<number>>(new Set(JSON.parse(localStorage.getItem('steam-hidden') ?? '[]')))
 const isLoadingSteam = ref(false)
 const isImporting = ref(false)
 const steamLoaded = ref(false)
@@ -70,13 +71,18 @@ const gradeOptions = [
 
 const selectedCount = computed(() => selected.value.size)
 
-type FilterKind = 'all' | 'existing' | 'available'
+type FilterKind = 'all' | 'existing' | 'available' | 'hidden'
 const filter = ref<FilterKind>('all')
 
 const existingCount = computed(() =>
   steamGames.value.filter((g) => existingAppIds.value.has(String(g.appid))).length,
 )
-const availableCount = computed(() => steamGames.value.length - existingCount.value)
+const hiddenCount = computed(() =>
+  steamGames.value.filter((g) => hiddenAppIds.value.has(g.appid) && !existingAppIds.value.has(String(g.appid))).length,
+)
+const availableCount = computed(() =>
+  steamGames.value.filter((g) => !existingAppIds.value.has(String(g.appid)) && !hiddenAppIds.value.has(g.appid)).length,
+)
 
 const sortedGames = computed(() => {
   return [...steamGames.value].sort((a, b) => {
@@ -91,7 +97,9 @@ const filteredGames = computed(() => {
   if (filter.value === 'existing')
     return sortedGames.value.filter((g) => existingAppIds.value.has(String(g.appid)))
   if (filter.value === 'available')
-    return sortedGames.value.filter((g) => !existingAppIds.value.has(String(g.appid)))
+    return sortedGames.value.filter((g) => !existingAppIds.value.has(String(g.appid)) && !hiddenAppIds.value.has(g.appid))
+  if (filter.value === 'hidden')
+    return sortedGames.value.filter((g) => hiddenAppIds.value.has(g.appid) && !existingAppIds.value.has(String(g.appid)))
   return sortedGames.value
 })
 
@@ -215,6 +223,20 @@ function formatPlaytime(minutes: number): string {
   if (hours === 0) return `${minutes} мин`
   return `${hours} ч`
 }
+
+function hideGame(appId: number) {
+  const newHidden = new Set(hiddenAppIds.value)
+  newHidden.add(appId)
+  hiddenAppIds.value = newHidden
+  localStorage.setItem('steam-hidden', JSON.stringify([...newHidden]))
+}
+
+function unhideGame(appId: number) {
+  const newHidden = new Set(hiddenAppIds.value)
+  newHidden.delete(appId)
+  hiddenAppIds.value = newHidden
+  localStorage.setItem('steam-hidden', JSON.stringify([...newHidden]))
+}
 </script>
 
 <template>
@@ -310,6 +332,13 @@ function formatPlaytime(minutes: number): string {
             >
               Доступные ({{ availableCount }})
             </button>
+            <button
+              class="px-3 py-1.5 text-sm rounded-md transition-colors"
+              :class="filter === 'hidden' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              @click="filter = 'hidden'"
+            >
+              Скрытые ({{ hiddenCount }})
+            </button>
           </div>
 
           <div
@@ -331,15 +360,33 @@ function formatPlaytime(minutes: number): string {
               class="flex items-center gap-3 p-3 border rounded-lg transition-colors min-w-0"
               :class="{
                 'opacity-50 bg-muted/50': existingAppIds.has(String(game.appid)),
-                'hover:bg-accent/50': !existingAppIds.has(String(game.appid)),
+                'hover:bg-accent/50 cursor-pointer': !existingAppIds.has(String(game.appid)),
               }"
+              @click="toggleGame(game.appid)"
             >
+              <button
+                v-if="!existingAppIds.has(String(game.appid)) && !hiddenAppIds.has(game.appid)"
+                class="shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                title="Скрыть"
+                @click.stop="hideGame(game.appid)"
+              >
+                <EyeOffIcon class="size-4" />
+              </button>
+
+              <button
+                v-if="hiddenAppIds.has(game.appid) && !existingAppIds.has(String(game.appid))"
+                class="shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                title="Показать"
+                @click.stop="unhideGame(game.appid)"
+              >
+                <EyeIcon class="size-4" />
+              </button>
+
               <input
                 type="checkbox"
                 :checked="selected.has(game.appid)"
                 :disabled="existingAppIds.has(String(game.appid))"
                 class="size-4 shrink-0 cursor-pointer disabled:cursor-not-allowed"
-                @change="toggleGame(game.appid)"
               />
 
               <img
@@ -367,6 +414,7 @@ function formatPlaytime(minutes: number): string {
                 <Select
                   :model-value="selected.get(game.appid)?.status ?? RecordStatus.DONE"
                   @update:model-value="(v) => updateStatus(game.appid, v as RecordStatus)"
+                  @click.stop
                 >
                   <SelectTrigger class="w-28 h-8 text-xs shrink-0">
                     <SelectValue />
@@ -381,6 +429,7 @@ function formatPlaytime(minutes: number): string {
                 <Select
                   :model-value="selected.get(game.appid)?.grade ?? '__none__'"
                   @update:model-value="(v) => updateGrade(game.appid, v as string)"
+                  @click.stop
                 >
                   <SelectTrigger class="w-28 h-8 text-xs shrink-0">
                     <SelectValue placeholder="Нет оценки" />

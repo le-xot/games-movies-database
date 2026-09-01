@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select'
 import { RecordGrade, RecordStatus, type UserEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
+import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 
 interface UserAccount {
   id: number
@@ -60,13 +61,22 @@ const isImporting = ref(false)
 const steamLoaded = ref(false)
 const importResult = ref<{ created: number; failed: number } | null>(null)
 
-const statusOptions = Object.values(RecordStatus)
+const badgeSelect = useBadgeSelect()
+const statusOptions = badgeSelect.options.status
 const gradeOptions = [
-  { value: null, label: 'Нет оценки' },
-  ...Object.values(RecordGrade).map((g) => ({ value: g, label: g })),
+  { value: '__none__', label: 'Нет оценки' },
+  ...badgeSelect.options.grade,
 ]
 
 const selectedCount = computed(() => selected.value.size)
+
+type FilterKind = 'all' | 'existing' | 'available'
+const filter = ref<FilterKind>('all')
+
+const existingCount = computed(() =>
+  steamGames.value.filter((g) => existingAppIds.value.has(String(g.appid))).length,
+)
+const availableCount = computed(() => steamGames.value.length - existingCount.value)
 
 const sortedGames = computed(() => {
   return [...steamGames.value].sort((a, b) => {
@@ -75,6 +85,14 @@ const sortedGames = computed(() => {
     if (aExists !== bExists) return aExists ? 1 : -1
     return b.playtime_forever - a.playtime_forever
   })
+})
+
+const filteredGames = computed(() => {
+  if (filter.value === 'existing')
+    return sortedGames.value.filter((g) => existingAppIds.value.has(String(g.appid)))
+  if (filter.value === 'available')
+    return sortedGames.value.filter((g) => !existingAppIds.value.has(String(g.appid)))
+  return sortedGames.value
 })
 
 onMounted(async () => {
@@ -162,11 +180,11 @@ function updateStatus(appId: number, status: RecordStatus) {
   selected.value = newSelected
 }
 
-function updateGrade(appId: number, grade: RecordGrade | null) {
+function updateGrade(appId: number, grade: string) {
   const entry = selected.value.get(appId)
   if (!entry) return
   const newSelected = new Map(selected.value)
-  newSelected.set(appId, { ...entry, grade })
+  newSelected.set(appId, { ...entry, grade: grade === '__none__' ? null : (grade as RecordGrade) })
   selected.value = newSelected
 }
 
@@ -196,18 +214,6 @@ function formatPlaytime(minutes: number): string {
   const hours = Math.floor(minutes / 60)
   if (hours === 0) return `${minutes} мин`
   return `${hours} ч`
-}
-
-function getStatusLabel(status: RecordStatus): string {
-  const labels: Record<string, string> = {
-    QUEUE: 'В очереди',
-    PROGRESS: 'В процессе',
-    DROP: 'Дроп',
-    NOTINTERESTED: 'Не интересно',
-    UNFINISHED: 'Не закончено',
-    DONE: 'Готово',
-  }
-  return labels[status] ?? status
 }
 </script>
 
@@ -282,6 +288,30 @@ function getStatusLabel(status: RecordStatus): string {
         </div>
 
         <template v-if="steamLoaded">
+          <div class="flex gap-2 mb-4">
+            <button
+              class="px-3 py-1.5 text-sm rounded-md transition-colors"
+              :class="filter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              @click="filter = 'all'"
+            >
+              Все ({{ steamGames.length }})
+            </button>
+            <button
+              class="px-3 py-1.5 text-sm rounded-md transition-colors"
+              :class="filter === 'existing' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              @click="filter = 'existing'"
+            >
+              В базе ({{ existingCount }})
+            </button>
+            <button
+              class="px-3 py-1.5 text-sm rounded-md transition-colors"
+              :class="filter === 'available' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              @click="filter = 'available'"
+            >
+              Доступные ({{ availableCount }})
+            </button>
+          </div>
+
           <div
             v-if="selectedCount > 0"
             class="sticky top-0 z-10 flex items-center justify-between p-3 mb-4 bg-background border rounded-lg shadow-sm"
@@ -296,9 +326,9 @@ function getStatusLabel(status: RecordStatus): string {
 
           <div class="space-y-2">
             <div
-              v-for="game in sortedGames"
+              v-for="game in filteredGames"
               :key="game.appid"
-              class="flex items-center gap-3 p-3 border rounded-lg transition-colors"
+              class="flex items-center gap-3 p-3 border rounded-lg transition-colors min-w-0"
               :class="{
                 'opacity-50 bg-muted/50': existingAppIds.has(String(game.appid)),
                 'hover:bg-accent/50': !existingAppIds.has(String(game.appid)),
@@ -313,9 +343,9 @@ function getStatusLabel(status: RecordStatus): string {
               />
 
               <img
-                :src="game.header_image"
+                :src="game.img_icon_url"
                 :alt="game.name"
-                class="w-20 h-9 object-cover rounded shrink-0"
+                class="size-8 rounded shrink-0"
               />
 
               <div class="flex-1 min-w-0">
@@ -338,30 +368,28 @@ function getStatusLabel(status: RecordStatus): string {
                   :model-value="selected.get(game.appid)?.status ?? RecordStatus.DONE"
                   @update:model-value="(v) => updateStatus(game.appid, v as RecordStatus)"
                 >
-                  <SelectTrigger class="w-32 h-8 text-xs">
+                  <SelectTrigger class="w-28 h-8 text-xs shrink-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem v-for="status in statusOptions" :key="status" :value="status">
-                      {{ getStatusLabel(status) }}
+                    <SelectItem v-for="option in statusOptions" :key="option.value" :value="option.value">
+                      {{ option.label }}
                     </SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select
-                  :model-value="selected.get(game.appid)?.grade ?? ''"
-                  @update:model-value="
-                    (v) => updateGrade(game.appid, v === '' ? null : (v as RecordGrade))
-                  "
+                  :model-value="selected.get(game.appid)?.grade ?? '__none__'"
+                  @update:model-value="(v) => updateGrade(game.appid, v as string)"
                 >
-                  <SelectTrigger class="w-32 h-8 text-xs">
+                  <SelectTrigger class="w-28 h-8 text-xs shrink-0">
                     <SelectValue placeholder="Нет оценки" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem
                       v-for="option in gradeOptions"
-                      :key="option.value ?? 'none'"
-                      :value="option.value ?? ''"
+                      :key="option.value"
+                      :value="option.value"
                     >
                       {{ option.label }}
                     </SelectItem>

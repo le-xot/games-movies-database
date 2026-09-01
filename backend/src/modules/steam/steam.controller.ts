@@ -18,11 +18,16 @@ export class SteamController {
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: SteamGamesResponseDTO })
   async getSteamGames(): Promise<SteamGamesResponseDTO> {
-    const [games, existingIds] = await Promise.all([
+    const [games, existingGames] = await Promise.all([
       this.steamService.getOwnedGames(),
-      this.steamService.getExistingAppIds(),
+      this.steamService.findDuplicateGames(),
     ])
-    return { games, existingAppIds: [...existingIds] }
+
+    const existingAppIds = games
+      .filter((game) => this.steamService.isDuplicate(game, existingGames))
+      .map((game) => String(game.appid))
+
+    return { games, existingAppIds }
   }
 
   @Post('import')

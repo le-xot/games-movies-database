@@ -66,7 +66,7 @@ describe('SteamService', () => {
 
   describe('importGames', () => {
     it('skips games that already exist', async () => {
-      mockRecordRepo.findManyByExtraField = mock(() =>
+      mockRecordRepo.findAll = mock(() =>
         Promise.resolve([makeRecord({ extra: { steamAppId: '111' } })]),
       )
 
@@ -78,7 +78,7 @@ describe('SteamService', () => {
     })
 
     it('creates record with IGDB data and emits event', async () => {
-      mockRecordRepo.findManyByExtraField = mock(() => Promise.resolve([]))
+      mockRecordRepo.findAll = mock(() => Promise.resolve([]))
       const created = makeRecord({ id: 42 })
       mockRecordRepo.create = mock(() => Promise.resolve(created))
 
@@ -101,7 +101,7 @@ describe('SteamService', () => {
     })
 
     it('falls back to Steam data when IGDB fails', async () => {
-      mockRecordRepo.findManyByExtraField = mock(() => Promise.resolve([]))
+      mockRecordRepo.findAll = mock(() => Promise.resolve([]))
       mockRecordsProviders.fetchIGDBFromSteam = mock(() => Promise.reject(new Error('IGDB fail')))
 
       const originalFetch = globalThis.fetch
@@ -136,7 +136,7 @@ describe('SteamService', () => {
     })
 
     it('sets grade when provided', async () => {
-      mockRecordRepo.findManyByExtraField = mock(() => Promise.resolve([]))
+      mockRecordRepo.findAll = mock(() => Promise.resolve([]))
       const created = makeRecord({ id: 60 })
       mockRecordRepo.create = mock(() => Promise.resolve(created))
       mockRecordRepo.update = mock(() => Promise.resolve(created))

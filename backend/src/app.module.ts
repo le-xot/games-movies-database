@@ -18,6 +18,7 @@ import { RateLimitGuard } from '@/modules/rate-limit/rate-limit.guard'
 import { RateLimitModule } from '@/modules/rate-limit/rate-limit.module'
 import { RecordModule } from '@/modules/record/record.module'
 import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
+import { SteamModule } from '@/modules/steam/steam.module'
 import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
 import { TwirModule } from '@/modules/twir/twir.module'
 import { TwitchModule } from '@/modules/twitch/twitch.module'
@@ -50,6 +51,7 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     SuggestionModule,
     WeatherModule,
     RecordsProvidersModule,
+    SteamModule,
     // SpotifyModule,
     WebsocketModule,
     ImgModule,

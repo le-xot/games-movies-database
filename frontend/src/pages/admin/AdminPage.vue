@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { Trash2Icon, Tv } from '@lucide/vue'
+import { DownloadIcon, Gamepad2Icon, Loader2Icon, Trash2Icon, Tv } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import { TwitchIcon } from 'vue3-simple-icons'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { UserEntity } from '@/lib/api'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { RecordGrade, RecordStatus, type UserEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 
 interface UserAccount {
@@ -21,6 +29,19 @@ interface UserAccount {
   createdAt: string
 }
 
+interface SteamGame {
+  appid: number
+  name: string
+  playtime_forever: number
+  header_image: string
+  img_icon_url: string
+}
+
+interface SelectedGame {
+  status: RecordStatus
+  grade: RecordGrade | null
+}
+
 const title = useTitle()
 onMounted(() => (title.value = 'Админка'))
 
@@ -29,6 +50,32 @@ const dialog = useDialog()
 const users = ref<UserEntity[]>([])
 const accounts = ref<Record<string, UserAccount[]>>({})
 const isLoading = ref(true)
+
+// Steam sync state
+const steamGames = ref<SteamGame[]>([])
+const existingAppIds = ref<Set<string>>(new Set())
+const selected = ref<Map<number, SelectedGame>>(new Map())
+const isLoadingSteam = ref(false)
+const isImporting = ref(false)
+const steamLoaded = ref(false)
+const importResult = ref<{ created: number; failed: number } | null>(null)
+
+const statusOptions = Object.values(RecordStatus)
+const gradeOptions = [
+  { value: null, label: 'Нет оценки' },
+  ...Object.values(RecordGrade).map((g) => ({ value: g, label: g })),
+]
+
+const selectedCount = computed(() => selected.value.size)
+
+const sortedGames = computed(() => {
+  return [...steamGames.value].sort((a, b) => {
+    const aExists = existingAppIds.value.has(String(a.appid))
+    const bExists = existingAppIds.value.has(String(b.appid))
+    if (aExists !== bExists) return aExists ? 1 : -1
+    return b.playtime_forever - a.playtime_forever
+  })
+})
 
 onMounted(async () => {
   await fetchUsers()
@@ -77,6 +124,90 @@ function deleteUser(userId: string, username: string) {
       }
     },
   })
+}
+
+async function loadSteamGames() {
+  isLoadingSteam.value = true
+  importResult.value = null
+  try {
+    const { data } = await api.steam.steamControllerGetSteamGames()
+    steamGames.value = data.games
+    existingAppIds.value = new Set(data.existingAppIds)
+    steamLoaded.value = true
+    selected.value = new Map()
+  } catch (error) {
+    console.error('Failed to load Steam games:', error)
+    toast.error('Ошибка загрузки игр из Steam')
+  } finally {
+    isLoadingSteam.value = false
+  }
+}
+
+function toggleGame(appId: number) {
+  if (existingAppIds.value.has(String(appId))) return
+  const newSelected = new Map(selected.value)
+  if (newSelected.has(appId)) {
+    newSelected.delete(appId)
+  } else {
+    newSelected.set(appId, { status: RecordStatus.DONE, grade: null })
+  }
+  selected.value = newSelected
+}
+
+function updateStatus(appId: number, status: RecordStatus) {
+  const entry = selected.value.get(appId)
+  if (!entry) return
+  const newSelected = new Map(selected.value)
+  newSelected.set(appId, { ...entry, status })
+  selected.value = newSelected
+}
+
+function updateGrade(appId: number, grade: RecordGrade | null) {
+  const entry = selected.value.get(appId)
+  if (!entry) return
+  const newSelected = new Map(selected.value)
+  newSelected.set(appId, { ...entry, grade })
+  selected.value = newSelected
+}
+
+async function importSelected() {
+  if (selected.value.size === 0) return
+  isImporting.value = true
+  try {
+    const games = [...selected.value.entries()].map(([appId, opts]) => ({
+      appId,
+      status: opts.status,
+      grade: opts.grade ?? undefined,
+    }))
+    const { data } = await api.steam.steamControllerImportSteamGames({ games })
+    importResult.value = { created: data.created.length, failed: data.failed.length }
+    toast.success(`Импорт завершён: добавлено ${data.created.length}, ошибок ${data.failed.length}`)
+    await loadSteamGames()
+  } catch (error) {
+    console.error('Failed to import games:', error)
+    toast.error('Ошибка импорта игр')
+  } finally {
+    isImporting.value = false
+  }
+}
+
+function formatPlaytime(minutes: number): string {
+  if (minutes === 0) return 'Не играл'
+  const hours = Math.floor(minutes / 60)
+  if (hours === 0) return `${minutes} мин`
+  return `${hours} ч`
+}
+
+function getStatusLabel(status: RecordStatus): string {
+  const labels: Record<string, string> = {
+    QUEUE: 'В очереди',
+    PROGRESS: 'В процессе',
+    DROP: 'Дроп',
+    NOTINTERESTED: 'Не интересно',
+    UNFINISHED: 'Не закончено',
+    DONE: 'Готово',
+  }
+  return labels[status] ?? status
 }
 </script>
 
@@ -131,6 +262,115 @@ function deleteUser(userId: string, username: string) {
             </Button>
           </CardContent>
         </Card>
+      </div>
+
+      <div class="border-t pt-6 mt-2">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-muted-foreground flex items-center gap-2">
+            <Gamepad2Icon class="size-5" />
+            Steam Sync
+          </h2>
+          <Button :disabled="isLoadingSteam" @click="loadSteamGames">
+            <Loader2Icon v-if="isLoadingSteam" class="size-4 mr-2 animate-spin" />
+            <DownloadIcon v-else class="size-4 mr-2" />
+            Загрузить игры из Steam
+          </Button>
+        </div>
+
+        <div v-if="importResult" class="mb-4 p-3 rounded-md bg-muted text-sm">
+          Добавлено: {{ importResult.created }}, Ошибок: {{ importResult.failed }}
+        </div>
+
+        <template v-if="steamLoaded">
+          <div
+            v-if="selectedCount > 0"
+            class="sticky top-0 z-10 flex items-center justify-between p-3 mb-4 bg-background border rounded-lg shadow-sm"
+          >
+            <span class="text-sm font-medium">Выбрано: {{ selectedCount }}</span>
+            <Button :disabled="isImporting" @click="importSelected">
+              <Loader2Icon v-if="isImporting" class="size-4 mr-2 animate-spin" />
+              <DownloadIcon v-else class="size-4 mr-2" />
+              Добавить выбранные
+            </Button>
+          </div>
+
+          <div class="space-y-2">
+            <div
+              v-for="game in sortedGames"
+              :key="game.appid"
+              class="flex items-center gap-3 p-3 border rounded-lg transition-colors"
+              :class="{
+                'opacity-50 bg-muted/50': existingAppIds.has(String(game.appid)),
+                'hover:bg-accent/50': !existingAppIds.has(String(game.appid)),
+              }"
+            >
+              <input
+                type="checkbox"
+                :checked="selected.has(game.appid)"
+                :disabled="existingAppIds.has(String(game.appid))"
+                class="size-4 shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                @change="toggleGame(game.appid)"
+              />
+
+              <img
+                :src="game.header_image"
+                :alt="game.name"
+                class="w-20 h-9 object-cover rounded shrink-0"
+              />
+
+              <div class="flex-1 min-w-0">
+                <div class="font-medium truncate">{{ game.name }}</div>
+                <div class="text-xs text-muted-foreground">
+                  {{ formatPlaytime(game.playtime_forever) }}
+                </div>
+              </div>
+
+              <Badge
+                v-if="existingAppIds.has(String(game.appid))"
+                variant="secondary"
+                class="shrink-0"
+              >
+                Уже добавлено
+              </Badge>
+
+              <template v-if="selected.has(game.appid) && !existingAppIds.has(String(game.appid))">
+                <Select
+                  :model-value="selected.get(game.appid)?.status ?? RecordStatus.DONE"
+                  @update:model-value="(v) => updateStatus(game.appid, v as RecordStatus)"
+                >
+                  <SelectTrigger class="w-32 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem v-for="status in statusOptions" :key="status" :value="status">
+                      {{ getStatusLabel(status) }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  :model-value="selected.get(game.appid)?.grade ?? ''"
+                  @update:model-value="
+                    (v) => updateGrade(game.appid, v === '' ? null : (v as RecordGrade))
+                  "
+                >
+                  <SelectTrigger class="w-32 h-8 text-xs">
+                    <SelectValue placeholder="Нет оценки" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      v-for="option in gradeOptions"
+                      :key="option.value ?? 'none'"
+                      :value="option.value ?? ''"
+                    >
+                      {{ option.label }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </template>
+            </div>
+          </div>
+        </template>
       </div>
     </template>
   </div>

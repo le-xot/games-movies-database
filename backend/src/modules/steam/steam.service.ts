@@ -4,8 +4,8 @@ import { RecordGenre, RecordType } from '@/enums'
 import { RecordRepository } from '@/modules/record/repositories/record.repository'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { env } from '@/utils/enviroments'
-import type { UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
 import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
+import type { UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
 
 interface SteamOwnedGamesResponse {
   response: {
@@ -125,9 +125,7 @@ export class SteamService {
     appId: number,
   ): Promise<{ name: string; header_image: string } | null> {
     try {
-      const response = await fetch(
-        `https://store.steampowered.com/api/appdetails?appids=${appId}`,
-      )
+      const response = await fetch(`https://store.steampowered.com/api/appdetails?appids=${appId}`)
       if (!response.ok) return null
       const data = (await response.json()) as any
       const app = data[String(appId)]

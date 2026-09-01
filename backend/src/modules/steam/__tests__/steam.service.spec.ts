@@ -36,11 +36,7 @@ describe('SteamService', () => {
       ),
     }
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new SteamService(
-      mockRecordsProviders as any,
-      mockRecordRepo,
-      mockEventEmitter as any,
-    )
+    service = new SteamService(mockRecordsProviders as any, mockRecordRepo, mockEventEmitter as any)
   })
 
   describe('getExistingAppIds', () => {
@@ -106,9 +102,7 @@ describe('SteamService', () => {
 
     it('falls back to Steam data when IGDB fails', async () => {
       mockRecordRepo.findManyByExtraField = mock(() => Promise.resolve([]))
-      mockRecordsProviders.fetchIGDBFromSteam = mock(() =>
-        Promise.reject(new Error('IGDB fail')),
-      )
+      mockRecordsProviders.fetchIGDBFromSteam = mock(() => Promise.reject(new Error('IGDB fail')))
 
       const originalFetch = globalThis.fetch
       globalThis.fetch = mock(() =>

@@ -13,5 +13,6 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
   imports: [PrismaModule, UserModule, RecordsProvidersModule, WebsocketModule, ImgModule],
   providers: [RecordService, { provide: RecordRepository, useClass: PrismaRecordRepository }],
   controllers: [RecordController],
+  exports: [RecordRepository],
 })
 export class RecordModule {}

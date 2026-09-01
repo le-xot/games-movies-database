@@ -89,6 +89,7 @@ export interface RecordEntity {
   genre: RecordGenre;
   grade: RecordGrade;
   episode: string;
+  extra?: object | null;
   suggestionOwnership?: SuggestionOwnershipEntity | null;
   likes?: LikeEntity[] | null;
   /** @format date-time */
@@ -186,6 +187,35 @@ export interface QueueItemDto {
 export interface QueueDto {
   games: QueueItemDto[];
   videos: QueueItemDto[];
+}
+
+export interface SteamGameDto {
+  appid: number;
+  name: string;
+  /** Playtime in minutes */
+  playtime_forever: number;
+  header_image: string;
+  img_icon_url: string;
+}
+
+export interface SteamGamesResponseDTO {
+  games: SteamGameDto[];
+  existingAppIds: string[];
+}
+
+export interface SteamImportGameDto {
+  appId: number;
+  status: RecordStatus;
+  grade?: RecordGrade | null;
+}
+
+export interface SteamImportDTO {
+  games: SteamImportGameDto[];
+}
+
+export interface SteamImportResultDTO {
+  created: RecordEntity[];
+  failed: string[];
 }
 
 /** @example "id" */
@@ -1227,6 +1257,42 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/weather`,
         method: "GET",
+        ...params,
+      }),
+  };
+  steam = {
+    /**
+     * No description
+     *
+     * @tags steam
+     * @name SteamControllerGetSteamGames
+     * @request GET:/steam/games
+     */
+    steamControllerGetSteamGames: (params: RequestParams = {}) =>
+      this.http.request<SteamGamesResponseDTO, any>({
+        path: `/steam/games`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags steam
+     * @name SteamControllerImportSteamGames
+     * @request POST:/steam/import
+     */
+    steamControllerImportSteamGames: (
+      data: SteamImportDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<SteamImportResultDTO, any>({
+        path: `/steam/import`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

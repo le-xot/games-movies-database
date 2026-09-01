@@ -37,4 +37,5 @@ export abstract class RecordRepository {
   abstract count(filters: RecordFilterOptions): Promise<number>
   abstract update(id: number, data: UpdateRecordData): Promise<RecordWithRelations>
   abstract delete(id: number): Promise<void>
+  abstract findManyByExtraField(key: string): Promise<RecordWithRelations[]>
 }

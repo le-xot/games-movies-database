@@ -89,4 +89,16 @@ export class PrismaRecordRepository extends RecordRepository {
       await tx.record.delete({ where: { id } })
     })
   }
+
+  async findManyByExtraField(key: string): Promise<RecordWithRelations[]> {
+    return await this.prisma.record.findMany({
+      where: {
+        extra: {
+          path: [key],
+          not: Prisma.DbNull,
+        },
+      },
+      include: { likes: true },
+    })
+  }
 }

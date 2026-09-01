@@ -334,6 +334,23 @@ describe('RecordsProvidersService', () => {
       }
     })
 
+    it('accepts link with trailing slash and query params', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() =>
+        jsonOk({ nameRu: 'Фильм', posterUrl: '', genres: [{ genre: 'драма' }], type: 'FILM' }),
+      )
+
+      try {
+        const result = await service.prepareData({
+          link: 'https://www.kinopoisk.ru/film/5494049/?socialAlias=bGV4b3Q%3D',
+        })
+        expect(result.link).toBe('https://www.kinopoisk.ru/film/5494049')
+      } finally {
+        restoreFetch()
+      }
+    })
+
     it('throws when KINOPOISK_API is not configured', async () => {
       setupRepo(mockRepo)
 

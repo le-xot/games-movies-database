@@ -38,7 +38,7 @@ export class RecordsProvidersService {
       hosts: ['kinopoisk.ru'],
       routes: [
         {
-          pattern: /^\/(film|series)\/(\d+)$/,
+          pattern: /^\/(film|series)\/(\d+)\/?$/,
           fetch: (match) => this.fetchKinopoisk(Number(match[2])),
         },
       ],

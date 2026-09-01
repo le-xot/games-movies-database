@@ -1,13 +1,13 @@
 import { Controller, Delete, Get, HttpStatus, Param, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
+import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('users')
 @Controller('users')
@@ -45,7 +45,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteUser(@Param('id') id: string): Promise<void> {

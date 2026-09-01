@@ -20,6 +20,10 @@ services:
       RUSTFS_ACCESS_KEY: rustfsadmin
       RUSTFS_SECRET_KEY: rustfsadmin
       RUSTFS_CONSOLE_ENABLE: 'true'
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
   admin:
     image: adminer
     depends_on:

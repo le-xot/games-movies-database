@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { AppController } from '@/app.controller'
 import { PrismaModule } from '@/database/prisma.module'
 import { AuctionModule } from '@/modules/auction/auction.module'
@@ -15,6 +14,8 @@ import { KickModule } from '@/modules/kick/kick.module'
 import { LikeModule } from '@/modules/like/like.module'
 import { LimitModule } from '@/modules/limit/limit.module'
 import { QueueModule } from '@/modules/queue/queue.module'
+import { RateLimitGuard } from '@/modules/rate-limit/rate-limit.guard'
+import { RateLimitModule } from '@/modules/rate-limit/rate-limit.module'
 import { RecordModule } from '@/modules/record/record.module'
 import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
 import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
@@ -23,7 +24,6 @@ import { TwitchModule } from '@/modules/twitch/twitch.module'
 import { UserModule } from '@/modules/user/user.module'
 import { WeatherModule } from '@/modules/weather/weather.module'
 import { WebsocketModule } from '@/modules/websocket/websocket.module'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
 
 @Module({
   controllers: [AppController],
@@ -32,12 +32,7 @@ import { THROTTLER_LIMITS } from '@/utils/throttler'
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
     }),
     EventEmitterModule.forRoot(),
-    ThrottlerModule.forRoot([
-      {
-        ttl: THROTTLER_LIMITS.public.ttl,
-        limit: THROTTLER_LIMITS.public.limit,
-      },
-    ]),
+    RateLimitModule,
     AuctionModule,
     TwirModule,
     TwitchModule,
@@ -62,7 +57,7 @@ import { THROTTLER_LIMITS } from '@/utils/throttler'
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: RateLimitGuard,
     },
   ],
 })

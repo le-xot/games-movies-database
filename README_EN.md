@@ -24,8 +24,8 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 | Layer          | Technologies                                                                                                          |
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Infrastructure | Docker, Bun, Traefik (reverse proxy), GitHub Actions                                                                  |
+| Backend        | NestJS 12, Prisma ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                       |
+| Infrastructure | Docker, Bun, Redis (rate limiting), Traefik (reverse proxy), GitHub Actions                                           |
 
 ## Quick Start
 
@@ -45,13 +45,15 @@ cd games-movies-database
 bun install
 ```
 
-### 3. Start PostgreSQL
+### 3. Start infrastructure
 
 ```bash
-docker compose -f docker-compose-dev.yml up -d
+bun infra:start
 ```
 
-This starts PostgreSQL on port `5432` and Adminer on port `54321`.
+This starts PostgreSQL on port `5432`, Redis on port `6379`, and Adminer on port `54321`.
+
+To stop: `bun infra:stop`.
 
 ### 4. Configure environment
 
@@ -85,27 +87,28 @@ bun dev
 
 File: `backend/.env` (copy from `backend/.env.example`)
 
-| Variable                | Description                              | Required |
-| ----------------------- | ---------------------------------------- | -------- |
-| `DATASOURCE_URL`        | PostgreSQL connection string             | Yes      |
-| `JWT_SECRET`            | Secret for JWT token signing             | Yes      |
-| `APP_PORT`              | Backend server port (default: 3000)      | No       |
-| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                   | No       |
-| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret               | No       |
-| `TWITCH_CALLBACK_URL`   | URL callback after Twitch authorization  | No       |
-| `KICK_CLIENT_ID`        | Kick OAuth Client ID                     | No       |
-| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                 | No       |
-| `KICK_CALLBACK_URL`     | URL callback after Kick authorization    | No       |
-| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                        | No       |
-| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                    | No       |
-| `SPOTIFY_CALLBACK_URL`  | URL callback after Spotify authorization | No       |
-| `KINOPOISK_API`         | Kinopoisk API key                        | No       |
-| `TMBD_API`              | TMDB API key                             | No       |
-| `WEATHER_API_KEY`       | OpenWeatherMap API key                   | No       |
-| `WEATHER_LAT`           | Latitude for weather                     | No       |
-| `WEATHER_LON`           | Longitude for weather                    | No       |
-| `PROXY`                 | Proxy URL for external APIs              | No       |
-| `TWIR_API`              | API key for TWIR webhooks                | No       |
+| Variable                | Description                              | Required                      |
+| ----------------------- | ---------------------------------------- | ----------------------------- |
+| `DATASOURCE_URL`        | PostgreSQL connection string             | Yes                           |
+| `JWT_SECRET`            | Secret for JWT token signing             | Yes                           |
+| `APP_PORT`              | Backend server port (default: 3000)      | No                            |
+| `REDIS_URL`             | Redis connection string (rate limits)    | No (`redis://localhost:6379`) |
+| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                   | No                            |
+| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret               | No                            |
+| `TWITCH_CALLBACK_URL`   | URL callback after Twitch authorization  | No                            |
+| `KICK_CLIENT_ID`        | Kick OAuth Client ID                     | No                            |
+| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                 | No                            |
+| `KICK_CALLBACK_URL`     | URL callback after Kick authorization    | No                            |
+| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                        | No                            |
+| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                    | No                            |
+| `SPOTIFY_CALLBACK_URL`  | URL callback after Spotify authorization | No                            |
+| `KINOPOISK_API`         | Kinopoisk API key                        | No                            |
+| `TMBD_API`              | TMDB API key                             | No                            |
+| `WEATHER_API_KEY`       | OpenWeatherMap API key                   | No                            |
+| `WEATHER_LAT`           | Latitude for weather                     | No                            |
+| `WEATHER_LON`           | Longitude for weather                    | No                            |
+| `PROXY`                 | Proxy URL for external APIs              | No                            |
+| `TWIR_API`              | API key for TWIR webhooks                | No                            |
 
 ## Project Structure
 
@@ -164,16 +167,17 @@ games-movies-database/
 │   │       ├── websocket/     # Socket.IO gateway
 │   │       ├── records-providers/  # External metadata providers
 │   │       ├── img/           # Image proxy and resizing (Sharp)
+│   │       ├── rate-limit/    # Custom Redis-backed rate limiter
 │   │       ├── twir/          # TWIR webhooks
 │   │       ├── weather/       # Weather (OpenWeatherMap)
 │   │       ├── jwt/           # CustomJwtModule wrapper
-│   │       └── limit/         # Rate limiting
+│   │       └── limit/         # Suggestion limits
 │   ├── prisma/
 │   │   ├── schema.prisma      # Database schema
 │   │   └── migrations/        # Prisma migrations
 │   └── package.json
-├── docker-compose.yml         # Production config (PostgreSQL + app + Traefik)
-├── docker-compose-dev.yml     # Dev environment (PostgreSQL + Adminer)
+├── docker-compose.yml         # Production config (PostgreSQL + Redis + app + Traefik)
+├── docker-compose.dev.yml     # Dev environment (PostgreSQL + Redis + RustFS + Adminer)
 ├── Dockerfile                 # Multi-stage build (frontend → backend → serve)
 ├── package.json               # Root package.json (workspaces)
 ├── .oxlintrc.json             # oxlint configuration
@@ -193,6 +197,8 @@ games-movies-database/
 | `bun build:frontend` | Build frontend only                            |
 | `bun build:backend`  | Build backend only                             |
 | `bun start:backend`  | Start backend in production mode               |
+| `bun infra:start`    | Dev infrastructure (postgres, redis, rustfs)   |
+| `bun infra:stop`     | Stop dev infrastructure                        |
 | `bun prisma`         | Run migrations + generate Prisma client        |
 | `bun lint`           | Run oxlint code check                          |
 | `bun lint:fix`       | Auto-fix oxlint issues                         |
@@ -335,7 +341,7 @@ TWIR_API=your_api_key
 - `AuthGuard` — JWT validation (cookie `token`)
 - `ApikeyGuard` — TWIR endpoint protection via API key
 - `RolesGuard` — role-based access
-- `ThrottlerGuard` — rate limiting (60 requests / 60 seconds)
+- `RateLimitGuard` — custom Redis-backed rate limiter (global). Presets in `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, etc.), per-route override via the `@RateLimit` decorator. Fixed window via Lua, key `rl:{route}:{ip}`, fail-open when Redis is unavailable
 
 ## Deployment
 
@@ -351,7 +357,10 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 Production configuration in `docker-compose.yml` includes:
 
 - **PostgreSQL 17** with persistent volume
+- **Redis** — rate limiting (internal network, no exposed ports)
+- **RustFS** — S3-compatible storage for images
 - **Adminer** with Traefik reverse proxy (`adminer.le-xot.dev`)
+- **Application** with Traefik reverse proxy (`le-xot.dev`)
 - **Application** with Traefik reverse proxy (`le-xot.dev`)
 
 Requires external `traefik-public` network (attachable overlay) for Traefik reverse proxy.
@@ -377,17 +386,18 @@ To set up CI/CD, add secrets to GitHub:
 - Use TypeScript for all new code
 - Frontend: Vue 3 Composition API (`<script setup lang="ts">`)
 - Naming: `.vue` files — PascalCase, `.ts` files — kebab-case
-- Icons: only lucide-vue-next and vue3-simple-icons
+- Icons: only @lucide/vue and vue3-simple-icons
 - API client (`frontend/src/lib/api.ts`) is **auto-generated** — do not edit manually
 
 ## Troubleshooting
 
-| Problem                              | Solution                                                              |
-| ------------------------------------ | --------------------------------------------------------------------- |
-| Cannot connect to DB                 | Check that PostgreSQL container is running: `docker ps`               |
-| Authentication errors                | Verify Twitch/Kick API credentials in `.env`                          |
-| Services not accessible              | Check ports: frontend 5173, backend 3000, DB 6543 (dev) / 5432 (prod) |
-| Bun not installed                    | Use npm/pnpm as alternative package manager                           |
-| TypeScript errors                    | Run `bun install` and ensure all dependencies are installed           |
-| Frontend doesn't generate API client | Ensure backend is running on port 3000 (generation uses `/docs-json`) |
-| Prisma migration errors              | Run `cd backend && bun prisma migrate dev`                            |
+| Problem                              | Solution                                                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Cannot connect to DB                 | Check that PostgreSQL container is running: `docker ps`                                                                         |
+| Authentication errors                | Verify Twitch/Kick API credentials in `.env`                                                                                    |
+| Services not accessible              | Check ports: frontend 5173, backend 3000, DB 6543 (dev) / 5432 (prod)                                                           |
+| Bun not installed                    | Use npm/pnpm as alternative package manager                                                                                     |
+| TypeScript errors                    | Run `bun install` and ensure all dependencies are installed                                                                     |
+| Frontend doesn't generate API client | Ensure backend is running on port 3000 (generation uses `/docs-json`)                                                           |
+| Prisma migration errors              | Run `cd backend && bun prisma migrate dev`                                                                                      |
+| Rate limits stopped working          | Check that Redis is running (`bun infra:start`): when Redis is down limits are disabled (fail-open), but the site keeps working |

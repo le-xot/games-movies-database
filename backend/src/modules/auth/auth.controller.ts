@@ -18,17 +18,17 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ApiResponse } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { AuthService } from '@/modules/auth/auth.service'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { CallbackDto } from '@/modules/auth/dto/callback.dto'
 import { UpdateNicknameDTO } from '@/modules/auth/dto/update-nickname.dto'
+import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
+import { RATE_LIMITS } from '@/utils/rate-limits'
 import type { Request, Response } from 'express'
 
 @Controller('auth')
@@ -42,7 +42,7 @@ export class AuthController {
   ) {}
 
   @Get('/twitch')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   twitchAuth(@Res() res: Response) {
     const redirectUri =
       'https://id.twitch.tv/oauth2/authorize?' +
@@ -54,7 +54,7 @@ export class AuthController {
   }
 
   @Get('/twitch/link')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
   twitchLinkAuth(@Res() res: Response) {
     res.cookie('twitch_linking', '1', {
@@ -72,7 +72,7 @@ export class AuthController {
   }
 
   @Post('/twitch/callback')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
     const token = await this.authService.handleTwitchCallback(data.code)
     res.cookie('token', token, {
@@ -84,7 +84,7 @@ export class AuthController {
   }
 
   @Post('/twitch/link')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
   async linkTwitch(@Body() data: CallbackDto, @User() user: UserEntity, @Res() res: Response) {
     this.logger.log(`POST /twitch/link: userId=${user.id}`)
@@ -99,7 +99,7 @@ export class AuthController {
   }
 
   @Get('/kick')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   kickAuth(@Res() res: Response) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url')
     const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
@@ -123,7 +123,7 @@ export class AuthController {
   }
 
   @Get('/kick/link')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
   kickLinkAuth(@Res() res: Response) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url')
@@ -152,7 +152,7 @@ export class AuthController {
   }
 
   @Post('/kick/callback')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   async kickAuthCallback(@Body() data: CallbackDto, @Req() req: Request, @Res() res: Response) {
     const codeVerifier = (req as any).cookies?.kick_code_verifier
     if (!codeVerifier) {
@@ -169,7 +169,7 @@ export class AuthController {
   }
 
   @Post('/kick/link')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
   async linkKick(
     @Body() data: CallbackDto,
@@ -201,7 +201,7 @@ export class AuthController {
   }
 
   @Delete('/accounts/:platform')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
   async unlinkAccount(@Param('platform') platform: string, @User() user: UserEntity) {
     await this.userService.unlinkPlatformAccount(user.id, platform)
@@ -209,7 +209,7 @@ export class AuthController {
   }
 
   @Delete('/me')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
   async deleteMe(@User() user: UserEntity, @Res() res: Response) {
     await this.userService.deleteUserById(user.id)
@@ -225,14 +225,14 @@ export class AuthController {
   }
 
   @Patch('/me')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
   updateNickname(@Body() data: UpdateNicknameDTO, @User() user: UserEntity) {
     return this.userService.updateLogin(user.id, data.login)
   }
 
   @Post('/me/avatar')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
@@ -257,14 +257,14 @@ export class AuthController {
   }
 
   @Delete('/me/avatar')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
   deleteAvatar(@User() user: UserEntity) {
     return this.userService.deleteAvatar(user.id)
   }
 
   @Post('/logout')
-  @Throttle({ default: THROTTLER_LIMITS.auth })
+  @RateLimit(RATE_LIMITS.auth)
   logout(@Res() res: Response) {
     res.clearCookie('token')
     res.end()

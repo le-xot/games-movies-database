@@ -11,10 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import {
   GetAllRecordsDTO,
   RecordCreateFromLinkDTO,
@@ -24,7 +24,7 @@ import {
 } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
+import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('records')
 @Controller('records')
@@ -32,7 +32,7 @@ export class RecordController {
   constructor(private recordServices: RecordService) {}
 
   @Post('link')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
   async createRecordFromLink(@Body() data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
@@ -40,7 +40,7 @@ export class RecordController {
   }
 
   @Post()
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: RecordEntity })
   async createRecord(@Body() id: number, record: RecordUpdateDTO): Promise<RecordEntity> {
@@ -60,7 +60,7 @@ export class RecordController {
   }
 
   @Patch(':id')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
   async patchRecord(
@@ -71,7 +71,7 @@ export class RecordController {
   }
 
   @Patch(':id/poster')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
   async updatePoster(
@@ -82,7 +82,7 @@ export class RecordController {
   }
 
   @Delete(':id')
-  @Throttle({ default: THROTTLER_LIMITS.write })
+  @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 204 })
   async deleteRecord(@Param('id') id: number): Promise<void> {

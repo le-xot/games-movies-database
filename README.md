@@ -24,8 +24,8 @@
 | Слой           | Технологии                                                                                                            |
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Инфраструктура | Docker, Bun, RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                                           |
+| Backend        | NestJS 12, Prisma ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                       |
+| Инфраструктура | Docker, Bun, Redis (rate limiting), RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                    |
 
 ## Быстрый старт
 
@@ -45,13 +45,15 @@ cd games-movies-database
 bun install
 ```
 
-### 3. Запуск PostgreSQL
+### 3. Запуск инфраструктуры
 
 ```bash
-docker compose -f docker-compose-dev.yml up -d
+bun infra:start
 ```
 
-Это поднимет PostgreSQL на порту `5432`, RustFS на портах `9000`/`9001` и Adminer на порту `54321`.
+Это поднимет PostgreSQL на порту `5432`, Redis на порту `6379`, RustFS на портах `9000`/`9001` и Adminer на порту `54321`.
+
+Остановка: `bun infra:stop`.
 
 ### 4. Настройка окружения
 
@@ -90,6 +92,7 @@ bun dev
 | `DATASOURCE_URL`        | Строка подключения к PostgreSQL           | Да                                  |
 | `JWT_SECRET`            | Секрет для подписи JWT токенов            | Да                                  |
 | `APP_PORT`              | Порт backend сервера (по умолчанию: 3000) | Нет                                 |
+| `REDIS_URL`             | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)      |
 | `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                    | Нет                                 |
 | `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret                | Нет                                 |
 | `TWITCH_CALLBACK_URL`   | URL callback после Twitch авторизации     | Нет                                 |
@@ -172,16 +175,17 @@ games-movies-database/
 │   │       ├── websocket/     # Socket.IO gateway
 │   │       ├── records-providers/  # Внешние источники метаданных
 │   │       ├── img/           # Прокси и ресайз изображений (RustFS/S3)
+│   │       ├── rate-limit/    # Кастомный rate limiter на Redis
 │   │       ├── twir/          # TWIR вебхуки
 │   │       ├── weather/       # Погода (OpenWeatherMap)
 │   │       ├── jwt/           # CustomJwtModule обёртка
-│   │       └── limit/         # Rate limiting
+│   │       └── limit/         # Лимиты предложений
 │   ├── prisma/
 │   │   ├── schema.prisma      # Схема базы данных
 │   │   └── migrations/        # Миграции Prisma
 │   └── package.json
-├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + приложение + Traefik)
-├── docker-compose-dev.yml     # Dev окружение (PostgreSQL + Adminer)
+├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + Redis + приложение + Traefik)
+├── docker-compose.dev.yml     # Dev окружение (PostgreSQL + Redis + RustFS + Adminer)
 ├── Dockerfile                 # Многостадийная сборка (frontend → backend → serve)
 ├── package.json               # Корневой package.json (workspaces)
 ├── .oxlintrc.json             # Конфигурация oxlint
@@ -201,6 +205,8 @@ games-movies-database/
 | `bun build:frontend` | Сборка только frontend                        |
 | `bun build:backend`  | Сборка только backend                         |
 | `bun start:backend`  | Запуск backend в продакшене                   |
+| `bun infra:start`    | Dev-инфраструктура (postgres, redis, rustfs)  |
+| `bun infra:stop`     | Остановка dev-инфраструктуры                  |
 | `bun prisma`         | Миграции + генерация Prisma клиента           |
 | `bun lint`           | Проверка кода oxlint                          |
 | `bun lint:fix`       | Автоисправление oxlint                        |
@@ -343,7 +349,7 @@ TWIR_API=your_api_key
 - `AuthGuard` — JWT валидация (cookie `token`)
 - `ApikeyGuard` — защита TWIR эндпоинтов по API-ключу
 - `RolesGuard` — ролевой доступ
-- `ThrottlerGuard` — rate limiting (60 запросов / 60 секунд)
+- `RateLimitGuard` — кастомный rate limiter на Redis (глобальный). Пресеты в `backend/src/utils/rate-limits.ts` (public 1000/мин, auth 5/мин и т.д.), оверрайд через декоратор `@RateLimit`. Фикс-окно через Lua, ключ `rl:{route}:{ip}`, при недоступности Redis — fail-open
 
 ## Деплой
 
@@ -359,6 +365,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 Продакшен конфигурация в `docker-compose.yml` включает:
 
 - **PostgreSQL 17** с persistent volume
+- **Redis** — rate limiting (внутренняя сеть, без внешних портов)
 - **RustFS** — S3-совместимое хранилище для изображений
 - **Adminer** с Traefik reverse proxy (`adminer.le-xot.dev`)
 - **Приложение** с Traefik reverse proxy (`le-xot.dev`)
@@ -386,19 +393,20 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Используйте TypeScript для всего нового кода
 - На фронтенде — Vue 3 Composition API (`<script setup lang="ts">`)
 - Именование: `.vue` файлы — PascalCase, `.ts` файлы — kebab-case
-- Иконки: только lucide-vue-next и vue3-simple-icons
+- Иконки: только @lucide/vue и vue3-simple-icons
 - API клиент (`frontend/src/lib/api.ts`) **авто-генерируется** — не редактировать вручную
 
 ## Troubleshooting
 
-| Проблема                          | Решение                                                                                                              |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Не подключается к БД              | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                             |
-| Ошибки авторизации                | Проверьте Twitch/Kick API ключи в `.env`                                                                             |
-| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                     |
-| Bun не установлен                 | Используйте npm/pnpm как альтернативу                                                                                |
-| Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены                                                 |
-| Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`)                                        |
-| Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                                                                     |
-| S3 ошибки (InvalidAccessKeyId)    | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env` |
-| Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)                                                 |
+| Проблема                          | Решение                                                                                                                  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Не подключается к БД              | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                                 |
+| Ошибки авторизации                | Проверьте Twitch/Kick API ключи в `.env`                                                                                 |
+| Сервисы недоступны                | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                         |
+| Bun не установлен                 | Используйте npm/pnpm как альтернативу                                                                                    |
+| Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены                                                     |
+| Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`)                                            |
+| Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                                                                         |
+| Rate limits перестали работать    | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
+| S3 ошибки (InvalidAccessKeyId)    | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
+| Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)                                                     |

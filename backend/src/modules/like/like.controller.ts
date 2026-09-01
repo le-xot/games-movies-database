@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
@@ -8,8 +7,9 @@ import { User } from '@/modules/auth/auth.user.decorator'
 import { GetLikesByIdDTO, GetLikesDTO, LikeCreateDTO } from '@/modules/like/like.dto'
 import { LikeEntity } from '@/modules/like/like.entity'
 import { LikeService } from '@/modules/like/like.service'
+import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserEntity } from '@/modules/user/user.entity'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
+import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('likes')
 @Controller('likes')
@@ -17,7 +17,7 @@ export class LikeController {
   constructor(private likeService: LikeService) {}
 
   @Post()
-  @Throttle({ default: THROTTLER_LIMITS.like })
+  @RateLimit(RATE_LIMITS.like)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ type: LikeEntity, status: 200, description: 'Returns created like' })
   async createLike(@Body() data: LikeCreateDTO, @User() user: UserEntity): Promise<LikeEntity> {
@@ -25,7 +25,7 @@ export class LikeController {
   }
 
   @Delete(':id')
-  @Throttle({ default: THROTTLER_LIMITS.like })
+  @RateLimit(RATE_LIMITS.like)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Like deleted successfully' })
   async deleteLike(@Param('id') id: number, @User() user: UserEntity): Promise<void> {

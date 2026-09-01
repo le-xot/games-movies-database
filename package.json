@@ -20,8 +20,8 @@
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "typecheck": "bun --filter=./frontend run typecheck",
-    "infra:start": "docker compose -f docker-compose.dev.yaml up -d",
-    "infra:stop": "docker compose -f docker-compose.dev.yaml down"
+    "infra:start": "docker compose -f docker-compose.dev.yml up -d",
+    "infra:stop": "docker compose -f docker-compose.dev.yml down"
   },
   "dependencies": {
     "typescript": "6.0.2"

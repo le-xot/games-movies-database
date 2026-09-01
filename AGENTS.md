@@ -1,48 +1,49 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-04-04
-**Commit:** f29cee6
+**Generated:** 2026-09-01
+**Commit:** 350aa8a
 **Branch:** master
 
 ## OVERVIEW
 
-Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick auth, Spotify integration, and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS backend + PostgreSQL via Prisma.
+Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick auth, Spotify integration, and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS 12 backend + PostgreSQL via Prisma + Redis for rate limiting.
 
 ## STRUCTURE
 
 ```
 ./
-├── frontend/          # Vue 3 SPA (Vite, Tailwind 4, shadcn-vue)
-├── backend/           # NestJS API (Prisma, JWT, Socket.IO)
-├── docker-compose.yml # Production stack (Traefik via traefik-public network)
-├── docker-compose-dev.yml # Dev: postgres + adminer
-├── Dockerfile         # Multi-stage bun build (frontend → backend → serve)
-├── .oxlintrc.json     # oxlint configuration (linting rules)
-├── .oxfmtrc.json      # oxfmt configuration (formatting + import sorting)
-└── .github/workflows/ # Docker build + Dokploy deploy on push to master
+├── frontend/               # Vue 3 SPA (Vite, Tailwind 4, shadcn-vue)
+├── backend/                # NestJS 12 API (Prisma, JWT, Socket.IO, Redis rate limiting)
+├── docker-compose.yml      # Production stack (Traefik via traefik-public network)
+├── docker-compose.dev.yml  # Dev: postgres + redis + rustfs + adminer
+├── Dockerfile              # Multi-stage bun build (frontend → backend → serve)
+├── .oxlintrc.json          # oxlint configuration (linting rules)
+├── .oxfmtrc.json           # oxfmt configuration (formatting + import sorting)
+└── .github/workflows/      # SSH deploy on push to master
 ```
 
 ## WHERE TO LOOK
 
-| Task                 | Location                                    | Notes                                               |
-| -------------------- | ------------------------------------------- | --------------------------------------------------- |
-| Add backend feature  | `backend/src/modules/{name}/`               | See `backend/src/modules/AGENTS.md` for template    |
-| Add frontend page    | `frontend/src/pages/{feature}/`             | Each page = folder with .vue + composables/         |
-| Add UI primitive     | `frontend/src/components/ui/{name}/`        | shadcn-vue pattern: .vue files + index.ts barrel    |
-| Modify auth flow     | `backend/src/modules/auth/`                 | JWT in cookie, Twitch OAuth, guards                 |
-| Database schema      | `backend/prisma/schema.prisma`              | Run `bun prisma` after changes                      |
-| API types            | `frontend/src/lib/api.ts`                   | AUTO-GENERATED from Swagger. Never edit manually    |
-| Environment vars     | `backend/.env.example`                      | Copy to `backend/.env`                              |
-| Router paths         | `frontend/src/router/router-paths.ts`       | ROUTER_PATHS constant                               |
-| Image proxy          | `frontend/src/utils/image.ts`               | Routes through `/api/img`                           |
-| Watch links          | `frontend/src/utils/generate-watch-link.ts` | Kinobox canonical URLs                              |
-| Env validation       | `backend/src/utils/enviroments.ts`          | envalid; note the typo in filename                  |
-| Media page factories | `frontend/src/composables/factories/`       | `create-params-store.ts`, `create-records-store.ts` |
+| Task                 | Location                                    | Notes                                                   |
+| -------------------- | ------------------------------------------- | ------------------------------------------------------- |
+| Add backend feature  | `backend/src/modules/{name}/`               | See `backend/src/modules/AGENTS.md` for template        |
+| Add frontend page    | `frontend/src/pages/{feature}/`             | Each page = folder with .vue + composables/             |
+| Add UI primitive     | `frontend/src/components/ui/{name}/`        | shadcn-vue pattern: .vue files + index.ts barrel        |
+| Modify auth flow     | `backend/src/modules/auth/`                 | JWT in cookie, Twitch OAuth, guards                     |
+| Rate limiting        | `backend/src/modules/rate-limit/`           | Custom Redis limiter; presets in `utils/rate-limits.ts` |
+| Database schema      | `backend/prisma/schema.prisma`              | Run `bun prisma` after changes                          |
+| API types            | `frontend/src/lib/api.ts`                   | AUTO-GENERATED from Swagger. Never edit manually        |
+| Environment vars     | `backend/.env.example`                      | Copy to `backend/.env`                                  |
+| Router paths         | `frontend/src/router/router-paths.ts`       | ROUTER_PATHS constant                                   |
+| Image proxy          | `frontend/src/utils/image.ts`               | Routes through `/api/img`                               |
+| Watch links          | `frontend/src/utils/generate-watch-link.ts` | Kinobox canonical URLs                                  |
+| Env validation       | `backend/src/utils/enviroments.ts`          | envalid; note the typo in filename                      |
+| Media page factories | `frontend/src/composables/factories/`       | `create-params-store.ts`, `create-records-store.ts`     |
 
 ## CONVENTIONS
 
 - **Package manager**: Bun only. `bun install`, `bun dev`, `bun build`
-- **Formatter**: oxlint (linter) + oxfmt (formatter). Prettier disabled.
+- **Linter/Formatter**: oxlint + oxfmt. Prettier disabled.
 - **Quotes**: Single quotes enforced (`avoidEscape: false`)
 - **Imports**: Sorted by oxfmt `sortImports` — builtin → external → internal → parent/sibling → type → side-effect
 - **Brace style**: `1tbs`
@@ -50,20 +51,21 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **Vue blocks**: `<script setup lang="ts">` or `<template>` first, `<style>` last
 - **Vue file naming**: PascalCase for all `.vue` files (e.g., `AnimePage.vue`, `DataCards.vue`). Exceptions: `app.vue`. `.ts` files stay kebab-case.
 - **Vue events**: kebab-case enforced
-- **Stores**: Pinia stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
-- **Icons**: lucide-vue-next primary, vue3-simple-icons for brands. No other icon libs
+- **Stores**: Pinia 4 stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
+- **Icons**: @lucide/vue primary, vue3-simple-icons for brands. No other icon libs
 - **Path alias**: `@/` → `./src/` in both frontend and backend
-- **TypeScript**: Frontend strict, backend relaxed (decorators enabled)
+- **TypeScript**: Backend on TS 7 (native tsc). Frontend on TS 6 — vue-tsc does not support TS 7 yet; bump both when vue-tsc ships tsgo support
 - **API client**: Auto-generated via `swagger-typescript-api` from backend `/docs-json`. Regenerated on frontend dev start. Access via `useApi()` Pinia store
-- **Database**: Prisma models use `@@map()` for table names. Enum names in `backend/src/enums/enums.names.ts`
+- **Database**: Prisma 7 models use `@@map()` for table names. Enum names in `backend/src/enums/enums.names.ts`
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - **NEVER** edit `frontend/src/lib/api.ts` — it's auto-generated from Swagger
-- **NEVER** use icon libraries other than lucide-vue-next / vue3-simple-icons
+- **NEVER** use icon libraries other than @lucide/vue / vue3-simple-icons
 - **NEVER** edit `backend/prisma/migrations/migration_lock.toml`
 - **NEVER** commit `backend/.env` (contains secrets; .gitignore should exclude it but the file exists locally)
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
+- **NEVER** use `@nestjs/throttler` — it was removed; use `@RateLimit()` from `backend/src/modules/rate-limit/`
 - `CustomJwtModule` is imported twice in `app.module.ts` — harmless but known duplication
 - `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
 
@@ -72,7 +74,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ```bash
 # Development
 bun install                    # Install all deps
-docker compose -f docker-compose-dev.yml up -d  # Start postgres + adminer
+bun infra:start                # Start dev infra: postgres + redis + rustfs + adminer
+bun infra:stop                 # Stop dev infra
 cd backend && bun prisma generate && bun prisma migrate dev  # DB setup
 bun dev                        # Start frontend (5173) + backend (3000)
 
@@ -90,7 +93,9 @@ bun typecheck                  # TypeScript check (vue-tsc)
 
 # Database
 bun prisma                     # Migrate + generate (root script)
-cd backend && bun seed         # Seed DB
+
+# Tests
+cd backend && bun test         # Backend unit tests (bun test)
 
 # Docker
 docker build -t games-movies-database .
@@ -102,11 +107,11 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Backend serves built frontend via `ServeStaticModule` (frontend/dist). In production, single container serves everything
 - Frontend dev requires backend running first — Vite config auto-generates API client from `localhost:3000/docs-json` (retries 10x on failure)
 - Vite proxies `/api` and `/socket.io` to `localhost:3000` in dev
-- CI: push to master → SSH to server → `git pull` → `docker compose up -d --build`. Secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
+- CI: push to master → SSH to server → `git reset --hard origin/master` → `docker compose up -d --build --remove-orphans`. Secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
-- No tests exist. No test framework configured
-- Prisma `prestart` hook runs migrations + seed automatically
-- `predev` hook runs seed on every dev start
+- Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import
+- Prisma `prestart` hook runs `prisma migrate deploy` before `bun run start` (production); no seed
 - Dockerfile copies node binary into bun image for frontend build compatibility
-- ThrottlerGuard is globally applied (60 req/60s)
+- Rate limiting: custom `RateLimitGuard` (global `APP_GUARD`) backed by Redis (`Bun.redis`). Fixed window via Lua, presets in `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, spotify 20/min, twir 120/min). Fail-open when Redis is down. Client tracked by first `X-Forwarded-For` hop
+- Production `REDIS_URL=redis://redis:6379` is set in docker-compose.yml; dev defaults to `redis://localhost:6379`
 - Auth: JWT stored in httpOnly cookie named `token`. CORS allows localhost:3000 and :5173

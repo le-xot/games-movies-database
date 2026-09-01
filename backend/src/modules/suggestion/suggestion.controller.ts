@@ -1,15 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
+import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { SuggestionService } from '@/modules/suggestion/suggestion.service'
 import { UserSuggestionDTO } from '@/modules/suggestion/suggesttion.dto'
 import { UserEntity } from '@/modules/user/user.entity'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
+import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('suggestions')
 @Controller('suggestions')
@@ -23,7 +23,7 @@ export class SuggestionController {
   }
 
   @Post()
-  @Throttle({ default: THROTTLER_LIMITS.suggestion })
+  @RateLimit(RATE_LIMITS.suggestion)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns created suggestion' })
   async userSuggest(@Body() suggest: UserSuggestionDTO, @User() user: UserEntity): Promise<any> {

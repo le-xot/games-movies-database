@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Res } from '@nestjs/common'
-import { Throttle } from '@nestjs/throttler'
 import { ImgService } from '@/modules/img/img.service'
-import { THROTTLER_LIMITS } from '@/utils/throttler'
+import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
+import { RATE_LIMITS } from '@/utils/rate-limits'
 import type { Response } from 'express'
 
 @Controller('img')
@@ -9,7 +9,7 @@ export class ImgController {
   constructor(private readonly imgService: ImgService) {}
 
   @Get()
-  @Throttle({ default: THROTTLER_LIMITS.img })
+  @RateLimit(RATE_LIMITS.img)
   async getImageContent(@Query('urlEncoded') urlEncoded: string, @Res() res: Response) {
     const { buffer, contentType } = await this.imgService.getImageContent(urlEncoded)
 

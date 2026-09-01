@@ -37,6 +37,12 @@ services:
       - traefik.http.middlewares.gmd-rustfs-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.gmd-rustfs-redirect.redirectscheme.permanent=true
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
   admin:
     image: adminer
     restart: unless-stopped
@@ -71,9 +77,11 @@ services:
     depends_on:
       - postgres
       - rustfs
+      - redis
     env_file: .env
     environment:
       DATASOURCE_URL: postgresql://${POSTGRES_USER:-le_xot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lists}?schema=public
+      REDIS_URL: redis://redis:6379
     networks:
       - default
       - traefik
@@ -97,6 +105,7 @@ services:
 volumes:
   pgdata:
   rustfs_data:
+  redis_data:
 
 networks:
   traefik:

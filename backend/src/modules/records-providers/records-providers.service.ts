@@ -330,7 +330,7 @@ export class RecordsProvidersService {
     return this.fetchIGDBGame(`slug = "${id}"`)
   }
 
-  private async fetchIGDBFromSteam(appId: string) {
+  async fetchIGDBFromSteam(appId: string) {
     const accessToken = await this.twitch.getAppAccessToken()
 
     const body = `fields game; where uid = "${appId}" & external_game_source = 1; limit 1;`

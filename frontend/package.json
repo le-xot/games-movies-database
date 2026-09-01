@@ -11,14 +11,15 @@
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
-    "@lucide/vue": "1.7.0",
+    "@lucide/vue": "1.39.0",
     "@pinia/colada": "1.4.3",
     "@tailwindcss/postcss": "4.3.3",
     "@tailwindcss/vite": "4.3.3",
+    "@vue/devtools-api": "^8",
     "@vueuse/core": "14.4.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
-    "pinia": "3.0.4",
+    "pinia": "4.0.3",
     "reka-ui": "2.10.4",
     "socket.io-client": "4.8.3",
     "tailwind-merge": "3.6.0",

@@ -32,6 +32,9 @@ export const env = cleanEnv(process.env, {
 
   TWIR_API: str({ default: null }),
 
+  STEAM_API_KEY: str({ default: null }),
+  STEAM_ID: str({ default: null }),
+
   PROXY: str({ default: null }),
 
   S3_ENDPOINT: str({ default: 'http://rustfs:9000' }),

@@ -18,7 +18,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             set -e
-            cd /root/lexot/games-movies-database
+            cd /home/lexot/games-movies-database
             git fetch origin master
             git reset --hard origin/master
             docker compose up -d --build --remove-orphans

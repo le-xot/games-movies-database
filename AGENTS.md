@@ -14,7 +14,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ./
 ├── frontend/          # Vue 3 SPA (Vite, Tailwind 4, shadcn-vue)
 ├── backend/           # NestJS API (Prisma, JWT, Socket.IO)
-├── docker-compose.yml # Production stack (dokploy-network)
+├── docker-compose.yml # Production stack (Traefik via traefik-public network)
 ├── docker-compose-dev.yml # Dev: postgres + adminer
 ├── Dockerfile         # Multi-stage bun build (frontend → backend → serve)
 ├── .oxlintrc.json     # oxlint configuration (linting rules)
@@ -103,7 +103,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Frontend dev requires backend running first — Vite config auto-generates API client from `localhost:3000/docs-json` (retries 10x on failure)
 - Vite proxies `/api` and `/socket.io` to `localhost:3000` in dev
 - CI: push to master → SSH to server → `git pull` → `docker compose up -d --build`. Secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
-- Production docker-compose expects external `caddy` network (Caddy reverse proxy)
+- Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
 - No tests exist. No test framework configured
 - Prisma `prestart` hook runs migrations + seed automatically
 - `predev` hook runs seed on every dev start

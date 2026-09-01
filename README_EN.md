@@ -25,7 +25,7 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
 | Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Infrastructure | Docker, Bun, Caddy (reverse proxy), GitHub Actions                                                                    |
+| Infrastructure | Docker, Bun, Traefik (reverse proxy), GitHub Actions                                                                    |
 
 ## Quick Start
 
@@ -172,7 +172,7 @@ games-movies-database/
 │   │   ├── schema.prisma      # Database schema
 │   │   └── migrations/        # Prisma migrations
 │   └── package.json
-├── docker-compose.yml         # Production config (PostgreSQL + app + Caddy)
+├── docker-compose.yml         # Production config (PostgreSQL + app + Traefik)
 ├── docker-compose-dev.yml     # Dev environment (PostgreSQL + Adminer)
 ├── Dockerfile                 # Multi-stage build (frontend → backend → serve)
 ├── package.json               # Root package.json (workspaces)
@@ -351,10 +351,10 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 Production configuration in `docker-compose.yml` includes:
 
 - **PostgreSQL 17** with persistent volume
-- **Adminer** with Caddy reverse proxy (`adminer.le-xot.dev`)
-- **Application** with Caddy reverse proxy (`le-xot.dev`)
+- **Adminer** with Traefik reverse proxy (`adminer.le-xot.dev`)
+- **Application** with Traefik reverse proxy (`le-xot.dev`)
 
-Requires external `caddy` network for Caddy reverse proxy.
+Requires external `traefik-public` network (attachable overlay) for Traefik reverse proxy.
 
 ### GitHub Actions
 

@@ -21,10 +21,21 @@ services:
       RUSTFS_CONSOLE_ENABLE: 'true'
     networks:
       - default
-      - caddy
+      - traefik
     labels:
-      caddy: rustfs.le-xot.dev
-      caddy.reverse_proxy: '{{upstreams 9001}}'
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.gmd-rustfs.rule=Host(`rustfs.le-xot.dev`)
+      - traefik.http.routers.gmd-rustfs.entrypoints=websecure
+      - traefik.http.routers.gmd-rustfs.tls.certresolver=le
+      - traefik.http.routers.gmd-rustfs.service=gmd-rustfs
+      - traefik.http.services.gmd-rustfs.loadbalancer.server.port=9001
+      - traefik.http.routers.gmd-rustfs-web.rule=Host(`rustfs.le-xot.dev`)
+      - traefik.http.routers.gmd-rustfs-web.entrypoints=web
+      - traefik.http.routers.gmd-rustfs-web.service=gmd-rustfs
+      - traefik.http.routers.gmd-rustfs-web.middlewares=gmd-rustfs-redirect
+      - traefik.http.middlewares.gmd-rustfs-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.gmd-rustfs-redirect.redirectscheme.permanent=true
 
   admin:
     image: adminer
@@ -33,10 +44,21 @@ services:
       - postgres
     networks:
       - default
-      - caddy
+      - traefik
     labels:
-      caddy: adminer.le-xot.dev
-      caddy.reverse_proxy: '{{upstreams 8080}}'
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.gmd-adminer.rule=Host(`adminer.le-xot.dev`)
+      - traefik.http.routers.gmd-adminer.entrypoints=websecure
+      - traefik.http.routers.gmd-adminer.tls.certresolver=le
+      - traefik.http.routers.gmd-adminer.service=gmd-adminer
+      - traefik.http.services.gmd-adminer.loadbalancer.server.port=8080
+      - traefik.http.routers.gmd-adminer-web.rule=Host(`adminer.le-xot.dev`)
+      - traefik.http.routers.gmd-adminer-web.entrypoints=web
+      - traefik.http.routers.gmd-adminer-web.service=gmd-adminer
+      - traefik.http.routers.gmd-adminer-web.middlewares=gmd-adminer-redirect
+      - traefik.http.middlewares.gmd-adminer-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.gmd-adminer-redirect.redirectscheme.permanent=true
 
   application:
     build:
@@ -54,15 +76,29 @@ services:
       DATASOURCE_URL: postgresql://${POSTGRES_USER:-le_xot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lists}?schema=public
     networks:
       - default
-      - caddy
+      - traefik
     labels:
-      caddy: le-xot.dev
-      caddy.reverse_proxy: '{{upstreams 3000}}'
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.gmd-app.rule=Host(`le-xot.dev`)
+      - traefik.http.routers.gmd-app.entrypoints=websecure
+      - traefik.http.routers.gmd-app.tls.certresolver=le
+      - traefik.http.routers.gmd-app.middlewares=gmd-gzip
+      - traefik.http.routers.gmd-app.service=gmd-app
+      - traefik.http.services.gmd-app.loadbalancer.server.port=3000
+      - traefik.http.routers.gmd-app-web.rule=Host(`le-xot.dev`)
+      - traefik.http.routers.gmd-app-web.entrypoints=web
+      - traefik.http.routers.gmd-app-web.service=gmd-app
+      - traefik.http.routers.gmd-app-web.middlewares=gmd-app-redirect
+      - traefik.http.middlewares.gmd-app-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.gmd-app-redirect.redirectscheme.permanent=true
+      - traefik.http.middlewares.gmd-gzip.compress=true
 
 volumes:
   pgdata:
   rustfs_data:
 
 networks:
-  caddy:
+  traefik:
     external: true
+    name: traefik-public

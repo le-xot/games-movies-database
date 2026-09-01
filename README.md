@@ -25,7 +25,7 @@
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
 | Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Инфраструктура | Docker, Bun, RustFS (S3-хранилище), Caddy (reverse proxy), GitHub Actions                                             |
+| Инфраструктура | Docker, Bun, RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                                           |
 
 ## Быстрый старт
 
@@ -180,7 +180,7 @@ games-movies-database/
 │   │   ├── schema.prisma      # Схема базы данных
 │   │   └── migrations/        # Миграции Prisma
 │   └── package.json
-├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + приложение + Caddy)
+├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + приложение + Traefik)
 ├── docker-compose-dev.yml     # Dev окружение (PostgreSQL + Adminer)
 ├── Dockerfile                 # Многостадийная сборка (frontend → backend → serve)
 ├── package.json               # Корневой package.json (workspaces)
@@ -360,10 +360,10 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 
 - **PostgreSQL 17** с persistent volume
 - **RustFS** — S3-совместимое хранилище для изображений
-- **Adminer** с Caddy reverse proxy (`adminer.le-xot.dev`)
-- **Приложение** с Caddy reverse proxy (`le-xot.dev`)
+- **Adminer** с Traefik reverse proxy (`adminer.le-xot.dev`)
+- **Приложение** с Traefik reverse proxy (`le-xot.dev`)
 
-Требуется внешняя сеть `caddy` для Caddy reverse proxy.
+Требуется внешняя сеть `traefik-public` (attachable overlay) для Traefik reverse proxy.
 
 ### GitHub Actions
 

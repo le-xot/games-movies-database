@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer'
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
+import { ImgService } from '@/modules/img/img.service'
 import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordRepository } from '@/modules/record/repositories/record.repository'
@@ -12,7 +13,6 @@ import type {
   UpdateRecordsPayload,
   UpdateSuggestionsPayload,
 } from '@/modules/websocket/websocket.events'
-import { ImgService } from '@/modules/img/img.service'
 
 @Injectable()
 export class RecordService {

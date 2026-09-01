@@ -25,14 +25,18 @@
     "typescript": "6.0.2"
   },
   "devDependencies": {
-    "@types/node": "25.5.2",
-    "oxfmt": "0.43.0",
-    "oxlint": "1.58.0"
+    "@types/node": "26.4.0",
+    "oxfmt": "0.66.0",
+    "oxlint": "1.81.0"
   },
   "trustedDependencies": [
     "@nestjs/core",
+    "@parcel/watcher",
+    "@prisma/engines",
+    "prisma",
     "sass-embedded",
     "vite",
+    "vue-demi",
     "vue-tsc"
   ]
 }

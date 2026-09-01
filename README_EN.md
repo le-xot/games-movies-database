@@ -25,7 +25,7 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
 | Backend        | NestJS, Prisma ORM, PostgreSQL, Socket.IO, Sharp, JWT                                                                 |
-| Infrastructure | Docker, Bun, Traefik (reverse proxy), GitHub Actions                                                                    |
+| Infrastructure | Docker, Bun, Traefik (reverse proxy), GitHub Actions                                                                  |
 
 ## Quick Start
 

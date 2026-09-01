@@ -28,8 +28,17 @@ describe('RecordService', () => {
     mockRepo = createMock(RecordRepository)
     mockRecordsProvider = { prepareData: mock(() => {}) }
     mockEventEmitter = { emit: mock(() => {}) }
-    mockImgService = { getImageContent: mock(() => Promise.resolve({ buffer: Buffer.from([]), contentType: 'image/webp' })) }
-    service = new RecordService(mockRepo, mockRecordsProvider as any, mockEventEmitter as any, mockImgService as any)
+    mockImgService = {
+      getImageContent: mock(() =>
+        Promise.resolve({ buffer: Buffer.from([]), contentType: 'image/webp' }),
+      ),
+    }
+    service = new RecordService(
+      mockRepo,
+      mockRecordsProvider as any,
+      mockEventEmitter as any,
+      mockImgService as any,
+    )
   })
 
   describe('createRecordFromLink', () => {

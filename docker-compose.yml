@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres:17
     restart: unless-stopped
+    mem_limit: 512m
+    cpus: "0.5"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-le_xot}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -12,6 +14,8 @@ services:
   rustfs:
     image: rustfs/rustfs:latest
     restart: unless-stopped
+    mem_limit: 1g
+    cpus: "0.5"
     env_file: .env
     volumes:
       - rustfs_data:/data
@@ -40,12 +44,16 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    mem_limit: 256m
+    cpus: "0.25"
     volumes:
       - redis_data:/data
 
   admin:
     image: adminer
     restart: unless-stopped
+    mem_limit: 128m
+    cpus: "0.25"
     depends_on:
       - postgres
     networks:
@@ -74,6 +82,8 @@ services:
         BUN_LOCK_HASH: ${BUN_LOCK_HASH:-default}
     image: lexot/games-movies-database:latest
     restart: unless-stopped
+    mem_limit: 1g
+    cpus: "1.5"
     depends_on:
       - postgres
       - rustfs

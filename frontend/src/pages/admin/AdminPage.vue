@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { DownloadIcon, EyeIcon, EyeOffIcon, Gamepad2Icon, Loader2Icon, Trash2Icon, Tv } from '@lucide/vue'
+import {
+  DownloadIcon,
+  EyeIcon,
+  EyeOffIcon,
+  Gamepad2Icon,
+  Loader2Icon,
+  Trash2Icon,
+  Tv,
+} from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { TwitchIcon } from 'vue3-simple-icons'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
+import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,7 +27,6 @@ import {
 } from '@/components/ui/select'
 import { RecordGrade, RecordStatus, type UserEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
-import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 
 interface UserAccount {
   id: number
@@ -56,7 +64,9 @@ const isLoading = ref(true)
 const steamGames = ref<SteamGame[]>([])
 const existingAppIds = ref<Set<string>>(new Set())
 const selected = ref<Map<number, SelectedGame>>(new Map())
-const hiddenAppIds = ref<Set<number>>(new Set(JSON.parse(localStorage.getItem('steam-hidden') ?? '[]')))
+const hiddenAppIds = ref<Set<number>>(
+  new Set(JSON.parse(localStorage.getItem('steam-hidden') ?? '[]')),
+)
 const isLoadingSteam = ref(false)
 const isImporting = ref(false)
 const steamLoaded = ref(false)
@@ -64,24 +74,27 @@ const importResult = ref<{ created: number; failed: number } | null>(null)
 
 const badgeSelect = useBadgeSelect()
 const statusOptions = badgeSelect.options.status
-const gradeOptions = [
-  { value: '__none__', label: 'Нет оценки' },
-  ...badgeSelect.options.grade,
-]
+const gradeOptions = [{ value: '__none__', label: 'Нет оценки' }, ...badgeSelect.options.grade]
 
 const selectedCount = computed(() => selected.value.size)
 
 type FilterKind = 'all' | 'existing' | 'available' | 'hidden'
 const filter = ref<FilterKind>('all')
 
-const existingCount = computed(() =>
-  steamGames.value.filter((g) => existingAppIds.value.has(String(g.appid))).length,
+const existingCount = computed(
+  () => steamGames.value.filter((g) => existingAppIds.value.has(String(g.appid))).length,
 )
-const hiddenCount = computed(() =>
-  steamGames.value.filter((g) => hiddenAppIds.value.has(g.appid) && !existingAppIds.value.has(String(g.appid))).length,
+const hiddenCount = computed(
+  () =>
+    steamGames.value.filter(
+      (g) => hiddenAppIds.value.has(g.appid) && !existingAppIds.value.has(String(g.appid)),
+    ).length,
 )
-const availableCount = computed(() =>
-  steamGames.value.filter((g) => !existingAppIds.value.has(String(g.appid)) && !hiddenAppIds.value.has(g.appid)).length,
+const availableCount = computed(
+  () =>
+    steamGames.value.filter(
+      (g) => !existingAppIds.value.has(String(g.appid)) && !hiddenAppIds.value.has(g.appid),
+    ).length,
 )
 
 const sortedGames = computed(() => {
@@ -97,9 +110,13 @@ const filteredGames = computed(() => {
   if (filter.value === 'existing')
     return sortedGames.value.filter((g) => existingAppIds.value.has(String(g.appid)))
   if (filter.value === 'available')
-    return sortedGames.value.filter((g) => !existingAppIds.value.has(String(g.appid)) && !hiddenAppIds.value.has(g.appid))
+    return sortedGames.value.filter(
+      (g) => !existingAppIds.value.has(String(g.appid)) && !hiddenAppIds.value.has(g.appid),
+    )
   if (filter.value === 'hidden')
-    return sortedGames.value.filter((g) => hiddenAppIds.value.has(g.appid) && !existingAppIds.value.has(String(g.appid)))
+    return sortedGames.value.filter(
+      (g) => hiddenAppIds.value.has(g.appid) && !existingAppIds.value.has(String(g.appid)),
+    )
   return sortedGames.value
 })
 
@@ -313,28 +330,44 @@ function unhideGame(appId: number) {
           <div class="flex gap-2 mb-4">
             <button
               class="px-3 py-1.5 text-sm rounded-md transition-colors"
-              :class="filter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              :class="
+                filter === 'all'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80'
+              "
               @click="filter = 'all'"
             >
               Все ({{ steamGames.length }})
             </button>
             <button
               class="px-3 py-1.5 text-sm rounded-md transition-colors"
-              :class="filter === 'existing' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              :class="
+                filter === 'existing'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80'
+              "
               @click="filter = 'existing'"
             >
               В базе ({{ existingCount }})
             </button>
             <button
               class="px-3 py-1.5 text-sm rounded-md transition-colors"
-              :class="filter === 'available' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              :class="
+                filter === 'available'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80'
+              "
               @click="filter = 'available'"
             >
               Доступные ({{ availableCount }})
             </button>
             <button
               class="px-3 py-1.5 text-sm rounded-md transition-colors"
-              :class="filter === 'hidden' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'"
+              :class="
+                filter === 'hidden'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80'
+              "
               @click="filter = 'hidden'"
             >
               Скрытые ({{ hiddenCount }})
@@ -389,11 +422,7 @@ function unhideGame(appId: number) {
                 class="size-4 shrink-0 cursor-pointer disabled:cursor-not-allowed"
               />
 
-              <img
-                :src="game.img_icon_url"
-                :alt="game.name"
-                class="size-8 rounded shrink-0"
-              />
+              <img :src="game.img_icon_url" :alt="game.name" class="size-8 rounded shrink-0" />
 
               <div class="flex-1 min-w-0">
                 <div class="font-medium truncate">{{ game.name }}</div>
@@ -420,7 +449,11 @@ function unhideGame(appId: number) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem v-for="option in statusOptions" :key="option.value" :value="option.value">
+                    <SelectItem
+                      v-for="option in statusOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
                       {{ option.label }}
                     </SelectItem>
                   </SelectContent>

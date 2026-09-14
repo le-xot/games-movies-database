@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordType } from '@/enums'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 import { RecordRepository } from '@/modules/record/repositories/record.repository'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { env } from '@/utils/enviroments'
 import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
+import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 import type { UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
 
 interface SteamOwnedGamesResponse {

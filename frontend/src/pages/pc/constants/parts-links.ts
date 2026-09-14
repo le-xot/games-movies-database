@@ -14,6 +14,7 @@ import {
   Mouse,
   PcCase,
   Smartphone,
+  SquareAsterisk,
   Workflow,
   Webcam,
 } from '@lucide/vue'
@@ -93,6 +94,10 @@ const DEVICES: PartLink[] = [
   {
     name: 'AKKO 5087S',
     icon: Keyboard,
+  },
+  {
+    name: 'Akko V3 Penguin Tactile Silent',
+    icon: SquareAsterisk,
   },
   {
     name: 'VXE DragonFly R1 PRO',

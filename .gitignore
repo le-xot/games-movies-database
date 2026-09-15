@@ -72,8 +72,6 @@ vite.config.ts.timestamp-*.mjs
 backend/images/*
 !backend/images/.gitkeep
 
-backend/src/generated
-
 .superpowers
 
 # AI orchestrator state — keep only plans and knowledge

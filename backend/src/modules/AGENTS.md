@@ -8,7 +8,7 @@ Standard file set for new features:
 
 - `{name}.module.ts`: Dependency wiring
 - `{name}.controller.ts`: HTTP endpoints (DTO validation)
-- `{name}.service.ts`: Business logic (Prisma access)
+- `{name}.service.ts`: Business logic (Drizzle access)
 - `{name}.dto.ts`: Input validation schemas
 - `{name}.entity.ts`: Response shapes (optional)
 
@@ -19,7 +19,7 @@ Standard file set for new features:
 | **auth**              | 8     | Twitch/Kick OAuth, JWT, @Global() guards, @User() decorator |
 | **user**              | 5     | User CRUD, profile management, update-users events          |
 | **record**            | 5     | Media entries (games/movies), provider integration          |
-| **like**              | 5     | User favorites, $transaction cascade deletes                |
+| **like**              | 5     | User favorites, cascade deletes                             |
 | **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)    |
 | **auction**           | 3     | Real-time auction management logic                          |
 | **avatar**            | 3     | Avatar upload/delete via S3, Sharp image processing         |
@@ -39,7 +39,7 @@ Standard file set for new features:
 
 ## MODULE INTERACTIONS
 
-- **Database**: Most modules import `PrismaModule` for direct DB access.
+- **Database**: Most modules import `DrizzleModule` for direct DB access (inject `DrizzleService`).
 - **Identity**: `AuthModule` is global; `AuthGuard` provides user context.
 - **Events**: `EventEmitter2` triggers `update-*` events for cross-module sync.
 - **Broadcasting**: `WebsocketModule` listens for events to push UI updates.
@@ -47,7 +47,7 @@ Standard file set for new features:
 - **Dependencies**:
   - `RecordModule` -> `User`, `RecordsProviders`, `Websocket`
   - `LikeModule` -> `Record`, `User`, `Websocket`
-  - `SuggestionModule` -> `Prisma`, `User`, `RecordsProviders`, `Websocket`
+  - `SuggestionModule` -> `Drizzle`, `User`, `RecordsProviders`, `Websocket`
   - `TwirModule` -> `Suggestion`, `User`
   - `AvatarModule` -> `S3`, `User`
   - `ImgModule` -> `S3`

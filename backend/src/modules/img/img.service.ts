@@ -4,6 +4,10 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
 
+const POSTER_WIDTH = 300
+const POSTER_HEIGHT = 450
+const POSTER_QUALITY = 65
+
 @Injectable()
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
@@ -70,7 +74,10 @@ export class ImgService {
       }
 
       const fileContent = await response.arrayBuffer()
-      const imageBytes = await new Bun.Image(fileContent).resize(300, 450).webp().bytes()
+      const imageBytes = await new Bun.Image(fileContent)
+        .resize(POSTER_WIDTH, POSTER_HEIGHT)
+        .webp({ quality: POSTER_QUALITY })
+        .bytes()
 
       try {
         await this.s3Service.uploadFile(

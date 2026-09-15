@@ -66,8 +66,11 @@ Edit `backend/.env` — at minimum set `JWT_SECRET`. See [Environment Variables]
 ### 5. Database migration
 
 ```bash
+cp database/.env.example database/.env
 bun db:migrate
 ```
+
+The `database` workspace does not read `backend/.env`, so copy `database/.env.example` to `database/.env` (or export `DATASOURCE_URL`) before running migrations — `database/.env` is not committed.
 
 The database schema lives in `database/src/schema/`, migrations are generated into `database/migrations/` with `bun db:generate` after schema changes. If the database was previously managed by Prisma, run `bun db:baseline` once.
 

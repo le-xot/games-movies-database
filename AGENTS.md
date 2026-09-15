@@ -66,7 +66,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **NEVER** edit `frontend/src/lib/api.ts` — it's auto-generated from Swagger
 - **NEVER** use icon libraries other than @lucide/vue / vue3-simple-icons
 - **NEVER** edit `database/migrations/` manually — it is generated from `database/src/schema` via `bun db:generate`; CI fails on drift
-- **NEVER** use `unique()` for Prisma-era unique indexes — the real DB uses unique indexes (`uniqueIndex()`)
+- **NEVER** use `unique()` where the Prisma-era DB has a unique index — it creates a unique constraint; use `uniqueIndex()`
 - **NEVER** skip baseline on an existing Prisma-managed DB — `bun db:baseline` must run before the first deploy
 - **NEVER** commit `backend/.env` (contains secrets; .gitignore should exclude it but the file exists locally)
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
@@ -81,7 +81,6 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 bun install                    # Install all deps
 bun infra:start                # Start dev infra: postgres + redis + rustfs + adminer
 bun infra:stop                 # Stop dev infra
-bun db:migrate                 # DB setup: apply migrations to local DB
 bun dev                        # Start frontend (5173) + backend (3000)
 
 # Individual
@@ -97,6 +96,7 @@ bun format:check               # Check formatting (oxfmt)
 bun typecheck                  # TypeScript check (vue-tsc)
 
 # Database
+# Setup: cp database/.env.example database/.env (or export DATASOURCE_URL)
 bun db:generate                # Generate SQL migration from schema changes
 bun db:migrate                 # Apply pending migrations to DATASOURCE_URL
 bun db:baseline                # One-time: mark 0000_init applied on an existing DB

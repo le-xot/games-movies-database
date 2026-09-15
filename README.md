@@ -66,8 +66,11 @@ cp backend/.env.example backend/.env
 ### 5. Миграция базы данных
 
 ```bash
+cp database/.env.example database/.env
 bun db:migrate
 ```
+
+Воркспейс `database` не читает `backend/.env`, поэтому перед миграциями скопируйте `database/.env.example` в `database/.env` (или экспортируйте `DATASOURCE_URL`) — файл `database/.env` не коммитится.
 
 Схема базы данных описана в `database/src/schema/`, миграции генерируются в `database/migrations/` командой `bun db:generate` после изменения схемы. Если база ранее управлялась Prisma, однократно выполните `bun db:baseline`.
 

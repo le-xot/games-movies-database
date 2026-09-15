@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common'
-import { PrismaModule } from '@/database/prisma.module'
+import { DrizzleModule } from '@/database/drizzle.module'
 import { TwitchModule } from '@/modules/twitch/twitch.module'
 import { RecordsProvidersService } from './records-providers.service'
-import { PrismaRecordsProvidersRepository } from './repositories/prisma-records-providers.repository'
+import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
 import { RecordsProvidersRepository } from './repositories/records-providers.repository'
 
 @Module({
-  imports: [PrismaModule, TwitchModule],
+  imports: [DrizzleModule, TwitchModule],
   providers: [
     RecordsProvidersService,
-    { provide: RecordsProvidersRepository, useClass: PrismaRecordsProvidersRepository },
+    { provide: RecordsProvidersRepository, useClass: DrizzleRecordsProvidersRepository },
   ],
   exports: [RecordsProvidersService],
 })

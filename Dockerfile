@@ -32,7 +32,6 @@ COPY package.json ./
 COPY --from=runtime-deps /app/node_modules ./node_modules
 COPY --from=runtime-deps /app/backend/node_modules ./backend/node_modules
 COPY ./backend ./backend
-RUN cd backend && bunx prisma generate
 
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 

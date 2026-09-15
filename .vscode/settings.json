@@ -6,8 +6,5 @@
   },
   "oxc.enable": true,
   "oxc.lint.run": "onSave",
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  }
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

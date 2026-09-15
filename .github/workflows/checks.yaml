@@ -1,0 +1,50 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Cache bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: cd backend && bunx prisma generate
+
+      - name: Lint
+        run: bun lint
+
+      - name: Typecheck frontend
+        run: bun typecheck
+
+      - name: Typecheck backend
+        run: bun --filter=./backend run build
+
+      - name: Prepare test env
+        run: cp backend/.env.example backend/.env
+
+      - name: Test backend
+        run: bun --filter=./backend test

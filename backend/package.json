@@ -31,6 +31,7 @@
     "cookie-parser": "1.4.7",
     "envalid": "8.2.0",
     "pg": "8.23.0",
+    "prisma": "7.10.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "sharp": "0.35.4",
@@ -41,7 +42,6 @@
     "@types/cookie-parser": "1.4.10",
     "@types/express": "5.0.6",
     "@types/pg": "8.23.1",
-    "prisma": "7.10.0",
     "source-map-support": "0.5.21",
     "typescript": "7.0.2"
   }

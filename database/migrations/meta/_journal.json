@@ -8,6 +8,13 @@
       "when": 1789492070156,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789500816910,
+      "tag": "0001_remove_auction",
+      "breakpoints": true
     }
   ]
 }

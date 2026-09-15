@@ -110,19 +110,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     },
   })
 
-  const { mutateAsync: moveToAuction } = useMutation({
-    key: [SUGGESTION_QUERY_KEY, 'move-to-auction'],
-    mutation: async (id: number) => {
-      try {
-        error.value = null
-        return await api.records.recordControllerPatchRecord(id, { type: RecordType.AUCTION })
-      } catch (err: any) {
-        error.value = err.message || 'Неизвестная ошибка'
-        throw err
-      }
-    },
-  })
-
   const { mutateAsync: deleteOwnSuggestion } = useMutation({
     key: [SUGGESTION_QUERY_KEY, 'delete-own'],
     mutation: async (id: number) => {
@@ -163,17 +150,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     }
   }
 
-  async function handleMoveToAuction(id: number) {
-    try {
-      await moveToAuction(id)
-      toast('Успешно', { description: 'Совет отправлен на аукцион' })
-    } catch {
-      toast.error('Ошибка', {
-        description: error.value || 'Не удалось отправить совет на аукцион',
-      })
-    }
-  }
-
   async function handleApproveSuggestion(id: number) {
     try {
       await approveSuggestion(id)
@@ -192,7 +168,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     handleDeleteSuggestion,
     handleDeleteOwnSuggestion,
     handleApproveSuggestion,
-    handleMoveToAuction,
     openSuggestionDialog,
   }
 })

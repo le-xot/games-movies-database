@@ -87,25 +87,6 @@ describe('RecordService', () => {
       )
     })
 
-    it('emits update-auction event for AUCTION type', async () => {
-      const preparedData = {
-        title: 'Auction Item',
-        posterUrl: 'http://img',
-        genre: RecordGenre.GAME,
-      }
-      const created = makeRecord({ id: 12, type: RecordType.AUCTION, status: RecordStatus.QUEUE })
-
-      mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
-      mockRepo.create = mock(() => Promise.resolve(created))
-
-      await service.createRecordFromLink({ link: 'https://example.com' } as any)
-
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
-        'update-auction',
-        expect.objectContaining({ id: 12, action: 'created' }),
-      )
-    })
-
     it('persists the canonical link returned by the provider, not the raw input', async () => {
       const preparedData = {
         title: 'Canonical Movie',

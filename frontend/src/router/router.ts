@@ -47,11 +47,6 @@ export const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: ROUTER_PATHS.dbAuction,
-          component: () => import('@/pages/auction/AuctionPage.vue'),
-          meta: { requiresAdmin: true },
-        },
-        {
           path: ROUTER_PATHS.dbSuggestion,
           component: () => import('@/pages/suggestion/SuggestionPage.vue'),
         },

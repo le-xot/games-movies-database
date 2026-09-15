@@ -2,7 +2,6 @@ import { io } from 'socket.io-client'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
 import { useAnime } from '@/pages/anime/composables/use-anime'
-import { useAuctions } from '@/pages/auction/composables/use-auctions'
 import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
 import { useGames } from '@/pages/games/composables/use-games'
 import { useMovie } from '@/pages/movie/composables/use-movie'
@@ -19,15 +18,11 @@ export function useWebSocket() {
   const movieStore = useMovie()
   const gamesStore = useGames()
   const suggestionStore = useSuggestion()
-  const auctionStore = useAuctions()
   const userStore = useUser()
 
   const coalescer = createEventCoalescer({
     handlers: {
       suggestions: () => suggestionStore.refetchSuggestions(),
-      auction: () => {
-        if (userStore.isAdmin) auctionStore.refetchAuctions()
-      },
       user: () => userStore.refetchUser(),
       'records:ANIME': () => animeStore.refetchVideos(),
       'records:CARTOON': () => cartoonStore.refetchVideos(),
@@ -46,10 +41,6 @@ export function useWebSocket() {
       })
       .on('disconnect', () => {
         isConnected.value = false
-      })
-      .on('update-auction', () => {
-        coalescer.enqueue('suggestions')
-        coalescer.enqueue('auction')
       })
       .on('update-records', (payload?: { genre?: string }) => {
         if (payload?.genre) {

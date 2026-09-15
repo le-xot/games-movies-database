@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { BadRequestException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
@@ -37,7 +36,7 @@ const makeExistingRecord = (overrides: Partial<RecordDomain>): RecordDomain => (
   title: 'Test Anime',
   link: 'https://shikimori.one/animes/1',
   posterUrl: '',
-  type: RecordType.AUCTION,
+  type: RecordType.WRITTEN,
   genre: RecordGenre.ANIME,
   ...overrides,
 })
@@ -77,29 +76,6 @@ describe('RecordsProvidersService', () => {
   })
 
   describe('prepareData — duplicate check', () => {
-    it('throws when an existing record is found with AUCTION type', async () => {
-      const { findRecordByLinkAndGenre } = setupRepo(mockRepo, {
-        existingRecord: makeExistingRecord({ id: 1 }),
-      })
-
-      const restoreFetch = installFetch(shikimoriResponder(shikimoriAnime()))
-
-      try {
-        await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
-        ).rejects.toThrow(BadRequestException)
-        await expect(
-          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
-        ).rejects.toThrow('Уже есть в аукционе')
-        expect(findRecordByLinkAndGenre).toHaveBeenCalledWith(
-          'https://shikimori.one/animes/1',
-          RecordGenre.ANIME,
-        )
-      } finally {
-        restoreFetch()
-      }
-    })
-
     it('throws when an existing record is found with SUGGESTION type', async () => {
       setupRepo(mockRepo, {
         existingRecord: makeExistingRecord({ id: 2, type: RecordType.SUGGESTION }),

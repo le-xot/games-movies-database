@@ -28,14 +28,12 @@ export const recordStatusEnum = pgEnum('RecordStatus', [
 export const RecordType = {
   WRITTEN: 'WRITTEN',
   SUGGESTION: 'SUGGESTION',
-  AUCTION: 'AUCTION',
   ORDER: 'ORDER',
 } as const
 export type RecordType = (typeof RecordType)[keyof typeof RecordType]
 export const recordTypeEnum = pgEnum('RecordType', [
   RecordType.WRITTEN,
   RecordType.SUGGESTION,
-  RecordType.AUCTION,
   RecordType.ORDER,
 ])
 

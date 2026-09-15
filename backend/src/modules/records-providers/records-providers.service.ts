@@ -121,9 +121,6 @@ export class RecordsProvidersService {
   }
 
   private validateExistingRecord(record: RecordDomain) {
-    if (record.type === RecordType.AUCTION) {
-      throw new BadRequestException('Уже есть в аукционе')
-    }
     if (record.type === RecordType.SUGGESTION) {
       throw new BadRequestException('Уже есть в советах')
     }

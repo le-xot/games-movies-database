@@ -4,7 +4,6 @@ import { APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { AppController } from '@/app.controller'
-import { AuctionModule } from '@/modules/auction/auction.module'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { AvatarModule } from '@/modules/avatar/avatar.module'
 import { ImgModule } from '@/modules/img/img.module'
@@ -33,7 +32,6 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     }),
     EventEmitterModule.forRoot(),
     RateLimitModule,
-    AuctionModule,
     TwirModule,
     TwitchModule,
     KickModule,

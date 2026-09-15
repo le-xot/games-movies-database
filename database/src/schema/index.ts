@@ -1,4 +1,3 @@
-export * from './auctions-history'
 export * from './enums'
 export * from './likes'
 export * from './limits'

@@ -14,11 +14,6 @@ export enum LimitType {
   SUGGESTION = "SUGGESTION",
 }
 
-export enum UserRole {
-  USER = "USER",
-  ADMIN = "ADMIN",
-}
-
 export enum RecordGrade {
   DISLIKE = "DISLIKE",
   BEER = "BEER",
@@ -37,7 +32,6 @@ export enum RecordGenre {
 export enum RecordType {
   WRITTEN = "WRITTEN",
   SUGGESTION = "SUGGESTION",
-  AUCTION = "AUCTION",
   ORDER = "ORDER",
 }
 
@@ -48,6 +42,18 @@ export enum RecordStatus {
   NOTINTERESTED = "NOTINTERESTED",
   UNFINISHED = "UNFINISHED",
   DONE = "DONE",
+}
+
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export interface SuggestionCreateByTwirDTO {
+  /** @example "12345" */
+  userId: string;
+  /** @example "https://shikimori.one/animes/1943-paprika" */
+  link: string;
 }
 
 export interface UserEntity {
@@ -94,13 +100,6 @@ export interface RecordEntity {
   likes?: LikeEntity[] | null;
   /** @format date-time */
   createdAt: string;
-}
-
-export interface SuggestionCreateByTwirDTO {
-  /** @example "12345" */
-  userId: string;
-  /** @example "https://shikimori.one/animes/1943-paprika" */
-  link: string;
 }
 
 export interface UserSuggestionDTO {
@@ -512,40 +511,23 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
-  auction = {
+  twir = {
     /**
      * No description
      *
-     * @tags auction
-     * @name AuctionControllerGetAuctions
-     * @request GET:/auction
+     * @tags Twir
+     * @name TwirControllerCreateSuggestionWithTwir
+     * @request POST:/twir/suggestion
      */
-    auctionControllerGetAuctions: (params: RequestParams = {}) =>
-      this.http.request<RecordEntity[], any>({
-        path: `/auction`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags auction
-     * @name AuctionControllerGetWinner
-     * @request GET:/auction/winner
-     */
-    auctionControllerGetWinner: (
-      query: {
-        id: number;
-      },
+    twirControllerCreateSuggestionWithTwir: (
+      data: SuggestionCreateByTwirDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<RecordEntity, any>({
-        path: `/auction/winner`,
-        method: "GET",
-        query: query,
-        format: "json",
+      this.http.request<void, any>({
+        path: `/twir/suggestion`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };
@@ -619,26 +601,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/avatar/${userId}`,
         method: "GET",
-        ...params,
-      }),
-  };
-  twir = {
-    /**
-     * No description
-     *
-     * @tags Twir
-     * @name TwirControllerCreateSuggestionWithTwir
-     * @request POST:/twir/suggestion
-     */
-    twirControllerCreateSuggestionWithTwir: (
-      data: SuggestionCreateByTwirDTO,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<void, any>({
-        path: `/twir/suggestion`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
         ...params,
       }),
   };
@@ -1023,67 +985,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags records
-     * @name RecordControllerCreateRecord
-     * @request POST:/records
-     */
-    recordControllerCreateRecord: (data: number, params: RequestParams = {}) =>
-      this.http.request<RecordEntity, any>({
-        path: `/records`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags records
-     * @name RecordControllerGetAllRecords
-     * @request GET:/records
-     */
-    recordControllerGetAllRecords: (
-      query?: {
-        /** @example 1 */
-        id?: number;
-        /** @example "My Record" */
-        title?: string;
-        /** @example "https://example.com/record" */
-        link?: string;
-        /** @example "https://example.com/poster.jpg" */
-        posterUrl?: string;
-        status?: RecordStatus[];
-        type?: RecordType;
-        genre?: RecordGenre;
-        grade?: RecordGrade[];
-        /** @example "S01E01" */
-        episode?: string;
-        /** @example "minecraft" */
-        search?: string;
-        /** @example 1 */
-        page?: number;
-        /** @example 10 */
-        limit?: number;
-        /** @example "id" */
-        orderBy?: RecordControllerGetAllRecordsParamsOrderByEnum;
-        /** @example "asc" */
-        direction?: RecordControllerGetAllRecordsParamsDirectionEnum;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.http.request<GetAllRecordsDTO, any>({
-        path: `/records`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags records
      * @name RecordControllerFindRecordById
      * @request GET:/records/{id}
      */
@@ -1147,6 +1048,40 @@ export class Api<SecurityDataType extends unknown> {
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags records
+     * @name RecordControllerGetAllRecords
+     * @request GET:/records
+     */
+    recordControllerGetAllRecords: (
+      query?: {
+        status?: RecordStatus[];
+        type?: RecordType;
+        genre?: RecordGenre;
+        grade?: RecordGrade[];
+        /** @example "minecraft" */
+        search?: string;
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+        /** @example "id" */
+        orderBy?: RecordControllerGetAllRecordsParamsOrderByEnum;
+        /** @example "asc" */
+        direction?: RecordControllerGetAllRecordsParamsDirectionEnum;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetAllRecordsDTO, any>({
+        path: `/records`,
+        method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),

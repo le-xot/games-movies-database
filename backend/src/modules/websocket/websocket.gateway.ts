@@ -4,7 +4,6 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 import {
   WsEvents,
-  type UpdateAuctionPayload,
   type UpdateLikesPayload,
   type UpdateQueuePayload,
   type UpdateRecordsPayload,
@@ -21,11 +20,6 @@ export class WebsocketGateway {
   @OnEvent(WsEvents.UPDATE_LIKES)
   handleUpdateLikes(payload: UpdateLikesPayload) {
     this.server.emit(WsEvents.UPDATE_LIKES, payload)
-  }
-
-  @OnEvent(WsEvents.UPDATE_AUCTION)
-  handleUpdateAuction(payload: UpdateAuctionPayload) {
-    this.server.emit(WsEvents.UPDATE_AUCTION, payload)
   }
 
   @OnEvent(WsEvents.UPDATE_QUEUE)

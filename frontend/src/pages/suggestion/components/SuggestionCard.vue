@@ -4,7 +4,6 @@ import {
   Crown,
   Film,
   Gamepad2,
-  Gavel,
   Heart,
   JapaneseYen,
   ListOrdered,
@@ -181,12 +180,6 @@ function adminActions(item: RecordEntity) {
           },
         ]
       : []),
-    {
-      key: 'auction',
-      variant: 'secondary' as const,
-      icon: Gavel,
-      action: () => suggestion.handleMoveToAuction(item.id),
-    },
     {
       key: 'patch',
       variant: 'outline' as const,

@@ -8,7 +8,6 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 - **Authentication** — OAuth via Twitch and Kick, JWT in httpOnly cookies
 - **Real-time** — instant UI updates via Socket.IO
 - **Suggestion system** — users suggest new content for adding
-- **Auction** — real-time auction management
 - **Queue system** — item queue management
 - **Likes** — favorites with cascade deletion
 - **Profile** — account management, link/unlink providers, account deletion
@@ -128,7 +127,6 @@ games-movies-database/
 │   │   ├── pages/             # Application pages
 │   │   │   ├── admin/         # Admin panel
 │   │   │   ├── anime/         # Anime tracking
-│   │   │   ├── auction/       # Auction
 │   │   │   ├── auth/          # Authorization and callback
 │   │   │   ├── cartoon/       # Cartoon tracking
 │   │   │   ├── games/         # Games tracking
@@ -157,7 +155,6 @@ games-movies-database/
 │   │       ├── record/        # Media records
 │   │       ├── like/          # Likes/favorites
 │   │       ├── suggestion/    # Content suggestions
-│   │       ├── auction/       # Auction
 │   │       ├── queue/         # Item queue
 │   │       ├── twitch/        # Twitch API client
 │   │       ├── kick/          # Kick API client

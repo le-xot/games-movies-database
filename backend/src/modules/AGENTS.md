@@ -21,7 +21,6 @@ Standard file set for new features:
 | **record**            | 5     | Media entries (games/movies), provider integration          |
 | **like**              | 5     | User favorites, cascade deletes                             |
 | **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)    |
-| **auction**           | 3     | Real-time auction management logic                          |
 | **avatar**            | 3     | Avatar upload/delete via S3, Sharp image processing         |
 | **s3**                | 2     | S3/RustFS storage abstraction (upload, delete, exists)      |
 | **kick**              | 2     | Kick API client for user metadata                           |

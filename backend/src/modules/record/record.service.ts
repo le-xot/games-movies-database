@@ -9,7 +9,6 @@ import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-r
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import {
   WsEvents,
-  type UpdateAuctionPayload,
   type UpdateQueuePayload,
   type UpdateRecordsPayload,
   type UpdateSuggestionsPayload,
@@ -35,10 +34,6 @@ export class RecordService {
       id,
       action,
     } satisfies UpdateSuggestionsPayload)
-  }
-
-  private emitAuctionEvent(id: number, action: UpdateAuctionPayload['action']) {
-    this.eventEmitter.emit(WsEvents.UPDATE_AUCTION, { id, action } satisfies UpdateAuctionPayload)
   }
 
   private emitRecordsEvent(
@@ -69,7 +64,6 @@ export class RecordService {
       this.emitQueueEvent(createdData.id, 'created')
     if (createdData.type === RecordType.SUGGESTION)
       this.emitSuggestionsEvent(createdData.id, 'created')
-    if (createdData.type === RecordType.AUCTION) this.emitAuctionEvent(createdData.id, 'created')
     this.logger.log(
       `Record created id=${createdData.id} type=${createdData.type} status=${createdData.status}`,
     )
@@ -100,9 +94,6 @@ export class RecordService {
       this.emitQueueEvent(updatedRecord.id, 'updated')
     }
 
-    if (foundedRecord.type !== RecordType.AUCTION && updatedRecord.type === RecordType.AUCTION) {
-      this.emitAuctionEvent(updatedRecord.id, 'created')
-    }
     this.emitRecordsEvent(updatedRecord.id, updatedRecord.genre, 'updated')
     this.logger.log(`Record patched id=${id}`)
     return updatedRecord as RecordEntity
@@ -142,9 +133,6 @@ export class RecordService {
 
     if (foundedRecord.status === RecordStatus.QUEUE && foundedRecord.type === RecordType.WRITTEN) {
       this.emitQueueEvent(foundedRecord.id, 'deleted')
-    }
-    if (foundedRecord.type === RecordType.AUCTION) {
-      this.emitAuctionEvent(foundedRecord.id, 'deleted')
     }
     this.emitRecordsEvent(foundedRecord.id, foundedRecord.genre, 'deleted')
     this.logger.log(`Record deleted id=${id}`)

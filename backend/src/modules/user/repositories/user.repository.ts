@@ -1,6 +1,6 @@
 import { UserRole } from '@/enums'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
-import type { UserAccount } from '../../../generated/prisma/client'
+import type { userAccounts } from '@gmd/database/schema'
 
 export interface CreateUserData {
   login: string
@@ -27,6 +27,8 @@ export interface LinkPlatformData {
   platformLogin: string
   platformAvatar?: string
 }
+
+export type UserAccount = typeof userAccounts.$inferSelect
 
 export abstract class UserRepository {
   abstract findByPlatformId(platform: string, platformUserId: string): Promise<UserDomain | null>

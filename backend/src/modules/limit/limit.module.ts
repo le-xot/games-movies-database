@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common'
-import { PrismaModule } from '@/database/prisma.module'
+import { DrizzleModule } from '@/database/drizzle.module'
 import { LimitController } from '@/modules/limit/limit.controller'
 import { LimitService } from '@/modules/limit/limit.service'
 import { UserModule } from '@/modules/user/user.module'
+import { DrizzleLimitRepository } from './repositories/drizzle-limit.repository'
 import { LimitRepository } from './repositories/limit.repository'
-import { PrismaLimitRepository } from './repositories/prisma-limit.repository'
 
 @Module({
-  imports: [PrismaModule, UserModule],
+  imports: [DrizzleModule, UserModule],
   controllers: [LimitController],
   providers: [
     LimitService,
-    { provide: LimitRepository, useClass: PrismaLimitRepository },
-    PrismaLimitRepository,
+    { provide: LimitRepository, useClass: DrizzleLimitRepository },
+    DrizzleLimitRepository,
   ],
   exports: [LimitService],
 })

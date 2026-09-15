@@ -31,8 +31,17 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Generate Prisma client
-        run: cd backend && bunx prisma generate
+      - name: Typecheck database
+        run: bun --filter=./database run check
+
+      - name: Check migrations are up to date
+        env:
+          DATASOURCE_URL: postgresql://user:password@localhost:5432/db
+        run: |
+          cd database
+          bunx drizzle-kit generate --name ci-drift-check
+          cd ..
+          git diff --exit-code -- database/migrations
 
       - name: Lint
         run: bun lint

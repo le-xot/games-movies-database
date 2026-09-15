@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common'
-import { PrismaModule } from '@/database/prisma.module'
+import { DrizzleModule } from '@/database/drizzle.module'
 import { AuctionController } from '@/modules/auction/auction.controller'
 import { AuctionService } from '@/modules/auction/auction.service'
 import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
 import { UserModule } from '@/modules/user/user.module'
 import { AuctionRepository } from './repositories/auction.repository'
-import { PrismaAuctionRepository } from './repositories/prisma-auction.repository'
+import { DrizzleAuctionRepository } from './repositories/drizzle-auction.repository'
 
 @Module({
-  imports: [PrismaModule, UserModule, RecordsProvidersModule],
+  imports: [DrizzleModule, UserModule, RecordsProvidersModule],
   providers: [
     AuctionService,
-    { provide: AuctionRepository, useClass: PrismaAuctionRepository },
-    PrismaAuctionRepository,
+    { provide: AuctionRepository, useClass: DrizzleAuctionRepository },
+    DrizzleAuctionRepository,
   ],
   controllers: [AuctionController],
   exports: [AuctionService],

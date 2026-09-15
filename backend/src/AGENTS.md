@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-NestJS 12 API source directory. Boots Swagger, Prisma, Redis rate limiting, and 20 feature modules.
+NestJS 12 API source directory. Boots Swagger, Drizzle, Redis rate limiting, and 20 feature modules.
 
 ## STRUCTURE
 
@@ -11,8 +11,8 @@ backend/src/
 ├── main.ts              # Swagger (/docs, /reference), cookieParser, CORS, prefix /api
 ├── app.module.ts        # Root. Imports modules, ServeStatic, RateLimitGuard, EventEmitter
 ├── app.controller.ts    # Health check. Reads package.json version via Bun.file()
-├── database/            # PrismaModule + PrismaService ($connect on init)
-├── enums/               # enums.names.ts: String constants for Prisma enum types
+├── database/            # DrizzleModule + DrizzleService (pg.Pool + drizzle)
+├── enums/               # enums.names.ts: String constants for database enum types
 ├── utils/               # enviroments.ts (envalid, typo in filename), rate-limits.ts (presets)
 └── modules/             # Feature modules (see modules/AGENTS.md for details)
 ```
@@ -25,7 +25,7 @@ backend/src/
 | App Config  | `app.module.ts`        | Global guards, EventEmitter2, RateLimitGuard                  |
 | Rate Limits | `modules/rate-limit/`  | Redis fixed-window limiter; presets in `utils/rate-limits.ts` |
 | Auth Logic  | `modules/auth/`        | @Global() AuthService, JWT cookie ('token')                   |
-| DB Access   | `database/`            | Inject PrismaService into any provider                        |
+| DB Access   | `database/`            | Inject DrizzleService, use `.db`                              |
 | Env Schema  | `utils/enviroments.ts` | Defines required vars for envalid                             |
 | Real-time   | `modules/websocket/`   | Socket.io gateway for frontend updates                        |
 
@@ -44,6 +44,6 @@ backend/src/
 - **Imports**: `SpotifyModule` is commented out in `app.module.ts`.
 - **Typo**: Do not "fix" `utils/enviroments.ts` without updating every import.
 - **Duplicates**: `CustomJwtModule` is intentionally imported twice in `app.module.ts`.
-- **Prisma**: Never instantiate `PrismaClient` directly; always inject `PrismaService`.
+- **Drizzle**: Never instantiate a pg Pool outside `DrizzleService`; always inject it.
 - **Throttler**: `@nestjs/throttler` was removed — use `@RateLimit()` from `modules/rate-limit/`.
 - **Auth**: Avoid manual JWT parsing. Use the provided guards and `@User()` decorator.

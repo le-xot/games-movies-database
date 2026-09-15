@@ -4,7 +4,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { AppController } from '@/app.controller'
-import { PrismaModule } from '@/database/prisma.module'
+import { DrizzleModule } from '@/database/drizzle.module'
 import { AuctionModule } from '@/modules/auction/auction.module'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { AvatarModule } from '@/modules/avatar/avatar.module'
@@ -45,7 +45,7 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     AvatarModule,
     RecordModule,
     UserModule,
-    PrismaModule,
+    DrizzleModule,
     CustomJwtModule,
     LimitModule,
     LikeModule,

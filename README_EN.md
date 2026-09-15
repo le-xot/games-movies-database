@@ -24,7 +24,7 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 | Layer          | Technologies                                                                                                          |
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend        | NestJS 12, Prisma ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                       |
+| Backend        | NestJS 12, Drizzle ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                      |
 | Infrastructure | Docker, Bun, Redis (rate limiting), Traefik (reverse proxy), GitHub Actions                                           |
 
 ## Quick Start
@@ -66,10 +66,13 @@ Edit `backend/.env` — at minimum set `JWT_SECRET`. See [Environment Variables]
 ### 5. Database migration
 
 ```bash
-cd backend
-bun prisma generate
-bun prisma migrate dev
+cp database/.env.example database/.env
+bun db:migrate
 ```
+
+The `database` workspace does not read `backend/.env`, so copy `database/.env.example` to `database/.env` (or export `DATASOURCE_URL`) before running migrations — `database/.env` is not committed.
+
+The database schema lives in `database/src/schema/`, migrations are generated into `database/migrations/` with `bun db:generate` after schema changes. If the database was previously managed by Prisma, run `bun db:baseline` once.
 
 ### 6. Start development
 
@@ -150,8 +153,8 @@ games-movies-database/
 │   ├── src/
 │   │   ├── main.ts            # Entry point, Swagger, CORS, cookieParser
 │   │   ├── app.module.ts      # Root module
-│   │   ├── database/          # PrismaModule + PrismaService
-│   │   ├── enums/             # Constants for Prisma enums
+│   │   ├── database/          # DrizzleModule + DrizzleService
+│   │   ├── enums/             # Re-exports of enum constants from @gmd/database
 │   │   ├── utils/             # Environment validation (envalid)
 │   │   └── modules/           # Feature modules
 │   │       ├── auth/          # Twitch/Kick OAuth, JWT, guards
@@ -172,10 +175,13 @@ games-movies-database/
 │   │       ├── weather/       # Weather (OpenWeatherMap)
 │   │       ├── jwt/           # CustomJwtModule wrapper
 │   │       └── limit/         # Suggestion limits
-│   ├── prisma/
-│   │   ├── schema.prisma      # Database schema
-│   │   └── migrations/        # Prisma migrations
 │   └── package.json
+├── database/                  # Drizzle schema and migrations
+│   ├── src/
+│   │   ├── schema/            # Database schema (pgTable/pgEnum)
+│   │   ├── migrate.ts         # Applies migrations
+│   │   └── baseline.ts        # One-time baseline of an existing database
+│   └── migrations/            # Generated SQL migrations
 ├── docker-compose.yml         # Production config (PostgreSQL + Redis + app + Traefik)
 ├── docker-compose.dev.yml     # Dev environment (PostgreSQL + Redis + RustFS + Adminer)
 ├── Dockerfile                 # Multi-stage build (frontend → backend → serve)
@@ -199,7 +205,9 @@ games-movies-database/
 | `bun start:backend`  | Start backend in production mode               |
 | `bun infra:start`    | Dev infrastructure (postgres, redis, rustfs)   |
 | `bun infra:stop`     | Stop dev infrastructure                        |
-| `bun prisma`         | Run migrations + generate Prisma client        |
+| `bun db:generate`    | Generate SQL migration from schema changes     |
+| `bun db:migrate`     | Apply migrations to the database               |
+| `bun db:baseline`    | One-time baseline of an existing database      |
 | `bun lint`           | Run oxlint code check                          |
 | `bun lint:fix`       | Auto-fix oxlint issues                         |
 | `bun format`         | Format with oxfmt                              |
@@ -331,9 +339,11 @@ TWIR_API=your_api_key
 ### Database
 
 - PostgreSQL 17
-- Prisma ORM with migrations
-- Models use `@@map()` for table names
-- Enum constants in `backend/src/enums/enums.names.ts`
+- Drizzle ORM: schema in `database/src/schema/`, generated SQL migrations in `database/migrations/`
+- Migrations are generated from the schema with `bun db:generate` and applied with `bun db:migrate`
+- In production a one-shot `migrations` service applies migrations before `application` starts
+- An existing database requires a one-time `bun db:baseline` before the first deploy
+- Enum constants are defined via `pgEnum` in `database/src/schema/enums.ts`
 - Adminer available on port `54321` in dev mode
 
 ### Guards and Authorization
@@ -360,7 +370,7 @@ Production configuration in `docker-compose.yml` includes:
 - **Redis** — rate limiting (internal network, no exposed ports)
 - **RustFS** — S3-compatible storage for images
 - **Adminer** with Traefik reverse proxy (`adminer.le-xot.dev`)
-- **Application** with Traefik reverse proxy (`le-xot.dev`)
+- **migrations** — one-shot service: applies migrations before `application` starts
 - **Application** with Traefik reverse proxy (`le-xot.dev`)
 
 Requires external `traefik-public` network (attachable overlay) for Traefik reverse proxy.
@@ -399,5 +409,5 @@ To set up CI/CD, add secrets to GitHub:
 | Bun not installed                    | Use npm/pnpm as alternative package manager                                                                                     |
 | TypeScript errors                    | Run `bun install` and ensure all dependencies are installed                                                                     |
 | Frontend doesn't generate API client | Ensure backend is running on port 3000 (generation uses `/docs-json`)                                                           |
-| Prisma migration errors              | Run `cd backend && bun prisma migrate dev`                                                                                      |
+| Database migration errors            | Run `bun db:migrate` and check `database/migrations/`                                                                           |
 | Rate limits stopped working          | Check that Redis is running (`bun infra:start`): when Redis is down limits are disabled (fail-open), but the site keeps working |

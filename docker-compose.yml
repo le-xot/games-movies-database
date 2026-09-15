@@ -10,6 +10,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-lists}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-le_xot} -d ${POSTGRES_DB:-lists}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   rustfs:
     image: rustfs/rustfs:latest
@@ -49,6 +55,23 @@ services:
     volumes:
       - redis_data:/data
 
+  migrations:
+    build:
+      context: .
+      dockerfile: database/Dockerfile
+    image: lexot/games-movies-database-migrations:latest
+    restart: 'no'
+    mem_limit: 256m
+    cpus: '0.25'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATASOURCE_URL: postgresql://${POSTGRES_USER:-le_xot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lists}?schema=public
+    networks:
+      - default
+
   admin:
     image: adminer
     restart: unless-stopped
@@ -83,9 +106,14 @@ services:
     mem_limit: 1g
     cpus: '1.5'
     depends_on:
-      - postgres
-      - rustfs
-      - redis
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_started
+      redis:
+        condition: service_started
     env_file: .env
     environment:
       DATASOURCE_URL: postgresql://${POSTGRES_USER:-le_xot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lists}?schema=public

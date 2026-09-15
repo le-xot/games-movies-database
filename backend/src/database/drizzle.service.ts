@@ -12,6 +12,7 @@ export class DrizzleService implements OnModuleInit, OnModuleDestroy {
 
   constructor() {
     this.pool = new Pool({ connectionString: process.env.DATASOURCE_URL ?? '' })
+    this.pool.on('error', (error) => this.logger.error('Database pool error', error))
     this.db = drizzle(this.pool, { schema })
   }
 

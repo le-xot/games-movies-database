@@ -80,8 +80,14 @@ export class DrizzleRecordRepository extends RecordRepository {
   }
 
   async update(id: number, data: UpdateRecordData): Promise<RecordWithRelations> {
+    const values = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined),
+    ) as UpdateRecordData
+    if (Object.keys(values).length === 0) {
+      return await this.findById(id)
+    }
     return await this.drizzle.db.transaction(async (tx) => {
-      await tx.update(records).set(data).where(eq(records.id, id))
+      await tx.update(records).set(values).where(eq(records.id, id))
       return await tx.query.records.findFirst({
         where: eq(records.id, id),
         with: { likes: true },

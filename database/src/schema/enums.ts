@@ -11,9 +11,9 @@ export const RecordStatus = {
   QUEUE: 'QUEUE',
   PROGRESS: 'PROGRESS',
   DROP: 'DROP',
+  NOTINTERESTED: 'NOTINTERESTED',
   UNFINISHED: 'UNFINISHED',
   DONE: 'DONE',
-  NOTINTERESTED: 'NOTINTERESTED',
 } as const
 export type RecordStatus = (typeof RecordStatus)[keyof typeof RecordStatus]
 export const recordStatusEnum = pgEnum('RecordStatus', [

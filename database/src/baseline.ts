@@ -26,7 +26,8 @@ async function main() {
 
     await pool.query(`create schema if not exists "${MIGRATIONS_SCHEMA}"`)
     await pool.query(
-      `create table if not exists "${MIGRATIONS_SCHEMA}"."${MIGRATIONS_TABLE}" (id serial primary key, hash text not null, created_at bigint)`,
+      `create table if not exists "${MIGRATIONS_SCHEMA}"."${MIGRATIONS_TABLE}" ` +
+        `(id serial primary key, hash text not null, created_at bigint)`,
     )
 
     const existing = await pool.query(
@@ -47,7 +48,8 @@ async function main() {
     }
 
     await pool.query(
-      `insert into "${MIGRATIONS_SCHEMA}"."${MIGRATIONS_TABLE}" ("hash", "created_at") values ($1, $2)`,
+      `insert into "${MIGRATIONS_SCHEMA}"."${MIGRATIONS_TABLE}" ` +
+        `("hash", "created_at") values ($1, $2)`,
       [first.hash, first.folderMillis],
     )
     console.log(`✅ Baselined ${first.hash} with created_at=${first.folderMillis}`)

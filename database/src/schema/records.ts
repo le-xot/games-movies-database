@@ -1,4 +1,5 @@
 import { index, jsonb, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { currentTimestamp } from './defaults'
 import { recordGenreEnum, recordGradeEnum, recordStatusEnum, recordTypeEnum } from './enums'
 
 export const records = pgTable(
@@ -13,7 +14,7 @@ export const records = pgTable(
     genre: recordGenreEnum('genre'),
     grade: recordGradeEnum('grade'),
     episode: text('episode'),
-    createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
+    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
     extra: jsonb('extra'),
   },
   (table) => [index('records_title_idx').on(table.title)],

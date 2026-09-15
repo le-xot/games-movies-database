@@ -1,4 +1,5 @@
 import { foreignKey, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+import { currentTimestamp } from './defaults'
 import { platformEnum } from './enums'
 import { users } from './users'
 
@@ -11,7 +12,7 @@ export const userAccounts = pgTable(
     platformUserId: text('platformUserId').notNull(),
     platformLogin: text('platformLogin').notNull(),
     platformAvatar: text('platformAvatar'),
-    createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
+    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
   },
   (table) => [
     uniqueIndex('user_accounts_platform_platformUserId_key').on(

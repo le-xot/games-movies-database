@@ -7,6 +7,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
+import { currentTimestamp } from './defaults'
 import { records } from './records'
 import { users } from './users'
 
@@ -16,7 +17,7 @@ export const suggestionOwnerships = pgTable(
     id: serial('id').primaryKey(),
     recordId: integer('recordId').notNull(),
     userId: text('userId').notNull(),
-    createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
+    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
   },
   (table) => [
     uniqueIndex('suggestion_ownerships_recordId_key').on(table.recordId),

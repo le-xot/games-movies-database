@@ -1,4 +1,5 @@
 import { foreignKey, integer, pgTable, serial, timestamp } from 'drizzle-orm/pg-core'
+import { currentTimestamp } from './defaults'
 import { records } from './records'
 
 export const auctionsHistory = pgTable(
@@ -6,7 +7,7 @@ export const auctionsHistory = pgTable(
   {
     id: serial('id').primaryKey(),
     winnerId: integer('winnerId').notNull(),
-    createdAt: timestamp('createdAt', { precision: 3 }).defaultNow().notNull(),
+    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
   },
   (table) => [
     foreignKey({

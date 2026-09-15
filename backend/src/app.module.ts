@@ -20,6 +20,7 @@ import { RecordModule } from '@/modules/record/record.module'
 import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
 import { SteamModule } from '@/modules/steam/steam.module'
 import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
+import { TelegramModule } from '@/modules/telegram/telegram.module'
 import { TwirModule } from '@/modules/twir/twir.module'
 import { TwitchModule } from '@/modules/twitch/twitch.module'
 import { UserModule } from '@/modules/user/user.module'
@@ -38,6 +39,7 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     TwirModule,
     TwitchModule,
     KickModule,
+    TelegramModule,
     CustomJwtModule,
     AuthModule,
     AvatarModule,

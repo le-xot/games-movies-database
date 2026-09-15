@@ -9,6 +9,7 @@ export const RATE_LIMITS = {
   img: { ttl: RATE_LIMIT_TTL, limit: 3000 },
   spotify: { ttl: RATE_LIMIT_TTL, limit: 20 },
   twir: { ttl: RATE_LIMIT_TTL, limit: 120 },
+  telegramPoll: { ttl: RATE_LIMIT_TTL, limit: 120 },
 } as const
 
 export type RateLimitConfig = { ttl: number; limit: number }

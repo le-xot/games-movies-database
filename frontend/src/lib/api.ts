@@ -825,6 +825,62 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthControllerTelegramStart
+     * @request POST:/auth/telegram/start
+     */
+    authControllerTelegramStart: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/telegram/start`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTelegramLink
+     * @request POST:/auth/telegram/link
+     */
+    authControllerTelegramLink: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/telegram/link`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTelegramPoll
+     * @request POST:/auth/telegram/poll
+     */
+    authControllerTelegramPoll: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/telegram/poll`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerTelegramLinkPoll
+     * @request POST:/auth/telegram/link/poll
+     */
+    authControllerTelegramLinkPoll: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/auth/telegram/link/poll`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthControllerGetLinkedAccounts
      * @request GET:/auth/accounts
      */

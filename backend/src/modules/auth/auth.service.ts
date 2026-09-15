@@ -1,8 +1,11 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { ForbiddenException, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { KickService } from '@/modules/kick/kick.service'
+import { TelegramService } from '@/modules/telegram/telegram.service'
+import { formatTelegramLogin } from '@/modules/telegram/telegram.utils'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserService } from '@/modules/user/user.service'
+import type { TelegramAuthMode } from '@/modules/telegram/telegram.types'
 
 @Injectable()
 export class AuthService {
@@ -12,6 +15,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly twitch: TwitchService,
     private readonly kick: KickService,
+    private readonly telegram: TelegramService,
   ) {}
 
   private async signJwt(userId: string): Promise<string> {
@@ -108,5 +112,93 @@ export class AuthService {
 
     this.logger.log(`linkTwitchAccount: linked Twitch/${twitchUser.login} to userId=${userId}`)
     return twitchUser
+  }
+
+  async startTelegramAuth(
+    mode: TelegramAuthMode,
+    userId?: string,
+    origin?: string,
+  ): Promise<{ token: string; url: string }> {
+    this.telegram.assertConfigured()
+    const token = await this.telegram.createAuthToken(mode, userId, origin)
+    return { token, url: this.telegram.buildStartLink(token) }
+  }
+
+  async pollTelegramLogin(
+    token: string | undefined,
+  ): Promise<{ status: 'pending' } | { status: 'ok'; jwt: string }> {
+    if (!token) {
+      throw new HttpException('Missing telegram auth token', HttpStatus.BAD_REQUEST)
+    }
+
+    const pending = await this.telegram.getAuthToken(token)
+    if (!pending || pending.mode !== 'login') {
+      throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
+    }
+    if (pending.status === 'pending') {
+      return { status: 'pending' }
+    }
+
+    const record = await this.telegram.consumeAuthToken(token)
+    if (!record?.profile) {
+      throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
+    }
+
+    const profile = record.profile
+    await this.userService.upsertUser(
+      profile.id,
+      { login: formatTelegramLogin(profile), profileImageUrl: profile.photoUrl ?? '' },
+      'TELEGRAM',
+    )
+
+    const user = await this.userService.getUserByPlatformId('TELEGRAM', profile.id)
+    if (!user) {
+      throw new HttpException('Failed to find or create user', HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    const jwt = await this.signJwt(user.id)
+    this.logger.log(`Telegram auth completed for userId=${user.id}`)
+    return { status: 'ok', jwt }
+  }
+
+  async pollTelegramLink(
+    token: string | undefined,
+    userId: string,
+  ): Promise<{ status: 'pending' } | { status: 'ok' }> {
+    if (!token) {
+      throw new HttpException('Missing telegram auth token', HttpStatus.BAD_REQUEST)
+    }
+
+    const pending = await this.telegram.getAuthToken(token)
+    if (!pending || pending.mode !== 'link') {
+      throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
+    }
+    if (pending.status === 'pending') {
+      return { status: 'pending' }
+    }
+
+    const record = await this.telegram.consumeAuthToken(token)
+    if (!record?.profile) {
+      throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
+    }
+    if (record.userId !== userId) {
+      throw new ForbiddenException('Telegram link belongs to another session')
+    }
+
+    const accounts = await this.userService.getLinkedAccounts(userId)
+    if (accounts.some((account) => account.platform === 'TELEGRAM')) {
+      throw new HttpException('Telegram account is already linked', HttpStatus.CONFLICT)
+    }
+
+    const profile = record.profile
+    await this.userService.linkPlatformAccount(userId, {
+      platform: 'TELEGRAM',
+      platformUserId: profile.id,
+      platformLogin: formatTelegramLogin(profile),
+      platformAvatar: profile.photoUrl,
+    })
+
+    this.logger.log(`Telegram account ${profile.id} linked to userId=${userId}`)
+    return { status: 'ok' }
   }
 }

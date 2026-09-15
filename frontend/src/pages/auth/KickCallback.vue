@@ -2,6 +2,7 @@
 import { Loader2 } from '@lucide/vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 
@@ -43,14 +44,17 @@ onMounted(async () => {
 
   try {
     if (isLinking) {
-      await fetch('/api/auth/kick/link', {
+      const response = await fetch('/api/auth/kick/link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ code }),
       })
+      if (!response.ok) throw new Error('Не удалось привязать Kick')
+
       localStorage.removeItem('loginReturnUrl')
       await router.push(ROUTER_PATHS.profile)
+      toast.success('Аккаунт привязан', { description: 'Kick привязан к профилю' })
     } else {
       const response = await fetch('/api/auth/kick/callback', {
         method: 'POST',
@@ -66,6 +70,7 @@ onMounted(async () => {
       localStorage.removeItem('loginReturnUrl')
       await userApi.refetchUser()
       await router.push(returnUrl)
+      toast.success('Вход выполнен', { description: 'Вы вошли через Kick' })
     }
   } catch (e) {
     if (e instanceof Error) {

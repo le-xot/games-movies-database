@@ -30,11 +30,12 @@ export class UserService {
 
     if (foundUser) {
       if (!foundUser.hasCustomAvatar) {
-        const s3Key = await this.avatarService.fetchAndStoreOAuthAvatar(
-          foundUser.id,
-          data.profileImageUrl,
-        )
-        const profileImageUrl = s3Key ?? data.profileImageUrl
+        const s3Key = data.profileImageUrl
+          ? await this.avatarService.fetchAndStoreOAuthAvatar(foundUser.id, data.profileImageUrl)
+          : null
+        const profileImageUrl = data.profileImageUrl
+          ? (s3Key ?? data.profileImageUrl)
+          : foundUser.profileImageUrl
         const updatedUser = await this.userRepository.update(foundUser.id, {
           role: data.role,
           profileImageUrl,
@@ -58,10 +59,9 @@ export class UserService {
       return updatedUser
     }
 
-    const s3Key = await this.avatarService.fetchAndStoreOAuthAvatar(
-      platformId,
-      data.profileImageUrl,
-    )
+    const s3Key = data.profileImageUrl
+      ? await this.avatarService.fetchAndStoreOAuthAvatar(platformId, data.profileImageUrl)
+      : null
     const profileImageUrl = s3Key ?? data.profileImageUrl
 
     const createdUser = await this.userRepository.create({

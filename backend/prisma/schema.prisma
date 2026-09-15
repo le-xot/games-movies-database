@@ -186,4 +186,5 @@ enum ThirdPartService {
 enum Platform {
   TWITCH
   KICK
+  TELEGRAM
 }

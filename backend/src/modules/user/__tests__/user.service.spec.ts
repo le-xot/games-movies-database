@@ -105,6 +105,34 @@ describe('UserService', () => {
       expect(mockAvatarService.fetchAndStoreOAuthAvatar).not.toHaveBeenCalled()
     })
 
+    it('keeps the existing avatar when the oauth profile has no photo', async () => {
+      const existingUser: UserDomain = {
+        id: 'user-1',
+        login: 'old-login',
+        role: UserRole.USER,
+        profileImageUrl: 'old-url',
+        color: '#111111',
+        hasCustomAvatar: false,
+        createdAt: new Date('2024-01-01'),
+      }
+      const updatedUser: UserDomain = { ...existingUser }
+      const findByPlatformId = mock(() =>
+        Promise.resolve(existingUser),
+      ) as unknown as UserRepository['findByPlatformId']
+      const update = mock(() => Promise.resolve(updatedUser)) as unknown as UserRepository['update']
+      mockRepo.findByPlatformId = findByPlatformId
+      mockRepo.update = update
+
+      await service.upsertUser('user-1', { login: 'tg-user', profileImageUrl: '' }, 'TELEGRAM')
+
+      expect(update).toHaveBeenCalledWith('user-1', {
+        role: undefined,
+        profileImageUrl: 'old-url',
+        color: undefined,
+      })
+      expect(mockAvatarService.fetchAndStoreOAuthAvatar).not.toHaveBeenCalled()
+    })
+
     it('creates a user when no user exists', async () => {
       const createdUser: UserDomain = {
         id: 'user-2',

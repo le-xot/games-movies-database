@@ -24,6 +24,10 @@ import { User } from '@/modules/auth/auth.user.decorator'
 import { CallbackDto } from '@/modules/auth/dto/callback.dto'
 import { UpdateNicknameDTO } from '@/modules/auth/dto/update-nickname.dto'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
+import {
+  TELEGRAM_AUTH_COOKIE,
+  TELEGRAM_AUTH_TTL_SECONDS,
+} from '@/modules/telegram/telegram.constants'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
@@ -194,6 +198,66 @@ export class AuthController {
     }
   }
 
+  @Post('/telegram/start')
+  @RateLimit(RATE_LIMITS.auth)
+  async telegramStart(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const { token, url } = await this.authService.startTelegramAuth(
+      'login',
+      undefined,
+      req.headers.origin,
+    )
+    this.setTelegramAuthCookie(res, token)
+    return { url }
+  }
+
+  @Post('/telegram/link')
+  @RateLimit(RATE_LIMITS.auth)
+  @UseGuards(AuthGuard)
+  async telegramLink(
+    @Req() req: Request,
+    @User() user: UserEntity,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { token, url } = await this.authService.startTelegramAuth(
+      'link',
+      user.id,
+      req.headers.origin,
+    )
+    this.setTelegramAuthCookie(res, token)
+    return { url }
+  }
+
+  @Post('/telegram/poll')
+  @RateLimit(RATE_LIMITS.telegramPoll)
+  async telegramPoll(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const token = (req as any).cookies?.[TELEGRAM_AUTH_COOKIE]
+    const result = await this.authService.pollTelegramLogin(token)
+    if (result.status === 'pending') return result
+
+    res.cookie('token', result.jwt, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    })
+    res.clearCookie(TELEGRAM_AUTH_COOKIE)
+    return { status: 'ok' }
+  }
+
+  @Post('/telegram/link/poll')
+  @RateLimit(RATE_LIMITS.telegramPoll)
+  @UseGuards(AuthGuard)
+  async telegramLinkPoll(
+    @Req() req: Request,
+    @User() user: UserEntity,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = (req as any).cookies?.[TELEGRAM_AUTH_COOKIE]
+    const result = await this.authService.pollTelegramLink(token, user.id)
+    if (result.status === 'pending') return result
+
+    res.clearCookie(TELEGRAM_AUTH_COOKIE)
+    return { status: 'ok' }
+  }
+
   @Get('/accounts')
   @UseGuards(AuthGuard)
   getLinkedAccounts(@User() user: UserEntity) {
@@ -268,5 +332,14 @@ export class AuthController {
   logout(@Res() res: Response) {
     res.clearCookie('token')
     res.end()
+  }
+
+  private setTelegramAuthCookie(res: Response, token: string) {
+    res.cookie(TELEGRAM_AUTH_COOKIE, token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: env.NODE_ENV === 'production',
+      maxAge: TELEGRAM_AUTH_TTL_SECONDS * 1000,
+    })
   }
 }

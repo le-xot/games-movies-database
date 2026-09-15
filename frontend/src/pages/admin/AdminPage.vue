@@ -31,7 +31,7 @@ import { useApi } from '@/stores/use-api'
 interface UserAccount {
   id: number
   userId: string
-  platform: 'TWITCH' | 'KICK'
+  platform: 'TWITCH' | 'KICK' | 'TELEGRAM'
   platformUserId: string
   platformLogin: string
   platformAvatar: string | null

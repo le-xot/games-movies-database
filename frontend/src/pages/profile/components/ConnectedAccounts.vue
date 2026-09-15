@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Tv, Unlink } from '@lucide/vue'
 import { computed, onMounted, ref } from 'vue'
-import { TwitchIcon } from 'vue3-simple-icons'
+import { toast } from 'vue-sonner'
+import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
+import TelegramAuthDialog from '@/components/form/TelegramAuthDialog.vue'
 import { Button } from '@/components/ui/button'
 
 interface UserAccount {
@@ -17,9 +19,12 @@ const dialog = useDialog()
 
 const hasKick = computed(() => accounts.value.some((a) => a.platform === 'KICK'))
 const hasTwitch = computed(() => accounts.value.some((a) => a.platform === 'TWITCH'))
+const hasTelegram = computed(() => accounts.value.some((a) => a.platform === 'TELEGRAM'))
 const canUnlink = computed(() => accounts.value.length > 1)
 
-onMounted(async () => {
+onMounted(loadAccounts)
+
+async function loadAccounts() {
   try {
     const response = await fetch('/api/auth/accounts', {
       credentials: 'include',
@@ -32,7 +37,7 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-})
+}
 
 function connectKick() {
   window.location.href = `${window.location.origin}/api/auth/kick/link`
@@ -40,6 +45,15 @@ function connectKick() {
 
 function connectTwitch() {
   window.location.href = `${window.location.origin}/api/auth/twitch/link`
+}
+
+function connectTelegram() {
+  dialog.openDialog({
+    title: 'Подключение Telegram',
+    component: TelegramAuthDialog,
+    props: { mode: 'link', onSuccess: loadAccounts },
+    onSubmit: () => {},
+  })
 }
 
 function unlinkAccount(platform: string, platformLogin: string) {
@@ -54,6 +68,11 @@ function unlinkAccount(platform: string, platformLogin: string) {
         })
         if (response.ok) {
           accounts.value = accounts.value.filter((a) => a.platform !== platform)
+          toast.success('Аккаунт отвязан', {
+            description: `${platform} отвязан от профиля`,
+          })
+        } else {
+          toast.error('Не удалось отвязать аккаунт')
         }
       } catch (error) {
         console.error('Failed to unlink account:', error)
@@ -82,12 +101,14 @@ function unlinkAccount(platform: string, platformLogin: string) {
         />
         <div v-else class="size-10 rounded-full bg-muted flex items-center justify-center">
           <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-5" />
+          <TelegramIcon v-else-if="account.platform === 'TELEGRAM'" class="size-5" />
           <Tv v-else class="size-5 text-muted-foreground" />
         </div>
         <div class="flex-1">
           <div class="font-medium">{{ account.platformLogin }}</div>
           <div class="text-sm text-muted-foreground flex items-center gap-1.5">
             <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-3" />
+            <TelegramIcon v-else-if="account.platform === 'TELEGRAM'" class="size-3" />
             <Tv v-else class="size-3" />
             {{ account.platform }}
           </div>
@@ -106,6 +127,9 @@ function unlinkAccount(platform: string, platformLogin: string) {
       <Button v-if="!hasKick" variant="outline" @click="connectKick"> Подключить Kick </Button>
       <Button v-if="!hasTwitch" variant="outline" @click="connectTwitch">
         Подключить Twitch
+      </Button>
+      <Button v-if="!hasTelegram" variant="outline" @click="connectTelegram">
+        Подключить Telegram
       </Button>
     </div>
   </div>

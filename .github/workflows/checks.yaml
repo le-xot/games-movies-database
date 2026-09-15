@@ -47,4 +47,6 @@ jobs:
         run: cp backend/.env.example backend/.env
 
       - name: Test backend
-        run: bun --filter=./backend test
+        env:
+          NODE_ENV: development
+        run: cd backend && bun test

@@ -57,7 +57,17 @@ export class DrizzleUserRepository extends UserRepository {
   }
 
   async update(id: string, data: UpdateUserData): Promise<UserDomain> {
-    const [user] = await this.drizzle.db.update(users).set(data).where(eq(users.id, id)).returning()
+    const values = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined),
+    ) as UpdateUserData
+    if (Object.keys(values).length === 0) {
+      return await this.findById(id)
+    }
+    const [user] = await this.drizzle.db
+      .update(users)
+      .set(values)
+      .where(eq(users.id, id))
+      .returning()
     return user
   }
 

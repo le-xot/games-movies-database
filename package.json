@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "database"
   ],
   "type": "module",
   "scripts": {
@@ -14,7 +15,9 @@
     "build:frontend": "bun --filter=./frontend run build",
     "build:backend": "bun --filter=./backend run build",
     "start:backend": "bun --filter=./backend run start",
-    "prisma": "bun --filter=./backend run prisma migrate dev && bun --filter=./backend run prisma generate",
+    "db:generate": "bun --filter=./database run generate",
+    "db:migrate": "bun --filter=./database run migrate",
+    "db:baseline": "bun --filter=./database run baseline",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
@@ -34,8 +37,7 @@
   "trustedDependencies": [
     "@nestjs/core",
     "@parcel/watcher",
-    "@prisma/engines",
-    "prisma",
+    "esbuild",
     "sass-embedded",
     "vite",
     "vue-demi",

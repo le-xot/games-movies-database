@@ -34,42 +34,6 @@ export class TwitchService implements OnModuleInit {
     return data.data[0]
   }
 
-  async getTwitchUserById(id: string) {
-    const accessToken = await this.getAppAccessToken()
-    const response = await fetch(`https://api.twitch.tv/helix/users?id=${id}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Client-ID': env.TWITCH_CLIENT_ID,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user data from Twitch')
-    }
-
-    const data = await response.json()
-    return data.data[0]
-  }
-
-  async getTwitchUserByLogin(login: string) {
-    const accessToken = await this.getAppAccessToken()
-    const response = await fetch(`https://api.twitch.tv/helix/users?login=${login}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Client-ID': env.TWITCH_CLIENT_ID,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user data from Twitch')
-    }
-
-    const data = await response.json()
-    return data.data[0]
-  }
-
   async getAuthorizationCode(code: string) {
     const response = await fetch('https://id.twitch.tv/oauth2/token', {
       method: 'POST',
@@ -121,23 +85,5 @@ export class TwitchService implements OnModuleInit {
       this.logger.error('Error fetching Twitch app access token:', error as any)
       throw error
     }
-  }
-
-  async searchTwitchUsers(login: string) {
-    const accessToken = await this.getAppAccessToken()
-    const response = await fetch(`https://api.twitch.tv/helix/users?login=${login}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Client-ID': env.TWITCH_CLIENT_ID,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to search Twitch users: ${response.status}`)
-    }
-
-    const data = await response.json()
-    return data.data
   }
 }

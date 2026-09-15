@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick auth, Spotify integration, and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS 12 backend + PostgreSQL via Drizzle + Redis for rate limiting.
+Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick auth and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS 12 backend + PostgreSQL via Drizzle + Redis for rate limiting.
 
 ## STRUCTURE
 
@@ -71,7 +71,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **NEVER** commit `backend/.env` (contains secrets; .gitignore should exclude it but the file exists locally)
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
 - **NEVER** use `@nestjs/throttler` — it was removed; use `@RateLimit()` from `backend/src/modules/rate-limit/`
-- `CustomJwtModule` is imported twice in `app.module.ts` — harmless but known duplication
+- `CustomJwtModule` is a global wrapper around `@nestjs/jwt`; `JwtService` is available everywhere
 - `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
 
 ## COMMANDS
@@ -120,6 +120,6 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)
 - Existing Prisma-era DBs must be baselined once (`docker compose run --rm --no-deps migrations bun run baseline`); `_prisma_migrations` is intentionally kept for rollback
 - Dockerfile copies node binary into bun image for frontend build compatibility
-- Rate limiting: custom `RateLimitGuard` (global `APP_GUARD`) backed by Redis (`Bun.redis`). Fixed window via Lua, presets in `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, spotify 20/min, twir 120/min). Fail-open when Redis is down. Client tracked by first `X-Forwarded-For` hop
+- Rate limiting: custom `RateLimitGuard` (global `APP_GUARD`) backed by Redis (`Bun.redis`). Fixed window via Lua, presets in `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, twir 120/min). Fail-open when Redis is down. Client tracked by first `X-Forwarded-For` hop
 - Production `REDIS_URL=redis://redis:6379` is set in docker-compose.yml; dev defaults to `redis://localhost:6379`
 - Auth: JWT stored in httpOnly cookie named `token`. CORS allows localhost:3000 and :5173

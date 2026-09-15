@@ -1,46 +1,40 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { RecordGenre, RecordType } from '@/enums'
 import { QueueDto, QueueItemDto } from '@/modules/queue/queue.dto'
-import { QueueRepository } from './repositories/queue.repository'
+import { DrizzleQueueRepository } from './repositories/drizzle-queue.repository'
 
 @Injectable()
 export class QueueService {
   private readonly logger = new Logger(QueueService.name)
 
-  constructor(private readonly queueRepository: QueueRepository) {}
+  constructor(private readonly queueRepository: DrizzleQueueRepository) {}
 
   async getQueue(): Promise<QueueDto> {
     const records = await this.queueRepository.findQueueRecords(RecordType.WRITTEN)
+
+    const toQueueItem = (
+      record: (typeof records)[number],
+      genre: RecordGenre | null,
+    ): QueueItemDto => ({
+      title: record.title,
+      posterUrl: record.posterUrl,
+      createdAt: record.createdAt.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      link: record.link,
+      type: record.type,
+      genre,
+    })
 
     const games = records.filter((r) => r.genre === RecordGenre.GAME)
     const videos = records.filter((r) => r.genre !== RecordGenre.GAME && r.genre !== null)
 
     this.logger.log(`Queue fetched games=${games.length} videos=${videos.length}`)
     return {
-      games: games.map((g): QueueItemDto => ({
-        title: g.title,
-        posterUrl: g.posterUrl,
-        createdAt: g.createdAt.toLocaleDateString('ru-RU', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        link: g.link,
-        type: g.type,
-        genre: null,
-      })),
-      videos: videos.map((v): QueueItemDto => ({
-        title: v.title,
-        posterUrl: v.posterUrl,
-        createdAt: v.createdAt.toLocaleDateString('ru-RU', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        link: v.link,
-        type: v.type,
-        genre: v.genre,
-      })),
+      games: games.map((game) => toQueueItem(game, null)),
+      videos: videos.map((video) => toQueueItem(video, video.genre ?? null)),
     }
   }
 }

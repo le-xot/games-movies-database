@@ -1,16 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { AuctionRepository } from './repositories/auction.repository'
-import type {
-  UpdateAuctionPayload,
-  UpdateRecordsPayload,
+import {
+  WsEvents,
+  type UpdateAuctionPayload,
+  type UpdateRecordsPayload,
 } from '@/modules/websocket/websocket.events'
+import { DrizzleAuctionRepository } from './repositories/drizzle-auction.repository'
 
 @Injectable()
 export class AuctionService {
   private readonly logger = new Logger(AuctionService.name)
   constructor(
-    private readonly auctionRepository: AuctionRepository,
+    private readonly auctionRepository: DrizzleAuctionRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -22,11 +23,11 @@ export class AuctionService {
   async getWinner(id: number) {
     const winner = await this.auctionRepository.selectWinner(id)
 
-    this.eventEmitter.emit('update-auction', {
+    this.eventEmitter.emit(WsEvents.UPDATE_AUCTION, {
       id,
       action: 'ended',
     } satisfies UpdateAuctionPayload)
-    this.eventEmitter.emit('update-records', {
+    this.eventEmitter.emit(WsEvents.UPDATE_RECORDS, {
       genre: winner.genre,
       id,
       action: 'updated',

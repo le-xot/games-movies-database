@@ -5,7 +5,8 @@ COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
 COPY database/package.json ./database/
 RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
-    bun install --frozen-lockfile
+    bun install --frozen-lockfile --filter=./frontend && \
+    mkdir -p /app/frontend/node_modules
 
 FROM oven/bun:1-alpine AS runtime-deps
 WORKDIR /app

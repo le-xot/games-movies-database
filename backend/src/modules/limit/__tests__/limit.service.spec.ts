@@ -2,20 +2,22 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { LimitType } from '@/enums'
 import { LimitService } from '../limit.service'
-import { LimitRepository } from '../repositories/limit.repository'
+import { DrizzleLimitRepository } from '../repositories/drizzle-limit.repository'
 
 describe('LimitService', () => {
   let service: LimitService
-  let mockRepo: LimitRepository
+  let mockRepo: DrizzleLimitRepository
 
   beforeEach(() => {
-    mockRepo = createMock(LimitRepository)
+    mockRepo = createMock(DrizzleLimitRepository)
     service = new LimitService(mockRepo)
   })
 
   it('changeLimit calls repository.update with correct params', async () => {
     const mockResult: any = { name: LimitType.SUGGESTION, value: 5 }
-    const update = mock(() => Promise.resolve(mockResult)) as unknown as LimitRepository['update']
+    const update = mock(() =>
+      Promise.resolve(mockResult),
+    ) as unknown as DrizzleLimitRepository['update']
     mockRepo.update = update
 
     const result = await service.changeLimit({ name: LimitType.SUGGESTION, quantity: 5 })

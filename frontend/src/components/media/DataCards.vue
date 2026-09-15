@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Eraser, ExternalLink, Image, Pencil } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import BadgeSelect from '@/components/media/badge/BadgeSelect.vue'
+import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
+import MediaPoster from '@/components/media/MediaPoster.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -18,7 +20,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
 import { generateWatchLink } from '@/utils/generate-watch-link'
-import { getImageUrl } from '@/utils/image'
 
 const props = defineProps<{
   items: RecordEntity[]
@@ -35,29 +36,44 @@ const emit = defineEmits<{
 
 const { isAdmin } = storeToRefs(useUser())
 const dialog = useDialog()
+const { gradeTags } = useBadgeSelect()
 
-const editingEpisode = ref<{ id: number; value: string } | null>(null)
+interface EditState {
+  title: string
+  placeholder: string
+  maxWidth: string
+  value: string
+  save: (value: string) => void
+}
+
+const editing = ref<EditState | null>(null)
 
 function openEpisodeEdit(item: RecordEntity) {
-  editingEpisode.value = { id: item.id, value: item.episode ?? '' }
+  editing.value = {
+    title: 'Серии',
+    placeholder: 'S06E21',
+    maxWidth: 'sm:max-w-[300px]',
+    value: item.episode ?? '',
+    save: (value) => emit('update', { id: item.id, data: { episode: value } }),
+  }
 }
-
-function saveEpisodeEdit() {
-  if (!editingEpisode.value) return
-  emit('update', { id: editingEpisode.value.id, data: { episode: editingEpisode.value.value } })
-  editingEpisode.value = null
-}
-
-const editingPoster = ref<{ id: number; value: string } | null>(null)
 
 function openPosterEdit(item: RecordEntity) {
-  editingPoster.value = { id: item.id, value: '' }
+  editing.value = {
+    title: 'Обновить постер',
+    placeholder: 'https://example.com/poster.jpg',
+    maxWidth: 'sm:max-w-[400px]',
+    value: '',
+    save: (value) => {
+      if (value) emit('updatePoster', { id: item.id, url: value })
+    },
+  }
 }
 
-function savePosterEdit() {
-  if (!editingPoster.value || !editingPoster.value.value) return
-  emit('updatePoster', { id: editingPoster.value.id, url: editingPoster.value.value })
-  editingPoster.value = null
+function saveEdit() {
+  if (!editing.value) return
+  editing.value.save(editing.value.value)
+  editing.value = null
 }
 
 const spanTwoStatuses = [RecordStatus.NOTINTERESTED, RecordStatus.QUEUE, RecordStatus.PROGRESS]
@@ -75,11 +91,19 @@ function isPosterStatus(status?: RecordStatus): boolean {
 function handleDelete(item: RecordEntity) {
   dialog.openDialog({
     title: props.deleteConfirmTitle,
-    content: '',
     description: `Вы уверены, что хотите удалить ${item.title ? `"${item.title}"` : 'эту запись'}?`,
     onSubmit: () => emit('delete', item.id),
   })
 }
+
+const adminActions = computed(() => [
+  { key: 'delete', icon: Eraser, handler: handleDelete },
+  ...(props.hasEpisodeColumn ? [{ key: 'episode', icon: Pencil, handler: openEpisodeEdit }] : []),
+  { key: 'poster', icon: Image, handler: openPosterEdit },
+])
+
+const overlayButtonClass =
+  'bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60'
 
 function handleStatusUpdate(id: number, value: string | undefined) {
   emit('update', { id, data: { status: value as RecordStatus } })
@@ -93,21 +117,16 @@ function handleGradeToggle(
   emit('update', { id, data: { grade: currentGrade === newGrade ? (null as any) : newGrade } })
 }
 
-function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement
-  img.style.display = 'none'
-}
-
 function getInitials(title: string): string {
   return title.slice(0, 2).toUpperCase()
 }
 
-const gradeButtons: { grade: RecordGrade; emoji: string; bg: string; border: string }[] = [
-  { grade: RecordGrade.DISLIKE, emoji: '👎', bg: 'bg-[#6e3630]', border: 'border-[#6e3630]' },
-  { grade: RecordGrade.BEER, emoji: '🍺', bg: 'bg-[#89632a]', border: 'border-[#89632a]' },
-  { grade: RecordGrade.LIKE, emoji: '👍', bg: 'bg-[#2b593f]', border: 'border-[#2b593f]' },
-  { grade: RecordGrade.RECOMMEND, emoji: '🔥', bg: 'bg-[#28456c]', border: 'border-[#28456c]' },
-]
+const gradeOrder = [RecordGrade.DISLIKE, RecordGrade.BEER, RecordGrade.LIKE, RecordGrade.RECOMMEND]
+
+const gradeButtons = gradeOrder.map((grade) => {
+  const bg = gradeTags[grade].class?.replace(' border', '') ?? ''
+  return { grade, emoji: gradeTags[grade].name, bg, border: bg.replace('bg-', 'border-') }
+})
 
 const skeletonCount = 5
 </script>
@@ -143,41 +162,21 @@ const skeletonCount = 5
         class="bg-[var(--n-action-color)] overflow-hidden h-full"
       >
         <div class="flex flex-row sm:flex-col h-full">
-          <div
-            v-if="item.posterUrl"
-            class="relative w-[130px] sm:w-full flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
+          <MediaPoster
+            :url="item.posterUrl"
+            :label="getInitials(item.title)"
+            class="w-[130px] sm:w-full aspect-[2/3] rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
           >
-            <img
-              :src="getImageUrl(item.posterUrl)"
-              class="w-full h-full sm:h-auto object-cover aspect-[2/3] sm:aspect-[2/3] rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
-              alt=""
-              @error="handleImageError"
-            />
             <div v-if="isAdmin" class="absolute top-1 left-1 z-10 flex gap-1">
               <Button
+                v-for="action in adminActions"
+                :key="action.key"
                 variant="outline"
                 size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-                @click="handleDelete(item)"
+                :class="overlayButtonClass"
+                @click="action.handler(item)"
               >
-                <Eraser class="size-4" />
-              </Button>
-              <Button
-                v-if="hasEpisodeColumn"
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-                @click="openEpisodeEdit(item)"
-              >
-                <Pencil class="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-                @click="openPosterEdit(item)"
-              >
-                <Image class="size-4" />
+                <component :is="action.icon" class="size-4" />
               </Button>
             </div>
             <a
@@ -185,11 +184,7 @@ const skeletonCount = 5
               target="_blank"
               class="absolute bottom-1 left-1 z-10 flex items-center justify-center"
             >
-              <Button
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-              >
+              <Button variant="outline" size="icon" :class="overlayButtonClass">
                 <ExternalLink class="size-4" />
               </Button>
             </a>
@@ -201,63 +196,7 @@ const skeletonCount = 5
                 @update="(value) => handleStatusUpdate(item.id, value)"
               />
             </div>
-          </div>
-          <div
-            v-else
-            class="relative w-[130px] sm:w-full flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]"
-          >
-            <span class="text-white text-lg font-bold opacity-40">
-              {{ getInitials(item.title) }}
-            </span>
-            <div v-if="isAdmin" class="absolute top-1 left-1 z-10 flex gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-                @click="handleDelete(item)"
-              >
-                <Eraser class="size-4" />
-              </Button>
-              <Button
-                v-if="hasEpisodeColumn"
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-                @click="openEpisodeEdit(item)"
-              >
-                <Pencil class="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-                @click="openPosterEdit(item)"
-              >
-                <Image class="size-4" />
-              </Button>
-            </div>
-            <a
-              :href="item.link"
-              target="_blank"
-              class="absolute bottom-1 left-1 z-10 flex items-center justify-center"
-            >
-              <Button
-                variant="outline"
-                size="icon"
-                class="bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60"
-              >
-                <ExternalLink class="size-4" />
-              </Button>
-            </a>
-            <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-              <BadgeSelect
-                :value="item.status"
-                kind="status"
-                compact
-                @update="(value) => handleStatusUpdate(item.id, value)"
-              />
-            </div>
-          </div>
+          </MediaPoster>
 
           <div class="flex flex-col flex-1 gap-2 p-3 min-w-0">
             <CardHeader class="p-0">
@@ -326,38 +265,20 @@ const skeletonCount = 5
     </div>
   </div>
 
-  <Dialog :open="!!editingEpisode" @update:open="editingEpisode = null">
-    <DialogContent class="sm:max-w-[300px]">
+  <Dialog :open="!!editing" @update:open="editing = null">
+    <DialogContent :class="editing?.maxWidth">
       <DialogHeader>
-        <DialogTitle>Серии</DialogTitle>
+        <DialogTitle>{{ editing?.title }}</DialogTitle>
       </DialogHeader>
       <Input
-        v-if="editingEpisode"
-        v-model="editingEpisode.value"
-        placeholder="S06E21"
-        @keydown.enter="saveEpisodeEdit"
+        v-if="editing"
+        v-model="editing.value"
+        :placeholder="editing.placeholder"
+        @keydown.enter="saveEdit"
       />
       <DialogFooter>
-        <Button variant="outline" @click="editingEpisode = null">Отмена</Button>
-        <Button @click="saveEpisodeEdit">Сохранить</Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-
-  <Dialog :open="!!editingPoster" @update:open="editingPoster = null">
-    <DialogContent class="sm:max-w-[400px]">
-      <DialogHeader>
-        <DialogTitle>Обновить постер</DialogTitle>
-      </DialogHeader>
-      <Input
-        v-if="editingPoster"
-        v-model="editingPoster.value"
-        placeholder="https://example.com/poster.jpg"
-        @keydown.enter="savePosterEdit"
-      />
-      <DialogFooter>
-        <Button variant="outline" @click="editingPoster = null">Отмена</Button>
-        <Button @click="savePosterEdit">Сохранить</Button>
+        <Button variant="outline" @click="editing = null">Отмена</Button>
+        <Button @click="saveEdit">Сохранить</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

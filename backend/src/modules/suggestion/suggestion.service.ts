@@ -8,15 +8,15 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LimitType, RecordStatus, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { SuggestionRepository } from '@/modules/suggestion/repositories/suggestion.repository'
+import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
+import { WsEvents, type UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
 import type { RecordEntity } from '@/modules/record/record.entity'
-import type { UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class SuggestionService {
   private readonly logger = new Logger(SuggestionService.name)
   constructor(
-    private readonly suggestionRepository: SuggestionRepository,
+    private readonly suggestionRepository: DrizzleSuggestionRepository,
     private recordsProviderService: RecordsProvidersService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -24,6 +24,9 @@ export class SuggestionService {
   async userSuggest(data: { link: string; userId: string }) {
     this.logger.log(`User suggesting link=${data.link} userId=${data.userId}`)
     const limit = await this.suggestionRepository.findLimit(LimitType.SUGGESTION)
+    if (!limit) {
+      throw new BadRequestException('Лимит предложений не настроен')
+    }
 
     const suggestionsCount = await this.suggestionRepository.countUserSuggestions(
       data.userId,
@@ -43,12 +46,12 @@ export class SuggestionService {
         title: preparedData.title,
         posterUrl: preparedData.posterUrl,
         genre: preparedData.genre,
-        link: data.link,
+        link: preparedData.link,
       },
       data.userId,
     )
 
-    this.eventEmitter.emit('update-suggestions', {
+    this.eventEmitter.emit(WsEvents.UPDATE_SUGGESTIONS, {
       id: createdRecord.id,
       action: 'created',
     } satisfies UpdateSuggestionsPayload)
@@ -84,7 +87,7 @@ export class SuggestionService {
 
     await this.suggestionRepository.deleteSuggestionWithLikes(id)
 
-    this.eventEmitter.emit('update-suggestions', {
+    this.eventEmitter.emit(WsEvents.UPDATE_SUGGESTIONS, {
       id,
       action: 'deleted',
     } satisfies UpdateSuggestionsPayload)

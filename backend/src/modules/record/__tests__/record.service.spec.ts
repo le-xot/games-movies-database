@@ -3,7 +3,7 @@ import { NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordService } from '../record.service'
-import { RecordRepository } from '../repositories/record.repository'
+import { DrizzleRecordRepository } from '../repositories/drizzle-record.repository'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations => ({
@@ -19,13 +19,13 @@ const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelatio
 
 describe('RecordService', () => {
   let service: RecordService
-  let mockRepo: RecordRepository
+  let mockRepo: DrizzleRecordRepository
   let mockRecordsProvider: { prepareData: ReturnType<typeof mock> }
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
   let mockImgService: { getImageContent: ReturnType<typeof mock> }
 
   beforeEach(() => {
-    mockRepo = createMock(RecordRepository)
+    mockRepo = createMock(DrizzleRecordRepository)
     mockRecordsProvider = { prepareData: mock(() => {}) }
     mockEventEmitter = { emit: mock(() => {}) }
     mockImgService = {
@@ -103,6 +103,25 @@ describe('RecordService', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'update-auction',
         expect.objectContaining({ id: 12, action: 'created' }),
+      )
+    })
+
+    it('persists the canonical link returned by the provider, not the raw input', async () => {
+      const preparedData = {
+        title: 'Canonical Movie',
+        posterUrl: 'http://img',
+        genre: RecordGenre.MOVIE,
+        link: 'https://www.kinopoisk.ru/film/123',
+      }
+      const created = makeRecord({ id: 13, link: preparedData.link })
+
+      mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
+      mockRepo.create = mock(() => Promise.resolve(created))
+
+      await service.createRecordFromLink({ link: 'https://on.kinohub.vip/movie/123' } as any)
+
+      expect(mockRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ link: 'https://www.kinopoisk.ru/film/123' }),
       )
     })
   })

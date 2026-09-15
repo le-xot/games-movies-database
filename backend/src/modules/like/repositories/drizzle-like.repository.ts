@@ -4,13 +4,10 @@ import { Injectable } from '@nestjs/common'
 import { and, count, eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { LikeDomain } from '../entities/like.entity'
-import { LikeRepository } from './like.repository'
 
 @Injectable()
-export class DrizzleLikeRepository extends LikeRepository {
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+export class DrizzleLikeRepository {
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async findByUserAndRecord(userId: string, recordId: number): Promise<LikeDomain | null> {
     return (

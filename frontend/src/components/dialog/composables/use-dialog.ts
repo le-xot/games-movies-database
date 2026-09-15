@@ -7,8 +7,6 @@ interface DialogState {
   customContent?: any
   onSubmit: (formData?: any) => void
   onCancel?: () => void
-  content?: string
-  formData?: { title: string; description: string }
   component?: any
   props?: Record<string, any>
 }

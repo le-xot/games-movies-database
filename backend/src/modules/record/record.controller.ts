@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
@@ -39,24 +28,12 @@ export class RecordController {
     return await this.recordServices.createRecordFromLink(data)
   }
 
-  @Post()
-  @RateLimit(RATE_LIMITS.write)
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
-  @ApiResponse({ status: 201, type: RecordEntity })
-  async createRecord(@Body() id: number, record: RecordUpdateDTO): Promise<RecordEntity> {
-    return await this.recordServices.patchRecord(id, record)
-  }
-
   @Get(':id')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
   @ApiResponse({ status: 404, description: 'Record not found' })
   async findRecordById(@Param('id') id: number): Promise<RecordEntity> {
-    const record = await this.recordServices.findRecordById(id)
-    if (!record) {
-      throw new NotFoundException('Record not found')
-    }
-    return record
+    return await this.recordServices.findRecordById(id)
   }
 
   @Patch(':id')

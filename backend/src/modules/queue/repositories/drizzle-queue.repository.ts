@@ -4,13 +4,10 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordStatus, RecordType } from '@/enums'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
-import { QueueRepository } from './queue.repository'
 
 @Injectable()
-export class DrizzleQueueRepository extends QueueRepository {
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+export class DrizzleQueueRepository {
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async findQueueRecords(type: RecordType): Promise<RecordWithRelations[]> {
     return await this.drizzle.db.query.records.findMany({

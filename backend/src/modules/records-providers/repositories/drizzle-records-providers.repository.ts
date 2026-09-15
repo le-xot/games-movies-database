@@ -5,13 +5,10 @@ import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGenre } from '@/enums'
 import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 import { SuggestionRulesDomain } from '@/modules/suggestion/entities/suggestion-rules.entity'
-import { RecordsProvidersRepository } from './records-providers.repository'
 
 @Injectable()
-export class DrizzleRecordsProvidersRepository extends RecordsProvidersRepository {
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+export class DrizzleRecordsProvidersRepository {
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async findRecordByLinkAndGenre(link: string, genre: RecordGenre): Promise<RecordDomain | null> {
     return (

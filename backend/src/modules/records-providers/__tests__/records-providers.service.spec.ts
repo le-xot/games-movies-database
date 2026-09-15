@@ -4,7 +4,7 @@ import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 import { RecordsProvidersService } from '../records-providers.service'
-import { RecordsProvidersRepository } from '../repositories/records-providers.repository'
+import { DrizzleRecordsProvidersRepository } from '../repositories/drizzle-records-providers.repository'
 
 const makeMockTwitch = () => ({ getAppAccessToken: mock(() => Promise.resolve('token')) })
 
@@ -43,7 +43,7 @@ const makeExistingRecord = (overrides: Partial<RecordDomain>): RecordDomain => (
 })
 
 function setupRepo(
-  repo: RecordsProvidersRepository,
+  repo: DrizzleRecordsProvidersRepository,
   options: {
     existingRecord?: RecordDomain | null
     permission?: boolean
@@ -52,7 +52,7 @@ function setupRepo(
 ) {
   const findRecordByLinkAndGenre = mock(() =>
     Promise.resolve(options.existingRecord ?? null),
-  ) as unknown as RecordsProvidersRepository['findRecordByLinkAndGenre']
+  ) as unknown as DrizzleRecordsProvidersRepository['findRecordByLinkAndGenre']
   repo.findRecordByLinkAndGenre = findRecordByLinkAndGenre
 
   const findSuggestionRulesByGenre = mock(() =>
@@ -61,7 +61,7 @@ function setupRepo(
         ? options.rule
         : { genre: RecordGenre.ANIME, permission: options.permission ?? true },
     ),
-  ) as unknown as RecordsProvidersRepository['findSuggestionRulesByGenre']
+  ) as unknown as DrizzleRecordsProvidersRepository['findSuggestionRulesByGenre']
   repo.findSuggestionRulesByGenre = findSuggestionRulesByGenre
 
   return { findRecordByLinkAndGenre, findSuggestionRulesByGenre }
@@ -69,10 +69,10 @@ function setupRepo(
 
 describe('RecordsProvidersService', () => {
   let service: RecordsProvidersService
-  let mockRepo: RecordsProvidersRepository
+  let mockRepo: DrizzleRecordsProvidersRepository
 
   beforeEach(() => {
-    mockRepo = createMock(RecordsProvidersRepository)
+    mockRepo = createMock(DrizzleRecordsProvidersRepository)
     service = new RecordsProvidersService(mockRepo, makeMockTwitch() as any)
   })
 

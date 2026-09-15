@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
+import { parseApiError } from '@/utils/api-error'
 
 const dialog = useDialog()
 const suggestion = useSuggestion()
@@ -57,21 +58,7 @@ async function submitSuggestion(values: any) {
     form.resetForm()
     dialog.closeDialog()
   } catch (err: any) {
-    let message = 'Ошибка при отправке совета'
-
-    try {
-      if (err instanceof Response || (err && typeof err.json === 'function')) {
-        const errorData = await err.clone().json()
-        message = errorData.message || message
-      } else if (err.error && err.error.message) {
-        message = err.error.message
-      } else if (err.message) {
-        message = err.message
-      }
-    } catch (parseError) {
-      console.error('Failed to parse error response:', parseError)
-    }
-    errorMessage.value = message || suggestion.error || 'Ошибка при отправке совета'
+    errorMessage.value = await parseApiError(err, 'Ошибка при отправке совета')
   } finally {
     isSubmitting.value = false
   }

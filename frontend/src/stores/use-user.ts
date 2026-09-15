@@ -61,12 +61,9 @@ export const useUser = defineStore('globals/use-user', () => {
     onSuccess: () => refetchUser(),
   })
 
-  const userRole = computed(() => user.value?.role)
-
   return {
     isLoading,
     user,
-    userRole,
     isLoggedIn,
     isAdmin,
     isRealAdmin,

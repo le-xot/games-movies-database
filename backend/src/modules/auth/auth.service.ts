@@ -5,7 +5,8 @@ import { TelegramService } from '@/modules/telegram/telegram.service'
 import { formatTelegramLogin } from '@/modules/telegram/telegram.utils'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserService } from '@/modules/user/user.service'
-import type { TelegramAuthMode } from '@/modules/telegram/telegram.types'
+import type { TelegramAuthMode, TelegramAuthRecord } from '@/modules/telegram/telegram.types'
+import type { UserDomain } from '@/modules/user/entities/user-domain.entity'
 
 @Injectable()
 export class AuthService {
@@ -18,24 +19,23 @@ export class AuthService {
     private readonly telegram: TelegramService,
   ) {}
 
-  private async signJwt(userId: string): Promise<string> {
+  private signJwt(userId: string): Promise<string> {
     this.logger.log(`Signing JWT for userId=${userId}`)
-    const foundedUser = await this.userService.getUserById(userId)
-    if (!foundedUser) {
-      throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED)
-    }
+    return this.jwtService.signAsync({ id: userId })
+  }
 
-    const payload = { id: foundedUser.id }
-
-    return await this.jwtService.signAsync(payload)
+  private async completeLogin(provider: string, user: UserDomain): Promise<string> {
+    const token = await this.signJwt(user.id)
+    this.logger.log(`${provider} auth completed for userId=${user.id}`)
+    return token
   }
 
   async handleTwitchCallback(code: string) {
     this.logger.log('Handling Twitch auth callback')
-    const autorizationCode = await this.twitch.getAuthorizationCode(code)
-    const twitchUser = await this.twitch.getTwitchUser(autorizationCode)
+    const authorizationCode = await this.twitch.getAuthorizationCode(code)
+    const twitchUser = await this.twitch.getTwitchUser(authorizationCode)
 
-    await this.userService.upsertUser(
+    const user = await this.userService.upsertUser(
       twitchUser.id,
       {
         login: twitchUser.login,
@@ -44,14 +44,7 @@ export class AuthService {
       'TWITCH',
     )
 
-    const user = await this.userService.getUserByPlatformId('TWITCH', twitchUser.id)
-    if (!user) {
-      throw new HttpException('Failed to find or create user', HttpStatus.INTERNAL_SERVER_ERROR)
-    }
-
-    const token = await this.signJwt(user.id)
-    this.logger.log(`Twitch auth callback handled for userId=${user.id}`)
-    return token
+    return this.completeLogin('Twitch', user)
   }
 
   async handleKickCallback(code: string, codeVerifier: string) {
@@ -59,7 +52,7 @@ export class AuthService {
     const accessToken = await this.kick.getAuthorizationCode(code, codeVerifier)
     const kickUser = await this.kick.getKickUser(accessToken)
 
-    await this.userService.upsertUser(
+    const user = await this.userService.upsertUser(
       kickUser.user_id.toString(),
       {
         login: kickUser.name,
@@ -68,14 +61,7 @@ export class AuthService {
       'KICK',
     )
 
-    const user = await this.userService.getUserByPlatformId('KICK', kickUser.user_id.toString())
-    if (!user) {
-      throw new HttpException('Failed to find or create user', HttpStatus.INTERNAL_SERVER_ERROR)
-    }
-
-    const token = await this.signJwt(user.id)
-    this.logger.log(`Kick auth callback handled for userId=${user.id}`)
-    return token
+    return this.completeLogin('Kick', user)
   }
 
   async linkKickAccount(userId: string, code: string, codeVerifier: string) {
@@ -124,15 +110,16 @@ export class AuthService {
     return { token, url: this.telegram.buildStartLink(token) }
   }
 
-  async pollTelegramLogin(
+  private async resolveTelegramToken(
     token: string | undefined,
-  ): Promise<{ status: 'pending' } | { status: 'ok'; jwt: string }> {
+    mode: TelegramAuthMode,
+  ): Promise<{ status: 'pending' } | { status: 'ready'; record: TelegramAuthRecord }> {
     if (!token) {
       throw new HttpException('Missing telegram auth token', HttpStatus.BAD_REQUEST)
     }
 
     const pending = await this.telegram.getAuthToken(token)
-    if (!pending || pending.mode !== 'login') {
+    if (!pending || pending.mode !== mode) {
       throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
     }
     if (pending.status === 'pending') {
@@ -143,21 +130,23 @@ export class AuthService {
     if (!record?.profile) {
       throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
     }
+    return { status: 'ready', record }
+  }
 
-    const profile = record.profile
-    await this.userService.upsertUser(
+  async pollTelegramLogin(
+    token: string | undefined,
+  ): Promise<{ status: 'pending' } | { status: 'ok'; jwt: string }> {
+    const result = await this.resolveTelegramToken(token, 'login')
+    if (result.status === 'pending') return result
+
+    const { profile } = result.record
+    const user = await this.userService.upsertUser(
       profile.id,
       { login: formatTelegramLogin(profile), profileImageUrl: profile.photoUrl ?? '' },
       'TELEGRAM',
     )
 
-    const user = await this.userService.getUserByPlatformId('TELEGRAM', profile.id)
-    if (!user) {
-      throw new HttpException('Failed to find or create user', HttpStatus.INTERNAL_SERVER_ERROR)
-    }
-
-    const jwt = await this.signJwt(user.id)
-    this.logger.log(`Telegram auth completed for userId=${user.id}`)
+    const jwt = await this.completeLogin('Telegram', user)
     return { status: 'ok', jwt }
   }
 
@@ -165,32 +154,20 @@ export class AuthService {
     token: string | undefined,
     userId: string,
   ): Promise<{ status: 'pending' } | { status: 'ok' }> {
-    if (!token) {
-      throw new HttpException('Missing telegram auth token', HttpStatus.BAD_REQUEST)
-    }
+    const result = await this.resolveTelegramToken(token, 'link')
+    if (result.status === 'pending') return result
 
-    const pending = await this.telegram.getAuthToken(token)
-    if (!pending || pending.mode !== 'link') {
-      throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
-    }
-    if (pending.status === 'pending') {
-      return { status: 'pending' }
-    }
-
-    const record = await this.telegram.consumeAuthToken(token)
-    if (!record?.profile) {
-      throw new HttpException('Telegram auth link expired', HttpStatus.GONE)
-    }
+    const { record } = result
     if (record.userId !== userId) {
       throw new ForbiddenException('Telegram link belongs to another session')
     }
 
+    const { profile } = record
     const accounts = await this.userService.getLinkedAccounts(userId)
     if (accounts.some((account) => account.platform === 'TELEGRAM')) {
       throw new HttpException('Telegram account is already linked', HttpStatus.CONFLICT)
     }
 
-    const profile = record.profile
     await this.userService.linkPlatformAccount(userId, {
       platform: 'TELEGRAM',
       platformUserId: profile.id,

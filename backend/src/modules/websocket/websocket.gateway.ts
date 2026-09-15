@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
-import type {
-  UpdateAuctionPayload,
-  UpdateLikesPayload,
-  UpdateQueuePayload,
-  UpdateRecordsPayload,
-  UpdateSuggestionsPayload,
-  UpdateUsersPayload,
+import {
+  WsEvents,
+  type UpdateAuctionPayload,
+  type UpdateLikesPayload,
+  type UpdateQueuePayload,
+  type UpdateRecordsPayload,
+  type UpdateSuggestionsPayload,
+  type UpdateUsersPayload,
 } from '@/modules/websocket/websocket.events'
 
 @Injectable()
@@ -17,33 +18,33 @@ export class WebsocketGateway {
   @WebSocketServer()
   server: Server
 
-  @OnEvent('update-likes')
+  @OnEvent(WsEvents.UPDATE_LIKES)
   handleUpdateLikes(payload: UpdateLikesPayload) {
-    this.server.emit('update-likes', payload)
+    this.server.emit(WsEvents.UPDATE_LIKES, payload)
   }
 
-  @OnEvent('update-auction')
+  @OnEvent(WsEvents.UPDATE_AUCTION)
   handleUpdateAuction(payload: UpdateAuctionPayload) {
-    this.server.emit('update-auction', payload)
+    this.server.emit(WsEvents.UPDATE_AUCTION, payload)
   }
 
-  @OnEvent('update-queue')
+  @OnEvent(WsEvents.UPDATE_QUEUE)
   handleUpdateQueue(payload: UpdateQueuePayload) {
-    this.server.emit('update-queue', payload)
+    this.server.emit(WsEvents.UPDATE_QUEUE, payload)
   }
 
-  @OnEvent('update-suggestions')
+  @OnEvent(WsEvents.UPDATE_SUGGESTIONS)
   handleUpdateSuggestion(payload: UpdateSuggestionsPayload) {
-    this.server.emit('update-suggestions', payload)
+    this.server.emit(WsEvents.UPDATE_SUGGESTIONS, payload)
   }
 
-  @OnEvent('update-records')
+  @OnEvent(WsEvents.UPDATE_RECORDS)
   handleUpdateRecord(payload: UpdateRecordsPayload) {
-    this.server.emit('update-records', payload)
+    this.server.emit(WsEvents.UPDATE_RECORDS, payload)
   }
 
-  @OnEvent('update-users')
+  @OnEvent(WsEvents.UPDATE_USERS)
   handleUpdateUsers(payload: UpdateUsersPayload) {
-    this.server.emit('update-users', payload)
+    this.server.emit(WsEvents.UPDATE_USERS, payload)
   }
 }

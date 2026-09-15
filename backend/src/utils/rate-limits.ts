@@ -7,7 +7,6 @@ export const RATE_LIMITS = {
   like: { ttl: RATE_LIMIT_TTL, limit: 60 },
   suggestion: { ttl: RATE_LIMIT_TTL, limit: 20 },
   img: { ttl: RATE_LIMIT_TTL, limit: 3000 },
-  spotify: { ttl: RATE_LIMIT_TTL, limit: 20 },
   twir: { ttl: RATE_LIMIT_TTL, limit: 120 },
   telegramPoll: { ttl: RATE_LIMIT_TTL, limit: 120 },
 } as const

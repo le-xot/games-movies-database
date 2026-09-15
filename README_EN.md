@@ -1,12 +1,11 @@
 # Games Movies Database
 
-Full-stack web application for tracking media: games, anime, movies, cartoons, series, and PC games. Twitch and Kick authentication, Spotify integration, real-time updates via WebSocket.
+Full-stack web application for tracking media: games, anime, movies, cartoons, series, and PC games. Twitch and Kick authentication, real-time updates via WebSocket.
 
 ## Features
 
 - **Media tracking** — games, anime, movies, cartoons, series, and PC games with statuses and ratings
 - **Authentication** — OAuth via Twitch and Kick, JWT in httpOnly cookies
-- **Spotify** — Spotify API integration, track queue
 - **Real-time** — instant UI updates via Socket.IO
 - **Suggestion system** — users suggest new content for adding
 - **Auction** — real-time auction management
@@ -90,28 +89,26 @@ bun dev
 
 File: `backend/.env` (copy from `backend/.env.example`)
 
-| Variable                | Description                              | Required                      |
-| ----------------------- | ---------------------------------------- | ----------------------------- |
-| `DATASOURCE_URL`        | PostgreSQL connection string             | Yes                           |
-| `JWT_SECRET`            | Secret for JWT token signing             | Yes                           |
-| `APP_PORT`              | Backend server port (default: 3000)      | No                            |
-| `REDIS_URL`             | Redis connection string (rate limits)    | No (`redis://localhost:6379`) |
-| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                   | No                            |
-| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret               | No                            |
-| `TWITCH_CALLBACK_URL`   | URL callback after Twitch authorization  | No                            |
-| `KICK_CLIENT_ID`        | Kick OAuth Client ID                     | No                            |
-| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                 | No                            |
-| `KICK_CALLBACK_URL`     | URL callback after Kick authorization    | No                            |
-| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                        | No                            |
-| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                    | No                            |
-| `SPOTIFY_CALLBACK_URL`  | URL callback after Spotify authorization | No                            |
-| `KINOPOISK_API`         | Kinopoisk API key                        | No                            |
-| `TMBD_API`              | TMDB API key                             | No                            |
-| `WEATHER_API_KEY`       | OpenWeatherMap API key                   | No                            |
-| `WEATHER_LAT`           | Latitude for weather                     | No                            |
-| `WEATHER_LON`           | Longitude for weather                    | No                            |
-| `PROXY`                 | Proxy URL for external APIs              | No                            |
-| `TWIR_API`              | API key for TWIR webhooks                | No                            |
+| Variable               | Description                             | Required                      |
+| ---------------------- | --------------------------------------- | ----------------------------- |
+| `DATASOURCE_URL`       | PostgreSQL connection string            | Yes                           |
+| `JWT_SECRET`           | Secret for JWT token signing            | Yes                           |
+| `APP_PORT`             | Backend server port (default: 3000)     | No                            |
+| `REDIS_URL`            | Redis connection string (rate limits)   | No (`redis://localhost:6379`) |
+| `TWITCH_CLIENT_ID`     | Twitch OAuth Client ID                  | No                            |
+| `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret              | No                            |
+| `TWITCH_CALLBACK_URL`  | URL callback after Twitch authorization | No                            |
+| `KICK_CLIENT_ID`       | Kick OAuth Client ID                    | No                            |
+| `KICK_CLIENT_SECRET`   | Kick OAuth Client Secret                | No                            |
+| `KICK_CALLBACK_URL`    | URL callback after Kick authorization   | No                            |
+| `KINOPOISK_API`        | Kinopoisk API key                       | No                            |
+| `STEAM_API_KEY`        | Steam API key                           | No                            |
+| `STEAM_ID`             | Steam user ID                           | No                            |
+| `WEATHER_API_KEY`      | OpenWeatherMap API key                  | No                            |
+| `WEATHER_LAT`          | Latitude for weather                    | No                            |
+| `WEATHER_LON`          | Longitude for weather                   | No                            |
+| `PROXY`                | Proxy URL for external APIs             | No                            |
+| `TWIR_API`             | API key for TWIR webhooks               | No                            |
 
 ## Project Structure
 
@@ -124,8 +121,7 @@ games-movies-database/
 │   │   │   ├── dialog/        # Dialogs
 │   │   │   ├── form/          # Forms
 │   │   │   ├── layout/        # Layout components (header, body, DB)
-│   │   │   ├── record/        # Record creation form
-│   │   │   ├── table/         # DataTable, filters, pagination, search
+│   │   │   ├── media/         # DataCards, search and filters
 │   │   │   └── ui/            # shadcn-vue primitives (DO NOT EDIT)
 │   │   ├── composables/       # Composables + factories for media pages
 │   │   ├── lib/               # API client (auto-generated), cn() utility
@@ -147,7 +143,6 @@ games-movies-database/
 │   │   └── utils/             # Image proxy, watch link generation
 │   ├── index.html
 │   ├── vite.config.ts
-│   ├── tailwind.config.ts
 │   └── package.json
 ├── backend/                   # NestJS API server
 │   ├── src/
@@ -164,7 +159,6 @@ games-movies-database/
 │   │       ├── suggestion/    # Content suggestions
 │   │       ├── auction/       # Auction
 │   │       ├── queue/         # Item queue
-│   │       ├── spotify/       # Spotify integration
 │   │       ├── twitch/        # Twitch API client
 │   │       ├── kick/          # Kick API client
 │   │       ├── websocket/     # Socket.IO gateway
@@ -249,23 +243,6 @@ KICK_CLIENT_SECRET=your_client_secret
 KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
 ```
 
-### Spotify
-
-Spotify API integration for tracks and queue management.
-
-Getting credentials:
-
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new application
-3. Set Redirect URI: `http://127.0.0.1:5173/auth/callback/spotify`
-4. Copy Client ID and Client Secret to `.env`
-
-```
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
-SPOTIFY_CALLBACK_URL=http://127.0.0.1:5173/auth/callback/spotify
-```
-
 ### Kinopoisk
 
 API for fetching movie and series data from Kinopoisk.
@@ -274,12 +251,13 @@ API for fetching movie and series data from Kinopoisk.
 KINOPOISK_API=your_api_key
 ```
 
-### TMDB
+### Steam
 
-API for fetching movie and series data from The Movie Database.
+Integration to import a Steam game library (admin panel).
 
 ```
-TMBD_API=your_api_key
+STEAM_API_KEY=your_api_key
+STEAM_ID=your_steam_id
 ```
 
 ### OpenWeatherMap

@@ -1,5 +1,6 @@
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { RecordGenre } from '@/lib/api'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 
@@ -8,11 +9,13 @@ export const router = createRouter({
   routes: [
     {
       path: '/auth/callback/twitch',
-      component: () => import('@/pages/auth/AuthCallback.vue'),
+      component: () => import('@/pages/auth/OAuthCallback.vue'),
+      meta: { provider: 'twitch' },
     },
     {
       path: '/auth/callback/kick',
-      component: () => import('@/pages/auth/KickCallback.vue'),
+      component: () => import('@/pages/auth/OAuthCallback.vue'),
+      meta: { provider: 'kick' },
     },
     {
       path: ROUTER_PATHS.home,
@@ -54,23 +57,28 @@ export const router = createRouter({
         },
         {
           path: ROUTER_PATHS.dbAnime,
-          component: () => import('@/pages/anime/AnimePage.vue'),
+          component: () => import('@/pages/media/MediaPage.vue'),
+          meta: { genre: RecordGenre.ANIME },
         },
         {
           path: ROUTER_PATHS.dbGames,
-          component: () => import('@/pages/games/GamesPage.vue'),
+          component: () => import('@/pages/media/MediaPage.vue'),
+          meta: { genre: RecordGenre.GAME },
         },
         {
           path: ROUTER_PATHS.dbMovie,
-          component: () => import('@/pages/movie/MoviePage.vue'),
+          component: () => import('@/pages/media/MediaPage.vue'),
+          meta: { genre: RecordGenre.MOVIE },
         },
         {
           path: ROUTER_PATHS.dbCartoon,
-          component: () => import('@/pages/cartoon/CartoonPage.vue'),
+          component: () => import('@/pages/media/MediaPage.vue'),
+          meta: { genre: RecordGenre.CARTOON },
         },
         {
           path: ROUTER_PATHS.dbSeries,
-          component: () => import('@/pages/series/SeriesPage.vue'),
+          component: () => import('@/pages/media/MediaPage.vue'),
+          meta: { genre: RecordGenre.SERIES },
         },
       ],
     },

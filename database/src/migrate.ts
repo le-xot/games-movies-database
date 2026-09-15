@@ -1,18 +1,10 @@
-import process from 'node:process'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
-import { Pool } from 'pg'
+import { createPool, MIGRATIONS_FOLDER } from './lib/connection'
 
 async function main() {
-  const connectionString = process.env.DATASOURCE_URL
-
-  if (!connectionString) {
-    console.error('DATASOURCE_URL is not set')
-    process.exitCode = 1
-    return
-  }
-
-  const pool = new Pool({ connectionString })
+  const pool = createPool()
+  if (!pool) return
 
   try {
     const prismaTable = await pool.query(`select to_regclass('public._prisma_migrations') as table`)
@@ -36,9 +28,7 @@ async function main() {
     }
 
     console.log('🔌 Applying migrations')
-    await migrate(drizzle(pool), {
-      migrationsFolder: new URL('../migrations', import.meta.url).pathname,
-    })
+    await migrate(drizzle(pool), { migrationsFolder: MIGRATIONS_FOLDER })
     console.log('✅ Migrations applied')
   } catch (error) {
     console.error('❌ Migration failed:', error)

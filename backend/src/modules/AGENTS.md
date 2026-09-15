@@ -26,7 +26,6 @@ Standard file set for new features:
 | **s3**                | 2     | S3/RustFS storage abstraction (upload, delete, exists)      |
 | **kick**              | 2     | Kick API client for user metadata                           |
 | **twir**              | 4     | External bot webhooks, ApikeyGuard protection               |
-| **spotify**           | 4     | Spotify API integration + background track queue            |
 | **websocket**         | 2     | Socket.IO gateway for real-time frontend updates            |
 | **records-providers** | 2     | External metadata fetchers (Kinopoisk, etc.)                |
 | **img**               | 3     | Image proxy and resizing via Sharp                          |

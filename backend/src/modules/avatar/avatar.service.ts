@@ -5,17 +5,12 @@ import { env } from '@/utils/enviroments'
 
 const AVATAR_SIZE = 256
 const AVATAR_QUALITY = 80
-const ACCEPTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 
 @Injectable()
 export class AvatarService {
   private readonly logger = new Logger(AvatarService.name)
 
   constructor(private readonly s3Service: S3Service) {}
-
-  static isAcceptedMimeType(mimetype: string): boolean {
-    return ACCEPTED_MIME_TYPES.includes(mimetype)
-  }
 
   async processAndStoreAvatar(userId: string, imageBuffer: Buffer): Promise<string> {
     const processed = await sharp(imageBuffer)

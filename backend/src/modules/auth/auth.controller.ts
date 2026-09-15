@@ -45,16 +45,55 @@ export class AuthController {
     private readonly twitch: TwitchService,
   ) {}
 
-  @Get('/twitch')
-  @RateLimit(RATE_LIMITS.auth)
-  twitchAuth(@Res() res: Response) {
-    const redirectUri =
+  private buildTwitchAuthUrl(): string {
+    return (
       'https://id.twitch.tv/oauth2/authorize?' +
       `client_id=${env.TWITCH_CLIENT_ID}&` +
       `redirect_uri=${env.TWITCH_CALLBACK_URL}&` +
       'response_type=code&' +
       'scope=user:read:email'
+    )
+  }
+
+  private beginKickAuth(res: Response, linking = false) {
+    const codeVerifier = crypto.randomBytes(32).toString('base64url')
+    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
+
+    res.cookie('kick_code_verifier', codeVerifier, {
+      httpOnly: true,
+      maxAge: 10 * 60 * 1000,
+    })
+    if (linking) {
+      res.cookie('kick_linking', '1', {
+        httpOnly: false,
+        maxAge: 10 * 60 * 1000,
+      })
+    }
+
+    const redirectUri =
+      'https://id.kick.com/oauth/authorize?' +
+      `client_id=${env.KICK_CLIENT_ID}&` +
+      `redirect_uri=${env.KICK_CALLBACK_URL}&` +
+      'response_type=code&' +
+      'scope=user:read&' +
+      `code_challenge=${codeChallenge}&` +
+      'code_challenge_method=S256&' +
+      `state=${crypto.randomBytes(16).toString('hex')}`
+
     res.redirect(redirectUri)
+  }
+
+  private setAuthCookie(res: Response, token: string) {
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    })
+  }
+
+  @Get('/twitch')
+  @RateLimit(RATE_LIMITS.auth)
+  twitchAuth(@Res() res: Response) {
+    res.redirect(this.buildTwitchAuthUrl())
   }
 
   @Get('/twitch/link')
@@ -66,23 +105,14 @@ export class AuthController {
       maxAge: 10 * 60 * 1000,
     })
 
-    const redirectUri =
-      'https://id.twitch.tv/oauth2/authorize?' +
-      `client_id=${env.TWITCH_CLIENT_ID}&` +
-      `redirect_uri=${env.TWITCH_CALLBACK_URL}&` +
-      'response_type=code&' +
-      'scope=user:read:email'
-    res.redirect(redirectUri)
+    res.redirect(this.buildTwitchAuthUrl())
   }
 
   @Post('/twitch/callback')
   @RateLimit(RATE_LIMITS.auth)
   async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
     const token = await this.authService.handleTwitchCallback(data.code)
-    res.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    })
+    this.setAuthCookie(res, token)
 
     res.status(200).send('Authentication successful')
   }
@@ -105,54 +135,14 @@ export class AuthController {
   @Get('/kick')
   @RateLimit(RATE_LIMITS.auth)
   kickAuth(@Res() res: Response) {
-    const codeVerifier = crypto.randomBytes(32).toString('base64url')
-    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
-
-    res.cookie('kick_code_verifier', codeVerifier, {
-      httpOnly: true,
-      maxAge: 10 * 60 * 1000,
-    })
-
-    const redirectUri =
-      'https://id.kick.com/oauth/authorize?' +
-      `client_id=${env.KICK_CLIENT_ID}&` +
-      `redirect_uri=${env.KICK_CALLBACK_URL}&` +
-      'response_type=code&' +
-      'scope=user:read&' +
-      `code_challenge=${codeChallenge}&` +
-      'code_challenge_method=S256&' +
-      `state=${crypto.randomBytes(16).toString('hex')}`
-
-    res.redirect(redirectUri)
+    this.beginKickAuth(res)
   }
 
   @Get('/kick/link')
   @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
   kickLinkAuth(@Res() res: Response) {
-    const codeVerifier = crypto.randomBytes(32).toString('base64url')
-    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
-
-    res.cookie('kick_code_verifier', codeVerifier, {
-      httpOnly: true,
-      maxAge: 10 * 60 * 1000,
-    })
-    res.cookie('kick_linking', '1', {
-      httpOnly: false,
-      maxAge: 10 * 60 * 1000,
-    })
-
-    const redirectUri =
-      'https://id.kick.com/oauth/authorize?' +
-      `client_id=${env.KICK_CLIENT_ID}&` +
-      `redirect_uri=${env.KICK_CALLBACK_URL}&` +
-      'response_type=code&' +
-      'scope=user:read&' +
-      `code_challenge=${codeChallenge}&` +
-      'code_challenge_method=S256&' +
-      `state=${crypto.randomBytes(16).toString('hex')}`
-
-    res.redirect(redirectUri)
+    this.beginKickAuth(res, true)
   }
 
   @Post('/kick/callback')
@@ -164,10 +154,7 @@ export class AuthController {
     }
 
     const token = await this.authService.handleKickCallback(data.code, codeVerifier)
-    res.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    })
+    this.setAuthCookie(res, token)
     res.clearCookie('kick_code_verifier')
     res.status(200).send('Authentication successful')
   }
@@ -234,10 +221,7 @@ export class AuthController {
     const result = await this.authService.pollTelegramLogin(token)
     if (result.status === 'pending') return result
 
-    res.cookie('token', result.jwt, {
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    })
+    this.setAuthCookie(res, result.jwt)
     res.clearCookie(TELEGRAM_AUTH_COOKIE)
     return { status: 'ok' }
   }

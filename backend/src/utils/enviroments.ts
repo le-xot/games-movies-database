@@ -12,12 +12,6 @@ export const env = cleanEnv(process.env, {
   TWITCH_CLIENT_ID: str({ default: null }),
   TWITCH_CLIENT_SECRET: str({ default: null }),
   TWITCH_CALLBACK_URL: str({}),
-  TWITCH_ADMIN_ID: str({ default: null }),
-  TWITCH_ADMIN_LOGIN: str({ default: null }),
-
-  SPOTIFY_CLIENT_ID: str({ default: null }),
-  SPOTIFY_CLIENT_SECRET: str({ default: null }),
-  SPOTIFY_CALLBACK_URL: str({ default: null }),
 
   KICK_CLIENT_ID: str({ default: null }),
   KICK_CLIENT_SECRET: str({ default: null }),
@@ -30,7 +24,6 @@ export const env = cleanEnv(process.env, {
   WEATHER_LON: str({ default: null }),
 
   KINOPOISK_API: str({ default: null }),
-  TMBD_API: str({ default: null }),
 
   TWIR_API: str({ default: null }),
 
@@ -44,5 +37,4 @@ export const env = cleanEnv(process.env, {
   S3_SECRET_ACCESS_KEY: str({ default: 'rustfsadmin' }),
   S3_BUCKET_IMAGES: str({ default: 'images' }),
   S3_BUCKET_AVATARS: str({ default: 'avatars' }),
-  S3_BUCKET_BACKUPS: str({ default: 'backups' }),
 })

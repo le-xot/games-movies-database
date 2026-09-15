@@ -1,19 +1,18 @@
 import { likes, records } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
-import { and, asc, count, desc, eq, ilike, inArray, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, ilike, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import {
+  CreateRecordData,
   RecordFilterOptions,
   RecordSortOptions,
   RecordWithRelations,
+  UpdateRecordData,
 } from '@/modules/record/entities/record-domain.entity'
-import { CreateRecordData, RecordRepository, UpdateRecordData } from './record.repository'
 
 @Injectable()
-export class DrizzleRecordRepository extends RecordRepository {
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+export class DrizzleRecordRepository {
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async create(data: CreateRecordData): Promise<RecordWithRelations> {
     const [record] = await this.drizzle.db
@@ -99,13 +98,6 @@ export class DrizzleRecordRepository extends RecordRepository {
     await this.drizzle.db.transaction(async (tx) => {
       await tx.delete(likes).where(eq(likes.recordId, id))
       await tx.delete(records).where(eq(records.id, id))
-    })
-  }
-
-  async findManyByExtraField(key: string): Promise<RecordWithRelations[]> {
-    return await this.drizzle.db.query.records.findMany({
-      where: sql`jsonb_extract_path_text(${records.extra}, ${key}) is not null`,
-      with: { likes: true },
     })
   }
 }

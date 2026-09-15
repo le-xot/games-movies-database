@@ -22,7 +22,7 @@
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "typecheck": "bun --filter=./frontend run typecheck && bun --filter=./database run check",
+    "typecheck": "bun --filter=./frontend run typecheck && bun --filter=./database run check && bun --filter=./backend run build",
     "infra:start": "docker compose -f docker-compose.dev.yml up -d",
     "infra:stop": "docker compose -f docker-compose.dev.yml down"
   },
@@ -38,7 +38,6 @@
     "@nestjs/core",
     "@parcel/watcher",
     "esbuild",
-    "sass-embedded",
     "vite",
     "vue-demi",
     "vue-tsc"

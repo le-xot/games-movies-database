@@ -1,7 +1,6 @@
 import { refDebounced } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
-import { usePagination } from '@/components/media/composables/use-pagination'
+import { computed, ref } from 'vue'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
 
 export interface ParamsStoreConfig {
@@ -13,7 +12,6 @@ export function createParamsStore(config: ParamsStoreConfig) {
   return defineStore(config.storeId, () => {
     const search = ref('')
     const debouncedSearch = refDebounced(search, 500)
-    const pagination = usePagination()
     const statusesFilter = ref<RecordStatus[] | null>(null)
     const gradeFilter = ref<RecordGrade[] | null>(null)
 
@@ -21,7 +19,7 @@ export function createParamsStore(config: ParamsStoreConfig) {
       const p: Record<string, any> = {
         genre: config.genre,
         type: RecordType.WRITTEN,
-        page: pagination.value.pageIndex + 1,
+        page: 1,
         limit: 500,
         search: debouncedSearch.value,
         orderBy: 'id',
@@ -51,14 +49,9 @@ export function createParamsStore(config: ParamsStoreConfig) {
       statusesFilter.value = value
     }
 
-    watch([search, statusesFilter, gradeFilter], () => {
-      pagination.value.pageIndex = 0
-    })
-
     return {
       search,
       debouncedSearch,
-      pagination,
       params,
       statusesFilter,
       gradeFilter,

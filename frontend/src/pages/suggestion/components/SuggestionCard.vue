@@ -12,9 +12,9 @@ import {
   Popcorn,
   Trash2,
 } from '@lucide/vue'
-import { useThrottleFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
+import MediaPoster from '@/components/media/MediaPoster.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,7 +27,6 @@ import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
 import { generateWatchLink } from '@/utils/generate-watch-link'
-import { getImageUrl } from '@/utils/image'
 
 const props = defineProps<{
   items: RecordEntity[]
@@ -41,6 +40,8 @@ const suggestion = useSuggestion()
 const newRecords = useNewRecords()
 
 const likingStates = ref<Map<number, boolean>>(new Map())
+const LIKE_THROTTLE_MS = 1000
+const likeThrottleTimestamps = new Map<number, number>()
 
 function triggerAnimation(itemId: number, direction: 'like' | 'unlike') {
   const btn = document.querySelector(`[data-like-btn="${itemId}"]`) as HTMLElement | null
@@ -52,34 +53,6 @@ function triggerAnimation(itemId: number, direction: 'like' | 'unlike') {
     { duration: 300, easing: 'ease-out' },
   )
 }
-
-const throttledLikeFunctions = computed(() => {
-  const map = new Map<number, ReturnType<typeof useThrottleFn>>()
-
-  for (const item of props.items) {
-    if (!map.has(item.id)) {
-      const throttledFn = useThrottleFn(async () => {
-        if (likingStates.value.get(item.id)) return
-
-        likingStates.value.set(item.id, true)
-        try {
-          if (isLikedByCurrentUser(item)) {
-            await like.deleteLike(item.id)
-            triggerAnimation(item.id, 'unlike')
-          } else {
-            await like.createLike(item.id)
-            triggerAnimation(item.id, 'like')
-          }
-        } finally {
-          likingStates.value.set(item.id, false)
-        }
-      }, 1000)
-      map.set(item.id, throttledFn)
-    }
-  }
-
-  return map
-})
 
 const groupedItems = computed(() => {
   const queuedItems: RecordEntity[] = []
@@ -158,20 +131,6 @@ function getGroupTitle(genre: GenreValue): string {
   return genreTitles[genre]
 }
 
-const isDialogOpen = ref(false)
-
-function resetDialogState() {
-  isDialogOpen.value = false
-}
-
-defineExpose({ isDialogOpen })
-
-watch(isDialogOpen, (newValue) => {
-  if (newValue) {
-    suggestion.openSuggestionDialog(resetDialogState)
-  }
-})
-
 function handleCardHover(recordId: number) {
   newRecords.markRecordAsViewed(recordId)
 }
@@ -188,18 +147,59 @@ function isQueued(item: RecordEntity) {
   return item.type === RecordType.WRITTEN
 }
 
-function handleLikeClick(itemId: number) {
-  if (likingStates.value.get(itemId)) return
+async function handleLikeClick(item: RecordEntity) {
+  if (likingStates.value.get(item.id)) return
 
-  const throttledFn = throttledLikeFunctions.value.get(itemId)
-  if (throttledFn) {
-    throttledFn()
+  const now = Date.now()
+  const lastClick = likeThrottleTimestamps.get(item.id) ?? 0
+  if (now - lastClick < LIKE_THROTTLE_MS) return
+  likeThrottleTimestamps.set(item.id, now)
+
+  likingStates.value.set(item.id, true)
+  try {
+    if (isLikedByCurrentUser(item)) {
+      await like.deleteLike(item.id)
+      triggerAnimation(item.id, 'unlike')
+    } else {
+      await like.createLike(item.id)
+      triggerAnimation(item.id, 'like')
+    }
+  } finally {
+    likingStates.value.set(item.id, false)
   }
 }
 
-function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement
-  img.src = '/images/aga.webp'
+function adminActions(item: RecordEntity) {
+  return [
+    ...(!isQueued(item)
+      ? [
+          {
+            key: 'approve',
+            variant: 'default' as const,
+            icon: ListOrdered,
+            action: () => suggestion.handleApproveSuggestion(item.id),
+          },
+        ]
+      : []),
+    {
+      key: 'auction',
+      variant: 'secondary' as const,
+      icon: Gavel,
+      action: () => suggestion.handleMoveToAuction(item.id),
+    },
+    {
+      key: 'patch',
+      variant: 'outline' as const,
+      icon: PencilOff,
+      action: () => suggestion.handlePatchSuggestion(item.id),
+    },
+    {
+      key: 'delete',
+      variant: 'destructive' as const,
+      icon: Trash2,
+      action: () => suggestion.handleDeleteSuggestion(item.id),
+    },
+  ]
 }
 
 const collapsedGenres = ref<Set<string>>(new Set())
@@ -279,7 +279,7 @@ function toggleGenreCollapse(genre: string) {
                             : 'bg-[hsla(var(--primary-foreground))] border-white'
                         "
                         class="flex justify-center outline-1 backdrop-blur-lg items-center gap-2 absolute -bottom-4 -right-4 z-10 rounded-full w-20 h-10 p-0"
-                        @click="handleLikeClick(item.id)"
+                        @click="handleLikeClick(item)"
                       >
                         <Heart
                           v-if="isLikedByCurrentUser(item)"
@@ -320,25 +320,11 @@ function toggleGenreCollapse(genre: string) {
                   </Tooltip>
                 </TooltipProvider>
                 <div class="flex flex-1 h-full">
-                  <div
-                    v-if="item.posterUrl"
-                    class="relative w-[130px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-                  >
-                    <img
-                      :src="getImageUrl(item.posterUrl)"
-                      class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] aspect-[2/3]"
-                      alt=""
-                      @error="handleImageError"
-                    />
-                  </div>
-                  <div
-                    v-else
-                    class="relative w-[130px] flex-shrink-0 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] flex items-center justify-center aspect-[2/3]"
-                  >
-                    <span class="text-white text-xs text-center px-2"
-                      >{{ item.title?.slice(0, 20) }}...</span
-                    >
-                  </div>
+                  <MediaPoster
+                    :url="item.posterUrl"
+                    :label="`${item.title?.slice(0, 20)}...`"
+                    class="w-[130px] aspect-[2/3] rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
+                  />
                   <div class="flex flex-col flex-1 justify-between overflow-hidden">
                     <CardHeader>
                       <CardTitle class="text-xl overflow-hidden line-clamp-2 max-w-full box-border">
@@ -383,37 +369,14 @@ function toggleGenreCollapse(genre: string) {
                           class="flex flex-wrap justify-between w-full mt-auto gap-2 mb-3"
                         >
                           <Button
-                            v-if="!isQueued(item)"
-                            variant="default"
+                            v-for="action in adminActions(item)"
+                            :key="action.key"
+                            :variant="action.variant"
                             size="sm"
                             class="text-sm flex-1 min-w-0"
-                            @click="suggestion.handleApproveSuggestion(item.id)"
+                            @click="action.action()"
                           >
-                            <ListOrdered />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            class="text-sm flex-1 min-w-0"
-                            @click="suggestion.handleMoveToAuction(item.id)"
-                          >
-                            <Gavel />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            class="text-sm flex-1 min-w-0"
-                            @click="suggestion.handlePatchSuggestion(item.id)"
-                          >
-                            <PencilOff />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            class="text-sm flex-1 min-w-0"
-                            @click="suggestion.handleDeleteSuggestion(item.id)"
-                          >
-                            <Trash2 color="#ffffff" />
+                            <component :is="action.icon" />
                           </Button>
                         </div>
                       </div>

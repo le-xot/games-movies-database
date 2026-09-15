@@ -1,5 +1,25 @@
 import { RecordGenre, RecordGrade, RecordStatus, RecordType, UserRole } from '@/enums'
 
+export interface CreateRecordData {
+  title: string
+  posterUrl: string
+  genre?: RecordGenre
+  link: string
+  status?: RecordStatus
+  type?: RecordType
+  extra?: unknown
+}
+
+export interface UpdateRecordData {
+  title?: string
+  posterUrl?: string
+  genre?: RecordGenre
+  status?: RecordStatus
+  type?: RecordType
+  grade?: RecordGrade
+  episode?: string
+}
+
 export interface RecordDomain {
   id: number
   title: string

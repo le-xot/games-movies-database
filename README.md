@@ -1,12 +1,11 @@
 # Games Movies Database
 
-Полнофункциональное веб-приложение для трекинга медиа: игры, аниме, фильмы, мультфильмы, сериалы и PC-игры. Авторизация через Twitch и Kick, интеграция со Spotify, реал-тайм обновления через WebSocket.
+Полнофункциональное веб-приложение для трекинга медиа: игры, аниме, фильмы, мультфильмы, сериалы и PC-игры. Авторизация через Twitch и Kick, реал-тайм обновления через WebSocket.
 
 ## Возможности
 
 - **Трекинг медиа** — учёт игр, аниме, фильмов, мультфильмов, сериалов и PC-игр со статусами и оценками
 - **Авторизация** — OAuth через Twitch и Kick, JWT в httpOnly cookie
-- **Spotify** — интеграция с Spotify API, очередь треков
 - **Реал-тайм** — мгновенные обновления интерфейса через Socket.IO
 - **Система предложений** — пользователи предлагают новый контент для добавления
 - **Аукцион** — управление аукционами в реальном времени
@@ -90,36 +89,31 @@ bun dev
 
 Файл: `backend/.env` (скопируйте из `backend/.env.example`)
 
-| Переменная              | Описание                                  | Обязательна                         |
-| ----------------------- | ----------------------------------------- | ----------------------------------- |
-| `DATASOURCE_URL`        | Строка подключения к PostgreSQL           | Да                                  |
-| `JWT_SECRET`            | Секрет для подписи JWT токенов            | Да                                  |
-| `APP_PORT`              | Порт backend сервера (по умолчанию: 3000) | Нет                                 |
-| `REDIS_URL`             | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)      |
-| `TWITCH_CLIENT_ID`      | Twitch OAuth Client ID                    | Нет                                 |
-| `TWITCH_CLIENT_SECRET`  | Twitch OAuth Client Secret                | Нет                                 |
-| `TWITCH_CALLBACK_URL`   | URL callback после Twitch авторизации     | Нет                                 |
-| `TWITCH_ADMIN_ID`       | Twitch ID администратора                  | Нет                                 |
-| `TWITCH_ADMIN_LOGIN`    | Twitch login администратора               | Нет                                 |
-| `KICK_CLIENT_ID`        | Kick OAuth Client ID                      | Нет                                 |
-| `KICK_CLIENT_SECRET`    | Kick OAuth Client Secret                  | Нет                                 |
-| `KICK_CALLBACK_URL`     | URL callback после Kick авторизации       | Нет                                 |
-| `SPOTIFY_CLIENT_ID`     | Spotify Client ID                         | Нет                                 |
-| `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret                     | Нет                                 |
-| `SPOTIFY_CALLBACK_URL`  | URL callback после Spotify авторизации    | Нет                                 |
-| `KINOPOISK_API`         | API ключ Кинопоиска                       | Нет                                 |
-| `TMBD_API`              | API ключ TMDB                             | Нет                                 |
-| `WEATHER_API_KEY`       | OpenWeatherMap API ключ                   | Нет                                 |
-| `WEATHER_LAT`           | Широта для погоды                         | Нет                                 |
-| `WEATHER_LON`           | Долгота для погоды                        | Нет                                 |
-| `PROXY`                 | URL прокси для внешних API                | Нет                                 |
-| `TWIR_API`              | API ключ для TWIR вебхуков                | Нет                                 |
-| `S3_ENDPOINT`           | Endpoint S3-хранилища (RustFS)            | Нет (default: `http://rustfs:9000`) |
-| `S3_ACCESS_KEY_ID`      | S3 Access Key                             | Нет (default: `rustfsadmin`)        |
-| `S3_SECRET_ACCESS_KEY`  | S3 Secret Key                             | Нет (default: `rustfsadmin`)        |
-| `S3_BUCKET_IMAGES`      | Bucket для изображений (default: images)  | Нет                                 |
-| `S3_BUCKET_AVATARS`     | Bucket для аватаров (default: avatars)    | Нет                                 |
-| `S3_BUCKET_BACKUPS`     | Bucket для бекапов (default: backups)     | Нет                                 |
+| Переменная             | Описание                                  | Обязательна                         |
+| ---------------------- | ----------------------------------------- | ----------------------------------- |
+| `DATASOURCE_URL`       | Строка подключения к PostgreSQL           | Да                                  |
+| `JWT_SECRET`           | Секрет для подписи JWT токенов            | Да                                  |
+| `APP_PORT`             | Порт backend сервера (по умолчанию: 3000) | Нет                                 |
+| `REDIS_URL`            | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)      |
+| `TWITCH_CLIENT_ID`     | Twitch OAuth Client ID                    | Нет                                 |
+| `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret                | Нет                                 |
+| `TWITCH_CALLBACK_URL`  | URL callback после Twitch авторизации     | Нет                                 |
+| `KICK_CLIENT_ID`       | Kick OAuth Client ID                      | Нет                                 |
+| `KICK_CLIENT_SECRET`   | Kick OAuth Client Secret                  | Нет                                 |
+| `KICK_CALLBACK_URL`    | URL callback после Kick авторизации       | Нет                                 |
+| `KINOPOISK_API`        | API ключ Кинопоиска                       | Нет                                 |
+| `STEAM_API_KEY`        | API ключ Steam                            | Нет                                 |
+| `STEAM_ID`             | Steam ID пользователя                     | Нет                                 |
+| `WEATHER_API_KEY`      | OpenWeatherMap API ключ                   | Нет                                 |
+| `WEATHER_LAT`          | Широта для погоды                         | Нет                                 |
+| `WEATHER_LON`          | Долгота для погоды                        | Нет                                 |
+| `PROXY`                | URL прокси для внешних API                | Нет                                 |
+| `TWIR_API`             | API ключ для TWIR вебхуков                | Нет                                 |
+| `S3_ENDPOINT`          | Endpoint S3-хранилища (RustFS)            | Нет (default: `http://rustfs:9000`) |
+| `S3_ACCESS_KEY_ID`     | S3 Access Key                             | Нет (default: `rustfsadmin`)        |
+| `S3_SECRET_ACCESS_KEY` | S3 Secret Key                             | Нет (default: `rustfsadmin`)        |
+| `S3_BUCKET_IMAGES`     | Bucket для изображений (default: images)  | Нет                                 |
+| `S3_BUCKET_AVATARS`    | Bucket для аватаров (default: avatars)    | Нет                                 |
 
 ## Структура проекта
 
@@ -132,8 +126,7 @@ games-movies-database/
 │   │   │   ├── dialog/        # Диалоги
 │   │   │   ├── form/          # Формы
 │   │   │   ├── layout/        # Layout компоненты (шапка, тело, БД)
-│   │   │   ├── record/        # Форма создания записи
-│   │   │   ├── table/         # DataTable, фильтры, пагинация, поиск
+│   │   │   ├── media/         # DataCards, поиск и фильтры
 │   │   │   └── ui/            # shadcn-vue примитивы (НЕ редактировать)
 │   │   ├── composables/       # Composables + фабрики для медиа-страниц
 │   │   ├── lib/               # API клиент (авто-генерируется), cn() утилита
@@ -155,7 +148,6 @@ games-movies-database/
 │   │   └── utils/             # Прокси изображений, генерация watch-ссылок
 │   ├── index.html
 │   ├── vite.config.ts
-│   ├── tailwind.config.ts
 │   └── package.json
 ├── backend/                   # NestJS API сервер
 │   ├── src/
@@ -172,7 +164,6 @@ games-movies-database/
 │   │       ├── suggestion/    # Предложения контента
 │   │       ├── auction/       # Аукцион
 │   │       ├── queue/         # Очередь элементов
-│   │       ├── spotify/       # Spotify интеграция
 │   │       ├── twitch/        # Twitch API клиент
 │   │       ├── kick/          # Kick API клиент
 │   │       ├── websocket/     # Socket.IO gateway
@@ -257,23 +248,6 @@ KICK_CLIENT_SECRET=your_client_secret
 KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
 ```
 
-### Spotify
-
-Интеграция со Spotify API для работы с треками и очередью.
-
-Получение ключей:
-
-1. Перейти в [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Создать новое приложение
-3. Указать Redirect URI: `http://127.0.0.1:5173/auth/callback/spotify`
-4. Скопировать Client ID и Client Secret в `.env`
-
-```
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
-SPOTIFY_CALLBACK_URL=http://127.0.0.1:5173/auth/callback/spotify
-```
-
 ### Кинопоиск
 
 API для получения данных о фильмах и сериалах с Кинопоиска.
@@ -282,12 +256,13 @@ API для получения данных о фильмах и сериалах
 KINOPOISK_API=your_api_key
 ```
 
-### TMDB
+### Steam
 
-API для получения данных о фильмах и сериалах с The Movie Database.
+Интеграция для импорта библиотеки игр из Steam (админ-раздел).
 
 ```
-TMBD_API=your_api_key
+STEAM_API_KEY=your_api_key
+STEAM_ID=your_steam_id
 ```
 
 ### OpenWeatherMap

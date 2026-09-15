@@ -20,11 +20,5 @@
     "typescript/no-extraneous-class": ["warn", { "allowWithDecorator": true }],
     "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
   },
-  "ignorePatterns": [
-    "dist",
-    "node_modules",
-    "coverage",
-    ".augment-guidelines",
-    "frontend/src/lib/api.ts"
-  ]
+  "ignorePatterns": ["dist", "node_modules", "coverage", "frontend/src/lib/api.ts"]
 }

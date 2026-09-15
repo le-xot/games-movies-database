@@ -18,11 +18,6 @@ export default defineConfig(({ isPreview, mode }) => {
       },
     },
     css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern-compiler',
-        } as any,
-      },
       postcss: {
         plugins: [autoprefixer()],
       },

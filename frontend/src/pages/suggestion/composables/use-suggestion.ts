@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
@@ -30,11 +30,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     })
   }
 
-  const {
-    isLoading: isLoadingData,
-    data: suggestions,
-    refetch: refetchSuggestions,
-  } = useQuery<RecordEntity[]>({
+  const { data: suggestions, refetch: refetchSuggestions } = useQuery<RecordEntity[]>({
     key: [SUGGESTION_QUERY_KEY],
     query: async () => {
       try {
@@ -187,10 +183,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     }
   }
 
-  const isLoading = computed(() => isLoadingData.value)
-
   return {
-    isLoading,
     error,
     suggestions,
     refetchSuggestions,

@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common'
-import { JwtModule, JwtService } from '@nestjs/jwt'
+import { JwtModule } from '@nestjs/jwt'
 import { env } from '@/utils/enviroments'
 
 const RegisteredJwtModule = JwtModule.register({
@@ -10,7 +10,6 @@ const RegisteredJwtModule = JwtModule.register({
 @Global()
 @Module({
   imports: [RegisteredJwtModule],
-  providers: [JwtService],
   exports: [RegisteredJwtModule],
 })
 export class CustomJwtModule {}

@@ -26,17 +26,25 @@ export class AuthGuard implements CanActivate {
       this.logger.warn(`Unauthorized request: missing token ${request.method} ${request.url}`)
       throw new UnauthorizedException()
     }
+    let payload: { id: string }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      payload = await this.jwtService.verifyAsync(token, {
         secret: env.JWT_SECRET,
       })
-      request.user = await this.userService.getUserById(payload.id)
     } catch {
       this.logger.warn(
         `Unauthorized request: token verification failed for ${request.method} ${request.url}`,
       )
       throw new UnauthorizedException()
     }
+
+    const user = await this.userService.getUserById(payload.id)
+    if (!user) {
+      this.logger.warn(`Unauthorized request: user not found for ${request.method} ${request.url}`)
+      throw new UnauthorizedException()
+    }
+
+    request.user = user
     return true
   }
 

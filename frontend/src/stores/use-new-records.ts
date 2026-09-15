@@ -14,10 +14,6 @@ export const useNewRecords = defineStore('global/use-new-records', () => {
     return !viewedRecords.value.includes(recordId)
   }
 
-  const getNewRecordsCount = (recordIds: number[]) => {
-    return recordIds.filter((id) => isRecordNew(id)).length
-  }
-
   const cleanupViewedRecords = (currentRecordIds: number[]) => {
     const currentIds = new Set(currentRecordIds)
     viewedRecords.value = viewedRecords.value.filter((id) => currentIds.has(id))
@@ -26,7 +22,6 @@ export const useNewRecords = defineStore('global/use-new-records', () => {
   return {
     markRecordAsViewed,
     isRecordNew,
-    getNewRecordsCount,
     cleanupViewedRecords,
   }
 })

@@ -3,14 +3,14 @@ import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordType } from '@/enums'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 import { QueueService } from '../queue.service'
-import { QueueRepository } from '../repositories/queue.repository'
+import { DrizzleQueueRepository } from '../repositories/drizzle-queue.repository'
 
 describe('QueueService', () => {
   let service: QueueService
-  let mockRepo: QueueRepository
+  let mockRepo: DrizzleQueueRepository
 
   beforeEach(() => {
-    mockRepo = createMock(QueueRepository)
+    mockRepo = createMock(DrizzleQueueRepository)
     service = new QueueService(mockRepo)
   })
 

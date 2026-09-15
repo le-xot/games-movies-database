@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { LikeRepository } from './repositories/like.repository'
-import type { UpdateLikesPayload } from '@/modules/websocket/websocket.events'
+import { WsEvents, type UpdateLikesPayload } from '@/modules/websocket/websocket.events'
+import { DrizzleLikeRepository } from './repositories/drizzle-like.repository'
 
 @Injectable()
 export class LikeService {
   private readonly logger = new Logger(LikeService.name)
   constructor(
-    private readonly likeRepository: LikeRepository,
+    private readonly likeRepository: DrizzleLikeRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -20,7 +20,7 @@ export class LikeService {
     }
 
     const createdLike = await this.likeRepository.create(userId, recordId)
-    this.eventEmitter.emit('update-likes', {
+    this.eventEmitter.emit(WsEvents.UPDATE_LIKES, {
       recordId,
       userId,
       action: 'created',
@@ -37,7 +37,7 @@ export class LikeService {
       throw new NotFoundException('Лайк не найден')
     }
 
-    this.eventEmitter.emit('update-likes', {
+    this.eventEmitter.emit(WsEvents.UPDATE_LIKES, {
       recordId,
       userId,
       action: 'deleted',

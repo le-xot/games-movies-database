@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { RecordEntity } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
+import { parseApiError } from '@/utils/api-error'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 
 export const AUCTION_QUERY_KEY = 'auction'
@@ -49,22 +50,7 @@ export const useAuctions = defineStore('auction/use-auction', () => {
           window.open(watchLink, '_blank')
         }
       } catch (err: any) {
-        let errorMessage = 'Неизвестная ошибка'
-
-        try {
-          if (err instanceof Response || (err && typeof err.json === 'function')) {
-            const errorData = await err.clone().json()
-            errorMessage = errorData.message || errorMessage
-          } else if (err.error) {
-            errorMessage = err.error.message || errorMessage
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-
-        error.value = errorMessage
+        error.value = await parseApiError(err)
         throw err
       }
     },

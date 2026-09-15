@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { LimitType, RecordStatus, RecordType } from '@/enums'
-import { SuggestionRepository } from '../repositories/suggestion.repository'
+import { DrizzleSuggestionRepository } from '../repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '../suggestion.service'
 import type { LimitDomain } from '@/modules/limit/entities/limit.entity'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
@@ -20,12 +20,12 @@ const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelatio
 
 describe('SuggestionService', () => {
   let service: SuggestionService
-  let mockRepo: SuggestionRepository
+  let mockRepo: DrizzleSuggestionRepository
   let mockRecordsProvider: { prepareData: ReturnType<typeof mock> }
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
 
   beforeEach(() => {
-    mockRepo = createMock(SuggestionRepository)
+    mockRepo = createMock(DrizzleSuggestionRepository)
     mockRecordsProvider = { prepareData: mock(() => {}) }
     mockEventEmitter = { emit: mock(() => {}) }
     service = new SuggestionService(mockRepo, mockRecordsProvider as any, mockEventEmitter as any)
@@ -72,6 +72,41 @@ describe('SuggestionService', () => {
       ).rejects.toThrow(BadRequestException)
 
       expect(mockRepo.createSuggestion).not.toHaveBeenCalled()
+    })
+
+    it('throws BadRequestException when suggestion limit is not configured', async () => {
+      mockRepo.findLimit = mock(() => Promise.resolve(null))
+      mockRepo.countUserSuggestions = mock(() => Promise.resolve(0))
+
+      await expect(
+        service.userSuggest({ link: 'https://shikimori.one/animes/1', userId: 'user-1' }),
+      ).rejects.toThrow(BadRequestException)
+
+      expect(mockRepo.createSuggestion).not.toHaveBeenCalled()
+    })
+
+    it('persists the canonical link returned by the provider, not the raw input', async () => {
+      const limit: LimitDomain = { name: LimitType.SUGGESTION, quantity: 5 }
+      const preparedData = {
+        title: 'Canonical Movie',
+        posterUrl: 'http://img',
+        genre: RecordType.SUGGESTION as any,
+        link: 'https://www.kinopoisk.ru/film/123',
+      }
+
+      mockRepo.findLimit = mock(() => Promise.resolve(limit))
+      mockRepo.countUserSuggestions = mock(() => Promise.resolve(0))
+      mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
+      mockRepo.createSuggestion = mock(() =>
+        Promise.resolve(makeRecord({ link: preparedData.link })),
+      )
+
+      await service.userSuggest({ link: 'https://on.kinohub.vip/movie/123', userId: 'user-1' })
+
+      expect(mockRepo.createSuggestion).toHaveBeenCalledWith(
+        expect.objectContaining({ link: 'https://www.kinopoisk.ru/film/123' }),
+        'user-1',
+      )
     })
   })
 

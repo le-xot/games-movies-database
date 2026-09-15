@@ -3,14 +3,16 @@ import { likes, suggestionOwnerships, userAccounts, users } from '@gmd/database/
 import { Injectable } from '@nestjs/common'
 import { and, eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
-import { UserDomain } from '@/modules/user/entities/user-domain.entity'
-import { CreateUserData, LinkPlatformData, UpdateUserData, UserRepository } from './user.repository'
+import {
+  CreateUserData,
+  LinkPlatformData,
+  UpdateUserData,
+  UserDomain,
+} from '@/modules/user/entities/user-domain.entity'
 
 @Injectable()
-export class DrizzleUserRepository extends UserRepository {
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+export class DrizzleUserRepository {
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async findByPlatformId(platform: string, platformUserId: string): Promise<UserDomain | null> {
     const account = await this.drizzle.db.query.userAccounts.findFirst({
@@ -21,10 +23,6 @@ export class DrizzleUserRepository extends UserRepository {
       with: { user: true },
     })
     return account?.user ?? null
-  }
-
-  async findByLogin(login: string): Promise<UserDomain | null> {
-    return (await this.drizzle.db.query.users.findFirst({ where: eq(users.login, login) })) ?? null
   }
 
   async findById(id: string): Promise<UserDomain | null> {

@@ -41,9 +41,7 @@ backend/src/
 
 ## ANTI-PATTERNS
 
-- **Imports**: `SpotifyModule` is commented out in `app.module.ts`.
 - **Typo**: Do not "fix" `utils/enviroments.ts` without updating every import.
-- **Duplicates**: `CustomJwtModule` is intentionally imported twice in `app.module.ts`.
 - **Drizzle**: Never instantiate a pg Pool outside `DrizzleService`; always inject it.
 - **Throttler**: `@nestjs/throttler` was removed — use `@RateLimit()` from `modules/rate-limit/`.
 - **Auth**: Avoid manual JWT parsing. Use the provided guards and `@User()` decorator.

@@ -5,13 +5,14 @@ import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import { ImgService } from '@/modules/img/img.service'
 import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
-import { RecordRepository } from '@/modules/record/repositories/record.repository'
+import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import type {
-  UpdateAuctionPayload,
-  UpdateQueuePayload,
-  UpdateRecordsPayload,
-  UpdateSuggestionsPayload,
+import {
+  WsEvents,
+  type UpdateAuctionPayload,
+  type UpdateQueuePayload,
+  type UpdateRecordsPayload,
+  type UpdateSuggestionsPayload,
 } from '@/modules/websocket/websocket.events'
 
 @Injectable()
@@ -19,11 +20,38 @@ export class RecordService {
   private readonly logger = new Logger(RecordService.name)
 
   constructor(
-    private readonly recordRepository: RecordRepository,
+    private readonly recordRepository: DrizzleRecordRepository,
     private readonly recordsProviderService: RecordsProvidersService,
     private readonly eventEmitter: EventEmitter2,
     private readonly imgService: ImgService,
   ) {}
+
+  private emitQueueEvent(id: number, action: UpdateQueuePayload['action']) {
+    this.eventEmitter.emit(WsEvents.UPDATE_QUEUE, { id, action } satisfies UpdateQueuePayload)
+  }
+
+  private emitSuggestionsEvent(id: number, action: UpdateSuggestionsPayload['action']) {
+    this.eventEmitter.emit(WsEvents.UPDATE_SUGGESTIONS, {
+      id,
+      action,
+    } satisfies UpdateSuggestionsPayload)
+  }
+
+  private emitAuctionEvent(id: number, action: UpdateAuctionPayload['action']) {
+    this.eventEmitter.emit(WsEvents.UPDATE_AUCTION, { id, action } satisfies UpdateAuctionPayload)
+  }
+
+  private emitRecordsEvent(
+    id: number,
+    genre: RecordGenre | undefined,
+    action: UpdateRecordsPayload['action'],
+  ) {
+    this.eventEmitter.emit(WsEvents.UPDATE_RECORDS, {
+      genre,
+      id,
+      action,
+    } satisfies UpdateRecordsPayload)
+  }
 
   async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
     this.logger.log(`Creating record from link link=${data.link}`)
@@ -33,26 +61,15 @@ export class RecordService {
 
     const createdData = await this.recordRepository.create({
       ...preparedData,
-      link: data.link,
       status: data.status || RecordStatus.QUEUE,
       type: data.type || RecordType.WRITTEN,
     })
 
     if (createdData.status === RecordStatus.QUEUE && createdData.type === RecordType.WRITTEN)
-      this.eventEmitter.emit('update-queue', {
-        id: createdData.id,
-        action: 'created',
-      } satisfies UpdateQueuePayload)
+      this.emitQueueEvent(createdData.id, 'created')
     if (createdData.type === RecordType.SUGGESTION)
-      this.eventEmitter.emit('update-suggestions', {
-        id: createdData.id,
-        action: 'created',
-      } satisfies UpdateSuggestionsPayload)
-    if (createdData.type === RecordType.AUCTION)
-      this.eventEmitter.emit('update-auction', {
-        id: createdData.id,
-        action: 'created',
-      } satisfies UpdateAuctionPayload)
+      this.emitSuggestionsEvent(createdData.id, 'created')
+    if (createdData.type === RecordType.AUCTION) this.emitAuctionEvent(createdData.id, 'created')
     this.logger.log(
       `Record created id=${createdData.id} type=${createdData.type} status=${createdData.status}`,
     )
@@ -71,10 +88,7 @@ export class RecordService {
       foundedRecord.type === RecordType.SUGGESTION &&
       updatedRecord.type !== RecordType.SUGGESTION
     ) {
-      this.eventEmitter.emit('update-suggestions', {
-        id: updatedRecord.id,
-        action: 'updated',
-      } satisfies UpdateSuggestionsPayload)
+      this.emitSuggestionsEvent(updatedRecord.id, 'updated')
     }
 
     if (
@@ -83,23 +97,13 @@ export class RecordService {
       (updatedRecord.status === RecordStatus.QUEUE && updatedRecord.type === RecordType.WRITTEN) ||
       (foundedRecord.type === RecordType.WRITTEN && updatedRecord.type !== RecordType.WRITTEN)
     ) {
-      this.eventEmitter.emit('update-queue', {
-        id: updatedRecord.id,
-        action: 'updated',
-      } satisfies UpdateQueuePayload)
+      this.emitQueueEvent(updatedRecord.id, 'updated')
     }
 
     if (foundedRecord.type !== RecordType.AUCTION && updatedRecord.type === RecordType.AUCTION) {
-      this.eventEmitter.emit('update-auction', {
-        id: updatedRecord.id,
-        action: 'created',
-      } satisfies UpdateAuctionPayload)
+      this.emitAuctionEvent(updatedRecord.id, 'created')
     }
-    this.eventEmitter.emit('update-records', {
-      genre: updatedRecord.genre,
-      id: updatedRecord.id,
-      action: 'updated',
-    } satisfies UpdateRecordsPayload)
+    this.emitRecordsEvent(updatedRecord.id, updatedRecord.genre, 'updated')
     this.logger.log(`Record patched id=${id}`)
     return updatedRecord as RecordEntity
   }
@@ -116,11 +120,7 @@ export class RecordService {
 
     const updatedRecord = await this.recordRepository.update(id, { posterUrl: url })
 
-    this.eventEmitter.emit('update-records', {
-      genre: updatedRecord.genre,
-      id: updatedRecord.id,
-      action: 'updated',
-    } satisfies UpdateRecordsPayload)
+    this.emitRecordsEvent(updatedRecord.id, updatedRecord.genre, 'updated')
 
     this.logger.log(`Poster updated for record id=${id}`)
     return updatedRecord as RecordEntity
@@ -137,29 +137,16 @@ export class RecordService {
     await this.recordRepository.delete(id)
 
     if (foundedRecord.type === RecordType.SUGGESTION) {
-      this.eventEmitter.emit('update-suggestions', {
-        id: foundedRecord.id,
-        action: 'deleted',
-      } satisfies UpdateSuggestionsPayload)
+      this.emitSuggestionsEvent(foundedRecord.id, 'deleted')
     }
 
     if (foundedRecord.status === RecordStatus.QUEUE && foundedRecord.type === RecordType.WRITTEN) {
-      this.eventEmitter.emit('update-queue', {
-        id: foundedRecord.id,
-        action: 'deleted',
-      } satisfies UpdateQueuePayload)
+      this.emitQueueEvent(foundedRecord.id, 'deleted')
     }
     if (foundedRecord.type === RecordType.AUCTION) {
-      this.eventEmitter.emit('update-auction', {
-        id: foundedRecord.id,
-        action: 'deleted',
-      } satisfies UpdateAuctionPayload)
+      this.emitAuctionEvent(foundedRecord.id, 'deleted')
     }
-    this.eventEmitter.emit('update-records', {
-      genre: foundedRecord.genre,
-      id: foundedRecord.id,
-      action: 'deleted',
-    } satisfies UpdateRecordsPayload)
+    this.emitRecordsEvent(foundedRecord.id, foundedRecord.genre, 'deleted')
     this.logger.log(`Record deleted id=${id}`)
   }
 

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import { RecordRepository } from '@/modules/record/repositories/record.repository'
+import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { SteamService } from '../steam.service'
 
 const makeRecord = (overrides?: Record<string, unknown>) => ({
@@ -19,12 +19,12 @@ const makeRecord = (overrides?: Record<string, unknown>) => ({
 
 describe('SteamService', () => {
   let service: SteamService
-  let mockRecordRepo: RecordRepository
+  let mockRecordRepo: DrizzleRecordRepository
   let mockRecordsProviders: { fetchIGDBFromSteam: ReturnType<typeof mock> }
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
 
   beforeEach(() => {
-    mockRecordRepo = createMock(RecordRepository)
+    mockRecordRepo = createMock(DrizzleRecordRepository)
     mockRecordsProviders = {
       fetchIGDBFromSteam: mock(() =>
         Promise.resolve({
@@ -37,31 +37,6 @@ describe('SteamService', () => {
     }
     mockEventEmitter = { emit: mock(() => {}) }
     service = new SteamService(mockRecordsProviders as any, mockRecordRepo, mockEventEmitter as any)
-  })
-
-  describe('getExistingAppIds', () => {
-    it('returns set of steam app IDs from records', async () => {
-      mockRecordRepo.findManyByExtraField = mock(() =>
-        Promise.resolve([
-          makeRecord({ extra: { steamAppId: '111' } }),
-          makeRecord({ extra: { steamAppId: '222' } }),
-        ]),
-      )
-
-      const result = await service.getExistingAppIds()
-
-      expect(result.size).toBe(2)
-      expect(result.has('111')).toBe(true)
-      expect(result.has('222')).toBe(true)
-    })
-
-    it('returns empty set when no records have steamAppId', async () => {
-      mockRecordRepo.findManyByExtraField = mock(() => Promise.resolve([]))
-
-      const result = await service.getExistingAppIds()
-
-      expect(result.size).toBe(0)
-    })
   })
 
   describe('importGames', () => {
@@ -144,6 +119,34 @@ describe('SteamService', () => {
       await service.importGames([{ appId: 777, status: RecordStatus.DONE, grade: 'LIKE' as any }])
 
       expect(mockRecordRepo.update).toHaveBeenCalledWith(60, { grade: 'LIKE' })
+    })
+
+    it('skips games whose title matches an existing record', async () => {
+      mockRecordRepo.findAll = mock(() =>
+        Promise.resolve([makeRecord({ id: 2, title: 'IGDB Game', extra: null })]),
+      )
+
+      const result = await service.importGames([{ appId: 123, status: RecordStatus.DONE }])
+
+      expect(result.created).toHaveLength(0)
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].reason).toContain('Already exists')
+      expect(mockRecordRepo.create).not.toHaveBeenCalled()
+    })
+
+    it('skips repeated appIds within a single import batch', async () => {
+      mockRecordRepo.findAll = mock(() => Promise.resolve([]))
+      const created = makeRecord({ id: 70 })
+      mockRecordRepo.create = mock(() => Promise.resolve(created))
+
+      const result = await service.importGames([
+        { appId: 321, status: RecordStatus.DONE },
+        { appId: 321, status: RecordStatus.DONE },
+      ])
+
+      expect(result.created).toHaveLength(1)
+      expect(result.failed).toHaveLength(1)
+      expect(mockRecordRepo.create).toHaveBeenCalledTimes(1)
     })
   })
 })

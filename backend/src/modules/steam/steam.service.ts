@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordType } from '@/enums'
-import { RecordRepository } from '@/modules/record/repositories/record.repository'
+import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
+import { WsEvents, type UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
 import { env } from '@/utils/enviroments'
 import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
-import type { UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
 
 interface SteamOwnedGamesResponse {
   response: {
@@ -27,7 +27,7 @@ export class SteamService {
 
   constructor(
     private readonly recordsProvidersService: RecordsProvidersService,
-    private readonly recordRepository: RecordRepository,
+    private readonly recordRepository: DrizzleRecordRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -58,11 +58,6 @@ export class SteamService {
     }))
   }
 
-  async getExistingAppIds(): Promise<Set<string>> {
-    const records = await this.recordRepository.findManyByExtraField('steamAppId')
-    return new Set(records.map((r) => (r.extra as Record<string, unknown>)?.steamAppId as string))
-  }
-
   async findDuplicateGames(): Promise<RecordWithRelations[]> {
     return await this.recordRepository.findAll(
       { genre: RecordGenre.GAME },
@@ -75,15 +70,22 @@ export class SteamService {
     game: { appid: number; name: string },
     existingGames: RecordWithRelations[],
   ): boolean {
-    const appIdStr = String(game.appid)
-    const steamLink = `store.steampowered.com/app/${game.appid}`
-    const normalizedName = game.name.toLowerCase().trim()
+    return this.matchesExisting({ appId: game.appid, name: game.name }, existingGames)
+  }
+
+  private matchesExisting(
+    game: { appId: number; name?: string },
+    existingGames: RecordWithRelations[],
+  ): boolean {
+    const appIdStr = String(game.appId)
+    const steamLink = `store.steampowered.com/app/${game.appId}`
+    const normalizedName = game.name?.toLowerCase().trim()
 
     return existingGames.some((record) => {
       const extra = record.extra as Record<string, unknown> | null
       if (extra?.steamAppId === appIdStr) return true
       if (record.link.includes(steamLink)) return true
-      if (record.title.toLowerCase().trim() === normalizedName) return true
+      if (normalizedName && record.title.toLowerCase().trim() === normalizedName) return true
       return false
     })
   }
@@ -92,21 +94,17 @@ export class SteamService {
     games: SteamImportGameDto[],
   ): Promise<{ created: any[]; failed: { appId: number; reason: string }[] }> {
     const existingGames = await this.findDuplicateGames()
+    const importedAppIds = new Set<string>()
     const created: any[] = []
     const failed: { appId: number; reason: string }[] = []
 
     for (const game of games) {
       const appIdStr = String(game.appId)
-      const steamLink = `store.steampowered.com/app/${game.appId}`
 
-      const isDuplicate = existingGames.some((record) => {
-        const extra = record.extra as Record<string, unknown> | null
-        if (extra?.steamAppId === appIdStr) return true
-        if (record.link.includes(steamLink)) return true
-        return false
-      })
-
-      if (isDuplicate) {
+      if (
+        importedAppIds.has(appIdStr) ||
+        this.matchesExisting({ appId: game.appId }, existingGames)
+      ) {
         failed.push({ appId: game.appId, reason: 'Already exists in database' })
         continue
       }
@@ -129,6 +127,11 @@ export class SteamService {
           link = `https://store.steampowered.com/app/${game.appId}`
         }
 
+        if (this.matchesExisting({ appId: game.appId, name: title }, existingGames)) {
+          failed.push({ appId: game.appId, reason: 'Already exists in database' })
+          continue
+        }
+
         const record = await this.recordRepository.create({
           title,
           posterUrl,
@@ -139,11 +142,14 @@ export class SteamService {
           extra: { steamAppId: appIdStr },
         })
 
+        importedAppIds.add(appIdStr)
+        existingGames.push(record)
+
         if (game.grade) {
           await this.recordRepository.update(record.id, { grade: game.grade })
         }
 
-        this.eventEmitter.emit('update-records', {
+        this.eventEmitter.emit(WsEvents.UPDATE_RECORDS, {
           genre: record.genre,
           id: record.id,
           action: 'created',

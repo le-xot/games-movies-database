@@ -2,13 +2,34 @@ import { env } from 'node:process'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { TwitchService } from '@/modules/twitch/twitch.service'
-import { RecordsProvidersRepository } from './repositories/records-providers.repository'
+import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
+import type { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 
 interface PreparedData {
   title: string
   posterUrl: string
   genre: RecordGenre
   link: string
+}
+
+interface KinopoiskFilm {
+  kinopoiskId?: number
+  nameRu?: string
+  nameEn?: string
+  nameOriginal?: string
+  posterUrl?: string
+  type: string
+  genres: Array<{ genre: string }>
+}
+
+const KINOPOISK_SERIES_TYPES = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
+
+const GENRE_PERMISSION_MESSAGES: Record<RecordGenre, string> = {
+  [RecordGenre.ANIME]: 'Прошу пока аниме не советовать',
+  [RecordGenre.CARTOON]: 'Прошу пока мультфильмы не советовать',
+  [RecordGenre.SERIES]: 'Прошу пока сериалы не советовать',
+  [RecordGenre.MOVIE]: 'Прошу пока фильмы не советовать',
+  [RecordGenre.GAME]: 'Прошу пока игры не советовать',
 }
 
 interface LinkRoute {
@@ -86,53 +107,31 @@ export class RecordsProvidersService {
   ]
 
   constructor(
-    private readonly repo: RecordsProvidersRepository,
+    private readonly repo: DrizzleRecordsProvidersRepository,
     private readonly twitch: TwitchService,
   ) {}
 
-  private readonly recordValidationRules = [
-    { condition: (r: any) => r.type === RecordType.AUCTION, message: 'Уже есть в аукционе' },
-    {
-      condition: (r: any) => r.type === RecordType.SUGGESTION,
-      message: 'Уже есть в советах',
-    },
-    {
-      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.DONE,
-      message: 'Уже есть в базе со статусом "Готово"',
-    },
-    {
-      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.DROP,
-      message: 'Уже есть в базе со статусом "Дроп"',
-    },
-    {
-      condition: (r: any) =>
-        r.type === RecordType.WRITTEN && r.status === RecordStatus.NOTINTERESTED,
-      message: 'Уже есть в базе со статусом "Не интересно"',
-    },
-    {
-      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.PROGRESS,
-      message: 'Уже есть в базе со статусом "В процессе"',
-    },
-    {
-      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.QUEUE,
-      message: 'Уже есть в очереди',
-    },
-    {
-      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === RecordStatus.UNFINISHED,
-      message: 'Уже есть в базе со статусом "Нет концовки"',
-    },
-    {
-      condition: (r: any) => r.type === RecordType.WRITTEN && r.status === null,
-      message: 'Уже есть в базе',
-    },
-  ]
+  private readonly writtenStatusMessages: Record<RecordStatus, string> = {
+    [RecordStatus.DONE]: 'Уже есть в базе со статусом "Готово"',
+    [RecordStatus.DROP]: 'Уже есть в базе со статусом "Дроп"',
+    [RecordStatus.NOTINTERESTED]: 'Уже есть в базе со статусом "Не интересно"',
+    [RecordStatus.PROGRESS]: 'Уже есть в базе со статусом "В процессе"',
+    [RecordStatus.QUEUE]: 'Уже есть в очереди',
+    [RecordStatus.UNFINISHED]: 'Уже есть в базе со статусом "Нет концовки"',
+  }
 
-  private validateExistingRecord(record: any) {
-    for (const rule of this.recordValidationRules) {
-      if (rule.condition(record)) {
-        throw new BadRequestException(rule.message)
-      }
+  private validateExistingRecord(record: RecordDomain) {
+    if (record.type === RecordType.AUCTION) {
+      throw new BadRequestException('Уже есть в аукционе')
     }
+    if (record.type === RecordType.SUGGESTION) {
+      throw new BadRequestException('Уже есть в советах')
+    }
+    if (record.type !== RecordType.WRITTEN) return
+
+    throw new BadRequestException(
+      record.status == null ? 'Уже есть в базе' : this.writtenStatusMessages[record.status],
+    )
   }
 
   async prepareData(data: { link: string }): Promise<PreparedData> {
@@ -146,7 +145,6 @@ export class RecordsProvidersService {
       this.validateExistingRecord(foundedRecord)
     }
 
-    data.link = newRecord.link
     return newRecord
   }
 
@@ -177,15 +175,15 @@ export class RecordsProvidersService {
     return hostname.replace(/^www\./i, '')
   }
 
-  private async checkGenrePermission(genre: RecordGenre, message?: string) {
+  private async checkGenrePermission(genre: RecordGenre) {
     const rule = await this.repo.findSuggestionRulesByGenre(genre)
     if (!rule?.permission) {
-      throw new BadRequestException(message ?? `Жанр ${genre} временно не разрешён`)
+      throw new BadRequestException(GENRE_PERMISSION_MESSAGES[genre])
     }
   }
 
   private async fetchShikimori(id: number): Promise<PreparedData> {
-    await this.checkGenrePermission(RecordGenre.ANIME, 'Прошу пока аниме не советовать')
+    await this.checkGenrePermission(RecordGenre.ANIME)
 
     const response = await fetch(`https://shikimori.one/api/animes/${id}`, {
       headers: { Accept: 'application/json' },
@@ -207,9 +205,22 @@ export class RecordsProvidersService {
   }
 
   private async fetchKinopoisk(id: number): Promise<PreparedData> {
+    const film = await this.kinopoiskGet<KinopoiskFilm>(`films/${id}`)
+    return this.mapKinopoiskFilm(film, id)
+  }
+
+  private async fetchFromImdb(imdbId: string): Promise<PreparedData> {
+    const data = await this.kinopoiskGet<{ items?: KinopoiskFilm[] }>(`films?imdbId=${imdbId}`)
+    const film = data.items?.[0]
+    if (!film) throw new BadRequestException('Фильм не найден в API Кинопоиска по IMDB ID')
+
+    return this.mapKinopoiskFilm(film)
+  }
+
+  private async kinopoiskGet<T>(path: string): Promise<T> {
     if (!env.KINOPOISK_API) throw new BadRequestException('API ключ для Кинопоиска не настроен')
 
-    const response = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/films/${id}`, {
+    const response = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/${path}`, {
       headers: {
         accept: 'application/json',
         'X-API-KEY': env.KINOPOISK_API,
@@ -220,49 +231,18 @@ export class RecordsProvidersService {
         `Не удалось получить данные из API Кинопоиска: ${response.status}`,
       )
 
-    const result = (await response.json()) as any
-    const genre = await this.mapKinopoiskGenre(result.genres, result.type)
-    const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
-    const path = seriesTypes.includes(result.type) ? 'series' : 'film'
-
-    return {
-      title: result.nameRu || result.nameEn || result.nameOriginal,
-      posterUrl: result.posterUrl ?? '',
-      genre,
-      link: `https://www.kinopoisk.ru/${path}/${id}`,
-    }
+    return (await response.json()) as T
   }
 
-  private async fetchFromImdb(imdbId: string): Promise<PreparedData> {
-    if (!env.KINOPOISK_API) throw new BadRequestException('API ключ для Кинопоиска не настроен')
-
-    const response = await fetch(
-      `https://kinopoiskapiunofficial.tech/api/v2.2/films?imdbId=${imdbId}`,
-      {
-        headers: {
-          accept: 'application/json',
-          'X-API-KEY': env.KINOPOISK_API,
-        },
-      },
-    )
-    if (!response.ok)
-      throw new BadRequestException(
-        `Не удалось получить данные из API Кинопоиска: ${response.status}`,
-      )
-
-    const data = (await response.json()) as any
-    const film = data.items?.[0]
-    if (!film) throw new BadRequestException('Фильм не найден в API Кинопоиска по IMDB ID')
-
+  private async mapKinopoiskFilm(film: KinopoiskFilm, fallbackId?: number): Promise<PreparedData> {
     const genre = await this.mapKinopoiskGenre(film.genres, film.type)
-    const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
-    const path = seriesTypes.includes(film.type) ? 'series' : 'film'
+    const path = KINOPOISK_SERIES_TYPES.includes(film.type) ? 'series' : 'film'
 
     return {
       title: film.nameRu || film.nameEn || film.nameOriginal,
       posterUrl: film.posterUrl ?? '',
       genre,
-      link: `https://www.kinopoisk.ru/${path}/${film.kinopoiskId}`,
+      link: `https://www.kinopoisk.ru/${path}/${film.kinopoiskId ?? fallbackId}`,
     }
   }
 
@@ -274,12 +254,12 @@ export class RecordsProvidersService {
       throw new BadRequestException('Не удалось определить жанр из API Кинопоиска')
 
     if (genres.some((g) => g.genre.toLowerCase() === 'аниме')) {
-      await this.checkGenrePermission(RecordGenre.ANIME, 'Прошу пока аниме не советовать')
+      await this.checkGenrePermission(RecordGenre.ANIME)
       return RecordGenre.ANIME
     }
 
     if (genres.some((g) => g.genre.toLowerCase() === 'мультфильм')) {
-      await this.checkGenrePermission(RecordGenre.CARTOON, 'Прошу пока мультфильмы не советовать')
+      await this.checkGenrePermission(RecordGenre.CARTOON)
       return RecordGenre.CARTOON
     }
 
@@ -287,17 +267,16 @@ export class RecordsProvidersService {
   }
 
   private async mapKinopoiskType(type: string): Promise<RecordGenre> {
-    const seriesTypes = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
-    if (seriesTypes.includes(type)) {
-      await this.checkGenrePermission(RecordGenre.SERIES, 'Прошу пока сериалы не советовать')
+    if (KINOPOISK_SERIES_TYPES.includes(type)) {
+      await this.checkGenrePermission(RecordGenre.SERIES)
       return RecordGenre.SERIES
     }
-    await this.checkGenrePermission(RecordGenre.MOVIE, 'Прошу пока фильмы не советовать')
+    await this.checkGenrePermission(RecordGenre.MOVIE)
     return RecordGenre.MOVIE
   }
 
   private async fetchIGDBGame(where: string): Promise<PreparedData> {
-    await this.checkGenrePermission(RecordGenre.GAME, 'Прошу пока игры не советовать')
+    await this.checkGenrePermission(RecordGenre.GAME)
 
     const accessToken = await this.twitch.getAppAccessToken()
     const response = await fetch('https://api.igdb.com/v4/games', {
@@ -354,9 +333,5 @@ export class RecordsProvidersService {
     if (!externalData[0]?.game) throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
 
     return this.fetchIGDBGame(`id = ${externalData[0].game}`)
-  }
-
-  private async fetchReyohoho(id: number): Promise<PreparedData> {
-    return await this.fetchKinopoisk(id)
   }
 }

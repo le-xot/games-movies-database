@@ -3,12 +3,12 @@ import { NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { UserRole } from '@/enums'
 import { UserDomain } from '../entities/user-domain.entity'
-import { UserRepository } from '../repositories/user.repository'
+import { DrizzleUserRepository } from '../repositories/drizzle-user.repository'
 import { UserService } from '../user.service'
 
 describe('UserService', () => {
   let service: UserService
-  let mockRepo: UserRepository
+  let mockRepo: DrizzleUserRepository
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
   let mockAvatarService: {
     fetchAndStoreOAuthAvatar: ReturnType<typeof mock>
@@ -17,7 +17,7 @@ describe('UserService', () => {
   }
 
   beforeEach(() => {
-    mockRepo = createMock(UserRepository)
+    mockRepo = createMock(DrizzleUserRepository)
     mockEventEmitter = { emit: mock(() => {}) }
     mockAvatarService = {
       fetchAndStoreOAuthAvatar: mock(() => Promise.resolve(null)),
@@ -44,8 +44,10 @@ describe('UserService', () => {
       }
       const findByPlatformId = mock(() =>
         Promise.resolve(existingUser),
-      ) as unknown as UserRepository['findByPlatformId']
-      const update = mock(() => Promise.resolve(updatedUser)) as unknown as UserRepository['update']
+      ) as unknown as DrizzleUserRepository['findByPlatformId']
+      const update = mock(() =>
+        Promise.resolve(updatedUser),
+      ) as unknown as DrizzleUserRepository['update']
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
@@ -81,8 +83,10 @@ describe('UserService', () => {
       }
       const findByPlatformId = mock(() =>
         Promise.resolve(existingUser),
-      ) as unknown as UserRepository['findByPlatformId']
-      const update = mock(() => Promise.resolve(updatedUser)) as unknown as UserRepository['update']
+      ) as unknown as DrizzleUserRepository['findByPlatformId']
+      const update = mock(() =>
+        Promise.resolve(updatedUser),
+      ) as unknown as DrizzleUserRepository['update']
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
@@ -118,8 +122,10 @@ describe('UserService', () => {
       const updatedUser: UserDomain = { ...existingUser }
       const findByPlatformId = mock(() =>
         Promise.resolve(existingUser),
-      ) as unknown as UserRepository['findByPlatformId']
-      const update = mock(() => Promise.resolve(updatedUser)) as unknown as UserRepository['update']
+      ) as unknown as DrizzleUserRepository['findByPlatformId']
+      const update = mock(() =>
+        Promise.resolve(updatedUser),
+      ) as unknown as DrizzleUserRepository['update']
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.update = update
 
@@ -145,8 +151,10 @@ describe('UserService', () => {
       }
       const findByPlatformId = mock(() =>
         Promise.resolve(null),
-      ) as unknown as UserRepository['findByPlatformId']
-      const create = mock(() => Promise.resolve(createdUser)) as unknown as UserRepository['create']
+      ) as unknown as DrizzleUserRepository['findByPlatformId']
+      const create = mock(() =>
+        Promise.resolve(createdUser),
+      ) as unknown as DrizzleUserRepository['create']
       mockRepo.findByPlatformId = findByPlatformId
       mockRepo.create = create
 
@@ -165,28 +173,48 @@ describe('UserService', () => {
       expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-2')
       expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith('user-2', 'new-url')
     })
-  })
 
-  describe('getUserByLogin', () => {
-    it('delegates to repository.findByLogin', async () => {
-      const user: UserDomain = {
-        id: 'user-4',
-        login: 'login-4',
+    it('stores the oauth avatar under the created user id, not the platform id', async () => {
+      const createdUser: UserDomain = {
+        id: 'user-9',
+        login: 'new-user',
         role: UserRole.USER,
-        profileImageUrl: 'url',
-        color: '#444444',
+        profileImageUrl: 'https://cdn.example.com/avatar.jpg',
+        color: '#333333',
         hasCustomAvatar: false,
-        createdAt: new Date('2024-01-05'),
+        createdAt: new Date('2024-01-09'),
       }
-      const findByLogin = mock(() =>
-        Promise.resolve(user),
-      ) as unknown as UserRepository['findByLogin']
-      mockRepo.findByLogin = findByLogin
+      const updatedUser: UserDomain = {
+        ...createdUser,
+        profileImageUrl: '/api/avatar/user-9?t=1',
+      }
+      mockRepo.findByPlatformId = mock(() =>
+        Promise.resolve(null),
+      ) as unknown as DrizzleUserRepository['findByPlatformId']
+      mockRepo.create = mock(() =>
+        Promise.resolve(createdUser),
+      ) as unknown as DrizzleUserRepository['create']
+      mockRepo.update = mock(() =>
+        Promise.resolve(updatedUser),
+      ) as unknown as DrizzleUserRepository['update']
+      mockAvatarService.fetchAndStoreOAuthAvatar = mock(() =>
+        Promise.resolve('/api/avatar/user-9?t=1'),
+      )
 
-      const result = await service.getUserByLogin('login-4')
+      const result = await service.upsertUser(
+        'twitch-platform-777',
+        { login: 'new-user', profileImageUrl: 'https://cdn.example.com/avatar.jpg' },
+        'TWITCH',
+      )
 
-      expect(result).toEqual(user)
-      expect(findByLogin).toHaveBeenCalledWith('login-4')
+      expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith(
+        'user-9',
+        'https://cdn.example.com/avatar.jpg',
+      )
+      expect(mockRepo.update).toHaveBeenCalledWith('user-9', {
+        profileImageUrl: '/api/avatar/user-9?t=1',
+      })
+      expect(result.profileImageUrl).toBe('/api/avatar/user-9?t=1')
     })
   })
 
@@ -201,7 +229,9 @@ describe('UserService', () => {
         hasCustomAvatar: false,
         createdAt: new Date('2024-01-06'),
       }
-      const findById = mock(() => Promise.resolve(user)) as unknown as UserRepository['findById']
+      const findById = mock(() =>
+        Promise.resolve(user),
+      ) as unknown as DrizzleUserRepository['findById']
       mockRepo.findById = findById
 
       const result = await service.getUserById('user-5')
@@ -224,55 +254,15 @@ describe('UserService', () => {
           createdAt: new Date('2024-01-07'),
         },
       ]
-      const findAll = mock(() => Promise.resolve(users)) as unknown as UserRepository['findAll']
+      const findAll = mock(() =>
+        Promise.resolve(users),
+      ) as unknown as DrizzleUserRepository['findAll']
       mockRepo.findAll = findAll
 
       const result = await service.getAllUsers()
 
       expect(result).toEqual(users)
       expect(findAll).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('deleteUserByLogin', () => {
-    it('deletes a user with cascade and emits an event', async () => {
-      const user: UserDomain = {
-        id: 'user-7',
-        login: 'login-7',
-        role: UserRole.USER,
-        profileImageUrl: 'url',
-        color: '#777777',
-        hasCustomAvatar: false,
-        createdAt: new Date('2024-01-08'),
-      }
-      const findByLogin = mock(() =>
-        Promise.resolve(user),
-      ) as unknown as UserRepository['findByLogin']
-      const deleteWithCascade = mock(() =>
-        Promise.resolve(),
-      ) as unknown as UserRepository['deleteWithCascade']
-      mockRepo.findByLogin = findByLogin
-      mockRepo.deleteWithCascade = deleteWithCascade
-
-      await service.deleteUserByLogin('login-7')
-
-      expect(findByLogin).toHaveBeenCalledWith('login-7')
-      expect(deleteWithCascade).toHaveBeenCalledWith('user-7')
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
-        userId: 'user-7',
-        action: 'deleted',
-      })
-    })
-
-    it('throws NotFoundException when the user does not exist', async () => {
-      const findByLogin = mock(() =>
-        Promise.resolve(null),
-      ) as unknown as UserRepository['findByLogin']
-      mockRepo.findByLogin = findByLogin
-
-      await expect(service.deleteUserByLogin('missing-login')).rejects.toThrow(NotFoundException)
-      expect(mockRepo.deleteWithCascade).not.toHaveBeenCalled()
-      expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
   })
 
@@ -287,10 +277,12 @@ describe('UserService', () => {
         hasCustomAvatar: false,
         createdAt: new Date('2024-01-09'),
       }
-      const findById = mock(() => Promise.resolve(user)) as unknown as UserRepository['findById']
+      const findById = mock(() =>
+        Promise.resolve(user),
+      ) as unknown as DrizzleUserRepository['findById']
       const deleteWithCascade = mock(() =>
         Promise.resolve(),
-      ) as unknown as UserRepository['deleteWithCascade']
+      ) as unknown as DrizzleUserRepository['deleteWithCascade']
       mockRepo.findById = findById
       mockRepo.deleteWithCascade = deleteWithCascade
 
@@ -305,7 +297,9 @@ describe('UserService', () => {
     })
 
     it('throws NotFoundException when the user does not exist', async () => {
-      const findById = mock(() => Promise.resolve(null)) as unknown as UserRepository['findById']
+      const findById = mock(() =>
+        Promise.resolve(null),
+      ) as unknown as DrizzleUserRepository['findById']
       mockRepo.findById = findById
 
       await expect(service.deleteUserById('missing-id')).rejects.toThrow(NotFoundException)
@@ -329,7 +323,7 @@ describe('UserService', () => {
       ]
       const findAccountsByUserId = mock(() =>
         Promise.resolve(accounts),
-      ) as unknown as UserRepository['findAccountsByUserId']
+      ) as unknown as DrizzleUserRepository['findAccountsByUserId']
       mockRepo.findAccountsByUserId = findAccountsByUserId
 
       const result = await service.getLinkedAccounts('user-1')

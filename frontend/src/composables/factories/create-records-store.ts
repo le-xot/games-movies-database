@@ -1,13 +1,11 @@
 import { useMutation, useQuery } from '@pinia/colada'
 import { StoreDefinition, defineStore } from 'pinia'
 import { ComputedRef, computed, ref, watch } from 'vue'
-import { useRecordCreate } from '@/composables/use-record-create'
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 
 export interface ParamsStoreReturn {
   params: Record<string, any>
-  pagination: { pageIndex: number; pageSize: number }
 }
 
 export interface RecordsStoreConfig<TItems extends string, TRefetch extends string> {
@@ -20,12 +18,9 @@ export interface RecordsStoreConfig<TItems extends string, TRefetch extends stri
 
 type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
   isLoading: boolean
-  totalRecords: number
-  totalPages: number
   updateRecord: (payload: { id: number; data: RecordUpdateDTO }) => Promise<any>
   updatePoster: (payload: { id: number; url: string }) => Promise<any>
   deleteRecord: (id: number) => Promise<any>
-  createRecord: (link: string) => Promise<any>
 } & Record<TItems, ComputedRef<RecordEntity[]>> &
   Record<TRefetch, () => Promise<any>>
 
@@ -50,16 +45,6 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       },
     })
 
-    const totalRecords = computed(() => {
-      if (!data.value) return 0
-      return data.value.total
-    })
-
-    const totalPages = computed(() => {
-      if (!data.value) return 0
-      return Math.ceil(data.value.total / paramsStoreInstance.pagination.pageSize)
-    })
-
     const { mutateAsync: updateRecord } = useMutation({
       key: [config.queryKey, 'update'],
       mutation: ({ id, data: body }: { id: number; data: RecordUpdateDTO }) => {
@@ -78,14 +63,6 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       key: [config.queryKey, 'updatePoster'],
       mutation: ({ id, url }: { id: number; url: string }) => {
         return api.records.recordControllerUpdatePoster(id, { url })
-      },
-    })
-
-    const { mutateAsync: createRecord } = useMutation({
-      key: [config.queryKey, 'create'],
-      mutation: async (link: string) => {
-        const { createRecord: create } = useRecordCreate(config.queryKey, refetch)
-        return await create(link)
       },
     })
 
@@ -112,9 +89,6 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       updateRecord,
       updatePoster,
       deleteRecord,
-      createRecord,
-      totalRecords,
-      totalPages,
     } as unknown as RecordsStoreReturn<TItems, TRefetch>
   })
 }

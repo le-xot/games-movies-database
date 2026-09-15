@@ -4,7 +4,6 @@ import { APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { AppController } from '@/app.controller'
-import { DrizzleModule } from '@/database/drizzle.module'
 import { AuctionModule } from '@/modules/auction/auction.module'
 import { AuthModule } from '@/modules/auth/auth.module'
 import { AvatarModule } from '@/modules/avatar/avatar.module'
@@ -17,7 +16,6 @@ import { QueueModule } from '@/modules/queue/queue.module'
 import { RateLimitGuard } from '@/modules/rate-limit/rate-limit.guard'
 import { RateLimitModule } from '@/modules/rate-limit/rate-limit.module'
 import { RecordModule } from '@/modules/record/record.module'
-import { RecordsProvidersModule } from '@/modules/records-providers/records-providers.module'
 import { SteamModule } from '@/modules/steam/steam.module'
 import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
 import { TelegramModule } from '@/modules/telegram/telegram.module'
@@ -45,16 +43,12 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     AvatarModule,
     RecordModule,
     UserModule,
-    DrizzleModule,
-    CustomJwtModule,
     LimitModule,
     LikeModule,
     QueueModule,
     SuggestionModule,
     WeatherModule,
-    RecordsProvidersModule,
     SteamModule,
-    // SpotifyModule,
     WebsocketModule,
     ImgModule,
   ],

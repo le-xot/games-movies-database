@@ -1,25 +1,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import MediaPoster from '@/components/media/MediaPoster.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RecordEntity } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
-import { getImageUrl } from '@/utils/image'
 
 defineProps<{ items: RecordEntity[] }>()
 
 const { isAdmin } = storeToRefs(useUser())
-
-const isDialogOpen = ref(false)
-
-function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement
-  img.src = '/images/aga.webp'
-}
-
-isDialogOpen.value = false
-
-defineExpose({ isDialogOpen })
 </script>
 
 <template>
@@ -36,14 +24,11 @@ defineExpose({ isDialogOpen })
         :class="{ 'h-[250px]': isAdmin }"
       >
         <div class="flex flex-1 h-full">
-          <div v-if="item.posterUrl" class="relative w-[130px] flex-shrink-0">
-            <img
-              :src="getImageUrl(item.posterUrl)"
-              class="w-full h-full object-cover rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
-              alt="Poster"
-              @error="handleImageError"
-            />
-          </div>
+          <MediaPoster
+            :url="item.posterUrl"
+            :label="item.title?.slice(0, 2).toUpperCase()"
+            class="w-[130px] rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)]"
+          />
           <div class="flex flex-col flex-1 justify-between overflow-hidden">
             <CardHeader>
               <CardTitle

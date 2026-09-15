@@ -1,13 +1,57 @@
 <script setup lang="ts">
 import { Loader2 } from '@lucide/vue'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { ROUTER_PATHS } from '@/router/router-paths'
+import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
+interface ProviderConfig {
+  cookieName: string
+  name: string
+  link: (code: string) => Promise<unknown>
+  login: (code: string) => Promise<unknown>
+}
+
+const api = useApi()
 const userApi = useUser()
+const route = useRoute()
 const router = useRouter()
+
+const providers: Record<string, ProviderConfig> = {
+  twitch: {
+    cookieName: 'twitch_linking',
+    name: 'Twitch',
+    link: async (code) => {
+      try {
+        await api.auth.authControllerLinkTwitch({ code })
+      } catch {
+        throw new Error('Не удалось привязать Twitch')
+      }
+    },
+    login: (code) => userApi.userLogin({ code }),
+  },
+  kick: {
+    cookieName: 'kick_linking',
+    name: 'Kick',
+    link: async (code) => {
+      try {
+        await api.auth.authControllerLinkKick({ code })
+      } catch {
+        throw new Error('Не удалось привязать Kick')
+      }
+    },
+    login: async (code) => {
+      try {
+        await api.auth.authControllerKickAuthCallback({ code })
+      } catch {
+        throw new Error('Ошибка авторизации через Kick')
+      }
+      await userApi.refetchUser()
+    },
+  },
+}
 
 const error = ref('')
 const isLoading = ref(true)
@@ -22,6 +66,13 @@ function deleteCookie(name: string) {
 }
 
 onMounted(async () => {
+  const provider = providers[route.meta.provider as string]
+  if (!provider) {
+    isLoading.value = false
+    error.value = 'Неизвестный провайдер авторизации'
+    return
+  }
+
   const url = new URL(window.location.href)
   const loginError = url.searchParams.get('error')
   if (loginError) {
@@ -37,29 +88,22 @@ onMounted(async () => {
     return
   }
 
-  const isLinking = getCookie('twitch_linking') === '1'
-  deleteCookie('twitch_linking')
+  const isLinking = getCookie(provider.cookieName) === '1'
+  deleteCookie(provider.cookieName)
 
   const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
 
   try {
     if (isLinking) {
-      const response = await fetch('/api/auth/twitch/link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ code }),
-      })
-      if (!response.ok) throw new Error('Не удалось привязать Twitch')
-
+      await provider.link(code)
       localStorage.removeItem('loginReturnUrl')
       await router.push(ROUTER_PATHS.profile)
-      toast.success('Аккаунт привязан', { description: 'Twitch привязан к профилю' })
+      toast.success('Аккаунт привязан', { description: `${provider.name} привязан к профилю` })
     } else {
-      await userApi.userLogin({ code })
+      await provider.login(code)
       localStorage.removeItem('loginReturnUrl')
       await router.push(returnUrl)
-      toast.success('Вход выполнен', { description: 'Вы вошли через Twitch' })
+      toast.success('Вход выполнен', { description: `Вы вошли через ${provider.name}` })
     }
   } catch (e) {
     if (e instanceof Error) {

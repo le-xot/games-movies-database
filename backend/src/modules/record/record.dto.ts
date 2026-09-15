@@ -80,25 +80,6 @@ export class RecordUpdatePosterDTO {
 }
 
 export class RecordGetDTO {
-  @ApiProperty({ example: 1, required: false })
-  @IsOptional()
-  id?: number
-
-  @ApiProperty({ example: 'My Record', required: false })
-  @IsOptional()
-  @IsString()
-  title?: string
-
-  @ApiProperty({ example: 'https://example.com/record', required: false })
-  @IsOptional()
-  @IsUrl()
-  link?: string
-
-  @ApiProperty({ example: 'https://example.com/poster.jpg', required: false })
-  @IsOptional()
-  @IsUrl()
-  posterUrl?: string
-
   @ApiProperty({
     example: RecordStatus.PROGRESS,
     enum: RecordStatus,
@@ -144,11 +125,6 @@ export class RecordGetDTO {
   @IsArray()
   @IsEnum(RecordGrade, { each: true })
   grade?: RecordGrade[]
-
-  @ApiProperty({ example: 'S01E01', required: false })
-  @IsOptional()
-  @IsString()
-  episode?: string
 
   @ApiProperty({ example: 'minecraft', required: false })
   @IsOptional()

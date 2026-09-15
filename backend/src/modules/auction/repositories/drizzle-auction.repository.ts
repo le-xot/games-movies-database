@@ -3,16 +3,13 @@ import { Injectable, Logger } from '@nestjs/common'
 import { and, eq, inArray, ne } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordType } from '@/enums'
-import { AuctionRepository } from './auction.repository'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 @Injectable()
-export class DrizzleAuctionRepository extends AuctionRepository {
+export class DrizzleAuctionRepository {
   private readonly logger = new Logger(DrizzleAuctionRepository.name)
 
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async findAuctions(): Promise<RecordWithRelations[]> {
     return await this.drizzle.db.query.records.findMany({

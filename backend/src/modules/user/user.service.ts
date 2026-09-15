@@ -2,19 +2,26 @@ import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserRole } from '@/enums'
 import { AvatarService } from '@/modules/avatar/avatar.service'
-import { UserDomain } from '@/modules/user/entities/user-domain.entity'
-import { LinkPlatformData, UserRepository } from '@/modules/user/repositories/user.repository'
-import { UpdateUsersPayload } from '@/modules/websocket/websocket.events'
+import { LinkPlatformData, UserDomain } from '@/modules/user/entities/user-domain.entity'
+import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
+import { WsEvents, type UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name)
 
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: DrizzleUserRepository,
     private readonly eventEmitter: EventEmitter2,
     private readonly avatarService: AvatarService,
   ) {}
+
+  private emitUserUpdate(userId: string, action: UpdateUsersPayload['action']) {
+    this.eventEmitter.emit(WsEvents.UPDATE_USERS, {
+      userId,
+      action,
+    } satisfies UpdateUsersPayload)
+  }
 
   async upsertUser(
     platformId: string,
@@ -41,10 +48,7 @@ export class UserService {
           profileImageUrl,
           color: data.color,
         })
-        this.eventEmitter.emit('update-users', {
-          userId: foundUser.id,
-          action: 'updated',
-        } satisfies UpdateUsersPayload)
+        this.emitUserUpdate(foundUser.id, 'updated')
         return updatedUser
       }
 
@@ -52,37 +56,34 @@ export class UserService {
         role: data.role,
         color: data.color,
       })
-      this.eventEmitter.emit('update-users', {
-        userId: foundUser.id,
-        action: 'updated',
-      } satisfies UpdateUsersPayload)
+      this.emitUserUpdate(foundUser.id, 'updated')
       return updatedUser
     }
-
-    const s3Key = data.profileImageUrl
-      ? await this.avatarService.fetchAndStoreOAuthAvatar(platformId, data.profileImageUrl)
-      : null
-    const profileImageUrl = s3Key ?? data.profileImageUrl
 
     const createdUser = await this.userRepository.create({
       login: data.login,
       role: data.role ?? UserRole.USER,
-      profileImageUrl,
+      profileImageUrl: data.profileImageUrl,
       color: data.color ?? '#333333',
       platform,
       platformUserId: platformId,
       platformLogin: data.login,
       platformAvatar: data.profileImageUrl,
     })
-    this.eventEmitter.emit('update-users', {
-      userId: createdUser.id,
-      action: 'created',
-    } satisfies UpdateUsersPayload)
-    return createdUser
-  }
 
-  getUserByLogin(login: string): Promise<UserDomain | null> {
-    return this.userRepository.findByLogin(login)
+    let user = createdUser
+    if (data.profileImageUrl) {
+      const s3Key = await this.avatarService.fetchAndStoreOAuthAvatar(
+        createdUser.id,
+        data.profileImageUrl,
+      )
+      if (s3Key) {
+        user = await this.userRepository.update(createdUser.id, { profileImageUrl: s3Key })
+      }
+    }
+
+    this.emitUserUpdate(user.id, 'created')
+    return user
   }
 
   getUserById(id: string): Promise<UserDomain | null> {
@@ -97,20 +98,6 @@ export class UserService {
     return this.userRepository.findAll()
   }
 
-  async deleteUserByLogin(login: string): Promise<void> {
-    const user = await this.userRepository.findByLogin(login)
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-
-    await this.userRepository.deleteWithCascade(user.id)
-
-    this.eventEmitter.emit('update-users', {
-      userId: user.id,
-      action: 'deleted',
-    } satisfies UpdateUsersPayload)
-  }
-
   async deleteUserById(id: string): Promise<void> {
     const user = await this.userRepository.findById(id)
     if (!user) {
@@ -119,18 +106,12 @@ export class UserService {
 
     await this.userRepository.deleteWithCascade(id)
 
-    this.eventEmitter.emit('update-users', {
-      userId: id,
-      action: 'deleted',
-    } satisfies UpdateUsersPayload)
+    this.emitUserUpdate(id, 'deleted')
   }
 
   async updateLogin(userId: string, login: string): Promise<UserDomain> {
     const user = await this.userRepository.update(userId, { login })
-    this.eventEmitter.emit('update-users', {
-      userId,
-      action: 'updated',
-    } satisfies UpdateUsersPayload)
+    this.emitUserUpdate(userId, 'updated')
     return user
   }
 
@@ -176,10 +157,7 @@ export class UserService {
       hasCustomAvatar: true,
     })
 
-    this.eventEmitter.emit('update-users', {
-      userId,
-      action: 'updated',
-    } satisfies UpdateUsersPayload)
+    this.emitUserUpdate(userId, 'updated')
 
     return updatedUser
   }
@@ -201,10 +179,7 @@ export class UserService {
       hasCustomAvatar: false,
     })
 
-    this.eventEmitter.emit('update-users', {
-      userId,
-      action: 'updated',
-    } satisfies UpdateUsersPayload)
+    this.emitUserUpdate(userId, 'updated')
 
     return updatedUser
   }

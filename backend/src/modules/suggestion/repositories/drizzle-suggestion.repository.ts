@@ -2,20 +2,26 @@ import { likes, limits, records, suggestionOwnerships } from '@gmd/database/sche
 import { Injectable } from '@nestjs/common'
 import { and, count, eq, inArray, or, type SQL } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
-import { LimitType, RecordStatus, RecordType } from '@/enums'
+import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { LimitDomain } from '@/modules/limit/entities/limit.entity'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
-import {
-  CreateSuggestionData,
-  SuggestionFilters,
-  SuggestionRepository,
-} from './suggestion.repository'
+
+export interface CreateSuggestionData {
+  title: string
+  posterUrl: string
+  genre: RecordGenre
+  link: string
+}
+
+export interface SuggestionFilters {
+  type?: RecordType
+  types?: RecordType[]
+  statuses?: string[]
+}
 
 @Injectable()
-export class DrizzleSuggestionRepository extends SuggestionRepository {
-  constructor(private readonly drizzle: DrizzleService) {
-    super()
-  }
+export class DrizzleSuggestionRepository {
+  constructor(private readonly drizzle: DrizzleService) {}
 
   async findLimit(limitType: LimitType): Promise<LimitDomain | null> {
     return (

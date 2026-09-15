@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { RecordGenre, RecordType } from '@/enums'
 import { AuctionService } from '../auction.service'
-import { AuctionRepository } from '../repositories/auction.repository'
+import { DrizzleAuctionRepository } from '../repositories/drizzle-auction.repository'
 
 describe('AuctionService', () => {
   let service: AuctionService
-  let mockRepo: AuctionRepository
+  let mockRepo: DrizzleAuctionRepository
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
 
   beforeEach(() => {
-    mockRepo = createMock(AuctionRepository)
+    mockRepo = createMock(DrizzleAuctionRepository)
     mockEventEmitter = { emit: mock(() => {}) }
     service = new AuctionService(mockRepo, mockEventEmitter as any)
   })
@@ -29,7 +29,7 @@ describe('AuctionService', () => {
       ]
       const findAuctions = mock(() =>
         Promise.resolve(mockAuctions),
-      ) as unknown as AuctionRepository['findAuctions']
+      ) as unknown as DrizzleAuctionRepository['findAuctions']
       mockRepo.findAuctions = findAuctions
 
       const result = await service.getAuctions()
@@ -52,7 +52,7 @@ describe('AuctionService', () => {
       }
       const selectWinner = mock(() =>
         Promise.resolve(mockWinner),
-      ) as unknown as AuctionRepository['selectWinner']
+      ) as unknown as DrizzleAuctionRepository['selectWinner']
       mockRepo.selectWinner = selectWinner
 
       const result = await service.getWinner(winnerId)
@@ -73,7 +73,7 @@ describe('AuctionService', () => {
     it('propagates errors from repository.selectWinner', async () => {
       const selectWinner = mock(() =>
         Promise.reject(new Error('Record not found')),
-      ) as unknown as AuctionRepository['selectWinner']
+      ) as unknown as DrizzleAuctionRepository['selectWinner']
       mockRepo.selectWinner = selectWinner
 
       await expect(service.getWinner(999)).rejects.toThrow('Record not found')

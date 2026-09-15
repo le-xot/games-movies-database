@@ -19,6 +19,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
 
       - name: Cache bun packages
         uses: actions/cache@v4
@@ -30,9 +32,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Typecheck database
-        run: bun --filter=./database run check
 
       - name: Check migrations are up to date
         env:
@@ -46,11 +45,11 @@ jobs:
       - name: Lint
         run: bun lint
 
-      - name: Typecheck frontend
-        run: bun typecheck
+      - name: Format check
+        run: bun format:check
 
-      - name: Typecheck backend
-        run: bun --filter=./backend run build
+      - name: Typecheck
+        run: bun typecheck
 
       - name: Prepare test env
         run: cp backend/.env.example backend/.env

@@ -136,7 +136,6 @@ export function useWeather() {
   return {
     city,
     temp,
-    condition,
     description,
     feelsLike,
     humidity,

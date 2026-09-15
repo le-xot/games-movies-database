@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { LikeService } from '../like.service'
-import { LikeRepository } from '../repositories/like.repository'
+import { DrizzleLikeRepository } from '../repositories/drizzle-like.repository'
 
 const makeLike = (overrides?: Partial<{ id: string; userId: string; recordId: number }>) => ({
   id: 'like-1',
@@ -14,11 +14,11 @@ const makeLike = (overrides?: Partial<{ id: string; userId: string; recordId: nu
 
 describe('LikeService', () => {
   let service: LikeService
-  let mockRepo: LikeRepository
+  let mockRepo: DrizzleLikeRepository
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
 
   beforeEach(() => {
-    mockRepo = createMock(LikeRepository)
+    mockRepo = createMock(DrizzleLikeRepository)
     mockEventEmitter = { emit: mock(() => {}) }
     service = new LikeService(mockRepo, mockEventEmitter as any)
   })

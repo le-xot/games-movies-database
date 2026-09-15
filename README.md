@@ -24,7 +24,7 @@
 | Слой           | Технологии                                                                                                            |
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend        | NestJS 12, Prisma ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                       |
+| Backend        | NestJS 12, Drizzle ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                      |
 | Инфраструктура | Docker, Bun, Redis (rate limiting), RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                    |
 
 ## Быстрый старт
@@ -66,10 +66,10 @@ cp backend/.env.example backend/.env
 ### 5. Миграция базы данных
 
 ```bash
-cd backend
-bun prisma generate
-bun prisma migrate dev
+bun db:migrate
 ```
+
+Схема базы данных описана в `database/src/schema/`, миграции генерируются в `database/migrations/` командой `bun db:generate` после изменения схемы. Если база ранее управлялась Prisma, однократно выполните `bun db:baseline`.
 
 ### 6. Запуск
 
@@ -158,8 +158,8 @@ games-movies-database/
 │   ├── src/
 │   │   ├── main.ts            # Точка входа, Swagger, CORS, cookieParser
 │   │   ├── app.module.ts      # Корневой модуль
-│   │   ├── database/          # PrismaModule + PrismaService
-│   │   ├── enums/             # Константы для Prisma enum
+│   │   ├── database/          # DrizzleModule + DrizzleService
+│   │   ├── enums/             # Реэкспорт enum-констант из @gmd/database
 │   │   ├── utils/             # Валидация окружения (envalid)
 │   │   └── modules/           # Фича-модули
 │   │       ├── auth/          # Twitch/Kick OAuth, JWT, guards
@@ -180,10 +180,13 @@ games-movies-database/
 │   │       ├── weather/       # Погода (OpenWeatherMap)
 │   │       ├── jwt/           # CustomJwtModule обёртка
 │   │       └── limit/         # Лимиты предложений
-│   ├── prisma/
-│   │   ├── schema.prisma      # Схема базы данных
-│   │   └── migrations/        # Миграции Prisma
 │   └── package.json
+├── database/                  # Drizzle схема и миграции
+│   ├── src/
+│   │   ├── schema/            # Схема базы данных (pgTable/pgEnum)
+│   │   ├── migrate.ts         # Применение миграций
+│   │   └── baseline.ts        # Однократный baseline существующей базы
+│   └── migrations/            # Сгенерированные SQL миграции
 ├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + Redis + приложение + Traefik)
 ├── docker-compose.dev.yml     # Dev окружение (PostgreSQL + Redis + RustFS + Adminer)
 ├── Dockerfile                 # Многостадийная сборка (frontend → backend → serve)
@@ -207,7 +210,9 @@ games-movies-database/
 | `bun start:backend`  | Запуск backend в продакшене                   |
 | `bun infra:start`    | Dev-инфраструктура (postgres, redis, rustfs)  |
 | `bun infra:stop`     | Остановка dev-инфраструктуры                  |
-| `bun prisma`         | Миграции + генерация Prisma клиента           |
+| `bun db:generate`    | Генерация SQL миграции из изменений схемы     |
+| `bun db:migrate`     | Применение миграций к базе данных             |
+| `bun db:baseline`    | Однократный baseline существующей базы        |
 | `bun lint`           | Проверка кода oxlint                          |
 | `bun lint:fix`       | Автоисправление oxlint                        |
 | `bun format`         | Форматирование oxfmt                          |
@@ -339,9 +344,11 @@ TWIR_API=your_api_key
 ### База данных
 
 - PostgreSQL 17
-- Prisma ORM с миграциями
-- Модели используют `@@map()` для имён таблиц
-- Enum константы в `backend/src/enums/enums.names.ts`
+- Drizzle ORM: схема в `database/src/schema/`, сгенерированные SQL миграции в `database/migrations/`
+- Генерация миграций из схемы — `bun db:generate`, применение — `bun db:migrate`
+- В продакшене миграции применяет one-shot сервис `migrations` перед запуском `application`
+- Для существующей базы однократно выполните `bun db:baseline` перед первым деплоем
+- Enum-константы описаны через `pgEnum` в `database/src/schema/enums.ts`
 - Adminer доступен на порту `54321` в dev-режиме
 
 ### Guards и авторизация
@@ -368,6 +375,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - **Redis** — rate limiting (внутренняя сеть, без внешних портов)
 - **RustFS** — S3-совместимое хранилище для изображений
 - **Adminer** с Traefik reverse proxy (`adminer.le-xot.dev`)
+- **migrations** — one-shot сервис: применяет миграции перед запуском `application`
 - **Приложение** с Traefik reverse proxy (`le-xot.dev`)
 
 Требуется внешняя сеть `traefik-public` (attachable overlay) для Traefik reverse proxy.
@@ -406,7 +414,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 | Bun не установлен                 | Используйте npm/pnpm как альтернативу                                                                                    |
 | Ошибки TypeScript                 | Выполните `bun install` и убедитесь, что все зависимости установлены                                                     |
 | Фронтенд не генерирует API клиент | Убедитесь, что backend запущен на порту 3000 (генерация идёт из `/docs-json`)                                            |
-| Prisma ошибки миграций            | Выполните `cd backend && bun prisma migrate dev`                                                                         |
+| Ошибки миграций базы данных       | Выполните `bun db:migrate`, проверьте `database/migrations/`                                                             |
 | Rate limits перестали работать    | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
 | S3 ошибки (InvalidAccessKeyId)    | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
 | Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)                                                     |

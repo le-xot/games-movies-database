@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
+COPY database/package.json ./database/
 RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
     bun install --frozen-lockfile
 
@@ -10,6 +11,7 @@ FROM oven/bun:1-alpine AS runtime-deps
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
+COPY database/package.json ./database/
 RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
     bun install --frozen-lockfile --production
 
@@ -25,13 +27,14 @@ COPY ./frontend ./frontend
 RUN bun --filter=./frontend run build:ci
 
 FROM oven/bun:1-alpine
-RUN apk add --no-cache openssl
 WORKDIR /app
 
 COPY package.json ./
 COPY --from=runtime-deps /app/node_modules ./node_modules
 COPY --from=runtime-deps /app/backend/node_modules ./backend/node_modules
+COPY --from=runtime-deps /app/database/node_modules ./database/node_modules
 COPY ./backend ./backend
+COPY ./database ./database
 
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 

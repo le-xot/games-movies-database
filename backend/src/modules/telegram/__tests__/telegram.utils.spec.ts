@@ -1,31 +1,47 @@
 import { describe, expect, it } from 'bun:test'
+import { createHash } from 'node:crypto'
 import {
-  buildTelegramAuthKeyboard,
-  formatTelegramAuthPrompt,
+  buildTelegramAuthorizeUrl,
+  createPkcePair,
   formatTelegramLogin,
-  mapTelegramProfile,
-  parseCallbackData,
-  parseStartToken,
+  mapTelegramOidcClaims,
 } from '../telegram.utils'
 
-describe('parseStartToken', () => {
-  it('extracts the token from /start <token>', () => {
-    expect(parseStartToken('/start abc123')).toBe('abc123')
+describe('createPkcePair', () => {
+  it('creates a base64url verifier and its S256 challenge', () => {
+    const { verifier, challenge } = createPkcePair()
+
+    expect(verifier.length).toBeGreaterThanOrEqual(43)
+    expect(verifier).toMatch(/^[A-Za-z0-9_-]+$/)
+    expect(challenge).toBe(createHash('sha256').update(verifier).digest('base64url'))
   })
 
-  it('supports /start@botname <token>', () => {
-    expect(parseStartToken('/start@gmd_bot abc123')).toBe('abc123')
+  it('creates a different pair on each call', () => {
+    expect(createPkcePair().verifier).not.toBe(createPkcePair().verifier)
   })
+})
 
-  it('returns null when /start has no token', () => {
-    expect(parseStartToken('/start')).toBeNull()
-    expect(parseStartToken('/start ')).toBeNull()
-  })
+describe('buildTelegramAuthorizeUrl', () => {
+  const params = {
+    clientId: '123456',
+    redirectUri: 'https://le-xot.dev/api/auth/telegram/oidc/callback',
+    state: 'state-1',
+    codeChallenge: 'challenge-1',
+  }
 
-  it('ignores arbitrary text and other commands', () => {
-    expect(parseStartToken('hello')).toBeNull()
-    expect(parseStartToken('/help abc')).toBeNull()
-    expect(parseStartToken('')).toBeNull()
+  it('builds the authorization URL with required parameters', () => {
+    const url = buildTelegramAuthorizeUrl(params)
+
+    expect(url.startsWith('https://oauth.telegram.org/auth?')).toBe(true)
+    expect(url).toContain('client_id=123456')
+    expect(url).toContain(
+      'redirect_uri=https%3A%2F%2Fle-xot.dev%2Fapi%2Fauth%2Ftelegram%2Foidc%2Fcallback',
+    )
+    expect(url).toContain('response_type=code')
+    expect(url).toContain('scope=openid%20profile')
+    expect(url).toContain('state=state-1')
+    expect(url).toContain('code_challenge=challenge-1')
+    expect(url).toContain('code_challenge_method=S256')
   })
 })
 
@@ -52,77 +68,41 @@ describe('formatTelegramLogin', () => {
   })
 })
 
-describe('mapTelegramProfile', () => {
-  it('maps the telegram user and optional photo', () => {
-    const profile = mapTelegramProfile(
-      { id: 42, first_name: 'Ivan', last_name: 'Petrov', username: 'ivan' },
-      'https://api.telegram.org/file/bot123/photo.jpg',
-    )
+describe('mapTelegramOidcClaims', () => {
+  it('maps claims to a telegram profile', () => {
+    const profile = mapTelegramOidcClaims({
+      sub: '9999999999999999999',
+      id: 42,
+      name: 'Ivan Petrov',
+      given_name: 'Ivan',
+      family_name: 'Petrov',
+      preferred_username: 'ivan',
+      picture: 'https://cdn4.telesco.pe/file/photo.jpg',
+    })
 
     expect(profile).toEqual({
       id: '42',
       username: 'ivan',
       firstName: 'Ivan',
       lastName: 'Petrov',
-      photoUrl: 'https://api.telegram.org/file/bot123/photo.jpg',
+      photoUrl: 'https://cdn4.telesco.pe/file/photo.jpg',
     })
   })
 
-  it('omits the photo when it is not available', () => {
-    const profile = mapTelegramProfile({ id: 42, first_name: 'Ivan' }, null)
+  it('falls back to sub when the telegram id is missing', () => {
+    const profile = mapTelegramOidcClaims({ sub: 'abc-123' })
 
-    expect(profile.photoUrl).toBeUndefined()
-  })
-})
-
-describe('parseCallbackData', () => {
-  it('parses confirm and cancel actions', () => {
-    expect(parseCallbackData('confirm:token-1')).toEqual({ action: 'confirm', token: 'token-1' })
-    expect(parseCallbackData('cancel:token-2')).toEqual({ action: 'cancel', token: 'token-2' })
+    expect(profile.id).toBe('abc-123')
+    expect(profile.firstName).toBe('')
   })
 
-  it('returns null for unknown actions and empty tokens', () => {
-    expect(parseCallbackData('confirm:')).toBeNull()
-    expect(parseCallbackData('delete:token')).toBeNull()
-    expect(parseCallbackData('confirm')).toBeNull()
-    expect(parseCallbackData('')).toBeNull()
-  })
-})
+  it('falls back to the full name when given_name is missing', () => {
+    const profile = mapTelegramOidcClaims({ sub: '1', id: 7, name: 'Ivan Petrov' })
 
-describe('formatTelegramAuthPrompt', () => {
-  it('shows the site host from the origin', () => {
-    expect(formatTelegramAuthPrompt({ mode: 'login', origin: 'https://le-xot.dev' })).toBe(
-      '🔐 Разрешить вход на сайте le-xot.dev?',
-    )
-    expect(formatTelegramAuthPrompt({ mode: 'link', origin: 'http://localhost:5173' })).toBe(
-      '🔗 Привязать Telegram к аккаунту на сайте localhost:5173?',
-    )
+    expect(profile.firstName).toBe('Ivan Petrov')
   })
 
-  it('falls back to a generic prompt without a valid origin', () => {
-    expect(formatTelegramAuthPrompt({ mode: 'login' })).toBe('🔐 Разрешить вход?')
-    expect(formatTelegramAuthPrompt({ mode: 'login', origin: 'not a url' })).toBe(
-      '🔐 Разрешить вход?',
-    )
-  })
-})
-
-describe('buildTelegramAuthKeyboard', () => {
-  it('builds confirm and cancel buttons within the callback data limit', () => {
-    const token = 'a'.repeat(43)
-
-    const keyboard = buildTelegramAuthKeyboard(token)
-
-    expect(keyboard.inline_keyboard).toHaveLength(2)
-    expect(keyboard.inline_keyboard[0][0]).toEqual({
-      text: '✅ Подтвердить',
-      callback_data: `confirm:${token}`,
-    })
-    expect(keyboard.inline_keyboard[1][0]).toEqual({
-      text: '❌ Отмена',
-      callback_data: `cancel:${token}`,
-    })
-    expect(keyboard.inline_keyboard[0][0].callback_data.length).toBeLessThanOrEqual(64)
-    expect(keyboard.inline_keyboard[1][0].callback_data.length).toBeLessThanOrEqual(64)
+  it('throws when no user id is present', () => {
+    expect(() => mapTelegramOidcClaims({})).toThrow()
   })
 })

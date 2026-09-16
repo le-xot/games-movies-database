@@ -4,8 +4,6 @@ import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { TwitchIcon, TelegramIcon } from 'vue3-simple-icons'
-import { useDialog } from '@/components/dialog/composables/use-dialog'
-import TelegramAuthDialog from '@/components/form/TelegramAuthDialog.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,25 +18,14 @@ import { useUser } from '@/stores/use-user'
 
 const userStore = useUser()
 const router = useRouter()
-const dialog = useDialog()
 const { user, editorEnabled, isRealAdmin } = storeToRefs(userStore)
 const isLoading = ref(false)
 
-async function handleLogin(platform: 'twitch' | 'kick') {
+async function handleLogin(platform: 'twitch' | 'kick' | 'telegram') {
   localStorage.setItem('loginReturnUrl', window.location.pathname)
   isLoading.value = true
   await nextTick()
   window.location.href = `${window.location.origin}/api/auth/${platform}`
-}
-
-function handleTelegram() {
-  localStorage.setItem('loginReturnUrl', window.location.pathname)
-  dialog.openDialog({
-    title: 'Вход через Telegram',
-    component: TelegramAuthDialog,
-    props: { mode: 'login' },
-    onSubmit: () => {},
-  })
 }
 </script>
 
@@ -108,7 +95,7 @@ function handleTelegram() {
         <Tv class="size-4 mr-2" />
         <span>Kick</span>
       </DropdownMenuItem>
-      <DropdownMenuItem @click="handleTelegram">
+      <DropdownMenuItem @click="handleLogin('telegram')">
         <TelegramIcon class="size-4 mr-2" />
         <span>Telegram</span>
       </DropdownMenuItem>

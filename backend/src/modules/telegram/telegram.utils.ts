@@ -1,18 +1,32 @@
-import type {
-  TelegramAuthMode,
-  TelegramInlineKeyboardMarkup,
-  TelegramProfile,
-  TelegramUser,
-} from './telegram.types'
+import { createHash, randomBytes } from 'node:crypto'
+import { TELEGRAM_OIDC_AUTHORIZE_URL, TELEGRAM_OIDC_SCOPE } from './telegram.constants'
+import type { TelegramOidcClaims, TelegramProfile } from './telegram.types'
 
-const START_COMMAND_PATTERN = /^\/start(?:@[A-Za-z0-9_]+)?(?:\s+(\S+))?$/
-const CALLBACK_ACTIONS = ['confirm', 'cancel'] as const
+export function createPkcePair(): { verifier: string; challenge: string } {
+  const verifier = randomBytes(32).toString('base64url')
+  const challenge = createHash('sha256').update(verifier).digest('base64url')
+  return { verifier, challenge }
+}
 
-export type TelegramCallbackAction = (typeof CALLBACK_ACTIONS)[number]
+export function buildTelegramAuthorizeUrl(params: {
+  clientId: string
+  redirectUri: string
+  state: string
+  codeChallenge: string
+}): string {
+  const query = [
+    ['client_id', params.clientId],
+    ['redirect_uri', params.redirectUri],
+    ['response_type', 'code'],
+    ['scope', TELEGRAM_OIDC_SCOPE],
+    ['state', params.state],
+    ['code_challenge', params.codeChallenge],
+    ['code_challenge_method', 'S256'],
+  ]
+    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+    .join('&')
 
-export function parseStartToken(text: string): string | null {
-  const match = text.trim().match(START_COMMAND_PATTERN)
-  return match?.[1] ?? null
+  return `${TELEGRAM_OIDC_AUTHORIZE_URL}?${query}`
 }
 
 export function formatTelegramLogin(profile: TelegramProfile): string {
@@ -21,56 +35,17 @@ export function formatTelegramLogin(profile: TelegramProfile): string {
   return fullName || `tg_${profile.id}`
 }
 
-export function mapTelegramProfile(user: TelegramUser, photoUrl: string | null): TelegramProfile {
+export function mapTelegramOidcClaims(claims: TelegramOidcClaims): TelegramProfile {
+  const id = claims.id !== undefined ? String(claims.id) : claims.sub
+  if (!id) {
+    throw new Error('Telegram id_token has no user id')
+  }
+
   return {
-    id: String(user.id),
-    username: user.username,
-    firstName: user.first_name,
-    lastName: user.last_name,
-    photoUrl: photoUrl ?? undefined,
-  }
-}
-
-export function parseCallbackData(
-  data: string,
-): { action: TelegramCallbackAction; token: string } | null {
-  const value = data.trim()
-  for (const action of CALLBACK_ACTIONS) {
-    const prefix = `${action}:`
-    if (value.startsWith(prefix) && value.length > prefix.length) {
-      return { action, token: value.slice(prefix.length) }
-    }
-  }
-  return null
-}
-
-export function formatTelegramAuthPrompt(record: {
-  mode: TelegramAuthMode
-  origin?: string
-}): string {
-  const site = formatOriginHost(record.origin)
-  if (record.mode === 'link') {
-    return site
-      ? `🔗 Привязать Telegram к аккаунту на сайте ${site}?`
-      : '🔗 Привязать Telegram к аккаунту?'
-  }
-  return site ? `🔐 Разрешить вход на сайте ${site}?` : '🔐 Разрешить вход?'
-}
-
-export function buildTelegramAuthKeyboard(token: string): TelegramInlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: '✅ Подтвердить', callback_data: `confirm:${token}` }],
-      [{ text: '❌ Отмена', callback_data: `cancel:${token}` }],
-    ],
-  }
-}
-
-function formatOriginHost(origin?: string): string | null {
-  if (!origin) return null
-  try {
-    return new URL(origin).host
-  } catch {
-    return null
+    id,
+    username: claims.preferred_username,
+    firstName: claims.given_name ?? claims.name ?? '',
+    lastName: claims.family_name,
+    photoUrl: claims.picture,
   }
 }

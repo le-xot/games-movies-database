@@ -17,7 +17,12 @@ export const env = cleanEnv(process.env, {
   KICK_CLIENT_SECRET: str({ default: null }),
   KICK_CALLBACK_URL: str({ default: null }),
 
-  TELEGRAM_BOT_TOKEN: str({ default: null }),
+  TELEGRAM_CLIENT_ID: str({ default: null }),
+  TELEGRAM_CLIENT_SECRET: str({ default: null }),
+  TELEGRAM_OIDC_REDIRECT_URI: str({
+    default: 'http://localhost:3000/api/auth/telegram/oidc/callback',
+  }),
+  TELEGRAM_CALLBACK_URL: str({ default: 'http://localhost:5173/auth/callback/telegram' }),
 
   WEATHER_API_KEY: str({ default: null }),
   WEATHER_LAT: str({ default: null }),

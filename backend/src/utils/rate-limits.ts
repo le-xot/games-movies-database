@@ -8,7 +8,6 @@ export const RATE_LIMITS = {
   suggestion: { ttl: RATE_LIMIT_TTL, limit: 20 },
   img: { ttl: RATE_LIMIT_TTL, limit: 3000 },
   twir: { ttl: RATE_LIMIT_TTL, limit: 120 },
-  telegramPoll: { ttl: RATE_LIMIT_TTL, limit: 120 },
 } as const
 
 export type RateLimitConfig = { ttl: number; limit: number }

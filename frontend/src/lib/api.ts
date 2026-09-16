@@ -787,13 +787,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
-     * @name AuthControllerTelegramStart
-     * @request POST:/auth/telegram/start
+     * @name AuthControllerTelegramAuth
+     * @request GET:/auth/telegram
      */
-    authControllerTelegramStart: (params: RequestParams = {}) =>
+    authControllerTelegramAuth: (params: RequestParams = {}) =>
       this.http.request<void, any>({
-        path: `/auth/telegram/start`,
-        method: "POST",
+        path: `/auth/telegram`,
+        method: "GET",
         ...params,
       }),
 
@@ -801,13 +801,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
-     * @name AuthControllerTelegramLink
-     * @request POST:/auth/telegram/link
+     * @name AuthControllerTelegramLinkAuth
+     * @request GET:/auth/telegram/link
      */
-    authControllerTelegramLink: (params: RequestParams = {}) =>
+    authControllerTelegramLinkAuth: (params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/auth/telegram/link`,
-        method: "POST",
+        method: "GET",
         ...params,
       }),
 
@@ -815,27 +815,21 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
-     * @name AuthControllerTelegramPoll
-     * @request POST:/auth/telegram/poll
+     * @name AuthControllerTelegramOidcCallback
+     * @request GET:/auth/telegram/oidc/callback
      */
-    authControllerTelegramPoll: (params: RequestParams = {}) =>
+    authControllerTelegramOidcCallback: (
+      query: {
+        code: string;
+        state: string;
+        error: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.http.request<void, any>({
-        path: `/auth/telegram/poll`,
-        method: "POST",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Auth
-     * @name AuthControllerTelegramLinkPoll
-     * @request POST:/auth/telegram/link/poll
-     */
-    authControllerTelegramLinkPoll: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
-        path: `/auth/telegram/link/poll`,
-        method: "POST",
+        path: `/auth/telegram/oidc/callback`,
+        method: "GET",
+        query: query,
         ...params,
       }),
 

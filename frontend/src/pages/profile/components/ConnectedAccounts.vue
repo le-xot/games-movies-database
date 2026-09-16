@@ -4,7 +4,6 @@ import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
-import TelegramAuthDialog from '@/components/form/TelegramAuthDialog.vue'
 import { Button } from '@/components/ui/button'
 
 interface UserAccount {
@@ -48,12 +47,7 @@ function connectTwitch() {
 }
 
 function connectTelegram() {
-  dialog.openDialog({
-    title: 'Подключение Telegram',
-    component: TelegramAuthDialog,
-    props: { mode: 'link', onSuccess: loadAccounts },
-    onSubmit: () => {},
-  })
+  window.location.href = `${window.location.origin}/api/auth/telegram/link`
 }
 
 function unlinkAccount(platform: string, platformLogin: string) {

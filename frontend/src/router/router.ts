@@ -18,6 +18,10 @@ export const router = createRouter({
       meta: { provider: 'kick' },
     },
     {
+      path: '/auth/callback/telegram',
+      component: () => import('@/pages/auth/TelegramCallback.vue'),
+    },
+    {
       path: ROUTER_PATHS.home,
       component: () => import('@/components/layout/home/LayoutHome.vue'),
       children: [

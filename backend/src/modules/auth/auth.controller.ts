@@ -10,12 +10,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ApiResponse } from '@nestjs/swagger'
 import { AuthGuard } from '@/modules/auth/auth.guard'
@@ -25,9 +27,12 @@ import { CallbackDto } from '@/modules/auth/dto/callback.dto'
 import { UpdateNicknameDTO } from '@/modules/auth/dto/update-nickname.dto'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import {
-  TELEGRAM_AUTH_COOKIE,
-  TELEGRAM_AUTH_TTL_SECONDS,
+  TELEGRAM_OIDC_LINKING_COOKIE,
+  TELEGRAM_OIDC_STATE_COOKIE,
+  TELEGRAM_OIDC_TTL_SECONDS,
+  TELEGRAM_OIDC_VERIFIER_COOKIE,
 } from '@/modules/telegram/telegram.constants'
+import { TelegramService } from '@/modules/telegram/telegram.service'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
@@ -43,6 +48,8 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly twitch: TwitchService,
+    private readonly telegram: TelegramService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private buildTwitchAuthUrl(): string {
@@ -185,61 +192,72 @@ export class AuthController {
     }
   }
 
-  @Post('/telegram/start')
+  @Get('/telegram')
   @RateLimit(RATE_LIMITS.auth)
-  async telegramStart(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const { token, url } = await this.authService.startTelegramAuth(
-      'login',
-      undefined,
-      req.headers.origin,
-    )
-    this.setTelegramAuthCookie(res, token)
-    return { url }
+  telegramAuth(@Res() res: Response) {
+    const { url, state, codeVerifier } = this.telegram.createAuthorizationRequest()
+    this.setTelegramOidcCookies(res, state, codeVerifier)
+    res.redirect(url)
   }
 
-  @Post('/telegram/link')
+  @Get('/telegram/link')
   @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
-  async telegramLink(
-    @Req() req: Request,
-    @User() user: UserEntity,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { token, url } = await this.authService.startTelegramAuth(
-      'link',
-      user.id,
-      req.headers.origin,
-    )
-    this.setTelegramAuthCookie(res, token)
-    return { url }
+  telegramLinkAuth(@Res() res: Response) {
+    const { url, state, codeVerifier } = this.telegram.createAuthorizationRequest()
+    this.setTelegramOidcCookies(res, state, codeVerifier, true)
+    res.redirect(url)
   }
 
-  @Post('/telegram/poll')
-  @RateLimit(RATE_LIMITS.telegramPoll)
-  async telegramPoll(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const token = (req as any).cookies?.[TELEGRAM_AUTH_COOKIE]
-    const result = await this.authService.pollTelegramLogin(token)
-    if (result.status === 'pending') return result
-
-    this.setAuthCookie(res, result.jwt)
-    res.clearCookie(TELEGRAM_AUTH_COOKIE)
-    return { status: 'ok' }
-  }
-
-  @Post('/telegram/link/poll')
-  @RateLimit(RATE_LIMITS.telegramPoll)
-  @UseGuards(AuthGuard)
-  async telegramLinkPoll(
+  @Get('/telegram/oidc/callback')
+  @RateLimit(RATE_LIMITS.auth)
+  async telegramOidcCallback(
     @Req() req: Request,
-    @User() user: UserEntity,
-    @Res({ passthrough: true }) res: Response,
+    @Query('code') code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Query('error') oidcError: string | undefined,
+    @Res() res: Response,
   ) {
-    const token = (req as any).cookies?.[TELEGRAM_AUTH_COOKIE]
-    const result = await this.authService.pollTelegramLink(token, user.id)
-    if (result.status === 'pending') return result
+    const cookies = (req as any).cookies ?? {}
+    const storedState = cookies[TELEGRAM_OIDC_STATE_COOKIE]
+    const codeVerifier = cookies[TELEGRAM_OIDC_VERIFIER_COOKIE]
+    const isLinking = cookies[TELEGRAM_OIDC_LINKING_COOKIE] === '1'
+    const mode = isLinking ? 'link' : 'login'
+    this.clearTelegramOidcCookies(res)
 
-    res.clearCookie(TELEGRAM_AUTH_COOKIE)
-    return { status: 'ok' }
+    try {
+      if (oidcError) {
+        throw new HttpException(`Telegram: ${oidcError}`, HttpStatus.BAD_REQUEST)
+      }
+      if (!storedState || !state || state !== storedState) {
+        throw new HttpException('Invalid state', HttpStatus.BAD_REQUEST)
+      }
+      if (!code || !codeVerifier) {
+        throw new HttpException('Missing code or verifier', HttpStatus.BAD_REQUEST)
+      }
+
+      const profile = await this.telegram.exchangeCode(code, codeVerifier)
+
+      if (isLinking) {
+        const userId = await this.getUserIdFromToken(req)
+        if (!userId) {
+          throw new HttpException('Not authenticated', HttpStatus.UNAUTHORIZED)
+        }
+        await this.authService.linkTelegramOidc(userId, profile)
+        res.redirect(`${env.TELEGRAM_CALLBACK_URL}?mode=link`)
+        return
+      }
+
+      const token = await this.authService.handleTelegramOidcLogin(profile)
+      this.setAuthCookie(res, token)
+      res.redirect(`${env.TELEGRAM_CALLBACK_URL}?mode=login`)
+    } catch (error) {
+      const message =
+        error instanceof HttpException ? error.message : 'Telegram authorization failed'
+      this.logger.warn(`Telegram OIDC callback failed: ${message}`)
+      const params = new URLSearchParams({ mode, error: message })
+      res.redirect(`${env.TELEGRAM_CALLBACK_URL}?${params.toString()}`)
+    }
   }
 
   @Get('/accounts')
@@ -318,12 +336,40 @@ export class AuthController {
     res.end()
   }
 
-  private setTelegramAuthCookie(res: Response, token: string) {
-    res.cookie(TELEGRAM_AUTH_COOKIE, token, {
+  private setTelegramOidcCookies(
+    res: Response,
+    state: string,
+    codeVerifier: string,
+    linking = false,
+  ) {
+    const options = {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       secure: env.NODE_ENV === 'production',
-      maxAge: TELEGRAM_AUTH_TTL_SECONDS * 1000,
-    })
+      maxAge: TELEGRAM_OIDC_TTL_SECONDS * 1000,
+    }
+    res.cookie(TELEGRAM_OIDC_STATE_COOKIE, state, options)
+    res.cookie(TELEGRAM_OIDC_VERIFIER_COOKIE, codeVerifier, options)
+    if (linking) {
+      res.cookie(TELEGRAM_OIDC_LINKING_COOKIE, '1', { ...options, httpOnly: false })
+    }
+  }
+
+  private clearTelegramOidcCookies(res: Response) {
+    res.clearCookie(TELEGRAM_OIDC_STATE_COOKIE)
+    res.clearCookie(TELEGRAM_OIDC_VERIFIER_COOKIE)
+    res.clearCookie(TELEGRAM_OIDC_LINKING_COOKIE)
+  }
+
+  private async getUserIdFromToken(req: Request): Promise<string | null> {
+    const token = (req as any).cookies?.token
+    if (!token) return null
+
+    try {
+      const payload = await this.jwtService.verifyAsync(token, { secret: env.JWT_SECRET })
+      return typeof payload?.id === 'string' ? payload.id : null
+    } catch {
+      return null
+    }
   }
 }

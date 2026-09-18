@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick auth and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS 12 backend + PostgreSQL via Drizzle + Redis for rate limiting.
+Full-stack personal media tracker (games, movies, anime, cartoons, series, PC games) with Twitch/Kick/Telegram login and real-time WebSocket updates. Bun monorepo: Vue 3 frontend + NestJS 12 backend + PostgreSQL via Drizzle + Redis for rate limiting.
 
 ## STRUCTURE
 
@@ -30,7 +30,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Add backend feature  | `backend/src/modules/{name}/`               | See `backend/src/modules/AGENTS.md` for template                |
 | Add frontend page    | `frontend/src/pages/{feature}/`             | Each page = folder with .vue + composables/                     |
 | Add UI primitive     | `frontend/src/components/ui/{name}/`        | shadcn-vue pattern: .vue files + index.ts barrel                |
-| Modify auth flow     | `backend/src/modules/auth/`                 | JWT in cookie, Twitch OAuth, guards                             |
+| Modify auth flow     | `backend/src/modules/auth/`                 | JWT in cookie, Twitch/Kick OAuth, Telegram OIDC, guards         |
+| Telegram login       | `backend/src/modules/telegram/`             | OIDC (PKCE, JWKS); cookies `tg_oidc_*`, env `TELEGRAM_*`        |
 | Rate limiting        | `backend/src/modules/rate-limit/`           | Custom Redis limiter; presets in `utils/rate-limits.ts`         |
 | Database schema      | `database/src/schema/`                      | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes |
 | Database migrations  | `database/migrations/`                      | Generated SQL; applied by `migrations` compose service          |

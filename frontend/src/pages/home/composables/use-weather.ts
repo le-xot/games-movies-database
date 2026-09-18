@@ -9,6 +9,7 @@ import {
   Wind,
 } from '@lucide/vue'
 import { type Component, onMounted, ref } from 'vue'
+import { UFA_TIME_ZONE } from '@/utils/time'
 
 interface WeatherResponse {
   name: string
@@ -103,10 +104,12 @@ export function useWeather() {
       visibility.value = Math.round(data.visibility / 1000)
       clouds.value = data.clouds.all
       sunrise.value = new Date(data.sys.sunrise * 1000).toLocaleTimeString('ru-RU', {
+        timeZone: UFA_TIME_ZONE,
         hour: '2-digit',
         minute: '2-digit',
       })
       sunset.value = new Date(data.sys.sunset * 1000).toLocaleTimeString('ru-RU', {
+        timeZone: UFA_TIME_ZONE,
         hour: '2-digit',
         minute: '2-digit',
       })

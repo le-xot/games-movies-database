@@ -16,6 +16,7 @@ import {
 } from '@lucide/vue'
 import { useNow } from '@vueuse/core'
 import { computed, type Component } from 'vue'
+import { getHourInTimeZone, UFA_TIME_ZONE } from '@/utils/time'
 
 const clockIcons: Record<number, Component> = {
   0: Clock12,
@@ -36,13 +37,14 @@ const clockIcons: Record<number, Component> = {
 const now = useNow()
 const time = computed(() =>
   now.value.toLocaleTimeString('en-US', {
+    timeZone: UFA_TIME_ZONE,
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   }),
 )
 const icon = computed(() => {
-  const hour = now.value.getHours() % 12
+  const hour = getHourInTimeZone(now.value) % 12
   return clockIcons[hour] ?? Clock
 })
 </script>

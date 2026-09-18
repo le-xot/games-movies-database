@@ -1,11 +1,11 @@
 # Games Movies Database
 
-Full-stack web application for tracking media: games, anime, movies, cartoons, series, and PC games. Twitch and Kick authentication, real-time updates via WebSocket.
+Full-stack web application for tracking media: games, anime, movies, cartoons, series, and PC games. Twitch, Kick, and Telegram authentication, real-time updates via WebSocket.
 
 ## Features
 
 - **Media tracking** — games, anime, movies, cartoons, series, and PC games with statuses and ratings
-- **Authentication** — OAuth via Twitch and Kick, JWT in httpOnly cookies
+- **Authentication** — OAuth via Twitch and Kick, Telegram Login (OpenID Connect), JWT in httpOnly cookies
 - **Real-time** — instant UI updates via Socket.IO
 - **Suggestion system** — users suggest new content for adding
 - **Queue system** — item queue management
@@ -88,26 +88,30 @@ bun dev
 
 File: `backend/.env` (copy from `backend/.env.example`)
 
-| Variable               | Description                             | Required                      |
-| ---------------------- | --------------------------------------- | ----------------------------- |
-| `DATASOURCE_URL`       | PostgreSQL connection string            | Yes                           |
-| `JWT_SECRET`           | Secret for JWT token signing            | Yes                           |
-| `APP_PORT`             | Backend server port (default: 3000)     | No                            |
-| `REDIS_URL`            | Redis connection string (rate limits)   | No (`redis://localhost:6379`) |
-| `TWITCH_CLIENT_ID`     | Twitch OAuth Client ID                  | No                            |
-| `TWITCH_CLIENT_SECRET` | Twitch OAuth Client Secret              | No                            |
-| `TWITCH_CALLBACK_URL`  | URL callback after Twitch authorization | No                            |
-| `KICK_CLIENT_ID`       | Kick OAuth Client ID                    | No                            |
-| `KICK_CLIENT_SECRET`   | Kick OAuth Client Secret                | No                            |
-| `KICK_CALLBACK_URL`    | URL callback after Kick authorization   | No                            |
-| `KINOPOISK_API`        | Kinopoisk API key                       | No                            |
-| `STEAM_API_KEY`        | Steam API key                           | No                            |
-| `STEAM_ID`             | Steam user ID                           | No                            |
-| `WEATHER_API_KEY`      | OpenWeatherMap API key                  | No                            |
-| `WEATHER_LAT`          | Latitude for weather                    | No                            |
-| `WEATHER_LON`          | Longitude for weather                   | No                            |
-| `PROXY`                | Proxy URL for external APIs             | No                            |
-| `TWIR_API`             | API key for TWIR webhooks               | No                            |
+| Variable                     | Description                               | Required                                                     |
+| ---------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| `DATASOURCE_URL`             | PostgreSQL connection string              | Yes                                                          |
+| `JWT_SECRET`                 | Secret for JWT token signing              | Yes                                                          |
+| `APP_PORT`                   | Backend server port (default: 3000)       | No                                                           |
+| `REDIS_URL`                  | Redis connection string (rate limits)     | No (`redis://localhost:6379`)                                |
+| `TWITCH_CLIENT_ID`           | Twitch OAuth Client ID                    | No                                                           |
+| `TWITCH_CLIENT_SECRET`       | Twitch OAuth Client Secret                | No                                                           |
+| `TWITCH_CALLBACK_URL`        | URL callback after Twitch authorization   | No                                                           |
+| `KICK_CLIENT_ID`             | Kick OAuth Client ID                      | No                                                           |
+| `KICK_CLIENT_SECRET`         | Kick OAuth Client Secret                  | No                                                           |
+| `KICK_CALLBACK_URL`          | URL callback after Kick authorization     | No                                                           |
+| `TELEGRAM_CLIENT_ID`         | Telegram Login Client ID (OpenID Connect) | No                                                           |
+| `TELEGRAM_CLIENT_SECRET`     | Telegram Login Client Secret              | No                                                           |
+| `TELEGRAM_OIDC_REDIRECT_URI` | Backend callback for Telegram OIDC        | No (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
+| `TELEGRAM_CALLBACK_URL`      | Frontend page after Telegram OIDC         | No (`http://localhost:5173/auth/callback/telegram`)          |
+| `KINOPOISK_API`              | Kinopoisk API key                         | No                                                           |
+| `STEAM_API_KEY`              | Steam API key                             | No                                                           |
+| `STEAM_ID`                   | Steam user ID                             | No                                                           |
+| `WEATHER_API_KEY`            | OpenWeatherMap API key                    | No                                                           |
+| `WEATHER_LAT`                | Latitude for weather                      | No                                                           |
+| `WEATHER_LON`                | Longitude for weather                     | No                                                           |
+| `PROXY`                      | Proxy URL for external APIs               | No                                                           |
+| `TWIR_API`                   | API key for TWIR webhooks                 | No                                                           |
 
 ## Project Structure
 
@@ -150,7 +154,7 @@ games-movies-database/
 │   │   ├── enums/             # Re-exports of enum constants from @gmd/database
 │   │   ├── utils/             # Environment validation (envalid)
 │   │   └── modules/           # Feature modules
-│   │       ├── auth/          # Twitch/Kick OAuth, JWT, guards
+│   │       ├── auth/          # Twitch/Kick/Telegram OAuth, JWT, guards
 │   │       ├── user/          # User CRUD
 │   │       ├── record/        # Media records
 │   │       ├── like/          # Likes/favorites
@@ -158,6 +162,7 @@ games-movies-database/
 │   │       ├── queue/         # Item queue
 │   │       ├── twitch/        # Twitch API client
 │   │       ├── kick/          # Kick API client
+│   │       ├── telegram/      # Telegram Login (OpenID Connect: PKCE, JWKS)
 │   │       ├── websocket/     # Socket.IO gateway
 │   │       ├── records-providers/  # External metadata providers
 │   │       ├── img/           # Image proxy and resizing (Sharp)
@@ -239,6 +244,26 @@ KICK_CLIENT_ID=your_client_id
 KICK_CLIENT_SECRET=your_client_secret
 KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
 ```
+
+### Telegram
+
+Authentication via Telegram Login (OpenID Connect, Authorization Code + PKCE). Supports sign-in and linking an account from the profile page.
+
+Setup:
+
+1. Create a bot in [@BotFather](https://t.me/botfather) and open the BotFather mini app (`https://t.me/botfather?startapp`).
+2. In the bot settings, open **Login Widget** and enable **OpenID Connect Login**.
+3. Add the callback to Redirect URIs (Allowed URLs): `https://<domain>/api/auth/telegram/oidc/callback`.
+4. Copy **Client ID** and **Client Secret** to `.env`.
+
+```
+TELEGRAM_CLIENT_ID=your_client_id
+TELEGRAM_CLIENT_SECRET=your_client_secret
+TELEGRAM_OIDC_REDIRECT_URI=http://localhost:3000/api/auth/telegram/oidc/callback
+TELEGRAM_CALLBACK_URL=http://localhost:5173/auth/callback/telegram
+```
+
+> Telegram requires HTTPS for the redirect URI, so sign-in does not work in local development without an HTTPS tunnel (ngrok, Cloudflare Tunnel, or a domain with a certificate). Use `https://<domain>/api/auth/telegram/oidc/callback` and `https://<domain>/auth/callback/telegram` in production.
 
 ### Kinopoisk
 

@@ -4,7 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import cookieParser from 'cookie-parser'
 import { AppModule } from '@/app.module'
+import { parseCorsOrigins } from '@/utils/cors-origins'
 import { env } from '@/utils/enviroments'
+import { securityHeaders } from '@/utils/security-headers'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 
 async function bootstrap() {
@@ -15,6 +17,7 @@ async function bootstrap() {
   })
   app.set('trust proxy', 1)
   app.use(cookieParser())
+  app.use(securityHeaders)
 
   const globalPrefix = '/api'
 
@@ -40,10 +43,8 @@ async function bootstrap() {
 
   app.setGlobalPrefix(globalPrefix)
 
-  const allowedCors = ['http://localhost:3000', 'http://localhost:5173']
-
   app.enableCors({
-    origin: allowedCors,
+    origin: parseCorsOrigins(env.CORS_ORIGINS),
     credentials: true,
   })
 

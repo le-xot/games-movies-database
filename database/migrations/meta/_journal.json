@@ -15,6 +15,13 @@
       "when": 1789500816910,
       "tag": "0001_remove_auction",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789854752845,
+      "tag": "0002_drop-unused-oauth-tokens-table",
+      "breakpoints": true
     }
   ]
 }

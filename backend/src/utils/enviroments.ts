@@ -1,11 +1,13 @@
 import process from 'node:process'
 import { cleanEnv, num, str } from 'envalid'
+import { DEFAULT_CORS_ORIGINS } from '@/utils/cors-origins'
 
 export const env = cleanEnv(process.env, {
   DATASOURCE_URL: str({}),
   JWT_SECRET: str({}),
   APP_PORT: num({ default: 3000 }),
   REDIS_URL: str({ default: 'redis://localhost:6379' }),
+  CORS_ORIGINS: str({ default: DEFAULT_CORS_ORIGINS }),
 
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
 

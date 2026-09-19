@@ -73,12 +73,6 @@ export const LimitType = {
 export type LimitType = (typeof LimitType)[keyof typeof LimitType]
 export const limitTypeEnum = pgEnum('LimitType', [LimitType.SUGGESTION])
 
-export const ThirdPartService = {
-  SPOTIFY: 'SPOTIFY',
-} as const
-export type ThirdPartService = (typeof ThirdPartService)[keyof typeof ThirdPartService]
-export const thirdPartServiceEnum = pgEnum('ThirdPartService', [ThirdPartService.SPOTIFY])
-
 export const AccountPlatform = {
   TWITCH: 'TWITCH',
   KICK: 'KICK',

@@ -10,9 +10,19 @@ import {
   type UpdateSuggestionsPayload,
   type UpdateUsersPayload,
 } from '@/modules/websocket/websocket.events'
+import { isOriginAllowed, parseCorsOrigins } from '@/utils/cors-origins'
+import { env } from '@/utils/enviroments'
+
+const allowedOrigins = parseCorsOrigins(env.CORS_ORIGINS)
 
 @Injectable()
-@WebSocketGateway({ cors: true, transports: ['websocket'] })
+@WebSocketGateway({
+  cors: { origin: allowedOrigins },
+  transports: ['websocket'],
+  allowRequest: (request, callback) => {
+    callback(null, isOriginAllowed(request.headers.origin, allowedOrigins))
+  },
+})
 export class WebsocketGateway {
   @WebSocketServer()
   server: Server

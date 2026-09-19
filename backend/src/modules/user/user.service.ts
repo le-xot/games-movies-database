@@ -23,12 +23,26 @@ export class UserService {
     } satisfies UpdateUsersPayload)
   }
 
+  private async safeGenerateDefaultAvatar(
+    userId: string,
+    login: string,
+    fallback: string,
+  ): Promise<string> {
+    try {
+      return await this.avatarService.generateAndStoreDefaultAvatar(userId, login)
+    } catch (e) {
+      this.logger.warn(`Failed to generate default avatar for userId=${userId}`)
+      this.logger.error(e)
+      return fallback
+    }
+  }
+
   async upsertUser(
     platformId: string,
     data: {
       login: string
       role?: UserRole
-      profileImageUrl: string
+      platformAvatar?: string
       color?: string
     },
     platform: string,
@@ -36,24 +50,23 @@ export class UserService {
     const foundUser = await this.userRepository.findByPlatformId(platform, platformId)
 
     if (foundUser) {
-      if (!foundUser.hasCustomAvatar) {
-        const s3Key = data.profileImageUrl
-          ? await this.avatarService.fetchAndStoreOAuthAvatar(foundUser.id, data.profileImageUrl)
-          : null
-        const profileImageUrl = data.profileImageUrl
-          ? (s3Key ?? data.profileImageUrl)
-          : foundUser.profileImageUrl
+      if (foundUser.hasCustomAvatar) {
         const updatedUser = await this.userRepository.update(foundUser.id, {
           role: data.role,
-          profileImageUrl,
           color: data.color,
         })
         this.emitUserUpdate(foundUser.id, 'updated')
         return updatedUser
       }
 
+      const profileImageUrl = await this.safeGenerateDefaultAvatar(
+        foundUser.id,
+        data.login,
+        foundUser.profileImageUrl,
+      )
       const updatedUser = await this.userRepository.update(foundUser.id, {
         role: data.role,
+        profileImageUrl,
         color: data.color,
       })
       this.emitUserUpdate(foundUser.id, 'updated')
@@ -63,24 +76,16 @@ export class UserService {
     const createdUser = await this.userRepository.create({
       login: data.login,
       role: data.role ?? UserRole.USER,
-      profileImageUrl: data.profileImageUrl,
+      profileImageUrl: '',
       color: data.color ?? '#333333',
       platform,
       platformUserId: platformId,
       platformLogin: data.login,
-      platformAvatar: data.profileImageUrl,
+      platformAvatar: data.platformAvatar,
     })
 
-    let user = createdUser
-    if (data.profileImageUrl) {
-      const s3Key = await this.avatarService.fetchAndStoreOAuthAvatar(
-        createdUser.id,
-        data.profileImageUrl,
-      )
-      if (s3Key) {
-        user = await this.userRepository.update(createdUser.id, { profileImageUrl: s3Key })
-      }
-    }
+    const profileImageUrl = await this.safeGenerateDefaultAvatar(createdUser.id, data.login, '')
+    const user = await this.userRepository.update(createdUser.id, { profileImageUrl })
 
     this.emitUserUpdate(user.id, 'created')
     return user
@@ -168,14 +173,13 @@ export class UserService {
       throw new NotFoundException('User not found')
     }
 
-    await this.avatarService.deleteAvatarFromS3(userId)
-
-    const accounts = await this.userRepository.findAccountsByUserId(userId)
-    const oauthAvatar =
-      accounts.find((a) => a.platformAvatar)?.platformAvatar ?? user.profileImageUrl
+    const profileImageUrl = await this.avatarService.generateAndStoreDefaultAvatar(
+      userId,
+      user.login,
+    )
 
     const updatedUser = await this.userRepository.update(userId, {
-      profileImageUrl: oauthAvatar,
+      profileImageUrl,
       hasCustomAvatar: false,
     })
 

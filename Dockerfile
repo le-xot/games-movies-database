@@ -30,6 +30,8 @@ RUN bun --filter=./frontend run build:ci
 FROM oven/bun:1-alpine
 WORKDIR /app
 
+RUN apk add --no-cache fontconfig font-dejavu
+
 COPY package.json ./
 COPY --from=runtime-deps /app/node_modules ./node_modules
 COPY --from=runtime-deps /app/backend/node_modules ./backend/node_modules

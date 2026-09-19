@@ -11,44 +11,36 @@ describe('UserService', () => {
   let mockRepo: DrizzleUserRepository
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
   let mockAvatarService: {
-    fetchAndStoreOAuthAvatar: ReturnType<typeof mock>
-    processAndStoreAvatar: ReturnType<typeof mock>
-    deleteAvatarFromS3: ReturnType<typeof mock>
+    generateAndStoreDefaultAvatar: ReturnType<typeof mock>
   }
 
   beforeEach(() => {
     mockRepo = createMock(DrizzleUserRepository)
     mockEventEmitter = { emit: mock(() => {}) }
     mockAvatarService = {
-      fetchAndStoreOAuthAvatar: mock(() => Promise.resolve(null)),
-      processAndStoreAvatar: mock(() => Promise.resolve('avatars/test.webp')),
-      deleteAvatarFromS3: mock(() => Promise.resolve()),
+      generateAndStoreDefaultAvatar: mock(() => Promise.resolve('/api/avatar/user-1?t=1')),
     }
     service = new UserService(mockRepo, mockEventEmitter as any, mockAvatarService as any)
   })
 
   describe('upsertUser', () => {
-    it('updates an existing user without custom avatar', async () => {
-      const existingUser: UserDomain = {
-        id: 'user-1',
-        login: 'old-login',
-        role: UserRole.USER,
-        profileImageUrl: 'old-url',
-        color: '#111111',
-        hasCustomAvatar: false,
-        createdAt: new Date('2024-01-01'),
-      }
+    const baseUser: UserDomain = {
+      id: 'user-1',
+      login: 'old-login',
+      role: UserRole.USER,
+      profileImageUrl: '/api/avatar/user-1?t=old',
+      color: '#111111',
+      hasCustomAvatar: false,
+      createdAt: new Date('2024-01-01'),
+    }
+
+    it('regenerates the default avatar on every login without custom avatar', async () => {
       const updatedUser: UserDomain = {
-        ...existingUser,
-        profileImageUrl: 'new-url',
+        ...baseUser,
+        profileImageUrl: '/api/avatar/user-1?t=1',
       }
-      const findByPlatformId = mock(() =>
-        Promise.resolve(existingUser),
-      ) as unknown as DrizzleUserRepository['findByPlatformId']
-      const update = mock(() =>
-        Promise.resolve(updatedUser),
-      ) as unknown as DrizzleUserRepository['update']
-      mockRepo.findByPlatformId = findByPlatformId
+      mockRepo.findByPlatformId = mock(() => Promise.resolve(baseUser)) as any
+      const update = mock(() => Promise.resolve(updatedUser)) as any
       mockRepo.update = update
 
       const result = await service.upsertUser(
@@ -56,165 +48,112 @@ describe('UserService', () => {
         {
           login: 'new-login',
           role: UserRole.ADMIN,
-          profileImageUrl: 'new-url',
+          platformAvatar: 'https://cdn.example.com/avatar.jpg',
           color: '#222222',
         },
         'TWITCH',
       )
 
       expect(result).toEqual(updatedUser)
-      expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-1')
-      expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith('user-1', 'new-url')
-    })
-
-    it('skips profileImageUrl update when user has custom avatar', async () => {
-      const existingUser: UserDomain = {
-        id: 'user-1',
-        login: 'old-login',
-        role: UserRole.USER,
-        profileImageUrl: 'custom-url',
-        color: '#111111',
-        hasCustomAvatar: true,
-        createdAt: new Date('2024-01-01'),
-      }
-      const updatedUser: UserDomain = {
-        ...existingUser,
-        role: UserRole.ADMIN,
-      }
-      const findByPlatformId = mock(() =>
-        Promise.resolve(existingUser),
-      ) as unknown as DrizzleUserRepository['findByPlatformId']
-      const update = mock(() =>
-        Promise.resolve(updatedUser),
-      ) as unknown as DrizzleUserRepository['update']
-      mockRepo.findByPlatformId = findByPlatformId
-      mockRepo.update = update
-
-      const result = await service.upsertUser(
+      expect(mockAvatarService.generateAndStoreDefaultAvatar).toHaveBeenCalledWith(
         'user-1',
-        {
-          login: 'new-login',
-          role: UserRole.ADMIN,
-          profileImageUrl: 'new-url',
-          color: '#222222',
-        },
-        'TWITCH',
+        'new-login',
       )
-
-      expect(result).toEqual(updatedUser)
       expect(update).toHaveBeenCalledWith('user-1', {
         role: UserRole.ADMIN,
+        profileImageUrl: '/api/avatar/user-1?t=1',
         color: '#222222',
       })
-      expect(mockAvatarService.fetchAndStoreOAuthAvatar).not.toHaveBeenCalled()
     })
 
-    it('keeps the existing avatar when the oauth profile has no photo', async () => {
-      const existingUser: UserDomain = {
-        id: 'user-1',
-        login: 'old-login',
-        role: UserRole.USER,
-        profileImageUrl: 'old-url',
-        color: '#111111',
-        hasCustomAvatar: false,
-        createdAt: new Date('2024-01-01'),
-      }
-      const updatedUser: UserDomain = { ...existingUser }
-      const findByPlatformId = mock(() =>
-        Promise.resolve(existingUser),
-      ) as unknown as DrizzleUserRepository['findByPlatformId']
-      const update = mock(() =>
-        Promise.resolve(updatedUser),
-      ) as unknown as DrizzleUserRepository['update']
-      mockRepo.findByPlatformId = findByPlatformId
+    it('skips avatar generation when user has custom avatar', async () => {
+      const customUser: UserDomain = { ...baseUser, hasCustomAvatar: true }
+      mockRepo.findByPlatformId = mock(() => Promise.resolve(customUser)) as any
+      const update = mock(() => Promise.resolve(customUser)) as any
       mockRepo.update = update
 
-      await service.upsertUser('user-1', { login: 'tg-user', profileImageUrl: '' }, 'TELEGRAM')
+      await service.upsertUser('user-1', { login: 'new-login' }, 'TWITCH')
 
+      expect(mockAvatarService.generateAndStoreDefaultAvatar).not.toHaveBeenCalled()
       expect(update).toHaveBeenCalledWith('user-1', {
         role: undefined,
-        profileImageUrl: 'old-url',
         color: undefined,
       })
-      expect(mockAvatarService.fetchAndStoreOAuthAvatar).not.toHaveBeenCalled()
     })
 
-    it('creates a user when no user exists', async () => {
+    it('keeps the previous url when generation fails on login', async () => {
+      const updatedUser: UserDomain = { ...baseUser }
+      mockRepo.findByPlatformId = mock(() => Promise.resolve(baseUser)) as any
+      const update = mock(() => Promise.resolve(updatedUser)) as any
+      mockRepo.update = update
+      mockAvatarService.generateAndStoreDefaultAvatar = mock(() =>
+        Promise.reject(new Error('s3 down')),
+      )
+
+      const result = await service.upsertUser('user-1', { login: 'new-login' }, 'TWITCH')
+
+      expect(result).toEqual(updatedUser)
+      expect(update).toHaveBeenCalledWith('user-1', {
+        role: undefined,
+        profileImageUrl: baseUser.profileImageUrl,
+        color: undefined,
+      })
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
+        userId: 'user-1',
+        action: 'updated',
+      })
+    })
+
+    it('creates a user with a generated avatar and no oauth profile photo', async () => {
       const createdUser: UserDomain = {
         id: 'user-2',
         login: 'new-user',
         role: UserRole.USER,
-        profileImageUrl: 'new-url',
+        profileImageUrl: '',
         color: '#333333',
         hasCustomAvatar: false,
         createdAt: new Date('2024-01-02'),
       }
-      const findByPlatformId = mock(() =>
-        Promise.resolve(null),
-      ) as unknown as DrizzleUserRepository['findByPlatformId']
-      const create = mock(() =>
-        Promise.resolve(createdUser),
-      ) as unknown as DrizzleUserRepository['create']
-      mockRepo.findByPlatformId = findByPlatformId
-      mockRepo.create = create
-
-      const result = await service.upsertUser(
-        'user-2',
-        {
-          login: 'new-user',
-          role: UserRole.USER,
-          profileImageUrl: 'new-url',
-          color: '#333333',
-        },
-        'TWITCH',
-      )
-
-      expect(result).toEqual(createdUser)
-      expect(findByPlatformId).toHaveBeenCalledWith('TWITCH', 'user-2')
-      expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith('user-2', 'new-url')
-    })
-
-    it('stores the oauth avatar under the created user id, not the platform id', async () => {
-      const createdUser: UserDomain = {
-        id: 'user-9',
-        login: 'new-user',
-        role: UserRole.USER,
-        profileImageUrl: 'https://cdn.example.com/avatar.jpg',
-        color: '#333333',
-        hasCustomAvatar: false,
-        createdAt: new Date('2024-01-09'),
-      }
       const updatedUser: UserDomain = {
         ...createdUser,
-        profileImageUrl: '/api/avatar/user-9?t=1',
+        profileImageUrl: '/api/avatar/user-2?t=1',
       }
-      mockRepo.findByPlatformId = mock(() =>
-        Promise.resolve(null),
-      ) as unknown as DrizzleUserRepository['findByPlatformId']
-      mockRepo.create = mock(() =>
-        Promise.resolve(createdUser),
-      ) as unknown as DrizzleUserRepository['create']
-      mockRepo.update = mock(() =>
-        Promise.resolve(updatedUser),
-      ) as unknown as DrizzleUserRepository['update']
-      mockAvatarService.fetchAndStoreOAuthAvatar = mock(() =>
-        Promise.resolve('/api/avatar/user-9?t=1'),
+      mockRepo.findByPlatformId = mock(() => Promise.resolve(null)) as any
+      const create = mock(() => Promise.resolve(createdUser)) as any
+      mockRepo.create = create
+      const update = mock(() => Promise.resolve(updatedUser)) as any
+      mockRepo.update = update
+      mockAvatarService.generateAndStoreDefaultAvatar = mock(() =>
+        Promise.resolve('/api/avatar/user-2?t=1'),
       )
 
       const result = await service.upsertUser(
         'twitch-platform-777',
-        { login: 'new-user', profileImageUrl: 'https://cdn.example.com/avatar.jpg' },
+        {
+          login: 'new-user',
+          platformAvatar: 'https://cdn.example.com/avatar.jpg',
+        },
         'TWITCH',
       )
 
-      expect(mockAvatarService.fetchAndStoreOAuthAvatar).toHaveBeenCalledWith(
-        'user-9',
-        'https://cdn.example.com/avatar.jpg',
-      )
-      expect(mockRepo.update).toHaveBeenCalledWith('user-9', {
-        profileImageUrl: '/api/avatar/user-9?t=1',
+      expect(create).toHaveBeenCalledWith({
+        login: 'new-user',
+        role: UserRole.USER,
+        profileImageUrl: '',
+        color: '#333333',
+        platform: 'TWITCH',
+        platformUserId: 'twitch-platform-777',
+        platformLogin: 'new-user',
+        platformAvatar: 'https://cdn.example.com/avatar.jpg',
       })
-      expect(result.profileImageUrl).toBe('/api/avatar/user-9?t=1')
+      expect(mockAvatarService.generateAndStoreDefaultAvatar).toHaveBeenCalledWith(
+        'user-2',
+        'new-user',
+      )
+      expect(update).toHaveBeenCalledWith('user-2', {
+        profileImageUrl: '/api/avatar/user-2?t=1',
+      })
+      expect(result.profileImageUrl).toBe('/api/avatar/user-2?t=1')
     })
   })
 
@@ -330,6 +269,67 @@ describe('UserService', () => {
 
       expect(result).toEqual(accounts)
       expect(findAccountsByUserId).toHaveBeenCalledWith('user-1')
+    })
+  })
+
+  describe('deleteAvatar', () => {
+    it('replaces the custom avatar with a generated one', async () => {
+      const user: UserDomain = {
+        id: 'user-8',
+        login: 'login-8',
+        role: UserRole.USER,
+        profileImageUrl: '/api/avatar/user-8?t=old',
+        color: '#888888',
+        hasCustomAvatar: true,
+        createdAt: new Date('2024-01-09'),
+      }
+      const updatedUser: UserDomain = {
+        ...user,
+        profileImageUrl: '/api/avatar/user-8?t=2',
+        hasCustomAvatar: false,
+      }
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+      const update = mock(() => Promise.resolve(updatedUser)) as any
+      mockRepo.update = update
+      mockAvatarService.generateAndStoreDefaultAvatar = mock(() =>
+        Promise.resolve('/api/avatar/user-8?t=2'),
+      )
+
+      const result = await service.deleteAvatar('user-8')
+
+      expect(mockAvatarService.generateAndStoreDefaultAvatar).toHaveBeenCalledWith(
+        'user-8',
+        'login-8',
+      )
+      expect(update).toHaveBeenCalledWith('user-8', {
+        profileImageUrl: '/api/avatar/user-8?t=2',
+        hasCustomAvatar: false,
+      })
+      expect(result).toEqual(updatedUser)
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
+        userId: 'user-8',
+        action: 'updated',
+      })
+    })
+
+    it('keeps the custom avatar when generation fails', async () => {
+      const user: UserDomain = {
+        id: 'user-8',
+        login: 'login-8',
+        role: UserRole.USER,
+        profileImageUrl: '/api/avatar/user-8?t=old',
+        color: '#888888',
+        hasCustomAvatar: true,
+        createdAt: new Date('2024-01-09'),
+      }
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+      mockAvatarService.generateAndStoreDefaultAvatar = mock(() =>
+        Promise.reject(new Error('s3 down')),
+      )
+
+      await expect(service.deleteAvatar('user-8')).rejects.toThrow('s3 down')
+      expect(mockRepo.update).not.toHaveBeenCalled()
+      expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
   })
 })

@@ -32,17 +32,17 @@ describe('AuthService telegram oidc', () => {
     expect(jwt).toBe('jwt-token')
     expect(userService.upsertUser).toHaveBeenCalledWith(
       '42',
-      { login: 'ivan', profileImageUrl: 'https://cdn4.telesco.pe/file/photo.jpg' },
+      { login: 'ivan', platformAvatar: 'https://cdn4.telesco.pe/file/photo.jpg' },
       'TELEGRAM',
     )
   })
 
-  it('uses an empty avatar when the picture is missing', async () => {
+  it('does not use the telegram photo for the profile avatar', async () => {
     await service.handleTelegramOidcLogin({ id: '7', firstName: 'Ivan' })
 
     expect(userService.upsertUser).toHaveBeenCalledWith(
       '7',
-      { login: 'Ivan', profileImageUrl: '' },
+      { login: 'Ivan', platformAvatar: undefined },
       'TELEGRAM',
     )
   })

@@ -37,7 +37,7 @@ export class AuthService {
       twitchUser.id,
       {
         login: twitchUser.login,
-        profileImageUrl: twitchUser.profile_image_url,
+        platformAvatar: twitchUser.profile_image_url,
       },
       'TWITCH',
     )
@@ -54,7 +54,7 @@ export class AuthService {
       kickUser.user_id.toString(),
       {
         login: kickUser.name,
-        profileImageUrl: kickUser.profile_picture,
+        platformAvatar: kickUser.profile_picture,
       },
       'KICK',
     )
@@ -102,7 +102,7 @@ export class AuthService {
     this.logger.log(`Handling Telegram OIDC login for telegramId=${profile.id}`)
     const user = await this.userService.upsertUser(
       profile.id,
-      { login: formatTelegramLogin(profile), profileImageUrl: profile.photoUrl ?? '' },
+      { login: formatTelegramLogin(profile), platformAvatar: profile.photoUrl },
       'TELEGRAM',
     )
 

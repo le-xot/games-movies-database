@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import { Injectable, Logger } from '@nestjs/common'
 import sharp from 'sharp'
 import { S3Service } from '@/modules/s3/s3.service'
@@ -5,6 +6,42 @@ import { env } from '@/utils/enviroments'
 
 const AVATAR_SIZE = 256
 const AVATAR_QUALITY = 80
+
+export const AVATAR_PALETTE = [
+  '#5865F2',
+  '#7C3AED',
+  '#DB2777',
+  '#DC2626',
+  '#EA580C',
+  '#16A34A',
+  '#0891B2',
+  '#2563EB',
+  '#4F46E5',
+  '#9333EA',
+]
+
+export function pickAvatarColor(userId: string): string {
+  const digest = crypto.createHash('sha256').update(userId).digest()
+  return AVATAR_PALETTE[digest[0] % AVATAR_PALETTE.length]
+}
+
+export function buildDefaultAvatarSvg(userId: string, login: string): Buffer {
+  const letter = Array.from(login.trim())[0]?.toUpperCase() ?? '?'
+  const escapedLetter = letter
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;')
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${AVATAR_SIZE}" height="${AVATAR_SIZE}">` +
+    `<rect width="${AVATAR_SIZE}" height="${AVATAR_SIZE}" fill="${pickAvatarColor(userId)}"/>` +
+    `<text x="50%" y="50%" dy="0.35em" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="${AVATAR_SIZE / 2}" font-weight="bold" fill="#ffffff">${escapedLetter}</text>` +
+    `</svg>`
+
+  return Buffer.from(svg)
+}
 
 @Injectable()
 export class AvatarService {
@@ -25,15 +62,8 @@ export class AvatarService {
     return `/api/avatar/${userId}?t=${Date.now()}`
   }
 
-  async deleteAvatarFromS3(userId: string): Promise<void> {
-    const key = `${userId}.webp`
-    try {
-      await this.s3Service.deleteFile(key, env.S3_BUCKET_AVATARS)
-      this.logger.log(`Avatar deleted: ${key}`)
-    } catch (e) {
-      this.logger.warn(`Failed to delete avatar: ${key}`)
-      this.logger.error(e)
-    }
+  async generateAndStoreDefaultAvatar(userId: string, login: string): Promise<string> {
+    return await this.processAndStoreAvatar(userId, buildDefaultAvatarSvg(userId, login))
   }
 
   async getAvatarBuffer(userId: string): Promise<Buffer | null> {
@@ -43,23 +73,6 @@ export class AvatarService {
       if (!exists) return null
       return await this.s3Service.getFileBytes(key, env.S3_BUCKET_AVATARS)
     } catch {
-      return null
-    }
-  }
-
-  async fetchAndStoreOAuthAvatar(userId: string, oauthUrl: string): Promise<string | null> {
-    try {
-      const response = await fetch(oauthUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })
-      if (!response.ok) return null
-
-      const contentType = response.headers.get('content-type')
-      if (!contentType?.startsWith('image/')) return null
-
-      const buffer = Buffer.from(await response.arrayBuffer())
-      return await this.processAndStoreAvatar(userId, buffer)
-    } catch (e) {
-      this.logger.warn(`Failed to fetch OAuth avatar: ${oauthUrl}`)
-      this.logger.error(e)
       return null
     }
   }

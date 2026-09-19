@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Toaster } from '@/components/ui/sonner'
+import { provideScrollContainer } from '@/composables/use-scroll-container'
+
+const bodyRef = ref<HTMLElement | null>(null)
+
+provideScrollContainer(bodyRef)
 </script>
 
 <template>
-  <div class="body">
+  <div ref="bodyRef" class="body">
     <div class="body-content">
       <Toaster />
       <RouterView />

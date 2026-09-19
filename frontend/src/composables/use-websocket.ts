@@ -1,34 +1,25 @@
+import { useQueryCache } from '@pinia/colada'
 import { io } from 'socket.io-client'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
-import { useAnime } from '@/pages/anime/composables/use-anime'
-import { useCartoon } from '@/pages/cartoon/composables/use-cartoon'
-import { useGames } from '@/pages/games/composables/use-games'
-import { useMovie } from '@/pages/movie/composables/use-movie'
-import { useSeries } from '@/pages/series/composables/use-series'
-import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
+import { SUGGESTION_QUERY_KEY } from '@/pages/suggestion/composables/use-suggestion'
 import { useUser } from '@/stores/use-user'
 
 export function useWebSocket() {
   const socket = ref<ReturnType<typeof io> | null>(null)
   const isConnected = ref(false)
-  const animeStore = useAnime()
-  const cartoonStore = useCartoon()
-  const seriesStore = useSeries()
-  const movieStore = useMovie()
-  const gamesStore = useGames()
-  const suggestionStore = useSuggestion()
+  const queryCache = useQueryCache()
   const userStore = useUser()
 
   const coalescer = createEventCoalescer({
     handlers: {
-      suggestions: () => suggestionStore.refetchSuggestions(),
+      suggestions: () => queryCache.invalidateQueries({ key: [SUGGESTION_QUERY_KEY] }),
       user: () => userStore.refetchUser(),
-      'records:ANIME': () => animeStore.refetchVideos(),
-      'records:CARTOON': () => cartoonStore.refetchVideos(),
-      'records:SERIES': () => seriesStore.refetchVideos(),
-      'records:MOVIE': () => movieStore.refetchVideos(),
-      'records:GAME': () => gamesStore.refetchGames(),
+      'records:ANIME': () => queryCache.invalidateQueries({ key: ['anime'] }),
+      'records:CARTOON': () => queryCache.invalidateQueries({ key: ['cartoon'] }),
+      'records:SERIES': () => queryCache.invalidateQueries({ key: ['series'] }),
+      'records:MOVIE': () => queryCache.invalidateQueries({ key: ['movie'] }),
+      'records:GAME': () => queryCache.invalidateQueries({ key: ['games'] }),
     },
   })
 

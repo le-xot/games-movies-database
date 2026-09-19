@@ -19,8 +19,6 @@ export function createParamsStore(config: ParamsStoreConfig) {
       const p: Record<string, any> = {
         genre: config.genre,
         type: RecordType.WRITTEN,
-        page: 1,
-        limit: 500,
         search: debouncedSearch.value,
         orderBy: 'id',
         direction: 'desc',

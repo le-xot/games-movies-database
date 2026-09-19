@@ -86,7 +86,7 @@ async function unlinkAccount(platform: string) {
           <div class="flex items-center gap-3 px-4 py-3">
             <img
               v-if="account.platformAvatar"
-              :src="getImageUrl(account.platformAvatar)"
+              :src="getImageUrl(account.platformAvatar, 'avatar')"
               class="size-8 rounded-full object-cover"
             />
             <div v-else class="flex size-8 items-center justify-center rounded-full bg-muted">

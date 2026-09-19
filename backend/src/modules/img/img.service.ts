@@ -6,13 +6,22 @@ import {
   fetchPublicImage,
   MAX_IMAGE_BYTES,
 } from '@/modules/img/img-url-safety'
+import { ImgVariant } from '@/modules/img/img.dto'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
 import { assertPixelLimit } from '@/utils/image-limits'
 
-const POSTER_WIDTH = 300
-const POSTER_HEIGHT = 450
-const POSTER_QUALITY = 65
+interface ImgPreset {
+  width: number
+  height: number
+  quality: number
+  keySuffix: string
+}
+
+const IMG_PRESETS: Record<ImgVariant, ImgPreset> = {
+  [ImgVariant.POSTER]: { width: 300, height: 450, quality: 65, keySuffix: '' },
+  [ImgVariant.AVATAR]: { width: 64, height: 64, quality: 80, keySuffix: '_avatar' },
+}
 
 @Injectable()
 export class ImgService {
@@ -20,10 +29,11 @@ export class ImgService {
 
   constructor(private readonly s3Service: S3Service) {}
 
-  async getImageContent(urlBase64: string) {
+  async getImageContent(urlBase64: string, variant: ImgVariant = ImgVariant.POSTER) {
     const originalUrl = Buffer.from(urlBase64, 'base64').toString('utf-8')
     const urlHash = createHash('sha256').update(originalUrl).digest('hex')
-    const key = `${urlHash}.webp`
+    const preset = IMG_PRESETS[variant]
+    const key = `${urlHash}${preset.keySuffix}.webp`
 
     try {
       if (await this.s3Service.fileExists(key, env.S3_BUCKET_IMAGES)) {
@@ -80,8 +90,8 @@ export class ImgService {
       }
 
       const imageBytes = await new Bun.Image(fileContent)
-        .resize(POSTER_WIDTH, POSTER_HEIGHT)
-        .webp({ quality: POSTER_QUALITY })
+        .resize(preset.width, preset.height)
+        .webp({ quality: preset.quality })
         .bytes()
 
       try {

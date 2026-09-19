@@ -178,7 +178,7 @@ describe('RecordService', () => {
 
       const result = await service.updatePoster(8, url)
 
-      const expectedBase64 = Buffer.from(unescape(encodeURIComponent(url))).toString('base64')
+      const expectedBase64 = Buffer.from(url, 'utf8').toString('base64')
       expect(mockImgService.getImageContent).toHaveBeenCalledWith(expectedBase64)
       expect(mockRepo.update).toHaveBeenCalledWith(8, { posterUrl: url })
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
@@ -186,6 +186,24 @@ describe('RecordService', () => {
         expect.objectContaining({ id: 8, genre: RecordGenre.ANIME, action: 'updated' }),
       )
       expect(result).toEqual(updated as any)
+    })
+
+    it('encodes non-ASCII poster URLs as UTF-8 base64', async () => {
+      const existing = makeRecord({ id: 9, genre: RecordGenre.ANIME })
+      const url = 'https://example.com/постер.jpg'
+      const updated = makeRecord({ id: 9, genre: RecordGenre.ANIME, posterUrl: url })
+
+      mockRepo.findById = mock(() => Promise.resolve(existing))
+      mockImgService.getImageContent = mock(() =>
+        Promise.resolve({ buffer: Buffer.from([]), contentType: 'image/webp' }),
+      )
+      mockRepo.update = mock(() => Promise.resolve(updated))
+
+      await service.updatePoster(9, url)
+
+      expect(mockImgService.getImageContent).toHaveBeenCalledWith(
+        'aHR0cHM6Ly9leGFtcGxlLmNvbS/Qv9C+0YHRgtC10YAuanBn',
+      )
     })
   })
 

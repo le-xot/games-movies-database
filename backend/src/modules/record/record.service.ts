@@ -106,7 +106,7 @@ export class RecordService {
       throw new NotFoundException('Record not found')
     }
 
-    const urlBase64 = Buffer.from(unescape(encodeURIComponent(url))).toString('base64')
+    const urlBase64 = Buffer.from(url, 'utf8').toString('base64')
     await this.imgService.getImageContent(urlBase64)
 
     const updatedRecord = await this.recordRepository.update(id, { posterUrl: url })

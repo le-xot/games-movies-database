@@ -7,6 +7,7 @@ import { createMock } from '@/__tests__/helpers/mock-factory'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
 import { MAX_IMAGE_BYTES } from '../img-url-safety'
+import { ImgVariant } from '../img.dto'
 import { ImgService } from '../img.service'
 
 const svgFixture = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180">
@@ -135,6 +136,73 @@ describe('ImgService', () => {
 
       expect(uploaded).toEqual(expected)
       expect(uploaded!.length).toBeLessThan(quality80.length)
+    })
+
+    it('re-encodes a fetched avatar to a 64x64 webp', async () => {
+      mockS3.fileExists = mock(() => Promise.resolve(false))
+      mockS3.uploadFile = mock(() => Promise.resolve()) as any
+      const url = 'https://93.184.216.34/avatar.jpg'
+      const { restore } = installFetch(fixture)
+
+      try {
+        const result = await service.getImageContent(toBase64(url), ImgVariant.AVATAR)
+
+        expect(result.contentType).toBe('image/webp')
+        const meta = await new Bun.Image(result.buffer).metadata()
+        expect(meta.width).toBe(64)
+        expect(meta.height).toBe(64)
+        expect(mockS3.uploadFile).toHaveBeenCalledWith(
+          `${createHash('sha256').update(url).digest('hex')}_avatar.webp`,
+          expect.any(Buffer),
+          env.S3_BUCKET_IMAGES,
+          'image/webp',
+        )
+      } finally {
+        restore()
+      }
+    })
+
+    it('looks up the avatar cache key', async () => {
+      mockS3.fileExists = mock(() => Promise.resolve(true))
+      mockS3.getFileBytes = mock(() => Promise.resolve(Buffer.from('cached')))
+      const url = 'https://93.184.216.34/avatar.jpg'
+      const { restore } = installFetch(fixture)
+
+      try {
+        await service.getImageContent(toBase64(url), ImgVariant.AVATAR)
+
+        expect(mockS3.fileExists).toHaveBeenCalledWith(
+          `${createHash('sha256').update(url).digest('hex')}_avatar.webp`,
+          env.S3_BUCKET_IMAGES,
+        )
+      } finally {
+        restore()
+      }
+    })
+
+    it('encodes avatars at webp quality 80', async () => {
+      mockS3.fileExists = mock(() => Promise.resolve(false))
+      let uploaded: Buffer | undefined
+      mockS3.uploadFile = mock((_key, buffer) => {
+        uploaded = buffer
+        return Promise.resolve()
+      }) as any
+      const { restore } = installFetch(fixture)
+
+      try {
+        await service.getImageContent(
+          toBase64('https://93.184.216.34/avatar.jpg'),
+          ImgVariant.AVATAR,
+        )
+      } finally {
+        restore()
+      }
+
+      const expected = Buffer.from(
+        await new Bun.Image(fixture).resize(64, 64).webp({ quality: 80 }).bytes(),
+      )
+
+      expect(uploaded).toEqual(expected)
     })
 
     it('rejects URLs that are not public http(s)', async () => {

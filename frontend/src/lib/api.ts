@@ -217,6 +217,42 @@ export interface SteamImportResultDTO {
   failed: string[];
 }
 
+export interface GenreCountDTO {
+  genre: RecordGenre;
+  count: number;
+}
+
+export interface StatusCountDTO {
+  status: RecordStatus;
+  count: number;
+}
+
+export interface GradeCountDTO {
+  grade: RecordGrade;
+  count: number;
+}
+
+export interface GenreStatusCountDTO {
+  genre: RecordGenre;
+  status: RecordStatus;
+  count: number;
+}
+
+export interface GenreGradeCountDTO {
+  genre: RecordGenre;
+  grade: RecordGrade;
+  count: number;
+}
+
+export interface RecordsStatsDTO {
+  total: number;
+  byGenre: GenreCountDTO[];
+  byStatus: StatusCountDTO[];
+  byGrade: GradeCountDTO[];
+  byGenreStatus: GenreStatusCountDTO[];
+  byGenreGrade: GenreGradeCountDTO[];
+}
+
 /** @example "id" */
 export enum RecordControllerGetAllRecordsParamsOrderByEnum {
   Id = "id",
@@ -1277,6 +1313,22 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  stats = {
+    /**
+     * No description
+     *
+     * @tags stats
+     * @name StatsControllerGetRecordsStats
+     * @request GET:/stats/records
+     */
+    statsControllerGetRecordsStats: (params: RequestParams = {}) =>
+      this.http.request<RecordsStatsDTO, any>({
+        path: `/stats/records`,
+        method: "GET",
         format: "json",
         ...params,
       }),

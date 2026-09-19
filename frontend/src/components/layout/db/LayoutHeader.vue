@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   Baby,
+  ChartPie,
   Film,
   Gamepad2,
   HandPlatter,
@@ -45,6 +46,12 @@ const allRoutes: RouteItem[] = [
   { name: 'Фильмы', icon: Film, path: ROUTER_PATHS.dbMovie, group: 3 },
   { name: 'Сериалы', icon: Popcorn, path: ROUTER_PATHS.dbSeries, group: 3 },
   { name: 'Мультфильмы', icon: Baby, path: ROUTER_PATHS.dbCartoon, group: 3 },
+  {
+    name: 'Статистика',
+    icon: ChartPie,
+    path: ROUTER_PATHS.dbStats,
+    group: 4,
+  },
 ]
 
 const visibleRoutes = computed(() => allRoutes.filter((r) => !r.requiresAdmin || isRealAdmin))

@@ -2,6 +2,7 @@ import { useQueryCache } from '@pinia/colada'
 import { io } from 'socket.io-client'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
+import { STATS_QUERY_KEY } from '@/pages/stats/composables/use-stats'
 import { SUGGESTION_QUERY_KEY } from '@/pages/suggestion/composables/use-suggestion'
 import { useUser } from '@/stores/use-user'
 
@@ -14,6 +15,7 @@ export function useWebSocket() {
   const coalescer = createEventCoalescer({
     handlers: {
       suggestions: () => queryCache.invalidateQueries({ key: [SUGGESTION_QUERY_KEY] }),
+      stats: () => queryCache.invalidateQueries({ key: [STATS_QUERY_KEY] }),
       user: () => userStore.refetchUser(),
       'records:ANIME': () => queryCache.invalidateQueries({ key: ['anime'] }),
       'records:CARTOON': () => queryCache.invalidateQueries({ key: ['cartoon'] }),
@@ -34,6 +36,7 @@ export function useWebSocket() {
         isConnected.value = false
       })
       .on('update-records', (payload?: { genre?: string }) => {
+        coalescer.enqueue('stats')
         if (payload?.genre) {
           coalescer.enqueue('records:' + payload.genre)
         } else {
@@ -49,6 +52,7 @@ export function useWebSocket() {
       })
       .on('update-queue', () => {
         coalescer.enqueue('suggestions')
+        coalescer.enqueue('stats')
       })
       .on('update-suggestions', () => {
         coalescer.enqueue('suggestions')

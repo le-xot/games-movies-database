@@ -15,6 +15,7 @@ import { QueueModule } from '@/modules/queue/queue.module'
 import { RateLimitGuard } from '@/modules/rate-limit/rate-limit.guard'
 import { RateLimitModule } from '@/modules/rate-limit/rate-limit.module'
 import { RecordModule } from '@/modules/record/record.module'
+import { StatsModule } from '@/modules/stats/stats.module'
 import { SteamModule } from '@/modules/steam/steam.module'
 import { SuggestionModule } from '@/modules/suggestion/suggestion.module'
 import { TelegramModule } from '@/modules/telegram/telegram.module'
@@ -47,6 +48,7 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     SuggestionModule,
     WeatherModule,
     SteamModule,
+    StatsModule,
     WebsocketModule,
     ImgModule,
   ],

@@ -55,6 +55,10 @@ export const router = createRouter({
           component: () => import('@/pages/suggestion/SuggestionPage.vue'),
         },
         {
+          path: ROUTER_PATHS.dbStats,
+          component: () => import('@/pages/stats/StatsPage.vue'),
+        },
+        {
           path: ROUTER_PATHS.dbAnime,
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.ANIME },

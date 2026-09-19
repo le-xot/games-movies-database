@@ -1,104 +1,84 @@
 <script setup lang="ts">
-import { CircleUserRound, Loader2, Lock, LogOutIcon, Pencil, Tv } from '@lucide/vue'
+import { CircleUserRound } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
-import { nextTick, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { TwitchIcon, TelegramIcon } from 'vue3-simple-icons'
+import { computed } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { ROUTER_PATHS } from '@/router/router-paths'
+import { UserRole } from '@/lib/api'
+import { useAccountDialog } from '@/stores/use-account-dialog'
+import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useUser } from '@/stores/use-user'
 
-const userStore = useUser()
-const router = useRouter()
-const { user, editorEnabled, isRealAdmin } = storeToRefs(userStore)
-const isLoading = ref(false)
+const props = withDefaults(
+  defineProps<{
+    collapsed?: boolean
+  }>(),
+  { collapsed: undefined },
+)
 
-async function handleLogin(platform: 'twitch' | 'kick' | 'telegram') {
-  localStorage.setItem('loginReturnUrl', window.location.pathname)
-  isLoading.value = true
-  await nextTick()
-  window.location.href = `${window.location.origin}/api/auth/${platform}`
-}
+const userStore = useUser()
+const loginDialog = useLoginDialog()
+const accountDialog = useAccountDialog()
+const { user } = storeToRefs(userStore)
+
+const inSidebar = computed(() => props.collapsed !== undefined)
+const userRoleLabel = computed(() =>
+  user.value?.role === UserRole.ADMIN ? 'Админ' : 'Пользователь',
+)
 </script>
 
 <template>
-  <DropdownMenu v-if="user">
-    <DropdownMenuTrigger>
-      <div class="flex items-center justify-between gap-2">
-        <span class="text-base">
-          {{ user.login }}
-        </span>
-        <Avatar class="size-8">
-          <AvatarImage :src="user.profileImageUrl" alt="@radix-vue" />
-          <AvatarFallback>{{ user.login.charAt(0) }}</AvatarFallback>
-        </Avatar>
-      </div>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent class="mt-4">
-      <DropdownMenuItem v-if="isRealAdmin" @click="editorEnabled = !editorEnabled">
-        <Pencil
-          class="size-6 mr-2"
-          :class="editorEnabled ? 'text-primary' : 'text-muted-foreground'"
-        />
-        <span :class="editorEnabled ? 'text-primary' : 'text-muted-foreground line-through'">
-          Редактор
-        </span>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator v-if="isRealAdmin" />
-      <DropdownMenuItem v-if="isRealAdmin" as-child>
-        <RouterLink to="/db/admin">
-          <Lock class="size-6 mr-2" />
-          Админка
-        </RouterLink>
-      </DropdownMenuItem>
-      <DropdownMenuItem v-if="userStore.isLoggedIn" as-child>
-        <RouterLink to="/db/profile">
-          <CircleUserRound class="size-6 mr-2" />
-          Профиль
-        </RouterLink>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        @click="
-          async () => {
-            await userStore.userLogout()
-            router.push(ROUTER_PATHS.dbSuggestion)
-          }
-        "
-      >
-        <LogOutIcon class="size-6 mr-2" />
-        Выйти
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
+  <Button
+    v-if="user && inSidebar"
+    variant="ghost"
+    class="w-full"
+    :class="
+      collapsed
+        ? 'h-10 justify-center px-0'
+        : '-ml-1.5 h-10 w-[calc(100%+6px)] justify-start gap-1.5 px-2 hover:bg-white/10'
+    "
+    @click="accountDialog.openAccount()"
+  >
+    <Avatar class="size-7">
+      <AvatarImage :src="user.profileImageUrl" alt="@radix-vue" />
+      <AvatarFallback>{{ user.login.charAt(0) }}</AvatarFallback>
+    </Avatar>
+    <template v-if="!collapsed">
+      <span class="flex min-w-0 flex-col items-start">
+        <span class="truncate text-sm font-medium">{{ user.login }}</span>
+        <span class="text-xs text-muted-foreground">{{ userRoleLabel }}</span>
+      </span>
+    </template>
+  </Button>
 
-  <DropdownMenu v-else>
-    <DropdownMenuTrigger as-child>
-      <Button :disabled="isLoading">
-        <Loader2 v-if="isLoading" class="animate-spin" />
-        <span v-else>Логин</span>
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent class="mt-4">
-      <DropdownMenuItem @click="handleLogin('twitch')">
-        <TwitchIcon class="size-4 mr-2" />
-        <span>Twitch</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem @click="handleLogin('kick')">
-        <Tv class="size-4 mr-2" />
-        <span>Kick</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem @click="handleLogin('telegram')">
-        <TelegramIcon class="size-4 mr-2" />
-        <span>Telegram</span>
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
+  <Button v-else-if="user" variant="ghost" class="gap-2" @click="accountDialog.openAccount()">
+    <span class="text-base">{{ user.login }}</span>
+    <Avatar class="size-8">
+      <AvatarImage :src="user.profileImageUrl" alt="@radix-vue" />
+      <AvatarFallback>{{ user.login.charAt(0) }}</AvatarFallback>
+    </Avatar>
+  </Button>
+
+  <Button
+    v-else
+    :variant="inSidebar ? 'ghost' : 'default'"
+    :size="collapsed ? 'icon' : 'default'"
+    :class="[
+      collapsed ? 'h-10 w-full justify-center px-0' : '',
+      collapsed === false
+        ? '-ml-1.5 h-10 w-[calc(100%+6px)] justify-start gap-1.5 px-2 hover:bg-white/10'
+        : '',
+    ]"
+    :aria-label="collapsed ? 'Войти' : undefined"
+    @click="loginDialog.openLogin()"
+  >
+    <CircleUserRound v-if="collapsed" />
+    <template v-else-if="collapsed === false">
+      <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary">
+        <CircleUserRound />
+      </span>
+      <span class="truncate text-sm font-medium">Войти</span>
+    </template>
+    <span v-else>Логин</span>
+  </Button>
 </template>

@@ -1,0 +1,6 @@
+export { default as AccountAvatarRow } from '@/components/account/AccountAvatarRow.vue'
+export { default as AccountDangerZone } from '@/components/account/AccountDangerZone.vue'
+export { default as AccountDialog } from '@/components/account/AccountDialog.vue'
+export { default as AccountHeader } from '@/components/account/AccountHeader.vue'
+export { default as AccountNickname } from '@/components/account/AccountNickname.vue'
+export { default as ConnectedAccounts } from '@/components/account/ConnectedAccounts.vue'

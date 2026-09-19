@@ -11,7 +11,8 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 - **Queue system** — item queue management
 - **Stats** — public storage stats: totals, genres, statuses, ratings, and per-genre breakdowns
 - **Likes** — favorites with cascade deletion
-- **Profile** — account management, link/unlink providers, account deletion
+- **Account** — modal window: nickname and avatar management, link/unlink providers, account deletion
+- **Navigation** — collapsible sidebar with sections and a mobile menu
 - **Admin panel** — administration interface
 - **Image proxy** — resizing via Sharp, proxying through `/api/img`
 - **Watch links** — automatic Kinobox links for watching
@@ -122,9 +123,10 @@ games-movies-database/
 │   ├── src/
 │   │   ├── assets/            # Global styles, OKLCH colors, dark mode
 │   │   ├── components/        # Reusable components
+│   │   │   ├── account/       # "Account" modal (nickname, avatar, linked providers)
 │   │   │   ├── dialog/        # Dialogs
-│   │   │   ├── form/          # Forms
-│   │   │   ├── layout/        # Layout components (header, body, DB)
+│   │   │   ├── form/          # Forms and login dialog (LoginForm, LoginDialog)
+│   │   │   ├── layout/        # Layout: sidebar, mobile header, body
 │   │   │   ├── media/         # DataCards, search and filters
 │   │   │   └── ui/            # shadcn-vue primitives (DO NOT EDIT)
 │   │   ├── composables/       # Composables + factories for media pages
@@ -138,7 +140,6 @@ games-movies-database/
 │   │   │   ├── home/          # Home page
 │   │   │   ├── movie/         # Movie tracking
 │   │   │   ├── pc/            # PC games
-│   │   │   ├── profile/       # User profile
 │   │   │   ├── series/        # Series tracking
 │   │   │   ├── stats/         # Storage statistics
 │   │   │   └── suggestion/    # Content suggestions
@@ -250,7 +251,7 @@ KICK_CALLBACK_URL=http://localhost:3000/api/auth/kick/callback
 
 ### Telegram
 
-Authentication via Telegram Login (OpenID Connect, Authorization Code + PKCE). Supports sign-in and linking an account from the profile page.
+Authentication via Telegram Login (OpenID Connect, Authorization Code + PKCE). Supports sign-in and linking an account from the account dialog.
 
 Setup:
 

@@ -29,6 +29,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | -------------------- | ------------------------------------------- | --------------------------------------------------------------- |
 | Add backend feature  | `backend/src/modules/{name}/`               | See `backend/src/modules/AGENTS.md` for template                |
 | Add frontend page    | `frontend/src/pages/{feature}/`             | Each page = folder with .vue + composables/                     |
+| Sidebar / nav        | `frontend/src/components/layout/db/`        | `LayoutSidebar.vue`, `NavItem.vue`, `use-db-navigation.ts`      |
+| Account/login modals | `frontend/src/components/account/`          | Opened via `use-account-dialog` / `use-login-dialog` stores     |
 | Add UI primitive     | `frontend/src/components/ui/{name}/`        | shadcn-vue pattern: .vue files + index.ts barrel                |
 | Modify auth flow     | `backend/src/modules/auth/`                 | JWT in cookie, Twitch/Kick OAuth, Telegram OIDC, guards         |
 | Telegram login       | `backend/src/modules/telegram/`             | OIDC (PKCE, JWKS); cookies `tg_oidc_*`, env `TELEGRAM_*`        |

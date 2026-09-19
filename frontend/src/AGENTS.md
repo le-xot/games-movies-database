@@ -13,9 +13,10 @@ Vue 3 SPA using Vite, Tailwind 4, shadcn-vue, Pinia, and auto-generated API clie
 frontend/src/
 ├── assets/        # Global styles, OKLCH colors, dark mode, autofill hacks
 ├── components/    # Shared components (PascalCase .vue) + ui/ (shadcn-vue, DO NOT EDIT)
+│   ├── account/   # AccountDialog, AccountHeader, AccountNickname, ConnectedAccounts, AccountDangerZone, AccountAvatarRow
 │   ├── dialog/    # Dialog, DialogButton
-│   ├── form/      # LoginForm
-│   ├── layout/    # LayoutHeader, LayoutBody, LayoutDatabase, LayoutHome
+│   ├── form/      # LoginForm, LoginDialog
+│   ├── layout/    # LayoutHeader (mobile), LayoutSidebar, LayoutBody, LayoutDatabase, LayoutHome
 │   ├── record/    # RecordCreateForm
 │   ├── media/     # DataCards, filters, search, badge/
 │   └── ui/        # shadcn-vue primitives (managed, do not edit)
@@ -23,7 +24,7 @@ frontend/src/
 ├── lib/           # API client (auto-generated), cn() helper
 ├── pages/         # Route components (feature folders, PascalCase .vue)
 ├── router/        # Vue Router config + route paths
-├── stores/        # Pinia stores (useApi, useUser, useBreakpoints, useNewRecords, useTitle)
+├── stores/        # Pinia stores (useApi, useUser, useAccountDialog, useLoginDialog, useBreakpoints, useNewRecords, useTitle)
 └── utils/         # Image proxy, watch link generation
 ```
 
@@ -37,18 +38,23 @@ frontend/src/
 | Styling          | `assets/index.css`           | Tailwind 4 CSS variables + global overrides                                                              |
 | Utils            | `lib/utils.ts`               | Primary `cn()` helper (clsx + tailwind-merge)                                                            |
 | Add media genre  | `pages/{genre}/composables/` | Shared `pages/media/MediaPage.vue`; genre from `route.meta.genre`; factories in `composables/factories/` |
+| Account UI       | `components/account/`        | Modal sections; opened via `use-account-dialog` store                                                    |
+| Login modal      | `components/form/`           | `LoginDialog.vue`; opened via `use-login-dialog` store                                                   |
+| Sidebar / nav    | `components/layout/db/`      | `LayoutSidebar.vue`, `NavItem.vue`, `use-db-navigation.ts`                                               |
 | Pinia stores     | `stores/`                    | `defineStore` pattern, import via `@/stores/use-{name}`                                                  |
 | Image/link utils | `utils/`                     | `getImageUrl()`, `generateWatchLink()`                                                                   |
 
 ## STORES (Pinia — `stores/`)
 
-| Name             | Purpose                                                      |
-| ---------------- | ------------------------------------------------------------ |
-| `useApi`         | Singleton API client (baseUrl: /api, credentials: include)   |
-| `useUser`        | Auth state, login/logout, /auth/me data, admin/login getters |
-| `useBreakpoints` | Tailwind breakpoint tracking via @vueuse/core                |
-| `useNewRecords`  | localStorage tracking for "new" record badges                |
-| `useTitle`       | Document title management                                    |
+| Name               | Purpose                                                      |
+| ------------------ | ------------------------------------------------------------ |
+| `useApi`           | Singleton API client (baseUrl: /api, credentials: include)   |
+| `useUser`          | Auth state, login/logout, /auth/me data, admin/login getters |
+| `useAccountDialog` | Account modal open state (`ACCOUNT_DIALOG_ON_LOAD_KEY`)      |
+| `useLoginDialog`   | Login modal open state                                       |
+| `useBreakpoints`   | Tailwind breakpoint tracking via @vueuse/core                |
+| `useNewRecords`    | localStorage tracking for "new" record badges                |
+| `useTitle`         | Document title management                                    |
 
 ## COMPOSABLES (Plain — `composables/`)
 

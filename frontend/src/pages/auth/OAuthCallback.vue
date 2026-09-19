@@ -97,7 +97,7 @@ onMounted(async () => {
     if (isLinking) {
       await provider.link(code)
       localStorage.removeItem('loginReturnUrl')
-      await router.push(ROUTER_PATHS.profile)
+      await router.push(returnUrl)
       toast.success('Аккаунт привязан', { description: `${provider.name} привязан к профилю` })
     } else {
       await provider.login(code)

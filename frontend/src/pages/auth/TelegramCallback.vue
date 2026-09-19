@@ -25,7 +25,9 @@ onMounted(async () => {
 
   try {
     if (isLinking) {
-      await router.push(ROUTER_PATHS.profile)
+      const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
+      localStorage.removeItem('loginReturnUrl')
+      await router.push(returnUrl)
       toast.success('Аккаунт привязан', { description: 'Telegram привязан к профилю' })
     } else {
       const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db

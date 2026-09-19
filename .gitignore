@@ -79,3 +79,4 @@ vite.config.ts.timestamp-*.mjs
 .playwright-mcp/
 /.opencode/plans/
 /docs/superpowers/specs/
+/docs/superpowers/

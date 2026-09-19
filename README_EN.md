@@ -9,6 +9,7 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 - **Real-time** — instant UI updates via Socket.IO
 - **Suggestion system** — users suggest new content for adding
 - **Queue system** — item queue management
+- **Stats** — public storage stats: totals, genres, statuses, ratings, and per-genre breakdowns
 - **Likes** — favorites with cascade deletion
 - **Profile** — account management, link/unlink providers, account deletion
 - **Admin panel** — administration interface
@@ -139,6 +140,7 @@ games-movies-database/
 │   │   │   ├── pc/            # PC games
 │   │   │   ├── profile/       # User profile
 │   │   │   ├── series/        # Series tracking
+│   │   │   ├── stats/         # Storage statistics
 │   │   │   └── suggestion/    # Content suggestions
 │   │   ├── router/            # Vue Router configuration
 │   │   ├── stores/            # Pinia stores (useApi, useUser, etc.)
@@ -159,6 +161,7 @@ games-movies-database/
 │   │       ├── record/        # Media records
 │   │       ├── like/          # Likes/favorites
 │   │       ├── suggestion/    # Content suggestions
+│   │       ├── stats/         # Public storage statistics
 │   │       ├── queue/         # Item queue
 │   │       ├── twitch/        # Twitch API client
 │   │       ├── kick/          # Kick API client

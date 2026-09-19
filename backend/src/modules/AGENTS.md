@@ -19,6 +19,7 @@ Standard file set for new features:
 | **auth**              | 8     | Twitch/Kick/Telegram OIDC, JWT, @Global() guards, @User() decorator |
 | **user**              | 5     | User CRUD, profile management, update-users events                  |
 | **record**            | 5     | Media entries (games/movies), provider integration                  |
+| **stats**             | 5     | Public records stats (genre/status/grade breakdowns)                |
 | **like**              | 5     | User favorites, cascade deletes                                     |
 | **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)            |
 | **avatar**            | 3     | Avatar upload/delete via S3, Sharp image processing                 |
@@ -35,6 +36,7 @@ Standard file set for new features:
 | **twitch**            | 2     | Twitch API client for metadata and validation                       |
 | **telegram**          | 5     | Telegram Login via OpenID Connect (PKCE, id_token/JWKS)             |
 | **weather**           | 3     | Weather data fetcher (OpenWeatherMap)                               |
+| **steam**             | 4     | Steam library sync and IGDB import (admin)                          |
 
 ## MODULE INTERACTIONS
 

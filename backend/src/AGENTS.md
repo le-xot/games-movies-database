@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-NestJS 12 API source directory. Boots Swagger, Drizzle, Redis rate limiting, and 20 feature modules.
+NestJS 12 API source directory. Boots Swagger, Drizzle, Redis rate limiting, and 21 feature modules.
 
 ## STRUCTURE
 

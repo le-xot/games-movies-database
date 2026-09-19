@@ -7,6 +7,7 @@ import {
   HouseIcon,
   JapaneseYen,
   Popcorn,
+  Puzzle,
 } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -20,6 +21,7 @@ export interface RouteItem {
   icon: Component
   path: string
   requiresAdmin?: boolean
+  requiresAuth?: boolean
 }
 
 export interface NavSection {
@@ -50,27 +52,40 @@ export const homeNavItem: RouteItem = {
   path: ROUTER_PATHS.home,
 }
 
+export const wordleNavItem: RouteItem = {
+  name: 'Вордли',
+  icon: Puzzle,
+  path: ROUTER_PATHS.wordle,
+  requiresAuth: true,
+}
+
 export function useDbNavigation() {
   const route = useRoute()
   const { updateTitle } = useTitle()
   const userStore = useUser()
 
+  const isItemVisible = (item: RouteItem) =>
+    (!item.requiresAdmin || userStore.isRealAdmin) && (!item.requiresAuth || userStore.isLoggedIn)
+
   const sections = computed(() =>
     dbSections
       .map((section) => ({
-        items: section.items.filter((r) => !r.requiresAdmin || userStore.isRealAdmin),
+        items: section.items.filter(isItemVisible),
       }))
       .filter((section) => section.items.length > 0),
   )
+
+  const bottomItems = computed(() => [wordleNavItem, homeNavItem].filter(isItemVisible))
 
   function handleNavClick(name: string) {
     updateTitle(name)
   }
 
   function syncTitleFromRoute() {
-    const current = dbSections.flatMap((s) => s.items).find((r) => r.path === route.path)
+    const allItems = [...dbSections.flatMap((s) => s.items), wordleNavItem, homeNavItem]
+    const current = allItems.find((r) => r.path === route.path)
     if (current) updateTitle(current.name)
   }
 
-  return { sections, handleNavClick, syncTitleFromRoute }
+  return { sections, bottomItems, handleNavClick, syncTitleFromRoute }
 }

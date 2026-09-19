@@ -10,6 +10,18 @@
  * ---------------------------------------------------------------
  */
 
+export enum WordleLetterState {
+  CORRECT = "CORRECT",
+  PRESENT = "PRESENT",
+  ABSENT = "ABSENT",
+}
+
+export enum WordleGameStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+  WON = "WON",
+  LOST = "LOST",
+}
+
 export enum LimitType {
   SUGGESTION = "SUGGESTION",
 }
@@ -254,6 +266,61 @@ export interface RecordsStatsDTO {
   byGenreGrade: GenreGradeCountDTO[];
 }
 
+export interface WordleGuessStateDTO {
+  /** @example "слово" */
+  word: string;
+  states: WordleLetterState[];
+}
+
+export interface WordleStateDTO {
+  /** @example "2026-09-20" */
+  date: string;
+  status: WordleGameStatus;
+  /** @example 3 */
+  attempts: number;
+  /** @example 6 */
+  maxAttempts: number;
+  /** @example 5 */
+  wordLength: number;
+  guesses: WordleGuessStateDTO[];
+  /** @example null */
+  answer: string | null;
+  /** @example 43200000 */
+  msUntilNextWord: number;
+}
+
+export interface WordleGuessDTO {
+  /** @example "слово" */
+  word: string;
+}
+
+export interface WordleStatsDTO {
+  played: number;
+  wins: number;
+  winRate: number;
+  currentStreak: number;
+  maxStreak: number;
+  distribution: number[];
+}
+
+export interface WordleLeaderboardEntryDTO {
+  userId: string;
+  login: string;
+  profileImageUrl: string;
+  color: string;
+  wins: number;
+  currentStreak: number;
+  maxStreak: number;
+  avgAttempts: number;
+}
+
+export interface WordleLeaderboardDTO {
+  entries: WordleLeaderboardEntryDTO[];
+  totalPlayers: number;
+  totalGames: number;
+  winsToday: number;
+}
+
 export enum AuthControllerUnlinkAccountParamsPlatformEnum {
   TWITCH = "TWITCH",
   KICK = "KICK",
@@ -276,6 +343,12 @@ export enum RecordControllerGetAllRecordsParamsOrderByEnum {
 export enum RecordControllerGetAllRecordsParamsDirectionEnum {
   Asc = "asc",
   Desc = "desc",
+}
+
+/** @default "poster" */
+export enum ImgControllerGetImageContentParamsVariantEnum {
+  Poster = "poster",
+  Avatar = "avatar",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1139,7 +1212,10 @@ export class Api<SecurityDataType extends unknown> {
      */
     imgControllerGetImageContent: (
       query: {
+        /** Base64-encoded source image URL */
         urlEncoded: string;
+        /** @default "poster" */
+        variant?: ImgControllerGetImageContentParamsVariantEnum;
       },
       params: RequestParams = {},
     ) =>
@@ -1341,6 +1417,72 @@ export class Api<SecurityDataType extends unknown> {
     statsControllerGetRecordsStats: (params: RequestParams = {}) =>
       this.http.request<RecordsStatsDTO, any>({
         path: `/stats/records`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  wordle = {
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerGetState
+     * @request GET:/wordle/state
+     */
+    wordleControllerGetState: (params: RequestParams = {}) =>
+      this.http.request<WordleStateDTO, any>({
+        path: `/wordle/state`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerMakeGuess
+     * @request POST:/wordle/guess
+     */
+    wordleControllerMakeGuess: (
+      data: WordleGuessDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<WordleStateDTO, any>({
+        path: `/wordle/guess`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerGetStats
+     * @request GET:/wordle/stats
+     */
+    wordleControllerGetStats: (params: RequestParams = {}) =>
+      this.http.request<WordleStatsDTO, any>({
+        path: `/wordle/stats`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerGetLeaderboard
+     * @request GET:/wordle/leaderboard
+     */
+    wordleControllerGetLeaderboard: (params: RequestParams = {}) =>
+      this.http.request<WordleLeaderboardDTO, any>({
+        path: `/wordle/leaderboard`,
         method: "GET",
         format: "json",
         ...params,

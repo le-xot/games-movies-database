@@ -78,6 +78,11 @@ export const router = createRouter({
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.SERIES },
         },
+        {
+          path: ROUTER_PATHS.wordle,
+          component: () => import('@/pages/wordle/WordlePage.vue'),
+          meta: { requiresAuth: true },
+        },
       ],
     },
     {

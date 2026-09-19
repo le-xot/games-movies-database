@@ -24,6 +24,7 @@ import { TwitchModule } from '@/modules/twitch/twitch.module'
 import { UserModule } from '@/modules/user/user.module'
 import { WeatherModule } from '@/modules/weather/weather.module'
 import { WebsocketModule } from '@/modules/websocket/websocket.module'
+import { WordleModule } from '@/modules/wordle/wordle.module'
 
 @Module({
   controllers: [AppController],
@@ -51,6 +52,7 @@ import { WebsocketModule } from '@/modules/websocket/websocket.module'
     StatsModule,
     WebsocketModule,
     ImgModule,
+    WordleModule,
   ],
   providers: [
     {

@@ -3,12 +3,12 @@ import { LibraryBig, PanelLeftClose, PanelLeftOpen } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import { LoginForm } from '@/components/form'
 import NavItem from '@/components/layout/db/NavItem.vue'
-import { homeNavItem, useDbNavigation } from '@/components/layout/db/use-db-navigation'
+import { useDbNavigation } from '@/components/layout/db/use-db-navigation'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
-const { sections, handleNavClick } = useDbNavigation()
+const { sections, bottomItems, handleNavClick } = useDbNavigation()
 const collapsed = useStorage('db-sidebar-collapsed', false)
 </script>
 
@@ -69,8 +69,14 @@ const collapsed = useStorage('db-sidebar-collapsed', false)
       </template>
     </nav>
 
-    <div class="border-t border-border p-3">
-      <NavItem :item="homeNavItem" :collapsed="collapsed" @select="handleNavClick" />
+    <div class="flex flex-col gap-1 border-t border-border p-3">
+      <NavItem
+        v-for="item in bottomItems"
+        :key="item.name"
+        :item="item"
+        :collapsed="collapsed"
+        @select="handleNavClick"
+      />
     </div>
   </aside>
 </template>

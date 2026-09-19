@@ -3,12 +3,12 @@ import { Menu } from '@lucide/vue'
 import { ref } from 'vue'
 import { LoginForm } from '@/components/form'
 import NavItem from '@/components/layout/db/NavItem.vue'
-import { homeNavItem, useDbNavigation } from '@/components/layout/db/use-db-navigation'
+import { useDbNavigation } from '@/components/layout/db/use-db-navigation'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
-const { sections, handleNavClick } = useDbNavigation()
+const { sections, bottomItems, handleNavClick } = useDbNavigation()
 const isSheetOpen = ref(false)
 
 function handleMobileNavClick(name: string) {
@@ -44,7 +44,12 @@ function handleMobileNavClick(name: string) {
               <Separator v-if="i < sections.length - 1" class="my-2" />
             </template>
             <Separator class="my-2" />
-            <NavItem :item="homeNavItem" @select="handleMobileNavClick" />
+            <NavItem
+              v-for="item in bottomItems"
+              :key="item.name"
+              :item="item"
+              @select="handleMobileNavClick"
+            />
           </div>
         </SheetContent>
       </Sheet>

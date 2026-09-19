@@ -37,6 +37,7 @@ Standard file set for new features:
 | **telegram**          | 5     | Telegram Login via OpenID Connect (PKCE, id_token/JWKS)             |
 | **weather**           | 3     | Weather data fetcher (OpenWeatherMap)                               |
 | **steam**             | 4     | Steam library sync and IGDB import (admin)                          |
+| **wordle**            | 9     | Daily word game: state, guesses, stats, leaderboard                 |
 
 ## MODULE INTERACTIONS
 

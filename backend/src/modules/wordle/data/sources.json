@@ -1,0 +1,29 @@
+{
+  "salt": "wordle-gmd-v1",
+  "sources": [
+    {
+      "name": "danakt/russian-words",
+      "url": "https://raw.githubusercontent.com/danakt/russian-words/master/russian.txt",
+      "license": "MIT",
+      "sha256": "ba83a6c3b175e0a2258c775bd0d375aebdb005512bbb03bf85d43181a4786bf8",
+      "usedFor": "words"
+    },
+    {
+      "name": "Harrix/Russian-Nouns",
+      "url": "https://raw.githubusercontent.com/Harrix/Russian-Nouns/main/dist/russian_nouns.txt",
+      "license": "MIT",
+      "sha256": "661949699919aa968dd0033f7bdd8abbe4db09d161b565f3f0181283fd0d0da7",
+      "usedFor": "answers-candidates"
+    }
+  ],
+  "outputs": {
+    "answers.txt": {
+      "count": 1413,
+      "sha256": "377df3e3e2a9129345bb673c62f1861b545127e9fd582e7c4a40106fbcac3d21"
+    },
+    "words.txt": {
+      "count": 25624,
+      "sha256": "1bcbb04fb069097b5148eb4e397d3ebc766ae934d127c345006b03d508dbf683"
+    }
+  }
+}

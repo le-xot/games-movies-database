@@ -1,0 +1,1 @@
+CREATE INDEX "wordle_games_status_date_idx" ON "wordle_games" USING btree ("status","date");

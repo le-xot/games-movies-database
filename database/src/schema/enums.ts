@@ -84,3 +84,15 @@ export const platformEnum = pgEnum('Platform', [
   AccountPlatform.KICK,
   AccountPlatform.TELEGRAM,
 ])
+
+export const WordleGameStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  WON: 'WON',
+  LOST: 'LOST',
+} as const
+export type WordleGameStatus = (typeof WordleGameStatus)[keyof typeof WordleGameStatus]
+export const wordleGameStatusEnum = pgEnum('WordleGameStatus', [
+  WordleGameStatus.IN_PROGRESS,
+  WordleGameStatus.WON,
+  WordleGameStatus.LOST,
+])

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useTitle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
@@ -24,8 +23,6 @@ import type {
   GenreBreakdownRow,
   StackedSegment,
 } from '@/pages/stats/constants/stats-constants'
-
-useTitle('Статистика')
 
 const { stats, isLoading, error } = storeToRefs(useStats())
 const { statusTags, gradeTags } = useBadgeSelect()

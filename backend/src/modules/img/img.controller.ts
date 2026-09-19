@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { Controller, Get, Query, Res } from '@nestjs/common'
 import { ImgService } from '@/modules/img/img.service'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
@@ -16,7 +17,7 @@ export class ImgController {
     res.setHeader('Content-Type', contentType)
     res.setHeader('Content-Length', buffer.length.toString())
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    res.setHeader('ETag', `"${urlEncoded}"`)
+    res.setHeader('ETag', `"${createHash('sha256').update(urlEncoded).digest('hex')}"`)
 
     res.end(buffer)
   }

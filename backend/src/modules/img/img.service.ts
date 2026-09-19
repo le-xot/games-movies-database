@@ -1,6 +1,11 @@
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import {
+  assertPublicHttpUrl,
+  fetchPublicImage,
+  MAX_IMAGE_BYTES,
+} from '@/modules/img/img-url-safety'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
 
@@ -31,40 +36,25 @@ export class ImgService {
     }
 
     try {
-      const proxyBase = env.PROXY
-      const fetchUrl = proxyBase
-        ? `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(originalUrl)}`
-        : originalUrl
+      await assertPublicHttpUrl(originalUrl)
 
       const defaultHeaders = { 'User-Agent': 'Mozilla/5.0' }
-      let response
-      try {
-        response = await fetch(fetchUrl, { headers: defaultHeaders })
-      } catch (err) {
-        if (proxyBase) {
-          try {
-            response = await fetch(originalUrl, { headers: defaultHeaders })
-          } catch (err2) {
-            this.logger.error(`Failed to fetch image from original url: ${err2.message}`)
-            throw new BadRequestException(`Failed to fetch image: ${err2.message}`)
-          }
-        } else {
-          this.logger.error(`Failed to fetch image: ${err.message}`)
-          throw new BadRequestException(`Failed to fetch image: ${err.message}`)
-        }
+      const proxyBase = env.PROXY
+      let response: Response
+
+      if (proxyBase) {
+        const fetchUrl = `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(originalUrl)}`
+        const proxyResponse = await fetch(fetchUrl, { headers: defaultHeaders }).catch(() => null)
+        response =
+          proxyResponse?.ok === true
+            ? proxyResponse
+            : await fetchPublicImage(originalUrl, { headers: defaultHeaders })
+      } else {
+        response = await fetchPublicImage(originalUrl, { headers: defaultHeaders })
       }
 
       if (!response.ok) {
-        if (proxyBase) {
-          const fallback = await fetch(originalUrl, { headers: defaultHeaders }).catch(() => null)
-          if (fallback && fallback.ok) {
-            response = fallback
-          } else {
-            throw new BadRequestException(`Failed to fetch image: ${response.status}`)
-          }
-        } else {
-          throw new BadRequestException(`Failed to fetch image: ${response.status}`)
-        }
+        throw new BadRequestException(`Failed to fetch image: ${response.status}`)
       }
 
       const contentType = response.headers.get('content-type')
@@ -73,7 +63,16 @@ export class ImgService {
         throw new BadRequestException('URL does not point to an image')
       }
 
+      const declaredLength = Number(response.headers.get('content-length') ?? '0')
+      if (declaredLength > MAX_IMAGE_BYTES) {
+        throw new BadRequestException('Image is too large')
+      }
+
       const fileContent = await response.arrayBuffer()
+      if (fileContent.byteLength > MAX_IMAGE_BYTES) {
+        throw new BadRequestException('Image is too large')
+      }
+
       const imageBytes = await new Bun.Image(fileContent)
         .resize(POSTER_WIDTH, POSTER_HEIGHT)
         .webp({ quality: POSTER_QUALITY })

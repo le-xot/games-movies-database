@@ -5,15 +5,16 @@ import { apiReference } from '@scalar/nestjs-api-reference'
 import cookieParser from 'cookie-parser'
 import { AppModule } from '@/app.module'
 import { env } from '@/utils/enviroments'
+import type { NestExpressApplication } from '@nestjs/platform-express'
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
   logger.log('🚀 Starting application bootstrap')
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['log', 'warn', 'error'],
   })
+  app.set('trust proxy', 1)
   app.use(cookieParser())
-  app.enableCors()
   const config = new DocumentBuilder().setTitle('games-movies-database').build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, document)

@@ -37,11 +37,7 @@ export class RateLimitGuard implements CanActivate {
     return `${context.getClass().name}.${context.getHandler().name}`
   }
 
-  private getClientIp(request: { headers?: Record<string, unknown>; ip?: string }) {
-    const forwarded = request.headers?.['x-forwarded-for']
-    if (typeof forwarded === 'string' && forwarded.length > 0) {
-      return forwarded.split(',')[0].trim()
-    }
+  private getClientIp(request: { ip?: string }) {
     return request.ip ?? 'unknown'
   }
 }

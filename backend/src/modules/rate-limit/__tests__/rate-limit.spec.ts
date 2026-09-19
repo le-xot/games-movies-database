@@ -94,21 +94,21 @@ describe('RateLimitGuard', () => {
     })
   })
 
-  it('tracks clients by the first X-Forwarded-For hop', async () => {
+  it('ignores spoofed X-Forwarded-For and keys by request.ip', async () => {
     const service = makeService({ allowed: true, retryAfterSeconds: 0 })
     const guard = new RateLimitGuard(service as any)
     const handler = function publicHandler() {}
-    const request = { headers: { 'x-forwarded-for': '203.0.113.7, 10.0.0.1' }, ip: '127.0.0.1' }
+    const request = { headers: { 'x-forwarded-for': '203.0.113.7, 10.0.0.1' }, ip: '198.51.100.9' }
 
     await guard.canActivate(makeContext(request, handler, { name: 'Ctrl' }))
 
-    expect(service.hit).toHaveBeenCalledWith('rl:Ctrl.publicHandler:203.0.113.7', {
+    expect(service.hit).toHaveBeenCalledWith('rl:Ctrl.publicHandler:198.51.100.9', {
       ttl: 60_000,
       limit: 1000,
     })
   })
 
-  it('falls back to request.ip when X-Forwarded-For is missing', async () => {
+  it('keys by request.ip', async () => {
     const service = makeService({ allowed: true, retryAfterSeconds: 0 })
     const guard = new RateLimitGuard(service as any)
     const handler = function publicHandler() {}

@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
+import { BadRequestException } from '@nestjs/common'
 import sharp from 'sharp'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
+import { MAX_IMAGE_BYTES } from '../img-url-safety'
 import { ImgService } from '../img.service'
 
 const svgFixture = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180">
@@ -24,12 +26,23 @@ function makeImageFixture(): Promise<Buffer> {
   return sharp(Buffer.from(svgFixture)).jpeg({ quality: 92 }).toBuffer()
 }
 
-function installFetch(bytes: Buffer, contentType = 'image/jpeg') {
+function installFetch(
+  bytes: Buffer,
+  contentType = 'image/jpeg',
+  contentLength: string | null = null,
+) {
   const originalFetch = globalThis.fetch
   const fetchMock = mock(() =>
     Promise.resolve({
       ok: true,
-      headers: { get: (name: string) => (name === 'content-type' ? contentType : null) },
+      status: 200,
+      headers: {
+        get: (name: string) => {
+          if (name === 'content-type') return contentType
+          if (name === 'content-length') return contentLength
+          return null
+        },
+      },
       arrayBuffer: () => Promise.resolve(bytes),
     } as any),
   )
@@ -64,7 +77,7 @@ describe('ImgService', () => {
       const { fetchMock, restore } = installFetch(fixture)
 
       try {
-        const result = await service.getImageContent(toBase64('https://example.com/a.jpg'))
+        const result = await service.getImageContent(toBase64('https://93.184.216.34/a.jpg'))
 
         expect(result).toEqual({ buffer: cached, contentType: 'image/webp' })
         expect(fetchMock).not.toHaveBeenCalled()
@@ -77,7 +90,7 @@ describe('ImgService', () => {
     it('re-encodes a fetched poster to a 300x450 webp in the images bucket', async () => {
       mockS3.fileExists = mock(() => Promise.resolve(false))
       mockS3.uploadFile = mock(() => Promise.resolve()) as any
-      const url = 'https://example.com/poster.jpg'
+      const url = 'https://93.184.216.34/poster.jpg'
       const { restore } = installFetch(fixture)
 
       try {
@@ -108,7 +121,7 @@ describe('ImgService', () => {
       const { restore } = installFetch(fixture)
 
       try {
-        await service.getImageContent(toBase64('https://example.com/poster.jpg'))
+        await service.getImageContent(toBase64('https://93.184.216.34/poster.jpg'))
       } finally {
         restore()
       }
@@ -122,6 +135,35 @@ describe('ImgService', () => {
 
       expect(uploaded).toEqual(expected)
       expect(uploaded!.length).toBeLessThan(quality80.length)
+    })
+
+    it('rejects URLs that are not public http(s)', async () => {
+      mockS3.fileExists = mock(() => Promise.resolve(false))
+      const { restore } = installFetch(fixture)
+
+      try {
+        await expect(service.getImageContent(toBase64('file:///etc/passwd'))).rejects.toThrow(
+          BadRequestException,
+        )
+        await expect(service.getImageContent(toBase64('http://127.0.0.1/a.jpg'))).rejects.toThrow(
+          BadRequestException,
+        )
+      } finally {
+        restore()
+      }
+    })
+
+    it('rejects images larger than the size limit', async () => {
+      mockS3.fileExists = mock(() => Promise.resolve(false))
+      const { restore } = installFetch(fixture, 'image/jpeg', String(MAX_IMAGE_BYTES + 1))
+
+      try {
+        await expect(
+          service.getImageContent(toBase64('https://93.184.216.34/huge.jpg')),
+        ).rejects.toThrow(BadRequestException)
+      } finally {
+        restore()
+      }
     })
   })
 })

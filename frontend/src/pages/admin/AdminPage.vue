@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Trash2Icon, Tv } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +18,15 @@ const { users, accounts, isLoading, fetchUsers, deleteUser } = useAdminUsers()
 onMounted(async () => {
   await fetchUsers()
 })
+
+const revealedIds = ref<Set<string>>(new Set())
+function toggleId(id: string) {
+  if (revealedIds.value.has(id)) {
+    revealedIds.value.delete(id)
+  } else {
+    revealedIds.value.add(id)
+  }
+}
 </script>
 
 <template>
@@ -58,7 +67,18 @@ onMounted(async () => {
                 </span>
               </div>
 
-              <div class="text-xs text-muted-foreground mt-2">ID: {{ user.id }}</div>
+              <button
+                type="button"
+                class="mt-2 w-fit cursor-pointer select-none text-xs text-muted-foreground transition-all duration-200"
+                :aria-pressed="revealedIds.has(user.id)"
+                :title="revealedIds.has(user.id) ? 'Скрыть ID' : 'Показать ID'"
+                @click="toggleId(user.id)"
+              >
+                ID:
+                <span :class="revealedIds.has(user.id) ? '' : 'blur-[3px] hover:blur-[2px]'">
+                  {{ user.id }}
+                </span>
+              </button>
             </div>
 
             <Button

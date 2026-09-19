@@ -109,6 +109,7 @@ export interface UserSuggestionDTO {
 
 export interface CallbackDto {
   code: string;
+  state: string;
 }
 
 export interface UpdateNicknameDTO {
@@ -537,10 +538,10 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags App
-     * @name AppControllerVersion
+     * @name AppControllerHealth
      * @request GET:/health
      */
-    appControllerVersion: (params: RequestParams = {}) =>
+    appControllerHealth: (params: RequestParams = {}) =>
       this.http.request<void, any>({
         path: `/health`,
         method: "GET",

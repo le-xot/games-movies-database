@@ -165,5 +165,23 @@ describe('ImgService', () => {
         restore()
       }
     })
+
+    it('rejects images above the pixel limit', async () => {
+      mockS3.fileExists = mock(() => Promise.resolve(false))
+      const big = await sharp({
+        create: { width: 5001, height: 5000, channels: 3, background: 'red' },
+      })
+        .png()
+        .toBuffer()
+      const { restore } = installFetch(big, 'image/png')
+
+      try {
+        await expect(
+          service.getImageContent(toBase64('https://93.184.216.34/big.png')),
+        ).rejects.toThrow(BadRequestException)
+      } finally {
+        restore()
+      }
+    })
   })
 })

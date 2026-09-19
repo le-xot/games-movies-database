@@ -8,6 +8,7 @@ import {
 } from '@/modules/img/img-url-safety'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
+import { assertPixelLimit } from '@/utils/image-limits'
 
 const POSTER_WIDTH = 300
 const POSTER_HEIGHT = 450
@@ -71,6 +72,11 @@ export class ImgService {
       const fileContent = await response.arrayBuffer()
       if (fileContent.byteLength > MAX_IMAGE_BYTES) {
         throw new BadRequestException('Image is too large')
+      }
+
+      const metadata = await new Bun.Image(fileContent).metadata().catch(() => null)
+      if (metadata?.width && metadata?.height) {
+        assertPixelLimit(metadata.width, metadata.height)
       }
 
       const imageBytes = await new Bun.Image(fileContent)

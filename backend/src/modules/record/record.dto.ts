@@ -1,6 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsArray, IsEnum, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
+import {
+  IsArray,
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Max,
+  Min,
+} from 'class-validator'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import {
   RecordGenre as RecordGenreName,
@@ -135,20 +145,26 @@ export class RecordGetDTO {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
+  @Max(10_000)
   page?: number
 
   @ApiProperty({ example: 10, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
+  @Max(100)
   limit?: number
 
   @ApiProperty({ example: 'id', required: false, enum: ['id', 'title'] })
   @IsOptional()
+  @IsIn(['id', 'title'])
   orderBy?: 'id' | 'title'
 
   @ApiProperty({ example: 'asc', required: false, enum: ['asc', 'desc'] })
   @IsOptional()
+  @IsIn(['asc', 'desc'])
   direction?: 'asc' | 'desc'
 }
 

@@ -47,7 +47,7 @@ export const useUser = defineStore('globals/use-user', () => {
 
   const { mutateAsync: userLogin } = useMutation({
     key: [USER_QUERY_KEY, 'login'],
-    mutation: (input: { code: string }) => {
+    mutation: (input: { code: string; state: string }) => {
       return api.auth.authControllerTwitchAuthCallback(input)
     },
     onSuccess: () => refetchUser(),

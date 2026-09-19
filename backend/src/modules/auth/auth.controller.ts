@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -21,6 +22,7 @@ import { JwtService } from '@nestjs/jwt'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ApiResponse } from '@nestjs/swagger'
 import { AuthGuard } from '@/modules/auth/auth.guard'
+import { assertOAuthState } from '@/modules/auth/auth.oauth-state'
 import { AuthService } from '@/modules/auth/auth.service'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { CallbackDto } from '@/modules/auth/dto/callback.dto'
@@ -38,7 +40,7 @@ import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
 import { RATE_LIMITS } from '@/utils/rate-limits'
-import type { Request, Response } from 'express'
+import type { CookieOptions, Request, Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
@@ -52,29 +54,46 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
 
-  private buildTwitchAuthUrl(): string {
+  private buildTwitchAuthUrl(state: string): string {
     return (
       'https://id.twitch.tv/oauth2/authorize?' +
       `client_id=${env.TWITCH_CLIENT_ID}&` +
       `redirect_uri=${env.TWITCH_CALLBACK_URL}&` +
       'response_type=code&' +
-      'scope=user:read:email'
+      'scope=user:read:email&' +
+      `state=${state}`
     )
+  }
+
+  private oauthCookieOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 10 * 60 * 1000,
+    }
+  }
+
+  private beginTwitchAuth(res: Response, linking = false) {
+    const state = crypto.randomBytes(16).toString('hex')
+    res.cookie('twitch_state', state, this.oauthCookieOptions())
+    if (linking) {
+      res.cookie('twitch_linking', '1', { ...this.oauthCookieOptions(), httpOnly: false })
+    }
+
+    res.redirect(this.buildTwitchAuthUrl(state))
   }
 
   private beginKickAuth(res: Response, linking = false) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url')
     const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
+    const state = crypto.randomBytes(16).toString('hex')
 
-    res.cookie('kick_code_verifier', codeVerifier, {
-      httpOnly: true,
-      maxAge: 10 * 60 * 1000,
-    })
+    res.cookie('kick_code_verifier', codeVerifier, this.oauthCookieOptions())
+    res.cookie('kick_state', state, this.oauthCookieOptions())
     if (linking) {
-      res.cookie('kick_linking', '1', {
-        httpOnly: false,
-        maxAge: 10 * 60 * 1000,
-      })
+      res.cookie('kick_linking', '1', { ...this.oauthCookieOptions(), httpOnly: false })
     }
 
     const redirectUri =
@@ -85,7 +104,7 @@ export class AuthController {
       'scope=user:read&' +
       `code_challenge=${codeChallenge}&` +
       'code_challenge_method=S256&' +
-      `state=${crypto.randomBytes(16).toString('hex')}`
+      `state=${state}`
 
     res.redirect(redirectUri)
   }
@@ -93,6 +112,9 @@ export class AuthController {
   private setAuthCookie(res: Response, token: string) {
     res.cookie('token', token, {
       httpOnly: true,
+      sameSite: 'lax',
+      secure: env.NODE_ENV === 'production',
+      path: '/',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     })
   }
@@ -100,24 +122,23 @@ export class AuthController {
   @Get('/twitch')
   @RateLimit(RATE_LIMITS.auth)
   twitchAuth(@Res() res: Response) {
-    res.redirect(this.buildTwitchAuthUrl())
+    this.beginTwitchAuth(res)
   }
 
   @Get('/twitch/link')
   @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
   twitchLinkAuth(@Res() res: Response) {
-    res.cookie('twitch_linking', '1', {
-      httpOnly: false,
-      maxAge: 10 * 60 * 1000,
-    })
-
-    res.redirect(this.buildTwitchAuthUrl())
+    this.beginTwitchAuth(res, true)
   }
 
   @Post('/twitch/callback')
   @RateLimit(RATE_LIMITS.auth)
-  async twitchAuthCallback(@Body() data: CallbackDto, @Res() res: Response) {
+  async twitchAuthCallback(@Body() data: CallbackDto, @Req() req: Request, @Res() res: Response) {
+    const state = (req as any).cookies?.twitch_state
+    res.clearCookie('twitch_state', { path: '/' })
+    assertOAuthState(state, data.state)
+
     const token = await this.authService.handleTwitchCallback(data.code)
     this.setAuthCookie(res, token)
 
@@ -127,11 +148,20 @@ export class AuthController {
   @Post('/twitch/link')
   @RateLimit(RATE_LIMITS.auth)
   @UseGuards(AuthGuard)
-  async linkTwitch(@Body() data: CallbackDto, @User() user: UserEntity, @Res() res: Response) {
+  async linkTwitch(
+    @Body() data: CallbackDto,
+    @Req() req: Request,
+    @User() user: UserEntity,
+    @Res() res: Response,
+  ) {
     this.logger.log(`POST /twitch/link: userId=${user.id}`)
+    const state = (req as any).cookies?.twitch_state
+    res.clearCookie('twitch_state', { path: '/' })
+    assertOAuthState(state, data.state)
+
     try {
       await this.authService.linkTwitchAccount(user.id, data.code)
-      res.clearCookie('twitch_linking')
+      res.clearCookie('twitch_linking', { path: '/' })
       res.status(200).send('Twitch account linked')
     } catch (error) {
       this.logger.error(`POST /twitch/link failed for userId=${user.id}: ${error}`)
@@ -155,14 +185,19 @@ export class AuthController {
   @Post('/kick/callback')
   @RateLimit(RATE_LIMITS.auth)
   async kickAuthCallback(@Body() data: CallbackDto, @Req() req: Request, @Res() res: Response) {
-    const codeVerifier = (req as any).cookies?.kick_code_verifier
+    const cookies = (req as any).cookies ?? {}
+    const codeVerifier = cookies.kick_code_verifier
+    const state = cookies.kick_state
+    res.clearCookie('kick_code_verifier', { path: '/' })
+    res.clearCookie('kick_state', { path: '/' })
+
     if (!codeVerifier) {
-      throw new HttpException('Missing code verifier', HttpStatus.BAD_REQUEST)
+      throw new BadRequestException('Missing code verifier')
     }
+    assertOAuthState(state, data.state)
 
     const token = await this.authService.handleKickCallback(data.code, codeVerifier)
     this.setAuthCookie(res, token)
-    res.clearCookie('kick_code_verifier')
     res.status(200).send('Authentication successful')
   }
 
@@ -176,15 +211,21 @@ export class AuthController {
     @Res() res: Response,
   ) {
     this.logger.log(`POST /kick/link: userId=${user.id}`)
-    const codeVerifier = (req as any).cookies?.kick_code_verifier
+    const cookies = (req as any).cookies ?? {}
+    const codeVerifier = cookies.kick_code_verifier
+    const state = cookies.kick_state
+    res.clearCookie('kick_code_verifier', { path: '/' })
+    res.clearCookie('kick_state', { path: '/' })
+
     if (!codeVerifier) {
       this.logger.warn(`POST /kick/link: missing code_verifier cookie for userId=${user.id}`)
-      throw new HttpException('Missing code verifier', HttpStatus.BAD_REQUEST)
+      throw new BadRequestException('Missing code verifier')
     }
+    assertOAuthState(state, data.state)
 
     try {
       await this.authService.linkKickAccount(user.id, data.code, codeVerifier)
-      res.clearCookie('kick_code_verifier')
+      res.clearCookie('kick_linking', { path: '/' })
       res.status(200).send('Kick account linked')
     } catch (error) {
       this.logger.error(`POST /kick/link failed for userId=${user.id}: ${error}`)
@@ -279,7 +320,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async deleteMe(@User() user: UserEntity, @Res() res: Response) {
     await this.userService.deleteUserById(user.id)
-    res.clearCookie('token')
+    res.clearCookie('token', { path: '/' })
     res.status(200).json({ success: true })
   }
 
@@ -302,7 +343,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 10 * 1024 * 1024 },
+      limits: { fileSize: 5 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         if (file.mimetype.startsWith('image/')) {
           cb(null, true)
@@ -332,7 +373,7 @@ export class AuthController {
   @Post('/logout')
   @RateLimit(RATE_LIMITS.auth)
   logout(@Res() res: Response) {
-    res.clearCookie('token')
+    res.clearCookie('token', { path: '/' })
     res.end()
   }
 

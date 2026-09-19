@@ -10,8 +10,8 @@ import { useUser } from '@/stores/use-user'
 interface ProviderConfig {
   cookieName: string
   name: string
-  link: (code: string) => Promise<unknown>
-  login: (code: string) => Promise<unknown>
+  link: (code: string, state: string) => Promise<unknown>
+  login: (code: string, state: string) => Promise<unknown>
 }
 
 const api = useApi()
@@ -23,28 +23,28 @@ const providers: Record<string, ProviderConfig> = {
   twitch: {
     cookieName: 'twitch_linking',
     name: 'Twitch',
-    link: async (code) => {
+    link: async (code, state) => {
       try {
-        await api.auth.authControllerLinkTwitch({ code })
+        await api.auth.authControllerLinkTwitch({ code, state })
       } catch {
         throw new Error('Не удалось привязать Twitch')
       }
     },
-    login: (code) => userApi.userLogin({ code }),
+    login: (code, state) => userApi.userLogin({ code, state }),
   },
   kick: {
     cookieName: 'kick_linking',
     name: 'Kick',
-    link: async (code) => {
+    link: async (code, state) => {
       try {
-        await api.auth.authControllerLinkKick({ code })
+        await api.auth.authControllerLinkKick({ code, state })
       } catch {
         throw new Error('Не удалось привязать Kick')
       }
     },
-    login: async (code) => {
+    login: async (code, state) => {
       try {
-        await api.auth.authControllerKickAuthCallback({ code })
+        await api.auth.authControllerKickAuthCallback({ code, state })
       } catch {
         throw new Error('Ошибка авторизации через Kick')
       }
@@ -82,7 +82,8 @@ onMounted(async () => {
   }
 
   const code = url.searchParams.get('code')
-  if (typeof code !== 'string') {
+  const state = url.searchParams.get('state')
+  if (typeof code !== 'string' || typeof state !== 'string') {
     isLoading.value = false
     error.value = 'Incorrect code'
     return
@@ -95,12 +96,12 @@ onMounted(async () => {
 
   try {
     if (isLinking) {
-      await provider.link(code)
+      await provider.link(code, state)
       localStorage.removeItem('loginReturnUrl')
       await router.push(returnUrl)
       toast.success('Аккаунт привязан', { description: `${provider.name} привязан к профилю` })
     } else {
-      await provider.login(code)
+      await provider.login(code, state)
       localStorage.removeItem('loginReturnUrl')
       await router.push(returnUrl)
       toast.success('Вход выполнен', { description: `Вы вошли через ${provider.name}` })

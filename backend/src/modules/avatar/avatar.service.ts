@@ -1,11 +1,13 @@
 import crypto from 'node:crypto'
-import { Injectable, Logger } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import sharp from 'sharp'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
+import { assertPixelLimit, MAX_IMAGE_PIXELS } from '@/utils/image-limits'
 
 const AVATAR_SIZE = 256
 const AVATAR_QUALITY = 80
+const ALLOWED_AVATAR_FORMATS = new Set(['jpeg', 'png', 'webp', 'gif', 'avif', 'svg'])
 
 export const AVATAR_PALETTE = [
   '#5865F2',
@@ -50,7 +52,13 @@ export class AvatarService {
   constructor(private readonly s3Service: S3Service) {}
 
   async processAndStoreAvatar(userId: string, imageBuffer: Buffer): Promise<string> {
-    const processed = await sharp(imageBuffer)
+    const metadata = await this.readMetadata(imageBuffer)
+    if (!metadata.format || !ALLOWED_AVATAR_FORMATS.has(metadata.format)) {
+      throw new BadRequestException('Unsupported image format')
+    }
+    assertPixelLimit(metadata.width ?? 0, metadata.height ?? 0)
+
+    const processed = await sharp(imageBuffer, { limitInputPixels: MAX_IMAGE_PIXELS })
       .resize(AVATAR_SIZE, AVATAR_SIZE, { fit: 'cover', position: 'center' })
       .webp({ quality: AVATAR_QUALITY })
       .toBuffer()
@@ -60,6 +68,14 @@ export class AvatarService {
     this.logger.log(`Avatar stored: ${key}`)
 
     return `/api/avatar/${userId}?t=${Date.now()}`
+  }
+
+  private async readMetadata(imageBuffer: Buffer) {
+    try {
+      return await sharp(imageBuffer, { limitInputPixels: MAX_IMAGE_PIXELS }).metadata()
+    } catch {
+      throw new BadRequestException('Invalid image file')
+    }
   }
 
   async generateAndStoreDefaultAvatar(userId: string, login: string): Promise<string> {

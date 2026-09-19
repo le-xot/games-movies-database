@@ -15,22 +15,21 @@ async function bootstrap() {
   })
   app.set('trust proxy', 1)
   app.use(cookieParser())
-  const config = new DocumentBuilder().setTitle('games-movies-database').build()
-  const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('docs', app, document)
 
   const globalPrefix = '/api'
 
-  app.setGlobalPrefix(globalPrefix)
+  if (env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder().setTitle('games-movies-database').build()
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('docs', app, document)
 
-  const updatedDocument = {
-    ...document,
-    paths: Object.fromEntries(
-      Object.entries(document.paths).map(([path, value]) => [`${globalPrefix}${path}`, value]),
-    ),
-  }
+    const updatedDocument = {
+      ...document,
+      paths: Object.fromEntries(
+        Object.entries(document.paths).map(([path, value]) => [`${globalPrefix}${path}`, value]),
+      ),
+    }
 
-  if (env) {
     app.use(
       '/reference',
       apiReference({
@@ -38,6 +37,8 @@ async function bootstrap() {
       }),
     )
   }
+
+  app.setGlobalPrefix(globalPrefix)
 
   const allowedCors = ['http://localhost:3000', 'http://localhost:5173']
 

@@ -5,4 +5,8 @@ export class CallbackDto {
   @ApiProperty()
   @IsString()
   code: string
+
+  @ApiProperty()
+  @IsString()
+  state: string
 }

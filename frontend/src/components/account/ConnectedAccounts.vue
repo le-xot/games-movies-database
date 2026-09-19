@@ -5,6 +5,7 @@ import { toast } from 'vue-sonner'
 import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { Button } from '@/components/ui/button'
 import { ACCOUNT_DIALOG_ON_LOAD_KEY } from '@/stores/use-account-dialog'
+import { getImageUrl } from '@/utils/image'
 
 interface UserAccount {
   platform: string
@@ -85,8 +86,8 @@ async function unlinkAccount(platform: string) {
           <div class="flex items-center gap-3 px-4 py-3">
             <img
               v-if="account.platformAvatar"
-              :src="account.platformAvatar"
-              class="size-8 rounded-full"
+              :src="getImageUrl(account.platformAvatar)"
+              class="size-8 rounded-full object-cover"
             />
             <div v-else class="flex size-8 items-center justify-center rounded-full bg-muted">
               <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-4" />

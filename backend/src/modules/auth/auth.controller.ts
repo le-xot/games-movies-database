@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Logger,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -21,6 +22,7 @@ import {
 import { JwtService } from '@nestjs/jwt'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ApiResponse } from '@nestjs/swagger'
+import { AccountPlatform } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { assertOAuthState } from '@/modules/auth/auth.oauth-state'
 import { AuthService } from '@/modules/auth/auth.service'
@@ -310,7 +312,10 @@ export class AuthController {
   @Delete('/accounts/:platform')
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
-  async unlinkAccount(@Param('platform') platform: string, @User() user: UserEntity) {
+  async unlinkAccount(
+    @Param('platform', new ParseEnumPipe(AccountPlatform)) platform: AccountPlatform,
+    @User() user: UserEntity,
+  ) {
     await this.userService.unlinkPlatformAccount(user.id, platform)
     return { success: true }
   }

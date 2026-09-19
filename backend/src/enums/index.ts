@@ -1,3 +1,4 @@
+export { AccountPlatform } from './account-platform.enum'
 export { LimitType } from './limit-type.enum'
 export { RecordGenre } from './record-genre.enum'
 export { RecordGrade } from './record-grade.enum'

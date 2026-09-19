@@ -24,12 +24,12 @@ export class LikeController {
     return await this.likeService.createLike(user.id, data.recordId)
   }
 
-  @Delete(':id')
+  @Delete(':recordId')
   @RateLimit(RATE_LIMITS.like)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Like deleted successfully' })
-  async deleteLike(@Param('id') id: number, @User() user: UserEntity): Promise<void> {
-    await this.likeService.deleteLike(user.id, id)
+  async deleteLike(@Param('recordId') recordId: number, @User() user: UserEntity): Promise<void> {
+    await this.likeService.deleteLike(user.id, recordId)
   }
 
   @Get('records/:id')

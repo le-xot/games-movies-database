@@ -1,6 +1,13 @@
-import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { UserRole } from '@/enums'
+import { AccountPlatform, UserRole } from '@/enums'
 import { AvatarService } from '@/modules/avatar/avatar.service'
 import { LinkPlatformData, UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
@@ -115,6 +122,11 @@ export class UserService {
   }
 
   async updateLogin(userId: string, login: string): Promise<UserDomain> {
+    const existing = await this.userRepository.findByLogin(login)
+    if (existing && existing.id !== userId) {
+      throw new ConflictException('Логин уже занят')
+    }
+
     const user = await this.userRepository.update(userId, { login })
     this.emitUserUpdate(userId, 'updated')
     return user
@@ -137,7 +149,7 @@ export class UserService {
     )
   }
 
-  async unlinkPlatformAccount(userId: string, platform: string): Promise<void> {
+  async unlinkPlatformAccount(userId: string, platform: AccountPlatform): Promise<void> {
     const accounts = await this.userRepository.findAccountsByUserId(userId)
     if (accounts.length <= 1) {
       throw new HttpException('Cannot unlink the last account', HttpStatus.BAD_REQUEST)

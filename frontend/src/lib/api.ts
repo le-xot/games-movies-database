@@ -254,6 +254,18 @@ export interface RecordsStatsDTO {
   byGenreGrade: GenreGradeCountDTO[];
 }
 
+export enum AuthControllerUnlinkAccountParamsPlatformEnum {
+  TWITCH = "TWITCH",
+  KICK = "KICK",
+  TELEGRAM = "TELEGRAM",
+}
+
+export enum AuthControllerUnlinkAccountParamsEnum {
+  TWITCH = "TWITCH",
+  KICK = "KICK",
+  TELEGRAM = "TELEGRAM",
+}
+
 /** @example "id" */
 export enum RecordControllerGetAllRecordsParamsOrderByEnum {
   Id = "id",
@@ -892,7 +904,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/auth/accounts/{platform}
      */
     authControllerUnlinkAccount: (
-      platform: string,
+      platform: AuthControllerUnlinkAccountParamsEnum,
       params: RequestParams = {},
     ) =>
       this.http.request<void, any>({
@@ -1185,11 +1197,11 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags likes
      * @name LikeControllerDeleteLike
-     * @request DELETE:/likes/{id}
+     * @request DELETE:/likes/{recordId}
      */
-    likeControllerDeleteLike: (id: number, params: RequestParams = {}) =>
+    likeControllerDeleteLike: (recordId: number, params: RequestParams = {}) =>
       this.http.request<void, any>({
-        path: `/likes/${id}`,
+        path: `/likes/${recordId}`,
         method: "DELETE",
         ...params,
       }),

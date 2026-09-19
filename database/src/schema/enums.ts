@@ -79,4 +79,14 @@ export const ThirdPartService = {
 export type ThirdPartService = (typeof ThirdPartService)[keyof typeof ThirdPartService]
 export const thirdPartServiceEnum = pgEnum('ThirdPartService', [ThirdPartService.SPOTIFY])
 
-export const platformEnum = pgEnum('Platform', ['TWITCH', 'KICK', 'TELEGRAM'])
+export const AccountPlatform = {
+  TWITCH: 'TWITCH',
+  KICK: 'KICK',
+  TELEGRAM: 'TELEGRAM',
+} as const
+export type AccountPlatform = (typeof AccountPlatform)[keyof typeof AccountPlatform]
+export const platformEnum = pgEnum('Platform', [
+  AccountPlatform.TWITCH,
+  AccountPlatform.KICK,
+  AccountPlatform.TELEGRAM,
+])

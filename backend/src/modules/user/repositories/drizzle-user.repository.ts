@@ -1,8 +1,9 @@
 import crypto from 'node:crypto'
 import { likes, suggestionOwnerships, userAccounts, users } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
+import { AccountPlatform } from '@/enums'
 import {
   CreateUserData,
   LinkPlatformData,
@@ -27,6 +28,14 @@ export class DrizzleUserRepository {
 
   async findById(id: string): Promise<UserDomain | null> {
     return (await this.drizzle.db.query.users.findFirst({ where: eq(users.id, id) })) ?? null
+  }
+
+  async findByLogin(login: string): Promise<UserDomain | null> {
+    return (
+      (await this.drizzle.db.query.users.findFirst({
+        where: sql`lower(${users.login}) = ${login.trim().toLowerCase()}`,
+      })) ?? null
+    )
   }
 
   async create(data: CreateUserData): Promise<UserDomain> {
@@ -91,10 +100,10 @@ export class DrizzleUserRepository {
     })
   }
 
-  async unlinkPlatformAccount(userId: string, platform: string): Promise<void> {
+  async unlinkPlatformAccount(userId: string, platform: AccountPlatform): Promise<void> {
     await this.drizzle.db
       .delete(userAccounts)
-      .where(and(eq(userAccounts.userId, userId), eq(userAccounts.platform, platform as any)))
+      .where(and(eq(userAccounts.userId, userId), eq(userAccounts.platform, platform)))
   }
 
   async findAccountsByUserId(userId: string) {

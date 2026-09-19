@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { UserRole } from '@/enums'
 import { UserDomain } from '../entities/user-domain.entity'
@@ -330,6 +330,52 @@ describe('UserService', () => {
       await expect(service.deleteAvatar('user-8')).rejects.toThrow('s3 down')
       expect(mockRepo.update).not.toHaveBeenCalled()
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('updateLogin', () => {
+    const user: UserDomain = {
+      id: 'user-1',
+      login: 'old-login',
+      role: UserRole.USER,
+      profileImageUrl: 'url',
+      color: '#111111',
+      hasCustomAvatar: false,
+      createdAt: new Date('2024-01-01'),
+    }
+
+    it('rejects a login already used by another user', async () => {
+      mockRepo.findByLogin = mock(() => Promise.resolve({ ...user, id: 'user-2' })) as any
+
+      await expect(service.updateLogin('user-1', 'taken')).rejects.toThrow(ConflictException)
+      expect(mockRepo.update).not.toHaveBeenCalled()
+      expect(mockEventEmitter.emit).not.toHaveBeenCalled()
+    })
+
+    it('allows keeping the current login', async () => {
+      mockRepo.findByLogin = mock(() => Promise.resolve(user)) as any
+      const update = mock(() => Promise.resolve(user)) as any
+      mockRepo.update = update
+
+      await service.updateLogin('user-1', 'old-login')
+
+      expect(update).toHaveBeenCalledWith('user-1', { login: 'old-login' })
+    })
+
+    it('updates a free login', async () => {
+      mockRepo.findByLogin = mock(() => Promise.resolve(null)) as any
+      const updated: UserDomain = { ...user, login: 'new-login' }
+      const update = mock(() => Promise.resolve(updated)) as any
+      mockRepo.update = update
+
+      const result = await service.updateLogin('user-1', 'new-login')
+
+      expect(update).toHaveBeenCalledWith('user-1', { login: 'new-login' })
+      expect(result.login).toBe('new-login')
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
+        userId: 'user-1',
+        action: 'updated',
+      })
     })
   })
 })

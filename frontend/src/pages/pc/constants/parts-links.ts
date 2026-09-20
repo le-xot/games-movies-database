@@ -77,11 +77,11 @@ const SYSTEM_PARTS: PartLink[] = [
 
 const MONITORS: PartLink[] = [
   {
-    name: 'AQ27H1: 27" QHD 165Hz',
+    name: 'P27QDA-RGP: 27" QHD 180Hz',
     icon: Monitor,
   },
   {
-    name: 'S24E500C: 23" FHD 60Hz',
+    name: 'AQ27H1: 27" QHD 165Hz',
     icon: Monitor,
   },
   {

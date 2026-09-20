@@ -1,4 +1,4 @@
-import { likes, records } from '@gmd/database/schema'
+import { likes, records, suggestionOwnerships } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
 import { and, asc, count, desc, eq, ilike, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
@@ -15,19 +15,26 @@ export class DrizzleRecordRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 
   async create(data: CreateRecordData): Promise<RecordWithRelations> {
-    const [record] = await this.drizzle.db
-      .insert(records)
-      .values({
-        title: data.title,
-        posterUrl: data.posterUrl,
-        genre: data.genre,
-        link: data.link,
-        status: data.status,
-        type: data.type,
-        extra: data.extra,
-      })
-      .returning()
-    return record
+    return await this.drizzle.db.transaction(async (tx) => {
+      const [record] = await tx
+        .insert(records)
+        .values({
+          title: data.title,
+          posterUrl: data.posterUrl,
+          genre: data.genre,
+          link: data.link,
+          status: data.status,
+          type: data.type,
+          extra: data.extra,
+        })
+        .returning()
+
+      if (data.userId) {
+        await tx.insert(suggestionOwnerships).values({ recordId: record.id, userId: data.userId })
+      }
+
+      return record
+    })
   }
 
   async findById(id: number): Promise<RecordWithRelations | null> {

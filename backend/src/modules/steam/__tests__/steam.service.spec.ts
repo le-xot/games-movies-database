@@ -40,12 +40,27 @@ describe('SteamService', () => {
   })
 
   describe('importGames', () => {
+    it('records the importing user as owner of created records', async () => {
+      mockRecordRepo.findAll = mock(() => Promise.resolve([]))
+      const created = makeRecord({ id: 80 })
+      mockRecordRepo.create = mock(() => Promise.resolve(created))
+
+      await service.importGames([{ appId: 555, status: RecordStatus.DONE }], 'user-1')
+
+      expect(mockRecordRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 'user-1' }),
+      )
+    })
+
     it('skips games that already exist', async () => {
       mockRecordRepo.findAll = mock(() =>
         Promise.resolve([makeRecord({ extra: { steamAppId: '111' } })]),
       )
 
-      const result = await service.importGames([{ appId: 111, status: RecordStatus.DONE }])
+      const result = await service.importGames(
+        [{ appId: 111, status: RecordStatus.DONE }],
+        'user-1',
+      )
 
       expect(result.created).toHaveLength(0)
       expect(result.failed).toHaveLength(1)
@@ -57,7 +72,10 @@ describe('SteamService', () => {
       const created = makeRecord({ id: 42 })
       mockRecordRepo.create = mock(() => Promise.resolve(created))
 
-      const result = await service.importGames([{ appId: 999, status: RecordStatus.DONE }])
+      const result = await service.importGames(
+        [{ appId: 999, status: RecordStatus.DONE }],
+        'user-1',
+      )
 
       expect(result.created).toHaveLength(1)
       expect(mockRecordRepo.create).toHaveBeenCalledWith(
@@ -96,7 +114,10 @@ describe('SteamService', () => {
       const created = makeRecord({ id: 50, title: 'Steam Game' })
       mockRecordRepo.create = mock(() => Promise.resolve(created))
 
-      const result = await service.importGames([{ appId: 888, status: RecordStatus.DONE }])
+      const result = await service.importGames(
+        [{ appId: 888, status: RecordStatus.DONE }],
+        'user-1',
+      )
 
       expect(result.created).toHaveLength(1)
       expect(mockRecordRepo.create).toHaveBeenCalledWith(
@@ -116,7 +137,10 @@ describe('SteamService', () => {
       mockRecordRepo.create = mock(() => Promise.resolve(created))
       mockRecordRepo.update = mock(() => Promise.resolve(created))
 
-      await service.importGames([{ appId: 777, status: RecordStatus.DONE, grade: 'LIKE' as any }])
+      await service.importGames(
+        [{ appId: 777, status: RecordStatus.DONE, grade: 'LIKE' as any }],
+        'user-1',
+      )
 
       expect(mockRecordRepo.update).toHaveBeenCalledWith(60, { grade: 'LIKE' })
     })
@@ -126,7 +150,10 @@ describe('SteamService', () => {
         Promise.resolve([makeRecord({ id: 2, title: 'IGDB Game', extra: null })]),
       )
 
-      const result = await service.importGames([{ appId: 123, status: RecordStatus.DONE }])
+      const result = await service.importGames(
+        [{ appId: 123, status: RecordStatus.DONE }],
+        'user-1',
+      )
 
       expect(result.created).toHaveLength(0)
       expect(result.failed).toHaveLength(1)
@@ -139,10 +166,13 @@ describe('SteamService', () => {
       const created = makeRecord({ id: 70 })
       mockRecordRepo.create = mock(() => Promise.resolve(created))
 
-      const result = await service.importGames([
-        { appId: 321, status: RecordStatus.DONE },
-        { appId: 321, status: RecordStatus.DONE },
-      ])
+      const result = await service.importGames(
+        [
+          { appId: 321, status: RecordStatus.DONE },
+          { appId: 321, status: RecordStatus.DONE },
+        ],
+        'user-1',
+      )
 
       expect(result.created).toHaveLength(1)
       expect(result.failed).toHaveLength(1)

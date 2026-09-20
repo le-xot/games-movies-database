@@ -92,6 +92,7 @@ export class SteamService {
 
   async importGames(
     games: SteamImportGameDto[],
+    userId: string,
   ): Promise<{ created: any[]; failed: { appId: number; reason: string }[] }> {
     const existingGames = await this.findDuplicateGames()
     const importedAppIds = new Set<string>()
@@ -140,6 +141,7 @@ export class SteamService {
           type: RecordType.WRITTEN,
           status: game.status,
           extra: { steamAppId: appIdStr },
+          userId,
         })
 
         importedAppIds.add(appIdStr)

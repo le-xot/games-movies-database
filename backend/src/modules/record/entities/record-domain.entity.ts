@@ -8,6 +8,7 @@ export interface CreateRecordData {
   status?: RecordStatus
   type?: RecordType
   extra?: unknown
+  userId?: string
 }
 
 export interface UpdateRecordData {

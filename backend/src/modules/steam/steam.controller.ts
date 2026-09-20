@@ -3,7 +3,9 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
+import { UserEntity } from '@/modules/user/user.entity'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import { SteamGamesResponseDTO, SteamImportDTO, SteamImportResultDTO } from './steam.dto'
 import { SteamService } from './steam.service'
@@ -34,7 +36,10 @@ export class SteamController {
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 201, type: SteamImportResultDTO })
-  async importSteamGames(@Body() body: SteamImportDTO): Promise<SteamImportResultDTO> {
-    return await this.steamService.importGames(body.games)
+  async importSteamGames(
+    @Body() body: SteamImportDTO,
+    @User() user: UserEntity,
+  ): Promise<SteamImportResultDTO> {
+    return await this.steamService.importGames(body.games, user.id)
   }
 }

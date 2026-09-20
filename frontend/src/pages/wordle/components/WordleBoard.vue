@@ -70,23 +70,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-1.5" role="grid" aria-label="Игровое поле">
+  <div class="flex flex-col gap-[var(--wordle-gap,6px)]" role="grid" aria-label="Игровое поле">
     <div
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="flex justify-center gap-1.5"
+      class="flex justify-center gap-[var(--wordle-gap,6px)]"
       :class="{ 'animate-shake': shaking && rowIndex === props.guesses.length }"
     >
       <div
         v-for="(cell, cellIndex) in row"
         :key="cellIndex"
-        class="flex size-[52px] items-center justify-center border-2 text-2xl font-bold uppercase sm:size-[62px] sm:text-3xl"
+        class="flex size-[var(--wordle-tile,52px)] items-center justify-center border-2 text-[length:var(--wordle-letter,24px)] font-bold uppercase sm:size-[var(--wordle-tile-sm,62px)] sm:text-[length:var(--wordle-letter-sm,30px)]"
         :class="[
           cell.state
             ? LETTER_STATE_CLASS[cell.state]
             : cell.letter
               ? 'border-zinc-500 bg-transparent text-white'
-              : 'border-zinc-800 bg-transparent text-white',
+              : 'border-zinc-700 bg-transparent text-white',
           animatedRow === rowIndex ? 'animate-flip' : '',
         ]"
         :style="animatedRow === rowIndex ? { animationDelay: `${cellIndex * 120}ms` } : undefined"

@@ -45,15 +45,15 @@ export const KEYBOARD_CODE_MAP: Record<string, string> = {
 }
 
 export const LETTER_STATE_CLASS: Record<WordleLetterState, string> = {
-  [WordleLetterState.CORRECT]: 'border-green-600 bg-green-600 text-white',
-  [WordleLetterState.PRESENT]: 'border-yellow-500 bg-yellow-500 text-white',
+  [WordleLetterState.CORRECT]: 'border-[#538d4e] bg-[#538d4e] text-white',
+  [WordleLetterState.PRESENT]: 'border-[#b59f3b] bg-[#b59f3b] text-white',
   [WordleLetterState.ABSENT]: 'border-zinc-700 bg-zinc-700 text-white',
 }
 
 export const KEY_STATE_CLASS: Record<WordleLetterState, string> = {
-  [WordleLetterState.CORRECT]: 'bg-green-600 text-white',
-  [WordleLetterState.PRESENT]: 'bg-yellow-500 text-white',
-  [WordleLetterState.ABSENT]: 'bg-zinc-800 text-zinc-500',
+  [WordleLetterState.CORRECT]: 'bg-[#538d4e] text-white',
+  [WordleLetterState.PRESENT]: 'bg-[#b59f3b] text-white',
+  [WordleLetterState.ABSENT]: 'bg-zinc-700 text-white',
 }
 
 export const LETTER_STATE_RANK: Record<WordleLetterState, number> = {

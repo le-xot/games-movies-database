@@ -32,7 +32,7 @@ const delegatedProps = reactiveOmit(
     :close-button-position="props.closeButtonPosition ?? 'top-right'"
     :visible-toasts="props.visibleToasts ?? 1"
     :expand="props.expand ?? false"
-    :duration="props.duration ?? 10000"
+    :duration="props.duration ?? 4000"
     :toast-options="{
       classes: {
         toast:

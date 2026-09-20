@@ -5,10 +5,18 @@ import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-w
 import { WordleController } from '@/modules/wordle/wordle.controller'
 import { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
 import { WordleService } from '@/modules/wordle/wordle.service'
+import { env } from '@/utils/enviroments'
 
 @Module({
   imports: [DrizzleModule, UserModule],
   controllers: [WordleController],
-  providers: [WordleService, DrizzleWordleRepository, WordleDictionary],
+  providers: [
+    WordleService,
+    DrizzleWordleRepository,
+    {
+      provide: WordleDictionary,
+      useFactory: () => new WordleDictionary(env.WORDLE_ANSWERS_SALT),
+    },
+  ],
 })
 export class WordleModule {}

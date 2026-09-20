@@ -2,6 +2,8 @@ import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { WordleDictionary, normalizeWord } from '@/modules/wordle/wordle.dictionary'
 
+const TEST_SALT = 'test-salt'
+
 const readData = (name: string) =>
   readFileSync(new URL(`../data/${name}`, import.meta.url), 'utf-8')
 
@@ -10,7 +12,7 @@ const parseData = (name: string) =>
     .split('\n')
     .filter((line) => line.length > 0)
 
-const ANSWERS = parseData('answers.txt')
+const ANSWERS = parseData('answers-source.txt')
 const WORDS = parseData('words.txt')
 const BLACKLIST = parseData('blacklist.txt')
 
@@ -25,7 +27,7 @@ describe('normalizeWord', () => {
 })
 
 describe('WordleDictionary', () => {
-  const dictionary = new WordleDictionary()
+  const dictionary = new WordleDictionary(TEST_SALT)
 
   it('accepts a known word', () => {
     expect(dictionary.isValidWord('слово')).toBe(true)
@@ -58,6 +60,17 @@ describe('WordleDictionary', () => {
       const date = new Date(Date.UTC(2026, 0, 1) + i * 86_400_000).toISOString().slice(0, 10)
       expect(dictionary.isValidWord(dictionary.getAnswerForDate(date))).toBe(true)
     }
+  })
+
+  it('changes the answer order when the salt changes', () => {
+    const other = new WordleDictionary('other-salt')
+    const dates = Array.from({ length: 30 }, (_, i) =>
+      new Date(Date.UTC(2026, 0, 1) + i * 86_400_000).toISOString().slice(0, 10),
+    )
+
+    expect(dates.map((date) => other.getAnswerForDate(date))).not.toEqual(
+      dates.map((date) => dictionary.getAnswerForDate(date)),
+    )
   })
 })
 
@@ -94,9 +107,11 @@ describe('data files', () => {
   })
 
   it('has no trailing or double line breaks', () => {
-    const raw = readData('answers.txt')
-    expect(raw.endsWith('\n')).toBe(true)
-    expect(raw).not.toMatch(/\n\n/)
-    expect(raw).not.toMatch(/\r/)
+    for (const name of ['answers-source.txt', 'words.txt']) {
+      const raw = readData(name)
+      expect(raw.endsWith('\n')).toBe(true)
+      expect(raw).not.toMatch(/\n\n/)
+      expect(raw).not.toMatch(/\r/)
+    }
   })
 })

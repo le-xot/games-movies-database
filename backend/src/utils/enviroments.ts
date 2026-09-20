@@ -44,4 +44,6 @@ export const env = cleanEnv(process.env, {
   S3_SECRET_ACCESS_KEY: str({ default: 'rustfsadmin' }),
   S3_BUCKET_IMAGES: str({ default: 'images' }),
   S3_BUCKET_AVATARS: str({ default: 'avatars' }),
+
+  WORDLE_ANSWERS_SALT: str({ devDefault: 'wordle-dev-insecure-salt' }),
 })

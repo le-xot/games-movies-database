@@ -1,5 +1,4 @@
 {
-  "salt": "wordle-gmd-v1",
   "sources": [
     {
       "name": "danakt/russian-words",
@@ -16,11 +15,13 @@
       "usedFor": "answers-candidates"
     }
   ],
-  "outputs": {
-    "answers.txt": {
+  "inputs": {
+    "answers-source.txt": {
       "count": 1413,
-      "sha256": "377df3e3e2a9129345bb673c62f1861b545127e9fd582e7c4a40106fbcac3d21"
-    },
+      "sha256": "304f6125aa98e8872d754b02d7be1ccf17f6675ed09c0c2bc15d28ae0d906c8b"
+    }
+  },
+  "outputs": {
     "words.txt": {
       "count": 25624,
       "sha256": "1bcbb04fb069097b5148eb4e397d3ebc766ae934d127c345006b03d508dbf683"

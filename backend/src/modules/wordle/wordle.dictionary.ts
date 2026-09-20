@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Injectable } from '@nestjs/common'
@@ -16,10 +17,28 @@ function parseWordList(fileUrl: URL): string[] {
     .filter((word) => WORD_PATTERN.test(word))
 }
 
+function shuffleBySalt(words: string[], salt: string): string[] {
+  return words
+    .map((word) => ({
+      word,
+      key: createHash('sha256')
+        .update(word + salt)
+        .digest('hex'),
+    }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map(({ word }) => word)
+}
+
 @Injectable()
 export class WordleDictionary {
-  private readonly words = new Set(parseWordList(new URL('./data/words.txt', import.meta.url)))
-  private readonly answers = parseWordList(new URL('./data/answers.txt', import.meta.url))
+  private readonly words: Set<string>
+  private readonly answers: string[]
+
+  constructor(salt: string) {
+    this.words = new Set(parseWordList(new URL('./data/words.txt', import.meta.url)))
+    const source = parseWordList(new URL('./data/answers-source.txt', import.meta.url))
+    this.answers = shuffleBySalt(source, salt)
+  }
 
   isValidWord(word: string): boolean {
     return this.words.has(word)

@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url'
 
 const DATA_DIR = fileURLToPath(new URL('../data/', import.meta.url))
 const ANSWERS_SOURCE_PATH = `${DATA_DIR}answers-source.txt`
-const ANSWERS_PATH = `${DATA_DIR}answers.txt`
 const WORDS_PATH = `${DATA_DIR}words.txt`
 const BLACKLIST_PATH = `${DATA_DIR}blacklist.txt`
 const SOURCES_PATH = `${DATA_DIR}sources.json`
@@ -12,7 +11,6 @@ const SOURCES_PATH = `${DATA_DIR}sources.json`
 const DANAKT_URL = 'https://raw.githubusercontent.com/danakt/russian-words/master/russian.txt'
 const NOUNS_URL =
   'https://raw.githubusercontent.com/Harrix/Russian-Nouns/main/dist/russian_nouns.txt'
-const SHUFFLE_SALT = 'wordle-gmd-v1'
 const WORD_PATTERN = /^[а-я]{5}$/
 
 function normalizeWord(word: string): string {
@@ -32,10 +30,6 @@ function parseWords(content: string): string[] {
 
 function unique(words: string[]): string[] {
   return [...new Set(words)]
-}
-
-function deterministicShuffle(words: string[]): string[] {
-  return [...words].sort((a, b) => sha256(a + SHUFFLE_SALT).localeCompare(sha256(b + SHUFFLE_SALT)))
 }
 
 function writeIfChanged(path: string, content: string): boolean {
@@ -81,21 +75,18 @@ async function build() {
     throw new Error(`Ответы попали в блэклист: ${blacklistedAnswers.join(', ')}`)
   }
 
-  const answers = deterministicShuffle(answersSource)
-  const words = unique([...parseWords(danakt.text), ...answers])
+  const words = unique([...parseWords(danakt.text), ...answersSource])
     .filter((word) => !blacklist.has(word))
     .sort()
 
-  const answersContent = `${answers.join('\n')}\n`
+  const answersSourceContent = `${answersSource.join('\n')}\n`
   const wordsContent = `${words.join('\n')}\n`
 
-  const answersChanged = writeIfChanged(ANSWERS_PATH, answersContent)
   const wordsChanged = writeIfChanged(WORDS_PATH, wordsContent)
   writeIfChanged(
     SOURCES_PATH,
     `${JSON.stringify(
       {
-        salt: SHUFFLE_SALT,
         sources: [
           {
             name: 'danakt/russian-words',
@@ -112,8 +103,13 @@ async function build() {
             usedFor: 'answers-candidates',
           },
         ],
+        inputs: {
+          'answers-source.txt': {
+            count: answersSource.length,
+            sha256: sha256(answersSourceContent),
+          },
+        },
         outputs: {
-          'answers.txt': { count: answers.length, sha256: sha256(answersContent) },
           'words.txt': { count: words.length, sha256: sha256(wordsContent) },
         },
       },
@@ -122,8 +118,7 @@ async function build() {
     )}\n`,
   )
 
-  console.log(`answers: ${answers.length}, words: ${words.length}`)
-  console.log(`answers.txt: ${answersChanged ? 'обновлён' : 'без изменений'}`)
+  console.log(`answers: ${answersSource.length}, words: ${words.length}`)
   console.log(`words.txt: ${wordsChanged ? 'обновлён' : 'без изменений'}`)
 }
 

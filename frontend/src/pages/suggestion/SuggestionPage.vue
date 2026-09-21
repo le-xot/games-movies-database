@@ -5,11 +5,22 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
+import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
 
 const suggestion = useSuggestion()
 const user = useUser()
+const loginDialog = useLoginDialog()
+
+function handleSuggestClick() {
+  if (!user.isLoggedIn) {
+    loginDialog.openLogin()
+    return
+  }
+
+  suggestion.openSuggestionDialog()
+}
 
 const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
 
@@ -52,7 +63,7 @@ function handleMarkAllAsViewed() {
               <ArrowUpDown class="icon" />
               <span class="text-sm">{{ sortBy === 'date' ? 'Дата' : 'Лайки' }}</span>
             </Button>
-            <Button :disabled="!user.isLoggedIn" @click="suggestion.openSuggestionDialog()">
+            <Button @click="handleSuggestClick">
               <span v-if="user.isLoggedIn" class="flex items-center gap-2">
                 <span class="hidden sm:inline">Посоветовать</span>
                 <ListPlus class="icon" />
@@ -71,7 +82,7 @@ function handleMarkAllAsViewed() {
     >
       <img class="w-[120px] h-[120px] mx-auto" src="/images/aga.webp" alt="Ага" />
       <span class="text-xl font-bold block mt-4 mb-4">Пока советов нет</span>
-      <Button class="w-fit" :disabled="!user.isLoggedIn" @click="suggestion.openSuggestionDialog()">
+      <Button class="w-fit" @click="handleSuggestClick">
         <span v-if="user.isLoggedIn" class="flex items-center gap-2">
           Посоветовать
           <ListPlus class="icon" />

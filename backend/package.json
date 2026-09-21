@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "bun run typecheck",
+    "typecheck": "tsc --noEmit",
     "test": "bun test",
     "start": "bun run ./src/main.ts",
     "dev": "bun run --watch --no-clear-screen ./src/main.ts"

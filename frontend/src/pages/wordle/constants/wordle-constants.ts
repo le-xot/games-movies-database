@@ -1,5 +1,7 @@
 import { WordleLetterState } from '@/lib/api'
 
+export type WordleLeaderboardMode = 'today' | 'wins' | 'streak'
+
 export const WORDLE_MAX_ATTEMPTS = 6
 export const WORDLE_WORD_LENGTH = 5
 
@@ -53,6 +55,18 @@ export const LETTER_STATE_CLASS: Record<WordleLetterState, string> = {
 export const KEY_STATE_CLASS: Record<WordleLetterState, string> = {
   [WordleLetterState.CORRECT]: 'bg-[#538d4e] text-white',
   [WordleLetterState.PRESENT]: 'bg-[#b59f3b] text-white',
+  [WordleLetterState.ABSENT]: 'bg-zinc-700 text-white',
+}
+
+export const COLORBLIND_LETTER_STATE_CLASS: Record<WordleLetterState, string> = {
+  [WordleLetterState.CORRECT]: 'border-blue-600 bg-blue-600 text-white',
+  [WordleLetterState.PRESENT]: 'border-orange-600 bg-orange-600 text-white',
+  [WordleLetterState.ABSENT]: 'border-zinc-700 bg-zinc-700 text-white',
+}
+
+export const COLORBLIND_KEY_STATE_CLASS: Record<WordleLetterState, string> = {
+  [WordleLetterState.CORRECT]: 'bg-blue-600 text-white',
+  [WordleLetterState.PRESENT]: 'bg-orange-600 text-white',
   [WordleLetterState.ABSENT]: 'bg-zinc-700 text-white',
 }
 

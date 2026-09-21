@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { LETTER_STATE_CLASS } from '@/pages/wordle/constants/wordle-constants'
+import { useWordleSettings } from '@/pages/wordle/composables/use-wordle-settings'
+import {
+  COLORBLIND_LETTER_STATE_CLASS,
+  LETTER_STATE_CLASS,
+} from '@/pages/wordle/constants/wordle-constants'
 import type { WordleGuessStateDTO, WordleLetterState } from '@/lib/api'
 
 const props = defineProps<{
@@ -17,6 +21,11 @@ interface BoardCell {
 }
 
 const emptyRow = () => Array.from({ length: props.wordLength }, () => ({ letter: '' }))
+
+const { isColorblind } = useWordleSettings()
+const letterStateClass = computed(() =>
+  isColorblind.value ? COLORBLIND_LETTER_STATE_CLASS : LETTER_STATE_CLASS,
+)
 
 const rows = computed<BoardCell[][]>(() => {
   const result: BoardCell[][] = []
@@ -83,7 +92,7 @@ onMounted(() => {
         class="flex size-[var(--wordle-tile,52px)] items-center justify-center border-2 text-[length:var(--wordle-letter,24px)] font-bold uppercase sm:size-[var(--wordle-tile-sm,62px)] sm:text-[length:var(--wordle-letter-sm,30px)]"
         :class="[
           cell.state
-            ? LETTER_STATE_CLASS[cell.state]
+            ? letterStateClass[cell.state]
             : cell.letter
               ? 'border-zinc-500 bg-transparent text-white'
               : 'border-zinc-700 bg-transparent text-white',
@@ -131,5 +140,12 @@ onMounted(() => {
 
 .animate-shake {
   animation: wordle-shake 400ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flip,
+  .animate-shake {
+    animation: none;
+  }
 }
 </style>

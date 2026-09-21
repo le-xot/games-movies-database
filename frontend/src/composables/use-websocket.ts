@@ -4,6 +4,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
 import { STATS_QUERY_KEY } from '@/pages/stats/composables/use-stats'
 import { SUGGESTION_QUERY_KEY } from '@/pages/suggestion/composables/use-suggestion'
+import { WORDLE_LEADERBOARD_KEY } from '@/pages/wordle/composables/use-wordle'
 import { useUser } from '@/stores/use-user'
 
 export function useWebSocket() {
@@ -17,6 +18,7 @@ export function useWebSocket() {
       suggestions: () => queryCache.invalidateQueries({ key: [SUGGESTION_QUERY_KEY] }),
       stats: () => queryCache.invalidateQueries({ key: [STATS_QUERY_KEY] }),
       user: () => userStore.refetchUser(),
+      wordle: () => queryCache.invalidateQueries({ key: [WORDLE_LEADERBOARD_KEY] }),
       'records:ANIME': () => queryCache.invalidateQueries({ key: ['anime'] }),
       'records:CARTOON': () => queryCache.invalidateQueries({ key: ['cartoon'] }),
       'records:SERIES': () => queryCache.invalidateQueries({ key: ['series'] }),
@@ -59,6 +61,10 @@ export function useWebSocket() {
       })
       .on('update-users', () => {
         coalescer.enqueue('user')
+        coalescer.enqueue('wordle')
+      })
+      .on('update-wordle', () => {
+        coalescer.enqueue('wordle')
       })
       .on('connect_error', (error) => {
         console.error('WebSocket connection error:', error)

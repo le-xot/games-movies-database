@@ -3,7 +3,6 @@ import { StackedBar } from '@unovis/ts'
 import { VisAxis, VisStackedBar, VisTooltip, VisXYContainer } from '@unovis/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
@@ -12,15 +11,20 @@ import {
   DialogScrollContent,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import WordleLeaderboardList from '@/pages/wordle/components/WordleLeaderboardList.vue'
 import { useWordle } from '@/pages/wordle/composables/use-wordle'
+import { useWordleSettings } from '@/pages/wordle/composables/use-wordle-settings'
+import type { WordleLeaderboardMode } from '@/pages/wordle/constants/wordle-constants'
 
 defineProps<{ open: boolean }>()
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const wordle = useWordle()
 const { stats, leaderboard } = storeToRefs(wordle)
-const mode = ref<'wins' | 'streak'>('wins')
+const { isColorblind, setColorblind } = useWordleSettings()
+const mode = ref<WordleLeaderboardMode>('today')
 
 const summary = computed(() => [
   { label: 'Играно', value: stats.value?.played ?? 0 },
@@ -56,17 +60,6 @@ const distributionTriggers = {
 const distributionTickValues = [1, 2, 3, 4, 5, 6]
 const distributionTickFormat = (value: number) => String(value)
 
-const entries = computed(() => {
-  const list = [...(leaderboard.value?.entries ?? [])]
-  if (mode.value === 'streak') {
-    return list.sort(
-      (a, b) =>
-        b.currentStreak - a.currentStreak || b.wins - a.wins || a.login.localeCompare(b.login),
-    )
-  }
-  return list
-})
-
 const globalStats = computed(() => [
   { label: 'Игроков', value: leaderboard.value?.totalPlayers ?? 0 },
   { label: 'Игр', value: leaderboard.value?.totalGames ?? 0 },
@@ -94,6 +87,22 @@ const globalStats = computed(() => [
         </Card>
       </div>
 
+      <div
+        class="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2"
+      >
+        <div>
+          <p class="text-sm font-medium">Режим для дальтоников</p>
+          <p class="text-xs text-muted-foreground">
+            Синий вместо зелёного, оранжевый вместо жёлтого
+          </p>
+        </div>
+        <Switch
+          :model-value="isColorblind"
+          aria-label="Режим для дальтоников"
+          @update:model-value="setColorblind"
+        />
+      </div>
+
       <div>
         <h3 class="mb-2 text-sm font-medium text-muted-foreground">Распределение попыток</h3>
         <VisXYContainer v-if="distributionTotal > 0" :data="distributionData" :height="160">
@@ -115,6 +124,7 @@ const globalStats = computed(() => [
           <h3 class="text-sm font-medium text-muted-foreground">Лидеры</h3>
           <Tabs v-model="mode">
             <TabsList>
+              <TabsTrigger value="today">Сегодня</TabsTrigger>
               <TabsTrigger value="wins">Победы</TabsTrigger>
               <TabsTrigger value="streak">Серия</TabsTrigger>
             </TabsList>
@@ -130,30 +140,7 @@ const globalStats = computed(() => [
           </Card>
         </div>
 
-        <ul v-if="entries.length > 0" class="flex max-h-64 flex-col gap-1 overflow-y-auto">
-          <li
-            v-for="(entry, index) in entries"
-            :key="entry.userId"
-            class="flex items-center gap-3 rounded-lg px-2 py-1.5"
-          >
-            <span class="w-5 shrink-0 text-sm text-muted-foreground">{{ index + 1 }}</span>
-            <Avatar size="sm" shape="circle">
-              <AvatarImage :src="entry.profileImageUrl" :alt="entry.login" />
-              <AvatarFallback>{{ entry.login.slice(0, 1).toUpperCase() }}</AvatarFallback>
-            </Avatar>
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium">{{ entry.login }}</p>
-              <p v-if="entry.wins > 0" class="text-xs text-muted-foreground">
-                в среднем {{ entry.avgAttempts }} попыток
-              </p>
-              <p v-else class="text-xs text-muted-foreground">побед пока нет</p>
-            </div>
-            <span class="text-lg font-bold">
-              {{ mode === 'wins' ? entry.wins : entry.currentStreak }}
-            </span>
-          </li>
-        </ul>
-        <p v-else class="text-sm text-muted-foreground">Пока никто не сыграл</p>
+        <WordleLeaderboardList :leaderboard="leaderboard" :mode="mode" />
       </div>
     </DialogScrollContent>
   </Dialog>

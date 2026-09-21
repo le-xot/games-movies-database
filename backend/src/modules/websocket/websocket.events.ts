@@ -6,6 +6,7 @@ export const WsEvents = {
   UPDATE_QUEUE: 'update-queue',
   UPDATE_LIKES: 'update-likes',
   UPDATE_USERS: 'update-users',
+  UPDATE_WORDLE: 'update-wordle',
 } as const
 
 export interface UpdateRecordsPayload {
@@ -33,4 +34,10 @@ export interface UpdateLikesPayload {
 export interface UpdateUsersPayload {
   userId: string
   action: 'created' | 'updated' | 'deleted'
+}
+
+export interface UpdateWordlePayload {
+  date: string
+  userId: string
+  action: 'finished'
 }

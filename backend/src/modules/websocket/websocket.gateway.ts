@@ -9,6 +9,7 @@ import {
   type UpdateRecordsPayload,
   type UpdateSuggestionsPayload,
   type UpdateUsersPayload,
+  type UpdateWordlePayload,
 } from '@/modules/websocket/websocket.events'
 import { isOriginAllowed, parseCorsOrigins } from '@/utils/cors-origins'
 import { env } from '@/utils/enviroments'
@@ -50,5 +51,10 @@ export class WebsocketGateway {
   @OnEvent(WsEvents.UPDATE_USERS)
   handleUpdateUsers(payload: UpdateUsersPayload) {
     this.server.emit(WsEvents.UPDATE_USERS, payload)
+  }
+
+  @OnEvent(WsEvents.UPDATE_WORDLE)
+  handleUpdateWordle(payload: UpdateWordlePayload) {
+    this.server.emit(WsEvents.UPDATE_WORDLE, payload)
   }
 }

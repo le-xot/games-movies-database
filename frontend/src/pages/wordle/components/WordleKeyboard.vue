@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { CornerDownLeft, Delete } from '@lucide/vue'
-import { KEY_STATE_CLASS, WORDLE_KEYBOARD_ROWS } from '@/pages/wordle/constants/wordle-constants'
+import { useWordleSettings } from '@/pages/wordle/composables/use-wordle-settings'
+import {
+  COLORBLIND_KEY_STATE_CLASS,
+  KEY_STATE_CLASS,
+  WORDLE_KEYBOARD_ROWS,
+} from '@/pages/wordle/constants/wordle-constants'
 import type { WordleLetterState } from '@/lib/api'
 
 const props = defineProps<{
@@ -14,9 +19,13 @@ const emit = defineEmits<{
   backspace: []
 }>()
 
+const { isColorblind } = useWordleSettings()
+
 function keyClass(key: string) {
   const state = props.letterStates[key]
-  return state ? KEY_STATE_CLASS[state] : 'bg-zinc-500 text-white'
+  if (!state) return 'bg-zinc-500 text-white'
+  const classes = isColorblind.value ? COLORBLIND_KEY_STATE_CLASS : KEY_STATE_CLASS
+  return classes[state]
 }
 
 function handleKey(key: string) {

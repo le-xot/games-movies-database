@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { WordleGameStatus } from '@/lib/api'
+import { useWordleShare } from '@/pages/wordle/composables/use-wordle-share'
 
 const props = defineProps<{
   open: boolean
@@ -22,6 +23,8 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
   'show-stats': []
 }>()
+
+const { shareResult, isSharing } = useWordleShare()
 
 function openStats() {
   emit('show-stats')
@@ -58,7 +61,8 @@ function openStats() {
       </p>
 
       <div class="flex flex-col gap-2">
-        <Button @click="openStats">Статистика</Button>
+        <Button :disabled="isSharing" @click="shareResult">Поделиться</Button>
+        <Button variant="outline" @click="openStats">Статистика</Button>
         <Button variant="outline" @click="emit('update:open', false)">Закрыть</Button>
       </div>
     </DialogScrollContent>

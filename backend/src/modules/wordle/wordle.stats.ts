@@ -46,6 +46,20 @@ export interface WordleLeaderboardResult {
   totalGames: number
 }
 
+export interface WordleDailyLeaderboardRow {
+  userId: string
+  login: string
+  profileImageUrl: string
+  color: string
+  status: WordleGameStatus
+  attempts: number
+}
+
+export interface WordleDailyLeaderboardResult {
+  entries: WordleDailyLeaderboardRow[]
+  total: number
+}
+
 function computeMaxStreak(games: WordleFinishedGame[]): number {
   let max = 0
   let run = 0
@@ -158,4 +172,21 @@ export function buildLeaderboard(
     totalPlayers: entries.length,
     totalGames: rows.length,
   }
+}
+
+function dailyStatusRank(status: WordleGameStatus): number {
+  return status === WordleGameStatus.WON ? 0 : 1
+}
+
+export function buildDailyLeaderboard(
+  rows: WordleDailyLeaderboardRow[],
+): WordleDailyLeaderboardResult {
+  const entries = [...rows].sort(
+    (a, b) =>
+      dailyStatusRank(a.status) - dailyStatusRank(b.status) ||
+      a.attempts - b.attempts ||
+      a.login.localeCompare(b.login),
+  )
+
+  return { entries, total: entries.length }
 }

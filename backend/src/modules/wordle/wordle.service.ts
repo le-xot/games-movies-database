@@ -1,10 +1,19 @@
 import crypto from 'node:crypto'
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  type OnModuleDestroy,
+  type OnModuleInit,
+} from '@nestjs/common'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { WordleGameStatus } from '@/enums'
+import { WsEvents, type UpdateWordlePayload } from '@/modules/websocket/websocket.events'
 import {
   DrizzleWordleRepository,
   type WordleGameRecord,
 } from '@/modules/wordle/repositories/drizzle-wordle.repository'
+import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
 import { getMoscowDateKey, msUntilNextMoscowMidnight } from '@/modules/wordle/wordle.date'
 import { WordleDictionary, normalizeWord } from '@/modules/wordle/wordle.dictionary'
 import { WordleLeaderboardDTO, WordleStateDTO, WordleStatsDTO } from '@/modules/wordle/wordle.dto'
@@ -12,22 +21,56 @@ import { scoreGuess } from '@/modules/wordle/wordle.scoring'
 import {
   MAX_ATTEMPTS,
   WORD_LENGTH,
+  buildDailyLeaderboard,
   buildLeaderboard,
   computeWordleStats,
 } from '@/modules/wordle/wordle.stats'
 
 const WORD_PATTERN = /^[а-я]{5}$/
+const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 
 @Injectable()
-export class WordleService {
+export class WordleService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(WordleService.name)
+  private staleCleanupTimer: ReturnType<typeof setInterval> | null = null
+
   constructor(
     private readonly repository: DrizzleWordleRepository,
     private readonly dictionary: WordleDictionary,
+    private readonly leaderboardCache: WordleLeaderboardCache,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  onModuleInit(): void {
+    this.runStaleCleanupSilently()
+    this.staleCleanupTimer = setInterval(() => {
+      this.runStaleCleanupSilently()
+    }, STALE_CLEANUP_INTERVAL_MS)
+  }
+
+  onModuleDestroy(): void {
+    if (this.staleCleanupTimer) clearInterval(this.staleCleanupTimer)
+  }
+
+  private runStaleCleanupSilently(): void {
+    void this.runStaleCleanup().catch((error) => {
+      this.logger.error('Не удалось закрыть устаревшие партии Wordle', error)
+    })
+  }
+
+  @OnEvent(WsEvents.UPDATE_USERS)
+  handleUserUpdated(): void {
+    this.leaderboardCache.invalidate()
+  }
+
+  async runStaleCleanup(now: Date = new Date()): Promise<number> {
+    const closed = await this.repository.closeStaleGames(getMoscowDateKey(now))
+    if (closed > 0) this.leaderboardCache.invalidate()
+    return closed
+  }
 
   async getState(userId: string, now: Date = new Date()): Promise<WordleStateDTO> {
     const date = getMoscowDateKey(now)
-    await this.repository.closeStaleGames(date)
     const game = await this.repository.findByUserAndDate(userId, date)
     return this.buildState(game, date, now)
   }
@@ -38,7 +81,6 @@ export class WordleService {
     now: Date = new Date(),
   ): Promise<WordleStateDTO> {
     const date = getMoscowDateKey(now)
-    await this.repository.closeStaleGames(date)
 
     const word = normalizeWord(rawWord)
     if (!WORD_PATTERN.test(word)) {
@@ -67,12 +109,17 @@ export class WordleService {
       throw new BadRequestException('Игра на сегодня уже завершена')
     }
 
+    if (updated.status !== WordleGameStatus.IN_PROGRESS) {
+      this.leaderboardCache.invalidate()
+      const payload: UpdateWordlePayload = { date, userId, action: 'finished' }
+      this.eventEmitter.emit(WsEvents.UPDATE_WORDLE, payload)
+    }
+
     return this.buildState(updated, date, now)
   }
 
   async getStats(userId: string, now: Date = new Date()): Promise<WordleStatsDTO> {
     const today = getMoscowDateKey(now)
-    await this.repository.closeStaleGames(today)
     const games = await this.repository.findFinishedByUser(userId)
 
     return computeWordleStats(
@@ -87,24 +134,43 @@ export class WordleService {
 
   async getLeaderboard(now: Date = new Date()): Promise<WordleLeaderboardDTO> {
     const today = getMoscowDateKey(now)
-    await this.repository.closeStaleGames(today)
-    const rows = await this.repository.findFinishedWithUsers()
 
-    const { entries, totalPlayers, totalGames } = buildLeaderboard(
-      rows.map(({ game, user }) => ({
-        userId: user.id,
-        login: user.login,
-        profileImageUrl: user.profileImageUrl,
-        color: user.color,
-        date: game.date,
-        status: game.status,
-        attempts: game.guesses.length,
-      })),
-      today,
-    )
-    const winsToday = await this.repository.countWinsByDate(today)
+    const [cached, winsToday, dailyRows] = await Promise.all([
+      this.leaderboardCache.get(now.getTime(), async () => {
+        const rows = await this.repository.findFinishedWithUsers()
+        return buildLeaderboard(
+          rows.map(({ game, user }) => ({
+            userId: user.id,
+            login: user.login,
+            profileImageUrl: user.profileImageUrl,
+            color: user.color,
+            date: game.date,
+            status: game.status,
+            attempts: game.guesses.length,
+          })),
+          today,
+        )
+      }),
+      this.repository.countWinsByDate(today),
+      this.repository.findFinishedWithUsersByDate(today),
+    ])
 
-    return { entries, totalPlayers, totalGames, winsToday }
+    return {
+      entries: cached.entries,
+      totalPlayers: cached.totalPlayers,
+      totalGames: cached.totalGames,
+      winsToday,
+      today: buildDailyLeaderboard(
+        dailyRows.map(({ game, user }) => ({
+          userId: user.id,
+          login: user.login,
+          profileImageUrl: user.profileImageUrl,
+          color: user.color,
+          status: game.status,
+          attempts: game.guesses.length,
+        })),
+      ),
+    }
   }
 
   private buildState(game: WordleGameRecord | null, date: string, now: Date): WordleStateDTO {

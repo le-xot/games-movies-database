@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { Share2 } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WordleGameStatus } from '@/lib/api'
+import WordleLeaderboardList from '@/pages/wordle/components/WordleLeaderboardList.vue'
 import { useWordle } from '@/pages/wordle/composables/use-wordle'
+import { useWordleShare } from '@/pages/wordle/composables/use-wordle-share'
+import type { WordleLeaderboardMode } from '@/pages/wordle/constants/wordle-constants'
 
 defineProps<{
   countdown: string
@@ -13,8 +17,9 @@ defineProps<{
 
 const wordle = useWordle()
 const { state, stats, leaderboard } = storeToRefs(wordle)
+const { shareResult, isSharing } = useWordleShare()
 
-const mode = ref<'wins' | 'streak'>('wins')
+const mode = ref<WordleLeaderboardMode>('today')
 
 const todayStatus = computed(() => {
   const current = state.value
@@ -48,19 +53,6 @@ const distributionTotal = computed(() =>
   (stats.value?.distribution ?? []).reduce((sum, value) => sum + value, 0),
 )
 
-const entries = computed(() => {
-  const list = [...(leaderboard.value?.entries ?? [])]
-  if (mode.value === 'streak') {
-    return list.sort(
-      (a, b) =>
-        b.currentStreak - a.currentStreak || b.wins - a.wins || a.login.localeCompare(b.login),
-    )
-  }
-  return list
-})
-
-const topEntries = computed(() => entries.value.slice(0, 5))
-
 const globalStats = computed(
   () =>
     `Игроков ${leaderboard.value?.totalPlayers ?? 0} · Игр ${leaderboard.value?.totalGames ?? 0} · Побед сегодня ${leaderboard.value?.winsToday ?? 0}`,
@@ -78,9 +70,20 @@ const globalStats = computed(
       </div>
     </div>
 
-    <div v-if="todayStatus" class="flex flex-col gap-0.5">
-      <p class="text-xs text-muted-foreground">Результат</p>
-      <p class="text-sm font-medium">{{ todayStatus }}</p>
+    <div v-if="todayStatus" class="flex items-center justify-between gap-2">
+      <div class="flex flex-col gap-0.5">
+        <p class="text-xs text-muted-foreground">Результат</p>
+        <p class="text-sm font-medium">{{ todayStatus }}</p>
+      </div>
+      <Button
+        variant="secondary"
+        size="icon"
+        aria-label="Поделиться результатом"
+        :disabled="isSharing"
+        @click="shareResult"
+      >
+        <Share2 class="size-4" />
+      </Button>
     </div>
 
     <div>
@@ -114,36 +117,14 @@ const globalStats = computed(
         <h3 class="text-xs font-medium uppercase text-muted-foreground">Лидеры</h3>
         <Tabs v-model="mode">
           <TabsList>
+            <TabsTrigger value="today">Сегодня</TabsTrigger>
             <TabsTrigger value="wins">Победы</TabsTrigger>
             <TabsTrigger value="streak">Серия</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
-      <ul v-if="topEntries.length > 0" class="flex flex-col gap-1">
-        <li
-          v-for="(entry, index) in topEntries"
-          :key="entry.userId"
-          class="flex items-center gap-2 py-1"
-        >
-          <span class="w-4 shrink-0 text-xs text-muted-foreground">{{ index + 1 }}</span>
-          <Avatar size="sm" shape="circle">
-            <AvatarImage :src="entry.profileImageUrl" :alt="entry.login" />
-            <AvatarFallback>{{ entry.login.slice(0, 1).toUpperCase() }}</AvatarFallback>
-          </Avatar>
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium">{{ entry.login }}</p>
-            <p v-if="entry.wins > 0" class="text-[10px] text-muted-foreground">
-              в среднем {{ entry.avgAttempts }} попыток
-            </p>
-            <p v-else class="text-[10px] text-muted-foreground">побед пока нет</p>
-          </div>
-          <span class="text-base font-bold">
-            {{ mode === 'wins' ? entry.wins : entry.currentStreak }}
-          </span>
-        </li>
-      </ul>
-      <p v-else class="text-xs text-muted-foreground">Пока никто не сыграл</p>
+      <WordleLeaderboardList :leaderboard="leaderboard" :mode="mode" compact :limit="5" />
 
       <p class="mt-2 text-xs text-muted-foreground">{{ globalStats }}</p>
     </div>

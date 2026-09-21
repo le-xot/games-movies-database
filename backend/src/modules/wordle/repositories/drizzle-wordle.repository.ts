@@ -29,11 +29,14 @@ export interface WordleGameWithUser {
 export class DrizzleWordleRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async closeStaleGames(today: string): Promise<void> {
-    await this.drizzle.db
+  async closeStaleGames(today: string): Promise<number> {
+    const closed = await this.drizzle.db
       .update(wordleGames)
       .set({ status: WordleGameStatus.LOST })
       .where(and(eq(wordleGames.status, WordleGameStatus.IN_PROGRESS), lt(wordleGames.date, today)))
+      .returning({ id: wordleGames.id })
+
+    return closed.length
   }
 
   async findByUserAndDate(userId: string, date: string): Promise<WordleGameRecord | null> {
@@ -102,6 +105,22 @@ export class DrizzleWordleRepository {
       .from(wordleGames)
       .innerJoin(users, eq(wordleGames.userId, users.id))
       .where(ne(wordleGames.status, WordleGameStatus.IN_PROGRESS))
+  }
+
+  async findFinishedWithUsersByDate(date: string): Promise<WordleGameWithUser[]> {
+    return await this.drizzle.db
+      .select({
+        game: wordleGames,
+        user: {
+          id: users.id,
+          login: users.login,
+          profileImageUrl: users.profileImageUrl,
+          color: users.color,
+        },
+      })
+      .from(wordleGames)
+      .innerJoin(users, eq(wordleGames.userId, users.id))
+      .where(and(ne(wordleGames.status, WordleGameStatus.IN_PROGRESS), eq(wordleGames.date, date)))
   }
 
   async countWinsByDate(date: string): Promise<number> {

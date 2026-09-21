@@ -328,11 +328,27 @@ export interface WordleLeaderboardEntryDTO {
   avgAttempts: number;
 }
 
+export interface WordleDailyLeaderboardEntryDTO {
+  userId: string;
+  login: string;
+  profileImageUrl: string;
+  color: string;
+  status: WordleGameStatus;
+  /** @example 3 */
+  attempts: number;
+}
+
+export interface WordleDailyLeaderboardDTO {
+  entries: WordleDailyLeaderboardEntryDTO[];
+  total: number;
+}
+
 export interface WordleLeaderboardDTO {
   entries: WordleLeaderboardEntryDTO[];
   totalPlayers: number;
   totalGames: number;
   winsToday: number;
+  today: WordleDailyLeaderboardDTO;
 }
 
 export enum AuthControllerUnlinkAccountParamsPlatformEnum {

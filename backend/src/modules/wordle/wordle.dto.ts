@@ -92,6 +92,34 @@ export class WordleLeaderboardEntryDTO {
   avgAttempts: number
 }
 
+export class WordleDailyLeaderboardEntryDTO {
+  @ApiProperty()
+  userId: string
+
+  @ApiProperty()
+  login: string
+
+  @ApiProperty()
+  profileImageUrl: string
+
+  @ApiProperty()
+  color: string
+
+  @ApiProperty({ enum: WordleGameStatus, enumName: WordleGameStatusName })
+  status: WordleGameStatus
+
+  @ApiProperty({ example: 3 })
+  attempts: number
+}
+
+export class WordleDailyLeaderboardDTO {
+  @ApiProperty({ type: [WordleDailyLeaderboardEntryDTO] })
+  entries: WordleDailyLeaderboardEntryDTO[]
+
+  @ApiProperty()
+  total: number
+}
+
 export class WordleLeaderboardDTO {
   @ApiProperty({ type: [WordleLeaderboardEntryDTO] })
   entries: WordleLeaderboardEntryDTO[]
@@ -104,4 +132,7 @@ export class WordleLeaderboardDTO {
 
   @ApiProperty()
   winsToday: number
+
+  @ApiProperty({ type: WordleDailyLeaderboardDTO })
+  today: WordleDailyLeaderboardDTO
 }

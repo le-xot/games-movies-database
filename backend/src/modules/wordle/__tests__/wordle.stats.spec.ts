@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'bun:test'
 import { WordleGameStatus } from '@/enums'
-import { buildLeaderboard, computeWordleStats } from '@/modules/wordle/wordle.stats'
-import type { WordleFinishedGame, WordleLeaderboardRow } from '@/modules/wordle/wordle.stats'
+import {
+  buildDailyLeaderboard,
+  buildLeaderboard,
+  computeWordleStats,
+} from '@/modules/wordle/wordle.stats'
+import type {
+  WordleDailyLeaderboardRow,
+  WordleFinishedGame,
+  WordleLeaderboardRow,
+} from '@/modules/wordle/wordle.stats'
 
 const { WON, LOST } = WordleGameStatus
 const TODAY = '2026-09-20'
@@ -182,5 +190,51 @@ describe('buildLeaderboard', () => {
 
     expect(result.entries[0]).toMatchObject({ wins: 1, currentStreak: 1, maxStreak: 1 })
     expect(result.totalGames).toBe(2)
+  })
+})
+
+describe('buildDailyLeaderboard', () => {
+  const dailyRow = (overrides: Partial<WordleDailyLeaderboardRow>): WordleDailyLeaderboardRow => ({
+    userId: 'user-1',
+    login: 'lexa',
+    profileImageUrl: 'https://example.com/1.png',
+    color: '#123456',
+    status: WON,
+    attempts: 3,
+    ...overrides,
+  })
+
+  it('returns an empty result without rows', () => {
+    expect(buildDailyLeaderboard([])).toEqual({ entries: [], total: 0 })
+  })
+
+  it('puts winners first, sorted by attempts', () => {
+    const result = buildDailyLeaderboard([
+      dailyRow({ userId: 'l-1', login: 'loser', status: LOST, attempts: 6 }),
+      dailyRow({ userId: 'w-4', login: 'dave', attempts: 4 }),
+      dailyRow({ userId: 'w-2', login: 'bob', attempts: 2 }),
+    ])
+
+    expect(result.entries.map((entry) => entry.userId)).toEqual(['w-2', 'w-4', 'l-1'])
+    expect(result.total).toBe(3)
+  })
+
+  it('sorts by login when results are equal', () => {
+    const result = buildDailyLeaderboard([
+      dailyRow({ userId: 'b', login: 'bob', attempts: 3 }),
+      dailyRow({ userId: 'a', login: 'anna', attempts: 3 }),
+    ])
+
+    expect(result.entries.map((entry) => entry.login)).toEqual(['anna', 'bob'])
+  })
+
+  it('sorts losers by attempts as well', () => {
+    const result = buildDailyLeaderboard([
+      dailyRow({ userId: 'l-5', login: 'five', status: LOST, attempts: 5 }),
+      dailyRow({ userId: 'l-1', login: 'one', status: LOST, attempts: 1 }),
+      dailyRow({ userId: 'w', login: 'winner', attempts: 6 }),
+    ])
+
+    expect(result.entries.map((entry) => entry.userId)).toEqual(['w', 'l-1', 'l-5'])
   })
 })

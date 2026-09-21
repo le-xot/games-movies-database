@@ -1,11 +1,12 @@
-import { Controller, Delete, Get, HttpStatus, Param, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
-import { UserEntity } from '@/modules/user/user.entity'
+import { MergeUsersDto } from '@/modules/user/user.dto'
+import { MergeUsersResultEntity, UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
@@ -50,5 +51,16 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteUser(@Param('id') id: string): Promise<void> {
     await this.userService.deleteUserById(id)
+  }
+
+  @Post(':id/merge')
+  @RateLimit(RATE_LIMITS.write)
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
+  @ApiResponse({ status: HttpStatus.CREATED, type: MergeUsersResultEntity })
+  async mergeUsers(
+    @Param('id') id: string,
+    @Body() dto: MergeUsersDto,
+  ): Promise<MergeUsersResultEntity> {
+    return await this.userService.mergeUsers(id, dto.sourceUserId)
   }
 }

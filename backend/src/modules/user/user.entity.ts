@@ -28,3 +28,26 @@ export class UserEntity {
     Object.assign(this, partial)
   }
 }
+
+export class MergeUsersResultEntity {
+  @ApiProperty()
+  accountsMoved: number
+
+  @ApiProperty()
+  accountsDropped: number
+
+  @ApiProperty()
+  likesMoved: number
+
+  @ApiProperty()
+  likesDropped: number
+
+  @ApiProperty()
+  suggestionsMoved: number
+
+  @ApiProperty()
+  wordleGamesMoved: number
+
+  @ApiProperty()
+  wordleGamesDropped: number
+}

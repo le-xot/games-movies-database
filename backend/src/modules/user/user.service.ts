@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -9,7 +10,11 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { AccountPlatform, UserRole } from '@/enums'
 import { AvatarService } from '@/modules/avatar/avatar.service'
-import { LinkPlatformData, UserDomain } from '@/modules/user/entities/user-domain.entity'
+import {
+  LinkPlatformData,
+  MergeUsersResult,
+  UserDomain,
+} from '@/modules/user/entities/user-domain.entity'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
 import { WsEvents, type UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
@@ -119,6 +124,27 @@ export class UserService {
     await this.userRepository.deleteWithCascade(id)
 
     this.emitUserUpdate(id, 'deleted')
+  }
+
+  async mergeUsers(targetId: string, sourceId: string): Promise<MergeUsersResult> {
+    if (targetId === sourceId) {
+      throw new BadRequestException('Cannot merge a user with themselves')
+    }
+
+    const [target, source] = await Promise.all([
+      this.userRepository.findById(targetId),
+      this.userRepository.findById(sourceId),
+    ])
+    if (!target || !source) {
+      throw new NotFoundException('User not found')
+    }
+
+    const result = await this.userRepository.mergeUsers(targetId, sourceId)
+
+    this.emitUserUpdate(targetId, 'updated')
+    this.emitUserUpdate(sourceId, 'deleted')
+
+    return result
   }
 
   async updateLogin(userId: string, login: string): Promise<UserDomain> {

@@ -13,7 +13,7 @@ Full-stack web application for tracking media: games, anime, movies, cartoons, s
 - **Likes** — favorites with cascade deletion
 - **Account** — modal window: nickname and avatar management, link/unlink providers, account deletion
 - **Navigation** — collapsible sidebar with sections and a mobile menu
-- **Admin panel** — administration interface
+- **Admin panel** — administration interface: users, account merging, Steam Sync
 - **Image proxy** — resizing via Sharp, proxying through `/api/img`
 - **Watch links** — automatic Kinobox links for watching
 - **Weather** — weather widget via OpenWeatherMap

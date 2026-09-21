@@ -79,6 +79,20 @@ export interface UserEntity {
   createdAt: string;
 }
 
+export interface MergeUsersDto {
+  sourceUserId: string;
+}
+
+export interface MergeUsersResultEntity {
+  accountsMoved: number;
+  accountsDropped: number;
+  likesMoved: number;
+  likesDropped: number;
+  suggestionsMoved: number;
+  wordleGamesMoved: number;
+  wordleGamesDropped: number;
+}
+
 export interface SuggestionOwnershipEntity {
   id: number;
   recordId: number;
@@ -708,6 +722,27 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, any>({
         path: `/users/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags users
+     * @name UserControllerMergeUsers
+     * @request POST:/users/{id}/merge
+     */
+    userControllerMergeUsers: (
+      id: string,
+      data: MergeUsersDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<MergeUsersResultEntity, any>({
+        path: `/users/${id}/merge`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

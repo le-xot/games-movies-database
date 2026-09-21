@@ -17,7 +17,7 @@ Standard file set for new features:
 | Module                | Files | Purpose                                                             |
 | :-------------------- | :---- | :------------------------------------------------------------------ |
 | **auth**              | 8     | Twitch/Kick/Telegram OIDC, JWT, @Global() guards, @User() decorator |
-| **user**              | 5     | User CRUD, profile management, update-users events                  |
+| **user**              | 6     | User CRUD, profile management, account merging, update-users events |
 | **record**            | 5     | Media entries (games/movies), provider integration                  |
 | **stats**             | 5     | Public records stats (genre/status/grade breakdowns)                |
 | **like**              | 5     | User favorites, cascade deletes                                     |

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { ConflictException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { UserRole } from '@/enums'
 import { UserDomain } from '../entities/user-domain.entity'
@@ -375,6 +375,67 @@ describe('UserService', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
         userId: 'user-1',
         action: 'updated',
+      })
+    })
+  })
+
+  describe('mergeUsers', () => {
+    const targetUser: UserDomain = {
+      id: 'user-1',
+      login: 'target',
+      role: UserRole.USER,
+      profileImageUrl: 'url',
+      color: '#111111',
+      hasCustomAvatar: false,
+      createdAt: new Date('2024-01-01'),
+    }
+    const sourceUser: UserDomain = {
+      ...targetUser,
+      id: 'user-2',
+      login: 'source',
+    }
+    const mergeResult = {
+      accountsMoved: 1,
+      accountsDropped: 0,
+      likesMoved: 2,
+      likesDropped: 0,
+      suggestionsMoved: 1,
+      wordleGamesMoved: 3,
+      wordleGamesDropped: 0,
+    }
+
+    it('rejects merging a user with themselves', async () => {
+      await expect(service.mergeUsers('user-1', 'user-1')).rejects.toThrow(BadRequestException)
+      expect(mockRepo.findById).not.toHaveBeenCalled()
+      expect(mockRepo.mergeUsers).not.toHaveBeenCalled()
+    })
+
+    it('throws NotFoundException when a user is missing', async () => {
+      mockRepo.findById = mock((id: string) =>
+        Promise.resolve(id === 'user-1' ? targetUser : null),
+      ) as any
+
+      await expect(service.mergeUsers('user-1', 'missing')).rejects.toThrow(NotFoundException)
+      expect(mockRepo.mergeUsers).not.toHaveBeenCalled()
+    })
+
+    it('merges the source into the target and emits updated and deleted events', async () => {
+      mockRepo.findById = mock((id: string) =>
+        Promise.resolve(id === 'user-1' ? targetUser : sourceUser),
+      ) as any
+      mockRepo.mergeUsers = mock(() => Promise.resolve(mergeResult)) as any
+
+      const result = await service.mergeUsers('user-1', 'user-2')
+
+      expect(result).toEqual(mergeResult)
+      expect(mockRepo.mergeUsers).toHaveBeenCalledWith('user-1', 'user-2')
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
+        userId: 'user-1',
+        action: 'updated',
+      })
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
+        userId: 'user-2',
+        action: 'deleted',
       })
     })
   })

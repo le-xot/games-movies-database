@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import MergeAccountsPanel from '@/pages/admin/components/MergeAccountsPanel.vue'
 import SteamSyncPanel from '@/pages/admin/components/SteamSyncPanel.vue'
 import { useAdminUsers } from '@/pages/admin/composables/use-admin-users'
 
@@ -92,6 +93,8 @@ function toggleId(id: string) {
           </CardContent>
         </Card>
       </div>
+
+      <MergeAccountsPanel :users="users" :accounts="accounts" @merged="fetchUsers" />
 
       <SteamSyncPanel />
     </template>

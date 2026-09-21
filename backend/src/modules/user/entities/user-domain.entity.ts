@@ -29,6 +29,16 @@ export interface LinkPlatformData {
 
 export type UserAccount = typeof userAccounts.$inferSelect
 
+export interface MergeUsersResult {
+  accountsMoved: number
+  accountsDropped: number
+  likesMoved: number
+  likesDropped: number
+  suggestionsMoved: number
+  wordleGamesMoved: number
+  wordleGamesDropped: number
+}
+
 export interface UserDomain {
   id: string
   login: string

@@ -11,6 +11,7 @@ import {
   Mic,
   Microchip,
   Monitor,
+  MonitorUp,
   Mouse,
   PcCase,
   Smartphone,
@@ -87,6 +88,10 @@ const MONITORS: PartLink[] = [
   {
     name: 'VA2246-LED: 22" FHD 60Hz',
     icon: Monitor,
+  },
+  {
+    name: 'ONKRON G280',
+    icon: MonitorUp,
   },
 ]
 

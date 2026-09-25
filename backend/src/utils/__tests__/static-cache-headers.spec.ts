@@ -30,4 +30,23 @@ describe('setAssetCacheHeaders', () => {
 
     expect(res.setHeader).not.toHaveBeenCalled()
   })
+
+  it('does not treat an ancestor directory named assets as the build output', () => {
+    const res = makeRes()
+
+    setAssetCacheHeaders(res, '/var/www/assets/site/dist/index.html')
+
+    expect(res.setHeader).not.toHaveBeenCalled()
+  })
+
+  it('matches hashed assets under dist/assets on any platform separator', () => {
+    const res = makeRes()
+
+    setAssetCacheHeaders(res, 'C:\\app\\frontend\\dist\\assets\\index-Dg3RdX1P.js')
+
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'public, max-age=31536000, immutable',
+    )
+  })
 })

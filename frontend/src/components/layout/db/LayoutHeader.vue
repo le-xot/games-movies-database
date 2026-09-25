@@ -18,7 +18,7 @@ function handleMobileNavClick(name: string) {
 </script>
 
 <template>
-  <div class="h-[68px] flex border-b border-border bg-black z-[100] xl:hidden">
+  <div class="h-[68px] flex border-b border-border bg-black z-40 xl:hidden">
     <div class="flex justify-between items-center gap-2 p-3 w-full">
       <Sheet v-model:open="isSheetOpen">
         <Button

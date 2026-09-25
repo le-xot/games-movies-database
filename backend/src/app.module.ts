@@ -25,12 +25,16 @@ import { UserModule } from '@/modules/user/user.module'
 import { WeatherModule } from '@/modules/weather/weather.module'
 import { WebsocketModule } from '@/modules/websocket/websocket.module'
 import { WordleModule } from '@/modules/wordle/wordle.module'
+import { setAssetCacheHeaders } from '@/utils/static-cache-headers'
 
 @Module({
   controllers: [AppController],
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
+      serveStaticOptions: {
+        setHeaders: (res, filePath) => setAssetCacheHeaders(res, filePath),
+      },
     }),
     EventEmitterModule.forRoot(),
     RateLimitModule,

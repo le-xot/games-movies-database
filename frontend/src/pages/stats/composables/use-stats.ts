@@ -1,10 +1,9 @@
 import { useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
+import { STATS_QUERY_KEY } from '@/composables/query-keys'
 import { useApi } from '@/stores/use-api'
 import type { RecordsStatsDTO } from '@/lib/api'
-
-export const STATS_QUERY_KEY = 'stats'
 
 export const useStats = defineStore('stats/use-stats', () => {
   const api = useApi()

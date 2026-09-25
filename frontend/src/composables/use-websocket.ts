@@ -1,10 +1,12 @@
 import { useQueryCache } from '@pinia/colada'
 import { io } from 'socket.io-client'
 import { onMounted, onUnmounted, ref } from 'vue'
+import {
+  STATS_QUERY_KEY,
+  SUGGESTION_QUERY_KEY,
+  WORDLE_LEADERBOARD_KEY,
+} from '@/composables/query-keys'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
-import { STATS_QUERY_KEY } from '@/pages/stats/composables/use-stats'
-import { SUGGESTION_QUERY_KEY } from '@/pages/suggestion/composables/use-suggestion'
-import { WORDLE_LEADERBOARD_KEY } from '@/pages/wordle/composables/use-wordle'
 import { useUser } from '@/stores/use-user'
 
 export function useWebSocket() {

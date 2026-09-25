@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { WORDLE_LEADERBOARD_KEY } from '@/composables/query-keys'
 import { WordleGameStatus } from '@/lib/api'
 import {
   LETTER_STATE_RANK,
@@ -19,7 +20,6 @@ import type {
 
 export const WORDLE_STATE_KEY = 'wordle/state'
 export const WORDLE_STATS_KEY = 'wordle/stats'
-export const WORDLE_LEADERBOARD_KEY = 'wordle/leaderboard'
 
 function extractErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === 'object' && 'error' in error) {

@@ -3,13 +3,13 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
+import { SUGGESTION_QUERY_KEY } from '@/composables/query-keys'
 import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
 import SuggestionForm from '@/pages/suggestion/components/SuggestionForm.vue'
 import SupportedServices from '@/pages/suggestion/components/SupportedServices.vue'
 import { useApi } from '@/stores/use-api'
 import { useNewRecords } from '@/stores/use-new-records'
 
-export const SUGGESTION_QUERY_KEY = 'suggestion'
 export const useSuggestion = defineStore('queue/use-suggestion', () => {
   const api = useApi()
   const error = ref<string | null>(null)

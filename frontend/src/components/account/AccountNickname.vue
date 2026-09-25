@@ -62,8 +62,8 @@ async function saveNickname() {
     <div class="flex items-center justify-between gap-3 px-4 py-3">
       <span class="text-sm">Никнейм</span>
 
-      <span v-if="!isEditing" class="flex items-center gap-1">
-        <span class="text-sm text-muted-foreground">{{ userStore.user?.login }}</span>
+      <span v-if="!isEditing" class="flex min-w-0 items-center gap-1">
+        <span class="truncate text-sm text-muted-foreground">{{ userStore.user?.login }}</span>
         <Button variant="ghost" size="icon" class="size-7" @click="startEdit">
           <Pencil class="size-3.5" />
         </Button>

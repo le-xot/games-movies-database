@@ -56,7 +56,7 @@ async function onFileChange(event: Event) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-2">
+  <div class="flex flex-col items-center gap-2 min-w-0">
     <div class="relative">
       <Avatar class="size-16">
         <AvatarImage :src="user.profileImageUrl" :alt="user.login" />
@@ -74,8 +74,8 @@ async function onFileChange(event: Event) {
       </button>
     </div>
 
-    <div class="text-center">
-      <div class="text-lg font-semibold">{{ user.login }}</div>
+    <div class="text-center min-w-0 max-w-full">
+      <div class="text-lg font-semibold break-words">{{ user.login }}</div>
       <Badge variant="secondary" class="mt-1">{{ roleLabel }}</Badge>
     </div>
 

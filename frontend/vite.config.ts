@@ -23,6 +23,9 @@ export default defineConfig(({ isPreview, mode }) => {
       },
     },
     plugins: [vue(), svgLoader(), tailwindcss()],
+    build: {
+      reportCompressedSize: false,
+    },
     clearScreen: false,
     server: {
       host: true,

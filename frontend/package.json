@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "typecheck": "vue-tsc",
-    "build": "bun typecheck && bunx --bun vite build",
+    "build": "bun run --parallel typecheck build:ci",
     "build:ci": "bunx --bun vite build",
     "preview": "bunx --bun vite preview"
   },

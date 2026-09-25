@@ -1,8 +1,10 @@
 import {
   BatteryCharging,
+  Command,
   Cpu,
   Fan,
   Gamepad2,
+  Globe,
   Gpu,
   HardDrive,
   Headphones,
@@ -19,6 +21,14 @@ import {
   Workflow,
   Webcam,
 } from '@lucide/vue'
+import {
+  AlacrittyIcon,
+  GnomeIcon,
+  JetBrainsIcon,
+  StarshipIcon,
+  ZenBrowserIcon,
+  ZshIcon,
+} from 'vue3-simple-icons'
 import Arch from '@/pages/pc/assets/archlinux.svg?component'
 
 interface PartLink {
@@ -26,10 +36,42 @@ interface PartLink {
   icon: any
 }
 
-const OS: PartLink[] = [
+const SOFTWARE: PartLink[] = [
   {
     name: 'Arch Linux LTS',
     icon: Arch,
+  },
+  {
+    name: 'GNOME',
+    icon: GnomeIcon,
+  },
+  {
+    name: 'alacritty',
+    icon: AlacrittyIcon,
+  },
+  {
+    name: 'zsh',
+    icon: ZshIcon,
+  },
+  {
+    name: 'Starship',
+    icon: StarshipIcon,
+  },
+  {
+    name: 'vicinae',
+    icon: Command,
+  },
+  {
+    name: 'WebStorm + DataGrip',
+    icon: JetBrainsIcon,
+  },
+  {
+    name: 'Zen Browser',
+    icon: ZenBrowserIcon,
+  },
+  {
+    name: 'Throne',
+    icon: Globe,
   },
 ]
 
@@ -147,7 +189,7 @@ const DEVICES: PartLink[] = [
 ]
 
 export const hardware: Record<string, PartLink[]> = {
-  'Операционные системы': OS,
+  Софт: SOFTWARE,
   Железки: SYSTEM_PARTS,
   Мониторы: MONITORS,
   Девайсы: DEVICES,

@@ -9,7 +9,7 @@ import { ROUTER_PATHS } from '@/router/router-paths'
 
 const title = useTitle()
 
-const osParts = hardware['Операционные системы']
+const softwareParts = hardware['Софт']
 const systemParts = hardware.Железки
 const monitorParts = hardware.Мониторы
 const deviceParts = hardware.Девайсы
@@ -40,10 +40,10 @@ const categoryCards = computed(() => [
     parts: gadgetParts,
   },
   {
-    name: 'ОС',
+    name: 'Софт',
     kicker: 'SOFTWARE',
     icon: ShieldCheck,
-    parts: osParts,
+    parts: softwareParts,
   },
 ])
 

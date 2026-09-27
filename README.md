@@ -90,35 +90,41 @@ bun dev
 
 Файл: `backend/.env` (скопируйте из `backend/.env.example`)
 
-| Переменная                   | Описание                                  | Обязательна                                                   |
-| ---------------------------- | ----------------------------------------- | ------------------------------------------------------------- |
-| `DATASOURCE_URL`             | Строка подключения к PostgreSQL           | Да                                                            |
-| `JWT_SECRET`                 | Секрет для подписи JWT токенов            | Да                                                            |
-| `APP_PORT`                   | Порт backend сервера (по умолчанию: 3000) | Нет                                                           |
-| `REDIS_URL`                  | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)                                |
-| `TWITCH_CLIENT_ID`           | Twitch OAuth Client ID                    | Нет                                                           |
-| `TWITCH_CLIENT_SECRET`       | Twitch OAuth Client Secret                | Нет                                                           |
-| `TWITCH_CALLBACK_URL`        | URL callback после Twitch авторизации     | Нет                                                           |
-| `KICK_CLIENT_ID`             | Kick OAuth Client ID                      | Нет                                                           |
-| `KICK_CLIENT_SECRET`         | Kick OAuth Client Secret                  | Нет                                                           |
-| `KICK_CALLBACK_URL`          | URL callback после Kick авторизации       | Нет                                                           |
-| `TELEGRAM_CLIENT_ID`         | Telegram Login Client ID (OpenID Connect) | Нет                                                           |
-| `TELEGRAM_CLIENT_SECRET`     | Telegram Login Client Secret              | Нет                                                           |
-| `TELEGRAM_OIDC_REDIRECT_URI` | Backend callback для Telegram OIDC        | Нет (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
-| `TELEGRAM_CALLBACK_URL`      | Frontend-страница после Telegram OIDC     | Нет (`http://localhost:5173/auth/callback/telegram`)          |
-| `KINOPOISK_API`              | API ключ Кинопоиска                       | Нет                                                           |
-| `STEAM_API_KEY`              | API ключ Steam                            | Нет                                                           |
-| `STEAM_ID`                   | Steam ID пользователя                     | Нет                                                           |
-| `WEATHER_API_KEY`            | OpenWeatherMap API ключ                   | Нет                                                           |
-| `WEATHER_LAT`                | Широта для погоды                         | Нет                                                           |
-| `WEATHER_LON`                | Долгота для погоды                        | Нет                                                           |
-| `PROXY`                      | URL прокси для внешних API                | Нет                                                           |
-| `TWIR_API`                   | API ключ для TWIR вебхуков                | Нет                                                           |
-| `S3_ENDPOINT`                | Endpoint S3-хранилища (RustFS)            | Нет (default: `http://rustfs:9000`)                           |
-| `S3_ACCESS_KEY_ID`           | S3 Access Key                             | Нет (default: `rustfsadmin`)                                  |
-| `S3_SECRET_ACCESS_KEY`       | S3 Secret Key                             | Нет (default: `rustfsadmin`)                                  |
-| `S3_BUCKET_IMAGES`           | Bucket для изображений (default: images)  | Нет                                                           |
-| `S3_BUCKET_AVATARS`          | Bucket для аватаров (default: avatars)    | Нет                                                           |
+| Переменная                    | Описание                                  | Обязательна                                                   |
+| ----------------------------- | ----------------------------------------- | ------------------------------------------------------------- |
+| `DATASOURCE_URL`              | Строка подключения к PostgreSQL           | Да                                                            |
+| `JWT_SECRET`                  | Секрет для подписи JWT токенов            | Да                                                            |
+| `APP_PORT`                    | Порт backend сервера (по умолчанию: 3000) | Нет                                                           |
+| `REDIS_URL`                   | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)                                |
+| `TWITCH_CLIENT_ID`            | Twitch OAuth Client ID                    | Нет                                                           |
+| `TWITCH_CLIENT_SECRET`        | Twitch OAuth Client Secret                | Нет                                                           |
+| `TWITCH_CALLBACK_URL`         | URL callback после Twitch авторизации     | Нет                                                           |
+| `KICK_CLIENT_ID`              | Kick OAuth Client ID                      | Нет                                                           |
+| `KICK_CLIENT_SECRET`          | Kick OAuth Client Secret                  | Нет                                                           |
+| `KICK_CALLBACK_URL`           | URL callback после Kick авторизации       | Нет                                                           |
+| `TELEGRAM_CLIENT_ID`          | Telegram Login Client ID (OpenID Connect) | Нет                                                           |
+| `TELEGRAM_CLIENT_SECRET`      | Telegram Login Client Secret              | Нет                                                           |
+| `TELEGRAM_OIDC_REDIRECT_URI`  | Backend callback для Telegram OIDC        | Нет (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
+| `TELEGRAM_CALLBACK_URL`       | Frontend-страница после Telegram OIDC     | Нет (`http://localhost:5173/auth/callback/telegram`)          |
+| `TELEGRAM_BOT_TOKEN`          | Bot API token бота для уведомлений        | Нет                                                           |
+| `TELEGRAM_BOT_WEBHOOK_URL`    | Публичный URL вебхука бота                | Нет                                                           |
+| `TELEGRAM_BOT_WEBHOOK_SECRET` | Секрет вебхука (`[A-Za-z0-9_-]{1,256}`)   | Нет                                                           |
+| `APP_PUBLIC_URL`              | Публичный URL фронтенда для ссылок в боте | Нет (`https://le-xot.dev`, dev — `http://localhost:5173`)     |
+| `WORDLE_NOTIFY_MORNING`       | Время утреннего напоминания (МСК)         | Нет (`12:00`)                                                 |
+| `WORDLE_NOTIFY_EVENING`       | Время вечернего напоминания (МСК)         | Нет (`20:00`)                                                 |
+| `KINOPOISK_API`               | API ключ Кинопоиска                       | Нет                                                           |
+| `STEAM_API_KEY`               | API ключ Steam                            | Нет                                                           |
+| `STEAM_ID`                    | Steam ID пользователя                     | Нет                                                           |
+| `WEATHER_API_KEY`             | OpenWeatherMap API ключ                   | Нет                                                           |
+| `WEATHER_LAT`                 | Широта для погоды                         | Нет                                                           |
+| `WEATHER_LON`                 | Долгота для погоды                        | Нет                                                           |
+| `PROXY`                       | URL прокси для внешних API                | Нет                                                           |
+| `TWIR_API`                    | API ключ для TWIR вебхуков                | Нет                                                           |
+| `S3_ENDPOINT`                 | Endpoint S3-хранилища (RustFS)            | Нет (default: `http://rustfs:9000`)                           |
+| `S3_ACCESS_KEY_ID`            | S3 Access Key                             | Нет (default: `rustfsadmin`)                                  |
+| `S3_SECRET_ACCESS_KEY`        | S3 Secret Key                             | Нет (default: `rustfsadmin`)                                  |
+| `S3_BUCKET_IMAGES`            | Bucket для изображений (default: images)  | Нет                                                           |
+| `S3_BUCKET_AVATARS`           | Bucket для аватаров (default: avatars)    | Нет                                                           |
 
 ## Структура проекта
 

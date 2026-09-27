@@ -90,30 +90,36 @@ bun dev
 
 File: `backend/.env` (copy from `backend/.env.example`)
 
-| Variable                     | Description                               | Required                                                     |
-| ---------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
-| `DATASOURCE_URL`             | PostgreSQL connection string              | Yes                                                          |
-| `JWT_SECRET`                 | Secret for JWT token signing              | Yes                                                          |
-| `APP_PORT`                   | Backend server port (default: 3000)       | No                                                           |
-| `REDIS_URL`                  | Redis connection string (rate limits)     | No (`redis://localhost:6379`)                                |
-| `TWITCH_CLIENT_ID`           | Twitch OAuth Client ID                    | No                                                           |
-| `TWITCH_CLIENT_SECRET`       | Twitch OAuth Client Secret                | No                                                           |
-| `TWITCH_CALLBACK_URL`        | URL callback after Twitch authorization   | No                                                           |
-| `KICK_CLIENT_ID`             | Kick OAuth Client ID                      | No                                                           |
-| `KICK_CLIENT_SECRET`         | Kick OAuth Client Secret                  | No                                                           |
-| `KICK_CALLBACK_URL`          | URL callback after Kick authorization     | No                                                           |
-| `TELEGRAM_CLIENT_ID`         | Telegram Login Client ID (OpenID Connect) | No                                                           |
-| `TELEGRAM_CLIENT_SECRET`     | Telegram Login Client Secret              | No                                                           |
-| `TELEGRAM_OIDC_REDIRECT_URI` | Backend callback for Telegram OIDC        | No (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
-| `TELEGRAM_CALLBACK_URL`      | Frontend page after Telegram OIDC         | No (`http://localhost:5173/auth/callback/telegram`)          |
-| `KINOPOISK_API`              | Kinopoisk API key                         | No                                                           |
-| `STEAM_API_KEY`              | Steam API key                             | No                                                           |
-| `STEAM_ID`                   | Steam user ID                             | No                                                           |
-| `WEATHER_API_KEY`            | OpenWeatherMap API key                    | No                                                           |
-| `WEATHER_LAT`                | Latitude for weather                      | No                                                           |
-| `WEATHER_LON`                | Longitude for weather                     | No                                                           |
-| `PROXY`                      | Proxy URL for external APIs               | No                                                           |
-| `TWIR_API`                   | API key for TWIR webhooks                 | No                                                           |
+| Variable                      | Description                               | Required                                                     |
+| ----------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| `DATASOURCE_URL`              | PostgreSQL connection string              | Yes                                                          |
+| `JWT_SECRET`                  | Secret for JWT token signing              | Yes                                                          |
+| `APP_PORT`                    | Backend server port (default: 3000)       | No                                                           |
+| `REDIS_URL`                   | Redis connection string (rate limits)     | No (`redis://localhost:6379`)                                |
+| `TWITCH_CLIENT_ID`            | Twitch OAuth Client ID                    | No                                                           |
+| `TWITCH_CLIENT_SECRET`        | Twitch OAuth Client Secret                | No                                                           |
+| `TWITCH_CALLBACK_URL`         | URL callback after Twitch authorization   | No                                                           |
+| `KICK_CLIENT_ID`              | Kick OAuth Client ID                      | No                                                           |
+| `KICK_CLIENT_SECRET`          | Kick OAuth Client Secret                  | No                                                           |
+| `KICK_CALLBACK_URL`           | URL callback after Kick authorization     | No                                                           |
+| `TELEGRAM_CLIENT_ID`          | Telegram Login Client ID (OpenID Connect) | No                                                           |
+| `TELEGRAM_CLIENT_SECRET`      | Telegram Login Client Secret              | No                                                           |
+| `TELEGRAM_OIDC_REDIRECT_URI`  | Backend callback for Telegram OIDC        | No (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
+| `TELEGRAM_CALLBACK_URL`       | Frontend page after Telegram OIDC         | No (`http://localhost:5173/auth/callback/telegram`)          |
+| `TELEGRAM_BOT_TOKEN`          | Bot API token of the notification bot     | No                                                           |
+| `TELEGRAM_BOT_WEBHOOK_URL`    | Public bot webhook URL                    | No                                                           |
+| `TELEGRAM_BOT_WEBHOOK_SECRET` | Webhook secret (`[A-Za-z0-9_-]{1,256}`)   | No                                                           |
+| `APP_PUBLIC_URL`              | Public frontend URL for bot links         | No (`https://le-xot.dev`, dev — `http://localhost:5173`)     |
+| `WORDLE_NOTIFY_MORNING`       | Morning reminder time (MSK)               | No (`12:00`)                                                 |
+| `WORDLE_NOTIFY_EVENING`       | Evening reminder time (MSK)               | No (`20:00`)                                                 |
+| `KINOPOISK_API`               | Kinopoisk API key                         | No                                                           |
+| `STEAM_API_KEY`               | Steam API key                             | No                                                           |
+| `STEAM_ID`                    | Steam user ID                             | No                                                           |
+| `WEATHER_API_KEY`             | OpenWeatherMap API key                    | No                                                           |
+| `WEATHER_LAT`                 | Latitude for weather                      | No                                                           |
+| `WEATHER_LON`                 | Longitude for weather                     | No                                                           |
+| `PROXY`                       | Proxy URL for external APIs               | No                                                           |
+| `TWIR_API`                    | API key for TWIR webhooks                 | No                                                           |
 
 ## Project Structure
 

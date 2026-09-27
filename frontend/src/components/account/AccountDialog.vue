@@ -7,6 +7,7 @@ import AccountAvatarRow from '@/components/account/AccountAvatarRow.vue'
 import AccountDangerZone from '@/components/account/AccountDangerZone.vue'
 import AccountHeader from '@/components/account/AccountHeader.vue'
 import AccountNickname from '@/components/account/AccountNickname.vue'
+import AccountNotifications from '@/components/account/AccountNotifications.vue'
 import ConnectedAccounts from '@/components/account/ConnectedAccounts.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogScrollContent, DialogTitle } from '@/components/ui/dialog'
@@ -75,6 +76,8 @@ async function logout() {
       </div>
 
       <ConnectedAccounts />
+
+      <AccountNotifications v-if="user" />
 
       <Button variant="outline" class="w-full" @click="logout">
         <LogOutIcon class="size-4 mr-2" />

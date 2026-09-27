@@ -11,6 +11,6 @@ import { RateLimitService } from './rate-limit.service'
     },
     RateLimitService,
   ],
-  exports: [RateLimitService],
+  exports: [RateLimitService, RedisClient],
 })
 export class RateLimitModule {}

@@ -351,6 +351,32 @@ export interface WordleLeaderboardDTO {
   today: WordleDailyLeaderboardDTO;
 }
 
+export interface WordleNotificationsStatusDTO {
+  available: boolean;
+  connected: boolean;
+  telegramUsername: string | null;
+  morningEnabled: boolean;
+  eveningEnabled: boolean;
+  /** @example "12:00" */
+  morningTime: string;
+  /** @example "20:00" */
+  eveningTime: string;
+}
+
+export interface WordleNotificationsLinkDTO {
+  /** @example "https://t.me/wordle_bot?start=abc" */
+  url: string;
+}
+
+export interface WordleNotificationsUpdateDTO {
+  morningEnabled?: boolean;
+  eveningEnabled?: boolean;
+}
+
+export interface WordleNotificationsDeleteDTO {
+  ok: boolean;
+}
+
 export enum AuthControllerUnlinkAccountParamsPlatformEnum {
   TWITCH = "TWITCH",
   KICK = "KICK",
@@ -1535,6 +1561,71 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<WordleLeaderboardDTO, any>({
         path: `/wordle/leaderboard`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleNotificationControllerGetStatus
+     * @request GET:/wordle/notifications
+     */
+    wordleNotificationControllerGetStatus: (params: RequestParams = {}) =>
+      this.http.request<WordleNotificationsStatusDTO, any>({
+        path: `/wordle/notifications`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleNotificationControllerUpdate
+     * @request PATCH:/wordle/notifications
+     */
+    wordleNotificationControllerUpdate: (
+      data: WordleNotificationsUpdateDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<WordleNotificationsStatusDTO, any>({
+        path: `/wordle/notifications`,
+        method: "PATCH",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleNotificationControllerRemove
+     * @request DELETE:/wordle/notifications
+     */
+    wordleNotificationControllerRemove: (params: RequestParams = {}) =>
+      this.http.request<WordleNotificationsDeleteDTO, any>({
+        path: `/wordle/notifications`,
+        method: "DELETE",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleNotificationControllerCreateLink
+     * @request POST:/wordle/notifications/link
+     */
+    wordleNotificationControllerCreateLink: (params: RequestParams = {}) =>
+      this.http.request<WordleNotificationsLinkDTO, any>({
+        path: `/wordle/notifications/link`,
+        method: "POST",
         format: "json",
         ...params,
       }),

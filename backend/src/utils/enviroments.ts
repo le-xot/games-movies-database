@@ -26,6 +26,15 @@ export const env = cleanEnv(process.env, {
   }),
   TELEGRAM_CALLBACK_URL: str({ default: 'http://localhost:5173/auth/callback/telegram' }),
 
+  TELEGRAM_BOT_TOKEN: str({ default: null }),
+  TELEGRAM_BOT_WEBHOOK_URL: str({ default: null }),
+  TELEGRAM_BOT_WEBHOOK_SECRET: str({ default: null }),
+
+  APP_PUBLIC_URL: str({ devDefault: 'http://localhost:5173', default: 'https://le-xot.dev' }),
+
+  WORDLE_NOTIFY_MORNING: str({ default: '12:00' }),
+  WORDLE_NOTIFY_EVENING: str({ default: '20:00' }),
+
   WEATHER_API_KEY: str({ default: null }),
   WEATHER_LAT: str({ default: null }),
   WEATHER_LON: str({ default: null }),

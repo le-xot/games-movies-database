@@ -1,7 +1,7 @@
-import { env } from 'node:process'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { TwitchService } from '@/modules/twitch/twitch.service'
+import { env } from '@/utils/enviroments'
 import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
 import type { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 
@@ -69,7 +69,7 @@ export class RecordsProvidersService {
       routes: [
         {
           pattern: /^\/title\/(tt\d+)\/?$/,
-          fetch: (match) => this.fetchFromImdb(match[1]),
+          fetch: (match) => this.fetchFromImdb(this.matchGroup(match, 1)),
         },
       ],
     },
@@ -78,7 +78,7 @@ export class RecordsProvidersService {
       routes: [
         {
           pattern: /^\/games\/([^/]+)$/,
-          fetch: (match) => this.fetchIGDB(match[1]),
+          fetch: (match) => this.fetchIGDB(this.matchGroup(match, 1)),
         },
       ],
     },
@@ -87,7 +87,7 @@ export class RecordsProvidersService {
       routes: [
         {
           pattern: /^\/app\/(\d+)$/,
-          fetch: (match) => this.fetchIGDBFromSteam(match[1]),
+          fetch: (match) => this.fetchIGDBFromSteam(this.matchGroup(match, 1)),
         },
       ],
     },
@@ -215,12 +215,13 @@ export class RecordsProvidersService {
   }
 
   private async kinopoiskGet<T>(path: string): Promise<T> {
-    if (!env.KINOPOISK_API) throw new BadRequestException('API ключ для Кинопоиска не настроен')
+    const apiKey = this.getKinopoiskApiKey()
+    if (!apiKey) throw new BadRequestException('API ключ для Кинопоиска не настроен')
 
     const response = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/${path}`, {
       headers: {
         accept: 'application/json',
-        'X-API-KEY': env.KINOPOISK_API,
+        'X-API-KEY': apiKey,
       },
     })
     if (!response.ok)
@@ -236,7 +237,7 @@ export class RecordsProvidersService {
     const path = KINOPOISK_SERIES_TYPES.includes(film.type) ? 'series' : 'film'
 
     return {
-      title: film.nameRu || film.nameEn || film.nameOriginal,
+      title: film.nameRu || film.nameEn || film.nameOriginal || 'Без названия',
       posterUrl: film.posterUrl ?? '',
       genre,
       link: `https://www.kinopoisk.ru/${path}/${film.kinopoiskId ?? fallbackId}`,
@@ -280,7 +281,7 @@ export class RecordsProvidersService {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Client-ID': env.TWITCH_CLIENT_ID,
+        'Client-ID': this.twitchClientId,
         Authorization: `Bearer ${accessToken}`,
       },
       body: `fields name,cover.url,slug; where ${where};`,
@@ -315,7 +316,7 @@ export class RecordsProvidersService {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Client-ID': env.TWITCH_CLIENT_ID,
+        'Client-ID': this.twitchClientId,
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'text/plain; charset=UTF-8',
       },
@@ -330,5 +331,22 @@ export class RecordsProvidersService {
     if (!externalData[0]?.game) throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
 
     return this.fetchIGDBGame(`id = ${externalData[0].game}`)
+  }
+
+  /** Test seam: override to simulate a missing external API key. */
+  protected getKinopoiskApiKey(): string | undefined {
+    return env.KINOPOISK_API
+  }
+
+  private get twitchClientId(): string {
+    const clientId = env.TWITCH_CLIENT_ID
+    if (!clientId) throw new BadRequestException('TWITCH_CLIENT_ID не настроен')
+    return clientId
+  }
+
+  private matchGroup(match: RegExpMatchArray, index: number): string {
+    const value = match[index]
+    if (value === undefined) throw new BadRequestException('Не удалось разобрать ссылку')
+    return value
   }
 }

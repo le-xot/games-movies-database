@@ -10,20 +10,24 @@ export function scoreGuess(answer: string, guess: string): WordleLetterState[] {
   const remaining = new Map<string, number>()
 
   for (let i = 0; i < guess.length; i++) {
-    if (guess[i] === answer[i]) {
+    const guessLetter = guess[i]
+    const answerLetter = answer[i]
+    if (guessLetter === undefined || answerLetter === undefined) continue
+    if (guessLetter === answerLetter) {
       states[i] = WordleLetterState.CORRECT
     } else {
-      const letter = answer[i]
-      remaining.set(letter, (remaining.get(letter) ?? 0) + 1)
+      remaining.set(answerLetter, (remaining.get(answerLetter) ?? 0) + 1)
     }
   }
 
   for (let i = 0; i < guess.length; i++) {
     if (states[i] === WordleLetterState.CORRECT) continue
-    const left = remaining.get(guess[i]) ?? 0
+    const guessLetter = guess[i]
+    if (guessLetter === undefined) continue
+    const left = remaining.get(guessLetter) ?? 0
     if (left > 0) {
       states[i] = WordleLetterState.PRESENT
-      remaining.set(guess[i], left - 1)
+      remaining.set(guessLetter, left - 1)
     }
   }
 

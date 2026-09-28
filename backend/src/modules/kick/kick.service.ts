@@ -45,17 +45,18 @@ export class KickService implements OnModuleInit {
   }
 
   async getAuthorizationCode(code: string, codeVerifier: string): Promise<string> {
+    const { clientId, clientSecret } = this.requireCredentials()
     const response = await fetch('https://id.kick.com/oauth/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: env.KICK_CLIENT_ID,
-        client_secret: env.KICK_CLIENT_SECRET,
+        client_id: clientId,
+        client_secret: clientSecret,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: env.KICK_CALLBACK_URL,
+        redirect_uri: env.KICK_CALLBACK_URL ?? '',
         code_verifier: codeVerifier,
       }).toString(),
     })
@@ -74,14 +75,15 @@ export class KickService implements OnModuleInit {
     }
 
     try {
+      const { clientId, clientSecret } = this.requireCredentials()
       const response = await fetch('https://id.kick.com/oauth/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          client_id: env.KICK_CLIENT_ID,
-          client_secret: env.KICK_CLIENT_SECRET,
+          client_id: clientId,
+          client_secret: clientSecret,
           grant_type: 'client_credentials',
         }).toString(),
       })
@@ -100,8 +102,15 @@ export class KickService implements OnModuleInit {
 
       return this.token.access_token
     } catch (error) {
-      this.logger.error('Error fetching Kick app access token:', error as any)
+      this.logger.error('Error fetching Kick app access token:', error)
       throw error
     }
+  }
+
+  private requireCredentials(): { clientId: string; clientSecret: string } {
+    const clientId = env.KICK_CLIENT_ID
+    const clientSecret = env.KICK_CLIENT_SECRET
+    if (!clientId || !clientSecret) throw new Error('Kick credentials are not configured')
+    return { clientId, clientSecret }
   }
 }

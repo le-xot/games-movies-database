@@ -18,11 +18,12 @@ export class TwitchService implements OnModuleInit {
   }
 
   async getTwitchUser(accessToken: string) {
+    const clientId = this.requireClientId()
     const response = await fetch('https://api.twitch.tv/helix/users', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Client-ID': env.TWITCH_CLIENT_ID,
+        'Client-ID': clientId,
       },
     })
 
@@ -35,14 +36,15 @@ export class TwitchService implements OnModuleInit {
   }
 
   async getAuthorizationCode(code: string) {
+    const { clientId, clientSecret } = this.requireCredentials()
     const response = await fetch('https://id.twitch.tv/oauth2/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: env.TWITCH_CLIENT_ID,
-        client_secret: env.TWITCH_CLIENT_SECRET,
+        client_id: clientId,
+        client_secret: clientSecret,
         code,
         grant_type: 'authorization_code',
         redirect_uri: env.TWITCH_CALLBACK_URL,
@@ -63,8 +65,9 @@ export class TwitchService implements OnModuleInit {
     }
 
     try {
+      const { clientId, clientSecret } = this.requireCredentials()
       const response = await fetch(
-        `https://id.twitch.tv/oauth2/token?client_id=${env.TWITCH_CLIENT_ID}&client_secret=${env.TWITCH_CLIENT_SECRET}&grant_type=client_credentials`,
+        `https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`,
         { method: 'POST' },
       )
 
@@ -82,8 +85,21 @@ export class TwitchService implements OnModuleInit {
 
       return this.token.access_token
     } catch (error) {
-      this.logger.error('Error fetching Twitch app access token:', error as any)
+      this.logger.error('Error fetching Twitch app access token:', error)
       throw error
     }
+  }
+
+  private requireClientId(): string {
+    const clientId = env.TWITCH_CLIENT_ID
+    if (!clientId) throw new Error('TWITCH_CLIENT_ID is not configured')
+    return clientId
+  }
+
+  private requireCredentials(): { clientId: string; clientSecret: string } {
+    const clientId = env.TWITCH_CLIENT_ID
+    const clientSecret = env.TWITCH_CLIENT_SECRET
+    if (!clientId || !clientSecret) throw new Error('Twitch credentials are not configured')
+    return { clientId, clientSecret }
   }
 }

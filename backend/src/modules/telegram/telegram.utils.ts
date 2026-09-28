@@ -14,7 +14,7 @@ export function buildTelegramAuthorizeUrl(params: {
   state: string
   codeChallenge: string
 }): string {
-  const query = [
+  const queryParams: Array<[string, string]> = [
     ['client_id', params.clientId],
     ['redirect_uri', params.redirectUri],
     ['response_type', 'code'],
@@ -23,8 +23,7 @@ export function buildTelegramAuthorizeUrl(params: {
     ['code_challenge', params.codeChallenge],
     ['code_challenge_method', 'S256'],
   ]
-    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-    .join('&')
+  const query = queryParams.map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
 
   return `${TELEGRAM_OIDC_AUTHORIZE_URL}?${query}`
 }

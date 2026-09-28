@@ -90,6 +90,7 @@ function computeCurrentStreak(games: WordleFinishedGame[], today: string): numbe
 
   for (let i = games.length - 1; i >= 0; i--) {
     const game = games[i]
+    if (!game) break
     if (game.status !== WordleGameStatus.WON) break
     if (next && daysBetween(game.date, next.date) !== 1) break
     run += 1
@@ -108,7 +109,7 @@ export function computeWordleStats(games: WordleFinishedGame[], today: string): 
     if (game.status !== WordleGameStatus.WON) continue
     wins += 1
     const index = game.attempts - 1
-    if (index >= 0 && index < MAX_ATTEMPTS) distribution[index] += 1
+    if (index >= 0 && index < MAX_ATTEMPTS) distribution[index] = (distribution[index] ?? 0) + 1
   }
 
   return {

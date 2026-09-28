@@ -160,7 +160,7 @@ export class SteamService {
         }
 
         emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, {
-          genre: record.genre,
+          genre: record.genre ?? undefined,
           id: record.id,
           action: 'created',
         })

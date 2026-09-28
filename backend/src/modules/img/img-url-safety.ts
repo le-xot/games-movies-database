@@ -57,7 +57,10 @@ function extractEmbeddedIpv4(address: string): string | null {
   if (groups.length !== 8) return null
   const mapped = groups.slice(0, 5).every((group) => parseInt(group, 16) === 0)
   if (!mapped || groups[5] !== 'ffff') return null
-  return intToIpv4((parseInt(groups[6], 16) << 16) + parseInt(groups[7], 16))
+  const hi = groups[6]
+  const lo = groups[7]
+  if (hi === undefined || lo === undefined) return null
+  return intToIpv4((parseInt(hi, 16) << 16) + parseInt(lo, 16))
 }
 
 function isBlockedIpv6(address: string): boolean {

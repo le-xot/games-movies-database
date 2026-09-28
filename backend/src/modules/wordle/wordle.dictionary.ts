@@ -45,7 +45,9 @@ export class WordleDictionary {
   }
 
   getAnswerForDate(dateKey: string): string {
-    return this.answers[this.answerIndex(dateKey)]
+    const answer = this.answers[this.answerIndex(dateKey)]
+    if (!answer) throw new Error('Wordle answers list is empty')
+    return answer
   }
 
   private answerIndex(dateKey: string): number {

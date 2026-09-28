@@ -14,9 +14,9 @@ import { TelegramService } from './telegram.service'
       provide: TelegramBotService,
       useFactory: () =>
         new TelegramBotService({
-          token: env.TELEGRAM_BOT_TOKEN,
-          webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL,
-          webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET,
+          token: env.TELEGRAM_BOT_TOKEN ?? null,
+          webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL ?? null,
+          webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET ?? null,
         }),
     },
     {

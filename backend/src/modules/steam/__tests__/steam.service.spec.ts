@@ -148,7 +148,7 @@ describe('SteamService', () => {
 
       expect(result.created).toHaveLength(0)
       expect(result.failed).toHaveLength(1)
-      expect(result.failed[0].reason).toContain('Already exists')
+      expect(result.failed[0]?.reason).toContain('Already exists')
       expect(mockRecordRepo.create).not.toHaveBeenCalled()
     })
 

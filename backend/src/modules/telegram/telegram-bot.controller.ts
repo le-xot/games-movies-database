@@ -49,7 +49,9 @@ export class TelegramBotController {
     if (!message || !text || message.chat.type !== 'private' || !text.startsWith('/')) return
 
     const [rawCommand, ...rest] = text.split(/\s+/)
-    const command = rawCommand.slice(1).split('@')[0].toLowerCase()
+    if (!rawCommand) return
+    const commandName = rawCommand.slice(1).split('@')[0]
+    const command = (commandName ?? '').toLowerCase()
     const context: TelegramCommandContext = {
       command,
       payload: rest.join(' ').trim() || null,

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
@@ -7,6 +7,11 @@ import { RecordsProvidersService } from '../records-providers.service'
 import { DrizzleRecordsProvidersRepository } from '../repositories/drizzle-records-providers.repository'
 
 const makeMockTwitch = () => ({ getAppAccessToken: mock(() => Promise.resolve('token')) })
+
+function stubKinopoiskApiKey(target: RecordsProvidersService, value: string | undefined): void {
+  ;(target as unknown as { getKinopoiskApiKey: () => string | undefined }).getKinopoiskApiKey =
+    () => value
+}
 
 const jsonOk = (data: unknown) => Promise.resolve({ ok: true, json: () => Promise.resolve(data) })
 
@@ -203,16 +208,9 @@ describe('RecordsProvidersService', () => {
 
   describe('prepareData — kinopoisk', () => {
     const kinopoiskLink = 'https://kinopoisk.ru/film/123'
-    let originalKey: string | undefined
 
     beforeEach(() => {
-      originalKey = process.env.KINOPOISK_API
-      process.env.KINOPOISK_API = 'test-api-key'
-    })
-
-    afterEach(() => {
-      if (originalKey === undefined) delete process.env.KINOPOISK_API
-      else process.env.KINOPOISK_API = originalKey
+      stubKinopoiskApiKey(service, 'test-api-key')
     })
 
     it('maps anime genre to ANIME', async () => {
@@ -323,33 +321,19 @@ describe('RecordsProvidersService', () => {
 
     it('throws when KINOPOISK_API is not configured', async () => {
       setupRepo(mockRepo)
+      stubKinopoiskApiKey(service, undefined)
 
-      const savedKey = process.env.KINOPOISK_API
-      delete process.env.KINOPOISK_API
-
-      try {
-        await expect(service.prepareData({ link: kinopoiskLink })).rejects.toThrow(
-          'API ключ для Кинопоиска не настроен',
-        )
-      } finally {
-        if (savedKey === undefined) delete process.env.KINOPOISK_API
-        else process.env.KINOPOISK_API = savedKey
-      }
+      await expect(service.prepareData({ link: kinopoiskLink })).rejects.toThrow(
+        'API ключ для Кинопоиска не настроен',
+      )
     })
   })
 
   describe('prepareData — imdb', () => {
     const imdbLink = 'https://www.imdb.com/title/tt0111161'
-    let originalKey: string | undefined
 
     beforeEach(() => {
-      originalKey = process.env.KINOPOISK_API
-      process.env.KINOPOISK_API = 'test-api-key'
-    })
-
-    afterEach(() => {
-      if (originalKey === undefined) delete process.env.KINOPOISK_API
-      else process.env.KINOPOISK_API = originalKey
+      stubKinopoiskApiKey(service, 'test-api-key')
     })
 
     it('fetches film by imdb id and returns kinopoisk link', async () => {
@@ -455,18 +439,11 @@ describe('RecordsProvidersService', () => {
 
     it('throws when KINOPOISK_API is not configured', async () => {
       setupRepo(mockRepo)
+      stubKinopoiskApiKey(service, undefined)
 
-      const savedKey = process.env.KINOPOISK_API
-      delete process.env.KINOPOISK_API
-
-      try {
-        await expect(service.prepareData({ link: imdbLink })).rejects.toThrow(
-          'API ключ для Кинопоиска не настроен',
-        )
-      } finally {
-        if (savedKey === undefined) delete process.env.KINOPOISK_API
-        else process.env.KINOPOISK_API = savedKey
-      }
+      await expect(service.prepareData({ link: imdbLink })).rejects.toThrow(
+        'API ключ для Кинопоиска не настроен',
+      )
     })
   })
 

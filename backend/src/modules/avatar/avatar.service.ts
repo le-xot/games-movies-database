@@ -24,7 +24,9 @@ export const AVATAR_PALETTE = [
 
 export function pickAvatarColor(userId: string): string {
   const digest = crypto.createHash('sha256').update(userId).digest()
-  return AVATAR_PALETTE[digest[0] % AVATAR_PALETTE.length]
+  const color = AVATAR_PALETTE[(digest[0] ?? 0) % AVATAR_PALETTE.length]
+  if (!color) throw new Error('Avatar palette is empty')
+  return color
 }
 
 export function buildDefaultAvatarSvg(userId: string, login: string): Buffer {

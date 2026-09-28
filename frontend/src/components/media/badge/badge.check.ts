@@ -8,4 +8,4 @@ type _StatusValues = Equals<
   RecordStatus
 >
 
-export const _ok: _StatusValues = true
+export const statusValuesCheck: _StatusValues = true

@@ -4,7 +4,7 @@ import type { RouteMap } from 'vue-router'
 type PathOf<K extends keyof RouteMap> = RouteMap[K]['path']
 
 type _GamesPath = PathOf<'games'> extends '/db/games' ? true : false
-export const _ok: _GamesPath = true
+export const gamesPathCheck: _GamesPath = true
 
 // должно компилироваться
 void router.push({ name: 'games' })

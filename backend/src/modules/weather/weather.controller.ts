@@ -1,8 +1,8 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, ServiceUnavailableException } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { WeatherDTO } from '@/modules/weather/weather.dto'
 import { WeatherService } from '@/modules/weather/weather.service'
-import { ApiErrors } from '@/utils/api-errors'
+import { ApiErrorDto, ApiErrors } from '@/utils/api-errors'
 
 @ApiTags('weather')
 @ApiErrors()
@@ -12,7 +12,16 @@ export class WeatherController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'Returns current weather data', type: WeatherDTO })
-  async getWeather(): Promise<WeatherDTO | null> {
-    return await this.weatherService.getWeatherData()
+  @ApiResponse({
+    status: 503,
+    description: 'Weather data is not available yet',
+    type: ApiErrorDto,
+  })
+  async getWeather(): Promise<WeatherDTO> {
+    const data = await this.weatherService.getWeatherData()
+    if (!data) {
+      throw new ServiceUnavailableException('Weather data is not available yet')
+    }
+    return data
   }
 }

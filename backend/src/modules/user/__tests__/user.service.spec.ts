@@ -354,6 +354,7 @@ describe('UserService', () => {
 
     it('allows keeping the current login', async () => {
       mockRepo.findByLogin = mock(() => Promise.resolve(user)) as any
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
       const update = mock(() => Promise.resolve(user)) as any
       mockRepo.update = update
 
@@ -364,6 +365,7 @@ describe('UserService', () => {
 
     it('updates a free login', async () => {
       mockRepo.findByLogin = mock(() => Promise.resolve(null)) as any
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
       const updated: UserDomain = { ...user, login: 'new-login' }
       const update = mock(() => Promise.resolve(updated)) as any
       mockRepo.update = update
@@ -437,6 +439,18 @@ describe('UserService', () => {
         userId: 'user-2',
         action: 'deleted',
       })
+    })
+  })
+
+  describe('updateLogin', () => {
+    it('throws NotFoundException when the user no longer exists', async () => {
+      mockRepo.findByLogin = mock(() => Promise.resolve(null)) as any
+      mockRepo.findById = mock(() => Promise.resolve(null)) as any
+
+      await expect(service.updateLogin('missing-user', 'new-login')).rejects.toThrow(
+        NotFoundException,
+      )
+      expect(mockRepo.update).not.toHaveBeenCalled()
     })
   })
 })

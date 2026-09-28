@@ -1,11 +1,20 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserAccountEntity } from '@/modules/user/entities/user-account.entity'
-import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { MergeUsersDto } from '@/modules/user/user.dto'
 import { MergeUsersResultEntity, UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
@@ -44,8 +53,12 @@ export class UserController {
   @Get(':id')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: HttpStatus.OK, type: UserEntity })
-  async getUserById(@Param('id') id: string): Promise<UserDomain | null> {
-    return await this.userService.getUserById(id)
+  async getUserById(@Param('id') id: string): Promise<UserEntity> {
+    const user = await this.userService.getUserById(id)
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`)
+    }
+    return user
   }
 
   @Delete(':id')

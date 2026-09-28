@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { NotFoundException } from '@nestjs/common'
 import { UserController } from '../user.controller'
 
 describe('UserController mergeUsers', () => {
@@ -27,5 +28,11 @@ describe('UserController mergeUsers', () => {
 
     expect(userService.mergeUsers).toHaveBeenCalledWith('target-id', 'source-id')
     expect(result).toEqual(mergeResult)
+  })
+
+  it('throws NotFoundException when the user does not exist', async () => {
+    userService.getUserById = mock(() => Promise.resolve(null))
+
+    await expect(controller.getUserById('missing-user')).rejects.toThrow(NotFoundException)
   })
 })

@@ -166,4 +166,43 @@ describe('DrizzleUserRepository', () => {
       expect(deletes.filter((call) => call.table === users)).toHaveLength(1)
     })
   })
+
+  describe('returning() nullability guards', () => {
+    it('throws when create returns no user row', async () => {
+      const tx = {
+        insert: mock(() => ({
+          values: mock(() => ({ returning: mock(() => Promise.resolve([])) })),
+        })),
+      }
+      const db = { transaction: mock((callback: (tx: unknown) => unknown) => callback(tx)) }
+      const repository = new DrizzleUserRepository({ db } as any)
+
+      await expect(
+        repository.create({
+          login: 'new-user',
+          role: UserRole.USER,
+          profileImageUrl: '',
+          color: '#333333',
+          platform: 'TWITCH',
+          platformUserId: 'tw-1',
+          platformLogin: 'new-user',
+        }),
+      ).rejects.toThrow('Failed to create user')
+    })
+
+    it('throws when update returns no user row', async () => {
+      const db = {
+        update: mock(() => ({
+          set: mock(() => ({
+            where: mock(() => ({ returning: mock(() => Promise.resolve([])) })),
+          })),
+        })),
+      }
+      const repository = new DrizzleUserRepository({ db } as any)
+
+      await expect(repository.update('missing-user', { login: 'new-login' })).rejects.toThrow(
+        'User missing-user not found',
+      )
+    })
+  })
 })

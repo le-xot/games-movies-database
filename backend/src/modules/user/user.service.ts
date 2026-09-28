@@ -156,6 +156,11 @@ export class UserService {
       throw new ConflictException('Логин уже занят')
     }
 
+    const current = await this.userRepository.findById(userId)
+    if (!current) {
+      throw new NotFoundException('User not found')
+    }
+
     const user = await this.userRepository.update(userId, { login })
     this.emitUserUpdate(userId, 'updated')
     return user

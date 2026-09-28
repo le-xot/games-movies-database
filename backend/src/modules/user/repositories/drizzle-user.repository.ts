@@ -16,10 +16,13 @@ import {
 export class DrizzleUserRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async findByPlatformId(platform: string, platformUserId: string): Promise<UserDomain | null> {
+  async findByPlatformId(
+    platform: AccountPlatform,
+    platformUserId: string,
+  ): Promise<UserDomain | null> {
     const account = await this.drizzle.db.query.userAccounts.findFirst({
       where: and(
-        eq(userAccounts.platform, platform as any),
+        eq(userAccounts.platform, platform),
         eq(userAccounts.platformUserId, platformUserId),
       ),
       with: { user: true },
@@ -54,7 +57,7 @@ export class DrizzleUserRepository {
 
       await tx.insert(userAccounts).values({
         userId: user.id,
-        platform: data.platform as any,
+        platform: data.platform,
         platformUserId: data.platformUserId,
         platformLogin: data.platformLogin,
         platformAvatar: data.platformAvatar,
@@ -94,7 +97,7 @@ export class DrizzleUserRepository {
   async linkPlatformAccount(userId: string, data: LinkPlatformData): Promise<void> {
     await this.drizzle.db.insert(userAccounts).values({
       userId,
-      platform: data.platform as any,
+      platform: data.platform,
       platformUserId: data.platformUserId,
       platformLogin: data.platformLogin,
       platformAvatar: data.platformAvatar,

@@ -1,4 +1,5 @@
 import { UserRole } from '@/enums'
+import type { AccountPlatform } from '@/enums'
 import type { userAccounts } from '@gmd/database/schema'
 
 export interface CreateUserData {
@@ -6,7 +7,7 @@ export interface CreateUserData {
   role: UserRole
   profileImageUrl: string
   color: string
-  platform: string
+  platform: AccountPlatform
   platformUserId: string
   platformLogin: string
   platformAvatar?: string
@@ -21,7 +22,7 @@ export interface UpdateUserData {
 }
 
 export interface LinkPlatformData {
-  platform: string
+  platform: AccountPlatform
   platformUserId: string
   platformLogin: string
   platformAvatar?: string

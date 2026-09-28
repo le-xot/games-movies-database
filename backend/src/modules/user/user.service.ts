@@ -57,7 +57,7 @@ export class UserService {
       platformAvatar?: string
       color?: string
     },
-    platform: string,
+    platform: AccountPlatform,
   ): Promise<UserDomain> {
     const foundUser = await this.userRepository.findByPlatformId(platform, platformId)
 
@@ -107,7 +107,10 @@ export class UserService {
     return this.userRepository.findById(id)
   }
 
-  getUserByPlatformId(platform: string, platformUserId: string): Promise<UserDomain | null> {
+  getUserByPlatformId(
+    platform: AccountPlatform,
+    platformUserId: string,
+  ): Promise<UserDomain | null> {
     return this.userRepository.findByPlatformId(platform, platformUserId)
   }
 

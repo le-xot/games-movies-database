@@ -10,7 +10,7 @@
     "removeComments": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noUncheckedIndexedAccess": true,
     "types": ["node", "bun"]
   },

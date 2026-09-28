@@ -55,7 +55,7 @@ export class ImgService {
 
       if (proxyBase) {
         const fetchUrl = `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(originalUrl)}`
-        const proxyResponse = await fetch(fetchUrl, { headers: defaultHeaders }).catch(() => null)
+        const proxyResponse = await fetch(fetchUrl, { headers: defaultHeaders }).catch((): null => null)
         response =
           proxyResponse?.ok === true
             ? proxyResponse
@@ -84,7 +84,7 @@ export class ImgService {
         throw new BadRequestException('Image is too large')
       }
 
-      const metadata = await new Bun.Image(fileContent).metadata().catch(() => null)
+      const metadata = await new Bun.Image(fileContent).metadata().catch((): null => null)
       if (metadata?.width && metadata?.height) {
         assertPixelLimit(metadata.width, metadata.height)
       }
@@ -112,7 +112,9 @@ export class ImgService {
       if (error instanceof BadRequestException) {
         throw error
       }
-      throw new BadRequestException(`Failed to process image: ${error.message}`)
+      throw new BadRequestException(
+        `Failed to process image: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   }
 }

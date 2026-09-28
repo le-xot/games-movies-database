@@ -124,7 +124,7 @@ describe('fetchPublicImage', () => {
             }
           : {
               status: 200,
-              headers: { get: () => null },
+              headers: { get: (): null => null },
               arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
             },
       )

@@ -18,6 +18,7 @@
     "db:generate": "bun --filter=./database run generate",
     "db:migrate": "bun --filter=./database run migrate",
     "db:baseline": "bun --filter=./database run baseline",
+    "test:integration": "bun --filter=./backend run test:integration",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",

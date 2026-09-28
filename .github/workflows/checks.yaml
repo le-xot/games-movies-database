@@ -13,6 +13,20 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: le_xot
+          POSTGRES_PASSWORD: abc
+          POSTGRES_DB: lists_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U le_xot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,3 +80,9 @@ jobs:
         env:
           NODE_ENV: development
         run: cd backend && bun test
+
+      - name: Integration tests
+        env:
+          RUN_DB_TESTS: '1'
+          TEST_DATASOURCE_URL: postgresql://le_xot:abc@127.0.0.1:5432/lists_test
+        run: bun --filter=./backend run test:integration

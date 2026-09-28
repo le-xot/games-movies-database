@@ -8,5 +8,10 @@ type ParamsQuery = Records.RecordControllerGetAllRecords.RequestQuery
 export type _ParamsAreRequestQuery = Expect<
   Equals<keyof ParamsStoreReturn['params'], keyof ParamsQuery>
 >
+export type _ParamValueTypesMatch = Expect<
+  Equals<ParamsStoreReturn['params']['status'], ParamsQuery['status']> extends true
+    ? Equals<ParamsStoreReturn['params']['orderBy'], ParamsQuery['orderBy']>
+    : false
+>
 
 // намеренная опечатка удалена на GREEN-шаге

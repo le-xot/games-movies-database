@@ -19,13 +19,7 @@ import type { Socket } from 'socket.io-client'
 type RecordsCoalescerKey = `records:${RecordGenre}`
 type CoalescerKey = 'suggestions' | 'stats' | 'user' | 'wordle' | RecordsCoalescerKey
 
-const ALL_GENRES = [
-  RecordGenre.ANIME,
-  RecordGenre.CARTOON,
-  RecordGenre.SERIES,
-  RecordGenre.MOVIE,
-  RecordGenre.GAME,
-] as const
+const ALL_GENRES = Object.values(RecordGenre)
 
 export function useWebSocket() {
   const socket = ref<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null)

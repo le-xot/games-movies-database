@@ -134,6 +134,7 @@ const {
           </Badge>
 
           <template v-if="selected.has(game.appid) && !existingAppIds.has(String(game.appid))">
+            <!-- reka-ui SelectRoot эмитит AcceptableValue, поэтому нужен узкий каст на границе UI-библиотеки -->
             <Select
               :model-value="selected.get(game.appid)?.status ?? RecordStatus.DONE"
               @update:model-value="(v) => updateStatus(game.appid, v as RecordStatus)"
@@ -153,6 +154,7 @@ const {
               </SelectContent>
             </Select>
 
+            <!-- reka-ui SelectRoot эмитит AcceptableValue, поэтому нужен узкий каст на границе UI-библиотеки -->
             <Select
               :model-value="selected.get(game.appid)?.grade ?? '__none__'"
               @update:model-value="(v) => updateGrade(game.appid, v as RecordGrade | '__none__')"

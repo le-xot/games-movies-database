@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { RecordGenre } from '@/lib/api'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
+import type { RouteMap } from 'vue-router'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -108,6 +109,38 @@ export const router = createRouter({
     },
   ],
 })
+
+/** Синхронизировано с TypesConfig.RouteNamedMap (src/types/vue-router.d.ts): при добавлении маршрута обновить оба места. */
+const EXPECTED_ROUTE_NAMES = [
+  'home-layout',
+  'home',
+  'pc',
+  'db',
+  'admin',
+  'suggestion',
+  'stats',
+  'anime',
+  'games',
+  'movie',
+  'cartoon',
+  'series',
+  'wordle',
+  'auth-twitch',
+  'auth-kick',
+  'auth-telegram',
+  'not-found',
+] as const satisfies readonly (keyof RouteMap)[]
+
+if (import.meta.env.DEV) {
+  const registered = router
+    .getRoutes()
+    .map((route) => route.name)
+    .filter((name): name is string => typeof name === 'string')
+  const missing = EXPECTED_ROUTE_NAMES.filter((name) => !registered.includes(name))
+  const duplicates = [...new Set(registered.filter((name, i) => registered.indexOf(name) !== i))]
+  if (missing.length > 0) console.warn(`[router] отсутствуют маршруты: ${missing.join(', ')}`)
+  if (duplicates.length > 0) console.warn(`[router] дублирующиеся имена: ${duplicates.join(', ')}`)
+}
 
 router.beforeEach(async (to) => {
   const userStore = useUser()

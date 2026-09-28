@@ -1,6 +1,10 @@
 import type { RecordGenre } from '@/lib/api'
 import type { RouteRecordInfo } from 'vue-router'
 
+/**
+ * Аугментация vue-router. `RouteNamedMap` синхронизируется с именами в `src/router/router.ts`
+ * вручную; dev-проверка в router.ts предупреждает о рассинхроне имён.
+ */
 declare module 'vue-router' {
   interface RouteMeta {
     genre?: RecordGenre

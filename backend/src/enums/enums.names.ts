@@ -1,4 +1,5 @@
 export const UserRole = 'UserRole'
+export const AccountPlatform = 'AccountPlatform'
 export const RecordStatus = 'RecordStatus'
 export const RecordType = 'RecordType'
 export const RecordGenre = 'RecordGenre'

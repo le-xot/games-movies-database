@@ -4,6 +4,7 @@ import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
+import { UserAccountEntity } from '@/modules/user/entities/user-account.entity'
 import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { MergeUsersDto } from '@/modules/user/user.dto'
 import { MergeUsersResultEntity, UserEntity } from '@/modules/user/user.entity'
@@ -33,14 +34,14 @@ export class UserController {
 
   @Get(':id/accounts')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
-  @ApiResponse({ status: HttpStatus.OK })
-  async getUserAccounts(@Param('id') id: string) {
+  @ApiResponse({ status: HttpStatus.OK, type: [UserAccountEntity] })
+  async getUserAccounts(@Param('id') id: string): Promise<UserAccountEntity[]> {
     return await this.userService.getLinkedAccounts(id)
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: UserEntity })
   async getUserById(@Param('id') id: string): Promise<UserDomain | null> {
     return await this.userService.getUserById(id)
   }

@@ -21,13 +21,14 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiConsumes, ApiResponse } from '@nestjs/swagger'
 import { AccountPlatform } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { assertOAuthState } from '@/modules/auth/auth.oauth-state'
 import { AuthService } from '@/modules/auth/auth.service'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { CallbackDto } from '@/modules/auth/dto/callback.dto'
+import { SuccessResponseDTO } from '@/modules/auth/dto/success-response.dto'
 import { UpdateNicknameDTO } from '@/modules/auth/dto/update-nickname.dto'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import {
@@ -37,6 +38,7 @@ import {
   TELEGRAM_OIDC_VERIFIER_COOKIE,
 } from '@/modules/telegram/telegram.constants'
 import { TelegramService } from '@/modules/telegram/telegram.service'
+import { UserAccountEntity } from '@/modules/user/entities/user-account.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
@@ -312,13 +314,15 @@ export class AuthController {
 
   @Get('/accounts')
   @UseGuards(AuthGuard)
-  getLinkedAccounts(@User() user: UserEntity) {
+  @ApiResponse({ status: 200, type: [UserAccountEntity] })
+  getLinkedAccounts(@User() user: UserEntity): Promise<UserAccountEntity[]> {
     return this.userService.getLinkedAccounts(user.id)
   }
 
   @Delete('/accounts/:platform')
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
+  @ApiResponse({ status: 200, type: SuccessResponseDTO })
   async unlinkAccount(
     @Param('platform', new ParseEnumPipe(AccountPlatform)) platform: AccountPlatform,
     @User() user: UserEntity,
@@ -330,6 +334,7 @@ export class AuthController {
   @Delete('/me')
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
+  @ApiResponse({ status: 200, type: SuccessResponseDTO })
   async deleteMe(@User() user: UserEntity, @Res() res: Response) {
     await this.userService.deleteUserById(user.id)
     res.clearCookie('token', { path: '/' })
@@ -346,6 +351,7 @@ export class AuthController {
   @Patch('/me')
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
+  @ApiResponse({ status: 200, type: UserEntity })
   updateNickname(@Body() data: UpdateNicknameDTO, @User() user: UserEntity) {
     return this.userService.updateLogin(user.id, data.login)
   }
@@ -353,6 +359,16 @@ export class AuthController {
   @Post('/me/avatar')
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
+  @ApiResponse({ status: 200, type: UserEntity })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 5 * 1024 * 1024 },
@@ -378,6 +394,7 @@ export class AuthController {
   @Delete('/me/avatar')
   @RateLimit(RATE_LIMITS.write)
   @UseGuards(AuthGuard)
+  @ApiResponse({ status: 200, type: UserEntity })
   deleteAvatar(@User() user: UserEntity) {
     return this.userService.deleteAvatar(user.id)
   }

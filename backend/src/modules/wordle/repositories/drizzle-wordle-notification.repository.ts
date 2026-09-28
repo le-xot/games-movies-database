@@ -4,16 +4,9 @@ import { and, asc, eq, inArray, ne } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { WordleGameStatus } from '@/enums'
 import type { WordleGameRecord } from '@/modules/wordle/repositories/drizzle-wordle.repository'
+import type { SelectRow } from '@gmd/database'
 
-export interface WordleNotificationSubscriptionRecord {
-  id: number
-  userId: string
-  chatId: string
-  telegramUsername: string | null
-  morningEnabled: boolean
-  eveningEnabled: boolean
-  createdAt: Date
-}
+export type WordleNotificationSubscriptionRecord = SelectRow<'wordleNotificationSubscriptions'>
 
 export interface WordleNotificationFlags {
   morningEnabled?: boolean

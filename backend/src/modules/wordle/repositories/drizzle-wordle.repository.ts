@@ -4,25 +4,13 @@ import { and, asc, count, eq, lt, ne, sql } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { WordleGameStatus } from '@/enums'
 import { MAX_ATTEMPTS } from '@/modules/wordle/wordle.stats'
+import type { SelectRow } from '@gmd/database'
 
-export interface WordleGameRecord {
-  id: string
-  userId: string
-  date: string
-  answer: string
-  guesses: string[]
-  status: WordleGameStatus
-  createdAt: Date
-}
+export type WordleGameRecord = SelectRow<'wordleGames'>
 
-export interface WordleGameWithUser {
+export type WordleGameWithUser = {
   game: WordleGameRecord
-  user: {
-    id: string
-    login: string
-    profileImageUrl: string
-    color: string
-  }
+  user: Pick<SelectRow<'users'>, 'id' | 'login' | 'profileImageUrl' | 'color'>
 }
 
 @Injectable()

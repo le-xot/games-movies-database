@@ -11,7 +11,6 @@ import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
 import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
 import { UserService } from '@/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
-import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
 import {
   WordleNotificationsLinkDTO,
   WordleNotificationsStatusDTO,
@@ -68,7 +67,6 @@ export class WordleNotificationService implements OnModuleInit, OnModuleDestroy 
     private readonly telegram: TelegramBotService,
     registry: TelegramCommandRegistry,
     private readonly notifications: DrizzleWordleNotificationRepository,
-    private readonly wordle: DrizzleWordleRepository,
     private readonly users: UserService,
     private readonly redis: RedisClient,
     config: WordleNotificationConfig,

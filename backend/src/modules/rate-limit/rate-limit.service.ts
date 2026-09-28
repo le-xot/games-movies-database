@@ -23,14 +23,18 @@ export class RateLimitService {
 
   async hit(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
     try {
-      const result = await this.client.send('EVAL', [
+      const result: unknown = await this.client.send('EVAL', [
         INCREMENT_SCRIPT,
         '1',
         key,
         String(config.limit),
         String(config.ttl),
       ])
-      const [count, pttl] = result as [number, number]
+      if (!Array.isArray(result) || result.length < 2) {
+        throw new Error('Unexpected EVAL reply from Redis')
+      }
+      const count = Number(result[0])
+      const pttl = Number(result[1])
       return {
         allowed: count <= config.limit,
         retryAfterSeconds: Math.max(1, Math.ceil(pttl / 1000)),

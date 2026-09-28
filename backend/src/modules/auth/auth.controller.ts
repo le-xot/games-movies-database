@@ -37,7 +37,6 @@ import {
   TELEGRAM_OIDC_VERIFIER_COOKIE,
 } from '@/modules/telegram/telegram.constants'
 import { TelegramService } from '@/modules/telegram/telegram.service'
-import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
@@ -52,7 +51,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly twitch: TwitchService,
     private readonly telegram: TelegramService,
     private readonly jwtService: JwtService,
   ) {}

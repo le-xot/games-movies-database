@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { UserRole } from '@/enums'
+import { RecordGenre, UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
@@ -26,7 +26,10 @@ export class SuggestionController {
   @RateLimit(RATE_LIMITS.suggestion)
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, description: 'Returns created suggestion' })
-  async userSuggest(@Body() suggest: UserSuggestionDTO, @User() user: UserEntity): Promise<any> {
+  async userSuggest(
+    @Body() suggest: UserSuggestionDTO,
+    @User() user: UserEntity,
+  ): Promise<{ title: string; genre: RecordGenre }> {
     return await this.suggestionService.userSuggest({ link: suggest.link, userId: user.id })
   }
 

@@ -21,7 +21,6 @@ describe('AuthController OAuth state', () => {
   let controller: AuthController
   let authService: any
   let userService: any
-  let twitch: any
   let telegram: any
   let jwtService: any
 
@@ -40,10 +39,9 @@ describe('AuthController OAuth state', () => {
       deleteUserById: mock(() => Promise.resolve()),
       updateLogin: mock(() => Promise.resolve()),
     }
-    twitch = {}
     telegram = { createAuthorizationRequest: mock() }
     jwtService = { verifyAsync: mock() }
-    controller = new AuthController(authService, userService, twitch, telegram, jwtService)
+    controller = new AuthController(authService, userService, telegram, jwtService)
   })
 
   describe('twitch', () => {

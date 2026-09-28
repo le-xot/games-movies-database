@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { LimitType, RecordStatus, RecordType } from '@/enums'
+import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { WsEvents, type UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
@@ -21,7 +21,10 @@ export class SuggestionService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async userSuggest(data: { link: string; userId: string }) {
+  async userSuggest(data: {
+    link: string
+    userId: string
+  }): Promise<{ title: string; genre: RecordGenre }> {
     this.logger.log(`User suggesting link=${data.link} userId=${data.userId}`)
     const limit = await this.suggestionRepository.findLimit(LimitType.SUGGESTION)
     if (!limit) {

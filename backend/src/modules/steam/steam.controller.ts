@@ -39,7 +39,7 @@ export class SteamController {
   async importSteamGames(
     @Body() body: SteamImportDTO,
     @User() user: UserEntity,
-  ): Promise<SteamImportResultDTO> {
+  ): Promise<Awaited<ReturnType<SteamService['importGames']>>> {
     return await this.steamService.importGames(body.games, user.id)
   }
 }

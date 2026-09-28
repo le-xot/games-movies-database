@@ -21,6 +21,14 @@ interface SteamOwnedGamesResponse {
   }
 }
 
+interface SteamAppDetailsEntry {
+  success: boolean
+  data?: {
+    name: string
+    header_image: string
+  }
+}
+
 @Injectable()
 export class SteamService {
   private readonly logger = new Logger(SteamService.name)
@@ -93,10 +101,10 @@ export class SteamService {
   async importGames(
     games: SteamImportGameDto[],
     userId: string,
-  ): Promise<{ created: any[]; failed: { appId: number; reason: string }[] }> {
+  ): Promise<{ created: RecordWithRelations[]; failed: { appId: number; reason: string }[] }> {
     const existingGames = await this.findDuplicateGames()
     const importedAppIds = new Set<string>()
-    const created: any[] = []
+    const created: RecordWithRelations[] = []
     const failed: { appId: number; reason: string }[] = []
 
     for (const game of games) {
@@ -173,9 +181,9 @@ export class SteamService {
     try {
       const response = await fetch(`https://store.steampowered.com/api/appdetails?appids=${appId}`)
       if (!response.ok) return null
-      const data = (await response.json()) as any
+      const data = (await response.json()) as Record<string, SteamAppDetailsEntry | undefined>
       const app = data[String(appId)]
-      if (!app?.success) return null
+      if (!app?.success || !app.data) return null
       return { name: app.data.name, header_image: app.data.header_image }
     } catch {
       return null

@@ -29,11 +29,10 @@ import { env } from '@/utils/enviroments'
         telegram: TelegramBotService,
         registry: TelegramCommandRegistry,
         notifications: DrizzleWordleNotificationRepository,
-        wordle: DrizzleWordleRepository,
         users: UserService,
         redis: RedisClient,
       ) =>
-        new WordleNotificationService(telegram, registry, notifications, wordle, users, redis, {
+        new WordleNotificationService(telegram, registry, notifications, users, redis, {
           appPublicUrl: env.APP_PUBLIC_URL,
           morningRaw: env.WORDLE_NOTIFY_MORNING,
           eveningRaw: env.WORDLE_NOTIFY_EVENING,
@@ -42,7 +41,6 @@ import { env } from '@/utils/enviroments'
         TelegramBotService,
         TelegramCommandRegistry,
         DrizzleWordleNotificationRepository,
-        DrizzleWordleRepository,
         UserService,
         RedisClient,
       ],

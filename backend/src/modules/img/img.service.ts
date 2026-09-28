@@ -55,7 +55,9 @@ export class ImgService {
 
       if (proxyBase) {
         const fetchUrl = `${proxyBase}${proxyBase.includes('?') ? '&' : '?'}url=${encodeURIComponent(originalUrl)}`
-        const proxyResponse = await fetch(fetchUrl, { headers: defaultHeaders }).catch((): null => null)
+        const proxyResponse = await fetch(fetchUrl, { headers: defaultHeaders }).catch(
+          (): null => null,
+        )
         response =
           proxyResponse?.ok === true
             ? proxyResponse

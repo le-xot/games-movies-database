@@ -5,7 +5,6 @@ import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
 import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
 import { UserService } from '@/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
-import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
 import {
   WordleNotificationService,
   type WordleNotificationConfig,
@@ -57,7 +56,6 @@ function createService() {
   const telegram = createMock(TelegramBotService)
   const registry = new TelegramCommandRegistry(telegram)
   const notifications = createMock(DrizzleWordleNotificationRepository)
-  const wordle = createMock(DrizzleWordleRepository)
   const users = createMock(UserService)
   const redis: { send: (command: string, args: string[]) => Promise<unknown> } = {
     send: () => Promise.resolve('OK'),
@@ -66,12 +64,11 @@ function createService() {
     telegram,
     registry,
     notifications,
-    wordle,
     users,
     redis as unknown as RedisClient,
     CONFIG,
   )
-  return { service, telegram, registry, notifications, wordle, users, redis }
+  return { service, telegram, registry, notifications, users, redis }
 }
 
 function commandHandler(registry: TelegramCommandRegistry, name: string) {

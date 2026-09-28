@@ -11,4 +11,6 @@ export const ROUTER_PATHS = {
   dbSuggestion: '/db/suggestion',
   dbStats: '/db/stats',
   wordle: '/db/wordle',
-}
+} as const
+
+export type RouterPath = (typeof ROUTER_PATHS)[keyof typeof ROUTER_PATHS]

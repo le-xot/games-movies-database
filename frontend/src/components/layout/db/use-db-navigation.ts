@@ -14,12 +14,13 @@ import { useRoute } from 'vue-router'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
+import type { RouterPath } from '@/router/router-paths'
 import type { Component } from 'vue'
 
 export interface RouteItem {
   name: string
   icon: Component
-  path: string
+  path: RouterPath
   requiresAdmin?: boolean
   requiresAuth?: boolean
 }

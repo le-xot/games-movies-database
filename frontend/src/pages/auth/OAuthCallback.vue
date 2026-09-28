@@ -19,7 +19,7 @@ const userApi = useUser()
 const route = useRoute()
 const router = useRouter()
 
-const providers: Record<string, ProviderConfig> = {
+const providers: Record<'twitch' | 'kick', ProviderConfig> = {
   twitch: {
     cookieName: 'twitch_linking',
     name: 'Twitch',
@@ -66,7 +66,8 @@ function deleteCookie(name: string) {
 }
 
 onMounted(async () => {
-  const provider = providers[route.meta.provider as string]
+  const providerKey = route.meta.provider
+  const provider = providerKey ? providers[providerKey] : undefined
   if (!provider) {
     isLoading.value = false
     error.value = 'Неизвестный провайдер авторизации'

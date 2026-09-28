@@ -62,7 +62,7 @@ function createMedia(genre: RecordGenre) {
 const media = ref<ReturnType<typeof createMedia>>(null)
 
 watch(
-  () => route.meta.genre as RecordGenre | undefined,
+  () => route.meta.genre,
   (genre) => {
     media.value = genre ? createMedia(genre) : null
   },

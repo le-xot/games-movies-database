@@ -9,77 +9,93 @@ export const router = createRouter({
   routes: [
     {
       path: '/auth/callback/twitch',
+      name: 'auth-twitch',
       component: () => import('@/pages/auth/OAuthCallback.vue'),
       meta: { provider: 'twitch' },
     },
     {
       path: '/auth/callback/kick',
+      name: 'auth-kick',
       component: () => import('@/pages/auth/OAuthCallback.vue'),
       meta: { provider: 'kick' },
     },
     {
       path: '/auth/callback/telegram',
+      name: 'auth-telegram',
       component: () => import('@/pages/auth/TelegramCallback.vue'),
     },
     {
       path: ROUTER_PATHS.home,
+      name: 'home-layout',
       component: () => import('@/components/layout/home/LayoutHome.vue'),
       children: [
         {
           path: ROUTER_PATHS.home,
+          name: 'home',
           component: () => import('@/pages/home/HomePage.vue'),
         },
         {
           path: ROUTER_PATHS.pc,
+          name: 'pc',
           component: () => import('@/pages/pc/PcPage.vue'),
         },
       ],
     },
     {
       path: ROUTER_PATHS.db,
+      name: 'db',
       component: () => import('@/components/layout/db/LayoutDatabase.vue'),
       redirect: { path: ROUTER_PATHS.dbSuggestion },
       children: [
         {
           path: ROUTER_PATHS.admin,
+          name: 'admin',
           component: () => import('@/pages/admin/AdminPage.vue'),
           meta: { requiresAdmin: true },
         },
         {
           path: ROUTER_PATHS.dbSuggestion,
+          name: 'suggestion',
           component: () => import('@/pages/suggestion/SuggestionPage.vue'),
         },
         {
           path: ROUTER_PATHS.dbStats,
+          name: 'stats',
           component: () => import('@/pages/stats/StatsPage.vue'),
         },
         {
           path: ROUTER_PATHS.dbAnime,
+          name: 'anime',
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.ANIME },
         },
         {
           path: ROUTER_PATHS.dbGames,
+          name: 'games',
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.GAME },
         },
         {
           path: ROUTER_PATHS.dbMovie,
+          name: 'movie',
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.MOVIE },
         },
         {
           path: ROUTER_PATHS.dbCartoon,
+          name: 'cartoon',
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.CARTOON },
         },
         {
           path: ROUTER_PATHS.dbSeries,
+          name: 'series',
           component: () => import('@/pages/media/MediaPage.vue'),
           meta: { genre: RecordGenre.SERIES },
         },
         {
           path: ROUTER_PATHS.wordle,
+          name: 'wordle',
           component: () => import('@/pages/wordle/WordlePage.vue'),
           meta: { requiresAuth: true },
         },

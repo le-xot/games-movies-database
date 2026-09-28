@@ -4,35 +4,37 @@ import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { Button } from '@/components/ui/button'
+import { AccountPlatform, AuthControllerUnlinkAccountParamsEnum } from '@/lib/api'
 import { ACCOUNT_DIALOG_ON_LOAD_KEY } from '@/stores/use-account-dialog'
+import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
+import type { UserAccountEntity } from '@/lib/api'
 
-interface UserAccount {
-  platform: string
-  platformLogin: string
-  platformAvatar: string | null
+const UNLINK_PLATFORM: Record<AccountPlatform, AuthControllerUnlinkAccountParamsEnum> = {
+  [AccountPlatform.TWITCH]: AuthControllerUnlinkAccountParamsEnum.TWITCH,
+  [AccountPlatform.KICK]: AuthControllerUnlinkAccountParamsEnum.KICK,
+  [AccountPlatform.TELEGRAM]: AuthControllerUnlinkAccountParamsEnum.TELEGRAM,
 }
 
-const accounts = ref<UserAccount[]>([])
+const api = useApi()
+const accounts = ref<UserAccountEntity[]>([])
 const isLoading = ref(true)
-const confirmingUnlink = ref<string | null>(null)
+const confirmingUnlink = ref<AccountPlatform | null>(null)
 const isUnlinking = ref(false)
 
-const hasKick = computed(() => accounts.value.some((a) => a.platform === 'KICK'))
-const hasTwitch = computed(() => accounts.value.some((a) => a.platform === 'TWITCH'))
-const hasTelegram = computed(() => accounts.value.some((a) => a.platform === 'TELEGRAM'))
+const hasKick = computed(() => accounts.value.some((a) => a.platform === AccountPlatform.KICK))
+const hasTwitch = computed(() => accounts.value.some((a) => a.platform === AccountPlatform.TWITCH))
+const hasTelegram = computed(() =>
+  accounts.value.some((a) => a.platform === AccountPlatform.TELEGRAM),
+)
 const canUnlink = computed(() => accounts.value.length > 1)
 
 onMounted(loadAccounts)
 
 async function loadAccounts() {
   try {
-    const response = await fetch('/api/auth/accounts', {
-      credentials: 'include',
-    })
-    if (response.ok) {
-      accounts.value = await response.json()
-    }
+    const { data } = await api.auth.authControllerGetLinkedAccounts()
+    accounts.value = data
   } catch (error) {
     console.error('Failed to fetch linked accounts:', error)
   } finally {
@@ -46,23 +48,17 @@ function connectAccount(platform: 'kick' | 'twitch' | 'telegram') {
   window.location.href = `${window.location.origin}/api/auth/${platform}/link`
 }
 
-async function unlinkAccount(platform: string) {
+async function unlinkAccount(platform: AccountPlatform) {
   isUnlinking.value = true
   try {
-    const response = await fetch(`/api/auth/accounts/${platform}`, {
-      method: 'DELETE',
-      credentials: 'include',
+    await api.auth.authControllerUnlinkAccount(UNLINK_PLATFORM[platform])
+    accounts.value = accounts.value.filter((a) => a.platform !== platform)
+    toast.success('Аккаунт отвязан', {
+      description: `${platform} отвязан от профиля`,
     })
-    if (response.ok) {
-      accounts.value = accounts.value.filter((a) => a.platform !== platform)
-      toast.success('Аккаунт отвязан', {
-        description: `${platform} отвязан от профиля`,
-      })
-    } else {
-      toast.error('Не удалось отвязать аккаунт')
-    }
   } catch (error) {
     console.error('Failed to unlink account:', error)
+    toast.error('Не удалось отвязать аккаунт')
   } finally {
     isUnlinking.value = false
     confirmingUnlink.value = null
@@ -90,8 +86,11 @@ async function unlinkAccount(platform: string) {
               class="size-8 rounded-full object-cover"
             />
             <div v-else class="flex size-8 items-center justify-center rounded-full bg-muted">
-              <TwitchIcon v-if="account.platform === 'TWITCH'" class="size-4" />
-              <TelegramIcon v-else-if="account.platform === 'TELEGRAM'" class="size-4" />
+              <TwitchIcon v-if="account.platform === AccountPlatform.TWITCH" class="size-4" />
+              <TelegramIcon
+                v-else-if="account.platform === AccountPlatform.TELEGRAM"
+                class="size-4"
+              />
               <Tv v-else class="size-4 text-muted-foreground" />
             </div>
             <div class="min-w-0 flex-1">

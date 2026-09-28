@@ -3,8 +3,10 @@ import { Trash2 } from '@lucide/vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
+import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
+const api = useApi()
 const userStore = useUser()
 const isConfirming = ref(false)
 const isDeleting = ref(false)
@@ -13,16 +15,7 @@ async function deleteAvatar() {
   isDeleting.value = true
 
   try {
-    const response = await fetch('/api/auth/me/avatar', {
-      method: 'DELETE',
-      credentials: 'include',
-    })
-
-    if (!response.ok) {
-      toast.error('Не удалось сбросить аватар')
-      return
-    }
-
+    await api.auth.authControllerDeleteAvatar()
     await userStore.refetchUser()
     toast.success('Аватар сброшен')
   } catch {

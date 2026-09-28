@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { UserRole } from '@/lib/api'
+import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 import type { UserEntity } from '@/lib/api'
 
@@ -11,6 +12,7 @@ const props = defineProps<{
   user: UserEntity
 }>()
 
+const api = useApi()
 const userStore = useUser()
 const fileInput = ref<HTMLInputElement>()
 const isUploading = ref(false)
@@ -31,20 +33,7 @@ async function onFileChange(event: Event) {
   avatarError.value = ''
 
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const response = await fetch('/api/auth/me/avatar', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    })
-
-    if (!response.ok) {
-      avatarError.value = 'Ошибка при загрузке аватарки'
-      return
-    }
-
+    await api.auth.authControllerUploadAvatar({ file })
     await userStore.refetchUser()
   } catch {
     avatarError.value = 'Ошибка при загрузке аватарки'

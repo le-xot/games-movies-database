@@ -9,32 +9,8 @@ import {
   Wind,
 } from '@lucide/vue'
 import { type Component, onMounted, ref } from 'vue'
+import { useApi } from '@/stores/use-api'
 import { UFA_TIME_ZONE } from '@/utils/time'
-
-interface WeatherResponse {
-  name: string
-  main: {
-    temp: number
-    feels_like: number
-    humidity: number
-    pressure: number
-  }
-  weather: Array<{
-    main: string
-    description: string
-  }>
-  wind: {
-    speed: number
-  }
-  visibility: number
-  clouds: {
-    all: number
-  }
-  sys: {
-    sunrise: number
-    sunset: number
-  }
-}
 
 const weatherIcons: Record<string, Component> = {
   Clear: Sun,
@@ -71,6 +47,7 @@ let cached: {
 } | null = null
 
 export function useWeather() {
+  const api = useApi()
   const city = ref(cached?.city ?? '')
   const temp = ref<number | null>(cached?.temp ?? null)
   const condition = ref(cached?.condition ?? '')
@@ -90,9 +67,7 @@ export function useWeather() {
     if (cached) return
 
     try {
-      const response = await fetch('/api/weather')
-      if (!response.ok) return
-      const data: WeatherResponse = await response.json()
+      const { data } = await api.weather.weatherControllerGetWeather()
       city.value = data.name
       temp.value = Math.round(data.main.temp)
       condition.value = data.weather[0]?.main ?? ''

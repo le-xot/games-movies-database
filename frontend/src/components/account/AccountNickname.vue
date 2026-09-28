@@ -4,8 +4,10 @@ import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
+const api = useApi()
 const userStore = useUser()
 const isEditing = ref(false)
 const nicknameInput = ref('')
@@ -34,18 +36,7 @@ async function saveNickname() {
   nicknameError.value = ''
 
   try {
-    const response = await fetch('/api/auth/me', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ login }),
-    })
-
-    if (!response.ok) {
-      nicknameError.value = 'Ошибка при сохранении'
-      return
-    }
-
+    await api.auth.authControllerUpdateNickname({ login })
     await userStore.refetchUser()
     isEditing.value = false
     toast.success('Ник сохранён')

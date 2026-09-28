@@ -4,10 +4,12 @@ import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
 const DELETE_PHRASE = 'Да, я хочу удалить свой аккаунт'
 
+const api = useApi()
 const userStore = useUser()
 const isConfirming = ref(false)
 const confirmText = ref('')
@@ -30,14 +32,7 @@ async function deleteAccount() {
 
   isDeleting.value = true
   try {
-    const response = await fetch('/api/auth/me', {
-      method: 'DELETE',
-      credentials: 'include',
-    })
-    if (!response.ok) {
-      toast.error('Не удалось удалить аккаунт')
-      return
-    }
+    await api.auth.authControllerDeleteMe()
     await userStore.userLogout()
     window.location.href = '/'
   } catch (error) {

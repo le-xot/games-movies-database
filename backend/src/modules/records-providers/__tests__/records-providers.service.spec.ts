@@ -286,6 +286,21 @@ describe('RecordsProvidersService', () => {
       }
     })
 
+    it('falls back to a placeholder title when the API returns no names', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() =>
+        jsonOk({ posterUrl: '', genres: [{ genre: 'драма' }], type: 'FILM' }),
+      )
+
+      try {
+        const result = await service.prepareData({ link: kinopoiskLink })
+        expect(result.title).toBe('Без названия')
+      } finally {
+        restoreFetch()
+      }
+    })
+
     it('throws when genres list is empty', async () => {
       setupRepo(mockRepo)
 
@@ -546,6 +561,18 @@ describe('RecordsProvidersService', () => {
       } finally {
         restoreFetch()
       }
+    })
+  })
+
+  describe('matchGroup guard', () => {
+    it('throws when the requested regex group is missing', () => {
+      const guard = service as unknown as {
+        matchGroup: (match: RegExpMatchArray, index: number) => string
+      }
+
+      expect(() => guard.matchGroup(['whole'] as unknown as RegExpMatchArray, 1)).toThrow(
+        'Не удалось разобрать ссылку',
+      )
     })
   })
 })

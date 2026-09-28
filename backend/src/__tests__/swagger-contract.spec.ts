@@ -75,4 +75,19 @@ describe('Swagger contract', () => {
 
     expect(schema).toEqual({ $ref: '#/components/schemas/ApiErrorDto' })
   })
+
+  it('types the record 404 response with ApiErrorDto', async () => {
+    const document = await buildDocument()
+    const paths = document.paths as Record<
+      string,
+      Record<
+        string,
+        { responses?: Record<string, { content?: Record<string, { schema?: unknown }> }> }
+      >
+    >
+    const schema =
+      paths['/records/{id}']?.get?.responses?.['404']?.content?.['application/json']?.schema
+
+    expect(schema).toEqual({ $ref: '#/components/schemas/ApiErrorDto' })
+  })
 })

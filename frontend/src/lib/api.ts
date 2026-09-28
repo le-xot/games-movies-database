@@ -1281,7 +1281,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/records/{id}
      */
     recordControllerFindRecordById: (id: number, params: RequestParams = {}) =>
-      this.http.request<RecordEntity, ApiErrorDto | void>({
+      this.http.request<RecordEntity, ApiErrorDto>({
         path: `/records/${id}`,
         method: "GET",
         format: "json",

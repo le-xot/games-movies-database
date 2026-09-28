@@ -13,7 +13,7 @@ import {
 } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
-import { ApiErrors } from '@/utils/api-errors'
+import { ApiErrorDto, ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('records')
@@ -33,7 +33,7 @@ export class RecordController {
   @Get(':id')
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
-  @ApiResponse({ status: 404, description: 'Record not found' })
+  @ApiResponse({ status: 404, description: 'Record not found', type: ApiErrorDto })
   async findRecordById(@Param('id') id: number): Promise<RecordEntity> {
     return await this.recordServices.findRecordById(id)
   }

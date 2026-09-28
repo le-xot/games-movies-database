@@ -27,12 +27,12 @@ export class TelegramService {
   }
 
   createAuthorizationRequest(): { url: string; state: string; codeVerifier: string } {
-    this.assertConfigured()
+    const { clientId } = this.requireCredentials()
 
     const state = randomBytes(16).toString('hex')
     const { verifier, challenge } = createPkcePair()
     const url = buildTelegramAuthorizeUrl({
-      clientId: env.TELEGRAM_CLIENT_ID as string,
+      clientId,
       redirectUri: env.TELEGRAM_OIDC_REDIRECT_URI,
       state,
       codeChallenge: challenge,
@@ -42,11 +42,9 @@ export class TelegramService {
   }
 
   async exchangeCode(code: string, codeVerifier: string): Promise<TelegramProfile> {
-    this.assertConfigured()
+    const { clientId, clientSecret } = this.requireCredentials()
 
-    const credentials = Buffer.from(
-      `${env.TELEGRAM_CLIENT_ID}:${env.TELEGRAM_CLIENT_SECRET}`,
-    ).toString('base64')
+    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
     const response = await fetch(TELEGRAM_OIDC_TOKEN_URL, {
       method: 'POST',
@@ -58,7 +56,7 @@ export class TelegramService {
         grant_type: 'authorization_code',
         code,
         redirect_uri: env.TELEGRAM_OIDC_REDIRECT_URI,
-        client_id: env.TELEGRAM_CLIENT_ID as string,
+        client_id: clientId,
         code_verifier: codeVerifier,
       }).toString(),
       signal: AbortSignal.timeout(15_000),
@@ -82,12 +80,23 @@ export class TelegramService {
     try {
       const { payload } = await jwtVerify(idToken, this.jwks, {
         issuer: TELEGRAM_OIDC_ISSUER,
-        audience: env.TELEGRAM_CLIENT_ID as string,
+        audience: env.TELEGRAM_CLIENT_ID,
       })
       return mapTelegramOidcClaims(payload as TelegramOidcClaims)
     } catch (error) {
       this.logger.warn(`Telegram id_token verification failed: ${String(error)}`)
       throw new HttpException('Invalid Telegram id_token', HttpStatus.UNAUTHORIZED)
     }
+  }
+
+  private requireCredentials(): { clientId: string; clientSecret: string } {
+    this.assertConfigured()
+
+    const clientId = env.TELEGRAM_CLIENT_ID
+    const clientSecret = env.TELEGRAM_CLIENT_SECRET
+    if (!clientId || !clientSecret) {
+      throw new HttpException('Telegram auth is not configured', HttpStatus.SERVICE_UNAVAILABLE)
+    }
+    return { clientId, clientSecret }
   }
 }

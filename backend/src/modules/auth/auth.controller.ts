@@ -41,6 +41,7 @@ import { TelegramService } from '@/modules/telegram/telegram.service'
 import { UserAccountEntity } from '@/modules/user/entities/user-account.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
+import { getCookie } from '@/types/authenticated-request'
 import { ApiErrors } from '@/utils/api-errors'
 import { env } from '@/utils/enviroments'
 import { RATE_LIMITS } from '@/utils/rate-limits'
@@ -144,7 +145,7 @@ export class AuthController {
     @Req() req: RequestWithCookies,
     @Res() res: Response,
   ) {
-    const state = req.cookies?.twitch_state
+    const state = getCookie(req, 'twitch_state')
     res.clearCookie('twitch_state', { path: '/' })
     assertOAuthState(state, data.state)
 
@@ -164,7 +165,7 @@ export class AuthController {
     @Res() res: Response,
   ) {
     this.logger.log(`POST /twitch/link: userId=${user.id}`)
-    const state = req.cookies?.twitch_state
+    const state = getCookie(req, 'twitch_state')
     res.clearCookie('twitch_state', { path: '/' })
     assertOAuthState(state, data.state)
 
@@ -434,7 +435,7 @@ export class AuthController {
   }
 
   private async getUserIdFromToken(req: RequestWithCookies): Promise<string | null> {
-    const token = req.cookies?.token
+    const token = getCookie(req, 'token')
     if (!token) return null
 
     try {

@@ -12,5 +12,5 @@ export interface AuthenticatedRequest extends RequestWithCookies {
 }
 
 export function getCookie(request: RequestWithCookies, name: string): string | undefined {
-  return request.cookies[name]
+  return request.cookies?.[name]
 }

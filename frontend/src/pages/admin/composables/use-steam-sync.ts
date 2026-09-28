@@ -4,14 +4,10 @@ import { toast } from 'vue-sonner'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import { RecordGrade, RecordStatus } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
+import type { SteamGameDto } from '@/lib/api'
 
-export interface SteamGame {
-  appid: number
-  name: string
-  playtime_forever: number
-  header_image: string
-  img_icon_url: string
-}
+/** Steam library row shared with the generated API client. */
+export type SteamGame = SteamGameDto
 
 interface SelectedGame {
   status: RecordStatus

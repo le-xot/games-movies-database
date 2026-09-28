@@ -77,13 +77,13 @@ function saveEdit() {
 
 const spanTwoStatuses = [RecordStatus.NOTINTERESTED, RecordStatus.QUEUE, RecordStatus.PROGRESS]
 
-function shouldHideGrade(status?: RecordStatus): boolean {
+function shouldHideGrade(status?: RecordStatus | null): boolean {
   return spanTwoStatuses.includes(status as RecordStatus)
 }
 
 const posterStatuses = [RecordStatus.DONE, RecordStatus.UNFINISHED, RecordStatus.DROP]
 
-function isPosterStatus(status?: RecordStatus): boolean {
+function isPosterStatus(status?: RecordStatus | null): boolean {
   return posterStatuses.includes(status as RecordStatus)
 }
 
@@ -108,10 +108,10 @@ function handleStatusUpdate(value: string | undefined) {
   emit('update', { id: props.item.id, data: { status: value as RecordStatus } })
 }
 
-function handleGradeToggle(currentGrade: RecordGrade | undefined, newGrade: RecordGrade) {
+function handleGradeToggle(currentGrade: RecordGrade | null | undefined, newGrade: RecordGrade) {
   emit('update', {
     id: props.item.id,
-    data: { grade: currentGrade === newGrade ? (null as any) : newGrade },
+    data: { grade: currentGrade === newGrade ? null : newGrade },
   })
 }
 
@@ -157,7 +157,12 @@ const gradeButtons = gradeOrder.map((grade) => {
           </Button>
         </a>
         <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-          <BadgeSelect :value="item.status" kind="status" compact @update="handleStatusUpdate" />
+          <BadgeSelect
+            :value="item.status ?? undefined"
+            kind="status"
+            compact
+            @update="handleStatusUpdate"
+          />
         </div>
       </MediaPoster>
 
@@ -196,7 +201,7 @@ const gradeButtons = gradeOrder.map((grade) => {
         <div class="mt-auto flex flex-col gap-2">
           <BadgeSelect
             v-if="!isPosterStatus(item.status)"
-            :value="item.status"
+            :value="item.status ?? undefined"
             kind="status"
             @update="handleStatusUpdate"
           />

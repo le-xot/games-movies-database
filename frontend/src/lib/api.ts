@@ -33,14 +33,6 @@ export enum RecordGrade {
   RECOMMEND = "RECOMMEND",
 }
 
-export enum RecordGenre {
-  GAME = "GAME",
-  MOVIE = "MOVIE",
-  ANIME = "ANIME",
-  CARTOON = "CARTOON",
-  SERIES = "SERIES",
-}
-
 export enum RecordType {
   WRITTEN = "WRITTEN",
   SUGGESTION = "SUGGESTION",
@@ -56,9 +48,37 @@ export enum RecordStatus {
   DONE = "DONE",
 }
 
+export enum AccountPlatform {
+  TWITCH = "TWITCH",
+  KICK = "KICK",
+  TELEGRAM = "TELEGRAM",
+}
+
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
+}
+
+export enum RecordGenre {
+  GAME = "GAME",
+  MOVIE = "MOVIE",
+  ANIME = "ANIME",
+  CARTOON = "CARTOON",
+  SERIES = "SERIES",
+}
+
+export interface ApiErrorDto {
+  /** @example 400 */
+  statusCode: number;
+  /** @example "Bad Request" */
+  message: string | string[];
+  /** @example "Bad Request" */
+  error?: string;
+}
+
+export interface HealthResponseDTO {
+  /** @example "ok" */
+  status: string;
 }
 
 export interface SuggestionCreateByTwirDTO {
@@ -68,6 +88,11 @@ export interface SuggestionCreateByTwirDTO {
   link: string;
 }
 
+export interface UserSuggestionResponseDTO {
+  title: string;
+  genre: RecordGenre;
+}
+
 export interface UserEntity {
   id: string;
   login: string;
@@ -75,6 +100,17 @@ export interface UserEntity {
   profileImageUrl: string;
   color: string;
   hasCustomAvatar: boolean;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export interface UserAccountEntity {
+  id: number;
+  userId: string;
+  platform: AccountPlatform;
+  platformUserId: string;
+  platformLogin: string;
+  platformAvatar: string | null;
   /** @format date-time */
   createdAt: string;
 }
@@ -116,11 +152,11 @@ export interface RecordEntity {
   title: string;
   link: string;
   posterUrl: string;
-  status: RecordStatus;
-  type: RecordType;
-  genre: RecordGenre;
-  grade: RecordGrade;
-  episode: string;
+  status: RecordStatus | null;
+  type: RecordType | null;
+  genre: RecordGenre | null;
+  grade: RecordGrade | null;
+  episode: string | null;
   extra?: object | null;
   suggestionOwnership?: SuggestionOwnershipEntity | null;
   likes?: LikeEntity[] | null;
@@ -136,6 +172,10 @@ export interface UserSuggestionDTO {
 export interface CallbackDto {
   code: string;
   state: string;
+}
+
+export interface SuccessResponseDTO {
+  success: boolean;
 }
 
 export interface UpdateNicknameDTO {
@@ -159,7 +199,7 @@ export interface RecordUpdateDTO {
   /** @example "PROGRESS" */
   status?: RecordStatus;
   /** @example "LIKE" */
-  grade?: RecordGrade;
+  grade?: RecordGrade | null;
   /** @example "S01E01" */
   episode?: string;
   /** @example "WRITTEN" */
@@ -215,6 +255,41 @@ export interface QueueDto {
   videos: QueueItemDto[];
 }
 
+export interface WeatherMainDTO {
+  temp: number;
+  feels_like: number;
+  humidity: number;
+  pressure: number;
+}
+
+export interface WeatherConditionDTO {
+  main: string;
+  description: string;
+}
+
+export interface WeatherWindDTO {
+  speed: number;
+}
+
+export interface WeatherCloudsDTO {
+  all: number;
+}
+
+export interface WeatherSysDTO {
+  sunrise: number;
+  sunset: number;
+}
+
+export interface WeatherDTO {
+  main: WeatherMainDTO;
+  weather: WeatherConditionDTO[];
+  wind: WeatherWindDTO;
+  visibility: number;
+  clouds: WeatherCloudsDTO;
+  sys: WeatherSysDTO;
+  name: string;
+}
+
 export interface SteamGameDto {
   appid: number;
   name: string;
@@ -239,9 +314,14 @@ export interface SteamImportDTO {
   games: SteamImportGameDto[];
 }
 
+export interface SteamImportFailureDto {
+  appId: number;
+  reason: string;
+}
+
 export interface SteamImportResultDTO {
   created: RecordEntity[];
-  failed: string[];
+  failed: SteamImportFailureDto[];
 }
 
 export interface GenreCountDTO {
@@ -683,9 +763,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/health
      */
     appControllerHealth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<HealthResponseDTO, ApiErrorDto>({
         path: `/health`,
         method: "GET",
+        format: "json",
         ...params,
       }),
   };
@@ -701,11 +782,12 @@ export class Api<SecurityDataType extends unknown> {
       data: SuggestionCreateByTwirDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<UserSuggestionResponseDTO, ApiErrorDto>({
         path: `/twir/suggestion`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };
@@ -718,7 +800,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/users/users
      */
     userControllerGetAllUsers: (params: RequestParams = {}) =>
-      this.http.request<UserEntity[], any>({
+      this.http.request<UserEntity[], ApiErrorDto>({
         path: `/users/users`,
         method: "GET",
         format: "json",
@@ -733,9 +815,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/users/{id}/accounts
      */
     userControllerGetUserAccounts: (id: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<UserAccountEntity[], ApiErrorDto>({
         path: `/users/${id}/accounts`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -747,9 +830,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/users/{id}
      */
     userControllerGetUserById: (id: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<UserEntity, ApiErrorDto>({
         path: `/users/${id}`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -761,7 +845,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/users/{id}
      */
     userControllerDeleteUser: (id: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/users/${id}`,
         method: "DELETE",
         ...params,
@@ -779,7 +863,7 @@ export class Api<SecurityDataType extends unknown> {
       data: MergeUsersDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<MergeUsersResultEntity, any>({
+      this.http.request<MergeUsersResultEntity, ApiErrorDto>({
         path: `/users/${id}/merge`,
         method: "POST",
         body: data,
@@ -797,7 +881,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/avatar/{userId}
      */
     avatarControllerGetAvatar: (userId: string, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/avatar/${userId}`,
         method: "GET",
         ...params,
@@ -812,7 +896,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/suggestions
      */
     suggestionControllerGetSuggestions: (params: RequestParams = {}) =>
-      this.http.request<RecordEntity[], any>({
+      this.http.request<RecordEntity[], ApiErrorDto>({
         path: `/suggestions`,
         method: "GET",
         format: "json",
@@ -830,11 +914,12 @@ export class Api<SecurityDataType extends unknown> {
       data: UserSuggestionDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<UserSuggestionResponseDTO, ApiErrorDto>({
         path: `/suggestions`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -849,7 +934,7 @@ export class Api<SecurityDataType extends unknown> {
       id: number,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/suggestions/${id}`,
         method: "DELETE",
         ...params,
@@ -864,7 +949,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/twitch
      */
     authControllerTwitchAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/twitch`,
         method: "GET",
         ...params,
@@ -878,7 +963,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/twitch/link
      */
     authControllerTwitchLinkAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/twitch/link`,
         method: "GET",
         ...params,
@@ -892,7 +977,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/auth/twitch/link
      */
     authControllerLinkTwitch: (data: CallbackDto, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/twitch/link`,
         method: "POST",
         body: data,
@@ -911,7 +996,7 @@ export class Api<SecurityDataType extends unknown> {
       data: CallbackDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/twitch/callback`,
         method: "POST",
         body: data,
@@ -927,7 +1012,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/kick
      */
     authControllerKickAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/kick`,
         method: "GET",
         ...params,
@@ -941,7 +1026,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/kick/link
      */
     authControllerKickLinkAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/kick/link`,
         method: "GET",
         ...params,
@@ -955,7 +1040,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/auth/kick/link
      */
     authControllerLinkKick: (data: CallbackDto, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/kick/link`,
         method: "POST",
         body: data,
@@ -974,7 +1059,7 @@ export class Api<SecurityDataType extends unknown> {
       data: CallbackDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/kick/callback`,
         method: "POST",
         body: data,
@@ -990,7 +1075,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/telegram
      */
     authControllerTelegramAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/telegram`,
         method: "GET",
         ...params,
@@ -1004,7 +1089,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/telegram/link
      */
     authControllerTelegramLinkAuth: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/telegram/link`,
         method: "GET",
         ...params,
@@ -1025,7 +1110,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/telegram/oidc/callback`,
         method: "GET",
         query: query,
@@ -1040,9 +1125,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/accounts
      */
     authControllerGetLinkedAccounts: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<UserAccountEntity[], ApiErrorDto>({
         path: `/auth/accounts`,
         method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1057,9 +1143,10 @@ export class Api<SecurityDataType extends unknown> {
       platform: AuthControllerUnlinkAccountParamsEnum,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<SuccessResponseDTO, ApiErrorDto>({
         path: `/auth/accounts/${platform}`,
         method: "DELETE",
+        format: "json",
         ...params,
       }),
 
@@ -1071,9 +1158,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/auth/me
      */
     authControllerDeleteMe: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<SuccessResponseDTO, ApiErrorDto>({
         path: `/auth/me`,
         method: "DELETE",
+        format: "json",
         ...params,
       }),
 
@@ -1085,7 +1173,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/auth/me
      */
     authControllerMe: (params: RequestParams = {}) =>
-      this.http.request<UserEntity, any>({
+      this.http.request<UserEntity, ApiErrorDto>({
         path: `/auth/me`,
         method: "GET",
         format: "json",
@@ -1103,11 +1191,12 @@ export class Api<SecurityDataType extends unknown> {
       data: UpdateNicknameDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<UserEntity, ApiErrorDto>({
         path: `/auth/me`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -1118,10 +1207,19 @@ export class Api<SecurityDataType extends unknown> {
      * @name AuthControllerUploadAvatar
      * @request POST:/auth/me/avatar
      */
-    authControllerUploadAvatar: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+    authControllerUploadAvatar: (
+      data: {
+        /** @format binary */
+        file?: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<UserEntity, ApiErrorDto>({
         path: `/auth/me/avatar`,
         method: "POST",
+        body: data,
+        type: ContentType.FormData,
+        format: "json",
         ...params,
       }),
 
@@ -1133,9 +1231,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/auth/me/avatar
      */
     authControllerDeleteAvatar: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<UserEntity, ApiErrorDto>({
         path: `/auth/me/avatar`,
         method: "DELETE",
+        format: "json",
         ...params,
       }),
 
@@ -1147,7 +1246,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/auth/logout
      */
     authControllerLogout: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/auth/logout`,
         method: "POST",
         ...params,
@@ -1165,7 +1264,7 @@ export class Api<SecurityDataType extends unknown> {
       data: RecordCreateFromLinkDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<RecordEntity, any>({
+      this.http.request<RecordEntity, ApiErrorDto>({
         path: `/records/link`,
         method: "POST",
         body: data,
@@ -1182,7 +1281,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/records/{id}
      */
     recordControllerFindRecordById: (id: number, params: RequestParams = {}) =>
-      this.http.request<RecordEntity, void>({
+      this.http.request<RecordEntity, ApiErrorDto | void>({
         path: `/records/${id}`,
         method: "GET",
         format: "json",
@@ -1201,7 +1300,7 @@ export class Api<SecurityDataType extends unknown> {
       data: RecordUpdateDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<RecordEntity, any>({
+      this.http.request<RecordEntity, ApiErrorDto>({
         path: `/records/${id}`,
         method: "PATCH",
         body: data,
@@ -1218,7 +1317,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/records/{id}
      */
     recordControllerDeleteRecord: (id: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/records/${id}`,
         method: "DELETE",
         ...params,
@@ -1236,7 +1335,7 @@ export class Api<SecurityDataType extends unknown> {
       data: RecordUpdatePosterDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<RecordEntity, any>({
+      this.http.request<RecordEntity, ApiErrorDto>({
         path: `/records/${id}/poster`,
         method: "PATCH",
         body: data,
@@ -1271,7 +1370,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<GetAllRecordsDTO, any>({
+      this.http.request<GetAllRecordsDTO, ApiErrorDto>({
         path: `/records`,
         method: "GET",
         query: query,
@@ -1296,7 +1395,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/img`,
         method: "GET",
         query: query,
@@ -1315,7 +1414,7 @@ export class Api<SecurityDataType extends unknown> {
       data: ChangeLimitDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<LimitEntity, any>({
+      this.http.request<LimitEntity, ApiErrorDto>({
         path: `/limits`,
         method: "POST",
         body: data,
@@ -1336,7 +1435,7 @@ export class Api<SecurityDataType extends unknown> {
       data: LikeCreateDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<LikeEntity, any>({
+      this.http.request<LikeEntity, ApiErrorDto>({
         path: `/likes`,
         method: "POST",
         body: data,
@@ -1353,7 +1452,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/likes/{recordId}
      */
     likeControllerDeleteLike: (recordId: number, params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<void, ApiErrorDto>({
         path: `/likes/${recordId}`,
         method: "DELETE",
         ...params,
@@ -1370,7 +1469,7 @@ export class Api<SecurityDataType extends unknown> {
       id: number,
       params: RequestParams = {},
     ) =>
-      this.http.request<GetLikesByIdDTO, any>({
+      this.http.request<GetLikesByIdDTO, ApiErrorDto>({
         path: `/likes/records/${id}`,
         method: "GET",
         format: "json",
@@ -1385,7 +1484,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/likes/users/{id}
      */
     likeControllerGetLikesByUserId: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetLikesByIdDTO, any>({
+      this.http.request<GetLikesByIdDTO, ApiErrorDto>({
         path: `/likes/users/${id}`,
         method: "GET",
         format: "json",
@@ -1408,7 +1507,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<GetLikesByIdDTO, any>({
+      this.http.request<GetLikesByIdDTO, ApiErrorDto>({
         path: `/likes/count`,
         method: "GET",
         query: query,
@@ -1425,7 +1524,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/queue
      */
     queueControllerGetQueue: (params: RequestParams = {}) =>
-      this.http.request<QueueDto, any>({
+      this.http.request<QueueDto, ApiErrorDto>({
         path: `/queue`,
         method: "GET",
         format: "json",
@@ -1441,9 +1540,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/weather
      */
     weatherControllerGetWeather: (params: RequestParams = {}) =>
-      this.http.request<void, any>({
+      this.http.request<WeatherDTO, ApiErrorDto>({
         path: `/weather`,
         method: "GET",
+        format: "json",
         ...params,
       }),
   };
@@ -1456,7 +1556,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/steam/games
      */
     steamControllerGetSteamGames: (params: RequestParams = {}) =>
-      this.http.request<SteamGamesResponseDTO, any>({
+      this.http.request<SteamGamesResponseDTO, ApiErrorDto>({
         path: `/steam/games`,
         method: "GET",
         format: "json",
@@ -1474,7 +1574,7 @@ export class Api<SecurityDataType extends unknown> {
       data: SteamImportDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<SteamImportResultDTO, any>({
+      this.http.request<SteamImportResultDTO, ApiErrorDto>({
         path: `/steam/import`,
         method: "POST",
         body: data,
@@ -1492,7 +1592,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/stats/records
      */
     statsControllerGetRecordsStats: (params: RequestParams = {}) =>
-      this.http.request<RecordsStatsDTO, any>({
+      this.http.request<RecordsStatsDTO, ApiErrorDto>({
         path: `/stats/records`,
         method: "GET",
         format: "json",
@@ -1508,7 +1608,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/wordle/state
      */
     wordleControllerGetState: (params: RequestParams = {}) =>
-      this.http.request<WordleStateDTO, any>({
+      this.http.request<WordleStateDTO, ApiErrorDto>({
         path: `/wordle/state`,
         method: "GET",
         format: "json",
@@ -1526,7 +1626,7 @@ export class Api<SecurityDataType extends unknown> {
       data: WordleGuessDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<WordleStateDTO, any>({
+      this.http.request<WordleStateDTO, ApiErrorDto>({
         path: `/wordle/guess`,
         method: "POST",
         body: data,
@@ -1543,7 +1643,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/wordle/stats
      */
     wordleControllerGetStats: (params: RequestParams = {}) =>
-      this.http.request<WordleStatsDTO, any>({
+      this.http.request<WordleStatsDTO, ApiErrorDto>({
         path: `/wordle/stats`,
         method: "GET",
         format: "json",
@@ -1558,7 +1658,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/wordle/leaderboard
      */
     wordleControllerGetLeaderboard: (params: RequestParams = {}) =>
-      this.http.request<WordleLeaderboardDTO, any>({
+      this.http.request<WordleLeaderboardDTO, ApiErrorDto>({
         path: `/wordle/leaderboard`,
         method: "GET",
         format: "json",
@@ -1573,7 +1673,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/wordle/notifications
      */
     wordleNotificationControllerGetStatus: (params: RequestParams = {}) =>
-      this.http.request<WordleNotificationsStatusDTO, any>({
+      this.http.request<WordleNotificationsStatusDTO, ApiErrorDto>({
         path: `/wordle/notifications`,
         method: "GET",
         format: "json",
@@ -1591,7 +1691,7 @@ export class Api<SecurityDataType extends unknown> {
       data: WordleNotificationsUpdateDTO,
       params: RequestParams = {},
     ) =>
-      this.http.request<WordleNotificationsStatusDTO, any>({
+      this.http.request<WordleNotificationsStatusDTO, ApiErrorDto>({
         path: `/wordle/notifications`,
         method: "PATCH",
         body: data,
@@ -1608,7 +1708,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/wordle/notifications
      */
     wordleNotificationControllerRemove: (params: RequestParams = {}) =>
-      this.http.request<WordleNotificationsDeleteDTO, any>({
+      this.http.request<WordleNotificationsDeleteDTO, ApiErrorDto>({
         path: `/wordle/notifications`,
         method: "DELETE",
         format: "json",
@@ -1623,7 +1723,7 @@ export class Api<SecurityDataType extends unknown> {
      * @request POST:/wordle/notifications/link
      */
     wordleNotificationControllerCreateLink: (params: RequestParams = {}) =>
-      this.http.request<WordleNotificationsLinkDTO, any>({
+      this.http.request<WordleNotificationsLinkDTO, ApiErrorDto>({
         path: `/wordle/notifications/link`,
         method: "POST",
         format: "json",

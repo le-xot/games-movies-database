@@ -1,17 +1,10 @@
 import { ref } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { useApi } from '@/stores/use-api'
-import type { UserEntity } from '@/lib/api'
+import type { UserAccountEntity, UserEntity } from '@/lib/api'
 
-export interface UserAccount {
-  id: number
-  userId: string
-  platform: 'TWITCH' | 'KICK' | 'TELEGRAM'
-  platformUserId: string
-  platformLogin: string
-  platformAvatar: string | null
-  createdAt: string
-}
+/** Account row shape shared with the generated API client. */
+export type UserAccount = UserAccountEntity
 
 export function useAdminUsers() {
   const api = useApi()
@@ -36,10 +29,8 @@ export function useAdminUsers() {
   async function fetchAllAccounts() {
     const results = await Promise.allSettled(
       users.value.map(async (user) => {
-        const { data } = await api.users.userControllerGetUserAccounts(user.id, {
-          format: 'json',
-        } as any)
-        return { userId: user.id, accounts: data as unknown as UserAccount[] }
+        const { data } = await api.users.userControllerGetUserAccounts(user.id)
+        return { userId: user.id, accounts: data }
       }),
     )
     for (const result of results) {

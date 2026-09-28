@@ -9,9 +9,11 @@ import { LikeEntity } from '@/modules/like/like.entity'
 import { LikeService } from '@/modules/like/like.service'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserEntity } from '@/modules/user/user.entity'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('likes')
+@ApiErrors()
 @Controller('likes')
 export class LikeController {
   constructor(private likeService: LikeService) {}

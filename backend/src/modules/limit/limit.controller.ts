@@ -6,9 +6,11 @@ import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { ChangeLimitDTO, LimitEntity } from '@/modules/limit/limit.dto'
 import { LimitService } from '@/modules/limit/limit.service'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('limits')
+@ApiErrors()
 @Controller('limits')
 export class LimitController {
   constructor(private limitService: LimitService) {}

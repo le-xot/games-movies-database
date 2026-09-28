@@ -13,9 +13,11 @@ import {
   WordleStatsDTO,
 } from '@/modules/wordle/wordle.dto'
 import { WordleService } from '@/modules/wordle/wordle.service'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('wordle')
+@ApiErrors()
 @Controller('wordle')
 @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
 export class WordleController {

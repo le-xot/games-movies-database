@@ -3,9 +3,11 @@ import { Controller, Get, Query, Res } from '@nestjs/common'
 import { GetImageQueryDTO, ImgVariant } from '@/modules/img/img.dto'
 import { ImgService } from '@/modules/img/img.service'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import type { Response } from 'express'
 
+@ApiErrors()
 @Controller('img')
 export class ImgController {
   constructor(private readonly imgService: ImgService) {}

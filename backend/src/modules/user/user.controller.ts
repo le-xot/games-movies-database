@@ -9,9 +9,11 @@ import { UserDomain } from '@/modules/user/entities/user-domain.entity'
 import { MergeUsersDto } from '@/modules/user/user.dto'
 import { MergeUsersResultEntity, UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('users')
+@ApiErrors()
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}

@@ -6,11 +6,13 @@ import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserEntity } from '@/modules/user/user.entity'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import { SteamGamesResponseDTO, SteamImportDTO, SteamImportResultDTO } from './steam.dto'
 import { SteamService } from './steam.service'
 
 @ApiTags('steam')
+@ApiErrors()
 @Controller('steam')
 export class SteamController {
   constructor(private readonly steamService: SteamService) {}

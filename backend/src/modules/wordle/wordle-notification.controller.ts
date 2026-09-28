@@ -13,9 +13,11 @@ import {
   WordleNotificationsUpdateDTO,
 } from '@/modules/wordle/wordle-notification.dto'
 import { WordleNotificationService } from '@/modules/wordle/wordle-notification.service'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('wordle')
+@ApiErrors()
 @Controller('wordle/notifications')
 @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
 export class WordleNotificationController {

@@ -41,11 +41,13 @@ import { TelegramService } from '@/modules/telegram/telegram.service'
 import { UserAccountEntity } from '@/modules/user/entities/user-account.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
+import { ApiErrors } from '@/utils/api-errors'
 import { env } from '@/utils/enviroments'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import type { RequestWithCookies } from '@/types/authenticated-request'
 import type { CookieOptions, Response } from 'express'
 
+@ApiErrors()
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name)

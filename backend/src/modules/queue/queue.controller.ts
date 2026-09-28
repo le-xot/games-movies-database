@@ -2,7 +2,9 @@ import { Controller, Get } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { QueueDto } from '@/modules/queue/queue.dto'
 import { QueueService } from '@/modules/queue/queue.service'
+import { ApiErrors } from '@/utils/api-errors'
 
+@ApiErrors()
 @Controller('queue')
 export class QueueController {
   constructor(private readonly queueService: QueueService) {}

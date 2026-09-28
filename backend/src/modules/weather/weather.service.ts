@@ -1,35 +1,11 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
-
-export interface WeatherData {
-  main: {
-    temp: number
-    feels_like: number
-    humidity: number
-    pressure: number
-  }
-  weather: Array<{
-    main: string
-    description: string
-  }>
-  wind: {
-    speed: number
-  }
-  visibility: number
-  clouds: {
-    all: number
-  }
-  sys: {
-    sunrise: number
-    sunset: number
-  }
-  name: string
-}
+import type { WeatherDTO } from '@/modules/weather/weather.dto'
 
 @Injectable()
 export class WeatherService implements OnModuleInit {
   private readonly logger = new Logger(WeatherService.name)
-  private cachedData: WeatherData | null = null
+  private cachedData: WeatherDTO | null = null
   private lastFetch: number = 0
   private readonly CACHE_DURATION = 5 * 60 * 1000
 
@@ -63,15 +39,15 @@ export class WeatherService implements OnModuleInit {
         throw new Error('Weather API request failed')
       }
 
-      this.cachedData = await response.json()
+      this.cachedData = (await response.json()) as WeatherDTO
       this.lastFetch = Date.now()
       this.logger.log('Weather data updated')
     } catch (error) {
-      this.logger.error('Failed to fetch weather data:', error as any)
+      this.logger.error('Failed to fetch weather data:', error)
     }
   }
 
-  async getWeatherData(): Promise<WeatherData | null> {
+  async getWeatherData(): Promise<WeatherDTO | null> {
     if (Date.now() - this.lastFetch >= this.CACHE_DURATION) {
       await this.fetchWeatherData()
     }

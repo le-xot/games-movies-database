@@ -10,8 +10,10 @@ import {
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import { TelegramBotService, webhookSecretsMatch } from '@/modules/telegram/telegram-bot.service'
 import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
+import { ApiErrors } from '@/utils/api-errors'
 import type { TelegramCommandContext, TelegramUpdate } from '@/modules/telegram/telegram-bot.types'
 
+@ApiErrors()
 @Controller('telegram')
 export class TelegramBotController {
   private readonly logger = new Logger(TelegramBotController.name)

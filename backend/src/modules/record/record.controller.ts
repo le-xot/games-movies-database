@@ -13,9 +13,11 @@ import {
 } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
+import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('records')
+@ApiErrors()
 @Controller('records')
 export class RecordController {
   constructor(private recordServices: RecordService) {}

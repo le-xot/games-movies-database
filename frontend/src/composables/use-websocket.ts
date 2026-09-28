@@ -1,31 +1,54 @@
 import { useQueryCache } from '@pinia/colada'
 import { onMounted, onUnmounted, ref } from 'vue'
 import {
+  RECORDS_QUERY_KEYS,
   STATS_QUERY_KEY,
   SUGGESTION_QUERY_KEY,
   WORDLE_LEADERBOARD_KEY,
 } from '@/composables/query-keys'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
+import { RecordGenre } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
+import {
+  WsEvents,
+  type ClientToServerEvents,
+  type ServerToClientEvents,
+} from '@/types/socket-events'
 import type { Socket } from 'socket.io-client'
 
+type RecordsCoalescerKey = `records:${RecordGenre}`
+type CoalescerKey = 'suggestions' | 'stats' | 'user' | 'wordle' | RecordsCoalescerKey
+
+const ALL_GENRES = [
+  RecordGenre.ANIME,
+  RecordGenre.CARTOON,
+  RecordGenre.SERIES,
+  RecordGenre.MOVIE,
+  RecordGenre.GAME,
+] as const
+
 export function useWebSocket() {
-  const socket = ref<Socket | null>(null)
+  const socket = ref<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null)
   const isConnected = ref(false)
   const queryCache = useQueryCache()
   const userStore = useUser()
 
-  const coalescer = createEventCoalescer({
+  const coalescer = createEventCoalescer<CoalescerKey>({
     handlers: {
       suggestions: () => queryCache.invalidateQueries({ key: [SUGGESTION_QUERY_KEY] }),
       stats: () => queryCache.invalidateQueries({ key: [STATS_QUERY_KEY] }),
       user: () => userStore.refetchUser(),
       wordle: () => queryCache.invalidateQueries({ key: [WORDLE_LEADERBOARD_KEY] }),
-      'records:ANIME': () => queryCache.invalidateQueries({ key: ['anime'] }),
-      'records:CARTOON': () => queryCache.invalidateQueries({ key: ['cartoon'] }),
-      'records:SERIES': () => queryCache.invalidateQueries({ key: ['series'] }),
-      'records:MOVIE': () => queryCache.invalidateQueries({ key: ['movie'] }),
-      'records:GAME': () => queryCache.invalidateQueries({ key: ['games'] }),
+      'records:ANIME': () =>
+        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.ANIME]] }),
+      'records:CARTOON': () =>
+        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.CARTOON]] }),
+      'records:SERIES': () =>
+        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.SERIES]] }),
+      'records:MOVIE': () =>
+        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.MOVIE]] }),
+      'records:GAME': () =>
+        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.GAME]] }),
     },
   })
 
@@ -33,42 +56,45 @@ export function useWebSocket() {
     try {
       const { io } = await import('socket.io-client')
 
-      socket.value = io(`${window.location.protocol}//${window.location.host}`, {
-        transports: ['websocket'],
-      })
+      const client: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+        `${window.location.protocol}//${window.location.host}`,
+        {
+          transports: ['websocket'],
+        },
+      )
+
+      socket.value = client
         .on('connect', () => {
           isConnected.value = true
         })
         .on('disconnect', () => {
           isConnected.value = false
         })
-        .on('update-records', (payload?: { genre?: string }) => {
+        .on(WsEvents.UPDATE_RECORDS, (payload) => {
           coalescer.enqueue('stats')
           if (payload?.genre) {
-            coalescer.enqueue('records:' + payload.genre)
+            coalescer.enqueue(`records:${payload.genre}`)
           } else {
-            coalescer.enqueue('records:ANIME')
-            coalescer.enqueue('records:CARTOON')
-            coalescer.enqueue('records:SERIES')
-            coalescer.enqueue('records:MOVIE')
-            coalescer.enqueue('records:GAME')
+            for (const genre of ALL_GENRES) {
+              coalescer.enqueue(`records:${genre}`)
+            }
           }
         })
-        .on('update-likes', () => {
+        .on(WsEvents.UPDATE_LIKES, () => {
           coalescer.enqueue('suggestions')
         })
-        .on('update-queue', () => {
+        .on(WsEvents.UPDATE_QUEUE, () => {
           coalescer.enqueue('suggestions')
           coalescer.enqueue('stats')
         })
-        .on('update-suggestions', () => {
+        .on(WsEvents.UPDATE_SUGGESTIONS, () => {
           coalescer.enqueue('suggestions')
         })
-        .on('update-users', () => {
+        .on(WsEvents.UPDATE_USERS, () => {
           coalescer.enqueue('user')
           coalescer.enqueue('wordle')
         })
-        .on('update-wordle', () => {
+        .on(WsEvents.UPDATE_WORDLE, () => {
           coalescer.enqueue('wordle')
         })
         .on('connect_error', (error) => {

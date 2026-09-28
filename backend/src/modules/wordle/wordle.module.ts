@@ -3,6 +3,7 @@ import { RedisClient } from 'bun'
 import { DrizzleModule } from '@/database/drizzle.module'
 import { RateLimitModule } from '@/modules/rate-limit/rate-limit.module'
 import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
+import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
 import { UserModule } from '@/modules/user/user.module'
 import { UserService } from '@/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
@@ -26,18 +27,20 @@ import { env } from '@/utils/enviroments'
       provide: WordleNotificationService,
       useFactory: (
         telegram: TelegramBotService,
+        registry: TelegramCommandRegistry,
         notifications: DrizzleWordleNotificationRepository,
         wordle: DrizzleWordleRepository,
         users: UserService,
         redis: RedisClient,
       ) =>
-        new WordleNotificationService(telegram, notifications, wordle, users, redis, {
+        new WordleNotificationService(telegram, registry, notifications, wordle, users, redis, {
           appPublicUrl: env.APP_PUBLIC_URL,
           morningRaw: env.WORDLE_NOTIFY_MORNING,
           eveningRaw: env.WORDLE_NOTIFY_EVENING,
         }),
       inject: [
         TelegramBotService,
+        TelegramCommandRegistry,
         DrizzleWordleNotificationRepository,
         DrizzleWordleRepository,
         UserService,

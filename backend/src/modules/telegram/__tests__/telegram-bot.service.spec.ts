@@ -100,6 +100,34 @@ describe('TelegramBotService', () => {
     })
   })
 
+  it('publishes the command menu', async () => {
+    fetchMock = mock(() => Promise.resolve(jsonResponse({ ok: true, result: true })))
+    globalThis.fetch = fetchMock as unknown as typeof fetch
+    const commands = [
+      { command: 'start', description: 'Показать приветствие и список команд' },
+      { command: 'wordle', description: 'Включить напоминания' },
+    ]
+
+    expect(await service.setMyCommands(commands)).toBe(true)
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('https://api.telegram.org/bot123:abc/setMyCommands')
+    expect(JSON.parse(String(init.body))).toEqual({ commands })
+  })
+
+  it('skips publishing commands without a bot token', async () => {
+    const unconfigured = new TelegramBotService({
+      token: null,
+      webhookUrl: null,
+      webhookSecret: null,
+    })
+
+    expect(await unconfigured.setMyCommands([{ command: 'start', description: 'Старт' }])).toBe(
+      false,
+    )
+    expect(fetchMock.mock.calls.length).toBe(0)
+  })
+
   it('skips webhook registration without a full config', async () => {
     const unconfigured = new TelegramBotService({
       token: '123:abc',

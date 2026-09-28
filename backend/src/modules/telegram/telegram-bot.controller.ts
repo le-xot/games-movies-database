@@ -7,14 +7,10 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
-import { TelegramBotEvents } from '@/modules/telegram/telegram-bot.events'
 import { TelegramBotService, webhookSecretsMatch } from '@/modules/telegram/telegram-bot.service'
-import type { TelegramUpdate } from '@/modules/telegram/telegram-bot.types'
-
-const UNKNOWN_COMMAND_REPLY = 'Доступные команды: /start, /stop'
-const HANDLED_COMMANDS = new Set(['start', 'stop'])
+import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
+import type { TelegramCommandContext, TelegramUpdate } from '@/modules/telegram/telegram-bot.types'
 
 @Controller('telegram')
 export class TelegramBotController {
@@ -22,7 +18,7 @@ export class TelegramBotController {
 
   constructor(
     private readonly bot: TelegramBotService,
-    private readonly events: EventEmitter2,
+    private readonly registry: TelegramCommandRegistry,
   ) {}
 
   @Post('webhook')
@@ -52,20 +48,27 @@ export class TelegramBotController {
 
     const [rawCommand, ...rest] = text.split(/\s+/)
     const command = rawCommand.slice(1).split('@')[0].toLowerCase()
-    const payload = rest.join(' ').trim() || null
-    const chatId = String(message.chat.id)
-
-    if (!HANDLED_COMMANDS.has(command)) {
-      await this.bot.sendMessage(chatId, UNKNOWN_COMMAND_REPLY)
-      return
-    }
-
-    this.events.emit(TelegramBotEvents.COMMAND, {
+    const context: TelegramCommandContext = {
       command,
-      payload,
-      chatId,
+      payload: rest.join(' ').trim() || null,
+      chatId: String(message.chat.id),
       fromId: message.from ? String(message.from.id) : '',
       username: message.from?.username ?? null,
-    })
+    }
+
+    if (command === 'start' && context.payload) {
+      const startPayloadHandler = this.registry.resolveStartPayload()
+      if (startPayloadHandler) {
+        await startPayloadHandler(context)
+        return
+      }
+    }
+
+    const definition = this.registry.resolve(command)
+    if (!definition) {
+      await this.bot.sendMessage(context.chatId, this.registry.helpText())
+      return
+    }
+    await definition.handler(context)
   }
 }

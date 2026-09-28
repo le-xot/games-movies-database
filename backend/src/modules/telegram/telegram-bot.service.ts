@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
 import { Logger, type OnModuleInit } from '@nestjs/common'
+import type { TelegramMenuItem } from '@/modules/telegram/telegram-bot.types'
 
 export const TELEGRAM_API_BASE = 'https://api.telegram.org'
 const WEBHOOK_SECRET_PATTERN = /^[A-Za-z0-9_-]{1,256}$/
@@ -73,6 +74,12 @@ export class TelegramBotService implements OnModuleInit {
       }
     }
     return false
+  }
+
+  async setMyCommands(commands: TelegramMenuItem[]): Promise<boolean> {
+    if (!this.config.token) return false
+    const result = await this.callApi<boolean>('setMyCommands', { commands })
+    return result === true
   }
 
   async getBotUsername(): Promise<string | null> {

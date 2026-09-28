@@ -6,13 +6,9 @@ import {
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common'
-import { OnEvent } from '@nestjs/event-emitter'
 import { AccountPlatform, WordleGameStatus } from '@/enums'
-import {
-  TelegramBotEvents,
-  type TelegramBotCommandPayload,
-} from '@/modules/telegram/telegram-bot.events'
 import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
+import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
 import { UserService } from '@/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
@@ -22,8 +18,10 @@ import {
   WordleNotificationsUpdateDTO,
 } from '@/modules/wordle/wordle-notification.dto'
 import {
+  OPEN_SITE_BUTTON_TEXT,
   PLAY_BUTTON_TEXT,
   buildConnectedText,
+  buildConnectRequiredText,
   buildEveningText,
   buildMorningText,
   buildPlayUrl,
@@ -38,6 +36,7 @@ import {
 } from '@/modules/wordle/wordle-notification.schedule'
 import { getMoscowDateKey } from '@/modules/wordle/wordle.date'
 import { computeWordleStats } from '@/modules/wordle/wordle.stats'
+import type { TelegramCommandContext } from '@/modules/telegram/telegram-bot.types'
 import type { RedisClient } from 'bun'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -67,6 +66,7 @@ export class WordleNotificationService implements OnModuleInit, OnModuleDestroy 
 
   constructor(
     private readonly telegram: TelegramBotService,
+    registry: TelegramCommandRegistry,
     private readonly notifications: DrizzleWordleNotificationRepository,
     private readonly wordle: DrizzleWordleRepository,
     private readonly users: UserService,
@@ -77,6 +77,17 @@ export class WordleNotificationService implements OnModuleInit, OnModuleDestroy 
     this.slots = resolveSlots(config.morningRaw, config.eveningRaw, (message) =>
       this.logger.warn(message),
     )
+    registry.register({
+      name: 'wordle',
+      description: 'Включить напоминания про Вордли',
+      handler: (context) => this.handleSubscribe(context),
+    })
+    registry.register({
+      name: 'wordle_off',
+      description: 'Выключить напоминания про Вордли',
+      handler: (context) => this.handleUnsubscribe(context.chatId),
+    })
+    registry.registerStartPayload((context) => this.handleStartToken(context))
   }
 
   async runSlot(slot: SlotName, now: Date = new Date()): Promise<void> {
@@ -240,17 +251,6 @@ export class WordleNotificationService implements OnModuleInit, OnModuleDestroy 
     }
   }
 
-  @OnEvent(TelegramBotEvents.COMMAND)
-  async handleCommand(command: TelegramBotCommandPayload): Promise<void> {
-    if (command.command === 'start') {
-      await this.handleStart(command)
-      return
-    }
-    if (command.command === 'stop') {
-      await this.handleStop(command.chatId)
-    }
-  }
-
   async createLink(userId: string): Promise<WordleNotificationsLinkDTO> {
     if (!this.telegram.isConfigured()) {
       throw new ServiceUnavailableException('Уведомления недоступны')
@@ -303,47 +303,47 @@ export class WordleNotificationService implements OnModuleInit, OnModuleDestroy 
     await this.notifications.deleteByUserId(userId)
   }
 
-  private async handleStart(command: TelegramBotCommandPayload): Promise<void> {
-    if (command.payload) {
-      const userId = await this.consumeLinkToken(command.payload)
-      const user = userId ? await this.users.getUserById(userId) : null
-      if (!user) {
-        await this.telegram.sendMessage(
-          command.chatId,
-          'Ссылка устарела — сгенерируй новую в настройках аккаунта.',
-        )
-        return
-      }
-      await this.bind(command, user.id)
-      return
-    }
-
-    const user = command.fromId
-      ? await this.users.getUserByPlatformId(AccountPlatform.TELEGRAM, command.fromId)
+  private async handleSubscribe(context: TelegramCommandContext): Promise<void> {
+    const user = context.fromId
+      ? await this.users.getUserByPlatformId(AccountPlatform.TELEGRAM, context.fromId)
       : null
     if (!user) {
+      await this.telegram.sendMessage(context.chatId, buildConnectRequiredText(), {
+        text: OPEN_SITE_BUTTON_TEXT,
+        url: this.appPublicUrl,
+      })
+      return
+    }
+    await this.bind(context, user.id)
+  }
+
+  private async handleStartToken(context: TelegramCommandContext): Promise<void> {
+    if (!context.payload) return
+    const userId = await this.consumeLinkToken(context.payload)
+    const user = userId ? await this.users.getUserById(userId) : null
+    if (!user) {
       await this.telegram.sendMessage(
-        command.chatId,
-        `Привет! Подключить уведомления можно в аккаунте: ${this.appPublicUrl}`,
+        context.chatId,
+        'Ссылка устарела — сгенерируй новую в настройках аккаунта.',
       )
       return
     }
-    await this.bind(command, user.id)
+    await this.bind(context, user.id)
   }
 
-  private async bind(command: TelegramBotCommandPayload, userId: string): Promise<void> {
+  private async bind(context: TelegramCommandContext, userId: string): Promise<void> {
     await this.notifications.upsert({
       userId,
-      chatId: command.chatId,
-      telegramUsername: command.username,
+      chatId: context.chatId,
+      telegramUsername: context.username,
     })
     await this.telegram.sendMessage(
-      command.chatId,
+      context.chatId,
       buildConnectedText(formatSlotTime(this.slots.morning), formatSlotTime(this.slots.evening)),
     )
   }
 
-  private async handleStop(chatId: string): Promise<void> {
+  private async handleUnsubscribe(chatId: string): Promise<void> {
     const existing = await this.notifications.findByChatId(chatId)
     if (!existing) {
       await this.telegram.sendMessage(chatId, 'Уведомления и так выключены.')

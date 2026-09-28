@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'bun:test'
 import {
+  OPEN_SITE_BUTTON_TEXT,
   PLAY_BUTTON_TEXT,
   buildConnectedText,
+  buildConnectRequiredText,
   buildEveningText,
   buildMorningText,
   buildPlayUrl,
@@ -52,12 +54,26 @@ describe('buildPlayUrl', () => {
 describe('buildConnectedText', () => {
   it('mentions both configured times', () => {
     expect(buildConnectedText('12:00', '20:00')).toContain('12:00 и 20:00')
-    expect(buildConnectedText('12:00', '20:00')).toContain('/stop')
+    expect(buildConnectedText('12:00', '20:00')).toContain('/wordle_off')
+  })
+})
+
+describe('buildConnectRequiredText', () => {
+  it('explains how to connect without an account match', () => {
+    expect(buildConnectRequiredText()).toBe(
+      'Чтобы получать напоминания про Вордли, зайди на сайт через Telegram и нажми «Подключить» в аккаунте — или просто отправь /wordle ещё раз после входа.',
+    )
   })
 })
 
 describe('PLAY_BUTTON_TEXT', () => {
   it('is the play label', () => {
     expect(PLAY_BUTTON_TEXT).toBe('Играть')
+  })
+})
+
+describe('OPEN_SITE_BUTTON_TEXT', () => {
+  it('is the open-site label', () => {
+    expect(OPEN_SITE_BUTTON_TEXT).toBe('Открыть сайт')
   })
 })

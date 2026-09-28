@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
 import { TelegramBotController } from './telegram-bot.controller'
 import { TelegramBotService } from './telegram-bot.service'
+import { TelegramCommandRegistry } from './telegram-command.registry'
 import { TelegramService } from './telegram.service'
 
 @Global()
@@ -18,7 +19,12 @@ import { TelegramService } from './telegram.service'
           webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET,
         }),
     },
+    {
+      provide: TelegramCommandRegistry,
+      useFactory: (bot: TelegramBotService) => new TelegramCommandRegistry(bot),
+      inject: [TelegramBotService],
+    },
   ],
-  exports: [TelegramService, TelegramBotService],
+  exports: [TelegramService, TelegramBotService, TelegramCommandRegistry],
 })
 export class TelegramModule {}

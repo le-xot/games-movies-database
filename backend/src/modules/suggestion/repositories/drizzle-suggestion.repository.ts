@@ -52,12 +52,16 @@ export class DrizzleSuggestionRepository {
         })
         .returning()
 
+      if (!record) throw new Error('Failed to create suggestion')
+
       await tx.insert(suggestionOwnerships).values({ recordId: record.id, userId })
 
-      return await tx.query.records.findFirst({
+      const created = await tx.query.records.findFirst({
         where: eq(records.id, record.id),
         with: { suggestionOwnership: true, likes: true },
       })
+      if (!created) throw new Error('Failed to load created suggestion')
+      return created
     })
   }
 

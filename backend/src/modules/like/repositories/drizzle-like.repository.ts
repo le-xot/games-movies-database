@@ -22,6 +22,7 @@ export class DrizzleLikeRepository {
       .insert(likes)
       .values({ id: crypto.randomUUID(), userId, recordId })
       .returning()
+    if (!like) throw new Error('Failed to create like')
     return like
   }
 

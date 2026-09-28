@@ -36,10 +36,10 @@ export class RecordService {
 
   private emitRecordsEvent(
     id: number,
-    genre: RecordGenre | undefined,
+    genre: RecordGenre | null | undefined,
     action: UpdateRecordsPayload['action'],
   ) {
-    emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, { genre, id, action })
+    emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, { genre: genre ?? undefined, id, action })
   }
 
   async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {

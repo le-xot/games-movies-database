@@ -15,6 +15,7 @@ export class DrizzleLimitRepository {
       .set({ quantity: value })
       .where(eq(limits.name, name))
       .returning()
+    if (!limit) throw new Error(`Limit ${name} not found`)
     return limit
   }
 }

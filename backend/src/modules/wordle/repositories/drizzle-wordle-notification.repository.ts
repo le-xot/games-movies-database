@@ -60,6 +60,7 @@ export class DrizzleWordleNotificationRepository {
       if (updated) return updated
 
       const [created] = await tx.insert(wordleNotificationSubscriptions).values(data).returning()
+      if (!created) throw new Error('Failed to create subscription')
       return created
     })
   }

@@ -55,6 +55,8 @@ export class DrizzleUserRepository {
         })
         .returning()
 
+      if (!user) throw new Error('Failed to create user')
+
       await tx.insert(userAccounts).values({
         userId: user.id,
         platform: data.platform,
@@ -72,13 +74,16 @@ export class DrizzleUserRepository {
       Object.entries(data).filter(([, value]) => value !== undefined),
     )
     if (Object.keys(values).length === 0) {
-      return await this.findById(id)
+      const existing = await this.findById(id)
+      if (!existing) throw new Error(`User ${id} not found`)
+      return existing
     }
     const [user] = await this.drizzle.db
       .update(users)
       .set(values)
       .where(eq(users.id, id))
       .returning()
+    if (!user) throw new Error(`User ${id} not found`)
     return user
   }
 

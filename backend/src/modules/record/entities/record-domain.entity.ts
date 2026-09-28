@@ -18,7 +18,7 @@ export interface UpdateRecordData {
   genre?: RecordGenre
   status?: RecordStatus
   type?: RecordType
-  grade?: RecordGrade
+  grade?: RecordGrade | null
   episode?: string
 }
 

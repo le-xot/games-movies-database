@@ -29,6 +29,8 @@ export class DrizzleRecordRepository {
         })
         .returning()
 
+      if (!record) throw new Error('Failed to create record')
+
       if (data.userId) {
         await tx.insert(suggestionOwnerships).values({ recordId: record.id, userId: data.userId })
       }
@@ -90,14 +92,18 @@ export class DrizzleRecordRepository {
       Object.entries(data).filter(([, value]) => value !== undefined),
     )
     if (Object.keys(values).length === 0) {
-      return await this.findById(id)
+      const existing = await this.findById(id)
+      if (!existing) throw new Error(`Record ${id} not found`)
+      return existing
     }
     return await this.drizzle.db.transaction(async (tx) => {
       await tx.update(records).set(values).where(eq(records.id, id))
-      return await tx.query.records.findFirst({
+      const updated = await tx.query.records.findFirst({
         where: eq(records.id, id),
         with: { likes: true },
       })
+      if (!updated) throw new Error(`Record ${id} not found`)
+      return updated
     })
   }
 

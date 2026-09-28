@@ -67,7 +67,7 @@ export class RecordService {
     this.logger.log(
       `Record created id=${createdData.id} type=${createdData.type} status=${createdData.status}`,
     )
-    return createdData as RecordEntity
+    return createdData
   }
 
   async patchRecord(id: number, data: RecordUpdateDTO): Promise<RecordEntity> {
@@ -96,7 +96,7 @@ export class RecordService {
 
     this.emitRecordsEvent(updatedRecord.id, updatedRecord.genre, 'updated')
     this.logger.log(`Record patched id=${id}`)
-    return updatedRecord as RecordEntity
+    return updatedRecord
   }
 
   async updatePoster(id: number, url: string): Promise<RecordEntity> {
@@ -114,7 +114,7 @@ export class RecordService {
     this.emitRecordsEvent(updatedRecord.id, updatedRecord.genre, 'updated')
 
     this.logger.log(`Poster updated for record id=${id}`)
-    return updatedRecord as RecordEntity
+    return updatedRecord
   }
 
   async deleteRecord(id: number): Promise<void> {
@@ -166,7 +166,7 @@ export class RecordService {
       this.recordRepository.findAll(filterOptions, sortOptions, { skip, take: limit }),
     ])
 
-    return { records: records as RecordEntity[], total }
+    return { records, total }
   }
 
   async findRecordById(id: number): Promise<RecordEntity> {
@@ -174,6 +174,6 @@ export class RecordService {
     if (!record) {
       throw new NotFoundException('Record not found')
     }
-    return record as RecordEntity
+    return record
   }
 }

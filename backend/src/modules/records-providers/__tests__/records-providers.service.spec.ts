@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 import { RecordsProvidersService } from '../records-providers.service'
@@ -31,15 +32,8 @@ const shikimoriResponder =
   () =>
     jsonOk(anime)
 
-const makeExistingRecord = (overrides: Partial<RecordDomain>): RecordDomain => ({
-  id: 1,
-  title: 'Test Anime',
-  link: 'https://shikimori.one/animes/1',
-  posterUrl: '',
-  type: RecordType.WRITTEN,
-  genre: RecordGenre.ANIME,
-  ...overrides,
-})
+const makeExistingRecord = (overrides: Partial<RecordDomain>): RecordDomain =>
+  makeRecordRow(overrides)
 
 function setupRepo(
   repo: DrizzleRecordsProvidersRepository,

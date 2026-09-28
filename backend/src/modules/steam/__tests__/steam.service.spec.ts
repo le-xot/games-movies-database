@@ -1,21 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { SteamService } from '../steam.service'
+import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
-const makeRecord = (overrides?: Record<string, unknown>) => ({
-  id: 1,
-  title: 'Test Game',
-  link: 'https://igdb.com/games/test',
-  posterUrl: 'https://img.example.com/cover.jpg',
-  status: RecordStatus.DONE,
-  type: RecordType.WRITTEN,
-  genre: RecordGenre.GAME,
-  extra: { steamAppId: '1234' },
-  createdAt: new Date(),
-  ...overrides,
-})
+const makeRecord = (overrides?: Partial<RecordWithRelations>) => makeRecordRow(overrides)
 
 describe('SteamService', () => {
   let service: SteamService

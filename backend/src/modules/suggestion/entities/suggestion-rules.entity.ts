@@ -1,6 +1,3 @@
-import { RecordGenre } from '@/enums'
+import type { SelectRow } from '@gmd/database'
 
-export interface SuggestionRulesDomain {
-  genre: RecordGenre
-  permission: boolean
-}
+export type SuggestionRulesDomain = SelectRow<'suggestionRules'>

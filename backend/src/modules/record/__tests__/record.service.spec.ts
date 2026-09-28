@@ -1,21 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordService } from '../record.service'
 import { DrizzleRecordRepository } from '../repositories/drizzle-record.repository'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
-const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations => ({
-  id: 1,
-  title: 'Test Record',
-  link: 'https://example.com/1',
-  posterUrl: 'http://img.example.com/1.jpg',
-  status: RecordStatus.QUEUE,
-  type: RecordType.WRITTEN,
-  genre: RecordGenre.ANIME,
-  ...overrides,
-})
+const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations =>
+  makeRecordRow(overrides)
 
 describe('RecordService', () => {
   let service: RecordService

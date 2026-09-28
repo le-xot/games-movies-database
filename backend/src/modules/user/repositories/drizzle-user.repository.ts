@@ -68,9 +68,9 @@ export class DrizzleUserRepository {
   }
 
   async update(id: string, data: UpdateUserData): Promise<UserDomain> {
-    const values = Object.fromEntries(
+    const values: UpdateUserData = Object.fromEntries(
       Object.entries(data).filter(([, value]) => value !== undefined),
-    ) as UpdateUserData
+    )
     if (Object.keys(values).length === 0) {
       return await this.findById(id)
     }

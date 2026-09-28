@@ -1,6 +1,3 @@
-import { LimitType } from '@/enums'
+import type { SelectRow } from '@gmd/database'
 
-export interface LimitDomain {
-  name: LimitType
-  quantity: number
-}
+export type LimitDomain = SelectRow<'limits'>

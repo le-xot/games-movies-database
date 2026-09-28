@@ -1,6 +1,3 @@
-export interface LikeDomain {
-  id: string
-  userId: string
-  recordId: number
-  createdAt: Date
-}
+import type { SelectRow } from '@gmd/database'
+
+export type LikeDomain = SelectRow<'likes'>

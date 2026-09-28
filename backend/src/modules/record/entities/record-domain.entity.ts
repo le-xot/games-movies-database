@@ -1,4 +1,5 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType, UserRole } from '@/enums'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
+import type { SelectRow } from '@gmd/database'
 
 export interface CreateRecordData {
   title: string
@@ -21,40 +22,18 @@ export interface UpdateRecordData {
   episode?: string
 }
 
-export interface RecordDomain {
-  id: number
-  title: string
-  link: string
-  posterUrl: string
-  status?: RecordStatus
-  type?: RecordType
-  genre?: RecordGenre
-  grade?: RecordGrade
-  episode?: string
-  extra?: unknown | null
-  createdAt?: Date
-}
+export type RecordDomain = SelectRow<'records'>
 
-export interface RecordWithRelations extends RecordDomain {
+/** Record row plus the relations loaded by record queries. */
+export type RecordWithRelations = RecordDomain & {
   suggestionOwnership?: {
     id: number
-    userId: string
-    user?: {
-      id: string
-      login: string
-      role: UserRole
-      profileImageUrl: string
-      color: string
-      createdAt: Date
-    }
-  } | null
-  likes?: Array<{
-    id: string
-    userId: string
     recordId: number
+    userId: string
     createdAt: Date
-    user?: { id: string; login: string; profileImageUrl: string; color: string }
-  }>
+    user?: SelectRow<'users'>
+  } | null
+  likes?: Array<SelectRow<'likes'> & { user?: SelectRow<'users'> }>
 }
 
 export interface RecordFilterOptions {

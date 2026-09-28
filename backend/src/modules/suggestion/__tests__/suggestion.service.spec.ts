@@ -1,22 +1,15 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
 import { LimitType, RecordStatus, RecordType } from '@/enums'
 import { DrizzleSuggestionRepository } from '../repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '../suggestion.service'
 import type { LimitDomain } from '@/modules/limit/entities/limit.entity'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
-const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations => ({
-  id: 1,
-  title: 'Test Anime',
-  link: 'https://shikimori.one/animes/1',
-  posterUrl: 'http://img.example.com/1.jpg',
-  status: RecordStatus.QUEUE,
-  type: RecordType.SUGGESTION,
-  genre: undefined,
-  ...overrides,
-})
+const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations =>
+  makeRecordRow(overrides)
 
 describe('SuggestionService', () => {
   let service: SuggestionService

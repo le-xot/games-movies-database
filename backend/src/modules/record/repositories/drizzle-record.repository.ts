@@ -86,9 +86,9 @@ export class DrizzleRecordRepository {
   }
 
   async update(id: number, data: UpdateRecordData): Promise<RecordWithRelations> {
-    const values = Object.fromEntries(
+    const values: UpdateRecordData = Object.fromEntries(
       Object.entries(data).filter(([, value]) => value !== undefined),
-    ) as UpdateRecordData
+    )
     if (Object.keys(values).length === 0) {
       return await this.findById(id)
     }

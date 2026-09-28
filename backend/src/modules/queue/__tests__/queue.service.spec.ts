@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { createMock } from '@/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
 import { RecordGenre, RecordType } from '@/enums'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 import { QueueService } from '../queue.service'
@@ -20,7 +21,7 @@ describe('QueueService', () => {
     mockRepo.findQueueRecords = ((type: RecordType): Promise<RecordWithRelations[]> => {
       receivedType = type
       return Promise.resolve([
-        {
+        makeRecordRow({
           id: 1,
           title: 'Game 1',
           link: 'https://example.com/game-1',
@@ -28,8 +29,8 @@ describe('QueueService', () => {
           genre: RecordGenre.GAME,
           type: RecordType.WRITTEN,
           createdAt,
-        },
-        {
+        }),
+        makeRecordRow({
           id: 2,
           title: 'Movie 1',
           link: 'https://example.com/movie-1',
@@ -37,7 +38,7 @@ describe('QueueService', () => {
           genre: RecordGenre.MOVIE,
           type: RecordType.WRITTEN,
           createdAt,
-        },
+        }),
       ])
     }) as any
 

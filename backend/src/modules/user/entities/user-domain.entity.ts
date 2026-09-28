@@ -1,6 +1,6 @@
 import { UserRole } from '@/enums'
 import type { AccountPlatform } from '@/enums'
-import type { userAccounts } from '@gmd/database/schema'
+import type { SelectRow } from '@gmd/database'
 
 export interface CreateUserData {
   login: string
@@ -28,7 +28,7 @@ export interface LinkPlatformData {
   platformAvatar?: string
 }
 
-export type UserAccount = typeof userAccounts.$inferSelect
+export type UserAccount = SelectRow<'userAccounts'>
 
 export interface MergeUsersResult {
   accountsMoved: number
@@ -40,12 +40,4 @@ export interface MergeUsersResult {
   wordleGamesDropped: number
 }
 
-export interface UserDomain {
-  id: string
-  login: string
-  role: UserRole
-  profileImageUrl: string
-  color: string
-  hasCustomAvatar: boolean
-  createdAt: Date
-}
+export type UserDomain = SelectRow<'users'>

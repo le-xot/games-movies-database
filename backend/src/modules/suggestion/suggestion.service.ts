@@ -10,7 +10,6 @@ import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { WsEvents, type UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
-import type { RecordEntity } from '@/modules/record/record.entity'
 
 @Injectable()
 export class SuggestionService {
@@ -69,7 +68,7 @@ export class SuggestionService {
     return this.suggestionRepository.findSuggestions({
       types: [RecordType.SUGGESTION, RecordType.WRITTEN],
       statuses: [RecordStatus.QUEUE, RecordStatus.PROGRESS],
-    }) as Promise<RecordEntity[]>
+    })
   }
 
   async deleteUserSuggestion(id: number, userId: string): Promise<void> {

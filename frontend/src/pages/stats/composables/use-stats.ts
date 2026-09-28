@@ -3,6 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
 import { STATS_QUERY_KEY } from '@/composables/query-keys'
 import { useApi } from '@/stores/use-api'
+import { parseApiError } from '@/utils/api-error'
 import type { RecordsStatsDTO } from '@/lib/api'
 
 export const useStats = defineStore('stats/use-stats', () => {
@@ -20,8 +21,8 @@ export const useStats = defineStore('stats/use-stats', () => {
         error.value = null
         const { data } = await api.stats.statsControllerGetRecordsStats()
         return data
-      } catch (err: any) {
-        error.value = err.message || 'Failed to load stats'
+      } catch (err) {
+        error.value = await parseApiError(err, 'Failed to load stats')
         throw err
       }
     },

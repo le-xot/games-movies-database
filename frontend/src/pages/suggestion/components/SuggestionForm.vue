@@ -58,7 +58,7 @@ async function submitSuggestion(values: unknown) {
     await suggestion.submitSuggestion(link)
     form.resetForm()
     dialog.closeDialog()
-  } catch (err: any) {
+  } catch (err) {
     errorMessage.value = await parseApiError(err, 'Ошибка при отправке совета')
   } finally {
     isSubmitting.value = false

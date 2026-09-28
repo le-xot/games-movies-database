@@ -23,7 +23,6 @@ function createMedia(genre: RecordGenre) {
       return {
         records: useAnime(),
         params: useAnimeParams(),
-        itemsName: 'videos',
         hasEpisodeColumn: true,
         deleteConfirmTitle: 'Удалить анимешку?',
       }
@@ -31,7 +30,6 @@ function createMedia(genre: RecordGenre) {
       return {
         records: useCartoon(),
         params: useCartoonParams(),
-        itemsName: 'videos',
         hasEpisodeColumn: true,
         deleteConfirmTitle: 'Удалить мультик?',
       }
@@ -39,7 +37,6 @@ function createMedia(genre: RecordGenre) {
       return {
         records: useSeries(),
         params: useSeriesParams(),
-        itemsName: 'videos',
         hasEpisodeColumn: true,
         deleteConfirmTitle: 'Удалить сирик?',
       }
@@ -47,7 +44,6 @@ function createMedia(genre: RecordGenre) {
       return {
         records: useMovie(),
         params: useMovieParams(),
-        itemsName: 'videos',
         hasEpisodeColumn: false,
         deleteConfirmTitle: 'Удалить кинчик?',
       }
@@ -55,7 +51,6 @@ function createMedia(genre: RecordGenre) {
       return {
         records: useGames(),
         params: useGamesParams(),
-        itemsName: 'games',
         hasEpisodeColumn: false,
         deleteConfirmTitle: 'Удалить игру?',
       }
@@ -74,10 +69,7 @@ watch(
   { immediate: true },
 )
 
-const items = computed<RecordEntity[]>(() => {
-  if (!media.value) return []
-  return ((media.value.records as any)[media.value.itemsName] ?? []) as RecordEntity[]
-})
+const items = computed<RecordEntity[]>(() => media.value?.records.items ?? [])
 </script>
 
 <template>

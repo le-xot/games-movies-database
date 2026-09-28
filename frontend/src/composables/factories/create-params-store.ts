@@ -1,7 +1,17 @@
 import { refDebounced } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/lib/api'
+import {
+  RecordControllerGetAllRecordsParamsDirectionEnum,
+  RecordControllerGetAllRecordsParamsOrderByEnum,
+  RecordGenre,
+  RecordGrade,
+  RecordStatus,
+  RecordType,
+} from '@/lib/api'
+import type { Records } from '@/lib/api'
+
+export type RecordsQueryParams = Records.RecordControllerGetAllRecords.RequestQuery
 
 export interface ParamsStoreConfig {
   storeId: string
@@ -15,17 +25,13 @@ export function createParamsStore(config: ParamsStoreConfig) {
     const statusesFilter = ref<RecordStatus[] | null>(null)
     const gradeFilter = ref<RecordGrade[] | null>(null)
 
-    const params = computed(() => {
-      const p: Record<string, any> = {
+    const params = computed<RecordsQueryParams>(() => {
+      const p: RecordsQueryParams = {
         genre: config.genre,
         type: RecordType.WRITTEN,
         search: debouncedSearch.value,
-        orderBy: 'id',
-        direction: 'desc',
-      }
-
-      if (debouncedSearch.value) {
-        p.search = debouncedSearch.value
+        orderBy: RecordControllerGetAllRecordsParamsOrderByEnum.Id,
+        direction: RecordControllerGetAllRecordsParamsDirectionEnum.Desc,
       }
 
       if (statusesFilter.value !== null) {

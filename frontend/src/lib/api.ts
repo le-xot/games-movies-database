@@ -487,6 +487,880 @@ export enum ImgControllerGetImageContentParamsVariantEnum {
   Avatar = "avatar",
 }
 
+export namespace Health {
+  /**
+   * No description
+   * @tags App
+   * @name AppControllerHealth
+   * @request GET:/health
+   */
+  export namespace AppControllerHealth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = HealthResponseDTO;
+  }
+}
+
+export namespace Twir {
+  /**
+   * No description
+   * @tags Twir
+   * @name TwirControllerCreateSuggestionWithTwir
+   * @request POST:/twir/suggestion
+   */
+  export namespace TwirControllerCreateSuggestionWithTwir {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SuggestionCreateByTwirDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserSuggestionResponseDTO;
+  }
+}
+
+export namespace Users {
+  /**
+   * No description
+   * @tags users
+   * @name UserControllerGetAllUsers
+   * @request GET:/users/users
+   */
+  export namespace UserControllerGetAllUsers {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserEntity[];
+  }
+
+  /**
+   * No description
+   * @tags users
+   * @name UserControllerGetUserAccounts
+   * @request GET:/users/{id}/accounts
+   */
+  export namespace UserControllerGetUserAccounts {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserAccountEntity[];
+  }
+
+  /**
+   * No description
+   * @tags users
+   * @name UserControllerGetUserById
+   * @request GET:/users/{id}
+   */
+  export namespace UserControllerGetUserById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserEntity;
+  }
+
+  /**
+   * No description
+   * @tags users
+   * @name UserControllerDeleteUser
+   * @request DELETE:/users/{id}
+   */
+  export namespace UserControllerDeleteUser {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags users
+   * @name UserControllerMergeUsers
+   * @request POST:/users/{id}/merge
+   */
+  export namespace UserControllerMergeUsers {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = MergeUsersDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = MergeUsersResultEntity;
+  }
+}
+
+export namespace Avatar {
+  /**
+   * No description
+   * @tags Avatar
+   * @name AvatarControllerGetAvatar
+   * @request GET:/avatar/{userId}
+   */
+  export namespace AvatarControllerGetAvatar {
+    export type RequestParams = {
+      userId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Suggestions {
+  /**
+   * No description
+   * @tags suggestions
+   * @name SuggestionControllerGetSuggestions
+   * @request GET:/suggestions
+   */
+  export namespace SuggestionControllerGetSuggestions {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RecordEntity[];
+  }
+
+  /**
+   * No description
+   * @tags suggestions
+   * @name SuggestionControllerUserSuggest
+   * @request POST:/suggestions
+   */
+  export namespace SuggestionControllerUserSuggest {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = UserSuggestionDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserSuggestionResponseDTO;
+  }
+
+  /**
+   * No description
+   * @tags suggestions
+   * @name SuggestionControllerDeleteUserSuggestion
+   * @request DELETE:/suggestions/{id}
+   */
+  export namespace SuggestionControllerDeleteUserSuggestion {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Auth {
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerTwitchAuth
+   * @request GET:/auth/twitch
+   */
+  export namespace AuthControllerTwitchAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerTwitchLinkAuth
+   * @request GET:/auth/twitch/link
+   */
+  export namespace AuthControllerTwitchLinkAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerLinkTwitch
+   * @request POST:/auth/twitch/link
+   */
+  export namespace AuthControllerLinkTwitch {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = CallbackDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerTwitchAuthCallback
+   * @request POST:/auth/twitch/callback
+   */
+  export namespace AuthControllerTwitchAuthCallback {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = CallbackDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerKickAuth
+   * @request GET:/auth/kick
+   */
+  export namespace AuthControllerKickAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerKickLinkAuth
+   * @request GET:/auth/kick/link
+   */
+  export namespace AuthControllerKickLinkAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerLinkKick
+   * @request POST:/auth/kick/link
+   */
+  export namespace AuthControllerLinkKick {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = CallbackDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerKickAuthCallback
+   * @request POST:/auth/kick/callback
+   */
+  export namespace AuthControllerKickAuthCallback {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = CallbackDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerTelegramAuth
+   * @request GET:/auth/telegram
+   */
+  export namespace AuthControllerTelegramAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerTelegramLinkAuth
+   * @request GET:/auth/telegram/link
+   */
+  export namespace AuthControllerTelegramLinkAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerTelegramOidcCallback
+   * @request GET:/auth/telegram/oidc/callback
+   */
+  export namespace AuthControllerTelegramOidcCallback {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      code: string;
+      state: string;
+      error: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerGetLinkedAccounts
+   * @request GET:/auth/accounts
+   */
+  export namespace AuthControllerGetLinkedAccounts {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserAccountEntity[];
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerUnlinkAccount
+   * @request DELETE:/auth/accounts/{platform}
+   */
+  export namespace AuthControllerUnlinkAccount {
+    export type RequestParams = {
+      platform: AuthControllerUnlinkAccountParamsPlatformEnum;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = SuccessResponseDTO;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerDeleteMe
+   * @request DELETE:/auth/me
+   */
+  export namespace AuthControllerDeleteMe {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = SuccessResponseDTO;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerMe
+   * @request GET:/auth/me
+   */
+  export namespace AuthControllerMe {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserEntity;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerUpdateNickname
+   * @request PATCH:/auth/me
+   */
+  export namespace AuthControllerUpdateNickname {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = UpdateNicknameDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserEntity;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerUploadAvatar
+   * @request POST:/auth/me/avatar
+   */
+  export namespace AuthControllerUploadAvatar {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /** @format binary */
+      file?: File;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = UserEntity;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerDeleteAvatar
+   * @request DELETE:/auth/me/avatar
+   */
+  export namespace AuthControllerDeleteAvatar {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UserEntity;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name AuthControllerLogout
+   * @request POST:/auth/logout
+   */
+  export namespace AuthControllerLogout {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Records {
+  /**
+   * No description
+   * @tags records
+   * @name RecordControllerCreateRecordFromLink
+   * @request POST:/records/link
+   */
+  export namespace RecordControllerCreateRecordFromLink {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = RecordCreateFromLinkDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = RecordEntity;
+  }
+
+  /**
+   * No description
+   * @tags records
+   * @name RecordControllerFindRecordById
+   * @request GET:/records/{id}
+   */
+  export namespace RecordControllerFindRecordById {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RecordEntity;
+  }
+
+  /**
+   * No description
+   * @tags records
+   * @name RecordControllerPatchRecord
+   * @request PATCH:/records/{id}
+   */
+  export namespace RecordControllerPatchRecord {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = RecordUpdateDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = RecordEntity;
+  }
+
+  /**
+   * No description
+   * @tags records
+   * @name RecordControllerDeleteRecord
+   * @request DELETE:/records/{id}
+   */
+  export namespace RecordControllerDeleteRecord {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags records
+   * @name RecordControllerUpdatePoster
+   * @request PATCH:/records/{id}/poster
+   */
+  export namespace RecordControllerUpdatePoster {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = RecordUpdatePosterDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = RecordEntity;
+  }
+
+  /**
+   * No description
+   * @tags records
+   * @name RecordControllerGetAllRecords
+   * @request GET:/records
+   */
+  export namespace RecordControllerGetAllRecords {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      status?: RecordStatus[];
+      type?: RecordType;
+      genre?: RecordGenre;
+      grade?: RecordGrade[];
+      /** @example "minecraft" */
+      search?: string;
+      /** @example 1 */
+      page?: number;
+      /** @example 10 */
+      limit?: number;
+      /** @example "id" */
+      orderBy?: RecordControllerGetAllRecordsParamsOrderByEnum;
+      /** @example "asc" */
+      direction?: RecordControllerGetAllRecordsParamsDirectionEnum;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAllRecordsDTO;
+  }
+}
+
+export namespace Img {
+  /**
+   * No description
+   * @tags Img
+   * @name ImgControllerGetImageContent
+   * @request GET:/img
+   */
+  export namespace ImgControllerGetImageContent {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Base64-encoded source image URL */
+      urlEncoded: string;
+      /** @default "poster" */
+      variant?: ImgControllerGetImageContentParamsVariantEnum;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Limits {
+  /**
+   * No description
+   * @tags limits
+   * @name LimitControllerChangeLimit
+   * @request POST:/limits
+   */
+  export namespace LimitControllerChangeLimit {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ChangeLimitDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = LimitEntity;
+  }
+}
+
+export namespace Likes {
+  /**
+   * No description
+   * @tags likes
+   * @name LikeControllerCreateLike
+   * @request POST:/likes
+   */
+  export namespace LikeControllerCreateLike {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = LikeCreateDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = LikeEntity;
+  }
+
+  /**
+   * No description
+   * @tags likes
+   * @name LikeControllerDeleteLike
+   * @request DELETE:/likes/{recordId}
+   */
+  export namespace LikeControllerDeleteLike {
+    export type RequestParams = {
+      recordId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags likes
+   * @name LikeControllerGetLikesByRecordId
+   * @request GET:/likes/records/{id}
+   */
+  export namespace LikeControllerGetLikesByRecordId {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetLikesByIdDTO;
+  }
+
+  /**
+   * No description
+   * @tags likes
+   * @name LikeControllerGetLikesByUserId
+   * @request GET:/likes/users/{id}
+   */
+  export namespace LikeControllerGetLikesByUserId {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetLikesByIdDTO;
+  }
+
+  /**
+   * No description
+   * @tags likes
+   * @name LikeControllerGetLikes
+   * @request GET:/likes/count
+   */
+  export namespace LikeControllerGetLikes {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** @example 1 */
+      page?: number;
+      /** @example 10 */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetLikesByIdDTO;
+  }
+}
+
+export namespace Queue {
+  /**
+   * No description
+   * @tags Queue
+   * @name QueueControllerGetQueue
+   * @request GET:/queue
+   */
+  export namespace QueueControllerGetQueue {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = QueueDto;
+  }
+}
+
+export namespace Weather {
+  /**
+   * No description
+   * @tags weather
+   * @name WeatherControllerGetWeather
+   * @request GET:/weather
+   */
+  export namespace WeatherControllerGetWeather {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WeatherDTO;
+  }
+}
+
+export namespace Steam {
+  /**
+   * No description
+   * @tags steam
+   * @name SteamControllerGetSteamGames
+   * @request GET:/steam/games
+   */
+  export namespace SteamControllerGetSteamGames {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = SteamGamesResponseDTO;
+  }
+
+  /**
+   * No description
+   * @tags steam
+   * @name SteamControllerImportSteamGames
+   * @request POST:/steam/import
+   */
+  export namespace SteamControllerImportSteamGames {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SteamImportDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = SteamImportResultDTO;
+  }
+}
+
+export namespace Stats {
+  /**
+   * No description
+   * @tags stats
+   * @name StatsControllerGetRecordsStats
+   * @request GET:/stats/records
+   */
+  export namespace StatsControllerGetRecordsStats {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RecordsStatsDTO;
+  }
+}
+
+export namespace Wordle {
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerGetState
+   * @request GET:/wordle/state
+   */
+  export namespace WordleControllerGetState {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleStateDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerMakeGuess
+   * @request POST:/wordle/guess
+   */
+  export namespace WordleControllerMakeGuess {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = WordleGuessDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleStateDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerGetStats
+   * @request GET:/wordle/stats
+   */
+  export namespace WordleControllerGetStats {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleStatsDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerGetLeaderboard
+   * @request GET:/wordle/leaderboard
+   */
+  export namespace WordleControllerGetLeaderboard {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleLeaderboardDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleNotificationControllerGetStatus
+   * @request GET:/wordle/notifications
+   */
+  export namespace WordleNotificationControllerGetStatus {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleNotificationsStatusDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleNotificationControllerUpdate
+   * @request PATCH:/wordle/notifications
+   */
+  export namespace WordleNotificationControllerUpdate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = WordleNotificationsUpdateDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleNotificationsStatusDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleNotificationControllerRemove
+   * @request DELETE:/wordle/notifications
+   */
+  export namespace WordleNotificationControllerRemove {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleNotificationsDeleteDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleNotificationControllerCreateLink
+   * @request POST:/wordle/notifications/link
+   */
+  export namespace WordleNotificationControllerCreateLink {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordleNotificationsLinkDTO;
+  }
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 

@@ -1,17 +1,19 @@
 import { useInfiniteQuery, useMutation } from '@pinia/colada'
-import { StoreDefinition, defineStore } from 'pinia'
+import { defineStore } from 'pinia'
 import { ComputedRef, computed, ref, watch } from 'vue'
 import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
+import type { RecordsQueryParams } from '@/composables/factories/create-params-store'
+import type { Api } from '@/lib/api'
 
 export interface ParamsStoreReturn {
-  params: Record<string, any>
+  params: RecordsQueryParams
 }
 
 export interface RecordsStoreConfig<TItems extends string, TRefetch extends string> {
   storeId: string
   queryKey: string
-  paramsStore: StoreDefinition<any, any, any, any>
+  paramsStore: () => ParamsStoreReturn
   itemsName: TItems
   refetchName: TRefetch
   pageSize?: number
@@ -19,23 +21,34 @@ export interface RecordsStoreConfig<TItems extends string, TRefetch extends stri
 
 const DEFAULT_PAGE_SIZE = 50
 
-type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
+type MutationResult<T extends keyof Api<unknown>['records']> = ReturnType<
+  Api<unknown>['records'][T]
+>
+
+export type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
+  items: ComputedRef<RecordEntity[]>
   isLoading: boolean
   hasNextPage: boolean
   isLoadingNext: boolean
   loadNextPage: () => Promise<unknown>
-  updateRecord: (payload: { id: number; data: RecordUpdateDTO }) => Promise<any>
-  updatePoster: (payload: { id: number; url: string }) => Promise<any>
-  deleteRecord: (id: number) => Promise<any>
+  updateRecord: (payload: {
+    id: number
+    data: RecordUpdateDTO
+  }) => MutationResult<'recordControllerPatchRecord'>
+  updatePoster: (payload: {
+    id: number
+    url: string
+  }) => MutationResult<'recordControllerUpdatePoster'>
+  deleteRecord: (id: number) => MutationResult<'recordControllerDeleteRecord'>
 } & Record<TItems, ComputedRef<RecordEntity[]>> &
-  Record<TRefetch, () => Promise<any>>
+  Record<TRefetch, () => Promise<unknown>>
 
 export function createRecordsStore<TItems extends string, TRefetch extends string>(
   config: RecordsStoreConfig<TItems, TRefetch>,
 ) {
   return defineStore(config.storeId, () => {
     const api = useApi()
-    const paramsStoreInstance = config.paramsStore() as unknown as ParamsStoreReturn
+    const paramsStoreInstance = config.paramsStore()
     const pageSize = config.pageSize ?? DEFAULT_PAGE_SIZE
 
     const {
@@ -110,7 +123,11 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       return items.value
     })
 
+    // Setup-стор обязан возвращать refs, а потребитель видит уже развёрнутые значения;
+    // при generic-ключах ([config.itemsName]) TS не может проверить пересечение типов,
+    // поэтому нужна двойная ассерция — цель при этом полностью типизирована.
     return {
+      items: displayItems,
       isLoading,
       hasNextPage,
       isLoadingNext,

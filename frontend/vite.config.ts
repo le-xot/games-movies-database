@@ -54,6 +54,7 @@ async function generateSwagger() {
         url: 'http://localhost:3000/docs-json',
         output: fileURLToPath(new URL('./src/lib', import.meta.url)),
         generateClient: true,
+        generateRouteTypes: true,
         httpClientType: 'fetch',
         singleHttpClient: true,
         extractEnums: true,

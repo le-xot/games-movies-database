@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common'
 import { UserRole } from '@/enums'
+import type { AuthenticatedRequest } from '@/types/authenticated-request'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -8,7 +9,7 @@ export class RolesGuard implements CanActivate {
   constructor(private roles: UserRole[]) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest()
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>()
     const user = request.user
     const allowed = this.roles.includes(user.role)
     if (!allowed) this.logger.warn(`Access denied for user=${user?.id} role=${user?.role}`)

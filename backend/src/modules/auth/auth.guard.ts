@@ -6,9 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { Request } from 'express'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
+import type { AuthenticatedRequest, RequestWithCookies } from '@/types/authenticated-request'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest()
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>()
     const token = this.extractToken(request)
     if (!token) {
       this.logger.warn(`Unauthorized request: missing token ${request.method} ${request.url}`)
@@ -48,7 +48,7 @@ export class AuthGuard implements CanActivate {
     return true
   }
 
-  private extractToken(request: Request): string | undefined {
+  private extractToken(request: RequestWithCookies): string | undefined {
     return request.cookies.token
   }
 }

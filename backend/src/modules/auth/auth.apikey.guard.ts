@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
+import type { Request } from 'express'
 
 export function isApiKeyValid(provided: unknown, expected: string | null | undefined): boolean {
   if (!expected || typeof provided !== 'string' || provided.length !== expected.length) {
@@ -20,7 +21,7 @@ export class ApikeyGuard implements CanActivate {
   private readonly logger = new Logger(ApikeyGuard.name)
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest()
+    const request = context.switchToHttp().getRequest<Request>()
 
     if (!isApiKeyValid(request.headers['x-api-key'], env.TWIR_API)) {
       this.logger.warn(`Unauthorized apikey access from ${request.ip}`)

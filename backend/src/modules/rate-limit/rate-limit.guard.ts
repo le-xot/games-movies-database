@@ -8,13 +8,14 @@ import {
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import { RATE_LIMIT_METADATA_KEY } from './rate-limit.constants'
 import { RateLimitService } from './rate-limit.service'
+import type { Request } from 'express'
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(private readonly rateLimitService: RateLimitService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest()
+    const request = context.switchToHttp().getRequest<Request>()
     const config = this.getConfig(context)
     const key = `rl:${this.getRoute(context)}:${this.getClientIp(request)}`
 

@@ -42,7 +42,8 @@ import { UserEntity } from '@/modules/user/user.entity'
 import { UserService } from '@/modules/user/user.service'
 import { env } from '@/utils/enviroments'
 import { RATE_LIMITS } from '@/utils/rate-limits'
-import type { CookieOptions, Request, Response } from 'express'
+import type { RequestWithCookies } from '@/types/authenticated-request'
+import type { CookieOptions, Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
@@ -136,8 +137,12 @@ export class AuthController {
 
   @Post('/twitch/callback')
   @RateLimit(RATE_LIMITS.auth)
-  async twitchAuthCallback(@Body() data: CallbackDto, @Req() req: Request, @Res() res: Response) {
-    const state = (req as any).cookies?.twitch_state
+  async twitchAuthCallback(
+    @Body() data: CallbackDto,
+    @Req() req: RequestWithCookies,
+    @Res() res: Response,
+  ) {
+    const state = req.cookies?.twitch_state
     res.clearCookie('twitch_state', { path: '/' })
     assertOAuthState(state, data.state)
 
@@ -152,12 +157,12 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async linkTwitch(
     @Body() data: CallbackDto,
-    @Req() req: Request,
+    @Req() req: RequestWithCookies,
     @User() user: UserEntity,
     @Res() res: Response,
   ) {
     this.logger.log(`POST /twitch/link: userId=${user.id}`)
-    const state = (req as any).cookies?.twitch_state
+    const state = req.cookies?.twitch_state
     res.clearCookie('twitch_state', { path: '/' })
     assertOAuthState(state, data.state)
 
@@ -186,8 +191,12 @@ export class AuthController {
 
   @Post('/kick/callback')
   @RateLimit(RATE_LIMITS.auth)
-  async kickAuthCallback(@Body() data: CallbackDto, @Req() req: Request, @Res() res: Response) {
-    const cookies = (req as any).cookies ?? {}
+  async kickAuthCallback(
+    @Body() data: CallbackDto,
+    @Req() req: RequestWithCookies,
+    @Res() res: Response,
+  ) {
+    const cookies = req.cookies ?? {}
     const codeVerifier = cookies.kick_code_verifier
     const state = cookies.kick_state
     res.clearCookie('kick_code_verifier', { path: '/' })
@@ -208,12 +217,12 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async linkKick(
     @Body() data: CallbackDto,
-    @Req() req: Request,
+    @Req() req: RequestWithCookies,
     @User() user: UserEntity,
     @Res() res: Response,
   ) {
     this.logger.log(`POST /kick/link: userId=${user.id}`)
-    const cookies = (req as any).cookies ?? {}
+    const cookies = req.cookies ?? {}
     const codeVerifier = cookies.kick_code_verifier
     const state = cookies.kick_state
     res.clearCookie('kick_code_verifier', { path: '/' })
@@ -255,13 +264,13 @@ export class AuthController {
   @Get('/telegram/oidc/callback')
   @RateLimit(RATE_LIMITS.auth)
   async telegramOidcCallback(
-    @Req() req: Request,
+    @Req() req: RequestWithCookies,
     @Query('code') code: string | undefined,
     @Query('state') state: string | undefined,
     @Query('error') oidcError: string | undefined,
     @Res() res: Response,
   ) {
-    const cookies = (req as any).cookies ?? {}
+    const cookies = req.cookies ?? {}
     const storedState = cookies[TELEGRAM_OIDC_STATE_COOKIE]
     const codeVerifier = cookies[TELEGRAM_OIDC_VERIFIER_COOKIE]
     const isLinking = cookies[TELEGRAM_OIDC_LINKING_COOKIE] === '1'
@@ -407,8 +416,8 @@ export class AuthController {
     res.clearCookie(TELEGRAM_OIDC_LINKING_COOKIE)
   }
 
-  private async getUserIdFromToken(req: Request): Promise<string | null> {
-    const token = (req as any).cookies?.token
+  private async getUserIdFromToken(req: RequestWithCookies): Promise<string | null> {
+    const token = req.cookies?.token
     if (!token) return null
 
     try {

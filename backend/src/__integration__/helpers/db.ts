@@ -1,9 +1,15 @@
 import { describe } from 'bun:test'
 import * as schema from '@gmd/database/schema'
+import { getTableName, is } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
+import { PgTable } from 'drizzle-orm/pg-core'
 import { Pool } from 'pg'
 
 export const TEST_DATASOURCE_URL = process.env.TEST_DATASOURCE_URL
+
+if (process.env.RUN_DB_TESTS === '1' && !TEST_DATASOURCE_URL) {
+  throw new Error('TEST_DATASOURCE_URL is required when RUN_DB_TESTS=1')
+}
 
 /** Интеграционные тесты включаются только явным флагом (unit-прогон остаётся без БД). */
 export const integrationEnabled = process.env.RUN_DB_TESTS === '1' && Boolean(TEST_DATASOURCE_URL)
@@ -11,20 +17,19 @@ export const integrationEnabled = process.env.RUN_DB_TESTS === '1' && Boolean(TE
 // В Bun 1.4.0 describe.skip всё равно вызывает callback — суиты делают `if (!integrationEnabled) return`.
 export const integrationDescribe = integrationEnabled ? describe : describe.skip
 
-const TABLE_NAMES = [
-  'records',
-  'users',
-  'user_accounts',
-  'likes',
-  'limits',
-  'suggestion_rules',
-  'suggestion_ownerships',
-  'wordle_games',
-  'wordle_notification_subscriptions',
-] as const
+/** Все таблицы схемы (для TRUNCATE и smoke-теста) — новые таблицы подхватываются автоматически. */
+export const TABLE_NAMES = Object.values(schema)
+  .filter((value) => is(value, PgTable))
+  .map((table) => getTableName(table as PgTable))
+  .sort()
 
 export function assertTestDatabase(url: string): void {
-  const name = new URL(url).pathname.replace(/^\//, '')
+  let name: string
+  try {
+    name = new URL(url).pathname.replace(/^\//, '')
+  } catch {
+    throw new Error(`TEST_DATASOURCE_URL must be a URL DSN, got "${url}"`)
+  }
   if (!name) throw new Error('TEST_DATASOURCE_URL has no database name')
   if (!name.endsWith('_test')) {
     throw new Error(`Refusing to run integration tests against non-test database "${name}"`)

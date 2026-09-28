@@ -108,12 +108,25 @@ integrationDescribe('Wordle repositories (integration)', () => {
       date: '2026-09-29',
       answer: 'манго',
     })
+    const [finishedStale] = await db
+      .insert(wordleGames)
+      .values({
+        id: crypto.randomUUID(),
+        userId: user.id,
+        date: '2026-09-27',
+        answer: 'манго',
+        status: 'WON',
+        guesses: ['манго'],
+      })
+      .returning()
+    if (!finishedStale) throw new Error('seed failed')
 
     const closed = await repository.closeStaleGames('2026-09-29')
 
     expect(closed).toBe(1)
     expect((await repository.findByUserAndDate(user.id, '2026-09-28'))?.status).toBe('LOST')
     expect((await repository.findByUserAndDate(user.id, '2026-09-29'))?.status).toBe('IN_PROGRESS')
+    expect((await repository.findByUserAndDate(user.id, '2026-09-27'))?.status).toBe('WON')
   })
 
   it('lists finished games with users and counts wins by date', async () => {
@@ -173,7 +186,7 @@ integrationDescribe('Wordle repositories (integration)', () => {
     expect(await notifications.findAll()).toHaveLength(1)
   })
 
-  it('updates notification flags and returns null for a missing subscription', async () => {
+  it('updates flags, returns null for a missing subscription and null lookups', async () => {
     const user = await seedUser(db, 'player')
     await notifications.upsert({ userId: user.id, chatId: 'chat-2', telegramUsername: null })
 
@@ -181,7 +194,27 @@ integrationDescribe('Wordle repositories (integration)', () => {
     expect(updated?.morningEnabled).toBe(false)
     expect(updated?.eveningEnabled).toBe(true)
 
+    expect(await notifications.updateFlags('missing-user', { morningEnabled: false })).toBeNull()
     expect(await notifications.updateFlags('missing-user', {})).toBeNull()
+    expect(await notifications.findByUserId('missing-user')).toBeNull()
+    expect(await notifications.findByChatId('missing-chat')).toBeNull()
+    expect(await repository.findByUserAndDate(user.id, '2026-01-01')).toBeNull()
+  })
+
+  it('updates an existing subscription when the chat id changes', async () => {
+    const user = await seedUser(db, 'player')
+    await notifications.upsert({ userId: user.id, chatId: 'chat-old', telegramUsername: 'a' })
+
+    const updated = await notifications.upsert({
+      userId: user.id,
+      chatId: 'chat-new',
+      telegramUsername: 'b',
+    })
+
+    expect(updated.chatId).toBe('chat-new')
+    expect(updated.telegramUsername).toBe('b')
+    expect(await notifications.findByChatId('chat-old')).toBeNull()
+    expect(await notifications.findAll()).toHaveLength(1)
   })
 
   it('deletes subscriptions and reports finished/won user ids', async () => {

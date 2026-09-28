@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import { likes, users } from '@gmd/database/schema'
 import { UserRole } from '@/enums'
+import type { CreateRecordData } from '@/modules/record/entities/record-domain.entity'
 import type { InsertRow } from '@gmd/database'
 import type * as schema from '@gmd/database/schema'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
@@ -23,6 +24,15 @@ export async function seedUser(db: TestDb, login: string, role: UserRole = UserR
 }
 
 export function seedRecord(overrides: Partial<InsertRow<'records'>> = {}): InsertRow<'records'> {
+  return {
+    title: 'Test Record',
+    posterUrl: '',
+    link: 'https://example.com/record',
+    ...overrides,
+  }
+}
+
+export function recordCreateData(overrides: Partial<CreateRecordData> = {}): CreateRecordData {
   return {
     title: 'Test Record',
     posterUrl: '',

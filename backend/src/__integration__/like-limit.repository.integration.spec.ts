@@ -73,13 +73,15 @@ integrationDescribe('DrizzleLikeRepository / DrizzleLimitRepository (integration
     expect(await likeRepository.findMany(1, 1)).toHaveLength(1)
   })
 
-  it('updates a limit and throws when the limit row is missing', async () => {
+  it('updates a limit and returns the updated row', async () => {
     await db.insert(limits).values({ name: 'SUGGESTION', quantity: 5 })
 
     const updated = await limitRepository.update('SUGGESTION', 10)
 
     expect(updated.quantity).toBe(10)
-    await truncateAll(pool)
+  })
+
+  it('throws when the limit row is missing', async () => {
     await expect(limitRepository.update('SUGGESTION', 1)).rejects.toThrow('not found')
   })
 })

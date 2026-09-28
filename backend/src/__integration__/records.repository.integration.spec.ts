@@ -9,18 +9,8 @@ import {
   integrationEnabled,
   truncateAll,
 } from './helpers/db'
-import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
+import { seedLike, seedRecord, recordCreateData, seedUser } from './helpers/fixtures'
 import type { DrizzleService } from '@/database/drizzle.service'
-import type { CreateRecordData } from '@/modules/record/entities/record-domain.entity'
-
-function recordData(overrides: Partial<CreateRecordData> = {}): CreateRecordData {
-  return {
-    title: 'Test Record',
-    posterUrl: '',
-    link: 'https://example.com/record',
-    ...overrides,
-  }
-}
 
 integrationDescribe('DrizzleRecordRepository (integration)', () => {
   if (!integrationEnabled) return
@@ -37,7 +27,7 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
   })
 
   it('applies database defaults on create and keeps nullable columns null', async () => {
-    const created = await repository.create(recordData({ title: 'Alpha' }))
+    const created = await repository.create(recordCreateData({ title: 'Alpha' }))
 
     expect(created.title).toBe('Alpha')
     expect(created.status).toBe('QUEUE')
@@ -49,10 +39,27 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
     expect(created.createdAt).toBeInstanceOf(Date)
   })
 
+  it('passes explicit create fields through to the database', async () => {
+    const created = await repository.create(
+      recordCreateData({
+        title: 'Explicit',
+        genre: 'ANIME',
+        status: 'PROGRESS',
+        type: 'SUGGESTION',
+        extra: { source: 'test' },
+      }),
+    )
+
+    expect(created.genre).toBe('ANIME')
+    expect(created.status).toBe('PROGRESS')
+    expect(created.type).toBe('SUGGESTION')
+    expect(created.extra).toEqual({ source: 'test' })
+  })
+
   it('creates a suggestion ownership row when userId is passed', async () => {
     const user = await seedUser(db, 'owner')
 
-    const created = await repository.create(recordData({ userId: user.id }))
+    const created = await repository.create(recordCreateData({ userId: user.id }))
 
     const ownership = await db
       .select()
@@ -64,7 +71,7 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
 
   it('loads likes relation and returns null for a missing record', async () => {
     const user = await seedUser(db, 'liker')
-    const created = await repository.create(recordData({ title: 'With like' }))
+    const created = await repository.create(recordCreateData({ title: 'With like' }))
     await seedLike(db, user.id, created.id)
 
     const found = await repository.findById(created.id)
@@ -75,7 +82,7 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
   })
 
   it('clears grade with an explicit null update and updates plain fields', async () => {
-    const created = await repository.create(recordData())
+    const created = await repository.create(recordCreateData())
     await repository.update(created.id, { grade: 'LIKE' })
 
     const updated = await repository.update(created.id, { title: 'Renamed', grade: null })
@@ -93,7 +100,7 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
 
   it('deletes the record together with its likes', async () => {
     const user = await seedUser(db, 'liker')
-    const created = await repository.create(recordData())
+    const created = await repository.create(recordCreateData())
     await seedLike(db, user.id, created.id)
 
     await repository.delete(created.id)
@@ -132,9 +139,9 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
   })
 
   it('sorts and paginates results', async () => {
-    await repository.create(recordData({ title: 'Alpha Game' }))
-    await repository.create(recordData({ title: 'Beta Movie' }))
-    await repository.create(recordData({ title: 'Gamma Anime' }))
+    await repository.create(recordCreateData({ title: 'Alpha Game' }))
+    await repository.create(recordCreateData({ title: 'Beta Movie' }))
+    await repository.create(recordCreateData({ title: 'Gamma Anime' }))
 
     const byTitle = await repository.findAll(
       {},
@@ -154,5 +161,16 @@ integrationDescribe('DrizzleRecordRepository (integration)', () => {
     )
     expect(page).toHaveLength(1)
     expect(page[0]?.title).toBe('Beta Movie')
+
+    const descending = await repository.findAll(
+      {},
+      { orderBy: 'title', direction: 'desc' },
+      { skip: 0, take: 50 },
+    )
+    expect(descending.map((record) => record.title)).toEqual([
+      'Gamma Anime',
+      'Beta Movie',
+      'Alpha Game',
+    ])
   })
 })

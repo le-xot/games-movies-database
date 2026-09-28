@@ -62,10 +62,11 @@ export class RecordUpdateDTO {
     enum: RecordGrade,
     enumName: RecordGradeName,
     required: false,
+    nullable: true,
   })
   @IsOptional()
   @IsEnum(RecordGrade)
-  grade?: RecordGrade
+  grade?: RecordGrade | null
 
   @ApiProperty({ example: 'S01E01', required: false })
   @IsOptional()

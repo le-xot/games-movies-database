@@ -55,7 +55,7 @@ describe('SteamService', () => {
 
       expect(result.created).toHaveLength(0)
       expect(result.failed).toHaveLength(1)
-      expect(result.failed[0].reason).toContain('Already exists')
+      expect(result.failed[0]).toEqual({ appId: 111, reason: 'Already exists in database' })
     })
 
     it('creates record with IGDB data and emits event', async () => {

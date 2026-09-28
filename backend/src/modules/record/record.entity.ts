@@ -43,19 +43,19 @@ export class RecordEntity {
   @ApiProperty()
   posterUrl: string
 
-  @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName })
+  @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName, nullable: true })
   status: RecordStatus | null
 
-  @ApiProperty({ enum: RecordType, enumName: RecordTypeName })
+  @ApiProperty({ enum: RecordType, enumName: RecordTypeName, nullable: true })
   type: RecordType | null
 
-  @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName })
+  @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName, nullable: true })
   genre: RecordGenre | null
 
-  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName })
+  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, nullable: true })
   grade: RecordGrade | null
 
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   episode: string | null
 
   @ApiProperty({ required: false, nullable: true, type: Object })

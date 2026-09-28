@@ -56,10 +56,18 @@ export class SteamGamesResponseDTO {
   existingAppIds: string[]
 }
 
+export class SteamImportFailureDto {
+  @ApiProperty()
+  appId: number
+
+  @ApiProperty()
+  reason: string
+}
+
 export class SteamImportResultDTO {
   @ApiProperty({ type: [RecordEntity] })
   created: RecordEntity[]
 
-  @ApiProperty()
-  failed: { appId: number; reason: string }[]
+  @ApiProperty({ type: [SteamImportFailureDto] })
+  failed: SteamImportFailureDto[]
 }

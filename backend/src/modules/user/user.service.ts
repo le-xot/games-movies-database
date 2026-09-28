@@ -16,7 +16,7 @@ import {
   UserDomain,
 } from '@/modules/user/entities/user-domain.entity'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
-import { WsEvents, type UpdateUsersPayload } from '@/modules/websocket/websocket.events'
+import { WsEvents, emitWs, type UpdateUsersPayload } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class UserService {
@@ -29,10 +29,10 @@ export class UserService {
   ) {}
 
   private emitUserUpdate(userId: string, action: UpdateUsersPayload['action']) {
-    this.eventEmitter.emit(WsEvents.UPDATE_USERS, {
+    emitWs(this.eventEmitter, WsEvents.UPDATE_USERS, {
       userId,
       action,
-    } satisfies UpdateUsersPayload)
+    })
   }
 
   private async safeGenerateDefaultAvatar(

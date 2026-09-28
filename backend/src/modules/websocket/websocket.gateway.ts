@@ -4,6 +4,8 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 import {
   WsEvents,
+  type ClientToServerEvents,
+  type ServerToClientEvents,
   type UpdateLikesPayload,
   type UpdateQueuePayload,
   type UpdateRecordsPayload,
@@ -20,13 +22,16 @@ const allowedOrigins = parseCorsOrigins(env.CORS_ORIGINS)
 @WebSocketGateway({
   cors: { origin: allowedOrigins },
   transports: ['websocket'],
-  allowRequest: (request, callback) => {
+  allowRequest: (
+    request: { headers: { origin?: string } },
+    callback: (err: string | null, allow: boolean) => void,
+  ) => {
     callback(null, isOriginAllowed(request.headers.origin, allowedOrigins))
   },
 })
 export class WebsocketGateway {
   @WebSocketServer()
-  server: Server
+  server: Server<ClientToServerEvents, ServerToClientEvents>
 
   @OnEvent(WsEvents.UPDATE_LIKES)
   handleUpdateLikes(payload: UpdateLikesPayload) {

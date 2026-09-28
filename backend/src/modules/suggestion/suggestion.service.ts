@@ -9,7 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
-import { WsEvents, type UpdateSuggestionsPayload } from '@/modules/websocket/websocket.events'
+import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
 
 @Injectable()
 export class SuggestionService {
@@ -53,10 +53,10 @@ export class SuggestionService {
       data.userId,
     )
 
-    this.eventEmitter.emit(WsEvents.UPDATE_SUGGESTIONS, {
+    emitWs(this.eventEmitter, WsEvents.UPDATE_SUGGESTIONS, {
       id: createdRecord.id,
       action: 'created',
-    } satisfies UpdateSuggestionsPayload)
+    })
     this.logger.log(`Suggestion created title=${preparedData.title} genre=${preparedData.genre}`)
     return {
       title: preparedData.title,
@@ -89,9 +89,9 @@ export class SuggestionService {
 
     await this.suggestionRepository.deleteSuggestionWithLikes(id)
 
-    this.eventEmitter.emit(WsEvents.UPDATE_SUGGESTIONS, {
+    emitWs(this.eventEmitter, WsEvents.UPDATE_SUGGESTIONS, {
       id,
       action: 'deleted',
-    } satisfies UpdateSuggestionsPayload)
+    })
   }
 }

@@ -9,6 +9,7 @@ import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-r
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import {
   WsEvents,
+  emitWs,
   type UpdateQueuePayload,
   type UpdateRecordsPayload,
   type UpdateSuggestionsPayload,
@@ -26,14 +27,11 @@ export class RecordService {
   ) {}
 
   private emitQueueEvent(id: number, action: UpdateQueuePayload['action']) {
-    this.eventEmitter.emit(WsEvents.UPDATE_QUEUE, { id, action } satisfies UpdateQueuePayload)
+    emitWs(this.eventEmitter, WsEvents.UPDATE_QUEUE, { id, action })
   }
 
   private emitSuggestionsEvent(id: number, action: UpdateSuggestionsPayload['action']) {
-    this.eventEmitter.emit(WsEvents.UPDATE_SUGGESTIONS, {
-      id,
-      action,
-    } satisfies UpdateSuggestionsPayload)
+    emitWs(this.eventEmitter, WsEvents.UPDATE_SUGGESTIONS, { id, action })
   }
 
   private emitRecordsEvent(
@@ -41,11 +39,7 @@ export class RecordService {
     genre: RecordGenre | undefined,
     action: UpdateRecordsPayload['action'],
   ) {
-    this.eventEmitter.emit(WsEvents.UPDATE_RECORDS, {
-      genre,
-      id,
-      action,
-    } satisfies UpdateRecordsPayload)
+    emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, { genre, id, action })
   }
 
   async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {

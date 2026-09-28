@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { WordleGameStatus } from '@/enums'
-import { WsEvents, type UpdateWordlePayload } from '@/modules/websocket/websocket.events'
+import { WsEvents, emitWs, type UpdateWordlePayload } from '@/modules/websocket/websocket.events'
 import {
   DrizzleWordleRepository,
   type WordleGameRecord,
@@ -112,7 +112,7 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
     if (updated.status !== WordleGameStatus.IN_PROGRESS) {
       this.leaderboardCache.invalidate()
       const payload: UpdateWordlePayload = { date, userId, action: 'finished' }
-      this.eventEmitter.emit(WsEvents.UPDATE_WORDLE, payload)
+      emitWs(this.eventEmitter, WsEvents.UPDATE_WORDLE, payload)
     }
 
     return this.buildState(updated, date, now)

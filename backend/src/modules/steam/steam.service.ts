@@ -3,7 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordType } from '@/enums'
 import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { WsEvents, type UpdateRecordsPayload } from '@/modules/websocket/websocket.events'
+import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
 import { env } from '@/utils/enviroments'
 import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
@@ -159,11 +159,11 @@ export class SteamService {
           await this.recordRepository.update(record.id, { grade: game.grade })
         }
 
-        this.eventEmitter.emit(WsEvents.UPDATE_RECORDS, {
+        emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, {
           genre: record.genre,
           id: record.id,
           action: 'created',
-        } satisfies UpdateRecordsPayload)
+        })
 
         created.push(record)
       } catch (error) {

@@ -27,12 +27,12 @@ const { handleUpdateValue } = useBadgeCol<T | undefined>(selectValue as Ref<T | 
 
 const select = useBadgeSelect()
 const data = computed(() => {
-  const tag = select[`${props.kind}Tags`]?.[
-    selectValue.value as RecordStatus & RecordGrade & RecordGenre
-  ] as BadgeOptions
+  const tags = props.kind === 'status' ? select.statusTags : select.gradeTags
+  const tag = (tags as Record<string, BadgeOptions>)[selectValue.value ?? '']
+  const options = props.kind === 'status' ? select.statusOptions : select.gradeOptions
   return {
     tag: tag ?? null,
-    options: select.options[props.kind],
+    options,
   }
 })
 
@@ -42,7 +42,7 @@ const placeholder = computed(() => {
 })
 
 function handleSelect(value: string) {
-  handleUpdateValue(value)
+  handleUpdateValue(value as T | undefined)
 }
 </script>
 

@@ -5,11 +5,11 @@ export type WordleLeaderboardMode = 'today' | 'wins' | 'streak'
 export const WORDLE_MAX_ATTEMPTS = 6
 export const WORDLE_WORD_LENGTH = 5
 
-export const WORDLE_KEYBOARD_ROWS: string[][] = [
+export const WORDLE_KEYBOARD_ROWS = [
   ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ'],
   ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э'],
   ['enter', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', 'backspace'],
-]
+] as const
 
 export const KEYBOARD_CODE_MAP: Record<string, string> = {
   KeyQ: 'й',

@@ -30,8 +30,11 @@ export function useSteamSync() {
   const importResult = ref<{ created: number; failed: number } | null>(null)
   const filter = ref<FilterKind>('all')
 
-  const statusOptions = badgeSelect.options.status
-  const gradeOptions = [{ value: '__none__', label: 'Нет оценки' }, ...badgeSelect.options.grade]
+  const statusOptions = badgeSelect.statusOptions
+  const gradeOptions = [
+    { value: '__none__' as const, label: 'Нет оценки' },
+    ...badgeSelect.gradeOptions,
+  ]
   const selectedCount = computed(() => selected.value.size)
 
   function isHidden(appId: number): boolean {
@@ -121,13 +124,13 @@ export function useSteamSync() {
     selected.value = newSelected
   }
 
-  function updateGrade(appId: number, grade: string) {
+  function updateGrade(appId: number, grade: RecordGrade | '__none__') {
     const entry = selected.value.get(appId)
     if (!entry) return
     const newSelected = new Map(selected.value)
     newSelected.set(appId, {
       ...entry,
-      grade: grade === '__none__' ? null : (grade as RecordGrade),
+      grade: grade === '__none__' ? null : grade,
     })
     selected.value = newSelected
   }

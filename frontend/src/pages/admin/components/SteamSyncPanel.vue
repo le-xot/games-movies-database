@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { RecordStatus } from '@/lib/api'
+import { RecordGrade, RecordStatus } from '@/lib/api'
 import { useSteamSync } from '@/pages/admin/composables/use-steam-sync'
 
 const {
@@ -155,7 +155,7 @@ const {
 
             <Select
               :model-value="selected.get(game.appid)?.grade ?? '__none__'"
-              @update:model-value="(v) => updateGrade(game.appid, v as string)"
+              @update:model-value="(v) => updateGrade(game.appid, v as RecordGrade | '__none__')"
               @click.stop
             >
               <SelectTrigger class="w-28 h-8 text-xs shrink-0">

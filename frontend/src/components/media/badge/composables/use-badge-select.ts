@@ -8,6 +8,23 @@ export interface BadgeOptions {
   class?: string
 }
 
+export interface BadgeOption<T extends string> {
+  label: string
+  value: T
+  class?: string
+}
+
+export function toBadgeOptions<T extends string>(
+  tags: Record<T, BadgeOptions>,
+  formatLabel: (tag: BadgeOptions) => string = (tag) => tag.name,
+): BadgeOption<T>[] {
+  return (Object.entries(tags) as [T, BadgeOptions][]).map(([value, tag]) => ({
+    label: formatLabel(tag),
+    value,
+    class: tag.class,
+  }))
+}
+
 export type SelectKind = 'status' | 'grade'
 
 export const statusTags: Record<RecordStatus, BadgeOptions> = {
@@ -70,27 +87,14 @@ export const gradeTags: Record<RecordGrade, BadgeOptions> = {
 }
 
 export const useBadgeSelect = defineStore('use-badge-select', () => {
-  const options: Record<SelectKind, { label: string; value: string; class?: string }[]> = {
-    status: Object.entries(statusTags).map(([key, value]) => {
-      return {
-        label: value.name,
-        value: key,
-        class: value.class,
-      }
-    }),
-    grade: Object.entries(gradeTags).map(([key, value]) => {
-      return {
-        label: `${value.name} ${value.label}`,
-        value: key,
-        class: value.class,
-      }
-    }),
-  }
+  const statusOptions = toBadgeOptions(statusTags)
+  const gradeOptions = toBadgeOptions(gradeTags, (tag) => `${tag.name} ${tag.label}`)
 
   return {
     gradeTags,
     statusTags,
-    options,
+    statusOptions,
+    gradeOptions,
   }
 })
 

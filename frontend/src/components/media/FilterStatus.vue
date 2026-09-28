@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SlidersHorizontal } from '@lucide/vue'
 import { computed } from 'vue'
-import { statusTags } from '@/components/media/badge/composables/use-badge-select'
+import { statusTags, toBadgeOptions } from '@/components/media/badge/composables/use-badge-select'
 import FilterPopover from '@/components/media/FilterPopover.vue'
 import { RecordStatus } from '@/lib/api'
 
@@ -14,10 +14,10 @@ const emit = defineEmits<{
 }>()
 
 const statusOptions = computed(() =>
-  Object.entries(statusTags).map(([key, value]) => ({
-    value: key,
-    name: value.name,
-    class: value.class,
+  toBadgeOptions(statusTags).map(({ value, label, class: optionClass }) => ({
+    value,
+    name: label,
+    class: optionClass,
   })),
 )
 </script>
@@ -28,6 +28,6 @@ const statusOptions = computed(() =>
     :options="statusOptions"
     :icon="SlidersHorizontal"
     label="Статус"
-    @update="emit('update', $event as RecordStatus[] | null)"
+    @update="emit('update', $event)"
   />
 </template>

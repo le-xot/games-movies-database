@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Star } from '@lucide/vue'
 import { computed } from 'vue'
-import { gradeTags } from '@/components/media/badge/composables/use-badge-select'
+import { gradeTags, toBadgeOptions } from '@/components/media/badge/composables/use-badge-select'
 import FilterPopover from '@/components/media/FilterPopover.vue'
 import { RecordGrade } from '@/lib/api'
 
@@ -14,11 +14,11 @@ const emit = defineEmits<{
 }>()
 
 const gradeOptions = computed(() =>
-  Object.entries(gradeTags).map(([key, value]) => ({
-    value: key,
-    name: value.name,
-    label: value.label,
-    class: value.class,
+  toBadgeOptions(gradeTags, (tag) => tag.name).map(({ value, label, class: optionClass }) => ({
+    value,
+    name: label,
+    label: gradeTags[value].label,
+    class: optionClass,
   })),
 )
 </script>
@@ -29,6 +29,6 @@ const gradeOptions = computed(() =>
     :options="gradeOptions"
     :icon="Star"
     label="Оценка"
-    @update="emit('update', $event as RecordGrade[] | null)"
+    @update="emit('update', $event)"
   />
 </template>

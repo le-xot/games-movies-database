@@ -3,9 +3,10 @@ import { Check, ListFilter, X } from '@lucide/vue'
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import type { Component } from 'vue'
 
-export interface FilterOption {
-  value: string
+export interface FilterOption<T extends string = string> {
+  value: T
   name: string
   label?: string
   class?: string
@@ -13,8 +14,8 @@ export interface FilterOption {
 
 const props = defineProps<{
   value: T[] | null
-  options: FilterOption[]
-  icon?: any
+  options: FilterOption<T>[]
+  icon?: Component
   label?: string
 }>()
 
@@ -22,18 +23,17 @@ const emit = defineEmits<{
   update: [value: T[] | null]
 }>()
 
-function toggleItem(item: string) {
-  const typed = item as T
+function toggleItem(item: T) {
   const newValue = props.value
-    ? props.value.includes(typed)
-      ? props.value.filter((s) => s !== typed)
-      : [...props.value, typed]
-    : [typed]
+    ? props.value.includes(item)
+      ? props.value.filter((s) => s !== item)
+      : [...props.value, item]
+    : [item]
   emit('update', newValue.length ? newValue : null)
 }
 
-function isSelected(value: string): boolean {
-  return props.value?.includes(value as T) ?? false
+function isSelected(value: T): boolean {
+  return props.value?.includes(value) ?? false
 }
 
 function resetFilter() {

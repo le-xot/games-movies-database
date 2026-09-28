@@ -30,10 +30,11 @@ import {
   ZshIcon,
 } from 'vue3-simple-icons'
 import Arch from '@/pages/pc/assets/archlinux.svg?component'
+import type { Component } from 'vue'
 
 interface PartLink {
   name: string
-  icon: any
+  icon: Component | string
 }
 
 const SOFTWARE: PartLink[] = [

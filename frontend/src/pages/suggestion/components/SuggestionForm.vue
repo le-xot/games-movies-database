@@ -47,14 +47,15 @@ function handleCancel() {
   dialog.closeDialog()
 }
 
-async function submitSuggestion(values: any) {
-  if (!values.link) return
+async function submitSuggestion(values: unknown) {
+  const { link } = (values ?? {}) as Partial<FormValues>
+  if (typeof link !== 'string' || !link) return
 
   isSubmitting.value = true
   errorMessage.value = ''
 
   try {
-    await suggestion.submitSuggestion(values.link)
+    await suggestion.submitSuggestion(link)
     form.resetForm()
     dialog.closeDialog()
   } catch (err: any) {

@@ -98,7 +98,6 @@ export const router = createRouter({
           path: ROUTER_PATHS.wordle,
           name: 'wordle',
           component: () => import('@/pages/wordle/WordlePage.vue'),
-          meta: { requiresAuth: true },
         },
       ],
     },

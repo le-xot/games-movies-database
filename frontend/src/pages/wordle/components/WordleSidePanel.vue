@@ -8,6 +8,7 @@ import { WordleGameStatus } from '@/lib/api'
 import WordleLeaderboardList from '@/pages/wordle/components/WordleLeaderboardList.vue'
 import { useWordle } from '@/pages/wordle/composables/use-wordle'
 import { useWordleShare } from '@/pages/wordle/composables/use-wordle-share'
+import { formatWordleGlobalStats } from '@/pages/wordle/constants/wordle-constants'
 import type { WordleLeaderboardMode } from '@/pages/wordle/constants/wordle-constants'
 
 defineProps<{
@@ -51,11 +52,6 @@ const distribution = computed(() => {
 
 const distributionTotal = computed(() =>
   (stats.value?.distribution ?? []).reduce((sum, value) => sum + value, 0),
-)
-
-const globalStats = computed(
-  () =>
-    `Игроков ${leaderboard.value?.totalPlayers ?? 0} · Игр ${leaderboard.value?.totalGames ?? 0} · Побед сегодня ${leaderboard.value?.winsToday ?? 0}`,
 )
 </script>
 
@@ -126,7 +122,7 @@ const globalStats = computed(
 
       <WordleLeaderboardList :leaderboard="leaderboard" :mode="mode" compact :limit="5" />
 
-      <p class="mt-2 text-xs text-muted-foreground">{{ globalStats }}</p>
+      <p class="mt-2 text-xs text-muted-foreground">{{ formatWordleGlobalStats(leaderboard) }}</p>
     </div>
   </aside>
 </template>

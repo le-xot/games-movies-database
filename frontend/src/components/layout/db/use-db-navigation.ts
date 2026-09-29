@@ -57,7 +57,6 @@ export const wordleNavItem: RouteItem = {
   name: 'Вордли',
   icon: Puzzle,
   path: ROUTER_PATHS.wordle,
-  requiresAuth: true,
 }
 
 export function useDbNavigation() {

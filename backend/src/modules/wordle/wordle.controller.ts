@@ -19,11 +19,11 @@ import { RATE_LIMITS } from '@/utils/rate-limits'
 @ApiTags('wordle')
 @ApiErrors()
 @Controller('wordle')
-@UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
 export class WordleController {
   constructor(private readonly wordleService: WordleService) {}
 
   @Get('state')
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: WordleStateDTO })
   getState(@User() user: UserEntity): Promise<WordleStateDTO> {
     return this.wordleService.getState(user.id)
@@ -31,12 +31,14 @@ export class WordleController {
 
   @Post('guess')
   @RateLimit(RATE_LIMITS.write)
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: WordleStateDTO })
   makeGuess(@Body() body: WordleGuessDTO, @User() user: UserEntity): Promise<WordleStateDTO> {
     return this.wordleService.makeGuess(user.id, body.word)
   }
 
   @Get('stats')
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: WordleStatsDTO })
   getStats(@User() user: UserEntity): Promise<WordleStatsDTO> {
     return this.wordleService.getStats(user.id)

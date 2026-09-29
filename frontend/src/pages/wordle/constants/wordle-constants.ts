@@ -1,4 +1,5 @@
 import { WordleLetterState } from '@/lib/api'
+import type { WordleLeaderboardDTO } from '@/lib/api'
 
 export type WordleLeaderboardMode = 'today' | 'wins' | 'streak'
 
@@ -78,4 +79,8 @@ export const LETTER_STATE_RANK: Record<WordleLetterState, number> = {
 
 export function normalizeWordleWord(word: string): string {
   return word.trim().toLowerCase().replace(/ё/g, 'е')
+}
+
+export function formatWordleGlobalStats(leaderboard?: WordleLeaderboardDTO): string {
+  return `Игроков ${leaderboard?.totalPlayers ?? 0} · Игр ${leaderboard?.totalGames ?? 0} · Побед сегодня ${leaderboard?.winsToday ?? 0}`
 }

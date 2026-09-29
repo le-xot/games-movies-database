@@ -12,6 +12,7 @@ export const useUser = defineStore('globals/use-user', () => {
 
   const {
     isLoading,
+    isPending,
     data: user,
     refetch: refetchUser,
   } = useQuery({
@@ -63,6 +64,7 @@ export const useUser = defineStore('globals/use-user', () => {
 
   return {
     isLoading,
+    isPending,
     user,
     isLoggedIn,
     isAdmin,

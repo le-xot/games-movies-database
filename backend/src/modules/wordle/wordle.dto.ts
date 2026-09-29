@@ -92,6 +92,11 @@ export class WordleLeaderboardEntryDTO {
   avgAttempts!: number
 }
 
+export class WordleDailyGuessDTO {
+  @ApiProperty({ enum: WordleLetterState, enumName: 'WordleLetterState', isArray: true })
+  states!: WordleLetterState[]
+}
+
 export class WordleDailyLeaderboardEntryDTO {
   @ApiProperty()
   userId!: string
@@ -110,6 +115,9 @@ export class WordleDailyLeaderboardEntryDTO {
 
   @ApiProperty({ example: 3 })
   attempts!: number
+
+  @ApiProperty({ type: [WordleDailyGuessDTO] })
+  guesses!: WordleDailyGuessDTO[]
 }
 
 export class WordleDailyLeaderboardDTO {

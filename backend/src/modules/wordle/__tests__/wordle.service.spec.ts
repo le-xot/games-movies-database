@@ -10,6 +10,7 @@ import {
 } from '@/modules/wordle/repositories/drizzle-wordle.repository'
 import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
 import { getMoscowDateKey } from '@/modules/wordle/wordle.date'
+import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
 import { WordleService } from '@/modules/wordle/wordle.service'
 import type { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
 
@@ -255,7 +256,7 @@ describe('WordleService', () => {
       })
     })
 
-    it('builds the daily leaderboard from finished games of the day', async () => {
+    it('builds the daily leaderboard with color states from finished games of the day', async () => {
       mockRepo.findFinishedWithUsersByDate = mock(() =>
         Promise.resolve([
           {
@@ -273,14 +274,43 @@ describe('WordleService', () => {
 
       expect(mockRepo.findFinishedWithUsersByDate).toHaveBeenCalledWith(TODAY)
       expect(leaderboard.today.total).toBe(2)
-      expect(leaderboard.today.entries[0]).toMatchObject({
+      expect(leaderboard.today.entries[0]).toEqual({
         userId: 'user-1',
+        login: 'lexa',
+        profileImageUrl: '',
+        color: '#111',
         status: WordleGameStatus.WON,
         attempts: 1,
+        guesses: [
+          {
+            states: [
+              WordleLetterState.CORRECT,
+              WordleLetterState.CORRECT,
+              WordleLetterState.CORRECT,
+              WordleLetterState.CORRECT,
+              WordleLetterState.CORRECT,
+            ],
+          },
+        ],
       })
-      expect(leaderboard.today.entries[1]).toMatchObject({
+      expect(leaderboard.today.entries[1]).toEqual({
         userId: 'user-2',
+        login: 'bob',
+        profileImageUrl: '',
+        color: '#000',
         status: WordleGameStatus.LOST,
+        attempts: 1,
+        guesses: [
+          {
+            states: [
+              WordleLetterState.ABSENT,
+              WordleLetterState.PRESENT,
+              WordleLetterState.ABSENT,
+              WordleLetterState.PRESENT,
+              WordleLetterState.PRESENT,
+            ],
+          },
+        ],
       })
     })
 

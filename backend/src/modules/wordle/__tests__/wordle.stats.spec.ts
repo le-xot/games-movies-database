@@ -201,6 +201,7 @@ describe('buildDailyLeaderboard', () => {
     color: '#123456',
     status: WON,
     attempts: 3,
+    guesses: [],
     ...overrides,
   })
 

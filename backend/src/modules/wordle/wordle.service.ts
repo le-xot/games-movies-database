@@ -168,6 +168,7 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
           color: user.color,
           status: game.status,
           attempts: game.guesses.length,
+          guesses: game.guesses.map((word) => ({ states: scoreGuess(game.answer, word) })),
         })),
       ),
     }

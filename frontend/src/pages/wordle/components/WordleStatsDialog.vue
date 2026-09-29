@@ -140,7 +140,7 @@ const globalStats = computed(() => [
           </Card>
         </div>
 
-        <WordleLeaderboardList :leaderboard="leaderboard" :mode="mode" />
+        <WordleLeaderboardList :leaderboard="leaderboard" :mode="mode" preview-mode="inline" />
       </div>
     </DialogScrollContent>
   </Dialog>

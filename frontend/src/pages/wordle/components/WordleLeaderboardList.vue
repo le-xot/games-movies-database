@@ -2,13 +2,9 @@
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { WordleGameStatus } from '@/lib/api'
+import WordleDailyLeaderboardRow from '@/pages/wordle/components/WordleDailyLeaderboardRow.vue'
 import { useUser } from '@/stores/use-user'
-import type {
-  WordleDailyLeaderboardEntryDTO,
-  WordleLeaderboardDTO,
-  WordleLeaderboardEntryDTO,
-} from '@/lib/api'
+import type { WordleLeaderboardDTO, WordleLeaderboardEntryDTO } from '@/lib/api'
 import type { WordleLeaderboardMode } from '@/pages/wordle/constants/wordle-constants'
 
 const props = defineProps<{
@@ -16,6 +12,7 @@ const props = defineProps<{
   mode: WordleLeaderboardMode
   compact?: boolean
   limit?: number
+  previewMode?: 'inline' | 'popover'
 }>()
 
 const userStore = useUser()
@@ -45,10 +42,6 @@ const listClass = computed(() => (props.compact ? '' : 'max-h-64 overflow-y-auto
 function isCurrentUser(userId: string) {
   return userId === currentUserId.value
 }
-
-function dailyResult(entry: WordleDailyLeaderboardEntryDTO) {
-  return entry.status === WordleGameStatus.WON ? `с ${entry.attempts}-й попытки` : 'не угадал'
-}
 </script>
 
 <template>
@@ -57,24 +50,14 @@ function dailyResult(entry: WordleDailyLeaderboardEntryDTO) {
     class="flex flex-col gap-1"
     :class="listClass"
   >
-    <li
+    <WordleDailyLeaderboardRow
       v-for="entry in dailyEntries"
       :key="entry.userId"
-      class="flex items-center gap-2 rounded-lg px-2"
-      :class="[rowPadding, { 'bg-secondary': isCurrentUser(entry.userId) }]"
-    >
-      <Avatar size="sm" shape="circle">
-        <AvatarImage :src="entry.profileImageUrl" :alt="entry.login" />
-        <AvatarFallback>{{ entry.login.slice(0, 1).toUpperCase() }}</AvatarFallback>
-      </Avatar>
-      <div class="min-w-0 flex-1">
-        <p class="truncate text-sm font-medium">{{ entry.login }}</p>
-        <p class="text-muted-foreground" :class="subTextClass">{{ dailyResult(entry) }}</p>
-      </div>
-      <span class="text-base font-bold">
-        {{ entry.status === WordleGameStatus.WON ? entry.attempts : '—' }}
-      </span>
-    </li>
+      :entry="entry"
+      :compact="compact"
+      :is-current-user="isCurrentUser(entry.userId)"
+      :preview-mode="previewMode"
+    />
   </ul>
 
   <p v-else-if="mode === 'today'" class="text-xs text-muted-foreground">

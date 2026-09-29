@@ -1,5 +1,6 @@
 import { WordleGameStatus } from '@/enums'
 import { daysBetween } from '@/modules/wordle/wordle.date'
+import type { WordleLetterState } from '@/modules/wordle/wordle.scoring'
 
 export const MAX_ATTEMPTS = 6
 export const WORD_LENGTH = 5
@@ -46,6 +47,10 @@ export interface WordleLeaderboardResult {
   totalGames: number
 }
 
+export interface WordleDailyGuess {
+  states: WordleLetterState[]
+}
+
 export interface WordleDailyLeaderboardRow {
   userId: string
   login: string
@@ -53,6 +58,7 @@ export interface WordleDailyLeaderboardRow {
   color: string
   status: WordleGameStatus
   attempts: number
+  guesses: WordleDailyGuess[]
 }
 
 export interface WordleDailyLeaderboardResult {

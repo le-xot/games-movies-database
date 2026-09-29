@@ -27,4 +27,35 @@ test.describe('authorized player', () => {
     await expect(dialog.getByRole('heading', { name: 'Статистика' })).toBeVisible()
     await expect(dialog.getByText('Играно')).toBeVisible()
   })
+
+  test('tapping a player in the stats dialog expands their grid inline', async ({ page }) => {
+    await page.goto('/db/wordle')
+    await page.getByRole('button', { name: 'Статистика' }).click()
+    const dialog = page.getByRole('dialog')
+
+    await dialog.getByRole('button', { name: /e2e-wordle-player/ }).click()
+
+    const grid = dialog.getByRole('img', { name: 'Сетка попыток' })
+    await expect(grid).toBeVisible()
+    await expect(grid.locator('div')).toHaveCount(6)
+    await expect(grid.locator('span')).toHaveCount(30)
+  })
+})
+
+test.describe('daily leaderboard preview', () => {
+  test.use({
+    storageState: ADMIN_STATE_FILE,
+    viewport: { width: 1440, height: 900 },
+  })
+
+  test('hovering a finished player shows their attempt grid', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await page.getByRole('button', { name: /e2e-wordle-player/ }).hover()
+
+    const grid = page.getByRole('img', { name: 'Сетка попыток' })
+    await expect(grid).toBeVisible()
+    await expect(grid.locator('div')).toHaveCount(6)
+    await expect(grid.locator('span')).toHaveCount(30)
+  })
 })

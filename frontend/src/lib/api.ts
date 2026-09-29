@@ -407,6 +407,10 @@ export interface WordleLeaderboardEntryDTO {
   avgAttempts: number;
 }
 
+export interface WordleDailyGuessDTO {
+  states: WordleLetterState[];
+}
+
 export interface WordleDailyLeaderboardEntryDTO {
   userId: string;
   login: string;
@@ -415,6 +419,7 @@ export interface WordleDailyLeaderboardEntryDTO {
   status: WordleGameStatus;
   /** @example 3 */
   attempts: number;
+  guesses: WordleDailyGuessDTO[];
 }
 
 export interface WordleDailyLeaderboardDTO {

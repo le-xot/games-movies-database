@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test'
 import { ADMIN_STATE_FILE } from './helpers/env'
 
+// Seed выполняется один раз за прогон: ретрай после удаления фикстуры не восстановит её.
+test.describe.configure({ retries: 0 })
+
 test.use({ storageState: ADMIN_STATE_FILE })
 
 test('admin page lists users and deletes the seeded victim', async ({ page }) => {
@@ -12,6 +15,7 @@ test('admin page lists users and deletes the seeded victim', async ({ page }) =>
   await expect(page.getByRole('alertdialog').getByText('Удалить пользователя?')).toBeVisible()
   await page.getByRole('button', { name: 'Подтвердить' }).click()
   await expect(page.getByTestId('user-card').filter({ hasText: 'e2e-victim' })).toBeHidden()
+  await expect(page.getByTestId('user-card').filter({ hasText: 'e2e-admin' })).toBeVisible()
 })
 
 test('account dialog opens and navigates to the admin page', async ({ page }) => {

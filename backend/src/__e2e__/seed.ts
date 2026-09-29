@@ -6,20 +6,22 @@ import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { SignJWT } from 'jose'
 import { Pool } from 'pg'
+import { assertTestDatabase } from '@/utils/assert-test-database'
 
 const ADMIN_ID = 'e2e-admin'
 const VICTIM_ID = 'e2e-victim'
 const RECORD_LINK = 'https://example.com/e2e-record'
 const RECORD_TITLE = 'E2E Record'
 
-const datasourceUrl = process.env.TEST_DATASOURCE_URL ?? process.env.DATASOURCE_URL
+const datasourceUrl = process.env.TEST_DATASOURCE_URL
 const jwtSecret = process.env.JWT_SECRET
 const stateFile = process.env.E2E_STATE_FILE
 
 if (!datasourceUrl || !jwtSecret || !stateFile) {
-  console.error('Seed требует DATASOURCE_URL/TEST_DATASOURCE_URL, JWT_SECRET и E2E_STATE_FILE')
+  console.error('Seed требует TEST_DATASOURCE_URL, JWT_SECRET и E2E_STATE_FILE')
   process.exit(1)
 }
+assertTestDatabase(datasourceUrl)
 
 const pool = new Pool({ connectionString: datasourceUrl })
 const db = drizzle(pool)
@@ -51,7 +53,7 @@ try {
   const token = await new SignJWT({ id: ADMIN_ID })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('1d')
+    .setExpirationTime('2h')
     .sign(new TextEncoder().encode(jwtSecret))
 
   fs.mkdirSync(path.dirname(stateFile), { recursive: true })

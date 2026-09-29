@@ -4,6 +4,7 @@ import { getTableName, is } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { PgTable } from 'drizzle-orm/pg-core'
 import { Pool } from 'pg'
+import { assertTestDatabase } from '@/utils/assert-test-database'
 
 export const TEST_DATASOURCE_URL = process.env.TEST_DATASOURCE_URL
 
@@ -23,18 +24,7 @@ export const TABLE_NAMES = Object.values(schema)
   .map((table) => getTableName(table as PgTable))
   .sort()
 
-export function assertTestDatabase(url: string): void {
-  let name: string
-  try {
-    name = new URL(url).pathname.replace(/^\//, '')
-  } catch {
-    throw new Error(`TEST_DATASOURCE_URL must be a URL DSN, got "${url}"`)
-  }
-  if (!name) throw new Error('TEST_DATASOURCE_URL has no database name')
-  if (!name.endsWith('_test')) {
-    throw new Error(`Refusing to run integration tests against non-test database "${name}"`)
-  }
-}
+export { assertTestDatabase }
 
 export function createTestPool(): Pool {
   if (!TEST_DATASOURCE_URL) throw new Error('TEST_DATASOURCE_URL is not set')

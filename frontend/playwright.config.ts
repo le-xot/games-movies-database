@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
 import {
@@ -9,6 +10,7 @@ import {
 
 const backendDir = fileURLToPath(new URL('../backend', import.meta.url))
 const frontendDir = fileURLToPath(new URL('.', import.meta.url))
+const e2eJwtSecret = process.env.E2E_JWT_SECRET ?? randomUUID()
 
 export default defineConfig({
   testDir: './e2e',
@@ -42,7 +44,7 @@ export default defineConfig({
         RUN_DB_TESTS: '1',
         APP_PORT: String(BACKEND_PORT),
         CORS_ORIGINS: `http://localhost:${FRONTEND_PORT},http://localhost:${BACKEND_PORT}`,
-        JWT_SECRET: process.env.E2E_JWT_SECRET ?? 'supersecret',
+        JWT_SECRET: e2eJwtSecret,
         E2E_STATE_FILE: ADMIN_STATE_FILE,
       },
     },

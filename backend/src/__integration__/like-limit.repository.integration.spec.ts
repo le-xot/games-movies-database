@@ -67,4 +67,19 @@ setupIntegrationSuite('DrizzleLikeRepository / DrizzleLimitRepository (integrati
   it('throws when the limit row is missing', async () => {
     await expect(limitRepository.update('SUGGESTION', 1)).rejects.toThrow('not found')
   })
+
+  it('rejects one of two concurrent duplicate likes', async () => {
+    const user = await seedUser(db, 'liker')
+    const [record] = await db.insert(records).values(seedRecord()).returning()
+    if (!record) throw new Error('seed failed')
+
+    const results = await Promise.allSettled([
+      likeRepository.create(user.id, record.id),
+      likeRepository.create(user.id, record.id),
+    ])
+
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1)
+    expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1)
+    expect(await likeRepository.countAll()).toBe(1)
+  })
 })

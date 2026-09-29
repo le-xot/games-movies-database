@@ -233,4 +233,26 @@ setupIntegrationSuite('Wordle repositories (integration)', ({ db }) => {
     expect(await notifications.findByUserId(winner.id)).toBeNull()
     expect(await db.select().from(wordleGames)).toHaveLength(2)
   })
+
+  it('serializes concurrent createGame calls for the same user and date', async () => {
+    const user = await seedUser(db, 'concurrent')
+
+    const [first, second] = await Promise.all([
+      repository.createGame({
+        id: crypto.randomUUID(),
+        userId: user.id,
+        date: '2026-09-30',
+        answer: 'манго',
+      }),
+      repository.createGame({
+        id: crypto.randomUUID(),
+        userId: user.id,
+        date: '2026-09-30',
+        answer: 'манго',
+      }),
+    ])
+
+    expect(first.id).toBe(second.id)
+    expect(await db.select().from(wordleGames)).toHaveLength(1)
+  })
 })

@@ -18,6 +18,10 @@ adminUrl.search = ''
 
 const admin = new Pool({ connectionString: adminUrl.toString() })
 try {
+  if (process.argv.includes('--reset')) {
+    await admin.query(`DROP DATABASE IF EXISTS "${dbName}" WITH (FORCE)`)
+    console.log(`♻️  Пересоздаю тестовую БД: ${dbName}`)
+  }
   const exists = await admin.query('select 1 from pg_database where datname = $1', [dbName])
   if ((exists.rowCount ?? 0) === 0) {
     await admin.query(`CREATE DATABASE "${dbName}"`)

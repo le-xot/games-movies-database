@@ -5,6 +5,7 @@ import {
   records,
   suggestionOwnerships,
   userAccounts,
+  users,
   wordleGames,
 } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
@@ -181,5 +182,53 @@ setupIntegrationSuite('DrizzleUserRepository (integration)', ({ db }) => {
     expect(
       await db.select().from(wordleGames).where(eq(wordleGames.userId, target.id)),
     ).toHaveLength(2)
+  })
+
+  it('rolls back the whole merge when a late step fails inside the transaction', async () => {
+    const target = await seedUser(db, 'target')
+    const source = await seedUser(db, 'source')
+    const [record] = await db.insert(records).values(seedRecord()).returning()
+    if (!record) throw new Error('seed failed')
+    await seedLike(db, target.id, record.id)
+    await seedLike(db, source.id, record.id)
+    await db.insert(userAccounts).values([
+      { userId: target.id, platform: 'TWITCH', platformUserId: 'tw-1', platformLogin: 't' },
+      { userId: source.id, platform: 'KICK', platformUserId: 'k-1', platformLogin: 's' },
+    ])
+    await db.insert(wordleGames).values([
+      { id: crypto.randomUUID(), userId: target.id, date: '2026-09-29', answer: 'а' },
+      { id: crypto.randomUUID(), userId: source.id, date: '2026-09-29', answer: 'б' },
+    ])
+
+    const failingDb = {
+      transaction: (callback: (tx: unknown) => Promise<unknown>) =>
+        db.transaction((tx) =>
+          callback(
+            new Proxy(tx, {
+              get(object, property, receiver) {
+                if (property === 'delete') {
+                  return (table: unknown) => {
+                    if (table === wordleGames) throw new Error('boom')
+                    return object.delete(table as never)
+                  }
+                }
+                return Reflect.get(object, property, receiver)
+              },
+            }),
+          ),
+        ),
+    }
+    const failingRepository = new DrizzleUserRepository({
+      db: failingDb,
+    } as unknown as DrizzleService)
+
+    await expect(failingRepository.mergeUsers(target.id, source.id)).rejects.toThrow('boom')
+
+    expect(await db.select().from(userAccounts)).toHaveLength(2)
+    expect(await db.select().from(likes)).toHaveLength(2)
+    expect(await db.select().from(wordleGames)).toHaveLength(2)
+    expect((await db.select().from(users)).map((user) => user.id).sort()).toEqual(
+      [source.id, target.id].sort(),
+    )
   })
 })

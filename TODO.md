@@ -10,9 +10,9 @@
 
 ## Осталось
 
-- [ ] **E2E Playwright [L]** — единственная крупная инициатива: логин-редиректы, CRUD из админки, wordle-флоу, диалоги, аккаунт-модалка. Нужен `@playwright/test`, установка браузеров в CI и оркестрация dev-серверов. Делать отдельным планом.
+- [ ] **E2E Playwright [L]** — план написан: `docs/superpowers/plans/2026-09-30-e2e-playwright.md` (7 задач: bootstrap с изолированными портами, seed админа, guest/admin/wordle спеки, CI job). Следующий шаг — ревью плана → реализация.
 - [ ] **Миграция тестовых `as any` на `mockOf<T>` [M]** — 82 вхождения в `backend/src/**/__tests__` (`as any` у моков, `as unknown as` у двойников). Тесты исключены из `no-explicit-any`, риска нет; чистое улучшение читаемости. Помогает helper `mockOf<T>(partial: Partial<T>): T` (пока не добавлен — добавить вместе с миграцией).
-- [ ] **Kinopoisk/IGDB runtime-валидация [M]** — `kinopoiskGet<T>` кастует `response.json() as T`, IGDB-ответы не типизированы; остальные внешние границы (Shikimori/Steam/Weather) уже валидируются. (`backend/src/modules/records-providers/`)
+- [x] **Kinopoisk/IGDB runtime-валидация [M]** — type guards в `records-providers.service.ts` + общий `isRecord` (`backend/src/utils/type-guards.ts`); malformed-ответы Kinopoisk/Shikimori/IGDB дают явные `BadRequestException`, 6 новых тестов.
 - [ ] **`as unknown as RecordsStoreReturn` в фабрике [M]** — нужно либо расширение типов Pinia для setup-стор с generic-ключами, либо официальный хелпер; сейчас один документированный каст на границе (ограничение TS, не лень). (`frontend/src/composables/factories/create-records-store.ts`)
 - [ ] **`ComponentProps` вместо локального `ComponentPropsOf` [XS]** — заблокировано до Vue 3.6 (в 3.5.42 хелпер не экспортируется).
 - [ ] **Binary-ответы `img`/`avatar` в generated-клиенте [S]** — если понадобится fetch через клиент, типизировать через `RequestParams.format='blob'`; сейчас фронт использует URL-ы.

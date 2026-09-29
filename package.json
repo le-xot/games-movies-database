@@ -19,6 +19,7 @@
     "db:migrate": "bun --filter=./database run migrate",
     "db:baseline": "bun --filter=./database run baseline",
     "test:integration": "bun --filter=./backend run test:integration",
+    "test:e2e": "bun --filter=./frontend run test:e2e",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",

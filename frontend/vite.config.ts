@@ -4,7 +4,9 @@ import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
-import { generateSwagger } from './scripts/generate-swagger'
+import { generateSwagger } from './scripts/generate-swagger.ts'
+
+const backendTarget = process.env.VITE_BACKEND_TARGET ?? 'http://localhost:3000'
 
 export default defineConfig(({ isPreview, mode }) => {
   if (mode !== 'production' && !isPreview) {
@@ -31,13 +33,13 @@ export default defineConfig(({ isPreview, mode }) => {
       host: true,
       proxy: {
         '/api': {
-          target: 'http://localhost:3000',
+          target: backendTarget,
           changeOrigin: true,
         },
         '/socket.io': {
           ws: true,
           rewriteWsOrigin: true,
-          target: 'http://localhost:3000',
+          target: backendTarget,
           changeOrigin: true,
         },
       },

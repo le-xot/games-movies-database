@@ -69,6 +69,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # vite config timestamp
 vite.config.ts.timestamp-*.mjs
 
+# Playwright E2E
+frontend/test-results/
+frontend/playwright-report/
+frontend/e2e/.auth/
+
 .superpowers
 
 # AI orchestrator state — keep only plans and knowledge

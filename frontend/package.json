@@ -8,6 +8,7 @@
     "generate:api": "bun run scripts/generate-swagger.ts",
     "typecheck": "vue-tsc",
     "test": "bun test src",
+    "test:e2e": "playwright test",
     "build": "bun run --parallel typecheck build:ci",
     "build:ci": "bunx --bun vite build",
     "preview": "bunx --bun vite preview"
@@ -36,6 +37,7 @@
     "vue3-simple-icons": "16.10.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@types/bun": "1.4.0",
     "@types/node": "26.4.0",
     "@vitejs/plugin-vue": "6.0.8",

@@ -5,6 +5,8 @@ const API_FILE = fileURLToPath(new URL('../src/lib/api.ts', import.meta.url))
 
 /** Генерирует src/lib/api.ts из backend /docs-json. Возвращает false, если бэкенд недоступен. */
 export async function generateSwagger(): Promise<boolean> {
+  if (process.env.SKIP_API_GENERATION === '1') return true
+
   for (let attempt = 1; attempt <= 10; attempt++) {
     try {
       await generateApi({

@@ -247,7 +247,7 @@ RUN_DB_TESTS=1 TEST_DATASOURCE_URL=postgresql://le_xot:abc@127.0.0.1:5432/lists_
 - Схема тестовой БД обновляется миграциями автоматически; при структурном рассинхроне поможет `bun --filter=./backend run test:integration:reset` (пересоздаёт `lists_test`).
 - Без `RUN_DB_TESTS=1` интеграционные спеки скипаются, поэтому обычный `bun test` не требует БД.
 
-E2E требует запущенной dev-инфраструктуры (`bun infra:start`): Playwright сам создаёт/мигрирует БД `lists_test`, сеет админа `e2e-admin` и демо-запись и поднимает backend на 3100 и frontend на 5273 (порты 3000/5173 не используются — `bun dev` можно не останавливать). Артефакты прогона — `frontend/test-results` и `frontend/playwright-report` (в `.gitignore`). В CI job `e2e` использует postgres-сервис и кэширует браузер Chromium.
+E2E требует запущенной dev-инфраструктуры (`bun infra:start`): Playwright сам создаёт/мигрирует БД `lists_test`, сеет админа `e2e-admin` и демо-запись и поднимает backend на 3100 и frontend на 5273 (порты 3000/5173 не используются — `bun dev` можно не останавливать). Артефакты прогона — `frontend/test-results` и `frontend/playwright-report` (в `.gitignore`). Набор запускается локально — в GitHub Actions E2E намеренно не добавлен.
 
 ## Сторонние интеграции
 

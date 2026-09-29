@@ -276,12 +276,15 @@ export class RecordsProvidersService {
   private async fetchIGDBGame(where: string): Promise<PreparedData> {
     await this.checkGenrePermission(RecordGenre.GAME)
 
+    const clientId = this.getTwitchClientId()
+    if (!clientId) throw new BadRequestException('TWITCH_CLIENT_ID не настроен')
+
     const accessToken = await this.twitch.getAppAccessToken()
     const response = await fetch('https://api.igdb.com/v4/games', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Client-ID': this.twitchClientId,
+        'Client-ID': clientId,
         Authorization: `Bearer ${accessToken}`,
       },
       body: `fields name,cover.url,slug; where ${where};`,
@@ -308,6 +311,9 @@ export class RecordsProvidersService {
   }
 
   async fetchIGDBFromSteam(appId: string) {
+    const clientId = this.getTwitchClientId()
+    if (!clientId) throw new BadRequestException('TWITCH_CLIENT_ID не настроен')
+
     const accessToken = await this.twitch.getAppAccessToken()
 
     const body = `fields game; where uid = "${appId}" & external_game_source = 1; limit 1;`
@@ -316,7 +322,7 @@ export class RecordsProvidersService {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Client-ID': this.twitchClientId,
+        'Client-ID': clientId,
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'text/plain; charset=UTF-8',
       },
@@ -338,10 +344,9 @@ export class RecordsProvidersService {
     return env.KINOPOISK_API
   }
 
-  private get twitchClientId(): string {
-    const clientId = env.TWITCH_CLIENT_ID
-    if (!clientId) throw new BadRequestException('TWITCH_CLIENT_ID не настроен')
-    return clientId
+  /** Test seam: override to simulate a missing Twitch client id. */
+  protected getTwitchClientId(): string | undefined {
+    return env.TWITCH_CLIENT_ID
   }
 
   private matchGroup(match: RegExpMatchArray, index: number): string {

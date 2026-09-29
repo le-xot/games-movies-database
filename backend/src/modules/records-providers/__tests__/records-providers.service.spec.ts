@@ -13,6 +13,11 @@ function stubKinopoiskApiKey(target: RecordsProvidersService, value: string | un
     () => value
 }
 
+function stubTwitchClientId(target: RecordsProvidersService, value: string | undefined): void {
+  ;(target as unknown as { getTwitchClientId: () => string | undefined }).getTwitchClientId = () =>
+    value
+}
+
 const jsonOk = (data: unknown) => Promise.resolve({ ok: true, json: () => Promise.resolve(data) })
 
 type FetchResponder = (url: string) => Promise<{ ok: boolean; json: () => Promise<unknown> }>
@@ -72,6 +77,7 @@ describe('RecordsProvidersService', () => {
   beforeEach(() => {
     mockRepo = createMock(DrizzleRecordsProvidersRepository)
     service = new RecordsProvidersService(mockRepo, makeMockTwitch() as any)
+    stubTwitchClientId(service, 'test-client-id')
   })
 
   describe('prepareData — duplicate check', () => {
@@ -500,6 +506,15 @@ describe('RecordsProvidersService', () => {
       } finally {
         restoreFetch()
       }
+    })
+
+    it('throws when TWITCH_CLIENT_ID is not configured', async () => {
+      setupRepo(mockRepo)
+      stubTwitchClientId(service, undefined)
+
+      await expect(
+        service.prepareData({ link: 'https://www.igdb.com/games/portal' }),
+      ).rejects.toThrow('TWITCH_CLIENT_ID не настроен')
     })
   })
 

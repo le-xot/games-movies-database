@@ -1,10 +1,7 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
+import { isRecord } from '@/utils/type-guards'
 import type { WeatherDTO } from '@/modules/weather/weather.dto'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
 
 function isWeatherData(value: unknown): value is WeatherDTO {
   if (!isRecord(value)) return false

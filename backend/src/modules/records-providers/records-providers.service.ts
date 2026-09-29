@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { env } from '@/utils/enviroments'
+import { isRecord } from '@/utils/type-guards'
 import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
 import type { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 
@@ -26,6 +27,50 @@ interface ShikimoriAnime {
   russian?: string
   name?: string
   image?: { original?: string }
+}
+
+interface IgdbGame {
+  name: string
+  slug: string
+  cover?: { url?: string }
+}
+
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string'
+}
+
+function isOptionalNumber(value: unknown): value is number | undefined {
+  return value === undefined || typeof value === 'number'
+}
+
+function isKinopoiskFilm(value: unknown): value is KinopoiskFilm {
+  if (!isRecord(value)) return false
+  if (typeof value.type !== 'string') return false
+  if (!Array.isArray(value.genres)) return false
+  if (!value.genres.every((genre: unknown) => isRecord(genre) && typeof genre.genre === 'string')) {
+    return false
+  }
+  return (
+    isOptionalNumber(value.kinopoiskId) &&
+    isOptionalString(value.nameRu) &&
+    isOptionalString(value.nameEn) &&
+    isOptionalString(value.nameOriginal) &&
+    isOptionalString(value.posterUrl)
+  )
+}
+
+function isShikimoriAnime(value: unknown): value is ShikimoriAnime {
+  if (!isRecord(value)) return false
+  if (!isOptionalString(value.russian) || !isOptionalString(value.name)) return false
+  if (value.image === undefined) return true
+  return isRecord(value.image) && isOptionalString(value.image.original)
+}
+
+function isIgdbGame(value: unknown): value is IgdbGame {
+  if (!isRecord(value)) return false
+  if (typeof value.name !== 'string' || typeof value.slug !== 'string') return false
+  if (value.cover === undefined) return true
+  return isRecord(value.cover) && isOptionalString(value.cover.url)
 }
 
 const KINOPOISK_SERIES_TYPES = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
@@ -196,8 +241,10 @@ export class RecordsProvidersService {
         `Не удалось получить данные из API Shikimori: ${response.status}`,
       )
 
-    const anime = (await response.json()) as ShikimoriAnime
-    if (!anime) throw new BadRequestException('Аниме не найдено в API Shikimori')
+    const anime: unknown = await response.json()
+    if (!isShikimoriAnime(anime)) {
+      throw new BadRequestException('Не удалось получить данные из API Shikimori')
+    }
 
     return {
       title: anime.russian || anime.name || 'Без названия',
@@ -208,19 +255,25 @@ export class RecordsProvidersService {
   }
 
   private async fetchKinopoisk(id: number): Promise<PreparedData> {
-    const film = await this.kinopoiskGet<KinopoiskFilm>(`films/${id}`)
+    const film = await this.kinopoiskGet(`films/${id}`)
+    if (!isKinopoiskFilm(film)) {
+      throw new BadRequestException('Не удалось получить данные из API Кинопоиска')
+    }
     return this.mapKinopoiskFilm(film, id)
   }
 
   private async fetchFromImdb(imdbId: string): Promise<PreparedData> {
-    const data = await this.kinopoiskGet<{ items?: KinopoiskFilm[] }>(`films?imdbId=${imdbId}`)
-    const film = data.items?.[0]
+    const data = await this.kinopoiskGet(`films?imdbId=${imdbId}`)
+    const film = isRecord(data) && Array.isArray(data.items) ? data.items[0] : undefined
     if (!film) throw new BadRequestException('Фильм не найден в API Кинопоиска по IMDB ID')
+    if (!isKinopoiskFilm(film)) {
+      throw new BadRequestException('Не удалось получить данные из API Кинопоиска')
+    }
 
     return this.mapKinopoiskFilm(film)
   }
 
-  private async kinopoiskGet<T>(path: string): Promise<T> {
+  private async kinopoiskGet(path: string): Promise<unknown> {
     const apiKey = this.getKinopoiskApiKey()
     if (!apiKey) throw new BadRequestException('API ключ для Кинопоиска не настроен')
 
@@ -235,7 +288,7 @@ export class RecordsProvidersService {
         `Не удалось получить данные из API Кинопоиска: ${response.status}`,
       )
 
-    return (await response.json()) as T
+    return (await response.json()) as unknown
   }
 
   private async mapKinopoiskFilm(film: KinopoiskFilm, fallbackId?: number): Promise<PreparedData> {
@@ -298,8 +351,10 @@ export class RecordsProvidersService {
     if (!response.ok)
       throw new BadRequestException(`Не удалось получить данные из API IGDB: ${response.status}`)
 
-    const game = (await response.json())[0]
+    const data: unknown = await response.json()
+    const game = Array.isArray(data) ? data[0] : undefined
     if (!game) throw new BadRequestException('Игра не найдена в API IGDB')
+    if (!isIgdbGame(game)) throw new BadRequestException('Не удалось получить данные из API IGDB')
 
     const coverUrl = game.cover?.url
       ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}`
@@ -339,10 +394,13 @@ export class RecordsProvidersService {
         `Не удалось получить данные external_games IGDB: ${externalResp.status}`,
       )
 
-    const externalData = await externalResp.json()
-    if (!externalData[0]?.game) throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
+    const externalData: unknown = await externalResp.json()
+    const externalGame = Array.isArray(externalData) ? externalData[0] : undefined
+    if (!isRecord(externalGame) || typeof externalGame.game !== 'number') {
+      throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
+    }
 
-    return this.fetchIGDBGame(`id = ${externalData[0].game}`)
+    return this.fetchIGDBGame(`id = ${externalGame.game}`)
   }
 
   /** Test seam: override to simulate a missing external API key. */

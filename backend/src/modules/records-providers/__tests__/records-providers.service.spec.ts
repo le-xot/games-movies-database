@@ -590,4 +590,99 @@ describe('RecordsProvidersService', () => {
       )
     })
   })
+
+  describe('runtime validation of external responses', () => {
+    const kinopoiskLink = 'https://kinopoisk.ru/film/123'
+    const imdbLink = 'https://www.imdb.com/title/tt0111161'
+    const igdbLink = 'https://www.igdb.com/games/portal'
+    const steamLink = 'https://store.steampowered.com/app/620'
+
+    beforeEach(() => {
+      stubKinopoiskApiKey(service, 'test-api-key')
+    })
+
+    it('throws when the Kinopoisk film payload has no genre list', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk({ nameRu: 'Фильм', type: 'FILM' }))
+
+      try {
+        await expect(service.prepareData({ link: kinopoiskLink })).rejects.toThrow(
+          'Не удалось получить данные из API Кинопоиска',
+        )
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when the Kinopoisk search payload has malformed items', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk({ items: [{ nameRu: 'Фильм' }] }))
+
+      try {
+        await expect(service.prepareData({ link: imdbLink })).rejects.toThrow(
+          'Не удалось получить данные из API Кинопоиска',
+        )
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when the IGDB games payload is malformed', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk([{ name: 42 }]))
+
+      try {
+        await expect(service.prepareData({ link: igdbLink })).rejects.toThrow(
+          'Не удалось получить данные из API IGDB',
+        )
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when the IGDB games payload is empty', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk([]))
+
+      try {
+        await expect(service.prepareData({ link: igdbLink })).rejects.toThrow(
+          'Игра не найдена в API IGDB',
+        )
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when the IGDB external_games payload is malformed', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk([{ game: 'not-a-number' }]))
+
+      try {
+        await expect(service.prepareData({ link: steamLink })).rejects.toThrow(
+          'Игра не найдена в IGDB по Steam ID',
+        )
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('throws when the Shikimori payload is malformed', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() => jsonOk({ name: 42 }))
+
+      try {
+        await expect(
+          service.prepareData({ link: 'https://shikimori.one/animes/1' }),
+        ).rejects.toThrow('Не удалось получить данные из API Shikimori')
+      } finally {
+        restoreFetch()
+      }
+    })
+  })
 })

@@ -39,6 +39,7 @@ function toggle() {
 <template>
   <div
     v-if="!loading && city && temp !== null"
+    data-testid="weather-badge"
     class="absolute top-3 left-3 text-white"
     :class="
       expanded

@@ -5,7 +5,7 @@ import { WeatherService } from '@/modules/weather/weather.service'
 import { ApiErrorDto, ApiErrors } from '@/utils/api-errors'
 
 @ApiTags('weather')
-@ApiErrors()
+@ApiErrors({ includeAuth: false })
 @Controller('weather')
 export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}

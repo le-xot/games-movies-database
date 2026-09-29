@@ -7,7 +7,7 @@ import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import type { Response } from 'express'
 
-@ApiErrors()
+@ApiErrors({ includeAuth: false })
 @Controller('img')
 export class ImgController {
   constructor(private readonly imgService: ImgService) {}

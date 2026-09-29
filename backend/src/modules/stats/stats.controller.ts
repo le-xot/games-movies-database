@@ -5,7 +5,7 @@ import { StatsService } from '@/modules/stats/stats.service'
 import { ApiErrors } from '@/utils/api-errors'
 
 @ApiTags('stats')
-@ApiErrors()
+@ApiErrors({ includeAuth: false })
 @Controller('stats')
 export class StatsController {
   constructor(private readonly statsService: StatsService) {}

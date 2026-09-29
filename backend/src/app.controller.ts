@@ -3,7 +3,7 @@ import { ApiResponse } from '@nestjs/swagger'
 import { HealthResponseDTO } from '@/app.dto'
 import { ApiErrors } from '@/utils/api-errors'
 
-@ApiErrors()
+@ApiErrors({ includeAuth: false })
 @Controller()
 export class AppController {
   @Get('/health')

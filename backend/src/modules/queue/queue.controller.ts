@@ -4,7 +4,7 @@ import { QueueDto } from '@/modules/queue/queue.dto'
 import { QueueService } from '@/modules/queue/queue.service'
 import { ApiErrors } from '@/utils/api-errors'
 
-@ApiErrors()
+@ApiErrors({ includeAuth: false })
 @Controller('queue')
 export class QueueController {
   constructor(private readonly queueService: QueueService) {}

@@ -3,7 +3,7 @@ import { AvatarService } from '@/modules/avatar/avatar.service'
 import { ApiErrors } from '@/utils/api-errors'
 import type { Response } from 'express'
 
-@ApiErrors()
+@ApiErrors({ includeAuth: false })
 @Controller('avatar')
 export class AvatarController {
   constructor(private readonly avatarService: AvatarService) {}

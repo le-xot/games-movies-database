@@ -2,6 +2,7 @@ import { describe, expect, it, mock } from 'bun:test'
 import { JwtService } from '@nestjs/jwt'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { Test } from '@nestjs/testing'
+import { AppController } from '@/app.controller'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { RecordController } from '@/modules/record/record.controller'
 import { RecordService } from '@/modules/record/record.service'
@@ -16,7 +17,13 @@ const NULLABLE_RECORD_FIELDS = ['status', 'type', 'genre', 'grade', 'episode'] a
 
 async function buildDocument() {
   const moduleRef = await Test.createTestingModule({
-    controllers: [UserController, RecordController, WeatherController, WordleController],
+    controllers: [
+      AppController,
+      UserController,
+      RecordController,
+      WeatherController,
+      WordleController,
+    ],
     providers: [
       AuthGuard,
       { provide: JwtService, useValue: { verifyAsync: mock() } },
@@ -113,5 +120,17 @@ describe('Swagger contract', () => {
 
     expect(responseStatuses).toContain('401')
     expect(responseStatuses).toContain('403')
+  })
+
+  it('does not advertise auth errors on public endpoints', async () => {
+    const document = await buildDocument()
+    const paths = document.paths as Record<string, Record<string, { responses?: object }>>
+
+    for (const path of ['/health', '/weather']) {
+      const responseStatuses = Object.keys(paths[path]?.get?.responses ?? {})
+      expect(responseStatuses).toContain('200')
+      expect(responseStatuses).not.toContain('401')
+      expect(responseStatuses).not.toContain('403')
+    }
   })
 })

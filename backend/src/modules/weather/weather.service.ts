@@ -2,6 +2,40 @@ import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
 import type { WeatherDTO } from '@/modules/weather/weather.dto'
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isWeatherData(value: unknown): value is WeatherDTO {
+  if (!isRecord(value)) return false
+  const main = value.main
+  const wind = value.wind
+  const clouds = value.clouds
+  const sys = value.sys
+  const weather = value.weather
+  const condition = Array.isArray(weather) && isRecord(weather[0]) ? weather[0] : null
+
+  return (
+    typeof value.name === 'string' &&
+    typeof value.visibility === 'number' &&
+    isRecord(main) &&
+    typeof main.temp === 'number' &&
+    typeof main.feels_like === 'number' &&
+    typeof main.humidity === 'number' &&
+    typeof main.pressure === 'number' &&
+    condition !== null &&
+    typeof condition.main === 'string' &&
+    typeof condition.description === 'string' &&
+    isRecord(wind) &&
+    typeof wind.speed === 'number' &&
+    isRecord(clouds) &&
+    typeof clouds.all === 'number' &&
+    isRecord(sys) &&
+    typeof sys.sunrise === 'number' &&
+    typeof sys.sunset === 'number'
+  )
+}
+
 @Injectable()
 export class WeatherService implements OnModuleInit {
   private readonly logger = new Logger(WeatherService.name)
@@ -39,7 +73,11 @@ export class WeatherService implements OnModuleInit {
         throw new Error('Weather API request failed')
       }
 
-      this.cachedData = (await response.json()) as WeatherDTO
+      const data: unknown = await response.json()
+      if (!isWeatherData(data)) {
+        throw new Error('Unexpected weather API response')
+      }
+      this.cachedData = data
       this.lastFetch = Date.now()
       this.logger.log('Weather data updated')
     } catch (error) {

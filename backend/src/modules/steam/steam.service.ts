@@ -21,14 +21,6 @@ interface SteamOwnedGamesResponse {
   }
 }
 
-interface SteamAppDetailsEntry {
-  success: boolean
-  data?: {
-    name: string
-    header_image: string
-  }
-}
-
 @Injectable()
 export class SteamService {
   private readonly logger = new Logger(SteamService.name)
@@ -181,10 +173,15 @@ export class SteamService {
     try {
       const response = await fetch(`https://store.steampowered.com/api/appdetails?appids=${appId}`)
       if (!response.ok) return null
-      const data = (await response.json()) as Record<string, SteamAppDetailsEntry | undefined>
-      const app = data[String(appId)]
-      if (!app?.success || !app.data) return null
-      return { name: app.data.name, header_image: app.data.header_image }
+      const data: unknown = await response.json()
+      if (!data || typeof data !== 'object') return null
+      const app = (data as Record<string, unknown>)[String(appId)]
+      if (!app || typeof app !== 'object') return null
+      const entry = app as { success?: unknown; data?: unknown }
+      if (entry.success !== true || !entry.data || typeof entry.data !== 'object') return null
+      const details = entry.data as { name?: unknown; header_image?: unknown }
+      if (typeof details.name !== 'string' || typeof details.header_image !== 'string') return null
+      return { name: details.name, header_image: details.header_image }
     } catch {
       return null
     }

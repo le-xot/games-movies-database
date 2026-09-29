@@ -59,6 +59,9 @@ jobs:
       - name: Lint
         run: bun lint
 
+      - name: Socket contract
+        run: bun run check:socket
+
       - name: Format check
         run: bun format:check
 
@@ -81,8 +84,24 @@ jobs:
           NODE_ENV: development
         run: cd backend && bun test
 
+      - name: Test frontend
+        run: cd frontend && bun test
+
       - name: Integration tests
         env:
           RUN_DB_TESTS: '1'
           TEST_DATASOURCE_URL: postgresql://le_xot:abc@127.0.0.1:5432/lists_test
         run: bun --filter=./backend run test:integration
+
+      - name: API client drift check
+        env:
+          DATASOURCE_URL: postgresql://le_xot:abc@127.0.0.1:5432/lists_test
+        run: |
+          cd backend
+          bun run start &
+          BACKEND_PID=$!
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/docs-json > /dev/null && break; sleep 1; done
+          cd ..
+          bun --filter=./frontend run generate:api
+          kill $BACKEND_PID || true
+          git diff --exit-code -- frontend/src/lib/api.ts

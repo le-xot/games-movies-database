@@ -24,6 +24,7 @@
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "typecheck": "bun run --filter '*' --parallel --elide-lines=0 typecheck",
+    "check:socket": "bun run scripts/check-socket-contract.ts",
     "infra:start": "docker compose -f docker-compose.dev.yml up -d",
     "infra:stop": "docker compose -f docker-compose.dev.yml down"
   },

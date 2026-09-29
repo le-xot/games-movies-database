@@ -41,6 +41,7 @@ export default defineConfig({
         TEST_DATASOURCE_URL,
         RUN_DB_TESTS: '1',
         APP_PORT: String(BACKEND_PORT),
+        CORS_ORIGINS: `http://localhost:${FRONTEND_PORT},http://localhost:${BACKEND_PORT}`,
         JWT_SECRET: process.env.E2E_JWT_SECRET ?? 'supersecret',
         E2E_STATE_FILE: ADMIN_STATE_FILE,
       },

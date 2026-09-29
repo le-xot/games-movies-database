@@ -128,7 +128,7 @@ const gradeButtons = gradeOrder.map((grade) => {
 </script>
 
 <template>
-  <Card class="bg-[var(--n-action-color)] overflow-hidden h-full">
+  <Card data-testid="record-card" class="bg-[var(--n-action-color)] overflow-hidden h-full">
     <div class="flex flex-row sm:flex-col h-full">
       <MediaPoster
         :url="item.posterUrl"
@@ -139,6 +139,7 @@ const gradeButtons = gradeOrder.map((grade) => {
           <Button
             v-for="action in adminActions"
             :key="action.key"
+            :data-testid="`record-action-${action.key}`"
             variant="outline"
             size="icon"
             :class="overlayButtonClass"

@@ -18,6 +18,7 @@ const props = withDefaults(
 )
 
 const isOpen = ref(false)
+const hoverOpened = ref(false)
 const hoverCapable = useMediaQuery('(hover: hover) and (pointer: fine)')
 let closeTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -26,6 +27,7 @@ const rowPadding = computed(() => (props.compact ? 'py-1' : 'py-1.5'))
 
 function openPreview() {
   if (closeTimer) clearTimeout(closeTimer)
+  hoverOpened.value = true
   isOpen.value = true
 }
 
@@ -37,8 +39,18 @@ function scheduleClose() {
 }
 
 function handleOpenChange(value: boolean) {
+  if (value) hoverOpened.value = false
   if (closeTimer) clearTimeout(closeTimer)
   isOpen.value = value
+}
+
+/**
+ * При закрытии reka возвращает фокус на триггер. Если поповер был открыт наведением,
+ * этот фокус уходит на чужой триггер и соседний поповер воспринимает его как
+ * focusOutside — и тоже закрывается. Для hover-сценария возврат фокуса не нужен.
+ */
+function handleCloseAutoFocus(event: Event) {
+  if (hoverOpened.value) event.preventDefault()
 }
 
 function handleRowEnter() {
@@ -92,6 +104,7 @@ onBeforeUnmount(() => {
         @mouseenter="openPreview"
         @mouseleave="scheduleClose"
         @open-auto-focus.prevent
+        @close-auto-focus="handleCloseAutoFocus"
       >
         <div class="flex flex-col gap-2">
           <div class="flex items-center justify-between gap-3">

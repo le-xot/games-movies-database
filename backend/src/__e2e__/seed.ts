@@ -12,6 +12,7 @@ import { assertTestDatabase } from '@/utils/assert-test-database'
 const ADMIN_ID = 'e2e-admin'
 const VICTIM_ID = 'e2e-victim'
 const WORDLE_PLAYER_ID = 'e2e-wordle-player'
+const WORDLE_RIVAL_ID = 'e2e-wordle-rival'
 const RECORD_LINK = 'https://example.com/e2e-record'
 const RECORD_TITLE = 'E2E Record'
 
@@ -33,6 +34,7 @@ try {
     [ADMIN_ID, 'e2e-admin', 'ADMIN'],
     [VICTIM_ID, 'e2e-victim', 'USER'],
     [WORDLE_PLAYER_ID, 'e2e-wordle-player', 'USER'],
+    [WORDLE_RIVAL_ID, 'e2e-wordle-rival', 'USER'],
   ] as const) {
     await db
       .insert(users)
@@ -43,15 +45,27 @@ try {
       })
   }
 
+  const today = getMoscowDateKey(new Date())
   await db.delete(wordleGames).where(eq(wordleGames.userId, WORDLE_PLAYER_ID))
-  await db.insert(wordleGames).values({
-    id: 'e2e-wordle-player-game',
-    userId: WORDLE_PLAYER_ID,
-    date: getMoscowDateKey(new Date()),
-    answer: 'слово',
-    guesses: ['кокос', 'ежики', 'птица', 'кокос', 'ежики', 'птица'],
-    status: 'LOST',
-  })
+  await db.delete(wordleGames).where(eq(wordleGames.userId, WORDLE_RIVAL_ID))
+  await db.insert(wordleGames).values([
+    {
+      id: 'e2e-wordle-player-game',
+      userId: WORDLE_PLAYER_ID,
+      date: today,
+      answer: 'слово',
+      guesses: ['кокос', 'ежики', 'птица', 'кокос', 'ежики', 'птица'],
+      status: 'LOST',
+    },
+    {
+      id: 'e2e-wordle-rival-game',
+      userId: WORDLE_RIVAL_ID,
+      date: today,
+      answer: 'слово',
+      guesses: ['птица', 'кокос'],
+      status: 'LOST',
+    },
+  ])
 
   await db.delete(records).where(eq(records.link, RECORD_LINK))
   await db.insert(records).values({

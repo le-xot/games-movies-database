@@ -58,4 +58,21 @@ test.describe('daily leaderboard preview', () => {
     await expect(grid.locator('div')).toHaveCount(6)
     await expect(grid.locator('span')).toHaveCount(30)
   })
+
+  test('moving hover to another player keeps the second grid open', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    const first = page.getByRole('button', { name: /e2e-wordle-player не угадал/ })
+    const second = page.getByRole('button', { name: /e2e-wordle-rival не угадал/ })
+
+    await first.hover()
+    await expect(page.getByRole('img', { name: 'Сетка попыток' })).toBeVisible()
+
+    await second.hover()
+    await page.waitForTimeout(500)
+
+    const visibleGrids = page.locator('div[role="img"][aria-label="Сетка попыток"]:visible')
+    await expect(visibleGrids).toHaveCount(1)
+    await expect(visibleGrids.locator('..')).toContainText('e2e-wordle-rival')
+  })
 })

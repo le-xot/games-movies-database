@@ -8,7 +8,6 @@ import type { RouteRecordInfo } from 'vue-router'
 declare module 'vue-router' {
   interface RouteMeta {
     genre?: RecordGenre
-    requiresAuth?: boolean
     requiresAdmin?: boolean
     provider?: 'twitch' | 'kick'
   }

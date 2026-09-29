@@ -143,9 +143,8 @@ if (import.meta.env.DEV) {
 
 router.beforeEach(async (to) => {
   const userStore = useUser()
-  const requiresAuth = to.meta.requiresAuth || to.meta.requiresAdmin
 
-  if (!requiresAuth) return
+  if (!to.meta.requiresAdmin) return
 
   if (userStore.isLoading) {
     await new Promise<void>((resolve) => {
@@ -161,7 +160,7 @@ router.beforeEach(async (to) => {
     })
   }
 
-  if (to.meta.requiresAdmin && !userStore.isRealAdmin) {
+  if (!userStore.isRealAdmin) {
     return { path: ROUTER_PATHS.home }
   }
 

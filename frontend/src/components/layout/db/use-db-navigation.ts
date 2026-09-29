@@ -22,7 +22,6 @@ export interface RouteItem {
   icon: Component
   path: RouterPath
   requiresAdmin?: boolean
-  requiresAuth?: boolean
 }
 
 export interface NavSection {
@@ -64,8 +63,7 @@ export function useDbNavigation() {
   const { updateTitle } = useTitle()
   const userStore = useUser()
 
-  const isItemVisible = (item: RouteItem) =>
-    (!item.requiresAdmin || userStore.isRealAdmin) && (!item.requiresAuth || userStore.isLoggedIn)
+  const isItemVisible = (item: RouteItem) => !item.requiresAdmin || userStore.isRealAdmin
 
   const sections = computed(() =>
     dbSections

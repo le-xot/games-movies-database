@@ -29,7 +29,8 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'bun run src/__integration__/setup-db.ts && bun run ./src/main.ts',
+      command:
+        'bun run src/__integration__/setup-db.ts && bun run src/__e2e__/seed.ts && bun run ./src/main.ts',
       cwd: backendDir,
       url: `http://localhost:${BACKEND_PORT}/api/health`,
       reuseExistingServer: false,

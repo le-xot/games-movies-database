@@ -17,12 +17,12 @@ import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 @ApiTags('wordle')
-@ApiErrors()
 @Controller('wordle')
 export class WordleController {
   constructor(private readonly wordleService: WordleService) {}
 
   @Get('state')
+  @ApiErrors()
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: WordleStateDTO })
   getState(@User() user: UserEntity): Promise<WordleStateDTO> {
@@ -31,6 +31,7 @@ export class WordleController {
 
   @Post('guess')
   @RateLimit(RATE_LIMITS.write)
+  @ApiErrors()
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: WordleStateDTO })
   makeGuess(@Body() body: WordleGuessDTO, @User() user: UserEntity): Promise<WordleStateDTO> {
@@ -38,6 +39,7 @@ export class WordleController {
   }
 
   @Get('stats')
+  @ApiErrors()
   @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: WordleStatsDTO })
   getStats(@User() user: UserEntity): Promise<WordleStatsDTO> {
@@ -45,6 +47,7 @@ export class WordleController {
   }
 
   @Get('leaderboard')
+  @ApiErrors({ includeAuth: false })
   @ApiResponse({ status: 200, type: WordleLeaderboardDTO })
   getLeaderboard(): Promise<WordleLeaderboardDTO> {
     return this.wordleService.getLeaderboard()

@@ -15,12 +15,23 @@ export class ApiErrorDto {
   error?: string
 }
 
+export interface ApiErrorsOptions {
+  /** Включать 401/403 (для публичных эндпоинтов не нужны). */
+  includeAuth?: boolean
+}
+
 /** Declares the standard Nest error responses for every route of a controller. */
-export function ApiErrors() {
+export function ApiErrors(options: ApiErrorsOptions = {}) {
+  const { includeAuth = true } = options
+
   return applyDecorators(
     ApiResponse({ status: 400, description: 'Bad Request', type: ApiErrorDto }),
-    ApiResponse({ status: 401, description: 'Unauthorized', type: ApiErrorDto }),
-    ApiResponse({ status: 403, description: 'Forbidden', type: ApiErrorDto }),
+    ...(includeAuth
+      ? [
+          ApiResponse({ status: 401, description: 'Unauthorized', type: ApiErrorDto }),
+          ApiResponse({ status: 403, description: 'Forbidden', type: ApiErrorDto }),
+        ]
+      : []),
     ApiResponse({ status: 404, description: 'Not Found', type: ApiErrorDto }),
     ApiResponse({ status: 409, description: 'Conflict', type: ApiErrorDto }),
     ApiResponse({ status: 429, description: 'Too Many Requests', type: ApiErrorDto }),

@@ -9,18 +9,21 @@ import { UserController } from '@/modules/user/user.controller'
 import { UserService } from '@/modules/user/user.service'
 import { WeatherController } from '@/modules/weather/weather.controller'
 import { WeatherService } from '@/modules/weather/weather.service'
+import { WordleController } from '@/modules/wordle/wordle.controller'
+import { WordleService } from '@/modules/wordle/wordle.service'
 
 const NULLABLE_RECORD_FIELDS = ['status', 'type', 'genre', 'grade', 'episode'] as const
 
 async function buildDocument() {
   const moduleRef = await Test.createTestingModule({
-    controllers: [UserController, RecordController, WeatherController],
+    controllers: [UserController, RecordController, WeatherController, WordleController],
     providers: [
       AuthGuard,
       { provide: JwtService, useValue: { verifyAsync: mock() } },
       { provide: UserService, useValue: {} },
       { provide: RecordService, useValue: {} },
       { provide: WeatherService, useValue: {} },
+      { provide: WordleService, useValue: {} },
     ],
   }).compile()
 
@@ -89,5 +92,26 @@ describe('Swagger contract', () => {
       paths['/records/{id}']?.get?.responses?.['404']?.content?.['application/json']?.schema
 
     expect(schema).toEqual({ $ref: '#/components/schemas/ApiErrorDto' })
+  })
+
+  it('does not advertise auth errors on the public wordle leaderboard', async () => {
+    const document = await buildDocument()
+    const paths = document.paths as Record<string, Record<string, { responses?: object }>>
+
+    const responseStatuses = Object.keys(paths['/wordle/leaderboard']?.get?.responses ?? {})
+
+    expect(responseStatuses).toContain('200')
+    expect(responseStatuses).not.toContain('401')
+    expect(responseStatuses).not.toContain('403')
+  })
+
+  it('keeps auth errors on protected wordle routes', async () => {
+    const document = await buildDocument()
+    const paths = document.paths as Record<string, Record<string, { responses?: object }>>
+
+    const responseStatuses = Object.keys(paths['/wordle/state']?.get?.responses ?? {})
+
+    expect(responseStatuses).toContain('401')
+    expect(responseStatuses).toContain('403')
   })
 })

@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useLoginDialog = defineStore('globals/use-login-dialog', () => {
+export const useLoginDialog = defineStore('global/use-login-dialog', () => {
   const isOpen = ref(false)
 
   function openLogin() {

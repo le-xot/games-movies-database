@@ -31,11 +31,7 @@ const dialog = useDialog()
           class="mb-2"
         />
       </AlertDialogHeader>
-      <component
-        :is="dialog.dialogState.component"
-        v-if="dialog.dialogState?.component"
-        v-bind="dialog.dialogState?.props || {}"
-      />
+      <component :is="dialog.dialogState.component" v-if="dialog.dialogState?.component" />
       <AlertDialogFooter v-if="!dialog.dialogState?.component">
         <AlertDialogCancel @click="dialog.dialogState?.onCancel?.()"> Отменить </AlertDialogCancel>
         <AlertDialogAction @click="dialog.submitDialog"> Подтвердить </AlertDialogAction>

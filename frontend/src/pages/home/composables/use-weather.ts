@@ -46,6 +46,9 @@ let cached: {
   icon: Component
 } | null = null
 
+const WEATHER_CACHE_TTL_MS = 10 * 60 * 1000
+let cachedAt = 0
+
 export function useWeather() {
   const api = useApi()
   const city = ref(cached?.city ?? '')
@@ -64,7 +67,7 @@ export function useWeather() {
   const loading = ref(!cached)
 
   onMounted(async () => {
-    if (cached) return
+    if (cached && Date.now() - cachedAt < WEATHER_CACHE_TTL_MS) return
 
     try {
       const { data } = await api.weather.weatherControllerGetWeather()
@@ -104,6 +107,7 @@ export function useWeather() {
         sunset: sunset.value,
         icon: icon.value,
       }
+      cachedAt = Date.now()
     } catch {
       // silently fail — weather is non-critical
     } finally {

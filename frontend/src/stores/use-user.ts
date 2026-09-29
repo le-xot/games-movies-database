@@ -6,7 +6,7 @@ import { useApi } from '@/stores/use-api'
 
 export const USER_QUERY_KEY = 'user'
 
-export const useUser = defineStore('globals/use-user', () => {
+export const useUser = defineStore('global/use-user', () => {
   const api = useApi()
   const isInitialized = ref(false)
 

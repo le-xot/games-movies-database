@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { Api, HttpClient } from '@/lib/api'
 
-export const useApi = defineStore('globals/use-api', () => {
+export const useApi = defineStore('global/use-api', () => {
   const httpClient = new HttpClient({
     baseUrl: '/api',
     baseApiParams: {

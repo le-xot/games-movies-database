@@ -1,68 +1,27 @@
 # TODO — что можно сделать дальше
 
-Собрано 2026-09-29 после трёх фаз: строгие типы backend/database → типы фронтенда → интеграционные тесты репозиториев.
-Формат: `[ ]` пункт — `[S/M/L]` объём; `[x]` — сделано (с пометкой даты/коммита).
+Обновлено 2026-09-30. Основной бэклог строгих типов и тестов выполнен; ниже — что осталось и почему.
 
-## Состояние на текущий момент
+## Сделано (2026-09-29 → 2026-09-30)
 
-- Backend/database: `strict` (database), `noImplicitAny`, `noUnused*`, `strictNullChecks` включены; домены выводятся из схемы (`SelectRow`/`InsertRow`); Swagger-ответы типизированы, `ApiErrorDto`; Socket.IO-контракт типизирован; миграции drift-free.
-- Frontend: фабрики params/records типизированы route-типами; socket-контракт зеркалится; роуты именованы + `RouteNamedMap`; dialog/badge обобщены; raw fetch по `/api` отсутствует.
-- Тесты: 426 unit (backend) + 44 integration (7 групп репозиториев + smoke + guard на реальном Postgres `lists_test`); CI гоняет unit + integration (postgres service).
-- 2026-09-30: wordle стал публичным (leaderboard без auth, guest-плейсхолдер); providers получили тест-seam'ы для Twitch/IGDB; включён `no-explicit-any`; публичный leaderboard больше не рекламирует 401/403; появился `setupIntegrationSuite`.
+- Backend/database: `strict`, `noImplicitAny`, `noUnused*`, `strictNullChecks`, `strictPropertyInitialization`, `exactOptionalPropertyTypes`; домены из схемы (`SelectRow`/`InsertRow`); Swagger-ответы типизированы; `ApiErrors({ includeAuth: false })` на публичных контроллерах; runtime-валидация Shikimori/Steam/Weather; Socket.IO-контракт типизирован.
+- Frontend: route-типы в фабриках; зеркало socket-контракта + CI-проверка; именованные роуты + `RouteNamedMap`; обобщённые dialog/badge; `parseApiError(unknown)`; raw fetch убран; генератор `api.ts` вынесен в скрипт (логирование, снятие `@ts-nocheck`, CI drift-check); unit-тесты (`bun test src`); store IDs, TTL кэша погоды.
+- Тесты: 427 unit (backend) + 8 unit (frontend) + 48 integration (9 групп репозиториев + atomicity/конкурентность + smoke + guard); CI: lint, format, typecheck, unit backend/frontend, integration (postgres service), socket contract, api.ts drift.
 
-## 1. Строгая типизация backend
+## Осталось
 
-- [ ] **`strictPropertyInitialization` [M]** — 137 DTO/entity-полей без `!`/инициализаторов. Включить после фикса полей, затем можно рассмотреть umbrella `"strict": true`. (`backend/tsconfig.json`, `backend/src/modules/**/*.dto.ts|*.entity.ts`)
-- [ ] **`exactOptionalPropertyTypes` [M]** — включать после предыдущего; проверить патч-DTO (`RecordUpdateDTO`) и `Object.fromEntries`-фильтры в репозиториях.
-- [ ] **Почистить `ApiErrors()` на эндпоинтах, которые не могут падать [S]** — паттерн появился (`ApiErrors({ includeAuth: false })`, применён к leaderboard); применить к `img`/`avatar`/`health`, которые получают 7 error-схем. (`backend/src/utils/api-errors.ts`, контроллеры)
-- [ ] **`mockOf<T>` helper для тестов [S]** — ~76 `as any` в спеках; типизировать моки без `as unknown as`. (`backend/src/__tests__/helpers/`)
-- [ ] **Runtime-валидация внешних JSON [M]** — Shikimori уже типизирован интерфейсом `ShikimoriAnime` (2026-09-30), Kinopoisk — generic; остались `steam`/`weather` с `response.json()`-кастами — zod/valibot на границе. (`backend/src/modules/{steam,weather}`)
-- [x] **Аудит скрытых `.env`-зависимостей unit-тестов [S]** — 2026-09-30: `cp .env.example .env && bun test` → 426 pass; IGDB-фикс закрыл единственный класс.
-- [ ] **`suggesttion.dto.ts` typo** — не переименовывать без полного рефактора импортов (см. AGENTS.md), отметить как техдолг.
+- [ ] **E2E Playwright [L]** — единственная крупная инициатива: логин-редиректы, CRUD из админки, wordle-флоу, диалоги, аккаунт-модалка. Нужен `@playwright/test`, установка браузеров в CI и оркестрация dev-серверов. Делать отдельным планом.
+- [ ] **Миграция тестовых `as any` на `mockOf<T>` [M]** — 82 вхождения в `backend/src/**/__tests__` (`as any` у моков, `as unknown as` у двойников). Тесты исключены из `no-explicit-any`, риска нет; чистое улучшение читаемости. Помогает helper `mockOf<T>(partial: Partial<T>): T` (пока не добавлен — добавить вместе с миграцией).
+- [ ] **Kinopoisk/IGDB runtime-валидация [M]** — `kinopoiskGet<T>` кастует `response.json() as T`, IGDB-ответы не типизированы; остальные внешние границы (Shikimori/Steam/Weather) уже валидируются. (`backend/src/modules/records-providers/`)
+- [ ] **`as unknown as RecordsStoreReturn` в фабрике [M]** — нужно либо расширение типов Pinia для setup-стор с generic-ключами, либо официальный хелпер; сейчас один документированный каст на границе (ограничение TS, не лень). (`frontend/src/composables/factories/create-records-store.ts`)
+- [ ] **`ComponentProps` вместо локального `ComponentPropsOf` [XS]** — заблокировано до Vue 3.6 (в 3.5.42 хелпер не экспортируется).
+- [ ] **Binary-ответы `img`/`avatar` в generated-клиенте [S]** — если понадобится fetch через клиент, типизировать через `RequestParams.format='blob'`; сейчас фронт использует URL-ы.
+- [ ] **Типизированные params роутов [L]** — не нужно, пока нет маршрутов с параметрами; включить `vue-router/unplugin`/`RouteNamedMap` с params при появлении.
+- [ ] **`suggesttion.dto.ts` typo** — не переименовывать без полного рефактора импортов (см. AGENTS.md); оставлено как техдолг.
+- [ ] **Дашборд покрытия [S]** — `bun test --coverage` для backend unit + integration, при желании — артефакт в CI.
 
-## 2. Фронтенд
+## Идеи (необязательное)
 
-- [ ] **Unit-раннер (Vitest/bun test для .ts) [M]** — покрыть `createEventCoalescer`, `parseApiError`, `query-keys`, `useBadgeCol`, `createParamsStore` (без DOM). Сейчас проверка только typecheck + e2e-смоук.
-- [ ] **Убрать `as unknown as RecordsStoreReturn` [M]** — если появится typed-паттерн для setup-store с generic-ключами (или хелпер, разворачивающий refs). (`frontend/src/composables/factories/create-records-store.ts`)
-- [ ] **`ComponentProps` вместо локального `ComponentPropsOf` [XS]** — когда выйдет Vue 3.6. (`frontend/src/components/dialog/composables/use-dialog.ts`)
-- [ ] **E2E Playwright [L]** — логин-редиректы (twitch/kick/telegram), CRUD записи из админки, wordle-игра, гостевой wordle-флоу (публичный leaderboard + плейсхолдер), диалоги, аккаунт-модалка.
-- [ ] **Обработка ошибок генератора `api.ts` [S]** — `generateSwagger` молча выходит после 10 ретраев; логировать/фейлить. (`frontend/vite.config.ts`)
-- [ ] **CI drift-check `api.ts` [M]** — поднять backend с БД в CI, регенерировать и `git diff --exit-code` (ловит устаревший клиент при мерже).
-- [ ] **Убрать `// @ts-nocheck` из `api.ts` пост-шагом [S]** — файл чисто проходит `tsc --strict`; пост-процесс в `generateSwagger` заставит регрессии генератора падать в typecheck.
-- [ ] **Синхронизация socket-контракта [M]** — либо общий `packages/contracts` (WsEvents + payload-типы), либо CI-скрипт, сравнивающий `frontend/src/types/socket-events.ts` с `backend/src/modules/websocket/websocket.events.ts` (сейчас только внутренние assertions).
-- [ ] **Типизированные params роутов [L]** — `vue-router/unplugin` или ручной `RouteNamedMap` с параметрами, если появятся параметрические маршруты.
-- [ ] **Store IDs [XS]** — `globals/...` vs `global/...` привести к одному стилю. (`frontend/src/stores/`)
-- [x] **Мёртвый `requiresAuth` [XS]** — 2026-09-30: удалён из `RouteMeta`, guard'а и `RouteItem` (коммит 5b70bba).
-- [ ] **`use-weather` кэш [S]** — module-level `cached` не инвалидируется; добавить refresh/ttl. (`frontend/src/pages/home/composables/use-weather.ts`)
-- [ ] **Dialog `props`-путь [XS]** — нет ни одного call-site с `component` + `props`; добавить пример или упростить тип.
-
-## 3. Интеграционные тесты (Postgres)
-
-- [x] **`DrizzleRecordsProvidersRepository` [S]** — 2026-09-30: link+genre и suggestion rules (коммит d6d7a26).
-- [x] **`DrizzleStatsRepository` [S]** — 2026-09-30: scope (type/status), group by genre/status/grade (коммит d6d7a26).
-- [ ] **Атомарность `mergeUsers` [M]** — падение в середине транзакции → полный откат (невалидные данные/конфликт FK) — сейчас проверен только happy-path + counters.
-- [x] **`setupIntegrationSuite(name, fn)` helper [S]** — 2026-09-30: `helpers/suite.ts`, 7 suite'ов используют его (коммит d6d7a26).
-- [ ] **Скрипт пересоздания `lists_test` [S]** — `DROP DATABASE` + setup-db при структурном рассинхроне схемы (сейчас вручную).
-- [ ] **Тесты транзакционных репозиториев на конкурентность [M]** — `createGame` onConflict, `upsert` notification при параллельных вставках.
-
-## 4. CI / инфраструктура
-
-- [ ] **Секция Testing в README [S]** — `RUN_DB_TESTS=1 bun --filter=./backend run test:integration`, правило `*_test`, порт 5432 (у `DATASOURCE_URL` в `.env.example` устаревший 6543).
-- [x] **`database/src/migrate.ts` [XS]** — 2026-09-30: переиспользует `runMigrations` (коммит 6d5e4ec).
-- [x] **Линт-правила [S]** — 2026-09-30: `typescript/no-explicit-any: warn` (тесты и `lib/api.ts` в ignore); исправлены Shikimori-каст и `ComponentPropsOf` (коммит 6d5e4ec).
-- [ ] **CI cache postgres-данных [XS]** — не нужен, но можно кэшировать `bun install` (уже есть) и vue-tsc state (уже есть).
-
-## 5. Мелкие хвосты (deferred minors)
-
-- [x] Suggestion `DELETE` — 2026-09-30: доки приведены к факту (200) (коммит 6d5e4ec).
-- [x] Публичный wordle-leaderboard — 2026-09-30: `@ApiErrors({ includeAuth: false })` на leaderboard, 401/403 остались только на защищённых роутах (коммит 5c3d062).
-- [ ] Binary-ответы `img`/`avatar` в generated-клиенте — типизировать через blob-параметр (`RequestParams.format`), если понадобится.
-- [ ] `queue`-модуль без таблицы — проверить, не нужен ли ему интеграционный тест (сейчас очередь виртуальная).
-- [x] `frontend/src/pages/media/MediaCard.vue` — 2026-09-30: все три `status as RecordStatus` убраны (коммит 6d5e4ec).
-
-## Идеи на подумать
-
-- Общий `packages/contracts` (WsEvents, enum-ы, DTO-типы) — уберёт зеркала и codegen-зависимость фронта от Swagger.
-- `drizzle-zod` для валидации входов от внешних API и для Swagger-DTO из схемы.
-- Единый type-level контракт-тест «backend ↔ generated client» в CI (сравнение схем docs-json с ожидаемыми `$ref`).
-- Дашборд покрытия: `bun test --coverage` для backend unit + integration.
+- `packages/contracts` (WsEvents, enum-ы, DTO) — частично закрыто CI-проверкой зеркала; вернуться, если контрактов станет больше.
+- `drizzle-zod` — ручная валидация границ уже покрывает текущие потребности; рассмотреть при расширении внешних API.
+- Единый type-level контракт-тест «backend ↔ generated client» — базово покрыт `swagger-contract.spec.ts`; расширять по мере роста API.

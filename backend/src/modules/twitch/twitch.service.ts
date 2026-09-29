@@ -13,6 +13,10 @@ export class TwitchService implements OnModuleInit {
   private readonly logger = new Logger(TwitchService.name)
 
   async onModuleInit() {
+    if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET) {
+      this.logger.warn('Twitch credentials not configured, skipping TwitchService init')
+      return
+    }
     this.logger.log('Initializing TwitchService and fetching app access token')
     await this.getAppAccessToken()
   }

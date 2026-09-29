@@ -1,31 +1,14 @@
-import { afterAll, beforeEach, expect, it } from 'bun:test'
+import { expect, it } from 'bun:test'
 import { limits, records } from '@gmd/database/schema'
 import { DrizzleLikeRepository } from '@/modules/like/repositories/drizzle-like.repository'
 import { DrizzleLimitRepository } from '@/modules/limit/repositories/drizzle-limit.repository'
-import {
-  createTestDb,
-  createTestPool,
-  integrationDescribe,
-  integrationEnabled,
-  truncateAll,
-} from './helpers/db'
 import { seedRecord, seedUser } from './helpers/fixtures'
+import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@/database/drizzle.service'
 
-integrationDescribe('DrizzleLikeRepository / DrizzleLimitRepository (integration)', () => {
-  if (!integrationEnabled) return
-  const pool = createTestPool()
-  const db = createTestDb(pool)
+setupIntegrationSuite('DrizzleLikeRepository / DrizzleLimitRepository (integration)', ({ db }) => {
   const likeRepository = new DrizzleLikeRepository({ db } as unknown as DrizzleService)
   const limitRepository = new DrizzleLimitRepository({ db } as unknown as DrizzleService)
-
-  beforeEach(async () => {
-    await truncateAll(pool)
-  })
-
-  afterAll(async () => {
-    await pool.end()
-  })
 
   it('creates a like and rejects a duplicate for the same user and record', async () => {
     const user = await seedUser(db, 'liker')

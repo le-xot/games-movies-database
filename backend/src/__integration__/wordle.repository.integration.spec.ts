@@ -1,36 +1,19 @@
-import { afterAll, beforeEach, expect, it } from 'bun:test'
+import { expect, it } from 'bun:test'
 import crypto from 'node:crypto'
 import { wordleGames } from '@gmd/database/schema'
 import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
-import {
-  createTestDb,
-  createTestPool,
-  integrationDescribe,
-  integrationEnabled,
-  truncateAll,
-} from './helpers/db'
 import { seedUser } from './helpers/fixtures'
+import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@/database/drizzle.service'
 
 const WRONG_GUESSES = ['ййййй', 'ццццц', 'ууууу', 'ккккк', 'еееее', 'ннннн']
 
-integrationDescribe('Wordle repositories (integration)', () => {
-  if (!integrationEnabled) return
-  const pool = createTestPool()
-  const db = createTestDb(pool)
+setupIntegrationSuite('Wordle repositories (integration)', ({ db }) => {
   const repository = new DrizzleWordleRepository({ db } as unknown as DrizzleService)
   const notifications = new DrizzleWordleNotificationRepository({
     db,
   } as unknown as DrizzleService)
-
-  beforeEach(async () => {
-    await truncateAll(pool)
-  })
-
-  afterAll(async () => {
-    await pool.end()
-  })
 
   it('creates a game with defaults and returns the existing one on conflict', async () => {
     const user = await seedUser(db, 'player')

@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, expect, it } from 'bun:test'
+import { expect, it } from 'bun:test'
 import crypto from 'node:crypto'
 import {
   likes,
@@ -10,14 +10,8 @@ import {
 import { eq } from 'drizzle-orm'
 import { UserRole } from '@/enums'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
-import {
-  createTestDb,
-  createTestPool,
-  integrationDescribe,
-  integrationEnabled,
-  truncateAll,
-} from './helpers/db'
 import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
+import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@/database/drizzle.service'
 import type { CreateUserData } from '@/modules/user/entities/user-domain.entity'
 
@@ -34,19 +28,8 @@ function userData(overrides: Partial<CreateUserData> = {}): CreateUserData {
   }
 }
 
-integrationDescribe('DrizzleUserRepository (integration)', () => {
-  if (!integrationEnabled) return
-  const pool = createTestPool()
-  const db = createTestDb(pool)
+setupIntegrationSuite('DrizzleUserRepository (integration)', ({ db }) => {
   const repository = new DrizzleUserRepository({ db } as unknown as DrizzleService)
-
-  beforeEach(async () => {
-    await truncateAll(pool)
-  })
-
-  afterAll(async () => {
-    await pool.end()
-  })
 
   it('creates a user with its platform account and rejects a duplicate account', async () => {
     const platformUserId = crypto.randomUUID()

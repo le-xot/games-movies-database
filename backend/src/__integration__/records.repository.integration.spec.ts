@@ -1,30 +1,13 @@
-import { afterAll, beforeEach, expect, it } from 'bun:test'
+import { expect, it } from 'bun:test'
 import { likes, records, suggestionOwnerships } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
 import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
-import {
-  createTestDb,
-  createTestPool,
-  integrationDescribe,
-  integrationEnabled,
-  truncateAll,
-} from './helpers/db'
 import { seedLike, seedRecord, recordCreateData, seedUser } from './helpers/fixtures'
+import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@/database/drizzle.service'
 
-integrationDescribe('DrizzleRecordRepository (integration)', () => {
-  if (!integrationEnabled) return
-  const pool = createTestPool()
-  const db = createTestDb(pool)
+setupIntegrationSuite('DrizzleRecordRepository (integration)', ({ db }) => {
   const repository = new DrizzleRecordRepository({ db } as unknown as DrizzleService)
-
-  beforeEach(async () => {
-    await truncateAll(pool)
-  })
-
-  afterAll(async () => {
-    await pool.end()
-  })
 
   it('applies database defaults on create and keeps nullable columns null', async () => {
     const created = await repository.create(recordCreateData({ title: 'Alpha' }))

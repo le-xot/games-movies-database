@@ -1,30 +1,13 @@
-import { afterAll, beforeEach, expect, it } from 'bun:test'
+import { expect, it } from 'bun:test'
 import { limits, records, suggestionOwnerships } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
-import {
-  createTestDb,
-  createTestPool,
-  integrationDescribe,
-  integrationEnabled,
-  truncateAll,
-} from './helpers/db'
 import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
+import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@/database/drizzle.service'
 
-integrationDescribe('DrizzleSuggestionRepository (integration)', () => {
-  if (!integrationEnabled) return
-  const pool = createTestPool()
-  const db = createTestDb(pool)
+setupIntegrationSuite('DrizzleSuggestionRepository (integration)', ({ db }) => {
   const repository = new DrizzleSuggestionRepository({ db } as unknown as DrizzleService)
-
-  beforeEach(async () => {
-    await truncateAll(pool)
-  })
-
-  afterAll(async () => {
-    await pool.end()
-  })
 
   it('finds a configured limit or returns null', async () => {
     expect(await repository.findLimit('SUGGESTION')).toBeNull()

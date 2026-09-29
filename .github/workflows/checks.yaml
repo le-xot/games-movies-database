@@ -85,7 +85,7 @@ jobs:
         run: cd backend && bun test
 
       - name: Test frontend
-        run: cd frontend && bun test
+        run: cd frontend && bun run test
 
       - name: Integration tests
         env:

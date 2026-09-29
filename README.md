@@ -223,6 +223,28 @@ games-movies-database/
 | `bun lint:fix`       | Автоисправление oxlint                        |
 | `bun format`         | Форматирование oxfmt                          |
 | `bun format:check`   | Проверка форматирования без изменений         |
+| `bun check:socket`   | Сверка socket-контракта frontend ↔ backend    |
+
+## Тестирование
+
+| Команда                    | Описание                                                               |
+| -------------------------- | ---------------------------------------------------------------------- |
+| `cd backend && bun test`   | Unit-тесты backend (без БД и внешних сервисов)                         |
+| `cd frontend && bun test`  | Unit-тесты frontend (чистые `.ts`: coalescer, parseError, query-keys)  |
+| `bun run test:integration` | Интеграционные тесты репозиториев на реальном Postgres (см. ниже)      |
+| `bun run check:socket`     | Проверка, что зеркало Socket.IO-событий совпадает с backend-контрактом |
+
+Интеграционные тесты используют отдельную БД `lists_test` в dev-контейнере postgres и включаются только явным флагом:
+
+```bash
+bun infra:start
+RUN_DB_TESTS=1 TEST_DATASOURCE_URL=postgresql://le_xot:abc@127.0.0.1:5432/lists_test \
+  bun --filter=./backend run test:integration
+```
+
+- Рабочие данные (`lists`) не затрагиваются: guard разрешает только URL с суффиксом `_test`, между тестами таблицы очищаются (`TRUNCATE ... RESTART IDENTITY CASCADE`).
+- Схема тестовой БД обновляется миграциями автоматически; при структурном рассинхроне поможет `bun --filter=./backend run test:integration:reset` (пересоздаёт `lists_test`).
+- Без `RUN_DB_TESTS=1` интеграционные спеки скипаются, поэтому обычный `bun test` не требует БД.
 
 ## Сторонние интеграции
 

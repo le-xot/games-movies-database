@@ -11,7 +11,7 @@ export const WsEvents = {
 } as const
 
 export interface UpdateRecordsPayload {
-  genre?: RecordGenre
+  genre?: RecordGenre | undefined
   id: number
   action: 'created' | 'updated' | 'deleted'
 }

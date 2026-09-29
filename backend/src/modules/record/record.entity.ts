@@ -11,19 +11,19 @@ import { UserEntity } from '@/modules/user/user.entity'
 
 export class SuggestionOwnershipEntity {
   @ApiProperty()
-  id: number
+  id!: number
 
   @ApiProperty()
-  recordId: number
+  recordId!: number
 
   @ApiProperty()
-  userId: string
+  userId!: string
 
   @ApiProperty({ type: UserEntity, required: false, nullable: true })
   user?: UserEntity | null
 
   @ApiProperty()
-  createdAt: Date
+  createdAt!: Date
 
   constructor(partial: Partial<SuggestionOwnershipEntity>) {
     Object.assign(this, partial)
@@ -32,31 +32,31 @@ export class SuggestionOwnershipEntity {
 
 export class RecordEntity {
   @ApiProperty()
-  id: number
+  id!: number
 
   @ApiProperty()
-  title: string
+  title!: string
 
   @ApiProperty()
-  link: string
+  link!: string
 
   @ApiProperty()
-  posterUrl: string
+  posterUrl!: string
 
   @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName, nullable: true })
-  status: RecordStatus | null
+  status!: RecordStatus | null
 
   @ApiProperty({ enum: RecordType, enumName: RecordTypeName, nullable: true })
-  type: RecordType | null
+  type!: RecordType | null
 
   @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName, nullable: true })
-  genre: RecordGenre | null
+  genre!: RecordGenre | null
 
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, nullable: true })
-  grade: RecordGrade | null
+  grade!: RecordGrade | null
 
   @ApiProperty({ nullable: true })
-  episode: string | null
+  episode!: string | null
 
   @ApiProperty({ required: false, nullable: true, type: Object })
   extra?: unknown
@@ -68,7 +68,7 @@ export class RecordEntity {
   likes?: LikeEntity[] | null
 
   @ApiProperty()
-  createdAt: Date
+  createdAt!: Date
 
   constructor(partial: Partial<RecordEntity>) {
     Object.assign(this, partial)

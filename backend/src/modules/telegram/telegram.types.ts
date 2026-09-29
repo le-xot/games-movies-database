@@ -1,9 +1,9 @@
 export interface TelegramProfile {
   id: string
-  username?: string
+  username?: string | undefined
   firstName: string
-  lastName?: string
-  photoUrl?: string
+  lastName?: string | undefined
+  photoUrl?: string | undefined
 }
 
 export interface TelegramOidcClaims {

@@ -5,23 +5,23 @@ import type { SelectRow } from '@gmd/database'
 
 export class UserAccountEntity implements SelectRow<'userAccounts'> {
   @ApiProperty()
-  id: number
+  id!: number
 
   @ApiProperty()
-  userId: string
+  userId!: string
 
   @ApiProperty({ enum: AccountPlatform, enumName: AccountPlatformName })
-  platform: AccountPlatform
+  platform!: AccountPlatform
 
   @ApiProperty()
-  platformUserId: string
+  platformUserId!: string
 
   @ApiProperty()
-  platformLogin: string
+  platformLogin!: string
 
   @ApiProperty({ nullable: true })
-  platformAvatar: string | null
+  platformAvatar!: string | null
 
   @ApiProperty()
-  createdAt: Date
+  createdAt!: Date
 }

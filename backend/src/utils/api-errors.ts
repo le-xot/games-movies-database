@@ -3,13 +3,13 @@ import { ApiProperty, ApiResponse } from '@nestjs/swagger'
 
 export class ApiErrorDto {
   @ApiProperty({ example: 400 })
-  statusCode: number
+  statusCode!: number
 
   @ApiProperty({
     example: 'Bad Request',
     oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
   })
-  message: string | string[]
+  message!: string | string[]
 
   @ApiProperty({ required: false, example: 'Bad Request' })
   error?: string

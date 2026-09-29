@@ -4,25 +4,25 @@ import { UserRole as UserRoleName } from '@/enums/enums.names'
 
 export class UserEntity {
   @ApiProperty()
-  id: string
+  id!: string
 
   @ApiProperty()
-  login: string
+  login!: string
 
   @ApiProperty({ enum: UserRole, enumName: UserRoleName })
-  role: UserRole
+  role!: UserRole
 
   @ApiProperty()
-  profileImageUrl: string
+  profileImageUrl!: string
 
   @ApiProperty()
-  color: string
+  color!: string
 
   @ApiProperty()
-  hasCustomAvatar: boolean
+  hasCustomAvatar!: boolean
 
   @ApiProperty()
-  createdAt: Date
+  createdAt!: Date
 
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial)
@@ -31,23 +31,23 @@ export class UserEntity {
 
 export class MergeUsersResultEntity {
   @ApiProperty()
-  accountsMoved: number
+  accountsMoved!: number
 
   @ApiProperty()
-  accountsDropped: number
+  accountsDropped!: number
 
   @ApiProperty()
-  likesMoved: number
+  likesMoved!: number
 
   @ApiProperty()
-  likesDropped: number
+  likesDropped!: number
 
   @ApiProperty()
-  suggestionsMoved: number
+  suggestionsMoved!: number
 
   @ApiProperty()
-  wordleGamesMoved: number
+  wordleGamesMoved!: number
 
   @ApiProperty()
-  wordleGamesDropped: number
+  wordleGamesDropped!: number
 }

@@ -8,66 +8,66 @@ import {
 
 export class GenreCountDTO {
   @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName })
-  genre: RecordGenre
+  genre!: RecordGenre
 
   @ApiProperty()
-  count: number
+  count!: number
 }
 
 export class StatusCountDTO {
   @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName })
-  status: RecordStatus
+  status!: RecordStatus
 
   @ApiProperty()
-  count: number
+  count!: number
 }
 
 export class GradeCountDTO {
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName })
-  grade: RecordGrade
+  grade!: RecordGrade
 
   @ApiProperty()
-  count: number
+  count!: number
 }
 
 export class GenreStatusCountDTO {
   @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName })
-  genre: RecordGenre
+  genre!: RecordGenre
 
   @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName })
-  status: RecordStatus
+  status!: RecordStatus
 
   @ApiProperty()
-  count: number
+  count!: number
 }
 
 export class GenreGradeCountDTO {
   @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName })
-  genre: RecordGenre
+  genre!: RecordGenre
 
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName })
-  grade: RecordGrade
+  grade!: RecordGrade
 
   @ApiProperty()
-  count: number
+  count!: number
 }
 
 export class RecordsStatsDTO {
   @ApiProperty()
-  total: number
+  total!: number
 
   @ApiProperty({ type: [GenreCountDTO] })
-  byGenre: GenreCountDTO[]
+  byGenre!: GenreCountDTO[]
 
   @ApiProperty({ type: [StatusCountDTO] })
-  byStatus: StatusCountDTO[]
+  byStatus!: StatusCountDTO[]
 
   @ApiProperty({ type: [GradeCountDTO] })
-  byGrade: GradeCountDTO[]
+  byGrade!: GradeCountDTO[]
 
   @ApiProperty({ type: [GenreStatusCountDTO] })
-  byGenreStatus: GenreStatusCountDTO[]
+  byGenreStatus!: GenreStatusCountDTO[]
 
   @ApiProperty({ type: [GenreGradeCountDTO] })
-  byGenreGrade: GenreGradeCountDTO[]
+  byGenreGrade!: GenreGradeCountDTO[]
 }

@@ -4,28 +4,28 @@ import { RecordGenre as RecordGenreName, RecordType as RecordTypeName } from '@/
 
 export class QueueItemDto {
   @ApiProperty()
-  title: string
+  title!: string
 
   @ApiProperty()
-  link: string
+  link!: string
 
   @ApiProperty()
-  posterUrl: string
+  posterUrl!: string
 
   @ApiProperty()
-  createdAt: string
+  createdAt!: string
 
   @ApiProperty({ enum: RecordType, enumName: RecordTypeName, nullable: true })
-  type: RecordType | null
+  type!: RecordType | null
 
   @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName, nullable: true })
-  genre: RecordGenre | null
+  genre!: RecordGenre | null
 }
 
 export class QueueDto {
   @ApiProperty({ type: QueueItemDto, isArray: true })
-  games: QueueItemDto[]
+  games!: QueueItemDto[]
 
   @ApiProperty({ type: QueueItemDto, isArray: true })
-  videos: QueueItemDto[]
+  videos!: QueueItemDto[]
 }

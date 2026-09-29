@@ -80,7 +80,7 @@ export class TelegramService {
     try {
       const { payload } = await jwtVerify(idToken, this.jwks, {
         issuer: TELEGRAM_OIDC_ISSUER,
-        audience: env.TELEGRAM_CLIENT_ID,
+        ...(env.TELEGRAM_CLIENT_ID ? { audience: env.TELEGRAM_CLIENT_ID } : {}),
       })
       return mapTelegramOidcClaims(payload as TelegramOidcClaims)
     } catch (error) {

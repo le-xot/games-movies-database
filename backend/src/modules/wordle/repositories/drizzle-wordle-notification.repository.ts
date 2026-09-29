@@ -9,8 +9,8 @@ import type { SelectRow } from '@gmd/database'
 export type WordleNotificationSubscriptionRecord = SelectRow<'wordleNotificationSubscriptions'>
 
 export interface WordleNotificationFlags {
-  morningEnabled?: boolean
-  eveningEnabled?: boolean
+  morningEnabled?: boolean | undefined
+  eveningEnabled?: boolean | undefined
 }
 
 @Injectable()

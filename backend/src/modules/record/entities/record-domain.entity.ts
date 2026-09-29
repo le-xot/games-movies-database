@@ -37,14 +37,14 @@ export type RecordWithRelations = RecordDomain & {
 }
 
 export interface RecordFilterOptions {
-  search?: string
-  status?: RecordStatus[]
-  type?: RecordType
-  grade?: RecordGrade[]
-  genre?: RecordGenre
+  search?: string | undefined
+  status?: RecordStatus[] | undefined
+  type?: RecordType | undefined
+  grade?: RecordGrade[] | undefined
+  genre?: RecordGenre | undefined
 }
 
 export interface RecordSortOptions {
-  orderBy?: 'title' | 'id'
-  direction?: 'asc' | 'desc'
+  orderBy?: 'title' | 'id' | undefined
+  direction?: 'asc' | 'desc' | undefined
 }

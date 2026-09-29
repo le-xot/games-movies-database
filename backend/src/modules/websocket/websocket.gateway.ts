@@ -31,7 +31,7 @@ const allowedOrigins = parseCorsOrigins(env.CORS_ORIGINS)
 })
 export class WebsocketGateway {
   @WebSocketServer()
-  server: Server<ClientToServerEvents, ServerToClientEvents>
+  server!: Server<ClientToServerEvents, ServerToClientEvents>
 
   @OnEvent(WsEvents.UPDATE_LIKES)
   handleUpdateLikes(payload: UpdateLikesPayload) {

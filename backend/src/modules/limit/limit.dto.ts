@@ -7,19 +7,19 @@ export class ChangeLimitDTO {
   @ApiProperty({ enum: LimitType, enumName: LimitTypeName })
   @IsEnum(LimitType)
   @IsNotEmpty()
-  name: LimitType
+  name!: LimitType
 
   @ApiProperty({ example: 5, description: 'Limit quantity' })
   @IsInt()
   @Min(1)
   @IsNotEmpty()
-  quantity: number
+  quantity!: number
 }
 
 export class LimitEntity {
   @ApiProperty({ enum: LimitType, enumName: LimitTypeName })
-  name: LimitType
+  name!: LimitType
 
   @ApiProperty()
-  quantity: number
+  quantity!: number
 }

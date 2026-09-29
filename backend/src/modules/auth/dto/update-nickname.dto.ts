@@ -6,5 +6,5 @@ export class UpdateNicknameDTO {
   @IsString()
   @MinLength(2)
   @MaxLength(32)
-  login: string
+  login!: string
 }

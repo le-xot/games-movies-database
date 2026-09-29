@@ -38,7 +38,7 @@ export class RateLimitGuard implements CanActivate {
     return `${context.getClass().name}.${context.getHandler().name}`
   }
 
-  private getClientIp(request: { ip?: string }) {
+  private getClientIp(request: { ip?: string | undefined }) {
     return request.ip ?? 'unknown'
   }
 }

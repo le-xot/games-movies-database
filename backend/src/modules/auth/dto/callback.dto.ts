@@ -4,9 +4,9 @@ import { IsString } from 'class-validator'
 export class CallbackDto {
   @ApiProperty()
   @IsString()
-  code: string
+  code!: string
 
   @ApiProperty()
   @IsString()
-  state: string
+  state!: string
 }

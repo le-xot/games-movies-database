@@ -6,13 +6,13 @@ import { RecordGenre as RecordGenreName } from '@/enums/enums.names'
 export class UserSuggestionDTO {
   @ApiProperty({ example: 'https://shikimori.one/animes/1943-paprika' })
   @IsString()
-  link: string
+  link!: string
 }
 
 export class UserSuggestionResponseDTO {
   @ApiProperty()
-  title: string
+  title!: string
 
   @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName })
-  genre: RecordGenre
+  genre!: RecordGenre
 }

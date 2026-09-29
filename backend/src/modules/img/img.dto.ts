@@ -9,7 +9,7 @@ export enum ImgVariant {
 export class GetImageQueryDTO {
   @ApiProperty({ description: 'Base64-encoded source image URL' })
   @IsString()
-  urlEncoded: string
+  urlEncoded!: string
 
   @ApiProperty({ enum: ImgVariant, required: false, default: ImgVariant.POSTER })
   @IsOptional()

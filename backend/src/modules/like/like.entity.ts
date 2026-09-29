@@ -3,19 +3,19 @@ import { UserEntity } from '@/modules/user/user.entity'
 
 export class LikeEntity {
   @ApiProperty()
-  id: string
+  id!: string
 
   @ApiProperty()
-  userId: string
+  userId!: string
 
   @ApiProperty()
-  recordId: number
+  recordId!: number
 
   @ApiProperty({ type: UserEntity, required: false, nullable: true })
   user?: UserEntity | null
 
   @ApiProperty()
-  createdAt: Date
+  createdAt!: Date
 
   constructor(partial: Partial<LikeEntity>) {
     Object.assign(this, partial)

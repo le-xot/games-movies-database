@@ -6,16 +6,16 @@ import { LikeEntity } from '@/modules/like/like.entity'
 export class LikeCreateDTO {
   @ApiProperty({ example: 1 })
   @IsNumber()
-  recordId: number
+  recordId!: number
 }
 
 export class GetLikesByIdDTO {
   @ApiProperty({ type: LikeEntity, isArray: true })
-  likes: LikeEntity[]
+  likes!: LikeEntity[]
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  total: number
+  total!: number
 }
 
 export class GetLikesDTO {

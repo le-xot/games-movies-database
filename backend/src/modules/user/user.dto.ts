@@ -5,5 +5,5 @@ export class MergeUsersDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  sourceUserId: string
+  sourceUserId!: string
 }

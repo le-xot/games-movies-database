@@ -10,29 +10,29 @@ import { RecordEntity } from '@/modules/record/record.entity'
 
 export class SteamGameDto {
   @ApiProperty()
-  appid: number
+  appid!: number
 
   @ApiProperty()
-  name: string
+  name!: string
 
   @ApiProperty({ description: 'Playtime in minutes' })
-  playtime_forever: number
+  playtime_forever!: number
 
   @ApiProperty()
-  header_image: string
+  header_image!: string
 
   @ApiProperty()
-  img_icon_url: string
+  img_icon_url!: string
 }
 
 export class SteamImportGameDto {
   @ApiProperty()
   @IsInt()
-  appId: number
+  appId!: number
 
   @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName })
   @IsEnum(RecordStatus)
-  status: RecordStatus
+  status!: RecordStatus
 
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
   @IsOptional()
@@ -45,29 +45,29 @@ export class SteamImportDTO {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SteamImportGameDto)
-  games: SteamImportGameDto[]
+  games!: SteamImportGameDto[]
 }
 
 export class SteamGamesResponseDTO {
   @ApiProperty({ type: [SteamGameDto] })
-  games: SteamGameDto[]
+  games!: SteamGameDto[]
 
   @ApiProperty({ type: [String] })
-  existingAppIds: string[]
+  existingAppIds!: string[]
 }
 
 export class SteamImportFailureDto {
   @ApiProperty()
-  appId: number
+  appId!: number
 
   @ApiProperty()
-  reason: string
+  reason!: string
 }
 
 export class SteamImportResultDTO {
   @ApiProperty({ type: [RecordEntity] })
-  created: RecordEntity[]
+  created!: RecordEntity[]
 
   @ApiProperty({ type: [SteamImportFailureDto] })
-  failed: SteamImportFailureDto[]
+  failed!: SteamImportFailureDto[]
 }

@@ -3,30 +3,30 @@ import { IsBoolean, IsOptional } from 'class-validator'
 
 export class WordleNotificationsStatusDTO {
   @ApiProperty()
-  available: boolean
+  available!: boolean
 
   @ApiProperty()
-  connected: boolean
+  connected!: boolean
 
   @ApiProperty({ type: String, nullable: true })
-  telegramUsername: string | null
+  telegramUsername!: string | null
 
   @ApiProperty()
-  morningEnabled: boolean
+  morningEnabled!: boolean
 
   @ApiProperty()
-  eveningEnabled: boolean
+  eveningEnabled!: boolean
 
   @ApiProperty({ example: '12:00' })
-  morningTime: string
+  morningTime!: string
 
   @ApiProperty({ example: '20:00' })
-  eveningTime: string
+  eveningTime!: string
 }
 
 export class WordleNotificationsLinkDTO {
   @ApiProperty({ example: 'https://t.me/wordle_bot?start=abc' })
-  url: string
+  url!: string
 }
 
 export class WordleNotificationsUpdateDTO {
@@ -43,5 +43,5 @@ export class WordleNotificationsUpdateDTO {
 
 export class WordleNotificationsDeleteDTO {
   @ApiProperty()
-  ok: boolean
+  ok!: boolean
 }

@@ -10,22 +10,22 @@ export interface CreateUserData {
   platform: AccountPlatform
   platformUserId: string
   platformLogin: string
-  platformAvatar?: string
+  platformAvatar?: string | undefined
 }
 
 export interface UpdateUserData {
-  login?: string
-  role?: UserRole
-  profileImageUrl?: string
-  color?: string
-  hasCustomAvatar?: boolean
+  login?: string | undefined
+  role?: UserRole | undefined
+  profileImageUrl?: string | undefined
+  color?: string | undefined
+  hasCustomAvatar?: boolean | undefined
 }
 
 export interface LinkPlatformData {
   platform: AccountPlatform
   platformUserId: string
   platformLogin: string
-  platformAvatar?: string
+  platformAvatar?: string | undefined
 }
 
 export type UserAccount = SelectRow<'userAccounts'>

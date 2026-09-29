@@ -2,63 +2,63 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class WeatherMainDTO {
   @ApiProperty()
-  temp: number
+  temp!: number
 
   @ApiProperty()
-  feels_like: number
+  feels_like!: number
 
   @ApiProperty()
-  humidity: number
+  humidity!: number
 
   @ApiProperty()
-  pressure: number
+  pressure!: number
 }
 
 export class WeatherConditionDTO {
   @ApiProperty()
-  main: string
+  main!: string
 
   @ApiProperty()
-  description: string
+  description!: string
 }
 
 export class WeatherWindDTO {
   @ApiProperty()
-  speed: number
+  speed!: number
 }
 
 export class WeatherCloudsDTO {
   @ApiProperty()
-  all: number
+  all!: number
 }
 
 export class WeatherSysDTO {
   @ApiProperty()
-  sunrise: number
+  sunrise!: number
 
   @ApiProperty()
-  sunset: number
+  sunset!: number
 }
 
 export class WeatherDTO {
   @ApiProperty({ type: WeatherMainDTO })
-  main: WeatherMainDTO
+  main!: WeatherMainDTO
 
   @ApiProperty({ type: [WeatherConditionDTO] })
-  weather: WeatherConditionDTO[]
+  weather!: WeatherConditionDTO[]
 
   @ApiProperty({ type: WeatherWindDTO })
-  wind: WeatherWindDTO
+  wind!: WeatherWindDTO
 
   @ApiProperty()
-  visibility: number
+  visibility!: number
 
   @ApiProperty({ type: WeatherCloudsDTO })
-  clouds: WeatherCloudsDTO
+  clouds!: WeatherCloudsDTO
 
   @ApiProperty({ type: WeatherSysDTO })
-  sys: WeatherSysDTO
+  sys!: WeatherSysDTO
 
   @ApiProperty()
-  name: string
+  name!: string
 }

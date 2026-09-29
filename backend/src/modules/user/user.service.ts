@@ -53,9 +53,9 @@ export class UserService {
     platformId: string,
     data: {
       login: string
-      role?: UserRole
-      platformAvatar?: string
-      color?: string
+      role?: UserRole | undefined
+      platformAvatar?: string | undefined
+      color?: string | undefined
     },
     platform: AccountPlatform,
   ): Promise<UserDomain> {

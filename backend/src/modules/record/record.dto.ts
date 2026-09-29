@@ -23,7 +23,7 @@ import { RecordEntity } from '@/modules/record/record.entity'
 export class RecordCreateFromLinkDTO {
   @ApiProperty({ example: 'https://example.com/record' })
   @IsUrl()
-  link: string
+  link!: string
 
   @ApiProperty({
     example: RecordStatus.QUEUE,
@@ -87,7 +87,7 @@ export class RecordUpdateDTO {
 export class RecordUpdatePosterDTO {
   @ApiProperty({ example: 'https://example.com/poster.jpg' })
   @IsUrl()
-  url: string
+  url!: string
 }
 
 export class RecordGetDTO {
@@ -171,8 +171,8 @@ export class RecordGetDTO {
 
 export class GetAllRecordsDTO {
   @ApiProperty({ type: RecordEntity, isArray: true })
-  records: RecordEntity[]
+  records!: RecordEntity[]
 
   @ApiProperty()
-  total: number
+  total!: number
 }

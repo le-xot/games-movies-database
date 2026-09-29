@@ -9,130 +9,130 @@ export class WordleGuessDTO {
   @ApiProperty({ example: 'слово' })
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @Matches(/^[а-яёА-ЯЁ]{5}$/, { message: 'Слово должно состоять из 5 русских букв' })
-  word: string
+  word!: string
 }
 
 export class WordleGuessStateDTO {
   @ApiProperty({ example: 'слово' })
-  word: string
+  word!: string
 
   @ApiProperty({ enum: WordleLetterState, enumName: 'WordleLetterState', isArray: true })
-  states: WordleLetterState[]
+  states!: WordleLetterState[]
 }
 
 export class WordleStateDTO {
   @ApiProperty({ example: '2026-09-20' })
-  date: string
+  date!: string
 
   @ApiProperty({ enum: WordleGameStatus, enumName: WordleGameStatusName })
-  status: WordleGameStatus
+  status!: WordleGameStatus
 
   @ApiProperty({ example: 3 })
-  attempts: number
+  attempts!: number
 
   @ApiProperty({ example: 6 })
-  maxAttempts: number
+  maxAttempts!: number
 
   @ApiProperty({ example: 5 })
-  wordLength: number
+  wordLength!: number
 
   @ApiProperty({ type: [WordleGuessStateDTO] })
-  guesses: WordleGuessStateDTO[]
+  guesses!: WordleGuessStateDTO[]
 
   @ApiProperty({ type: String, nullable: true, example: null })
-  answer: string | null
+  answer!: string | null
 
   @ApiProperty({ example: 43_200_000 })
-  msUntilNextWord: number
+  msUntilNextWord!: number
 }
 
 export class WordleStatsDTO {
   @ApiProperty()
-  played: number
+  played!: number
 
   @ApiProperty()
-  wins: number
+  wins!: number
 
   @ApiProperty()
-  winRate: number
+  winRate!: number
 
   @ApiProperty()
-  currentStreak: number
+  currentStreak!: number
 
   @ApiProperty()
-  maxStreak: number
+  maxStreak!: number
 
   @ApiProperty({ type: [Number] })
-  distribution: number[]
+  distribution!: number[]
 }
 
 export class WordleLeaderboardEntryDTO {
   @ApiProperty()
-  userId: string
+  userId!: string
 
   @ApiProperty()
-  login: string
+  login!: string
 
   @ApiProperty()
-  profileImageUrl: string
+  profileImageUrl!: string
 
   @ApiProperty()
-  color: string
+  color!: string
 
   @ApiProperty()
-  wins: number
+  wins!: number
 
   @ApiProperty()
-  currentStreak: number
+  currentStreak!: number
 
   @ApiProperty()
-  maxStreak: number
+  maxStreak!: number
 
   @ApiProperty()
-  avgAttempts: number
+  avgAttempts!: number
 }
 
 export class WordleDailyLeaderboardEntryDTO {
   @ApiProperty()
-  userId: string
+  userId!: string
 
   @ApiProperty()
-  login: string
+  login!: string
 
   @ApiProperty()
-  profileImageUrl: string
+  profileImageUrl!: string
 
   @ApiProperty()
-  color: string
+  color!: string
 
   @ApiProperty({ enum: WordleGameStatus, enumName: WordleGameStatusName })
-  status: WordleGameStatus
+  status!: WordleGameStatus
 
   @ApiProperty({ example: 3 })
-  attempts: number
+  attempts!: number
 }
 
 export class WordleDailyLeaderboardDTO {
   @ApiProperty({ type: [WordleDailyLeaderboardEntryDTO] })
-  entries: WordleDailyLeaderboardEntryDTO[]
+  entries!: WordleDailyLeaderboardEntryDTO[]
 
   @ApiProperty()
-  total: number
+  total!: number
 }
 
 export class WordleLeaderboardDTO {
   @ApiProperty({ type: [WordleLeaderboardEntryDTO] })
-  entries: WordleLeaderboardEntryDTO[]
+  entries!: WordleLeaderboardEntryDTO[]
 
   @ApiProperty()
-  totalPlayers: number
+  totalPlayers!: number
 
   @ApiProperty()
-  totalGames: number
+  totalGames!: number
 
   @ApiProperty()
-  winsToday: number
+  winsToday!: number
 
   @ApiProperty({ type: WordleDailyLeaderboardDTO })
-  today: WordleDailyLeaderboardDTO
+  today!: WordleDailyLeaderboardDTO
 }

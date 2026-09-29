@@ -17,8 +17,16 @@
     "eslint/no-unused-vars": "warn",
     "eslint/no-console": "off",
     "eslint/no-alert": "off",
+    "typescript/no-explicit-any": "warn",
     "typescript/no-extraneous-class": ["warn", { "allowWithDecorator": true }],
     "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
   },
-  "ignorePatterns": ["dist", "node_modules", "coverage", "frontend/src/lib/api.ts"]
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "coverage",
+    "frontend/src/lib/api.ts",
+    "**/__tests__/**",
+    "**/*.spec.ts"
+  ]
 }

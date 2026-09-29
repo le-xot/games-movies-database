@@ -1,6 +1,5 @@
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { migrate } from 'drizzle-orm/node-postgres/migrator'
-import { createPool, MIGRATIONS_FOLDER } from './lib/connection'
+import { createPool } from './lib/connection'
+import { runMigrations } from './lib/migrations'
 
 async function main() {
   const pool = createPool()
@@ -28,7 +27,7 @@ async function main() {
     }
 
     console.log('🔌 Applying migrations')
-    await migrate(drizzle(pool), { migrationsFolder: MIGRATIONS_FOLDER })
+    await runMigrations(pool)
     console.log('✅ Migrations applied')
   } catch (error) {
     console.error('❌ Migration failed:', error)

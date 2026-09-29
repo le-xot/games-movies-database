@@ -78,13 +78,13 @@ function saveEdit() {
 const spanTwoStatuses = [RecordStatus.NOTINTERESTED, RecordStatus.QUEUE, RecordStatus.PROGRESS]
 
 function shouldHideGrade(status?: RecordStatus | null): boolean {
-  return spanTwoStatuses.includes(status as RecordStatus)
+  return status !== undefined && status !== null && spanTwoStatuses.includes(status)
 }
 
 const posterStatuses = [RecordStatus.DONE, RecordStatus.UNFINISHED, RecordStatus.DROP]
 
 function isPosterStatus(status?: RecordStatus | null): boolean {
-  return posterStatuses.includes(status as RecordStatus)
+  return status !== undefined && status !== null && posterStatuses.includes(status)
 }
 
 function handleDelete() {
@@ -104,8 +104,8 @@ const adminActions = computed(() => [
 const overlayButtonClass =
   'bg-black/40 backdrop-blur-sm border-white/40 text-white hover:text-white hover:bg-black/60'
 
-function handleStatusUpdate(value: string | undefined) {
-  emit('update', { id: props.item.id, data: { status: value as RecordStatus } })
+function handleStatusUpdate(value: RecordStatus | undefined) {
+  emit('update', { id: props.item.id, data: { status: value } })
 }
 
 function handleGradeToggle(currentGrade: RecordGrade | null | undefined, newGrade: RecordGrade) {

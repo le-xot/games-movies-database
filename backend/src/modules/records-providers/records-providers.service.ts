@@ -22,6 +22,12 @@ interface KinopoiskFilm {
   genres: Array<{ genre: string }>
 }
 
+interface ShikimoriAnime {
+  russian?: string
+  name?: string
+  image?: { original?: string }
+}
+
 const KINOPOISK_SERIES_TYPES = ['TV_SERIES', 'MINI_SERIES', 'TV_SHOW']
 
 const GENRE_PERMISSION_MESSAGES: Record<RecordGenre, string> = {
@@ -190,11 +196,11 @@ export class RecordsProvidersService {
         `Не удалось получить данные из API Shikimori: ${response.status}`,
       )
 
-    const anime = (await response.json()) as any
+    const anime = (await response.json()) as ShikimoriAnime
     if (!anime) throw new BadRequestException('Аниме не найдено в API Shikimori')
 
     return {
-      title: anime.russian || anime.name,
+      title: anime.russian || anime.name || 'Без названия',
       posterUrl: anime.image?.original ? `https://shikimori.one${anime.image.original}` : '',
       genre: RecordGenre.ANIME,
       link: `https://shikimori.one/animes/${id}`,

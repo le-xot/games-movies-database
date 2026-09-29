@@ -41,7 +41,7 @@ export class SuggestionController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  @ApiResponse({ status: 204, description: 'Suggestion deleted successfully' })
+  @ApiResponse({ status: 200, description: 'Suggestion deleted successfully' })
   async deleteUserSuggestion(@Param('id') id: number, @User() user: UserEntity): Promise<void> {
     await this.suggestionService.deleteUserSuggestion(id, user.id)
   }

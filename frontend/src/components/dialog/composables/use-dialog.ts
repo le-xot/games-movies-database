@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { markRaw, ref } from 'vue'
 import type { Component } from 'vue'
 
-type ComponentPropsOf<T extends Component> = T extends abstract new (...args: any[]) => {
+type ComponentPropsOf<T extends Component> = T extends abstract new (...args: unknown[]) => {
   $props: infer P
 }
   ? P

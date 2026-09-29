@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "generate:api": "bun run scripts/generate-swagger.ts",
     "typecheck": "vue-tsc",
+    "test": "bun test src",
     "build": "bun run --parallel typecheck build:ci",
     "build:ci": "bunx --bun vite build",
     "preview": "bunx --bun vite preview"
@@ -34,6 +36,7 @@
     "vue3-simple-icons": "16.10.0"
   },
   "devDependencies": {
+    "@types/bun": "1.4.0",
     "@types/node": "26.4.0",
     "@vitejs/plugin-vue": "6.0.8",
     "@vue/tsconfig": "0.9.1",

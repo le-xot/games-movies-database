@@ -14,6 +14,7 @@
     "noUnusedParameters": true,
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
+    "types": ["bun"],
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
     "skipLibCheck": true,

@@ -9,12 +9,14 @@ setupIntegrationSuite('DrizzleQueueRepository (integration)', ({ db }) => {
   const repository = new DrizzleQueueRepository({ db } as unknown as DrizzleService)
 
   it('returns only queue/progress records of the requested type', async () => {
-    await db.insert(records).values([
-      seedRecord({ title: 'Queue game', type: 'WRITTEN', status: 'QUEUE' }),
-      seedRecord({ title: 'Progress movie', type: 'WRITTEN', status: 'PROGRESS' }),
-      seedRecord({ title: 'Done game', type: 'WRITTEN', status: 'DONE' }),
-      seedRecord({ title: 'Queue suggestion', type: 'SUGGESTION', status: 'QUEUE' }),
-    ])
+    await db
+      .insert(records)
+      .values([
+        seedRecord({ title: 'Queue game', type: 'WRITTEN', status: 'QUEUE' }),
+        seedRecord({ title: 'Progress movie', type: 'WRITTEN', status: 'PROGRESS' }),
+        seedRecord({ title: 'Done game', type: 'WRITTEN', status: 'DONE' }),
+        seedRecord({ title: 'Queue suggestion', type: 'SUGGESTION', status: 'QUEUE' }),
+      ])
 
     const queue = await repository.findQueueRecords('WRITTEN')
 

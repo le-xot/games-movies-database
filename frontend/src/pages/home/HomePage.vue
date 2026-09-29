@@ -31,9 +31,7 @@ onMounted(() => {
           :is="item.external ? 'a' : RouterLink"
           v-for="item in HOME_GRID_ITEMS"
           :key="item.title"
-          :to="!item.external ? item.path : undefined"
-          :href="item.external ? item.path : undefined"
-          :target="item.external ? '_blank' : undefined"
+          v-bind="item.external ? { href: item.path, target: '_blank' } : { to: item.path }"
           class="border-2 rounded-xl border-[#fafafa33] flex flex-col gap-4 p-4 text-white select-none cursor-pointer"
           :style="{ backgroundColor: item.color }"
         >

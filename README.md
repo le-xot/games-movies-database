@@ -227,12 +227,13 @@ games-movies-database/
 
 ## Тестирование
 
-| Команда                    | Описание                                                               |
-| -------------------------- | ---------------------------------------------------------------------- |
-| `cd backend && bun test`   | Unit-тесты backend (без БД и внешних сервисов)                         |
-| `cd frontend && bun test`  | Unit-тесты frontend (чистые `.ts`: coalescer, parseError, query-keys)  |
-| `bun run test:integration` | Интеграционные тесты репозиториев на реальном Postgres (см. ниже)      |
-| `bun run check:socket`     | Проверка, что зеркало Socket.IO-событий совпадает с backend-контрактом |
+| Команда                    | Описание                                                                    |
+| -------------------------- | --------------------------------------------------------------------------- |
+| `cd backend && bun test`   | Unit-тесты backend (без БД и внешних сервисов)                              |
+| `cd frontend && bun test`  | Unit-тесты frontend (чистые `.ts`: coalescer, parseError, query-keys)       |
+| `bun run test:e2e`         | E2E (Playwright, Chromium): гости + админ на изолированных портах 3100/5273 |
+| `bun run test:integration` | Интеграционные тесты репозиториев на реальном Postgres (см. ниже)           |
+| `bun run check:socket`     | Проверка, что зеркало Socket.IO-событий совпадает с backend-контрактом      |
 
 Интеграционные тесты используют отдельную БД `lists_test` в dev-контейнере postgres и включаются только явным флагом:
 
@@ -245,6 +246,8 @@ RUN_DB_TESTS=1 TEST_DATASOURCE_URL=postgresql://le_xot:abc@127.0.0.1:5432/lists_
 - Рабочие данные (`lists`) не затрагиваются: guard разрешает только URL с суффиксом `_test`, между тестами таблицы очищаются (`TRUNCATE ... RESTART IDENTITY CASCADE`).
 - Схема тестовой БД обновляется миграциями автоматически; при структурном рассинхроне поможет `bun --filter=./backend run test:integration:reset` (пересоздаёт `lists_test`).
 - Без `RUN_DB_TESTS=1` интеграционные спеки скипаются, поэтому обычный `bun test` не требует БД.
+
+E2E требует запущенной dev-инфраструктуры (`bun infra:start`): Playwright сам создаёт/мигрирует БД `lists_test`, сеет админа `e2e-admin` и демо-запись и поднимает backend на 3100 и frontend на 5273 (порты 3000/5173 не используются — `bun dev` можно не останавливать). Артефакты прогона — `frontend/test-results` и `frontend/playwright-report` (в `.gitignore`). В CI job `e2e` использует postgres-сервис и кэширует браузер Chromium.
 
 ## Сторонние интеграции
 

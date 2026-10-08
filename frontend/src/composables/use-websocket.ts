@@ -7,6 +7,12 @@ import {
   WORDLE_LEADERBOARD_KEY,
 } from '@/composables/query-keys'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
+import {
+  RECORD_GENRES,
+  createConnectTracker,
+  enqueueResync,
+  type CoalescerKey,
+} from '@/composables/websocket-resync'
 import { RecordGenre } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
 import {
@@ -15,11 +21,6 @@ import {
   type ServerToClientEvents,
 } from '@/types/socket-events'
 import type { Socket } from 'socket.io-client'
-
-type RecordsCoalescerKey = `records:${RecordGenre}`
-type CoalescerKey = 'suggestions' | 'stats' | 'user' | 'wordle' | RecordsCoalescerKey
-
-const ALL_GENRES = Object.values(RecordGenre)
 
 export function useWebSocket() {
   const socket = ref<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null)
@@ -46,6 +47,8 @@ export function useWebSocket() {
     },
   })
 
+  const trackConnect = createConnectTracker(() => enqueueResync(coalescer))
+
   async function connect() {
     try {
       const { io } = await import('socket.io-client')
@@ -60,6 +63,7 @@ export function useWebSocket() {
       socket.value = client
         .on('connect', () => {
           isConnected.value = true
+          trackConnect()
         })
         .on('disconnect', () => {
           isConnected.value = false
@@ -69,7 +73,7 @@ export function useWebSocket() {
           if (payload?.genre) {
             coalescer.enqueue(`records:${payload.genre}`)
           } else {
-            for (const genre of ALL_GENRES) {
+            for (const genre of RECORD_GENRES) {
               coalescer.enqueue(`records:${genre}`)
             }
           }

@@ -58,6 +58,7 @@ export class RecordService {
       this.emitQueueEvent(createdData.id, 'created')
     if (createdData.type === RecordType.SUGGESTION)
       this.emitSuggestionsEvent(createdData.id, 'created')
+    this.emitRecordsEvent(createdData.id, createdData.genre, 'created')
     this.logger.log(
       `Record created id=${createdData.id} type=${createdData.type} status=${createdData.status}`,
     )

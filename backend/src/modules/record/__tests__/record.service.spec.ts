@@ -98,6 +98,30 @@ describe('RecordService', () => {
         expect.objectContaining({ link: 'https://www.kinopoisk.ru/film/123' }),
       )
     })
+
+    it('emits update-records for the created record', async () => {
+      const preparedData = {
+        title: 'Fresh Movie',
+        posterUrl: 'http://img',
+        genre: RecordGenre.MOVIE,
+      }
+      const created = makeRecord({
+        id: 12,
+        genre: RecordGenre.MOVIE,
+        status: RecordStatus.DONE,
+        type: RecordType.WRITTEN,
+      })
+
+      mockRecordsProvider.prepareData = mock(() => Promise.resolve(preparedData))
+      mockRepo.create = mock(() => Promise.resolve(created))
+
+      await service.createRecordFromLink({ link: 'https://example.com/fresh' } as any)
+
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'update-records',
+        expect.objectContaining({ id: 12, genre: RecordGenre.MOVIE, action: 'created' }),
+      )
+    })
   })
 
   describe('patchRecord', () => {

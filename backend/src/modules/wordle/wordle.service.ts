@@ -22,9 +22,11 @@ import {
   MAX_ATTEMPTS,
   WORD_LENGTH,
   buildDailyLeaderboard,
+  buildHistory,
   buildLeaderboard,
   computeWordleStats,
 } from '@/modules/wordle/wordle.stats'
+import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
 
 const WORD_PATTERN = /^[а-я]{5}$/
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
@@ -120,37 +122,51 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
 
   async getStats(userId: string, now: Date = new Date()): Promise<WordleStatsDTO> {
     const today = getMoscowDateKey(now)
-    const games = await this.repository.findFinishedByUser(userId)
 
-    return computeWordleStats(
-      games.map((game) => ({
-        date: game.date,
-        status: game.status,
-        attempts: game.guesses.length,
-      })),
-      today,
-    )
+    const [games, leaderboard] = await Promise.all([
+      this.repository.findFinishedByUser(userId),
+      this.loadLeaderboard(now),
+    ])
+
+    const finished = games.map((game) => ({
+      date: game.date,
+      status: game.status,
+      attempts: game.guesses.length,
+    }))
+
+    return {
+      ...computeWordleStats(finished, today),
+      rank: leaderboard.ranks[userId] ?? null,
+      totalPlayers: leaderboard.totalPlayers,
+      history: buildHistory(finished, today),
+    }
+  }
+
+  private loadLeaderboard(now: Date): Promise<WordleLeaderboardResult> {
+    const today = getMoscowDateKey(now)
+
+    return this.leaderboardCache.get(now.getTime(), async () => {
+      const rows = await this.repository.findFinishedWithUsers()
+      return buildLeaderboard(
+        rows.map(({ game, user }) => ({
+          userId: user.id,
+          login: user.login,
+          profileImageUrl: user.profileImageUrl,
+          color: user.color,
+          date: game.date,
+          status: game.status,
+          attempts: game.guesses.length,
+        })),
+        today,
+      )
+    })
   }
 
   async getLeaderboard(now: Date = new Date()): Promise<WordleLeaderboardDTO> {
     const today = getMoscowDateKey(now)
 
     const [cached, winsToday, dailyRows] = await Promise.all([
-      this.leaderboardCache.get(now.getTime(), async () => {
-        const rows = await this.repository.findFinishedWithUsers()
-        return buildLeaderboard(
-          rows.map(({ game, user }) => ({
-            userId: user.id,
-            login: user.login,
-            profileImageUrl: user.profileImageUrl,
-            color: user.color,
-            date: game.date,
-            status: game.status,
-            attempts: game.guesses.length,
-          })),
-          today,
-        )
-      }),
+      this.loadLeaderboard(now),
       this.repository.countWinsByDate(today),
       this.repository.findFinishedWithUsersByDate(today),
     ])

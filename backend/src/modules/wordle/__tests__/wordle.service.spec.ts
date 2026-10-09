@@ -214,6 +214,7 @@ describe('WordleService', () => {
           makeGame({ date: '2026-09-19', guesses: ['кокос'], status: WordleGameStatus.LOST }),
         ]),
       )
+      mockRepo.findFinishedWithUsers = mock(() => Promise.resolve([]))
 
       const stats = await service.getStats('user-1', NOW)
 
@@ -222,6 +223,35 @@ describe('WordleService', () => {
       expect(stats.wins).toBe(1)
       expect(stats.winRate).toBe(50)
       expect(stats.distribution).toEqual([1, 0, 0, 0, 0, 0])
+      expect(stats.rank).toBeNull()
+      expect(stats.totalPlayers).toBe(0)
+      expect(stats.history).toHaveLength(7)
+      expect(stats.history[6]).toEqual({ date: TODAY, status: 'NONE' })
+    })
+
+    it('includes the player rank from the leaderboard', async () => {
+      mockRepo.findFinishedByUser = mock(() =>
+        Promise.resolve([
+          makeGame({ date: '2026-09-20', guesses: [ANSWER], status: WordleGameStatus.WON }),
+        ]),
+      )
+      mockRepo.findFinishedWithUsers = mock(() =>
+        Promise.resolve([
+          {
+            game: makeGame({ userId: 'user-2', guesses: [ANSWER], status: WordleGameStatus.WON }),
+            user: { id: 'user-2', login: 'bob', profileImageUrl: '', color: '#000' },
+          },
+          {
+            game: makeGame({ userId: 'user-1', guesses: ['кокос'], status: WordleGameStatus.LOST }),
+            user: { id: 'user-1', login: 'lexa', profileImageUrl: '', color: '#111' },
+          },
+        ]),
+      )
+
+      const stats = await service.getStats('user-1', NOW)
+
+      expect(stats.totalPlayers).toBe(2)
+      expect(stats.rank).toBe(2)
     })
   })
 

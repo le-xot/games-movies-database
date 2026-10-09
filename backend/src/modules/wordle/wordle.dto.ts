@@ -4,6 +4,7 @@ import { Matches } from 'class-validator'
 import { WordleGameStatus } from '@/enums'
 import { WordleGameStatus as WordleGameStatusName } from '@/enums/enums.names'
 import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
+import { WordleHistoryStatus } from '@/modules/wordle/wordle.stats'
 
 export class WordleGuessDTO {
   @ApiProperty({ example: 'слово' })
@@ -46,6 +47,14 @@ export class WordleStateDTO {
   msUntilNextWord!: number
 }
 
+export class WordleHistoryDayDTO {
+  @ApiProperty({ example: '2026-10-09' })
+  date!: string
+
+  @ApiProperty({ enum: WordleHistoryStatus, enumName: 'WordleHistoryStatus' })
+  status!: WordleHistoryStatus
+}
+
 export class WordleStatsDTO {
   @ApiProperty()
   played!: number
@@ -64,6 +73,15 @@ export class WordleStatsDTO {
 
   @ApiProperty({ type: [Number] })
   distribution!: number[]
+
+  @ApiProperty({ type: Number, nullable: true, example: 12 })
+  rank!: number | null
+
+  @ApiProperty({ example: 340 })
+  totalPlayers!: number
+
+  @ApiProperty({ type: [WordleHistoryDayDTO] })
+  history!: WordleHistoryDayDTO[]
 }
 
 export class WordleLeaderboardEntryDTO {

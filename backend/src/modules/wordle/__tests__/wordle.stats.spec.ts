@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { WordleGameStatus } from '@/enums'
 import {
   buildDailyLeaderboard,
+  buildHistory,
   buildLeaderboard,
   computeWordleStats,
 } from '@/modules/wordle/wordle.stats'
@@ -125,7 +126,12 @@ describe('buildLeaderboard', () => {
   })
 
   it('returns empty result without rows', () => {
-    expect(buildLeaderboard([], TODAY)).toEqual({ entries: [], totalPlayers: 0, totalGames: 0 })
+    expect(buildLeaderboard([], TODAY)).toEqual({
+      entries: [],
+      totalPlayers: 0,
+      totalGames: 0,
+      ranks: {},
+    })
   })
 
   it('sorts by wins and counts totals', () => {
@@ -182,6 +188,12 @@ describe('buildLeaderboard', () => {
     expect(buildLeaderboard(rows, TODAY, 2).entries).toHaveLength(2)
   })
 
+  it('assigns ranks to every player, not only the limited entries', () => {
+    const rows = ['a', 'b', 'c'].map((userId, index) => row(userId, `2026-09-1${index}`, WON, 3))
+
+    expect(buildLeaderboard(rows, TODAY, 2).ranks).toEqual({ a: 1, b: 2, c: 3 })
+  })
+
   it('counts losses in wins-independent fields', () => {
     const result = buildLeaderboard(
       [row('a', '2026-09-18', LOST, 6), row('a', '2026-09-20', WON, 2)],
@@ -190,6 +202,24 @@ describe('buildLeaderboard', () => {
 
     expect(result.entries[0]).toMatchObject({ wins: 1, currentStreak: 1, maxStreak: 1 })
     expect(result.totalGames).toBe(2)
+  })
+})
+
+describe('buildHistory', () => {
+  it('returns seven days ending today, NONE for missing days', () => {
+    const history = buildHistory([game('2026-09-20', WON, 3)], TODAY)
+
+    expect(history).toHaveLength(7)
+    expect(history[0]).toEqual({ date: '2026-09-14', status: 'NONE' })
+    expect(history[6]).toEqual({ date: '2026-09-20', status: 'WON' })
+  })
+
+  it('marks wins and losses, filling gaps with NONE', () => {
+    const history = buildHistory([game('2026-09-18', LOST, 6), game('2026-09-20', WON, 3)], TODAY)
+
+    expect(history[4]).toEqual({ date: '2026-09-18', status: 'LOST' })
+    expect(history[6]).toEqual({ date: '2026-09-20', status: 'WON' })
+    expect(history.filter((day) => day.status === 'NONE')).toHaveLength(5)
   })
 })
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WordleGameStatus } from '@/lib/api'
 import WordleLeaderboardList from '@/pages/wordle/components/WordleLeaderboardList.vue'
+import WordleStats from '@/pages/wordle/components/WordleStats.vue'
 import { useWordle } from '@/pages/wordle/composables/use-wordle'
 import { useWordleShare } from '@/pages/wordle/composables/use-wordle-share'
 import { formatWordleGlobalStats } from '@/pages/wordle/constants/wordle-constants'
@@ -31,28 +32,6 @@ const todayStatus = computed(() => {
   }
   return `Слово: ${(current.answer ?? '').toUpperCase()}`
 })
-
-const statItems = computed(() => [
-  { label: 'Играно', value: stats.value?.played ?? 0 },
-  { label: 'Победы', value: stats.value?.wins ?? 0 },
-  { label: '%', value: stats.value?.winRate ?? 0 },
-  { label: 'Серия', value: stats.value?.currentStreak ?? 0 },
-  { label: 'Макс', value: stats.value?.maxStreak ?? 0 },
-])
-
-const distribution = computed(() => {
-  const counts = stats.value?.distribution ?? []
-  const max = Math.max(1, ...counts)
-  return counts.map((count, index) => ({
-    attempt: index + 1,
-    count,
-    width: count === 0 ? 0 : Math.max(8, Math.round((count / max) * 100)),
-  }))
-})
-
-const distributionTotal = computed(() =>
-  (stats.value?.distribution ?? []).reduce((sum, value) => sum + value, 0),
-)
 </script>
 
 <template>
@@ -82,31 +61,7 @@ const distributionTotal = computed(() =>
       </Button>
     </div>
 
-    <div>
-      <h3 class="mb-2 text-xs font-medium uppercase text-muted-foreground">Моя статистика</h3>
-      <div class="grid grid-cols-5 gap-2">
-        <div v-for="item in statItems" :key="item.label" class="text-center">
-          <div class="text-lg font-bold leading-tight">{{ item.value }}</div>
-          <div class="text-[10px] leading-tight text-muted-foreground">{{ item.label }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="mb-2 text-xs font-medium uppercase text-muted-foreground">
-        Распределение попыток
-      </h3>
-      <ul v-if="distributionTotal > 0" class="flex flex-col gap-1">
-        <li v-for="item in distribution" :key="item.attempt" class="flex items-center gap-2">
-          <span class="w-3 text-xs text-muted-foreground">{{ item.attempt }}</span>
-          <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-            <div class="h-full rounded-full bg-green-600" :style="{ width: `${item.width}%` }" />
-          </div>
-          <span class="w-4 text-right text-xs text-muted-foreground">{{ item.count }}</span>
-        </li>
-      </ul>
-      <p v-else class="text-xs text-muted-foreground">Пока нет победных партий</p>
-    </div>
+    <WordleStats />
 
     <div>
       <div class="mb-2 flex items-center justify-between gap-2">

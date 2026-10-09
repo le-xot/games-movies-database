@@ -1,9 +1,23 @@
 import { WordleGameStatus } from '@/enums'
-import { daysBetween } from '@/modules/wordle/wordle.date'
+import { daysBetween, shiftDateKey } from '@/modules/wordle/wordle.date'
 import type { WordleLetterState } from '@/modules/wordle/wordle.scoring'
 
 export const MAX_ATTEMPTS = 6
 export const WORD_LENGTH = 5
+export const WORDLE_HISTORY_DAYS = 7
+
+export const WordleHistoryStatus = {
+  WON: 'WON',
+  LOST: 'LOST',
+  NONE: 'NONE',
+} as const
+
+export type WordleHistoryStatus = (typeof WordleHistoryStatus)[keyof typeof WordleHistoryStatus]
+
+export interface WordleHistoryDay {
+  date: string
+  status: WordleHistoryStatus
+}
 
 export interface WordleFinishedGame {
   date: string
@@ -45,6 +59,8 @@ export interface WordleLeaderboardResult {
   entries: WordleLeaderboardEntry[]
   totalPlayers: number
   totalGames: number
+  /** 1-based место каждого игрока (userId → rank) по всем игрокам, не только по топ-лимиту. */
+  ranks: Record<string, number>
 }
 
 export interface WordleDailyGuess {
@@ -174,11 +190,44 @@ export function buildLeaderboard(
       a.login.localeCompare(b.login),
   )
 
+  const ranks: Record<string, number> = {}
+  entries.forEach((entry, index) => {
+    ranks[entry.userId] = index + 1
+  })
+
   return {
     entries: entries.slice(0, limit),
     totalPlayers: entries.length,
     totalGames: rows.length,
+    ranks,
   }
+}
+
+/** Последние `days` календарных дней (включая сегодня) со статусом партии или NONE. */
+export function buildHistory(
+  games: WordleFinishedGame[],
+  today: string,
+  days: number = WORDLE_HISTORY_DAYS,
+): WordleHistoryDay[] {
+  const byDate = new Map(games.map((game) => [game.date, game.status]))
+  const history: WordleHistoryDay[] = []
+
+  for (let offset = days - 1; offset >= 0; offset--) {
+    const date = shiftDateKey(today, -offset)
+    const status = byDate.get(date)
+
+    history.push({
+      date,
+      status:
+        status === WordleGameStatus.WON
+          ? WordleHistoryStatus.WON
+          : status === WordleGameStatus.LOST
+            ? WordleHistoryStatus.LOST
+            : WordleHistoryStatus.NONE,
+    })
+  }
+
+  return history
 }
 
 function dailyStatusRank(status: WordleGameStatus): number {

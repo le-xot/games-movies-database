@@ -13,3 +13,8 @@ export function msUntilNextMoscowMidnight(now: Date = new Date()): number {
 export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS)
 }
+
+/** Сдвигает календарный ключ даты (YYYY-MM-DD) на N дней. */
+export function shiftDateKey(date: string, days: number): string {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10)
+}

@@ -3,7 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { WORDLE_LEADERBOARD_KEY } from '@/composables/query-keys'
-import { WordleGameStatus } from '@/lib/api'
+import { WordleGameStatus, WordleHistoryStatus } from '@/lib/api'
 import {
   LETTER_STATE_RANK,
   WORDLE_WORD_LENGTH,
@@ -125,16 +125,45 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
       return
     }
 
+    const wasInProgress = status.value === WordleGameStatus.IN_PROGRESS
     const word = currentGuess.value
     try {
-      await submitGuess(word)
+      const result = await submitGuess(word)
       currentGuess.value = ''
+      if (wasInProgress && result && result.status !== WordleGameStatus.IN_PROGRESS) {
+        applyOptimisticStats(result)
+      }
     } catch (error) {
       shake()
       toast.error('Ошибка', {
         description: extractErrorMessage(error, 'Не удалось отправить слово'),
       })
     }
+  }
+
+  /** Мгновенно обновляет статистику завершённой партии до прихода refetch. */
+  function applyOptimisticStats(finished: WordleStateDTO) {
+    const current = stats.value
+    if (!current) return
+
+    const won = finished.status === WordleGameStatus.WON
+    const played = current.played + 1
+    const wins = current.wins + (won ? 1 : 0)
+    const currentStreak = won ? current.currentStreak + 1 : 0
+
+    queryCache.setQueryData([WORDLE_STATS_KEY], {
+      ...current,
+      played,
+      wins,
+      winRate: Math.round((wins / played) * 100),
+      currentStreak,
+      maxStreak: Math.max(current.maxStreak, currentStreak),
+      history: current.history.map((day) =>
+        day.date === finished.date
+          ? { ...day, status: won ? WordleHistoryStatus.WON : WordleHistoryStatus.LOST }
+          : day,
+      ),
+    })
   }
 
   function resetLocalInput() {

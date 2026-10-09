@@ -9,6 +9,12 @@
  * ---------------------------------------------------------------
  */
 
+export enum WordleHistoryStatus {
+  WON = "WON",
+  LOST = "LOST",
+  NONE = "NONE",
+}
+
 export enum WordleLetterState {
   CORRECT = "CORRECT",
   PRESENT = "PRESENT",
@@ -387,6 +393,12 @@ export interface WordleGuessDTO {
   word: string;
 }
 
+export interface WordleHistoryDayDTO {
+  /** @example "2026-10-09" */
+  date: string;
+  status: WordleHistoryStatus;
+}
+
 export interface WordleStatsDTO {
   played: number;
   wins: number;
@@ -394,6 +406,11 @@ export interface WordleStatsDTO {
   currentStreak: number;
   maxStreak: number;
   distribution: number[];
+  /** @example 12 */
+  rank: number | null;
+  /** @example 340 */
+  totalPlayers: number;
+  history: WordleHistoryDayDTO[];
 }
 
 export interface WordleLeaderboardEntryDTO {

@@ -2,7 +2,7 @@ import { describe, expect, it, mock } from 'bun:test'
 import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
 import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
 
-const VALUE: WordleLeaderboardResult = { entries: [], totalPlayers: 0, totalGames: 0 }
+const VALUE: WordleLeaderboardResult = { entries: [], totalPlayers: 0, totalGames: 0, ranks: {} }
 
 describe('WordleLeaderboardCache', () => {
   it('loads on miss and serves from cache within ttl', async () => {
@@ -67,8 +67,18 @@ describe('WordleLeaderboardCache', () => {
 
   it('ignores a loader that was invalidated while running', async () => {
     const cache = new WordleLeaderboardCache(60_000)
-    const stale: WordleLeaderboardResult = { entries: [], totalPlayers: 1, totalGames: 1 }
-    const fresh: WordleLeaderboardResult = { entries: [], totalPlayers: 2, totalGames: 2 }
+    const stale: WordleLeaderboardResult = {
+      entries: [],
+      totalPlayers: 1,
+      totalGames: 1,
+      ranks: {},
+    }
+    const fresh: WordleLeaderboardResult = {
+      entries: [],
+      totalPlayers: 2,
+      totalGames: 2,
+      ranks: {},
+    }
     const resolvers: Array<(value: WordleLeaderboardResult) => void> = []
     const loader = mock(
       () =>

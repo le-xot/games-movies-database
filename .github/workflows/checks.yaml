@@ -59,6 +59,9 @@ jobs:
       - name: Lint
         run: bun lint
 
+      - name: Script tests
+        run: bun run test:scripts
+
       - name: Socket contract
         run: bun run check:socket
 
@@ -100,7 +103,7 @@ jobs:
           cd backend
           bun run start &
           BACKEND_PID=$!
-          for i in $(seq 1 30); do curl -sf http://localhost:3000/docs-json > /dev/null && break; sleep 1; done
+          for _ in $(seq 1 30); do curl -sf http://localhost:3000/docs-json > /dev/null && break; sleep 1; done
           cd ..
           bun --filter=./frontend run generate:api
           kill $BACKEND_PID || true

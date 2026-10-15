@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Menu } from '@lucide/vue'
+import { Menu, Search } from '@lucide/vue'
 import { ref } from 'vue'
 import { LoginForm } from '@/components/form'
 import NavItem from '@/components/layout/db/NavItem.vue'
@@ -7,8 +7,10 @@ import { useDbNavigation } from '@/components/layout/db/use-db-navigation'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { useCommandPalette } from '@/stores/use-command-palette'
 
 const { sections, bottomItems, handleNavClick } = useDbNavigation()
+const { openPalette } = useCommandPalette()
 const isSheetOpen = ref(false)
 
 function handleMobileNavClick(name: string) {
@@ -20,39 +22,52 @@ function handleMobileNavClick(name: string) {
 <template>
   <div class="h-[68px] flex border-b border-border bg-black z-40 xl:hidden">
     <div class="flex justify-between items-center gap-2 p-3 w-full">
-      <Sheet v-model:open="isSheetOpen">
-        <Button
-          variant="secondary"
-          size="icon"
-          class="shrink-0"
-          @click="isSheetOpen = !isSheetOpen"
-        >
-          <Menu class="w-5 h-5" />
-        </Button>
-        <SheetContent side="left" class="w-[260px]">
-          <SheetHeader>
-            <SheetTitle class="select-none">Навигация</SheetTitle>
-          </SheetHeader>
-          <div class="flex flex-col gap-2 mt-8">
-            <template v-for="(section, i) in sections" :key="i">
+      <div class="flex items-center gap-2">
+        <Sheet v-model:open="isSheetOpen">
+          <Button
+            variant="secondary"
+            size="icon"
+            class="shrink-0"
+            @click="isSheetOpen = !isSheetOpen"
+          >
+            <Menu class="w-5 h-5" />
+          </Button>
+          <SheetContent side="left" class="w-[260px]">
+            <SheetHeader>
+              <SheetTitle class="select-none">Навигация</SheetTitle>
+            </SheetHeader>
+            <div class="flex flex-col gap-2 mt-8">
+              <template v-for="(section, i) in sections" :key="i">
+                <NavItem
+                  v-for="item in section.items"
+                  :key="item.name"
+                  :item="item"
+                  @select="handleMobileNavClick"
+                />
+                <Separator v-if="i < sections.length - 1" class="my-2" />
+              </template>
+              <Separator class="my-2" />
               <NavItem
-                v-for="item in section.items"
+                v-for="item in bottomItems"
                 :key="item.name"
                 :item="item"
                 @select="handleMobileNavClick"
               />
-              <Separator v-if="i < sections.length - 1" class="my-2" />
-            </template>
-            <Separator class="my-2" />
-            <NavItem
-              v-for="item in bottomItems"
-              :key="item.name"
-              :item="item"
-              @select="handleMobileNavClick"
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <Button
+          variant="secondary"
+          size="icon"
+          class="shrink-0"
+          aria-label="Поиск"
+          data-testid="palette-trigger-mobile"
+          @click="openPalette"
+        >
+          <Search class="w-5 h-5" />
+        </Button>
+      </div>
 
       <LoginForm />
     </div>

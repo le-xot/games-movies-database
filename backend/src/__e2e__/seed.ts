@@ -46,6 +46,7 @@ try {
   }
 
   const today = getMoscowDateKey(new Date())
+  await db.delete(wordleGames).where(eq(wordleGames.userId, ADMIN_ID))
   await db.delete(wordleGames).where(eq(wordleGames.userId, WORDLE_PLAYER_ID))
   await db.delete(wordleGames).where(eq(wordleGames.userId, WORDLE_RIVAL_ID))
   await db.insert(wordleGames).values([

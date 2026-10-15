@@ -6,6 +6,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { WordleGameStatus } from '@/lib/api'
 import WordleBoard from '@/pages/wordle/components/WordleBoard.vue'
+import WordleDragGhost from '@/pages/wordle/components/WordleDragGhost.vue'
 import WordleKeyboard from '@/pages/wordle/components/WordleKeyboard.vue'
 import WordleResultDialog from '@/pages/wordle/components/WordleResultDialog.vue'
 import WordleSidePanel from '@/pages/wordle/components/WordleSidePanel.vue'
@@ -15,7 +16,7 @@ import { useWordleKeyboard } from '@/pages/wordle/composables/use-wordle-keyboar
 import { WORDLE_MAX_ATTEMPTS, WORDLE_WORD_LENGTH } from '@/pages/wordle/constants/wordle-constants'
 
 const wordle = useWordle()
-const { state, stats, currentGuess, isShaking, letterStates, isInputLocked, isFinished } =
+const { state, stats, guessCells, isShaking, letterStates, isInputLocked, isFinished } =
   storeToRefs(wordle)
 
 const isDesktop = useMediaQuery('(min-width: 1280px)')
@@ -140,10 +141,11 @@ const dayProgress = computed(() => {
         <div class="flex flex-1 items-center justify-center xl:flex-none">
           <WordleBoard
             :guesses="state?.guesses ?? []"
-            :current-guess="currentGuess"
+            :cells="guessCells"
             :word-length="WORDLE_WORD_LENGTH"
             :max-attempts="WORDLE_MAX_ATTEMPTS"
             :shaking="isShaking"
+            :disabled="isInputLocked"
           />
         </div>
 
@@ -173,6 +175,8 @@ const dayProgress = computed(() => {
       :current-streak="stats?.currentStreak ?? 0"
       @show-stats="isStatsOpen = true"
     />
+
+    <WordleDragGhost />
   </div>
 </template>
 

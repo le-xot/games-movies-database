@@ -81,6 +81,50 @@ export function normalizeWordleWord(word: string): string {
   return word.trim().toLowerCase().replace(/ё/g, 'е')
 }
 
+export type WordleGuessCell = string | null
+
+export function emptyGuessCells(length: number): WordleGuessCell[] {
+  return Array.from({ length }, () => null)
+}
+
+/** Ставит букву (или null для очистки) ровно в клетку; индекс вне ряда игнорируется. */
+export function placeLetterInCells(
+  cells: WordleGuessCell[],
+  index: number,
+  letter: WordleGuessCell,
+): WordleGuessCell[] {
+  if (index < 0 || index >= cells.length) return cells
+  const next = cells.slice()
+  next[index] = letter
+  return next
+}
+
+/** Переносит букву: пустая целевая клетка — перемещение с дыркой, занятая — обмен местами. */
+export function moveLetterInCells(
+  cells: WordleGuessCell[],
+  from: number,
+  to: number,
+): WordleGuessCell[] {
+  if (from < 0 || from >= cells.length || to < 0 || to >= cells.length) return cells
+  const letter = cells[from]
+  if (letter === null || from === to) return cells
+  const next = cells.slice()
+  next[from] = next[to]
+  next[to] = letter
+  return next
+}
+
+export function firstEmptyIndex(cells: WordleGuessCell[]): number {
+  return cells.findIndex((cell) => cell === null)
+}
+
+export function lastFilledIndex(cells: WordleGuessCell[]): number {
+  for (let index = cells.length - 1; index >= 0; index--) {
+    if (cells[index] !== null) return index
+  }
+  return -1
+}
+
 export function formatWordleGlobalStats(leaderboard?: WordleLeaderboardDTO): string {
   return `Игроков ${leaderboard?.totalPlayers ?? 0} · Игр ${leaderboard?.totalGames ?? 0} · Побед сегодня ${leaderboard?.winsToday ?? 0}`
 }

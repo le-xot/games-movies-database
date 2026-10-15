@@ -1,5 +1,32 @@
 import { expect, test } from '@playwright/test'
 import { ADMIN_STATE_FILE } from './helpers/env'
+import type { Locator, Page } from '@playwright/test'
+
+function wordleKey(page: Page, letter: string): Locator {
+  return page
+    .locator('[aria-label="Клавиатура"] button')
+    .filter({ hasText: new RegExp(`^\\s*${letter}\\s*$`) })
+}
+
+async function dragToPoint(
+  page: Page,
+  from: Locator,
+  point: { x: number; y: number },
+): Promise<void> {
+  await from.hover()
+  await page.mouse.down()
+  await page.mouse.move(point.x, point.y, { steps: 10 })
+  await page.mouse.up()
+}
+
+async function dragOnto(page: Page, from: Locator, to: Locator): Promise<void> {
+  const target = await to.boundingBox()
+  if (!target) throw new Error('У цели перетаскивания нет bounding box')
+  await dragToPoint(page, from, {
+    x: target.x + target.width / 2,
+    y: target.y + target.height / 2,
+  })
+}
 
 test('guest sees the placeholder and the leaderboard', async ({ page }) => {
   await page.goto('/db/wordle')
@@ -39,6 +66,126 @@ test.describe('authorized player', () => {
     await expect(grid).toBeVisible()
     await expect(grid.locator('div')).toHaveCount(6)
     await expect(grid.locator('span')).toHaveCount(30)
+  })
+
+  test('physical keyboard drives the board when no input is focused', async ({ page }) => {
+    await page.goto('/db/wordle')
+    await expect(page.getByRole('grid', { name: 'Игровое поле' })).toBeVisible()
+
+    await page.keyboard.press('KeyT')
+
+    const cells = page.locator('[data-wordle-drop]')
+    await expect(cells.nth(0)).toHaveText('е')
+  })
+
+  test('dragging a key onto an empty cell places the letter exactly there', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await wordleKey(page, 'а').click()
+    await wordleKey(page, 'б').click()
+    await wordleKey(page, 'в').click()
+
+    const cells = page.locator('[data-wordle-drop]')
+    await expect(cells).toHaveCount(5)
+
+    await dragOnto(page, wordleKey(page, 'с'), cells.nth(4))
+
+    await expect(cells.nth(0)).toHaveText('а')
+    await expect(cells.nth(1)).toHaveText('б')
+    await expect(cells.nth(2)).toHaveText('в')
+    await expect(cells.nth(3)).toHaveText('')
+    await expect(cells.nth(4)).toHaveText('с')
+
+    await wordleKey(page, 'г').click()
+    await expect(cells.nth(3)).toHaveText('г')
+  })
+
+  test('dragging a key onto an occupied cell replaces the letter', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await wordleKey(page, 'а').click()
+    await wordleKey(page, 'б').click()
+    await wordleKey(page, 'в').click()
+
+    const cells = page.locator('[data-wordle-drop]')
+
+    await dragOnto(page, wordleKey(page, 'с'), cells.nth(1))
+
+    await expect(cells.nth(0)).toHaveText('а')
+    await expect(cells.nth(1)).toHaveText('с')
+    await expect(cells.nth(2)).toHaveText('в')
+    await expect(cells.nth(3)).toHaveText('')
+  })
+
+  test('dragging a tile onto an empty cell moves it there and leaves a hole', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await wordleKey(page, 'а').click()
+
+    const cells = page.locator('[data-wordle-drop]')
+    await expect(cells.nth(0)).toHaveText('а')
+
+    await dragOnto(page, cells.nth(0), cells.nth(2))
+
+    await expect(cells.nth(0)).toHaveText('')
+    await expect(cells.nth(2)).toHaveText('а')
+  })
+
+  test('dragging a tile outside the board removes the letter', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await wordleKey(page, 'а').click()
+    await wordleKey(page, 'б').click()
+
+    const cells = page.locator('[data-wordle-drop]')
+    await expect(cells.nth(0)).toHaveText('а')
+
+    const board = await page.getByRole('grid', { name: 'Игровое поле' }).boundingBox()
+    if (!board) throw new Error('У доски нет bounding box')
+    const outside = { x: board.x + board.width / 2, y: board.y - 60 }
+
+    await dragToPoint(page, cells.nth(0), outside)
+
+    await expect(cells.nth(0)).toHaveText('')
+    await expect(cells.nth(1)).toHaveText('б')
+
+    await dragToPoint(page, wordleKey(page, 'в'), outside)
+
+    await expect(cells.nth(0)).toHaveText('')
+    await expect(cells.nth(1)).toHaveText('б')
+  })
+
+  test('dragging a tile inside the board but not onto a cell changes nothing', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await wordleKey(page, 'а').click()
+
+    const cells = page.locator('[data-wordle-drop]')
+    const board = await page.getByRole('grid', { name: 'Игровое поле' }).boundingBox()
+    if (!board) throw new Error('У доски нет bounding box')
+
+    await dragToPoint(page, cells.nth(0), {
+      x: board.x + board.width / 2,
+      y: board.y + board.height - 30,
+    })
+
+    await expect(cells.nth(0)).toHaveText('а')
+  })
+
+  test('dragging a tile onto an occupied cell swaps the letters', async ({ page }) => {
+    await page.goto('/db/wordle')
+
+    await wordleKey(page, 'а').click()
+    await wordleKey(page, 'б').click()
+    await wordleKey(page, 'в').click()
+
+    const cells = page.locator('[data-wordle-drop]')
+
+    await dragOnto(page, cells.nth(0), cells.nth(2))
+
+    await expect(cells.nth(0)).toHaveText('в')
+    await expect(cells.nth(1)).toHaveText('б')
+    await expect(cells.nth(2)).toHaveText('а')
   })
 })
 

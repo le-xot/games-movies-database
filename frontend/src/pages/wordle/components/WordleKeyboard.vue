@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { CornerDownLeft, Delete } from '@lucide/vue'
+import { useWordleDrag } from '@/pages/wordle/composables/use-wordle-drag'
 import { useWordleSettings } from '@/pages/wordle/composables/use-wordle-settings'
 import {
   COLORBLIND_KEY_STATE_CLASS,
@@ -20,12 +21,22 @@ const emit = defineEmits<{
 }>()
 
 const { isColorblind } = useWordleSettings()
+const { startDrag } = useWordleDrag()
 
 function keyClass(key: string) {
   const state = props.letterStates[key]
   if (!state) return 'bg-zinc-500 text-white'
   const classes = isColorblind.value ? COLORBLIND_KEY_STATE_CLASS : KEY_STATE_CLASS
   return classes[state]
+}
+
+function onKeyPointerDown(event: PointerEvent, key: string) {
+  if (props.disabled || key.length > 1) return
+  startDrag(event, {
+    letter: key,
+    source: { kind: 'keyboard' },
+    element: event.currentTarget as HTMLElement,
+  })
 }
 
 function handleKey(key: string) {
@@ -57,9 +68,10 @@ function handleKey(key: string) {
         :key="key"
         type="button"
         class="flex h-[var(--wordle-key,48px)] min-w-0 flex-1 select-none items-center justify-center rounded text-[length:var(--wordle-key-text,0.875rem)] font-semibold uppercase transition-colors active:opacity-70 disabled:opacity-50"
-        :class="[keyClass(key), key.length > 1 ? 'grow-[1.5]' : '']"
+        :class="[keyClass(key), key.length > 1 ? 'grow-[1.5]' : 'touch-none']"
         :aria-label="key === 'enter' ? 'Ввод' : key === 'backspace' ? 'Удалить' : undefined"
         :disabled="disabled"
+        @pointerdown="onKeyPointerDown($event, key)"
         @click="handleKey(key)"
       >
         <CornerDownLeft v-if="key === 'enter'" class="size-[var(--wordle-key-icon,20px)]" />

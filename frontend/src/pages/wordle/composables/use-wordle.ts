@@ -7,7 +7,12 @@ import { WordleGameStatus, WordleHistoryStatus } from '@/lib/api'
 import {
   LETTER_STATE_RANK,
   WORDLE_WORD_LENGTH,
+  emptyGuessCells,
+  firstEmptyIndex,
+  lastFilledIndex,
+  moveLetterInCells,
   normalizeWordleWord,
+  placeLetterInCells,
 } from '@/pages/wordle/constants/wordle-constants'
 import { useApi } from '@/stores/use-api'
 import type {
@@ -35,7 +40,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
   const api = useApi()
   const queryCache = useQueryCache()
 
-  const currentGuess = ref('')
+  const guessCells = ref(emptyGuessCells(WORDLE_WORD_LENGTH))
   const isShaking = ref(false)
 
   const {
@@ -105,31 +110,61 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     }, 500)
   }
 
-  function addLetter(letter: string) {
-    if (isInputLocked.value) return
+  function normalizeLetter(letter: string): string | null {
     const normalized = normalizeWordleWord(letter)
-    if (!/^[а-я]$/.test(normalized)) return
-    if (currentGuess.value.length >= WORDLE_WORD_LENGTH) return
-    currentGuess.value += normalized
+    return /^[а-я]$/.test(normalized) ? normalized : null
   }
 
+  /** Ставит букву ровно в указанную клетку — бросок с клавиатуры. */
+  function placeLetterAt(index: number, letter: string) {
+    if (isInputLocked.value) return
+    const normalized = normalizeLetter(letter)
+    if (!normalized) return
+    guessCells.value = placeLetterInCells(guessCells.value, index, normalized)
+  }
+
+  /** Набор буквы занимает самую левую пустую клетку. */
+  function addLetter(letter: string) {
+    const index = firstEmptyIndex(guessCells.value)
+    if (index === -1) return
+    placeLetterAt(index, letter)
+  }
+
+  function moveLetter(from: number, to: number) {
+    if (isInputLocked.value) return
+    guessCells.value = moveLetterInCells(guessCells.value, from, to)
+  }
+
+  /** Backspace стирает самую правую букву. */
   function removeLetter() {
     if (isInputLocked.value) return
-    currentGuess.value = currentGuess.value.slice(0, -1)
+    const index = lastFilledIndex(guessCells.value)
+    if (index === -1) return
+    guessCells.value = placeLetterInCells(guessCells.value, index, null)
+  }
+
+  /** Удаляет букву из конкретной клетки — бросок за пределы доски. */
+  function removeLetterAt(index: number) {
+    if (isInputLocked.value) return
+    guessCells.value = placeLetterInCells(guessCells.value, index, null)
+  }
+
+  function resetGuessCells() {
+    guessCells.value = emptyGuessCells(WORDLE_WORD_LENGTH)
   }
 
   async function submitCurrentGuess() {
     if (isSubmitting.value || isFinished.value) return
-    if (currentGuess.value.length < WORDLE_WORD_LENGTH) {
+    const word = guessCells.value.map((cell) => cell ?? '').join('')
+    if (word.length < WORDLE_WORD_LENGTH) {
       shake()
       return
     }
 
     const wasInProgress = status.value === WordleGameStatus.IN_PROGRESS
-    const word = currentGuess.value
     try {
       const result = await submitGuess(word)
-      currentGuess.value = ''
+      resetGuessCells()
       if (wasInProgress && result && result.status !== WordleGameStatus.IN_PROGRESS) {
         applyOptimisticStats(result)
       }
@@ -167,7 +202,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
   }
 
   function resetLocalInput() {
-    currentGuess.value = ''
+    resetGuessCells()
   }
 
   async function refreshAll() {
@@ -183,11 +218,14 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     isInputLocked,
     isStateLoading,
     isSubmitting,
-    currentGuess,
+    guessCells,
     isShaking,
     letterStates,
     addLetter,
+    placeLetterAt,
+    moveLetter,
     removeLetter,
+    removeLetterAt,
     submitCurrentGuess,
     resetLocalInput,
     refreshAll,

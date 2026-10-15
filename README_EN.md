@@ -410,6 +410,8 @@ Production secrets live in Doppler (project `games-movies-database`, config `prd
 - `bash render-env.sh` renders `.env`; do not edit `.env` by hand — the next deploy overwrites it
 - switching providers (e.g. to Infisical) is a one-branch `case` change in `scripts/render-env.sh`
 
+Rollback: revert the offending commit on `master` — CI rebuilds and redeploys. Fast server-side option: the previous image stays in `docker image ls -a` (dangling) for a week — `docker image tag <IMAGE_ID> ghcr.io/le-xot/games-movies-database:latest && docker compose up -d`.
+
 ## Contributing
 
 - All PRs to a new branch

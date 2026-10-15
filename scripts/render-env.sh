@@ -9,6 +9,9 @@
 #   DOPPLER_TOKEN=...            # doppler service token (read-only, config prd)
 #   INFISICAL_TOKEN=...          # for the infisical provider
 #   SECRETS_PROVIDER=infisical   # optional provider override
+#
+# Fails closed: if the provider returns empty output or a set without
+# POSTGRES_PASSWORD (required by docker-compose.yml), .env is left untouched.
 set -euo pipefail
 
 secrets_env="${GMD_SECRETS_ENV:-$HOME/.config/gmd/secrets.env}"
@@ -36,6 +39,11 @@ case "$provider" in
     exit 1
     ;;
 esac
+
+if [ ! -s "$tmp" ] || ! grep -q '^POSTGRES_PASSWORD=' "$tmp"; then
+  echo "render-env.sh: provider returned empty or incomplete secrets; .env left untouched" >&2
+  exit 1
+fi
 
 mv "$tmp" .env
 chmod 600 .env

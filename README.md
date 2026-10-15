@@ -442,6 +442,8 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - `bash render-env.sh` (запускать из директории compose) рендерит `.env`; руками `.env` не правится — следующий деплой перезапишет
 - смена провайдера (например, на Infisical) — правка одной ветки `case` в `scripts/render-env.sh`
 
+Откат: коммит-реверт в `master` — CI пересоберёт и выкатит заново. Быстро на сервере: предыдущий образ ещё неделю остаётся в `docker image ls -a` (dangling) — `docker image tag <IMAGE_ID> ghcr.io/le-xot/games-movies-database:latest && docker compose up -d`.
+
 ## Контрибьютинг
 
 - Все PR — в новую ветку

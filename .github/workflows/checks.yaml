@@ -29,7 +29,7 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -37,7 +37,7 @@ jobs:
           bun-version: 1.4.3
 
       - name: Cache bun packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
@@ -66,7 +66,7 @@ jobs:
         run: bun format:check
 
       - name: Cache vue-tsc incremental state
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: frontend/node_modules/.cache/vue-tsc
           key: vue-tsc-${{ runner.os }}-${{ hashFiles('frontend/tsconfig.json', 'frontend/src/**', 'bun.lock') }}

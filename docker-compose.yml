@@ -39,10 +39,7 @@ services:
       - redis_data:/data
 
   migrations:
-    build:
-      context: .
-      dockerfile: database/Dockerfile
-    image: lexot/games-movies-database-migrations:latest
+    image: ghcr.io/le-xot/games-movies-database-migrations:latest
     restart: 'no'
     mem_limit: 256m
     cpus: '0.25'
@@ -84,10 +81,7 @@ services:
       - traefik.http.middlewares.gmd-dbx-redirect.redirectscheme.permanent=true
 
   application:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: lexot/games-movies-database:latest
+    image: ghcr.io/le-xot/games-movies-database:latest
     restart: unless-stopped
     mem_limit: 1g
     cpus: '1.5'

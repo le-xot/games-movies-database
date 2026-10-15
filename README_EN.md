@@ -195,7 +195,7 @@ games-movies-database/
 ├── .oxlintrc.json             # oxlint configuration
 ├── .oxfmtrc.json              # oxfmt configuration
 └── .github/workflows/
-    └── docker.yaml            # CI/CD: SSH deploy on push to master
+    └── docker.yaml            # CI/CD: build to GHCR + SSH deploy (no git on server)
 ```
 
 ## Available Scripts
@@ -383,21 +383,32 @@ Production configuration in `docker-compose.yml` includes:
 - **migrations** — one-shot service: applies migrations before `application` starts
 - **Application** with Traefik reverse proxy (`le-xot.dev`)
 
+Application and migrations images come from GHCR (`ghcr.io/le-xot/games-movies-database:latest`,
+`ghcr.io/le-xot/games-movies-database-migrations:latest`) — nothing is built on the server.
+
 Requires external `traefik-public` network (attachable overlay) for Traefik reverse proxy.
 
 ### GitHub Actions
 
 On push to `master`, automatically:
 
-1. SSH connection to server
-2. `git fetch` and `git reset --hard origin/master`
-3. `docker compose up -d --build --remove-orphans`
+1. `Checks` — lint, types, tests, drift checks
+2. `Deploy` (job `build`) — builds app and migrations images, pushes to GHCR (tag `latest`, cache `type=gha`)
+3. `Deploy` (job `deploy`) — `docker-compose.yml` and `scripts/render-env.sh` are copied to the server via scp; the server renders `.env` from Doppler and runs `docker compose pull application migrations && docker compose up -d --remove-orphans`
+
+The server neither runs `git pull` nor builds images.
 
 To set up CI/CD, add secrets to GitHub:
 
 - `SERVER_HOST` — server address
 - `SERVER_USER` — SSH user
 - `SERVER_SSH_KEY` — SSH private key
+
+Production secrets live in Doppler (project `games-movies-database`, config `prd`):
+
+- the server has the Doppler CLI installed; a read-only service token is stored in `~/.config/gmd/secrets.env` (chmod 600)
+- `bash render-env.sh` renders `.env`; do not edit `.env` by hand — the next deploy overwrites it
+- switching providers (e.g. to Infisical) is a one-branch `case` change in `scripts/render-env.sh`
 
 ## Contributing
 

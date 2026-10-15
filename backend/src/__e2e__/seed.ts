@@ -74,6 +74,7 @@ try {
     posterUrl: '',
     genre: 'GAME',
     status: 'QUEUE',
+    grade: 'RECOMMEND',
     type: 'WRITTEN',
   })
 
@@ -103,7 +104,7 @@ try {
     }),
   )
   console.log(
-    `✅ E2E seed: ${ADMIN_ID}, ${VICTIM_ID}, ${WORDLE_PLAYER_ID}, запись «${RECORD_TITLE}»`,
+    `✅ E2E seed: ${ADMIN_ID}, ${VICTIM_ID}, ${WORDLE_PLAYER_ID}, запись «${RECORD_TITLE}» (🔥)`,
   )
 } finally {
   await pool.end()

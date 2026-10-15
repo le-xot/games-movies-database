@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDbNavigation } from '@/components/layout/db/use-db-navigation'
+import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import { useCommandPaletteHotkey } from '@/components/palette/composables/use-command-palette-hotkey'
 import { useCommandPaletteSearch } from '@/components/palette/composables/use-command-palette-search'
 import { PALETTE_SHORTCUT_HINT } from '@/components/palette/constants/palette-constants'
@@ -14,7 +15,7 @@ import { useCommandPalette } from '@/stores/use-command-palette'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 import { getImageUrl } from '@/utils/image'
 import type { RouteItem } from '@/components/layout/db/use-db-navigation'
-import type { RecordEntity } from '@/lib/api'
+import type { RecordEntity, RecordGrade } from '@/lib/api'
 
 interface PaletteCommandItem {
   kind: 'command'
@@ -32,6 +33,7 @@ const router = useRouter()
 const palette = useCommandPalette()
 const { isOpen } = storeToRefs(palette)
 const { sections, bottomItems } = useDbNavigation()
+const { gradeTags } = useBadgeSelect()
 
 const commands = computed<RouteItem[]>(() => [
   ...sections.value.flatMap((section) => section.items),
@@ -117,6 +119,8 @@ useCommandPaletteHotkey()
 
 const initials = (title: string) => title.slice(0, 2).toUpperCase()
 const genreLabel = (genre: RecordEntity['genre']) => (genre ? GENRE_LABELS[genre] : '')
+const gradeChipClass = (grade: RecordGrade) => gradeTags[grade].class?.replace(' border', '')
+const gradeTitle = (grade: RecordGrade) => gradeTags[grade].label ?? ''
 
 const emptyText = computed(() => {
   if (isLoading.value) return 'Ищем…'
@@ -196,6 +200,14 @@ const emptyText = computed(() => {
                 {{ genreLabel(record.genre) }}
                 <template v-if="record.episode"> · {{ record.episode }}</template>
               </span>
+            </span>
+            <span
+              v-if="record.grade"
+              class="shrink-0 rounded-md px-1.5 py-1 text-sm leading-none"
+              :class="gradeChipClass(record.grade)"
+              :title="gradeTitle(record.grade)"
+            >
+              {{ gradeTags[record.grade].name }}
             </span>
           </button>
         </template>

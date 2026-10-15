@@ -13,6 +13,7 @@ test('Ctrl+K opens the palette and filters records', async ({ page }) => {
   const record = page.getByTestId('palette-record')
   await expect(record).toHaveCount(1)
   await expect(record).toContainText('E2E Record')
+  await expect(record).toContainText('🔥')
 })
 
 test('Enter opens the selected record in a new tab and closes the palette', async ({ page }) => {

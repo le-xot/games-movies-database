@@ -11,9 +11,10 @@ services:
       - pgdata:/var/lib/postgresql/data
   rustfs:
     image: rustfs/rustfs:latest
+    # Только loopback: нужен хостовому `bun dev` (S3_ENDPOINT=http://localhost:9000).
+    # Консоль 9001 не публикуем — её заменяет плагин S3 Browser в DBX.
     ports:
-      - 9000:9000
-      - 9001:9001
+      - 127.0.0.1:9000:9000
     volumes:
       - rustfs_data:/data
     environment:
@@ -24,12 +25,18 @@ services:
     image: redis:7-alpine
     ports:
       - 6379:6379
-  admin:
-    image: adminer
+  dbx:
+    image: t8y2/dbx:0.6.45
     depends_on:
       - postgres
+      - redis
     ports:
-      - 54321:8080
+      - 127.0.0.1:4224:4224
+    environment:
+      DBX_PASSWORD: ${DBX_PASSWORD:-dbx}
+    volumes:
+      - dbx_data:/app/data
 volumes:
   pgdata:
   rustfs_data:
+  dbx_data:

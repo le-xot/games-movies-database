@@ -51,7 +51,7 @@ bun install
 bun infra:start
 ```
 
-This starts PostgreSQL on port `5432`, Redis on port `6379`, and Adminer on port `54321`.
+This starts PostgreSQL on port `5432`, Redis on port `6379`, RustFS on `127.0.0.1:9000`, and DBX on `127.0.0.1:4224` (both loopback-only, not published; web password from `DBX_PASSWORD`, defaults to `dbx`).
 
 To stop: `bun infra:stop`.
 
@@ -84,7 +84,7 @@ bun dev
 - Backend API: http://localhost:3000/api
 - Swagger UI: http://localhost:3000/docs
 - Scalar API Reference: http://localhost:3000/reference
-- Adminer: http://localhost:54321
+- DBX: http://localhost:4224
 
 ## Environment Variables
 
@@ -189,7 +189,7 @@ games-movies-database/
 │   │   └── baseline.ts        # One-time baseline of an existing database
 │   └── migrations/            # Generated SQL migrations
 ├── docker-compose.yml         # Production config (PostgreSQL + Redis + app + Traefik)
-├── docker-compose.dev.yml     # Dev environment (PostgreSQL + Redis + RustFS + Adminer)
+├── docker-compose.dev.yml     # Dev environment (PostgreSQL + Redis + RustFS + DBX)
 ├── Dockerfile                 # Multi-stage build (frontend → backend → serve)
 ├── package.json               # Root package.json (workspaces)
 ├── .oxlintrc.json             # oxlint configuration
@@ -354,7 +354,7 @@ TWIR_API=your_api_key
 - In production a one-shot `migrations` service applies migrations before `application` starts
 - An existing database requires a one-time `bun db:baseline` before the first deploy
 - Enum constants are defined via `pgEnum` in `database/src/schema/enums.ts`
-- Adminer available on port `54321` in dev mode
+- DBX available on port `4224` in dev mode
 
 ### Guards and Authorization
 
@@ -379,7 +379,7 @@ Production configuration in `docker-compose.yml` includes:
 - **PostgreSQL 17** with persistent volume
 - **Redis** — rate limiting (internal network, no exposed ports)
 - **RustFS** — S3-compatible storage for images
-- **Adminer** with Traefik reverse proxy (`adminer.le-xot.dev`)
+- **DBX** with Traefik reverse proxy (`dbx.le-xot.dev`) — database, Redis, and RustFS in one UI (S3 Browser plugin)
 - **migrations** — one-shot service: applies migrations before `application` starts
 - **Application** with Traefik reverse proxy (`le-xot.dev`)
 

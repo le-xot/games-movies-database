@@ -16,7 +16,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ├── backend/                # NestJS 12 API (Drizzle, JWT, Socket.IO, Redis rate limiting)
 ├── database/               # Drizzle schema + migrations app (own Dockerfile)
 ├── docker-compose.yml      # Production stack (Traefik via traefik-public network)
-├── docker-compose.dev.yml  # Dev: postgres + redis + rustfs + adminer
+├── docker-compose.dev.yml  # Dev: postgres + redis + rustfs + dbx
 ├── Dockerfile              # App image: multi-stage bun build (frontend → backend → serve)
 ├── .oxlintrc.json          # oxlint configuration (linting rules)
 ├── .oxfmtrc.json           # oxfmt configuration (formatting + import sorting)
@@ -82,7 +82,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ```bash
 # Development
 bun install                    # Install all deps
-bun infra:start                # Start dev infra: postgres + redis + rustfs + adminer
+bun infra:start                # Start dev infra: postgres + redis + rustfs + dbx
 bun infra:stop                 # Stop dev infra
 bun dev                        # Start frontend (5173) + backend (3000)
 

@@ -27,26 +27,8 @@ services:
     environment:
       RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
       RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
-      RUSTFS_CONSOLE_ENABLE: 'true'
-    networks:
-      - default
-      - traefik
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik-public
-      - traefik.http.routers.gmd-rustfs.rule=Host(`rustfs.le-xot.dev`)
-      - traefik.http.routers.gmd-rustfs.entrypoints=websecure
-      - traefik.http.routers.gmd-rustfs.tls.certresolver=le
-      - traefik.http.routers.gmd-rustfs.service=gmd-rustfs
-      - traefik.http.services.gmd-rustfs.loadbalancer.server.port=9001
-      - traefik.http.middlewares.gmd-rustfs-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS:-178.105.174.181/32}
-      - traefik.http.routers.gmd-rustfs.middlewares=gmd-rustfs-ipallow
-      - traefik.http.routers.gmd-rustfs-web.rule=Host(`rustfs.le-xot.dev`)
-      - traefik.http.routers.gmd-rustfs-web.entrypoints=web
-      - traefik.http.routers.gmd-rustfs-web.service=gmd-rustfs
-      - traefik.http.routers.gmd-rustfs-web.middlewares=gmd-rustfs-ipallow,gmd-rustfs-redirect
-      - traefik.http.middlewares.gmd-rustfs-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.gmd-rustfs-redirect.redirectscheme.permanent=true
+      # Консоль не нужна: бакеты и объекты смотрим через DBX (плагин S3 Browser)
+      RUSTFS_CONSOLE_ENABLE: 'false'
 
   redis:
     image: redis:7-alpine
@@ -72,32 +54,34 @@ services:
     networks:
       - default
 
-  admin:
-    image: adminer
+  dbx:
+    image: t8y2/dbx:0.6.45
     restart: unless-stopped
-    mem_limit: 128m
-    cpus: '0.25'
-    depends_on:
-      - postgres
+    mem_limit: 512m
+    cpus: '0.5'
+    volumes:
+      - dbx_data:/app/data
+    environment:
+      DBX_PASSWORD: ${DBX_PASSWORD}
     networks:
       - default
       - traefik
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
-      - traefik.http.routers.gmd-adminer.rule=Host(`adminer.le-xot.dev`)
-      - traefik.http.routers.gmd-adminer.entrypoints=websecure
-      - traefik.http.routers.gmd-adminer.tls.certresolver=le
-      - traefik.http.routers.gmd-adminer.service=gmd-adminer
-      - traefik.http.services.gmd-adminer.loadbalancer.server.port=8080
-      - traefik.http.middlewares.gmd-adminer-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS:-178.105.174.181/32}
-      - traefik.http.routers.gmd-adminer.middlewares=gmd-adminer-ipallow
-      - traefik.http.routers.gmd-adminer-web.rule=Host(`adminer.le-xot.dev`)
-      - traefik.http.routers.gmd-adminer-web.entrypoints=web
-      - traefik.http.routers.gmd-adminer-web.service=gmd-adminer
-      - traefik.http.routers.gmd-adminer-web.middlewares=gmd-adminer-ipallow,gmd-adminer-redirect
-      - traefik.http.middlewares.gmd-adminer-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.gmd-adminer-redirect.redirectscheme.permanent=true
+      - traefik.http.routers.gmd-dbx.rule=Host(`dbx.le-xot.dev`)
+      - traefik.http.routers.gmd-dbx.entrypoints=websecure
+      - traefik.http.routers.gmd-dbx.tls.certresolver=le
+      - traefik.http.routers.gmd-dbx.service=gmd-dbx
+      - traefik.http.services.gmd-dbx.loadbalancer.server.port=4224
+      - traefik.http.middlewares.gmd-dbx-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS:-178.105.174.181/32}
+      - traefik.http.routers.gmd-dbx.middlewares=gmd-dbx-ipallow
+      - traefik.http.routers.gmd-dbx-web.rule=Host(`dbx.le-xot.dev`)
+      - traefik.http.routers.gmd-dbx-web.entrypoints=web
+      - traefik.http.routers.gmd-dbx-web.service=gmd-dbx
+      - traefik.http.routers.gmd-dbx-web.middlewares=gmd-dbx-ipallow,gmd-dbx-redirect
+      - traefik.http.middlewares.gmd-dbx-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.gmd-dbx-redirect.redirectscheme.permanent=true
 
   application:
     build:
@@ -144,6 +128,7 @@ volumes:
   pgdata:
   rustfs_data:
   redis_data:
+  dbx_data:
 
 networks:
   traefik:

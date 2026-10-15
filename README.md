@@ -51,7 +51,7 @@ bun install
 bun infra:start
 ```
 
-Это поднимет PostgreSQL на порту `5432`, Redis на порту `6379`, RustFS на портах `9000`/`9001` и Adminer на порту `54321`.
+Это поднимет PostgreSQL на порту `5432`, Redis на порту `6379`, RustFS на порту `127.0.0.1:9000` и DBX на порту `127.0.0.1:4224` (оба только loopback, наружу не публикуются; веб-пароль из `DBX_PASSWORD`, по умолчанию `dbx`).
 
 Остановка: `bun infra:stop`.
 
@@ -84,7 +84,7 @@ bun dev
 - Backend API: http://localhost:3000/api
 - Swagger UI: http://localhost:3000/docs
 - Scalar API Reference: http://localhost:3000/reference
-- Adminer: http://localhost:54321
+- DBX: http://localhost:4224
 
 ## Переменные окружения
 
@@ -194,7 +194,7 @@ games-movies-database/
 │   │   └── baseline.ts        # Однократный baseline существующей базы
 │   └── migrations/            # Сгенерированные SQL миграции
 ├── docker-compose.yml         # Продакшен конфигурация (PostgreSQL + Redis + приложение + Traefik)
-├── docker-compose.dev.yml     # Dev окружение (PostgreSQL + Redis + RustFS + Adminer)
+├── docker-compose.dev.yml     # Dev окружение (PostgreSQL + Redis + RustFS + DBX)
 ├── Dockerfile                 # Многостадийная сборка (frontend → backend → serve)
 ├── package.json               # Корневой package.json (workspaces)
 ├── .oxlintrc.json             # Конфигурация oxlint
@@ -385,7 +385,7 @@ TWIR_API=your_api_key
 - В продакшене миграции применяет one-shot сервис `migrations` перед запуском `application`
 - Для существующей базы однократно выполните `bun db:baseline` перед первым деплоем
 - Enum-константы описаны через `pgEnum` в `database/src/schema/enums.ts`
-- Adminer доступен на порту `54321` в dev-режиме
+- DBX доступен на порту `4224` в dev-режиме
 
 ### Guards и авторизация
 
@@ -410,7 +410,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - **PostgreSQL 17** с persistent volume
 - **Redis** — rate limiting (внутренняя сеть, без внешних портов)
 - **RustFS** — S3-совместимое хранилище для изображений
-- **Adminer** с Traefik reverse proxy (`adminer.le-xot.dev`)
+- **DBX** с Traefik reverse proxy (`dbx.le-xot.dev`) — база, Redis и RustFS из одного UI (плагин S3 Browser)
 - **migrations** — one-shot сервис: применяет миграции перед запуском `application`
 - **Приложение** с Traefik reverse proxy (`le-xot.dev`)
 
@@ -453,4 +453,4 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 | Ошибки миграций базы данных       | Выполните `bun db:migrate`, проверьте `database/migrations/`                                                             |
 | Rate limits перестали работать    | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
 | S3 ошибки (InvalidAccessKeyId)    | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
-| Bucket не найден                  | Создайте bucket через консоль RustFS (`localhost:9001` в dev-режиме)                                                     |
+| Bucket не найден                  | Создайте bucket через DBX: подключение `RustFS (dev)` (плагин S3 Browser)                                                |

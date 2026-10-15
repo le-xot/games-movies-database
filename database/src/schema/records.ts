@@ -15,6 +15,10 @@ export const records = pgTable(
     grade: recordGradeEnum('grade'),
     episode: text('episode'),
     createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
+    updatedAt: timestamp('updatedAt', { precision: 3 })
+      .default(currentTimestamp)
+      .notNull()
+      .$onUpdate(() => currentTimestamp),
     extra: jsonb('extra'),
   },
   (table) => [index('records_title_idx').on(table.title)],

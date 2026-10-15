@@ -15,6 +15,7 @@ export function makeRecordRow(overrides: Partial<RecordWithRelations> = {}): Rec
     episode: null,
     extra: null,
     createdAt: new Date('2026-01-02T03:04:05.000Z'),
+    updatedAt: new Date('2026-01-02T03:04:05.000Z'),
     ...overrides,
   }
 }

@@ -37,13 +37,16 @@ else
   fail ".env has mode 600"
 fi
 
-# 3. infisical branch works too
-write_shim infisical 'printf "%s\n" "POSTGRES_PASSWORD=x" "BAZ=qux"'
-if run env SECRETS_PROVIDER=infisical bash "$SCRIPT" >/dev/null 2>&1 \
-  && grep -q '^BAZ=qux$' "$work/.env"; then
-  pass "renders .env from infisical provider"
+# 3. infisical branch works and forwards optional project/env/domain flags
+write_shim infisical 'printf "%s\n" "POSTGRES_PASSWORD=x" "ARGS=$*" "BAZ=qux"'
+if run env SECRETS_PROVIDER=infisical \
+     INFISICAL_PROJECT_ID=proj-1 INFISICAL_ENV=prod INFISICAL_DOMAIN=https://infisical.example \
+     bash "$SCRIPT" >/dev/null 2>&1 \
+  && grep -q '^BAZ=qux$' "$work/.env" \
+  && grep -q '^ARGS=export --format=dotenv --projectId proj-1 --env prod --domain https://infisical.example$' "$work/.env"; then
+  pass "renders .env from infisical provider with optional flags"
 else
-  fail "renders .env from infisical provider"
+  fail "renders .env from infisical provider with optional flags"
 fi
 
 # 4. unknown provider: exits non-zero, leaves .env untouched, no temp file
@@ -53,7 +56,11 @@ if run env SECRETS_PROVIDER=nope bash "$SCRIPT" >/dev/null 2>&1; then
 else
   pass "unknown provider exits non-zero"
   [ "$(cat "$work/.env")" = "KEEP=1" ] && pass "unknown provider leaves .env untouched" || fail "unknown provider leaves .env untouched"
-  [ ! -e "$work/.env.tmp" ] && pass "unknown provider leaves no temp file" || fail "unknown provider leaves no temp file"
+  if compgen -G "$work/.env.tmp*" > /dev/null; then
+    fail "unknown provider leaves no temp file"
+  else
+    pass "unknown provider leaves no temp file"
+  fi
 fi
 
 # 5. provider failure: exits non-zero, leaves .env untouched
@@ -104,6 +111,44 @@ if run bash "$SCRIPT" >/dev/null 2>&1; then
 else
   pass "incomplete provider output exits non-zero"
   [ "$(cat "$work/.env")" = "KEEP=4" ] && pass "incomplete provider output leaves .env untouched" || fail "incomplete provider output leaves .env untouched"
+fi
+
+# 10. temp file uses a unique mktemp name (no fixed .env.tmp collisions)
+cat > "$work/bin/doppler" <<'SHIM'
+#!/usr/bin/env bash
+ls ./.env.tmp* | sed 's#^\./##' > "$SEEN_FILE"
+printf "%s\n" "POSTGRES_PASSWORD=x" "FOO=bar"
+SHIM
+chmod +x "$work/bin/doppler"
+if run env SEEN_FILE="$work/seen.txt" bash "$SCRIPT" >/dev/null 2>&1 \
+  && grep -qE '^\.env\.tmp\.[A-Za-z0-9]{6,}$' "$work/seen.txt" \
+  && ! grep -qx '\.env\.tmp' "$work/seen.txt"; then
+  pass "temp file uses a unique mktemp name"
+else
+  fail "temp file uses a unique mktemp name"
+fi
+
+# 11. real doppler --format docker output shape is preserved verbatim (minus reserved vars)
+cat > "$work/doppler-sample.env" <<'FIXTURE'
+POSTGRES_PASSWORD=s3cret
+DATASOURCE_URL=postgresql://le_xot:s3cret@postgres:5432/lists
+CORS_ORIGINS=http://localhost:3000,https://le-xot.dev
+JWT_SECRET="secret with spaces"
+DOPPLER_PROJECT=games-movies-database
+DOPPLER_CONFIG=prd
+DOPPLER_ENVIRONMENT=Production
+FIXTURE
+cat > "$work/bin/doppler" <<'SHIM'
+#!/usr/bin/env bash
+cat "$SAMPLE"
+SHIM
+chmod +x "$work/bin/doppler"
+grep -v '^DOPPLER_' "$work/doppler-sample.env" > "$work/expected.env"
+if run env SAMPLE="$work/doppler-sample.env" bash "$SCRIPT" >/dev/null 2>&1 \
+  && diff -q "$work/expected.env" "$work/.env" > /dev/null; then
+  pass "provider output is preserved verbatim apart from reserved vars"
+else
+  fail "provider output is preserved verbatim apart from reserved vars"
 fi
 
 if [ "$failures" -eq 0 ]; then

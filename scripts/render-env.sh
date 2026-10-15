@@ -9,6 +9,7 @@
 #   DOPPLER_TOKEN=...            # doppler service token (read-only, config prd)
 #   INFISICAL_TOKEN=...          # for the infisical provider
 #   SECRETS_PROVIDER=infisical   # optional provider override
+#   INFISICAL_PROJECT_ID / INFISICAL_ENV / INFISICAL_DOMAIN  # optional infisical flags
 #
 # Fails closed: if the provider returns empty output or a set without
 # POSTGRES_PASSWORD (required by docker-compose.yml), .env is left untouched.
@@ -23,7 +24,7 @@ if [ -f "$secrets_env" ]; then
 fi
 
 provider="${SECRETS_PROVIDER:-doppler}"
-tmp=".env.tmp"
+tmp="$(mktemp ./.env.tmp.XXXXXX)"
 trap 'rm -f "$tmp"' EXIT
 
 case "$provider" in
@@ -32,7 +33,17 @@ case "$provider" in
       | sed -E '/^DOPPLER_(PROJECT|CONFIG|ENVIRONMENT)=/d' > "$tmp"
     ;;
   infisical)
-    infisical export --format=dotenv > "$tmp"
+    infisical_args=(export --format=dotenv)
+    if [ -n "${INFISICAL_PROJECT_ID:-}" ]; then
+      infisical_args+=(--projectId "$INFISICAL_PROJECT_ID")
+    fi
+    if [ -n "${INFISICAL_ENV:-}" ]; then
+      infisical_args+=(--env "$INFISICAL_ENV")
+    fi
+    if [ -n "${INFISICAL_DOMAIN:-}" ]; then
+      infisical_args+=(--domain "$INFISICAL_DOMAIN")
+    fi
+    infisical "${infisical_args[@]}" > "$tmp"
     ;;
   *)
     echo "render-env.sh: unknown SECRETS_PROVIDER: $provider" >&2

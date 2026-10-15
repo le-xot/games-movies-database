@@ -13,12 +13,15 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -42,8 +45,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/le-xot/games-movies-database:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,mode=max,scope=app
 
       - name: Build and push migrations image
         uses: docker/build-push-action@v6
@@ -52,15 +55,17 @@ jobs:
           file: ./database/Dockerfile
           push: true
           tags: ghcr.io/le-xot/games-movies-database-migrations:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=migrations
+          cache-to: type=gha,mode=max,scope=migrations
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
+      DEPLOY_DIR: ${{ vars.DEPLOY_DIR || '/home/lexot/games-movies-database' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -79,9 +84,14 @@ jobs:
         run: |
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
             docker-compose.yml scripts/render-env.sh \
-            "$SERVER_USER@$SERVER_HOST:/home/lexot/games-movies-database/"
+            "$SERVER_USER@$SERVER_HOST:$DEPLOY_DIR/"
 
       - name: Deploy
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" \
-            'set -e; cd /home/lexot/games-movies-database && bash render-env.sh && docker compose pull application migrations && docker compose up -d --remove-orphans && docker image prune -f --filter until=168h'
+            "set -e; cd $DEPLOY_DIR && bash render-env.sh && docker compose pull application migrations && docker compose up -d --remove-orphans && docker image prune -f --filter until=168h"
+
+      - name: Health check
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" \
+            "set -e; cd $DEPLOY_DIR; for _ in \$(seq 1 30); do curl -fsS https://le-xot.dev/api/health > /dev/null && exit 0; sleep 2; done; echo 'health check failed'; docker compose logs --tail 50 application || true; exit 1"

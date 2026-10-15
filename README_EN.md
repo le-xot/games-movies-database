@@ -408,7 +408,8 @@ Production secrets live in Doppler (project `games-movies-database`, config `prd
 
 - the server has the Doppler CLI installed; a read-only service token is stored in `~/.config/gmd/secrets.env` (chmod 600)
 - `bash render-env.sh` renders `.env`; do not edit `.env` by hand — the next deploy overwrites it
-- switching providers (e.g. to Infisical) is a one-branch `case` change in `scripts/render-env.sh`
+- switching providers (e.g. to Infisical) is a `case` branch in `scripts/render-env.sh` plus `INFISICAL_TOKEN`/`INFISICAL_PROJECT_ID`/`INFISICAL_ENV` in `secrets.env`
+- the deploy pulls images from GHCR anonymously (no `docker login` on the server) — the packages must stay publicly pullable; if you make them private, add `docker login ghcr.io` on the server
 
 Rollback: revert the offending commit on `master` — CI rebuilds and redeploys. Fast server-side option: the previous image stays in `docker image ls -a` (dangling) for a week — `docker image tag <IMAGE_ID> ghcr.io/le-xot/games-movies-database:latest && docker compose up -d`.
 

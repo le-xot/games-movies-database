@@ -12,8 +12,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "bun run src/migrate.ts",
     "baseline": "bun run src/baseline.ts",
-    "check": "bun run typecheck",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "bun check"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

@@ -205,25 +205,26 @@ games-movies-database/
 
 ## Доступные скрипты
 
-| Команда              | Описание                                      |
-| -------------------- | --------------------------------------------- |
-| `bun dev`            | Запуск frontend и backend в режиме разработки |
-| `bun dev:frontend`   | Только frontend (порт 5173)                   |
-| `bun dev:backend`    | Только backend (порт 3000)                    |
-| `bun build`          | Сборка frontend и backend для продакшена      |
-| `bun build:frontend` | Сборка только frontend                        |
-| `bun build:backend`  | Сборка только backend                         |
-| `bun start:backend`  | Запуск backend в продакшене                   |
-| `bun infra:start`    | Dev-инфраструктура (postgres, redis, rustfs)  |
-| `bun infra:stop`     | Остановка dev-инфраструктуры                  |
-| `bun db:generate`    | Генерация SQL миграции из изменений схемы     |
-| `bun db:migrate`     | Применение миграций к базе данных             |
-| `bun db:baseline`    | Однократный baseline существующей базы        |
-| `bun lint`           | Проверка кода oxlint                          |
-| `bun lint:fix`       | Автоисправление oxlint                        |
-| `bun format`         | Форматирование oxfmt                          |
-| `bun format:check`   | Проверка форматирования без изменений         |
-| `bun check:socket`   | Сверка socket-контракта frontend ↔ backend    |
+| Команда              | Описание                                                               |
+| -------------------- | ---------------------------------------------------------------------- |
+| `bun dev`            | Запуск frontend и backend в режиме разработки                          |
+| `bun dev:frontend`   | Только frontend (порт 5173)                                            |
+| `bun dev:backend`    | Только backend (порт 3000)                                             |
+| `bun build`          | Сборка frontend и backend для продакшена                               |
+| `bun build:frontend` | Сборка только frontend                                                 |
+| `bun build:backend`  | Сборка только backend                                                  |
+| `bun start:backend`  | Запуск backend в продакшене                                            |
+| `bun infra:start`    | Dev-инфраструктура (postgres, redis, rustfs)                           |
+| `bun infra:stop`     | Остановка dev-инфраструктуры                                           |
+| `bun db:generate`    | Генерация SQL миграции из изменений схемы                              |
+| `bun db:migrate`     | Применение миграций к базе данных                                      |
+| `bun db:baseline`    | Однократный baseline существующей базы                                 |
+| `bun lint`           | Проверка кода oxlint                                                   |
+| `bun lint:fix`       | Автоисправление oxlint                                                 |
+| `bun format`         | Форматирование oxfmt                                                   |
+| `bun format:check`   | Проверка форматирования без изменений                                  |
+| `bun typecheck`      | Проверка типов: `bun check` (backend, database) + `vue-tsc` (frontend) |
+| `bun check:socket`   | Сверка socket-контракта frontend ↔ backend                             |
 
 ## Тестирование
 

@@ -60,7 +60,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **Stores**: Pinia 4 stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
 - **Icons**: @lucide/vue primary, vue3-simple-icons for brands. No other icon libs
 - **Path alias**: `@/` → `./src/` in both frontend and backend
-- **TypeScript**: Backend on TS 7 (native tsc). Frontend on TS 6 — vue-tsc does not support TS 7 yet; bump both when vue-tsc ships tsgo support
+- **TypeScript**: Backend and database type-check via `bun check` (Bun's built-in TS 7 checker, port of typescript-go). Frontend stays on `vue-tsc` with TS 6 — `bun check` cannot resolve `.vue` imports; bump frontend when vue-tsc ships tsgo support
 - **API client**: Auto-generated via `swagger-typescript-api` from backend `/docs-json`. Regenerated on frontend dev start. Access via `useApi()` Pinia store
 - **Database**: Drizzle ORM. Schema lives in `database/src/schema/`, migrations are generated SQL committed under `database/migrations/`. Never edit `database/migrations/` by hand — use `bun db:generate`.
 
@@ -96,7 +96,7 @@ bun lint                       # Lint check (oxlint)
 bun lint:fix                   # Auto-fix (oxlint)
 bun format                     # Format codebase (oxfmt)
 bun format:check               # Check formatting (oxfmt)
-bun typecheck                  # TypeScript check (vue-tsc)
+bun typecheck                  # Type check: bun check (backend, database) + vue-tsc (frontend)
 
 # Database
 # Setup: cp database/.env.example database/.env (or export DATASOURCE_URL)

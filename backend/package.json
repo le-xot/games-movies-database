@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run typecheck",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun check",
     "test": "bun test",
     "test:integration": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts && RUN_DB_TESTS=1 bun test src/__integration__",
     "test:integration:reset": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts --reset && RUN_DB_TESTS=1 bun test src/__integration__",

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { ADMIN_STATE_FILE } from './helpers/env'
 
 test('Ctrl+K opens the palette and filters records', async ({ page }) => {
   await page.goto('/db/games')
@@ -85,4 +86,23 @@ test('mobile header exposes the palette trigger', async ({ page }) => {
   await page.getByTestId('palette-trigger-mobile').click()
 
   await expect(page.getByTestId('palette-input')).toBeVisible()
+})
+
+test.describe('on the wordle page', () => {
+  test.use({ storageState: ADMIN_STATE_FILE })
+
+  test('typing and deleting works in the palette input', async ({ page }) => {
+    await page.goto('/db/wordle')
+    await expect(page.getByRole('grid', { name: 'Игровое поле' })).toBeVisible()
+
+    await page.keyboard.press('Control+k')
+    const input = page.getByTestId('palette-input')
+
+    await input.pressSequentially('тест')
+    await expect(input).toHaveValue('тест')
+
+    await input.press('Backspace')
+
+    await expect(input).toHaveValue('тес')
+  })
 })

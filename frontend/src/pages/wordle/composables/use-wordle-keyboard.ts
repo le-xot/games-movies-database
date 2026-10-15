@@ -7,8 +7,26 @@ export interface WordleKeyboardHandlers {
   onBackspace: () => void
 }
 
+interface EditableTargetLike {
+  tagName?: string
+  isContentEditable?: boolean
+}
+
+/** Глобальные клавиши вордли не должны перехватываться, пока пользователь печатает в поле ввода. */
+export function isEditableTarget(target: unknown): boolean {
+  if (typeof target !== 'object' || target === null) return false
+
+  const element = target as EditableTargetLike
+  return (
+    element.tagName === 'INPUT' ||
+    element.tagName === 'TEXTAREA' ||
+    element.isContentEditable === true
+  )
+}
+
 export function useWordleKeyboard(handlers: WordleKeyboardHandlers) {
   function handleKeydown(event: KeyboardEvent) {
+    if (isEditableTarget(event.target)) return
     if (event.ctrlKey || event.metaKey || event.altKey) return
 
     if (event.key === 'Enter') {

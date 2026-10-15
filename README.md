@@ -200,7 +200,7 @@ games-movies-database/
 ├── .oxlintrc.json             # Конфигурация oxlint
 ├── .oxfmtrc.json              # Конфигурация oxfmt
 └── .github/workflows/
-    └── docker.yaml            # CI/CD: SSH deploy на push в master
+    └── docker.yaml            # CI/CD: сборка в GHCR + SSH-деплой (без git на сервере)
 ```
 
 ## Доступные скрипты
@@ -225,6 +225,7 @@ games-movies-database/
 | `bun format:check`   | Проверка форматирования без изменений                                  |
 | `bun typecheck`      | Проверка типов: `bun check` (backend, database) + `vue-tsc` (frontend) |
 | `bun check:socket`   | Сверка socket-контракта frontend ↔ backend                             |
+| `bun test:scripts`   | Тесты скрипта рендера `.env` (render-env.sh)                           |
 
 ## Тестирование
 
@@ -414,21 +415,32 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - **migrations** — one-shot сервис: применяет миграции перед запуском `application`
 - **Приложение** с Traefik reverse proxy (`le-xot.dev`)
 
+Образы приложения и миграций берутся из GHCR (`ghcr.io/le-xot/games-movies-database:latest`,
+`ghcr.io/le-xot/games-movies-database-migrations:latest`) — на сервере ничего не собирается.
+
 Требуется внешняя сеть `traefik-public` (attachable overlay) для Traefik reverse proxy.
 
 ### GitHub Actions
 
 При пуше в `master` автоматически:
 
-1. SSH подключение к серверу
-2. `git fetch` и `git reset --hard origin/master`
-3. `docker compose up -d --build --remove-orphans`
+1. `Checks` — линт, типы, тесты, drift-чеки
+2. `Deploy` (job `build`) — сборка образов приложения и миграций, push в GHCR (тег `latest`, кэш `type=gha`)
+3. `Deploy` (job `deploy`) — `docker-compose.yml` и `scripts/render-env.sh` копируются на сервер по scp; на сервере генерируется `.env` из Doppler и выполняется `docker compose pull application migrations && docker compose up -d --remove-orphans`
+
+Сервер не делает `git pull` и не собирает образы.
 
 Для настройки CI/CD добавьте секреты в GitHub:
 
 - `SERVER_HOST` — адрес сервера
 - `SERVER_USER` — SSH пользователь
 - `SERVER_SSH_KEY` — SSH приватный ключ
+
+Прод-секреты живут в Doppler (проект `games-movies-database`, конфиг `prd`):
+
+- на сервере установлен Doppler CLI, read-only service token лежит в `~/.config/gmd/secrets.env` (chmod 600)
+- `bash render-env.sh` (запускать из директории compose) рендерит `.env`; руками `.env` не правится — следующий деплой перезапишет
+- смена провайдера (например, на Infisical) — правка одной ветки `case` в `scripts/render-env.sh`
 
 ## Контрибьютинг
 

@@ -20,31 +20,32 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ├── Dockerfile              # App image: multi-stage bun build (frontend → backend → serve)
 ├── .oxlintrc.json          # oxlint configuration (linting rules)
 ├── .oxfmtrc.json           # oxfmt configuration (formatting + import sorting)
-└── .github/workflows/      # SSH deploy on push to master
+└── .github/workflows/      # CI: checks → build → GHCR → SSH deploy (server pulls images, no git)
 ```
 
 ## WHERE TO LOOK
 
-| Task                 | Location                                    | Notes                                                           |
-| -------------------- | ------------------------------------------- | --------------------------------------------------------------- |
-| Add backend feature  | `backend/src/modules/{name}/`               | See `backend/src/modules/AGENTS.md` for template                |
-| Add frontend page    | `frontend/src/pages/{feature}/`             | Each page = folder with .vue + composables/                     |
-| Sidebar / nav        | `frontend/src/components/layout/db/`        | `LayoutSidebar.vue`, `NavItem.vue`, `use-db-navigation.ts`      |
-| Account/login modals | `frontend/src/components/account/`          | Opened via `use-account-dialog` / `use-login-dialog` stores     |
-| Add UI primitive     | `frontend/src/components/ui/{name}/`        | shadcn-vue pattern: .vue files + index.ts barrel                |
-| Modify auth flow     | `backend/src/modules/auth/`                 | JWT in cookie, Twitch/Kick OAuth, Telegram OIDC, guards         |
-| Telegram login       | `backend/src/modules/telegram/`             | OIDC (PKCE, JWKS); cookies `tg_oidc_*`, env `TELEGRAM_*`        |
-| Rate limiting        | `backend/src/modules/rate-limit/`           | Custom Redis limiter; presets in `utils/rate-limits.ts`         |
-| Database schema      | `database/src/schema/`                      | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes |
-| Database migrations  | `database/migrations/`                      | Generated SQL; applied by `migrations` compose service          |
-| DB access            | `backend/src/database/drizzle.service.ts`   | Inject `DrizzleService`, use `.db`                              |
-| API types            | `frontend/src/lib/api.ts`                   | AUTO-GENERATED from Swagger. Never edit manually                |
-| Environment vars     | `backend/.env.example`                      | Copy to `backend/.env`                                          |
-| Router paths         | `frontend/src/router/router-paths.ts`       | ROUTER_PATHS constant                                           |
-| Image proxy          | `frontend/src/utils/image.ts`               | Routes through `/api/img`                                       |
-| Watch links          | `frontend/src/utils/generate-watch-link.ts` | Kinobox canonical URLs                                          |
-| Env validation       | `backend/src/utils/enviroments.ts`          | envalid; note the typo in filename                              |
-| Media page factories | `frontend/src/composables/factories/`       | `create-params-store.ts`, `create-records-store.ts`             |
+| Task                 | Location                                                | Notes                                                                                      |
+| -------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Add backend feature  | `backend/src/modules/{name}/`                           | See `backend/src/modules/AGENTS.md` for template                                           |
+| Add frontend page    | `frontend/src/pages/{feature}/`                         | Each page = folder with .vue + composables/                                                |
+| Sidebar / nav        | `frontend/src/components/layout/db/`                    | `LayoutSidebar.vue`, `NavItem.vue`, `use-db-navigation.ts`                                 |
+| Account/login modals | `frontend/src/components/account/`                      | Opened via `use-account-dialog` / `use-login-dialog` stores                                |
+| Add UI primitive     | `frontend/src/components/ui/{name}/`                    | shadcn-vue pattern: .vue files + index.ts barrel                                           |
+| Modify auth flow     | `backend/src/modules/auth/`                             | JWT in cookie, Twitch/Kick OAuth, Telegram OIDC, guards                                    |
+| Telegram login       | `backend/src/modules/telegram/`                         | OIDC (PKCE, JWKS); cookies `tg_oidc_*`, env `TELEGRAM_*`                                   |
+| Rate limiting        | `backend/src/modules/rate-limit/`                       | Custom Redis limiter; presets in `utils/rate-limits.ts`                                    |
+| Database schema      | `database/src/schema/`                                  | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes                            |
+| Database migrations  | `database/migrations/`                                  | Generated SQL; applied by `migrations` compose service                                     |
+| DB access            | `backend/src/database/drizzle.service.ts`               | Inject `DrizzleService`, use `.db`                                                         |
+| API types            | `frontend/src/lib/api.ts`                               | AUTO-GENERATED from Swagger. Never edit manually                                           |
+| Environment vars     | `backend/.env.example`                                  | Copy to `backend/.env`                                                                     |
+| Prod secrets         | Doppler (project `games-movies-database`, config `prd`) | `scripts/render-env.sh` renders `.env` on the server; token in `~/.config/gmd/secrets.env` |
+| Router paths         | `frontend/src/router/router-paths.ts`                   | ROUTER_PATHS constant                                                                      |
+| Image proxy          | `frontend/src/utils/image.ts`                           | Routes through `/api/img`                                                                  |
+| Watch links          | `frontend/src/utils/generate-watch-link.ts`             | Kinobox canonical URLs                                                                     |
+| Env validation       | `backend/src/utils/enviroments.ts`                      | envalid; note the typo in filename                                                         |
+| Media page factories | `frontend/src/composables/factories/`                   | `create-params-store.ts`, `create-records-store.ts`                                        |
 
 ## CONVENTIONS
 
@@ -72,6 +73,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **NEVER** use `unique()` where the Prisma-era DB has a unique index — it creates a unique constraint; use `uniqueIndex()`
 - **NEVER** skip baseline on an existing Prisma-managed DB — `bun db:baseline` must run before the first deploy
 - **NEVER** commit `backend/.env` (contains secrets; .gitignore should exclude it but the file exists locally)
+- **NEVER** edit the prod `.env` on the server by hand — it is generated by `scripts/render-env.sh` and overwritten on every deploy
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
 - **NEVER** use `@nestjs/throttler` — it was removed; use `@RateLimit()` from `backend/src/modules/rate-limit/`
 - `CustomJwtModule` is a global wrapper around `@nestjs/jwt`; `JwtService` is available everywhere
@@ -117,7 +119,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Backend serves built frontend via `ServeStaticModule` (frontend/dist). In production, single container serves everything
 - Frontend dev requires backend running first — Vite config auto-generates API client from `localhost:3000/docs-json` (retries 10x on failure)
 - Vite proxies `/api` and `/socket.io` to `localhost:3000` in dev
-- CI: push to master → SSH to server → `git reset --hard origin/master` → `docker compose up -d --build --remove-orphans`. Secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
+- CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
 - Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)

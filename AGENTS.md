@@ -119,7 +119,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Backend serves built frontend via `ServeStaticModule` (frontend/dist). In production, single container serves everything
 - Frontend dev requires backend running first — Vite config auto-generates API client from `localhost:3000/docs-json` (retries 10x on failure)
 - Vite proxies `/api` and `/socket.io` to `localhost:3000` in dev
-- CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
+- CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`. GHCR packages must stay anonymously pullable (no `docker login` on the server)
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
 - Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)

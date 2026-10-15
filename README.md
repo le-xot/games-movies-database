@@ -440,7 +440,8 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 
 - на сервере установлен Doppler CLI, read-only service token лежит в `~/.config/gmd/secrets.env` (chmod 600)
 - `bash render-env.sh` (запускать из директории compose) рендерит `.env`; руками `.env` не правится — следующий деплой перезапишет
-- смена провайдера (например, на Infisical) — правка одной ветки `case` в `scripts/render-env.sh`
+- смена провайдера (например, на Infisical) — ветка `case` в `scripts/render-env.sh` + `INFISICAL_TOKEN`/`INFISICAL_PROJECT_ID`/`INFISICAL_ENV` в `secrets.env`
+- деплой тянет образы из GHCR анонимно (на сервере нет `docker login`) — пакеты должны оставаться публично доступными; если закроешь, добавь `docker login ghcr.io` на сервер
 
 Откат: коммит-реверт в `master` — CI пересоберёт и выкатит заново. Быстро на сервере: предыдущий образ ещё неделю остаётся в `docker image ls -a` (dangling) — `docker image tag <IMAGE_ID> ghcr.io/le-xot/games-movies-database:latest && docker compose up -d`.
 

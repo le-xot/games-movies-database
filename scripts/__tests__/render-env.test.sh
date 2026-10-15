@@ -22,8 +22,9 @@ write_shim() { # $1=name $2=body
 run() { (cd "$work" && PATH="$work/bin:$PATH" "$@"); }
 
 # 1. renders .env through the doppler branch
-write_shim doppler 'echo "FOO=bar"'
-if run bash "$SCRIPT" >/dev/null 2>&1 && [ "$(cat "$work/.env" 2>/dev/null)" = "FOO=bar" ]; then
+write_shim doppler 'printf "%s\n" "POSTGRES_PASSWORD=x" "FOO=bar"'
+if run bash "$SCRIPT" >/dev/null 2>&1 \
+  && grep -q '^FOO=bar$' "$work/.env" 2>/dev/null; then
   pass "renders .env from doppler provider"
 else
   fail "renders .env from doppler provider"
@@ -37,8 +38,9 @@ else
 fi
 
 # 3. infisical branch works too
-write_shim infisical 'echo "BAZ=qux"'
-if run env SECRETS_PROVIDER=infisical bash "$SCRIPT" >/dev/null 2>&1 && [ "$(cat "$work/.env")" = "BAZ=qux" ]; then
+write_shim infisical 'printf "%s\n" "POSTGRES_PASSWORD=x" "BAZ=qux"'
+if run env SECRETS_PROVIDER=infisical bash "$SCRIPT" >/dev/null 2>&1 \
+  && grep -q '^BAZ=qux$' "$work/.env"; then
   pass "renders .env from infisical provider"
 else
   fail "renders .env from infisical provider"
@@ -65,7 +67,7 @@ else
 fi
 
 # 6. credentials are sourced from GMD_SECRETS_ENV
-write_shim doppler 'echo "TOKEN=$DOPPLER_TOKEN"'
+write_shim doppler 'printf "%s\n" "POSTGRES_PASSWORD=x" "TOKEN=$DOPPLER_TOKEN"'
 printf 'DOPPLER_TOKEN=dp.test.123\n' > "$work/secrets.env"
 if run env GMD_SECRETS_ENV="$work/secrets.env" bash "$SCRIPT" >/dev/null 2>&1 \
   && grep -q '^TOKEN=dp.test.123$' "$work/.env"; then
@@ -75,13 +77,33 @@ else
 fi
 
 # 7. reserved DOPPLER_* variables are filtered out of .env
-write_shim doppler 'printf "%s\n" "FOO=bar" "DOPPLER_PROJECT=xyz" "DOPPLER_CONFIG=prd" "DOPPLER_ENVIRONMENT=Production" "BAZ=qux"'
+write_shim doppler 'printf "%s\n" "POSTGRES_PASSWORD=x" "FOO=bar" "DOPPLER_PROJECT=xyz" "DOPPLER_CONFIG=prd" "DOPPLER_ENVIRONMENT=Production" "BAZ=qux"'
 if run bash "$SCRIPT" >/dev/null 2>&1 \
   && [ "$(grep -c '^DOPPLER_' "$work/.env")" = "0" ] \
   && grep -q '^FOO=bar$' "$work/.env" && grep -q '^BAZ=qux$' "$work/.env"; then
   pass "reserved DOPPLER_* vars are filtered"
 else
   fail "reserved DOPPLER_* vars are filtered"
+fi
+
+# 8. provider exits 0 with empty output: refuses to wipe .env
+write_shim doppler 'true'
+echo "KEEP=3" > "$work/.env"
+if run bash "$SCRIPT" >/dev/null 2>&1; then
+  fail "empty provider output exits non-zero"
+else
+  pass "empty provider output exits non-zero"
+  [ "$(cat "$work/.env")" = "KEEP=3" ] && pass "empty provider output leaves .env untouched" || fail "empty provider output leaves .env untouched"
+fi
+
+# 9. provider output without POSTGRES_PASSWORD: refuses (wrong config / partial render)
+write_shim doppler 'echo "SOME_OTHER_CONFIG=1"'
+echo "KEEP=4" > "$work/.env"
+if run bash "$SCRIPT" >/dev/null 2>&1; then
+  fail "incomplete provider output exits non-zero"
+else
+  pass "incomplete provider output exits non-zero"
+  [ "$(cat "$work/.env")" = "KEEP=4" ] && pass "incomplete provider output leaves .env untouched" || fail "incomplete provider output leaves .env untouched"
 fi
 
 if [ "$failures" -eq 0 ]; then

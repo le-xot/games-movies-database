@@ -4,7 +4,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
-import { emptyCommunityCounts } from '@/modules/rating/entities/rating-domain.entity'
+import {
+  CommunityCounts,
+  emptyCommunityCounts,
+} from '@/modules/rating/entities/rating-domain.entity'
 import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
 import { DrizzleRatingRepository } from './repositories/drizzle-rating.repository'
 
@@ -100,5 +103,24 @@ export class RatingService {
     })
 
     return { items, total }
+  }
+
+  async getCommunity(): Promise<
+    Array<{
+      userId: string
+      login: string
+      profileImageUrl: string
+      counts: CommunityCounts
+      total: number
+    }>
+  > {
+    const members = await this.ratingRepository.getCommunityOverview()
+    return members
+      .map((member) => ({
+        ...member,
+        total:
+          member.counts.DISLIKE + member.counts.BEER + member.counts.LIKE + member.counts.RECOMMEND,
+      }))
+      .sort((a, b) => b.total - a.total)
   }
 }

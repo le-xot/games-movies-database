@@ -89,4 +89,28 @@ setupIntegrationSuite('DrizzleRatingRepository (integration)', ({ db }) => {
     const page = await ratings.findByUserWithRecords(user.id, undefined, 1, 1)
     expect(page).toHaveLength(1)
   })
+
+  it('groups community overview by user with per-grade counts', async () => {
+    const active = await seedUser(db, 'rater-active')
+    const quiet = await seedUser(db, 'rater-quiet')
+    await seedUser(db, 'rater-silent')
+    const [first, second] = await db
+      .insert(records)
+      .values([seedRecord({ title: 'One' }), seedRecord({ title: 'Two' })])
+      .returning()
+    if (!first || !second) throw new Error('seed record failed')
+    await ratings.upsert(active.id, first.id, RecordGrade.LIKE)
+    await ratings.upsert(active.id, second.id, RecordGrade.LIKE)
+    await ratings.upsert(quiet.id, first.id, RecordGrade.DISLIKE)
+
+    const overview = await ratings.getCommunityOverview()
+    const byLogin = new Map(overview.map((member) => [member.login, member]))
+
+    expect(byLogin.get('rater-active')).toMatchObject({
+      userId: active.id,
+      counts: { DISLIKE: 0, BEER: 0, LIKE: 2, RECOMMEND: 0 },
+    })
+    expect(byLogin.get('rater-quiet')?.counts[RecordGrade.DISLIKE]).toBe(1)
+    expect(byLogin.has('rater-silent')).toBe(false)
+  })
 })

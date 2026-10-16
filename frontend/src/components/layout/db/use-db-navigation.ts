@@ -9,6 +9,7 @@ import {
   Popcorn,
   Puzzle,
   Star,
+  Users,
 } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -53,6 +54,7 @@ export const dbSections: NavSection[] = [
         requiresAuth: true,
         hideForAdmin: true,
       },
+      { name: 'Комьюнити', icon: Users, path: ROUTER_PATHS.community },
       { name: 'Статистика', icon: ChartPie, path: ROUTER_PATHS.dbStats },
     ],
   },

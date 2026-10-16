@@ -10,6 +10,7 @@ export const ROUTER_PATHS = {
   dbSeries: '/db/series',
   dbSuggestion: '/db/suggestion',
   dbStats: '/db/stats',
+  community: '/db/community',
   myRatings: '/db/ratings/my',
   userRatings: '/db/users/:id/ratings',
   wordle: '/db/wordle',

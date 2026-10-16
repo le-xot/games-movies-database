@@ -65,6 +65,11 @@ export const router = createRouter({
           component: () => import('@/pages/stats/StatsPage.vue'),
         },
         {
+          path: ROUTER_PATHS.community,
+          name: 'community',
+          component: () => import('@/pages/community/CommunityPage.vue'),
+        },
+        {
           path: ROUTER_PATHS.myRatings,
           name: 'my-ratings',
           component: () => import('@/pages/ratings/UserRatingsPage.vue'),
@@ -129,6 +134,7 @@ const EXPECTED_ROUTE_NAMES = [
   'admin',
   'suggestion',
   'stats',
+  'community',
   'my-ratings',
   'user-ratings',
   'anime',

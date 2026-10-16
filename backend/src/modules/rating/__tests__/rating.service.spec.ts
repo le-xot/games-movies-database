@@ -183,4 +183,44 @@ describe('RatingService', () => {
       expect(mockRepo.findByUserWithRecords).not.toHaveBeenCalled()
     })
   })
+
+  describe('getCommunity', () => {
+    it('returns members sorted by votes desc with totals', async () => {
+      mockRepo.getCommunityOverview = mock(() =>
+        Promise.resolve([
+          {
+            userId: 'u2',
+            login: 'second',
+            profileImageUrl: '',
+            counts: { DISLIKE: 0, BEER: 1, LIKE: 0, RECOMMEND: 0 },
+          },
+          {
+            userId: 'u1',
+            login: 'first',
+            profileImageUrl: 'img',
+            counts: { DISLIKE: 0, BEER: 0, LIKE: 2, RECOMMEND: 3 },
+          },
+        ]),
+      ) as any
+
+      const result = await service.getCommunity()
+
+      expect(mockRepo.getCommunityOverview).toHaveBeenCalledTimes(1)
+      expect(result.map((member) => [member.login, member.total])).toEqual([
+        ['first', 5],
+        ['second', 1],
+      ])
+      expect(result[0]).toMatchObject({
+        userId: 'u1',
+        profileImageUrl: 'img',
+        counts: { DISLIKE: 0, BEER: 0, LIKE: 2, RECOMMEND: 3 },
+      })
+    })
+
+    it('returns an empty list when nobody voted', async () => {
+      mockRepo.getCommunityOverview = mock(() => Promise.resolve([])) as any
+
+      await expect(service.getCommunity()).resolves.toEqual([])
+    })
+  })
 })

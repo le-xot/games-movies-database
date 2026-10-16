@@ -17,9 +17,17 @@ const makeRating = (
   ...overrides,
 })
 
-function makeDrizzle(recordRow: { id: number } | null) {
+function makeDrizzle(
+  recordRow: { id: number } | null,
+  userRow: { id: string; login: string } | null = { id: 'user-1', login: 'user-1' },
+) {
   return {
-    db: { query: { records: { findFirst: mock(() => Promise.resolve(recordRow)) } } },
+    db: {
+      query: {
+        records: { findFirst: mock(() => Promise.resolve(recordRow)) },
+        users: { findFirst: mock(() => Promise.resolve(userRow)) },
+      },
+    },
   } as unknown as DrizzleService
 }
 
@@ -100,6 +108,79 @@ describe('RatingService', () => {
 
       await expect(service.unrate('user-1', 1)).rejects.toThrow(NotFoundException)
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getUserRatings', () => {
+    const makeRow = (overrides?: Record<string, unknown>) => ({
+      rating: {
+        id: 'rating-1',
+        userId: 'owner-1',
+        recordId: 7,
+        grade: RecordGrade.RECOMMEND,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      record: { id: 7, title: 'Owned' },
+      ...overrides,
+    })
+
+    beforeEach(() => {
+      service = new RatingService(
+        mockRepo,
+        makeDrizzle({ id: 1 }, { id: 'owner-1', login: 'owner-login' }),
+        mockEventEmitter as any,
+      )
+      mockRepo.findByUserWithRecords = mock(() => Promise.resolve([makeRow()])) as any
+      mockRepo.countByUser = mock(() => Promise.resolve(1)) as any
+      mockRepo.aggregateByRecords = mock(() =>
+        Promise.resolve(
+          new Map([
+            [
+              7,
+              {
+                counts: { DISLIKE: 0, BEER: 0, LIKE: 0, RECOMMEND: 2 },
+                total: 2,
+                top: RecordGrade.RECOMMEND,
+              },
+            ],
+          ]),
+        ),
+      ) as any
+      mockRepo.findMyGrades = mock(() => Promise.resolve(new Map([[7, RecordGrade.LIKE]]))) as any
+    })
+
+    it('returns profile ratings with community, viewer vote and login', async () => {
+      const result = await service.getUserRatings('viewer-1', 'owner-1', 2, 10, undefined)
+
+      expect(mockRepo.findByUserWithRecords).toHaveBeenCalledWith('owner-1', undefined, 10, 10)
+      expect(mockRepo.countByUser).toHaveBeenCalledWith('owner-1', undefined)
+      expect(result.total).toBe(1)
+      expect(result.items[0]).toMatchObject({
+        id: 7,
+        title: 'Owned',
+        communityTotal: 2,
+        communityTop: RecordGrade.RECOMMEND,
+        myGrade: RecordGrade.LIKE,
+        userGrade: RecordGrade.RECOMMEND,
+        userLogin: 'owner-login',
+      })
+    })
+
+    it('skips viewer lookup for guests', async () => {
+      const result = await service.getUserRatings(undefined, 'owner-1', 1, 10, undefined)
+
+      expect(mockRepo.findMyGrades).not.toHaveBeenCalled()
+      expect(result.items[0]).toMatchObject({ myGrade: null, userGrade: RecordGrade.RECOMMEND })
+    })
+
+    it('throws NotFoundException for unknown profile user', async () => {
+      service = new RatingService(mockRepo, makeDrizzle({ id: 1 }, null), mockEventEmitter as any)
+
+      await expect(service.getUserRatings('viewer-1', 'ghost', 1, 10, undefined)).rejects.toThrow(
+        NotFoundException,
+      )
+      expect(mockRepo.findByUserWithRecords).not.toHaveBeenCalled()
     })
   })
 })

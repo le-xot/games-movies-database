@@ -1,12 +1,13 @@
-import { Body, Controller, Delete, Param, Put, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Put, Query, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
+import { OptionalAuthGuard } from '@/modules/auth/auth.optional.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
-import { RatingUpsertDTO } from '@/modules/rating/rating.dto'
-import { RatingEntity } from '@/modules/rating/rating.entity'
+import { GetUserRatingsQueryDTO, RatingUpsertDTO } from '@/modules/rating/rating.dto'
+import { GetUserRatingsEntity, RatingEntity } from '@/modules/rating/rating.entity'
 import { RatingService } from '@/modules/rating/rating.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { ApiErrors } from '@/utils/api-errors'
@@ -40,5 +41,40 @@ export class RatingController {
   @ApiResponse({ status: 200, description: 'Rating deleted successfully' })
   async unrate(@Param('recordId') recordId: number, @User() user: UserEntity): Promise<void> {
     await this.ratingService.unrate(user.id, recordId)
+  }
+
+  @Get('my')
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
+  @ApiResponse({ type: GetUserRatingsEntity, status: 200 })
+  async getMyRatings(
+    @Query() query: GetUserRatingsQueryDTO,
+    @User() user: UserEntity,
+  ): Promise<GetUserRatingsEntity> {
+    const { items, total } = await this.ratingService.getUserRatings(
+      user.id,
+      user.id,
+      query.page ?? 1,
+      query.limit ?? 10,
+      query.grade,
+    )
+    return new GetUserRatingsEntity({ items, total })
+  }
+
+  @Get('users/:id')
+  @UseGuards(OptionalAuthGuard)
+  @ApiResponse({ type: GetUserRatingsEntity, status: 200 })
+  async getUserRatings(
+    @Param('id') id: string,
+    @Query() query: GetUserRatingsQueryDTO,
+    @User() viewer?: UserEntity,
+  ): Promise<GetUserRatingsEntity> {
+    const { items, total } = await this.ratingService.getUserRatings(
+      viewer?.id,
+      id,
+      query.page ?? 1,
+      query.limit ?? 10,
+      query.grade,
+    )
+    return new GetUserRatingsEntity({ items, total })
   }
 }

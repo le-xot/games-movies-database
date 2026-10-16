@@ -65,4 +65,28 @@ setupIntegrationSuite('DrizzleRatingRepository (integration)', ({ db }) => {
     const aggregates = await ratings.aggregateByRecords([record.id])
     expect(aggregates.get(record.id)?.total).toBe(0)
   })
+
+  it('lists a user votes with records, grade filter and count', async () => {
+    const user = await seedUser(db, 'rater-list')
+    const other = await seedUser(db, 'rater-other')
+    const [first, second] = await db
+      .insert(records)
+      .values([seedRecord({ title: 'First' }), seedRecord({ title: 'Second' })])
+      .returning()
+    if (!first || !second) throw new Error('seed record failed')
+    await ratings.upsert(user.id, first.id, RecordGrade.LIKE)
+    await ratings.upsert(user.id, second.id, RecordGrade.DISLIKE)
+    await ratings.upsert(other.id, first.id, RecordGrade.RECOMMEND)
+
+    const rows = await ratings.findByUserWithRecords(user.id, [RecordGrade.LIKE], 0, 10)
+    expect(rows.map((row) => [row.record.title, row.rating.grade])).toEqual([
+      ['First', RecordGrade.LIKE],
+    ])
+
+    expect(await ratings.countByUser(user.id, undefined)).toBe(2)
+    expect(await ratings.countByUser(user.id, [RecordGrade.DISLIKE])).toBe(1)
+
+    const page = await ratings.findByUserWithRecords(user.id, undefined, 1, 1)
+    expect(page).toHaveLength(1)
+  })
 })

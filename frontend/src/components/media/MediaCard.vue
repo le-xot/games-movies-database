@@ -31,7 +31,7 @@ import {
 import { generateWatchLink } from '@/utils/generate-watch-link'
 
 const props = defineProps<{
-  item: RecordEntity
+  item: RecordEntity & { userGrade?: RecordGrade | null; userLogin?: string | null }
   hasEpisodeColumn: boolean
   deleteConfirmTitle: string
 }>()
@@ -136,6 +136,11 @@ const communityCaption = computed(() =>
 )
 const communityTop = computed(() => props.item.communityTop ?? getTopGrade(communityCounts.value))
 const myGrade = computed(() => props.item.myGrade ?? null)
+const profileVote = computed(() =>
+  props.item.userGrade && props.item.userLogin
+    ? { emoji: gradeTags[props.item.userGrade].name, login: props.item.userLogin }
+    : null,
+)
 
 async function handleCommunityRate(grade: RecordGrade) {
   if (!isLoggedIn.value) {
@@ -255,6 +260,9 @@ const gradeButtons = gradeOrder.map((grade) => {
           />
 
           <div class="flex flex-col gap-1">
+            <span v-if="profileVote" class="text-xs text-muted-foreground"
+              >{{ profileVote.emoji }} от {{ profileVote.login }}</span
+            >
             <span class="text-[11px] uppercase tracking-wide text-muted-foreground">{{
               communityCaption
             }}</span>

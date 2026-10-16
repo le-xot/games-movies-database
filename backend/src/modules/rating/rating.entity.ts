@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { RecordGrade } from '@/enums'
 import { RecordGrade as RecordGradeName } from '@/enums/enums.names'
+import { RecordEntity } from '@/modules/record/record.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 
 export class RatingEntity {
@@ -26,6 +27,31 @@ export class RatingEntity {
   updatedAt!: Date
 
   constructor(partial: Partial<RatingEntity>) {
+    Object.assign(this, partial)
+  }
+}
+
+export class UserRatedRecordEntity extends RecordEntity {
+  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName })
+  userGrade!: RecordGrade
+
+  @ApiProperty()
+  userLogin!: string
+
+  constructor(partial: Partial<UserRatedRecordEntity>) {
+    super(partial)
+    Object.assign(this, partial)
+  }
+}
+
+export class GetUserRatingsEntity {
+  @ApiProperty({ type: UserRatedRecordEntity, isArray: true })
+  items!: UserRatedRecordEntity[]
+
+  @ApiProperty()
+  total!: number
+
+  constructor(partial: Partial<GetUserRatingsEntity>) {
     Object.assign(this, partial)
   }
 }

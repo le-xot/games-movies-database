@@ -246,6 +246,36 @@ export interface RatingEntity {
   updatedAt: string;
 }
 
+export interface UserRatedRecordEntity {
+  id: number;
+  title: string;
+  link: string;
+  posterUrl: string;
+  status: RecordStatus | null;
+  type: RecordType | null;
+  genre: RecordGenre | null;
+  grade: RecordGrade | null;
+  /** @example {"DISLIKE":0,"BEER":1,"LIKE":2,"RECOMMEND":3} */
+  communityCounts?: object | null;
+  /** @example 6 */
+  communityTotal?: number | null;
+  communityTop?: RecordGrade | null;
+  myGrade?: RecordGrade | null;
+  episode: string | null;
+  extra?: object | null;
+  suggestionOwnership?: SuggestionOwnershipEntity | null;
+  likes?: LikeEntity[] | null;
+  /** @format date-time */
+  createdAt: string;
+  userGrade: RecordGrade;
+  userLogin: string;
+}
+
+export interface GetUserRatingsEntity {
+  items: UserRatedRecordEntity[];
+  total: number;
+}
+
 export interface ChangeLimitDTO {
   name: LimitType;
   /**
@@ -1148,6 +1178,48 @@ export namespace Ratings {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags ratings
+   * @name RatingControllerGetMyRatings
+   * @request GET:/ratings/my
+   */
+  export namespace RatingControllerGetMyRatings {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      grade?: RecordGrade[];
+      /** @example 1 */
+      page?: number;
+      /** @example 10 */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetUserRatingsEntity;
+  }
+
+  /**
+   * No description
+   * @tags ratings
+   * @name RatingControllerGetUserRatings
+   * @request GET:/ratings/users/{id}
+   */
+  export namespace RatingControllerGetUserRatings {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {
+      grade?: RecordGrade[];
+      /** @example 1 */
+      page?: number;
+      /** @example 10 */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetUserRatingsEntity;
   }
 }
 
@@ -2390,6 +2462,57 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<void, ApiErrorDto>({
         path: `/ratings/${recordId}`,
         method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ratings
+     * @name RatingControllerGetMyRatings
+     * @request GET:/ratings/my
+     */
+    ratingControllerGetMyRatings: (
+      query?: {
+        grade?: RecordGrade[];
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetUserRatingsEntity, ApiErrorDto>({
+        path: `/ratings/my`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ratings
+     * @name RatingControllerGetUserRatings
+     * @request GET:/ratings/users/{id}
+     */
+    ratingControllerGetUserRatings: (
+      id: string,
+      query?: {
+        grade?: RecordGrade[];
+        /** @example 1 */
+        page?: number;
+        /** @example 10 */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetUserRatingsEntity, ApiErrorDto>({
+        path: `/ratings/users/${id}`,
+        method: "GET",
+        query: query,
+        format: "json",
         ...params,
       }),
   };

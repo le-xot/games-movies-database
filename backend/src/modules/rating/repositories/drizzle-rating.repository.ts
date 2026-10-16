@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
-import { recordRatings } from '@gmd/database/schema'
+import { recordRatings, records } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
-import { and, count, eq, inArray } from 'drizzle-orm'
+import { and, count, desc, eq, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
 import {
@@ -10,6 +10,7 @@ import {
   emptyCommunityCounts,
   getTopGrade,
 } from '../entities/rating-domain.entity'
+import type { SelectRow } from '@gmd/database'
 
 @Injectable()
 export class DrizzleRatingRepository {
@@ -77,5 +78,34 @@ export class DrizzleRatingRepository {
       grades.set(row.recordId, row.grade)
     }
     return grades
+  }
+
+  async findByUserWithRecords(
+    userId: string,
+    grades: RecordGrade[] | undefined,
+    skip: number,
+    take: number,
+  ): Promise<Array<{ rating: RatingDomain; record: SelectRow<'records'> }>> {
+    const conditions = [eq(recordRatings.userId, userId)]
+    if (grades?.length) conditions.push(inArray(recordRatings.grade, grades))
+    const rows = await this.drizzle.db
+      .select({ rating: recordRatings, record: records })
+      .from(recordRatings)
+      .innerJoin(records, eq(recordRatings.recordId, records.id))
+      .where(and(...conditions))
+      .orderBy(desc(recordRatings.updatedAt))
+      .limit(take)
+      .offset(skip)
+    return rows.map((row) => ({ rating: row.rating, record: row.record }))
+  }
+
+  async countByUser(userId: string, grades: RecordGrade[] | undefined): Promise<number> {
+    const conditions = [eq(recordRatings.userId, userId)]
+    if (grades?.length) conditions.push(inArray(recordRatings.grade, grades))
+    const [result] = await this.drizzle.db
+      .select({ value: count() })
+      .from(recordRatings)
+      .where(and(...conditions))
+    return result?.value ?? 0
   }
 }

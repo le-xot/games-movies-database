@@ -1,4 +1,4 @@
-import { records } from '@gmd/database/schema'
+import { recordRatings, records } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
 import { and, count, eq, isNotNull, isNull, ne, or } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
@@ -75,6 +75,16 @@ export class DrizzleStatsRepository {
       .where(and(this.scope, isNotNull(records.grade)))
       .groupBy(records.grade)
     return rows.flatMap((row) => (row.grade ? [{ grade: row.grade, count: row.value }] : []))
+  }
+
+  async countByCommunityGrade(): Promise<GradeCount[]> {
+    const rows = await this.drizzle.db
+      .select({ grade: recordRatings.grade, value: count() })
+      .from(recordRatings)
+      .innerJoin(records, eq(recordRatings.recordId, records.id))
+      .where(this.scope)
+      .groupBy(recordRatings.grade)
+    return rows.map((row) => ({ grade: row.grade, count: row.value }))
   }
 
   async countByGenreStatus(): Promise<GenreStatusCount[]> {

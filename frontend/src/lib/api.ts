@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -386,6 +387,7 @@ export interface RecordsStatsDTO {
   byGenre: GenreCountDTO[];
   byStatus: StatusCountDTO[];
   byGrade: GradeCountDTO[];
+  byCommunityGrade: GradeCountDTO[];
   byGenreStatus: GenreStatusCountDTO[];
   byGenreGrade: GenreGradeCountDTO[];
 }

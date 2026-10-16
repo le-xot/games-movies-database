@@ -1,7 +1,8 @@
 import { expect, it } from 'bun:test'
-import { records } from '@gmd/database/schema'
+import crypto from 'node:crypto'
+import { recordRatings, records } from '@gmd/database/schema'
 import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
-import { seedRecord } from './helpers/fixtures'
+import { seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@/database/drizzle.service'
 
@@ -68,6 +69,30 @@ setupIntegrationSuite('DrizzleStatsRepository (integration)', ({ db }) => {
     ).toEqual([
       { genre: 'GAME', grade: 'LIKE', count: 1 },
       { genre: 'MOVIE', grade: 'LIKE', count: 1 },
+    ])
+  })
+
+  it('counts community votes only on in-scope records', async () => {
+    const user1 = await seedUser(db, 'voter-1')
+    const user2 = await seedUser(db, 'voter-2')
+    const [done, ignored] = await db
+      .insert(records)
+      .values([
+        seedRecord({ title: 'Voted game', genre: 'GAME', status: 'DONE' }),
+        seedRecord({ title: 'Ignored anime', genre: 'ANIME', status: 'NOTINTERESTED' }),
+      ])
+      .returning()
+    if (!done || !ignored) throw new Error('seed failed')
+    await db.insert(recordRatings).values([
+      { id: crypto.randomUUID(), userId: user1.id, recordId: done.id, grade: 'RECOMMEND' },
+      { id: crypto.randomUUID(), userId: user2.id, recordId: done.id, grade: 'LIKE' },
+      { id: crypto.randomUUID(), userId: user1.id, recordId: ignored.id, grade: 'DISLIKE' },
+    ])
+
+    const byCommunityGrade = await repository.countByCommunityGrade()
+    expect(byCommunityGrade.sort((a, b) => a.grade.localeCompare(b.grade))).toEqual([
+      { grade: 'LIKE', count: 1 },
+      { grade: 'RECOMMEND', count: 1 },
     ])
   })
 })

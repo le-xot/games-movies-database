@@ -7,15 +7,17 @@ export class StatsService {
   constructor(private readonly statsRepository: DrizzleStatsRepository) {}
 
   async getRecordsStats(): Promise<RecordsStatsDTO> {
-    const [total, byGenre, byStatus, byGrade, byGenreStatus, byGenreGrade] = await Promise.all([
-      this.statsRepository.countTotal(),
-      this.statsRepository.countByGenre(),
-      this.statsRepository.countByStatus(),
-      this.statsRepository.countByGrade(),
-      this.statsRepository.countByGenreStatus(),
-      this.statsRepository.countByGenreGrade(),
-    ])
+    const [total, byGenre, byStatus, byGrade, byCommunityGrade, byGenreStatus, byGenreGrade] =
+      await Promise.all([
+        this.statsRepository.countTotal(),
+        this.statsRepository.countByGenre(),
+        this.statsRepository.countByStatus(),
+        this.statsRepository.countByGrade(),
+        this.statsRepository.countByCommunityGrade(),
+        this.statsRepository.countByGenreStatus(),
+        this.statsRepository.countByGenreGrade(),
+      ])
 
-    return { total, byGenre, byStatus, byGrade, byGenreStatus, byGenreGrade }
+    return { total, byGenre, byStatus, byGrade, byCommunityGrade, byGenreStatus, byGenreGrade }
   }
 }

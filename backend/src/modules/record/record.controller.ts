@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } f
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserRole } from '@/enums'
 import { AuthGuard } from '@/modules/auth/auth.guard'
+import { OptionalAuthGuard } from '@/modules/auth/auth.optional.guard'
 import { RolesGuard } from '@/modules/auth/auth.roles.guard'
+import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import {
   GetAllRecordsDTO,
@@ -13,6 +15,7 @@ import {
 } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { RecordService } from '@/modules/record/record.service'
+import { UserEntity } from '@/modules/user/user.entity'
 import { ApiErrorDto, ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
@@ -34,8 +37,8 @@ export class RecordController {
   @UseGuards(AuthGuard, new RolesGuard([UserRole.ADMIN]))
   @ApiResponse({ status: 200, type: RecordEntity })
   @ApiResponse({ status: 404, description: 'Record not found', type: ApiErrorDto })
-  async findRecordById(@Param('id') id: number): Promise<RecordEntity> {
-    return await this.recordServices.findRecordById(id)
+  async findRecordById(@Param('id') id: number, @User() user: UserEntity): Promise<RecordEntity> {
+    return await this.recordServices.findRecordById(id, user.id)
   }
 
   @Patch(':id')
@@ -69,9 +72,20 @@ export class RecordController {
   }
 
   @Get()
+  @UseGuards(OptionalAuthGuard)
   @ApiResponse({ status: 200, type: GetAllRecordsDTO })
-  async getAllRecords(@Query() query: RecordGetDTO): Promise<GetAllRecordsDTO> {
+  async getAllRecords(
+    @Query() query: RecordGetDTO,
+    @User() user?: UserEntity,
+  ): Promise<GetAllRecordsDTO> {
     const { page, limit, orderBy, direction, ...filters } = query
-    return await this.recordServices.getAllRecords(page, limit, filters, orderBy, direction)
+    return await this.recordServices.getAllRecords(
+      page,
+      limit,
+      filters,
+      orderBy,
+      direction,
+      user?.id,
+    )
   }
 }

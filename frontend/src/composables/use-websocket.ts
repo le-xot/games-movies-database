@@ -81,6 +81,11 @@ export function useWebSocket() {
         .on(WsEvents.UPDATE_LIKES, () => {
           coalescer.enqueue('suggestions')
         })
+        .on(WsEvents.UPDATE_RATINGS, () => {
+          for (const genre of RECORD_GENRES) {
+            coalescer.enqueue(`records:${genre}`)
+          }
+        })
         .on(WsEvents.UPDATE_QUEUE, () => {
           coalescer.enqueue('suggestions')
           coalescer.enqueue('stats')

@@ -2,6 +2,7 @@ import { expect, it } from 'bun:test'
 import crypto from 'node:crypto'
 import {
   likes,
+  recordRatings,
   records,
   suggestionOwnerships,
   userAccounts,
@@ -9,7 +10,7 @@ import {
   wordleGames,
 } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
-import { UserRole } from '@/enums'
+import { RecordGrade, UserRole } from '@/enums'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
 import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
@@ -127,6 +128,16 @@ setupIntegrationSuite('DrizzleUserRepository (integration)', ({ db }) => {
     await seedLike(db, target.id, recordA.id)
     await seedLike(db, source.id, recordA.id)
     await seedLike(db, source.id, recordB.id)
+    await db.insert(recordRatings).values([
+      { id: crypto.randomUUID(), userId: target.id, recordId: recordA.id, grade: RecordGrade.LIKE },
+      {
+        id: crypto.randomUUID(),
+        userId: source.id,
+        recordId: recordA.id,
+        grade: RecordGrade.RECOMMEND,
+      },
+      { id: crypto.randomUUID(), userId: source.id, recordId: recordB.id, grade: RecordGrade.BEER },
+    ])
     await db.insert(suggestionOwnerships).values({ recordId: recordC.id, userId: source.id })
     await db.insert(userAccounts).values([
       {
@@ -161,6 +172,8 @@ setupIntegrationSuite('DrizzleUserRepository (integration)', ({ db }) => {
       accountsDropped: 1,
       likesMoved: 1,
       likesDropped: 1,
+      ratingsMoved: 1,
+      ratingsDropped: 1,
       suggestionsMoved: 1,
       wordleGamesMoved: 1,
       wordleGamesDropped: 1,
@@ -171,6 +184,17 @@ setupIntegrationSuite('DrizzleUserRepository (integration)', ({ db }) => {
       (await repository.findAccountsByUserId(target.id)).map((a) => a.platform).sort(),
     ).toEqual(['KICK', 'TWITCH'])
     expect(await db.select().from(likes).where(eq(likes.userId, source.id))).toHaveLength(0)
+    expect(
+      await db.select().from(recordRatings).where(eq(recordRatings.userId, source.id)),
+    ).toHaveLength(0)
+    expect(
+      (await db.select().from(recordRatings).where(eq(recordRatings.userId, target.id))).map(
+        (rating) => [rating.recordId, rating.grade],
+      ),
+    ).toEqual([
+      [recordA.id, RecordGrade.LIKE],
+      [recordB.id, RecordGrade.BEER],
+    ])
     expect(
       (
         await db

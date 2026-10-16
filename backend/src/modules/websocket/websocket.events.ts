@@ -1,4 +1,4 @@
-import type { RecordGenre } from '@/enums'
+import type { RecordGenre, RecordGrade } from '@/enums'
 import type { EventEmitter2 } from '@nestjs/event-emitter'
 
 export const WsEvents = {
@@ -6,6 +6,7 @@ export const WsEvents = {
   UPDATE_SUGGESTIONS: 'update-suggestions',
   UPDATE_QUEUE: 'update-queue',
   UPDATE_LIKES: 'update-likes',
+  UPDATE_RATINGS: 'update-ratings',
   UPDATE_USERS: 'update-users',
   UPDATE_WORDLE: 'update-wordle',
 } as const
@@ -32,6 +33,13 @@ export interface UpdateLikesPayload {
   action: 'created' | 'deleted'
 }
 
+export interface UpdateRatingsPayload {
+  recordId: number
+  userId: string
+  grade: RecordGrade | null
+  action: 'created' | 'updated' | 'deleted'
+}
+
 export interface UpdateUsersPayload {
   userId: string
   action: 'created' | 'updated' | 'deleted'
@@ -49,6 +57,7 @@ export type ServerToClientEvents = {
   [WsEvents.UPDATE_SUGGESTIONS]: (payload: UpdateSuggestionsPayload) => void
   [WsEvents.UPDATE_QUEUE]: (payload: UpdateQueuePayload) => void
   [WsEvents.UPDATE_LIKES]: (payload: UpdateLikesPayload) => void
+  [WsEvents.UPDATE_RATINGS]: (payload: UpdateRatingsPayload) => void
   [WsEvents.UPDATE_USERS]: (payload: UpdateUsersPayload) => void
   [WsEvents.UPDATE_WORDLE]: (payload: UpdateWordlePayload) => void
 }
@@ -62,6 +71,7 @@ export interface WsEventMap {
   [WsEvents.UPDATE_SUGGESTIONS]: UpdateSuggestionsPayload
   [WsEvents.UPDATE_QUEUE]: UpdateQueuePayload
   [WsEvents.UPDATE_LIKES]: UpdateLikesPayload
+  [WsEvents.UPDATE_RATINGS]: UpdateRatingsPayload
   [WsEvents.UPDATE_USERS]: UpdateUsersPayload
   [WsEvents.UPDATE_WORDLE]: UpdateWordlePayload
 }

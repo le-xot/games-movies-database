@@ -1,4 +1,4 @@
-import type { RecordGenre } from '@/lib/api'
+import type { RecordGenre, RecordGrade } from '@/lib/api'
 
 /**
  * Зеркало backend-контракта `backend/src/modules/websocket/websocket.events.ts`.
@@ -9,6 +9,7 @@ export const WsEvents = {
   UPDATE_SUGGESTIONS: 'update-suggestions',
   UPDATE_QUEUE: 'update-queue',
   UPDATE_LIKES: 'update-likes',
+  UPDATE_RATINGS: 'update-ratings',
   UPDATE_USERS: 'update-users',
   UPDATE_WORDLE: 'update-wordle',
 } as const
@@ -35,6 +36,13 @@ export interface UpdateLikesPayload {
   action: 'created' | 'deleted'
 }
 
+export interface UpdateRatingsPayload {
+  recordId: number
+  userId: string
+  grade: RecordGrade | null
+  action: 'created' | 'updated' | 'deleted'
+}
+
 export interface UpdateUsersPayload {
   userId: string
   action: 'created' | 'updated' | 'deleted'
@@ -51,6 +59,7 @@ export type ServerToClientEvents = {
   [WsEvents.UPDATE_SUGGESTIONS]: (payload: UpdateSuggestionsPayload) => void
   [WsEvents.UPDATE_QUEUE]: (payload: UpdateQueuePayload) => void
   [WsEvents.UPDATE_LIKES]: (payload: UpdateLikesPayload) => void
+  [WsEvents.UPDATE_RATINGS]: (payload: UpdateRatingsPayload) => void
   [WsEvents.UPDATE_USERS]: (payload: UpdateUsersPayload) => void
   [WsEvents.UPDATE_WORDLE]: (payload: UpdateWordlePayload) => void
 }

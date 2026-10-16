@@ -55,6 +55,23 @@ export class RecordEntity {
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, nullable: true })
   grade!: RecordGrade | null
 
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: Object,
+    example: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 3 },
+  })
+  communityCounts?: Record<RecordGrade, number> | null
+
+  @ApiProperty({ required: false, nullable: true, example: 6 })
+  communityTotal?: number | null
+
+  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
+  communityTop?: RecordGrade | null
+
+  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
+  myGrade?: RecordGrade | null
+
   @ApiProperty({ nullable: true })
   episode!: string | null
 

@@ -1,5 +1,12 @@
 import crypto from 'node:crypto'
-import { likes, suggestionOwnerships, userAccounts, users, wordleGames } from '@gmd/database/schema'
+import {
+  likes,
+  recordRatings,
+  suggestionOwnerships,
+  userAccounts,
+  users,
+  wordleGames,
+} from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
@@ -200,6 +207,39 @@ export class DrizzleUserRepository {
           )
       }
 
+      const targetRatings = await tx
+        .select({ recordId: recordRatings.recordId })
+        .from(recordRatings)
+        .where(eq(recordRatings.userId, targetId))
+      const sourceRatings = await tx
+        .select({ id: recordRatings.id, recordId: recordRatings.recordId })
+        .from(recordRatings)
+        .where(eq(recordRatings.userId, sourceId))
+
+      const ratedRecordIds = new Set(targetRatings.map((rating) => rating.recordId))
+      const duplicateRatings = sourceRatings.filter((rating) => ratedRecordIds.has(rating.recordId))
+      const ratingsToMove = sourceRatings.filter((rating) => !ratedRecordIds.has(rating.recordId))
+
+      if (duplicateRatings.length > 0) {
+        await tx.delete(recordRatings).where(
+          inArray(
+            recordRatings.id,
+            duplicateRatings.map((rating) => rating.id),
+          ),
+        )
+      }
+      if (ratingsToMove.length > 0) {
+        await tx
+          .update(recordRatings)
+          .set({ userId: targetId })
+          .where(
+            inArray(
+              recordRatings.id,
+              ratingsToMove.map((rating) => rating.id),
+            ),
+          )
+      }
+
       const movedSuggestions = await tx
         .update(suggestionOwnerships)
         .set({ userId: targetId })
@@ -250,6 +290,8 @@ export class DrizzleUserRepository {
         accountsDropped: conflictingAccounts.length,
         likesMoved: likesToMove.length,
         likesDropped: duplicateLikes.length,
+        ratingsMoved: ratingsToMove.length,
+        ratingsDropped: duplicateRatings.length,
         suggestionsMoved: movedSuggestions.length,
         wordleGamesMoved: gamesToMove.length,
         wordleGamesDropped: duplicateGames.length,

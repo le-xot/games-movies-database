@@ -1,6 +1,7 @@
 export * from './enums'
 export * from './likes'
 export * from './limits'
+export * from './record-ratings'
 export * from './records'
 export * from './relations'
 export * from './suggestion-ownerships'

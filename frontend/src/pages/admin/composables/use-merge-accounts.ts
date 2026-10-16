@@ -91,12 +91,13 @@ export function useMergeAccounts(options: {
         sourceUserId: source.id,
       })
 
-      const droppedTotal = data.accountsDropped + data.likesDropped + data.wordleGamesDropped
+      const droppedTotal =
+        data.accountsDropped + data.likesDropped + data.ratingsDropped + data.wordleGamesDropped
       const droppedText = droppedTotal
-        ? ` Отброшено дублей: привязок ${data.accountsDropped}, лайков ${data.likesDropped}, игр Wordle ${data.wordleGamesDropped}.`
+        ? ` Отброшено дублей: привязок ${data.accountsDropped}, лайков ${data.likesDropped}, оценок ${data.ratingsDropped}, игр Wordle ${data.wordleGamesDropped}.`
         : ''
       toast.success('Аккаунты объединены', {
-        description: `Перенесено: привязок ${data.accountsMoved}, лайков ${data.likesMoved}, предложек ${data.suggestionsMoved}, игр Wordle ${data.wordleGamesMoved}.${droppedText}`,
+        description: `Перенесено: привязок ${data.accountsMoved}, лайков ${data.likesMoved}, оценок ${data.ratingsMoved}, предложек ${data.suggestionsMoved}, игр Wordle ${data.wordleGamesMoved}.${droppedText}`,
       })
 
       clearTarget()

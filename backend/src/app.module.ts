@@ -14,6 +14,7 @@ import { LimitModule } from '@/modules/limit/limit.module'
 import { QueueModule } from '@/modules/queue/queue.module'
 import { RateLimitGuard } from '@/modules/rate-limit/rate-limit.guard'
 import { RateLimitModule } from '@/modules/rate-limit/rate-limit.module'
+import { RatingModule } from '@/modules/rating/rating.module'
 import { RecordModule } from '@/modules/record/record.module'
 import { StatsModule } from '@/modules/stats/stats.module'
 import { SteamModule } from '@/modules/steam/steam.module'
@@ -50,6 +51,7 @@ import { setAssetCacheHeaders } from '@/utils/static-cache-headers'
     LimitModule,
     LikeModule,
     QueueModule,
+    RatingModule,
     SuggestionModule,
     WeatherModule,
     SteamModule,

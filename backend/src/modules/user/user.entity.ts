@@ -43,6 +43,12 @@ export class MergeUsersResultEntity {
   likesDropped!: number
 
   @ApiProperty()
+  ratingsMoved!: number
+
+  @ApiProperty()
+  ratingsDropped!: number
+
+  @ApiProperty()
   suggestionsMoved!: number
 
   @ApiProperty()

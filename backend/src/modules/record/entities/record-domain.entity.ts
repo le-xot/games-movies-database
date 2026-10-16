@@ -1,4 +1,5 @@
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
+import type { RecordCommunityView } from '@/modules/rating/entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
 
 export interface CreateRecordData {
@@ -35,6 +36,9 @@ export type RecordWithRelations = RecordDomain & {
   } | null
   likes?: Array<SelectRow<'likes'> & { user?: SelectRow<'users'> }>
 }
+
+/** Record row with the community rating view attached (public aggregate + own vote). */
+export type RecordWithCommunity = RecordWithRelations & RecordCommunityView
 
 export interface RecordFilterOptions {
   search?: string | undefined

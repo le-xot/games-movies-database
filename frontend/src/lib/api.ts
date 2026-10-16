@@ -129,6 +129,8 @@ export interface MergeUsersResultEntity {
   accountsDropped: number;
   likesMoved: number;
   likesDropped: number;
+  ratingsMoved: number;
+  ratingsDropped: number;
   suggestionsMoved: number;
   wordleGamesMoved: number;
   wordleGamesDropped: number;
@@ -161,6 +163,12 @@ export interface RecordEntity {
   type: RecordType | null;
   genre: RecordGenre | null;
   grade: RecordGrade | null;
+  /** @example {"DISLIKE":0,"BEER":1,"LIKE":2,"RECOMMEND":3} */
+  communityCounts?: object | null;
+  /** @example 6 */
+  communityTotal?: number | null;
+  communityTop?: RecordGrade | null;
+  myGrade?: RecordGrade | null;
   episode: string | null;
   extra?: object | null;
   suggestionOwnership?: SuggestionOwnershipEntity | null;
@@ -219,6 +227,23 @@ export interface RecordUpdatePosterDTO {
 export interface GetAllRecordsDTO {
   records: RecordEntity[];
   total: number;
+}
+
+export interface RatingUpsertDTO {
+  /** @example "LIKE" */
+  grade: RecordGrade;
+}
+
+export interface RatingEntity {
+  id: string;
+  userId: string;
+  recordId: number;
+  grade: RecordGrade;
+  user?: UserEntity | null;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
 }
 
 export interface ChangeLimitDTO {
@@ -1085,6 +1110,40 @@ export namespace Img {
       /** @default "poster" */
       variant?: ImgControllerGetImageContentParamsVariantEnum;
     };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Ratings {
+  /**
+   * No description
+   * @tags ratings
+   * @name RatingControllerRate
+   * @request PUT:/ratings/{recordId}
+   */
+  export namespace RatingControllerRate {
+    export type RequestParams = {
+      recordId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = RatingUpsertDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = RatingEntity;
+  }
+
+  /**
+   * No description
+   * @tags ratings
+   * @name RatingControllerUnrate
+   * @request DELETE:/ratings/{recordId}
+   */
+  export namespace RatingControllerUnrate {
+    export type RequestParams = {
+      recordId: number;
+    };
+    export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = void;
@@ -2294,6 +2353,42 @@ export class Api<SecurityDataType extends unknown> {
         path: `/img`,
         method: "GET",
         query: query,
+        ...params,
+      }),
+  };
+  ratings = {
+    /**
+     * No description
+     *
+     * @tags ratings
+     * @name RatingControllerRate
+     * @request PUT:/ratings/{recordId}
+     */
+    ratingControllerRate: (
+      recordId: number,
+      data: RatingUpsertDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RatingEntity, ApiErrorDto>({
+        path: `/ratings/${recordId}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ratings
+     * @name RatingControllerUnrate
+     * @request DELETE:/ratings/{recordId}
+     */
+    ratingControllerUnrate: (recordId: number, params: RequestParams = {}) =>
+      this.http.request<void, ApiErrorDto>({
+        path: `/ratings/${recordId}`,
+        method: "DELETE",
         ...params,
       }),
   };

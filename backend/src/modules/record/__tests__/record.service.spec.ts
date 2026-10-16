@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
+import { DrizzleRatingRepository } from '@/modules/rating/repositories/drizzle-rating.repository'
 import { RecordService } from '../record.service'
 import { DrizzleRecordRepository } from '../repositories/drizzle-record.repository'
 import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
@@ -16,6 +17,7 @@ describe('RecordService', () => {
   let mockRecordsProvider: { prepareData: ReturnType<typeof mock> }
   let mockEventEmitter: { emit: ReturnType<typeof mock> }
   let mockImgService: { getImageContent: ReturnType<typeof mock> }
+  let mockRatingRepo: DrizzleRatingRepository
 
   beforeEach(() => {
     mockRepo = createMock(DrizzleRecordRepository)
@@ -26,11 +28,15 @@ describe('RecordService', () => {
         Promise.resolve({ buffer: Buffer.from([]), contentType: 'image/webp' }),
       ),
     }
+    mockRatingRepo = createMock(DrizzleRatingRepository)
+    mockRatingRepo.aggregateByRecords = mock(() => Promise.resolve(new Map()))
+    mockRatingRepo.findMyGrades = mock(() => Promise.resolve(new Map()))
     service = new RecordService(
       mockRepo,
       mockRecordsProvider as any,
       mockEventEmitter as any,
       mockImgService as any,
+      mockRatingRepo,
     )
   })
 
@@ -283,7 +289,49 @@ describe('RecordService', () => {
         { skip: 5, take: 5 },
       )
       expect(result.total).toBe(10)
-      expect(result.records).toEqual(records as any)
+      expect(result.records).toMatchObject([
+        { id: 1, communityTotal: 0, communityTop: null, myGrade: null },
+        { id: 2, communityTotal: 0, communityTop: null, myGrade: null },
+      ])
+    })
+
+    it('attaches community aggregates and my grade for a logged-in user', async () => {
+      mockRepo.count = mock(() => Promise.resolve(2))
+      mockRepo.findAll = mock(() => Promise.resolve([makeRecord({ id: 1 }), makeRecord({ id: 2 })]))
+      mockRatingRepo.aggregateByRecords = mock((ids: number[]) =>
+        Promise.resolve(
+          new Map(
+            ids.map((id) => [
+              id,
+              {
+                counts: {
+                  [RecordGrade.DISLIKE]: 1,
+                  [RecordGrade.BEER]: 2,
+                  [RecordGrade.LIKE]: 3,
+                  [RecordGrade.RECOMMEND]: 4,
+                },
+                total: 10,
+                top: RecordGrade.RECOMMEND,
+              },
+            ]),
+          ),
+        ),
+      )
+      mockRatingRepo.findMyGrades = mock(() => Promise.resolve(new Map([[1, RecordGrade.LIKE]])))
+
+      const result = await service.getAllRecords(1, 10, {}, undefined, undefined, 'user-1')
+
+      expect(mockRatingRepo.aggregateByRecords).toHaveBeenCalledWith([1, 2])
+      expect(mockRatingRepo.findMyGrades).toHaveBeenCalledWith('user-1', [1, 2])
+      expect(result.records).toMatchObject([
+        {
+          id: 1,
+          communityTotal: 10,
+          communityTop: RecordGrade.RECOMMEND,
+          myGrade: RecordGrade.LIKE,
+        },
+        { id: 2, communityTotal: 10, communityTop: RecordGrade.RECOMMEND, myGrade: null },
+      ])
     })
   })
 
@@ -295,7 +343,18 @@ describe('RecordService', () => {
       const result = await service.findRecordById(7)
 
       expect(mockRepo.findById).toHaveBeenCalledWith(7)
-      expect(result).toEqual(record as any)
+      expect(result).toMatchObject({ id: 7, communityTotal: 0, communityTop: null, myGrade: null })
+    })
+
+    it('attaches community view with my grade for a logged-in user', async () => {
+      mockRepo.findById = mock(() => Promise.resolve(makeRecord({ id: 7 })))
+      mockRatingRepo.findMyGrades = mock(() => Promise.resolve(new Map([[7, RecordGrade.BEER]])))
+
+      const result = await service.findRecordById(7, 'user-1')
+
+      expect(mockRatingRepo.aggregateByRecords).toHaveBeenCalledWith([7])
+      expect(mockRatingRepo.findMyGrades).toHaveBeenCalledWith('user-1', [7])
+      expect(result).toMatchObject({ id: 7, communityTotal: 0, myGrade: RecordGrade.BEER })
     })
 
     it('throws NotFoundException when not found', async () => {

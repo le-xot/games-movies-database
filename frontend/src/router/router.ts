@@ -68,7 +68,7 @@ export const router = createRouter({
           path: ROUTER_PATHS.myRatings,
           name: 'my-ratings',
           component: () => import('@/pages/ratings/UserRatingsPage.vue'),
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, hideForAdmin: true },
         },
         {
           path: ROUTER_PATHS.userRatings,
@@ -157,7 +157,7 @@ if (import.meta.env.DEV) {
 router.beforeEach(async (to) => {
   const userStore = useUser()
 
-  if (!to.meta.requiresAdmin && !to.meta.requiresAuth) return
+  if (!to.meta.requiresAdmin && !to.meta.requiresAuth && !to.meta.hideForAdmin) return
 
   if (userStore.isLoading) {
     await new Promise<void>((resolve) => {
@@ -174,6 +174,10 @@ router.beforeEach(async (to) => {
   }
 
   if (!userStore.isLoggedIn) {
+    return { path: ROUTER_PATHS.home }
+  }
+
+  if (to.meta.hideForAdmin && userStore.isRealAdmin) {
     return { path: ROUTER_PATHS.home }
   }
 

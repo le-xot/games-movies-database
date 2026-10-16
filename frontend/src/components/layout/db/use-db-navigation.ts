@@ -24,6 +24,7 @@ export interface RouteItem {
   path: RouterPath
   requiresAdmin?: boolean
   requiresAuth?: boolean
+  hideForAdmin?: boolean
 }
 
 export interface NavSection {
@@ -45,7 +46,13 @@ export const dbSections: NavSection[] = [
   },
   {
     items: [
-      { name: 'Мои оценки', icon: Star, path: ROUTER_PATHS.myRatings, requiresAuth: true },
+      {
+        name: 'Мои оценки',
+        icon: Star,
+        path: ROUTER_PATHS.myRatings,
+        requiresAuth: true,
+        hideForAdmin: true,
+      },
       { name: 'Статистика', icon: ChartPie, path: ROUTER_PATHS.dbStats },
     ],
   },
@@ -69,7 +76,9 @@ export function useDbNavigation() {
   const userStore = useUser()
 
   const isItemVisible = (item: RouteItem) =>
-    (!item.requiresAdmin || userStore.isRealAdmin) && (!item.requiresAuth || userStore.isLoggedIn)
+    (!item.requiresAdmin || userStore.isRealAdmin) &&
+    (!item.requiresAuth || userStore.isLoggedIn) &&
+    (!item.hideForAdmin || !userStore.isRealAdmin)
 
   const sections = computed(() =>
     dbSections

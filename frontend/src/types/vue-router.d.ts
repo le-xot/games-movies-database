@@ -10,6 +10,7 @@ declare module 'vue-router' {
     genre?: RecordGenre
     requiresAdmin?: boolean
     requiresAuth?: boolean
+    hideForAdmin?: boolean
     provider?: 'twitch' | 'kick'
   }
 

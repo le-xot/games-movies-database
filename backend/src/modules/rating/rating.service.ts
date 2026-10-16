@@ -1,9 +1,10 @@
-import { records } from '@gmd/database/schema'
+import { records, users } from '@gmd/database/schema'
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
+import { emptyCommunityCounts } from '@/modules/rating/entities/rating-domain.entity'
 import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
 import { DrizzleRatingRepository } from './repositories/drizzle-rating.repository'
 
@@ -54,5 +55,50 @@ export class RatingService {
       action: 'deleted',
     })
     this.logger.log(`Rating removed userId=${userId} recordId=${recordId}`)
+  }
+
+  async getUserRatings(
+    viewerId: string | undefined,
+    profileUserId: string,
+    page: number = 1,
+    limit: number = 10,
+    grades?: RecordGrade[],
+  ) {
+    const profile = await this.drizzle.db.query.users.findFirst({
+      where: eq(users.id, profileUserId),
+      columns: { id: true, login: true },
+    })
+    if (!profile) {
+      throw new NotFoundException('User not found')
+    }
+
+    const skip = (page - 1) * limit
+    const [total, rows] = await Promise.all([
+      this.ratingRepository.countByUser(profileUserId, grades),
+      this.ratingRepository.findByUserWithRecords(profileUserId, grades, skip, limit),
+    ])
+
+    const ids = rows.map((row) => row.record.id)
+    const [aggregates, myGrades] = await Promise.all([
+      this.ratingRepository.aggregateByRecords(ids),
+      viewerId
+        ? this.ratingRepository.findMyGrades(viewerId, ids)
+        : Promise.resolve(new Map<number, RecordGrade>()),
+    ])
+
+    const items = rows.map(({ rating, record }) => {
+      const aggregate = aggregates.get(record.id)
+      return {
+        ...record,
+        communityCounts: aggregate?.counts ?? emptyCommunityCounts(),
+        communityTotal: aggregate?.total ?? 0,
+        communityTop: aggregate?.top ?? null,
+        myGrade: myGrades.get(record.id) ?? null,
+        userGrade: rating.grade,
+        userLogin: profile.login,
+      }
+    })
+
+    return { items, total }
   }
 }

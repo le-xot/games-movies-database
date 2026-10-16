@@ -8,6 +8,7 @@ import {
   JapaneseYen,
   Popcorn,
   Puzzle,
+  Star,
 } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -22,6 +23,7 @@ export interface RouteItem {
   icon: Component
   path: RouterPath
   requiresAdmin?: boolean
+  requiresAuth?: boolean
 }
 
 export interface NavSection {
@@ -42,7 +44,10 @@ export const dbSections: NavSection[] = [
     ],
   },
   {
-    items: [{ name: 'Статистика', icon: ChartPie, path: ROUTER_PATHS.dbStats }],
+    items: [
+      { name: 'Мои оценки', icon: Star, path: ROUTER_PATHS.myRatings, requiresAuth: true },
+      { name: 'Статистика', icon: ChartPie, path: ROUTER_PATHS.dbStats },
+    ],
   },
 ]
 
@@ -63,7 +68,8 @@ export function useDbNavigation() {
   const { updateTitle } = useTitle()
   const userStore = useUser()
 
-  const isItemVisible = (item: RouteItem) => !item.requiresAdmin || userStore.isRealAdmin
+  const isItemVisible = (item: RouteItem) =>
+    (!item.requiresAdmin || userStore.isRealAdmin) && (!item.requiresAuth || userStore.isLoggedIn)
 
   const sections = computed(() =>
     dbSections

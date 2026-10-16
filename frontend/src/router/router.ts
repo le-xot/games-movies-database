@@ -65,6 +65,17 @@ export const router = createRouter({
           component: () => import('@/pages/stats/StatsPage.vue'),
         },
         {
+          path: ROUTER_PATHS.myRatings,
+          name: 'my-ratings',
+          component: () => import('@/pages/ratings/UserRatingsPage.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: ROUTER_PATHS.userRatings,
+          name: 'user-ratings',
+          component: () => import('@/pages/ratings/UserRatingsPage.vue'),
+        },
+        {
           path: ROUTER_PATHS.dbAnime,
           name: 'anime',
           component: () => import('@/pages/media/MediaPage.vue'),
@@ -118,6 +129,8 @@ const EXPECTED_ROUTE_NAMES = [
   'admin',
   'suggestion',
   'stats',
+  'my-ratings',
+  'user-ratings',
   'anime',
   'games',
   'movie',
@@ -144,7 +157,7 @@ if (import.meta.env.DEV) {
 router.beforeEach(async (to) => {
   const userStore = useUser()
 
-  if (!to.meta.requiresAdmin) return
+  if (!to.meta.requiresAdmin && !to.meta.requiresAuth) return
 
   if (userStore.isLoading) {
     await new Promise<void>((resolve) => {
@@ -160,11 +173,11 @@ router.beforeEach(async (to) => {
     })
   }
 
-  if (!userStore.isRealAdmin) {
+  if (!userStore.isLoggedIn) {
     return { path: ROUTER_PATHS.home }
   }
 
-  if (!userStore.isLoggedIn) {
+  if (to.meta.requiresAdmin && !userStore.isRealAdmin) {
     return { path: ROUTER_PATHS.home }
   }
 })

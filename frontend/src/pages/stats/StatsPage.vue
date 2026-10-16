@@ -34,11 +34,11 @@ const total = computed(() => stats.value?.total ?? 0)
 const byStatus = computed(() => stats.value?.byStatus ?? [])
 const byGenre = computed(() => stats.value?.byGenre ?? [])
 const byGrade = computed(() => stats.value?.byGrade ?? [])
-const byCommunityGrade = computed(() => stats.value?.byCommunityGrade ?? [])
-const communityVotes = computed(() => sumCounts(byCommunityGrade.value))
-const communityGenres = computed(() =>
+const byFriendsGrade = computed(() => stats.value?.byFriendsGrade ?? [])
+const friendsVotes = computed(() => sumCounts(byFriendsGrade.value))
+const friendsGenres = computed(() =>
   sumCountsByGenre(
-    (stats.value?.byCommunityGenreGrade ?? []).map((item) => ({
+    (stats.value?.byFriendsGenreGrade ?? []).map((item) => ({
       genre: item.genre,
       count: item.count,
     })),
@@ -66,16 +66,16 @@ const gradeSegments = computed<StackedSegment[]>(() =>
   })).filter((segment) => segment.count > 0),
 )
 
-const communityGradeSegments = computed<StackedSegment[]>(() =>
+const friendsGradeSegments = computed<StackedSegment[]>(() =>
   GRADE_ORDER.map((grade) => ({
     key: grade,
     label: gradeLabel(grade),
     color: GRADE_COLORS[grade],
-    count: byCommunityGrade.value.find((item) => item.grade === grade)?.count ?? 0,
+    count: byFriendsGrade.value.find((item) => item.grade === grade)?.count ?? 0,
   })).filter((segment) => segment.count > 0),
 )
 
-const breakdownMode = ref<'community' | 'grade' | 'status'>('grade')
+const breakdownMode = ref<'friends' | 'grade' | 'status'>('grade')
 
 const breakdownEntries = computed<BreakdownEntry[]>(() => {
   if (breakdownMode.value === 'status') {
@@ -85,8 +85,8 @@ const breakdownEntries = computed<BreakdownEntry[]>(() => {
       count: item.count,
     }))
   }
-  if (breakdownMode.value === 'community') {
-    return (stats.value?.byCommunityGenreGrade ?? []).map((item) => ({
+  if (breakdownMode.value === 'friends') {
+    return (stats.value?.byFriendsGenreGrade ?? []).map((item) => ({
       genre: item.genre,
       key: item.grade,
       count: item.count,
@@ -158,13 +158,13 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
     </div>
 
     <template v-else>
-      <StatsSummaryCards :total="total" :by-status="byStatus" :community-votes="communityVotes" />
+      <StatsSummaryCards :total="total" :by-status="byStatus" :friends-votes="friendsVotes" />
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card class="bg-[var(--n-action-color)]">
           <CardHeader>
             <CardTitle>По жанрам</CardTitle>
-            <CardDescription>Мои записи и голоса комьюнити</CardDescription>
+            <CardDescription>Мои записи и голоса друзей</CardDescription>
           </CardHeader>
           <CardContent class="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div class="flex min-w-0 flex-col gap-3">
@@ -173,9 +173,9 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
             </div>
             <div class="flex min-w-0 flex-col gap-3">
               <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Комьюнити
+                Друзья
               </h3>
-              <StatsGenreDonut :data="communityGenres" :unit="VOTE_FORMS" />
+              <StatsGenreDonut :data="friendsGenres" :unit="VOTE_FORMS" />
             </div>
           </CardContent>
         </Card>
@@ -200,9 +200,9 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
             </div>
             <div class="flex flex-col gap-3">
               <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Оценки комьюнити
+                Оценки друзей
               </h3>
-              <StatsStackedBar :segments="communityGradeSegments" />
+              <StatsStackedBar :segments="friendsGradeSegments" />
             </div>
           </CardContent>
         </Card>
@@ -219,7 +219,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
               <TabsList>
                 <TabsTrigger value="grade">Оценки</TabsTrigger>
                 <TabsTrigger value="status">Статусы</TabsTrigger>
-                <TabsTrigger value="community">Комьюнити</TabsTrigger>
+                <TabsTrigger value="friends">Друзья</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
@@ -230,7 +230,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
       </div>
 
       <p class="text-xs text-muted-foreground">
-        Оценки комьюнити считаются без записей «Не интересно» и советов.
+        Оценки друзей считаются без записей «Не интересно» и советов.
       </p>
     </template>
   </div>

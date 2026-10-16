@@ -7,36 +7,36 @@ import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-s
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useFriends } from '@/pages/friends/composables/use-friends'
 import {
   activityRanks,
   countsOf,
   filterMembers,
   proportionSegments,
   sortMembers,
-  type CommunitySort,
-} from '@/pages/community/community-members'
-import { useCommunity } from '@/pages/community/composables/use-community'
+  type FriendsSort,
+} from '@/pages/friends/friends-members'
 import { GRADE_COLORS } from '@/pages/stats/constants/stats-constants'
 import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
-import { getTopGrade } from '@/utils/community-rating'
+import { getTopGrade } from '@/utils/friends-rating'
 import { pluralRu } from '@/utils/plural-ru'
-import type { CommunityMemberEntity } from '@/lib/api'
+import type { FriendsMemberEntity } from '@/lib/api'
 
 const NEUTRAL_COLOR = '#333333'
 const PARTICIPANT_FORMS = ['участник', 'участника', 'участников'] as const
 const RATING_FORMS = ['оценка', 'оценки', 'оценок'] as const
 
 const { updateTitle } = useTitle()
-updateTitle('Комьюнити')
+updateTitle('Друзья')
 
-const community = useCommunity()
-const { items, isLoading, error } = storeToRefs(community)
+const friends = useFriends()
+const { items, isLoading, error } = storeToRefs(friends)
 const { currentUserId } = storeToRefs(useUser())
 const { gradeTags } = useBadgeSelect()
 
 const query = ref('')
-const sort = ref<CommunitySort>('activity')
+const sort = ref<FriendsSort>('activity')
 
 const ranks = computed(() => activityRanks(items.value))
 const visible = computed(() => sortMembers(filterMembers(items.value, query.value), sort.value))
@@ -47,12 +47,12 @@ const participantsLabel = computed(() => {
   return `${count} ${pluralRu(count, PARTICIPANT_FORMS)}`
 })
 
-function favoriteColor(member: CommunityMemberEntity): string {
+function favoriteColor(member: FriendsMemberEntity): string {
   const grade = getTopGrade(countsOf(member))
   return grade ? GRADE_COLORS[grade] : NEUTRAL_COLOR
 }
 
-function rankOf(member: CommunityMemberEntity): number | null {
+function rankOf(member: FriendsMemberEntity): number | null {
   if (sort.value !== 'activity') return null
   const rank = ranks.value.get(member.userId)
   return rank !== undefined && rank <= 3 ? rank : null
@@ -62,12 +62,12 @@ function ratingsLabel(total: number): string {
   return `${total} ${pluralRu(total, RATING_FORMS)}`
 }
 
-function isSelf(member: CommunityMemberEntity): boolean {
+function isSelf(member: FriendsMemberEntity): boolean {
   return currentUserId.value === member.userId
 }
 
 function retry() {
-  void community.refetch()
+  void friends.refetch()
 }
 </script>
 
@@ -75,7 +75,7 @@ function retry() {
   <div class="flex flex-col gap-6">
     <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight">Комьюнити</h1>
+        <h1 class="text-2xl font-semibold tracking-tight">Друзья</h1>
         <p class="text-sm text-muted-foreground">{{ participantsLabel }}</p>
       </div>
 

@@ -23,7 +23,7 @@ declare module 'vue-router' {
       admin: RouteRecordInfo<'admin', '/db/admin'>
       suggestion: RouteRecordInfo<'suggestion', '/db/suggestion'>
       stats: RouteRecordInfo<'stats', '/db/stats'>
-      community: RouteRecordInfo<'community', '/db/community'>
+      friends: RouteRecordInfo<'friends', '/db/friends'>
       'my-ratings': RouteRecordInfo<'my-ratings', '/db/ratings/my'>
       'user-ratings': RouteRecordInfo<'user-ratings', '/db/users/:id/ratings'>
       anime: RouteRecordInfo<'anime', '/db/anime'>

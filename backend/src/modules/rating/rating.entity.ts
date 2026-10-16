@@ -56,7 +56,7 @@ export class GetUserRatingsEntity {
   }
 }
 
-export class CommunityMemberEntity {
+export class FriendsMemberEntity {
   @ApiProperty()
   userId!: string
 
@@ -72,16 +72,16 @@ export class CommunityMemberEntity {
   @ApiProperty()
   total!: number
 
-  constructor(partial: Partial<CommunityMemberEntity>) {
+  constructor(partial: Partial<FriendsMemberEntity>) {
     Object.assign(this, partial)
   }
 }
 
-export class GetCommunityEntity {
-  @ApiProperty({ type: CommunityMemberEntity, isArray: true })
-  members!: CommunityMemberEntity[]
+export class GetFriendsEntity {
+  @ApiProperty({ type: FriendsMemberEntity, isArray: true })
+  members!: FriendsMemberEntity[]
 
-  constructor(partial: Partial<GetCommunityEntity>) {
+  constructor(partial: Partial<GetFriendsEntity>) {
     Object.assign(this, partial)
   }
 }

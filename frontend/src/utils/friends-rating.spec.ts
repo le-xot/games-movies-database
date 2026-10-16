@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'bun:test'
 import { RecordGrade } from '@/lib/api'
-import { communityTotal, emptyCommunityCounts, getTopGrade } from './community-rating'
+import { friendsTotal, emptyFriendsCounts, getTopGrade } from './friends-rating'
 
 describe('getTopGrade', () => {
   it('returns null when nobody voted', () => {
-    expect(getTopGrade(emptyCommunityCounts())).toBeNull()
+    expect(getTopGrade(emptyFriendsCounts())).toBeNull()
   })
 
   it('returns the single most voted grade', () => {
     expect(
-      getTopGrade({ ...emptyCommunityCounts(), [RecordGrade.BEER]: 3, [RecordGrade.LIKE]: 1 }),
+      getTopGrade({ ...emptyFriendsCounts(), [RecordGrade.BEER]: 3, [RecordGrade.LIKE]: 1 }),
     ).toBe(RecordGrade.BEER)
   })
 
@@ -22,15 +22,15 @@ describe('getTopGrade', () => {
     }
     expect(getTopGrade(tied)).toBe(RecordGrade.RECOMMEND)
     expect(
-      getTopGrade({ ...emptyCommunityCounts(), [RecordGrade.BEER]: 5, [RecordGrade.DISLIKE]: 5 }),
+      getTopGrade({ ...emptyFriendsCounts(), [RecordGrade.BEER]: 5, [RecordGrade.DISLIKE]: 5 }),
     ).toBe(RecordGrade.BEER)
   })
 })
 
-describe('communityTotal', () => {
+describe('friendsTotal', () => {
   it('sums all counters', () => {
     expect(
-      communityTotal({
+      friendsTotal({
         [RecordGrade.DISLIKE]: 1,
         [RecordGrade.BEER]: 2,
         [RecordGrade.LIKE]: 3,
@@ -40,6 +40,6 @@ describe('communityTotal', () => {
   })
 
   it('is zero for empty counts', () => {
-    expect(communityTotal(emptyCommunityCounts())).toBe(0)
+    expect(friendsTotal(emptyFriendsCounts())).toBe(0)
   })
 })

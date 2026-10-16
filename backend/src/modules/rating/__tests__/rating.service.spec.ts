@@ -150,7 +150,7 @@ describe('RatingService', () => {
       mockRepo.findMyGrades = mock(() => Promise.resolve(new Map([[7, RecordGrade.LIKE]]))) as any
     })
 
-    it('returns profile ratings with community, viewer vote and login', async () => {
+    it('returns profile ratings with friends, viewer vote and login', async () => {
       const result = await service.getUserRatings('viewer-1', 'owner-1', 2, 10, undefined)
 
       expect(mockRepo.findByUserWithRecords).toHaveBeenCalledWith('owner-1', undefined, 10, 10)
@@ -159,8 +159,8 @@ describe('RatingService', () => {
       expect(result.items[0]).toMatchObject({
         id: 7,
         title: 'Owned',
-        communityTotal: 2,
-        communityTop: RecordGrade.RECOMMEND,
+        friendsTotal: 2,
+        friendsTop: RecordGrade.RECOMMEND,
         myGrade: RecordGrade.LIKE,
         userGrade: RecordGrade.RECOMMEND,
         userLogin: 'owner-login',
@@ -184,9 +184,9 @@ describe('RatingService', () => {
     })
   })
 
-  describe('getCommunity', () => {
+  describe('getFriends', () => {
     it('returns members sorted by votes desc with totals', async () => {
-      mockRepo.getCommunityOverview = mock(() =>
+      mockRepo.getFriendsOverview = mock(() =>
         Promise.resolve([
           {
             userId: 'u2',
@@ -203,9 +203,9 @@ describe('RatingService', () => {
         ]),
       ) as any
 
-      const result = await service.getCommunity()
+      const result = await service.getFriends()
 
-      expect(mockRepo.getCommunityOverview).toHaveBeenCalledTimes(1)
+      expect(mockRepo.getFriendsOverview).toHaveBeenCalledTimes(1)
       expect(result.map((member) => [member.login, member.total])).toEqual([
         ['first', 5],
         ['second', 1],
@@ -218,9 +218,9 @@ describe('RatingService', () => {
     })
 
     it('returns an empty list when nobody voted', async () => {
-      mockRepo.getCommunityOverview = mock(() => Promise.resolve([])) as any
+      mockRepo.getFriendsOverview = mock(() => Promise.resolve([])) as any
 
-      await expect(service.getCommunity()).resolves.toEqual([])
+      await expect(service.getFriends()).resolves.toEqual([])
     })
   })
 })

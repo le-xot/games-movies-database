@@ -77,7 +77,7 @@ export class DrizzleStatsRepository {
     return rows.flatMap((row) => (row.grade ? [{ grade: row.grade, count: row.value }] : []))
   }
 
-  async countByCommunityGrade(): Promise<GradeCount[]> {
+  async countByFriendsGrade(): Promise<GradeCount[]> {
     const rows = await this.drizzle.db
       .select({ grade: recordRatings.grade, value: count() })
       .from(recordRatings)
@@ -87,7 +87,7 @@ export class DrizzleStatsRepository {
     return rows.map((row) => ({ grade: row.grade, count: row.value }))
   }
 
-  async countByCommunityGenreGrade(): Promise<GenreGradeCount[]> {
+  async countByFriendsGenreGrade(): Promise<GenreGradeCount[]> {
     const rows = await this.drizzle.db
       .select({ genre: records.genre, grade: recordRatings.grade, value: count() })
       .from(recordRatings)

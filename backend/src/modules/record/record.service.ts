@@ -3,10 +3,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import { ImgService } from '@/modules/img/img.service'
-import { emptyCommunityCounts } from '@/modules/rating/entities/rating-domain.entity'
+import { emptyFriendsCounts } from '@/modules/rating/entities/rating-domain.entity'
 import { DrizzleRatingRepository } from '@/modules/rating/repositories/drizzle-rating.repository'
 import {
-  RecordWithCommunity,
+  RecordWithFriends,
   RecordWithRelations,
 } from '@/modules/record/entities/record-domain.entity'
 import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/record.dto'
@@ -33,10 +33,10 @@ export class RecordService {
     private readonly ratingRepository: DrizzleRatingRepository,
   ) {}
 
-  private async attachCommunity(
+  private async attachFriends(
     rows: RecordWithRelations[],
     userId?: string,
-  ): Promise<RecordWithCommunity[]> {
+  ): Promise<RecordWithFriends[]> {
     const ids = rows.map((row) => row.id)
     const [aggregates, myGrades] = await Promise.all([
       this.ratingRepository.aggregateByRecords(ids),
@@ -48,9 +48,9 @@ export class RecordService {
       const aggregate = aggregates.get(row.id)
       return {
         ...row,
-        communityCounts: aggregate?.counts ?? emptyCommunityCounts(),
-        communityTotal: aggregate?.total ?? 0,
-        communityTop: aggregate?.top ?? null,
+        friendsCounts: aggregate?.counts ?? emptyFriendsCounts(),
+        friendsTotal: aggregate?.total ?? 0,
+        friendsTop: aggregate?.top ?? null,
         myGrade: myGrades.get(row.id) ?? null,
       }
     })
@@ -176,7 +176,7 @@ export class RecordService {
     orderBy?: 'title' | 'id',
     direction?: 'asc' | 'desc',
     userId?: string,
-  ): Promise<{ records: RecordWithCommunity[]; total: number }> {
+  ): Promise<{ records: RecordWithFriends[]; total: number }> {
     const skip = (page - 1) * limit
     const filterOptions = {
       search: filters?.search,
@@ -192,15 +192,15 @@ export class RecordService {
       this.recordRepository.findAll(filterOptions, sortOptions, { skip, take: limit }),
     ])
 
-    return { records: await this.attachCommunity(records, userId), total }
+    return { records: await this.attachFriends(records, userId), total }
   }
 
-  async findRecordById(id: number, userId?: string): Promise<RecordWithCommunity> {
+  async findRecordById(id: number, userId?: string): Promise<RecordWithFriends> {
     const record = await this.recordRepository.findById(id)
     if (!record) {
       throw new NotFoundException('Record not found')
     }
-    const [attached] = await this.attachCommunity([record], userId)
+    const [attached] = await this.attachFriends([record], userId)
     if (!attached) throw new NotFoundException('Record not found')
     return attached
   }

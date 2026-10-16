@@ -3,7 +3,7 @@ import { RECORDS_QUERY_KEYS } from '@/composables/query-keys'
 import { useApi } from '@/stores/use-api'
 import type { RecordGrade } from '@/lib/api'
 
-/** Голосование комьюнити: PUT/DELETE /ratings с инвалидацией списков записей. */
+/** Голосование друзей: PUT/DELETE /ratings с инвалидацией списков записей. */
 export function useRating() {
   const api = useApi()
   const queryCache = useQueryCache()

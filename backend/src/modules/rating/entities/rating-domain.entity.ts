@@ -4,30 +4,30 @@ import type { SelectRow } from '@gmd/database'
 export type RatingDomain = SelectRow<'recordRatings'>
 
 /** Deterministic display order; ties resolve to the earlier grade. */
-export const COMMUNITY_GRADE_ORDER: readonly RecordGrade[] = [
+export const FRIENDS_GRADE_ORDER: readonly RecordGrade[] = [
   RecordGrade.RECOMMEND,
   RecordGrade.LIKE,
   RecordGrade.BEER,
   RecordGrade.DISLIKE,
 ]
 
-export type CommunityCounts = Record<RecordGrade, number>
+export type FriendsCounts = Record<RecordGrade, number>
 
-export interface CommunityAggregate {
-  counts: CommunityCounts
+export interface FriendsAggregate {
+  counts: FriendsCounts
   total: number
   top: RecordGrade | null
 }
 
-/** Community view attached to record reads: public aggregate + own vote. */
-export interface RecordCommunityView {
-  communityCounts: CommunityCounts
-  communityTotal: number
-  communityTop: RecordGrade | null
+/** Friends view attached to record reads: public aggregate + own vote. */
+export interface RecordFriendsView {
+  friendsCounts: FriendsCounts
+  friendsTotal: number
+  friendsTop: RecordGrade | null
   myGrade: RecordGrade | null
 }
 
-export function emptyCommunityCounts(): CommunityCounts {
+export function emptyFriendsCounts(): FriendsCounts {
   return {
     [RecordGrade.DISLIKE]: 0,
     [RecordGrade.BEER]: 0,
@@ -36,10 +36,10 @@ export function emptyCommunityCounts(): CommunityCounts {
   }
 }
 
-export function getTopGrade(counts: CommunityCounts): RecordGrade | null {
+export function getTopGrade(counts: FriendsCounts): RecordGrade | null {
   let top: RecordGrade | null = null
   let topCount = 0
-  for (const grade of COMMUNITY_GRADE_ORDER) {
+  for (const grade of FRIENDS_GRADE_ORDER) {
     if (counts[grade] > topCount) {
       top = grade
       topCount = counts[grade]

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'bun:test'
 import { RecordGrade } from '@/lib/api'
-import { activityRanks, filterMembers, proportionSegments, sortMembers } from './community-members'
-import type { CommunityMemberEntity } from '@/lib/api'
+import { activityRanks, filterMembers, proportionSegments, sortMembers } from './friends-members'
+import type { FriendsMemberEntity } from '@/lib/api'
 
 const member = (
   login: string,
   counts: Partial<Record<RecordGrade, number>> = {},
-): CommunityMemberEntity => {
+): FriendsMemberEntity => {
   const full = { DISLIKE: 0, BEER: 0, LIKE: 0, RECOMMEND: 0, ...counts }
   return {
     userId: login,

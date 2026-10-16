@@ -290,12 +290,12 @@ describe('RecordService', () => {
       )
       expect(result.total).toBe(10)
       expect(result.records).toMatchObject([
-        { id: 1, communityTotal: 0, communityTop: null, myGrade: null },
-        { id: 2, communityTotal: 0, communityTop: null, myGrade: null },
+        { id: 1, friendsTotal: 0, friendsTop: null, myGrade: null },
+        { id: 2, friendsTotal: 0, friendsTop: null, myGrade: null },
       ])
     })
 
-    it('attaches community aggregates and my grade for a logged-in user', async () => {
+    it('attaches friends aggregates and my grade for a logged-in user', async () => {
       mockRepo.count = mock(() => Promise.resolve(2))
       mockRepo.findAll = mock(() => Promise.resolve([makeRecord({ id: 1 }), makeRecord({ id: 2 })]))
       mockRatingRepo.aggregateByRecords = mock((ids: number[]) =>
@@ -326,11 +326,11 @@ describe('RecordService', () => {
       expect(result.records).toMatchObject([
         {
           id: 1,
-          communityTotal: 10,
-          communityTop: RecordGrade.RECOMMEND,
+          friendsTotal: 10,
+          friendsTop: RecordGrade.RECOMMEND,
           myGrade: RecordGrade.LIKE,
         },
-        { id: 2, communityTotal: 10, communityTop: RecordGrade.RECOMMEND, myGrade: null },
+        { id: 2, friendsTotal: 10, friendsTop: RecordGrade.RECOMMEND, myGrade: null },
       ])
     })
   })
@@ -343,10 +343,10 @@ describe('RecordService', () => {
       const result = await service.findRecordById(7)
 
       expect(mockRepo.findById).toHaveBeenCalledWith(7)
-      expect(result).toMatchObject({ id: 7, communityTotal: 0, communityTop: null, myGrade: null })
+      expect(result).toMatchObject({ id: 7, friendsTotal: 0, friendsTop: null, myGrade: null })
     })
 
-    it('attaches community view with my grade for a logged-in user', async () => {
+    it('attaches friends view with my grade for a logged-in user', async () => {
       mockRepo.findById = mock(() => Promise.resolve(makeRecord({ id: 7 })))
       mockRatingRepo.findMyGrades = mock(() => Promise.resolve(new Map([[7, RecordGrade.BEER]])))
 
@@ -354,7 +354,7 @@ describe('RecordService', () => {
 
       expect(mockRatingRepo.aggregateByRecords).toHaveBeenCalledWith([7])
       expect(mockRatingRepo.findMyGrades).toHaveBeenCalledWith('user-1', [7])
-      expect(result).toMatchObject({ id: 7, communityTotal: 0, myGrade: RecordGrade.BEER })
+      expect(result).toMatchObject({ id: 7, friendsTotal: 0, myGrade: RecordGrade.BEER })
     })
 
     it('throws NotFoundException when not found', async () => {

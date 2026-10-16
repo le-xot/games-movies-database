@@ -54,7 +54,7 @@ export const dbSections: NavSection[] = [
         requiresAuth: true,
         hideForAdmin: true,
       },
-      { name: 'Комьюнити', icon: Users, path: ROUTER_PATHS.community },
+      { name: 'Друзья', icon: Users, path: ROUTER_PATHS.friends },
       { name: 'Статистика', icon: ChartPie, path: ROUTER_PATHS.dbStats },
     ],
   },

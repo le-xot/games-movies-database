@@ -66,7 +66,7 @@ export class RecordsStatsDTO {
   byGrade!: GradeCountDTO[]
 
   @ApiProperty({ type: [GradeCountDTO] })
-  byCommunityGrade!: GradeCountDTO[]
+  byFriendsGrade!: GradeCountDTO[]
 
   @ApiProperty({ type: [GenreStatusCountDTO] })
   byGenreStatus!: GenreStatusCountDTO[]
@@ -75,5 +75,5 @@ export class RecordsStatsDTO {
   byGenreGrade!: GenreGradeCountDTO[]
 
   @ApiProperty({ type: [GenreGradeCountDTO] })
-  byCommunityGenreGrade!: GenreGradeCountDTO[]
+  byFriendsGenreGrade!: GenreGradeCountDTO[]
 }

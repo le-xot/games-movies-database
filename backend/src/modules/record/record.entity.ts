@@ -61,13 +61,13 @@ export class RecordEntity {
     type: Object,
     example: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 3 },
   })
-  communityCounts?: Record<RecordGrade, number> | null
+  friendsCounts?: Record<RecordGrade, number> | null
 
   @ApiProperty({ required: false, nullable: true, example: 6 })
-  communityTotal?: number | null
+  friendsTotal?: number | null
 
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
-  communityTop?: RecordGrade | null
+  friendsTop?: RecordGrade | null
 
   @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
   myGrade?: RecordGrade | null

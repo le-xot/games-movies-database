@@ -51,6 +51,11 @@ case "$provider" in
     ;;
 esac
 
+# Provider-agnostic denylist: variables that would hijack the host shell or the
+# docker CLI when .env is sourced (e.g. DOCKER_CONFIG=/root/.docker left over
+# from running docker as root breaks `docker compose` for unprivileged users).
+sed -i -E '/^DOCKER_CONFIG=/d' "$tmp"
+
 if [ ! -s "$tmp" ] || ! grep -q '^POSTGRES_PASSWORD=' "$tmp"; then
   echo "render-env.sh: provider returned empty or incomplete secrets; .env left untouched" >&2
   exit 1

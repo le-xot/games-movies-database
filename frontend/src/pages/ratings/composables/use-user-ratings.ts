@@ -10,7 +10,7 @@ import { useUser } from '@/stores/use-user'
 import { parseApiError } from '@/utils/api-error'
 import type { GetUserRatingsEntity, RecordGrade, RecordUpdateDTO } from '@/lib/api'
 
-const PAGE_SIZE = 24
+const PAGE_SIZE = 50
 
 export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
   const api = useApi()

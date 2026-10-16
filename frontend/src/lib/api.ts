@@ -386,6 +386,7 @@ export interface RecordsStatsDTO {
   byGenre: GenreCountDTO[];
   byStatus: StatusCountDTO[];
   byGrade: GradeCountDTO[];
+  byCommunityGrade: GradeCountDTO[];
   byGenreStatus: GenreStatusCountDTO[];
   byGenreGrade: GenreGradeCountDTO[];
 }

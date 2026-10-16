@@ -31,6 +31,7 @@ const total = computed(() => stats.value?.total ?? 0)
 const byStatus = computed(() => stats.value?.byStatus ?? [])
 const byGenre = computed(() => stats.value?.byGenre ?? [])
 const byGrade = computed(() => stats.value?.byGrade ?? [])
+const byCommunityGrade = computed(() => stats.value?.byCommunityGrade ?? [])
 
 const gradeLabel = (grade: RecordGrade) =>
   `${gradeTags[grade].name} ${gradeTags[grade].label ?? ''}`.trim()
@@ -50,6 +51,15 @@ const gradeSegments = computed<StackedSegment[]>(() =>
     label: gradeLabel(grade),
     color: GRADE_COLORS[grade],
     count: byGrade.value.find((item) => item.grade === grade)?.count ?? 0,
+  })).filter((segment) => segment.count > 0),
+)
+
+const communityGradeSegments = computed<StackedSegment[]>(() =>
+  GRADE_ORDER.map((grade) => ({
+    key: grade,
+    label: gradeLabel(grade),
+    color: GRADE_COLORS[grade],
+    count: byCommunityGrade.value.find((item) => item.grade === grade)?.count ?? 0,
   })).filter((segment) => segment.count > 0),
 )
 
@@ -159,8 +169,12 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
               <StatsStackedBar :segments="statusSegments" />
             </div>
             <div class="flex flex-col gap-3">
-              <h3 class="text-sm font-medium text-muted-foreground">Оценки</h3>
+              <h3 class="text-sm font-medium text-muted-foreground">Мои оценки</h3>
               <StatsStackedBar :segments="gradeSegments" />
+            </div>
+            <div class="flex flex-col gap-3">
+              <h3 class="text-sm font-medium text-muted-foreground">Оценки комьюнити</h3>
+              <StatsStackedBar :segments="communityGradeSegments" />
             </div>
           </CardContent>
         </Card>

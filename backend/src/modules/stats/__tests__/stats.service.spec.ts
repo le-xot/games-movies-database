@@ -42,6 +42,12 @@ describe('StatsService', () => {
         { genre: RecordGenre.GAME, grade: RecordGrade.BEER, count: 9 },
       ]),
     )
+    mockRepo.countByCommunityGrade = mock(() =>
+      Promise.resolve([
+        { grade: RecordGrade.RECOMMEND, count: 30 },
+        { grade: RecordGrade.LIKE, count: 10 },
+      ]),
+    )
 
     const result = await service.getRecordsStats()
 
@@ -56,6 +62,10 @@ describe('StatsService', () => {
         { status: RecordStatus.QUEUE, count: 12 },
       ],
       byGrade: [{ grade: RecordGrade.RECOMMEND, count: 25 }],
+      byCommunityGrade: [
+        { grade: RecordGrade.RECOMMEND, count: 30 },
+        { grade: RecordGrade.LIKE, count: 10 },
+      ],
       byGenreStatus: [
         { genre: RecordGenre.MOVIE, status: RecordStatus.DONE, count: 18 },
         { genre: RecordGenre.GAME, status: RecordStatus.DROP, count: 4 },
@@ -69,6 +79,7 @@ describe('StatsService', () => {
     expect(mockRepo.countByGenre).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByStatus).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByGrade).toHaveBeenCalledTimes(1)
+    expect(mockRepo.countByCommunityGrade).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByGenreStatus).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByGenreGrade).toHaveBeenCalledTimes(1)
   })
@@ -78,6 +89,7 @@ describe('StatsService', () => {
     mockRepo.countByGenre = mock(() => Promise.resolve([]))
     mockRepo.countByStatus = mock(() => Promise.resolve([]))
     mockRepo.countByGrade = mock(() => Promise.resolve([]))
+    mockRepo.countByCommunityGrade = mock(() => Promise.resolve([]))
     mockRepo.countByGenreStatus = mock(() => Promise.resolve([]))
     mockRepo.countByGenreGrade = mock(() => Promise.resolve([]))
 
@@ -88,6 +100,7 @@ describe('StatsService', () => {
       byGenre: [],
       byStatus: [],
       byGrade: [],
+      byCommunityGrade: [],
       byGenreStatus: [],
       byGenreGrade: [],
     })

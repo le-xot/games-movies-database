@@ -120,11 +120,8 @@ function handleStatusUpdate(value: RecordStatus | undefined) {
   emit('update', { id: props.item.id, data: { status: value } })
 }
 
-function handleGradeToggle(currentGrade: RecordGrade | null | undefined, newGrade: RecordGrade) {
-  emit('update', {
-    id: props.item.id,
-    data: { grade: currentGrade === newGrade ? null : newGrade },
-  })
+function handleGradeUpdate(value: RecordGrade | undefined) {
+  emit('update', { id: props.item.id, data: { grade: value ?? null } })
 }
 
 const communityCounts = computed<CommunityCounts>(
@@ -133,6 +130,9 @@ const communityCounts = computed<CommunityCounts>(
 )
 const communityTotalCount = computed(
   () => props.item.communityTotal ?? sumCommunityCounts(communityCounts.value),
+)
+const communityCaption = computed(() =>
+  communityTotalCount.value > 0 ? `Комьюнити · ${communityTotalCount.value}` : 'Оценок пока нет',
 )
 const communityTop = computed(() => props.item.communityTop ?? getTopGrade(communityCounts.value))
 const myGrade = computed(() => props.item.myGrade ?? null)
@@ -247,32 +247,17 @@ const gradeButtons = gradeOrder.map((grade) => {
             @update="handleStatusUpdate"
           />
 
-          <div v-if="!shouldHideGrade(item.status)" class="flex flex-col gap-1">
-            <span class="text-[11px] uppercase tracking-wide text-muted-foreground"
-              >Моя оценка</span
-            >
-            <div class="flex items-center gap-1.5">
-              <button
-                v-for="btn in gradeButtons"
-                :key="btn.grade"
-                class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-base transition-all"
-                :class="[
-                  item.grade === btn.grade
-                    ? `${btn.bg} ${btn.border}`
-                    : `bg-transparent ${btn.border} opacity-60`,
-                  isAdmin ? 'cursor-pointer hover:opacity-100' : 'cursor-default',
-                ]"
-                @click="isAdmin && handleGradeToggle(item.grade, btn.grade)"
-              >
-                {{ btn.emoji }}
-              </button>
-            </div>
-          </div>
+          <BadgeSelect
+            v-if="!shouldHideGrade(item.status)"
+            :value="item.grade ?? undefined"
+            kind="grade"
+            @update="handleGradeUpdate"
+          />
 
           <div class="flex flex-col gap-1">
-            <span class="text-[11px] uppercase tracking-wide text-muted-foreground"
-              >Комьюнити · {{ communityTotalCount }}</span
-            >
+            <span class="text-[11px] uppercase tracking-wide text-muted-foreground">{{
+              communityCaption
+            }}</span>
             <div class="flex items-center gap-1.5">
               <button
                 v-for="btn in gradeButtons"
@@ -289,7 +274,9 @@ const gradeButtons = gradeOrder.map((grade) => {
                 @click="handleCommunityRate(btn.grade)"
               >
                 {{ btn.emoji
-                }}<span class="text-xs tabular-nums">{{ communityCounts[btn.grade] }}</span>
+                }}<span v-if="communityCounts[btn.grade] > 0" class="text-xs tabular-nums">{{
+                  communityCounts[btn.grade]
+                }}</span>
               </button>
             </div>
           </div>

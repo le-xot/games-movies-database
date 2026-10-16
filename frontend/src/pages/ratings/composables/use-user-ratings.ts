@@ -1,13 +1,14 @@
-import { useQuery } from '@pinia/colada'
+import { useInfiniteQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { getNextRatingsPageParam } from '@/pages/ratings/composables/user-ratings-pagination'
 import { useApi } from '@/stores/use-api'
 import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
 import { parseApiError } from '@/utils/api-error'
-import type { RecordGrade, RecordUpdateDTO } from '@/lib/api'
+import type { GetUserRatingsEntity, RecordGrade, RecordUpdateDTO } from '@/lib/api'
 
 const PAGE_SIZE = 24
 
@@ -22,47 +23,61 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
   const profileUserId = computed(() =>
     isMine.value ? (userStore.currentUserId ?? '') : String(route.params.id ?? ''),
   )
-  const page = ref(1)
   const gradeFilter = ref<RecordGrade[] | null>(null)
 
-  async function fetchRatings() {
-    if (!profileUserId.value) return { items: [], total: 0 }
-    error.value = null
-    try {
-      const params = {
-        page: page.value,
-        limit: PAGE_SIZE,
-        ...(gradeFilter.value?.length ? { grade: gradeFilter.value } : {}),
-      }
-      const { data } = isMine.value
-        ? await api.ratings.ratingControllerGetMyRatings(params)
-        : await api.ratings.ratingControllerGetUserRatings(profileUserId.value, params)
-      return data
-    } catch (err) {
-      error.value = await parseApiError(err, 'Не удалось загрузить оценки')
-      throw err
-    }
-  }
-
   const {
-    data: ratings,
+    data,
     isLoading,
     refetch: refetchRatings,
-  } = useQuery({ key: ['user-ratings'], query: fetchRatings })
+    hasNextPage,
+    loadNextPage: loadNextPageRaw,
+  } = useInfiniteQuery<GetUserRatingsEntity, Error, number>(() => ({
+    key: ['user-ratings', profileUserId.value, gradeFilter.value],
+    initialPageParam: 1,
+    query: async ({ pageParam }) => {
+      error.value = null
+      try {
+        if (!profileUserId.value) return { items: [], total: 0 }
+        const params = {
+          page: pageParam,
+          limit: PAGE_SIZE,
+          ...(gradeFilter.value?.length ? { grade: gradeFilter.value } : {}),
+        }
+        const { data: response } = isMine.value
+          ? await api.ratings.ratingControllerGetMyRatings(params)
+          : await api.ratings.ratingControllerGetUserRatings(profileUserId.value, params)
+        return response
+      } catch (err) {
+        error.value = await parseApiError(err, 'Не удалось загрузить оценки')
+        throw err
+      }
+    },
+    getNextPageParam: (lastPage, allPages, lastPageParam) =>
+      getNextRatingsPageParam(lastPage, allPages, lastPageParam),
+  }))
+
+  const isLoadingNext = ref(false)
+
+  async function loadNextPage() {
+    if (isLoadingNext.value || !hasNextPage.value) return
+    isLoadingNext.value = true
+    try {
+      await loadNextPageRaw()
+    } finally {
+      isLoadingNext.value = false
+    }
+  }
 
   function refetchAll() {
     void refetchRatings()
   }
 
   watch(profileUserId, () => {
-    page.value = 1
     gradeFilter.value = null
-    refetchAll()
   })
 
-  const items = computed(() => ratings.value?.items ?? [])
-  const total = computed(() => ratings.value?.total ?? 0)
-  const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
+  const items = computed(() => data.value?.pages.flatMap((page) => page.items) ?? [])
+  const total = computed(() => data.value?.pages[data.value.pages.length - 1]?.total ?? 0)
   const profileLogin = computed(() => items.value[0]?.userLogin ?? null)
 
   watch(
@@ -75,22 +90,6 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   function setGradeFilter(value: RecordGrade[] | null) {
     gradeFilter.value = value?.length ? value : null
-    page.value = 1
-    void refetchRatings()
-  }
-
-  function nextPage() {
-    if (page.value < totalPages.value) {
-      page.value += 1
-      void refetchRatings()
-    }
-  }
-
-  function prevPage() {
-    if (page.value > 1) {
-      page.value -= 1
-      void refetchRatings()
-    }
   }
 
   async function updateRecord(payload: { id: number; data: RecordUpdateDTO }) {
@@ -124,15 +123,14 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
     isMine,
     items,
     total,
-    totalPages,
-    page,
+    hasNextPage,
+    isLoadingNext,
+    loadNextPage,
     gradeFilter,
     isLoading,
     error,
     profileLogin,
     setGradeFilter,
-    nextPage,
-    prevPage,
     updateRecord,
     updatePoster,
     deleteRecord,

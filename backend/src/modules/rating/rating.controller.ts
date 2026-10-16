@@ -7,7 +7,12 @@ import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { GetUserRatingsQueryDTO, RatingUpsertDTO } from '@/modules/rating/rating.dto'
-import { GetUserRatingsEntity, RatingEntity } from '@/modules/rating/rating.entity'
+import {
+  CommunityMemberEntity,
+  GetCommunityEntity,
+  GetUserRatingsEntity,
+  RatingEntity,
+} from '@/modules/rating/rating.entity'
 import { RatingService } from '@/modules/rating/rating.service'
 import { UserEntity } from '@/modules/user/user.entity'
 import { ApiErrors } from '@/utils/api-errors'
@@ -76,5 +81,14 @@ export class RatingController {
       query.grade,
     )
     return new GetUserRatingsEntity({ items, total })
+  }
+
+  @Get('community')
+  @ApiResponse({ type: GetCommunityEntity, status: 200 })
+  async getCommunity(): Promise<GetCommunityEntity> {
+    const members = await this.ratingService.getCommunity()
+    return new GetCommunityEntity({
+      members: members.map((member) => new CommunityMemberEntity(member)),
+    })
   }
 }

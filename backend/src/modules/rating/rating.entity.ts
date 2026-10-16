@@ -55,3 +55,33 @@ export class GetUserRatingsEntity {
     Object.assign(this, partial)
   }
 }
+
+export class CommunityMemberEntity {
+  @ApiProperty()
+  userId!: string
+
+  @ApiProperty()
+  login!: string
+
+  @ApiProperty()
+  profileImageUrl!: string
+
+  @ApiProperty({ type: Object, example: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 3 } })
+  counts!: Record<RecordGrade, number>
+
+  @ApiProperty()
+  total!: number
+
+  constructor(partial: Partial<CommunityMemberEntity>) {
+    Object.assign(this, partial)
+  }
+}
+
+export class GetCommunityEntity {
+  @ApiProperty({ type: CommunityMemberEntity, isArray: true })
+  members!: CommunityMemberEntity[]
+
+  constructor(partial: Partial<GetCommunityEntity>) {
+    Object.assign(this, partial)
+  }
+}

@@ -276,6 +276,19 @@ export interface GetUserRatingsEntity {
   total: number;
 }
 
+export interface CommunityMemberEntity {
+  userId: string;
+  login: string;
+  profileImageUrl: string;
+  /** @example {"DISLIKE":0,"BEER":1,"LIKE":2,"RECOMMEND":3} */
+  counts: object;
+  total: number;
+}
+
+export interface GetCommunityEntity {
+  members: CommunityMemberEntity[];
+}
+
 export interface ChangeLimitDTO {
   name: LimitType;
   /**
@@ -1220,6 +1233,20 @@ export namespace Ratings {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetUserRatingsEntity;
+  }
+
+  /**
+   * No description
+   * @tags ratings
+   * @name RatingControllerGetCommunity
+   * @request GET:/ratings/community
+   */
+  export namespace RatingControllerGetCommunity {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetCommunityEntity;
   }
 }
 
@@ -2512,6 +2539,21 @@ export class Api<SecurityDataType extends unknown> {
         path: `/ratings/users/${id}`,
         method: "GET",
         query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ratings
+     * @name RatingControllerGetCommunity
+     * @request GET:/ratings/community
+     */
+    ratingControllerGetCommunity: (params: RequestParams = {}) =>
+      this.http.request<GetCommunityEntity, ApiErrorDto>({
+        path: `/ratings/community`,
+        method: "GET",
         format: "json",
         ...params,
       }),

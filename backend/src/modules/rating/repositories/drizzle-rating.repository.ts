@@ -1,16 +1,24 @@
 import crypto from 'node:crypto'
-import { recordRatings, records } from '@gmd/database/schema'
+import { recordRatings, records, users } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
 import { and, count, desc, eq, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
 import {
   CommunityAggregate,
+  CommunityCounts,
   RatingDomain,
   emptyCommunityCounts,
   getTopGrade,
 } from '../entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
+
+export interface CommunityMemberRow {
+  userId: string
+  login: string
+  profileImageUrl: string
+  counts: CommunityCounts
+}
 
 @Injectable()
 export class DrizzleRatingRepository {
@@ -107,5 +115,35 @@ export class DrizzleRatingRepository {
       .from(recordRatings)
       .where(and(...conditions))
     return result?.value ?? 0
+  }
+
+  async getCommunityOverview(): Promise<CommunityMemberRow[]> {
+    const rows = await this.drizzle.db
+      .select({
+        userId: recordRatings.userId,
+        login: users.login,
+        profileImageUrl: users.profileImageUrl,
+        grade: recordRatings.grade,
+        value: count(),
+      })
+      .from(recordRatings)
+      .innerJoin(users, eq(recordRatings.userId, users.id))
+      .groupBy(recordRatings.userId, users.login, users.profileImageUrl, recordRatings.grade)
+
+    const members = new Map<string, CommunityMemberRow>()
+    for (const row of rows) {
+      let member = members.get(row.userId)
+      if (!member) {
+        member = {
+          userId: row.userId,
+          login: row.login,
+          profileImageUrl: row.profileImageUrl,
+          counts: emptyCommunityCounts(),
+        }
+        members.set(row.userId, member)
+      }
+      member.counts[row.grade] = row.value
+    }
+    return [...members.values()]
   }
 }

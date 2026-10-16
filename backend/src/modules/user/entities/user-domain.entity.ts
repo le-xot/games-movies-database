@@ -35,6 +35,8 @@ export interface MergeUsersResult {
   accountsDropped: number
   likesMoved: number
   likesDropped: number
+  ratingsMoved: number
+  ratingsDropped: number
   suggestionsMoved: number
   wordleGamesMoved: number
   wordleGamesDropped: number

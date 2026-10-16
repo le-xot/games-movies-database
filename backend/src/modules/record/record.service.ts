@@ -3,6 +3,12 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import { ImgService } from '@/modules/img/img.service'
+import { emptyCommunityCounts } from '@/modules/rating/entities/rating-domain.entity'
+import { DrizzleRatingRepository } from '@/modules/rating/repositories/drizzle-rating.repository'
+import {
+  RecordWithCommunity,
+  RecordWithRelations,
+} from '@/modules/record/entities/record-domain.entity'
 import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/record.dto'
 import { RecordEntity } from '@/modules/record/record.entity'
 import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
@@ -24,7 +30,31 @@ export class RecordService {
     private readonly recordsProviderService: RecordsProvidersService,
     private readonly eventEmitter: EventEmitter2,
     private readonly imgService: ImgService,
+    private readonly ratingRepository: DrizzleRatingRepository,
   ) {}
+
+  private async attachCommunity(
+    rows: RecordWithRelations[],
+    userId?: string,
+  ): Promise<RecordWithCommunity[]> {
+    const ids = rows.map((row) => row.id)
+    const [aggregates, myGrades] = await Promise.all([
+      this.ratingRepository.aggregateByRecords(ids),
+      userId
+        ? this.ratingRepository.findMyGrades(userId, ids)
+        : Promise.resolve(new Map<number, RecordGrade>()),
+    ])
+    return rows.map((row) => {
+      const aggregate = aggregates.get(row.id)
+      return {
+        ...row,
+        communityCounts: aggregate?.counts ?? emptyCommunityCounts(),
+        communityTotal: aggregate?.total ?? 0,
+        communityTop: aggregate?.top ?? null,
+        myGrade: myGrades.get(row.id) ?? null,
+      }
+    })
+  }
 
   private emitQueueEvent(id: number, action: UpdateQueuePayload['action']) {
     emitWs(this.eventEmitter, WsEvents.UPDATE_QUEUE, { id, action })
@@ -145,7 +175,8 @@ export class RecordService {
     },
     orderBy?: 'title' | 'id',
     direction?: 'asc' | 'desc',
-  ): Promise<{ records: RecordEntity[]; total: number }> {
+    userId?: string,
+  ): Promise<{ records: RecordWithCommunity[]; total: number }> {
     const skip = (page - 1) * limit
     const filterOptions = {
       search: filters?.search,
@@ -161,14 +192,16 @@ export class RecordService {
       this.recordRepository.findAll(filterOptions, sortOptions, { skip, take: limit }),
     ])
 
-    return { records, total }
+    return { records: await this.attachCommunity(records, userId), total }
   }
 
-  async findRecordById(id: number): Promise<RecordEntity> {
+  async findRecordById(id: number, userId?: string): Promise<RecordWithCommunity> {
     const record = await this.recordRepository.findById(id)
     if (!record) {
       throw new NotFoundException('Record not found')
     }
-    return record
+    const [attached] = await this.attachCommunity([record], userId)
+    if (!attached) throw new NotFoundException('Record not found')
+    return attached
   }
 }

@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { likes, suggestionOwnerships, userAccounts, users, wordleGames } from '@gmd/database/schema'
+import {
+  likes,
+  recordRatings,
+  suggestionOwnerships,
+  userAccounts,
+  users,
+  wordleGames,
+} from '@gmd/database/schema'
 import { UserRole } from '@/enums'
 import { DrizzleUserRepository } from '../repositories/drizzle-user.repository'
 
@@ -110,6 +117,8 @@ describe('DrizzleUserRepository', () => {
         accountsDropped: 1,
         likesMoved: 1,
         likesDropped: 1,
+        ratingsMoved: 0,
+        ratingsDropped: 0,
         suggestionsMoved: 1,
         wordleGamesMoved: 1,
         wordleGamesDropped: 1,
@@ -155,6 +164,8 @@ describe('DrizzleUserRepository', () => {
         accountsDropped: 0,
         likesMoved: 1,
         likesDropped: 0,
+        ratingsMoved: 0,
+        ratingsDropped: 0,
         suggestionsMoved: 1,
         wordleGamesMoved: 1,
         wordleGamesDropped: 0,
@@ -164,6 +175,33 @@ describe('DrizzleUserRepository', () => {
       expect(deletes.filter((call) => call.table === likes)).toHaveLength(0)
       expect(deletes.filter((call) => call.table === wordleGames)).toHaveLength(0)
       expect(deletes.filter((call) => call.table === users)).toHaveLength(1)
+    })
+
+    it('moves non-conflicting ratings and drops duplicate votes', async () => {
+      selectResponses.set(users, [
+        [
+          { id: 'target', role: UserRole.USER },
+          { id: 'source', role: UserRole.USER },
+        ],
+      ])
+      selectResponses.set(userAccounts, [[], []])
+      selectResponses.set(likes, [[], []])
+      selectResponses.set(recordRatings, [
+        [{ recordId: 1 }],
+        [
+          { id: 'rating-a', recordId: 1 },
+          { id: 'rating-b', recordId: 2 },
+        ],
+      ])
+      selectResponses.set(wordleGames, [[], []])
+
+      const { repository, updates, deletes } = createRepository(selectResponses)
+
+      const result = await repository.mergeUsers('target', 'source')
+
+      expect(result).toMatchObject({ ratingsMoved: 1, ratingsDropped: 1 })
+      expect(updates).toContainEqual({ table: recordRatings, values: { userId: 'target' } })
+      expect(deletes.filter((call) => call.table === recordRatings)).toHaveLength(1)
     })
   })
 

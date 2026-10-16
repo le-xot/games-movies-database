@@ -1,4 +1,4 @@
-import { likes, records, suggestionOwnerships } from '@gmd/database/schema'
+import { likes, recordRatings, records, suggestionOwnerships } from '@gmd/database/schema'
 import { Injectable } from '@nestjs/common'
 import { and, asc, count, desc, eq, ilike, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
@@ -110,6 +110,7 @@ export class DrizzleRecordRepository {
   async delete(id: number): Promise<void> {
     await this.drizzle.db.transaction(async (tx) => {
       await tx.delete(likes).where(eq(likes.recordId, id))
+      await tx.delete(recordRatings).where(eq(recordRatings.recordId, id))
       await tx.delete(records).where(eq(records.id, id))
     })
   }

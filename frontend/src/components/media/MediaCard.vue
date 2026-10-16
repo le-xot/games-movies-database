@@ -2,6 +2,7 @@
 import { Eraser, ExternalLink, Image, Pencil } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import BadgeSelect from '@/components/media/badge/BadgeSelect.vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
@@ -17,8 +18,16 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useRating } from '@/composables/use-rating'
 import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api'
+import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useUser } from '@/stores/use-user'
+import {
+  communityTotal as sumCommunityCounts,
+  emptyCommunityCounts,
+  getTopGrade,
+  type CommunityCounts,
+} from '@/utils/community-rating'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 
 const props = defineProps<{
@@ -33,9 +42,12 @@ const emit = defineEmits<{
   delete: [id: number]
 }>()
 
-const { isAdmin } = storeToRefs(useUser())
+const { isAdmin, isLoggedIn } = storeToRefs(useUser())
 const dialog = useDialog()
+const loginDialog = useLoginDialog()
 const { gradeTags } = useBadgeSelect()
+const { rateRecord, unrateRecord } = useRating()
+const ratingPending = ref(false)
 
 interface EditState {
   title: string
@@ -113,6 +125,34 @@ function handleGradeToggle(currentGrade: RecordGrade | null | undefined, newGrad
     id: props.item.id,
     data: { grade: currentGrade === newGrade ? null : newGrade },
   })
+}
+
+const communityCounts = computed<CommunityCounts>(
+  () =>
+    (props.item.communityCounts as CommunityCounts | null | undefined) ?? emptyCommunityCounts(),
+)
+const communityTotalCount = computed(
+  () => props.item.communityTotal ?? sumCommunityCounts(communityCounts.value),
+)
+const communityTop = computed(() => props.item.communityTop ?? getTopGrade(communityCounts.value))
+const myGrade = computed(() => props.item.myGrade ?? null)
+
+async function handleCommunityRate(grade: RecordGrade) {
+  if (!isLoggedIn.value) {
+    loginDialog.openLogin()
+    return
+  }
+  if (ratingPending.value) return
+  ratingPending.value = true
+  try {
+    if (myGrade.value === grade) await unrateRecord(props.item.id)
+    else await rateRecord({ id: props.item.id, grade })
+  } catch (error) {
+    console.error('Failed to save community rating:', error)
+    toast.error('Не удалось сохранить оценку')
+  } finally {
+    ratingPending.value = false
+  }
 }
 
 function getInitials(title: string): string {
@@ -207,21 +247,51 @@ const gradeButtons = gradeOrder.map((grade) => {
             @update="handleStatusUpdate"
           />
 
-          <div v-if="!shouldHideGrade(item.status)" class="flex items-center gap-1.5">
-            <button
-              v-for="btn in gradeButtons"
-              :key="btn.grade"
-              class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-base transition-all"
-              :class="[
-                item.grade === btn.grade
-                  ? `${btn.bg} ${btn.border}`
-                  : `bg-transparent ${btn.border} opacity-60`,
-                isAdmin ? 'cursor-pointer hover:opacity-100' : 'cursor-default',
-              ]"
-              @click="isAdmin && handleGradeToggle(item.grade, btn.grade)"
+          <div v-if="!shouldHideGrade(item.status)" class="flex flex-col gap-1">
+            <span class="text-[11px] uppercase tracking-wide text-muted-foreground"
+              >Моя оценка</span
             >
-              {{ btn.emoji }}
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button
+                v-for="btn in gradeButtons"
+                :key="btn.grade"
+                class="flex-1 h-9 flex items-center justify-center rounded-md border-2 text-base transition-all"
+                :class="[
+                  item.grade === btn.grade
+                    ? `${btn.bg} ${btn.border}`
+                    : `bg-transparent ${btn.border} opacity-60`,
+                  isAdmin ? 'cursor-pointer hover:opacity-100' : 'cursor-default',
+                ]"
+                @click="isAdmin && handleGradeToggle(item.grade, btn.grade)"
+              >
+                {{ btn.emoji }}
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <span class="text-[11px] uppercase tracking-wide text-muted-foreground"
+              >Комьюнити · {{ communityTotalCount }}</span
+            >
+            <div class="flex items-center gap-1.5">
+              <button
+                v-for="btn in gradeButtons"
+                :key="btn.grade"
+                :disabled="ratingPending"
+                :title="gradeTags[btn.grade].label"
+                class="flex-1 h-9 flex items-center justify-center gap-1 rounded-md border-2 text-base transition-all cursor-pointer"
+                :class="[
+                  communityTop === btn.grade
+                    ? `${btn.bg} ${btn.border}`
+                    : `bg-transparent ${btn.border} opacity-60 hover:opacity-100`,
+                  myGrade === btn.grade ? 'ring-2 ring-white/80 opacity-100' : '',
+                ]"
+                @click="handleCommunityRate(btn.grade)"
+              >
+                {{ btn.emoji
+                }}<span class="text-xs tabular-nums">{{ communityCounts[btn.grade] }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

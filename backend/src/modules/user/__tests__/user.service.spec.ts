@@ -401,6 +401,8 @@ describe('UserService', () => {
       accountsDropped: 0,
       likesMoved: 2,
       likesDropped: 0,
+      ratingsMoved: 0,
+      ratingsDropped: 0,
       suggestionsMoved: 1,
       wordleGamesMoved: 3,
       wordleGamesDropped: 0,

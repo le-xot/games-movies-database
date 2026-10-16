@@ -151,6 +151,16 @@ else
   fail "provider output is preserved verbatim apart from reserved vars"
 fi
 
+# 12. host-hijacking vars (DOCKER_CONFIG) are filtered out of .env
+write_shim doppler 'printf "%s\n" "POSTGRES_PASSWORD=x" "FOO=bar" "DOCKER_CONFIG=/root/.docker"'
+if run bash "$SCRIPT" >/dev/null 2>&1 \
+  && ! grep -q '^DOCKER_CONFIG=' "$work/.env" \
+  && grep -q '^FOO=bar$' "$work/.env"; then
+  pass "host-hijacking DOCKER_CONFIG is filtered"
+else
+  fail "host-hijacking DOCKER_CONFIG is filtered"
+fi
+
 if [ "$failures" -eq 0 ]; then
   echo "all tests passed"
 else

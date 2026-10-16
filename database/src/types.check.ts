@@ -9,6 +9,7 @@ export type TableNames = Expect<
     TableName,
     | 'likes'
     | 'limits'
+    | 'recordRatings'
     | 'records'
     | 'suggestionOwnerships'
     | 'suggestionRules'
@@ -22,6 +23,9 @@ export type TableNames = Expect<
 declare const record: SelectRows['records']
 export const recordTitle: string = record.title
 export const recordGrade: 'DISLIKE' | 'BEER' | 'LIKE' | 'RECOMMEND' | null = record.grade
+
+declare const rating: SelectRows['recordRatings']
+export const ratingGrade: 'DISLIKE' | 'BEER' | 'LIKE' | 'RECOMMEND' = rating.grade
 
 declare const account: InsertRows['userAccounts']
 export const accountPlatform: 'TWITCH' | 'KICK' | 'TELEGRAM' = account.platform

@@ -50,6 +50,13 @@
       "when": 1792101443170,
       "tag": "0006_luxuriant_marvel_apes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792156342501,
+      "tag": "0007_tough_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }

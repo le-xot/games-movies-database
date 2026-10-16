@@ -42,7 +42,7 @@ const emit = defineEmits<{
   delete: [id: number]
 }>()
 
-const { isAdmin, isLoggedIn } = storeToRefs(useUser())
+const { isAdmin, isLoggedIn, isRealAdmin } = storeToRefs(useUser())
 const dialog = useDialog()
 const loginDialog = useLoginDialog()
 const { gradeTags } = useBadgeSelect()
@@ -143,6 +143,12 @@ const profileVote = computed(() =>
 )
 
 async function handleCommunityRate(grade: RecordGrade) {
+  if (isRealAdmin.value) {
+    toast('Твоя оценка — плашка выше', {
+      description: 'Кнопки комьюнити — для пользователей',
+    })
+    return
+  }
   if (!isLoggedIn.value) {
     loginDialog.openLogin()
     return

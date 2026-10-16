@@ -21,7 +21,7 @@ export class RatingController {
 
   @Put(':recordId')
   @RateLimit(RATE_LIMITS.like)
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER]))
   @ApiResponse({
     type: RatingEntity,
     status: 200,
@@ -37,7 +37,7 @@ export class RatingController {
 
   @Delete(':recordId')
   @RateLimit(RATE_LIMITS.like)
-  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER]))
   @ApiResponse({ status: 200, description: 'Rating deleted successfully' })
   async unrate(@Param('recordId') recordId: number, @User() user: UserEntity): Promise<void> {
     await this.ratingService.unrate(user.id, recordId)

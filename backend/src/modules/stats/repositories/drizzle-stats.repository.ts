@@ -87,6 +87,18 @@ export class DrizzleStatsRepository {
     return rows.map((row) => ({ grade: row.grade, count: row.value }))
   }
 
+  async countByCommunityGenreGrade(): Promise<GenreGradeCount[]> {
+    const rows = await this.drizzle.db
+      .select({ genre: records.genre, grade: recordRatings.grade, value: count() })
+      .from(recordRatings)
+      .innerJoin(records, eq(recordRatings.recordId, records.id))
+      .where(and(this.scope, isNotNull(records.genre)))
+      .groupBy(records.genre, recordRatings.grade)
+    return rows.flatMap((row) =>
+      row.genre ? [{ genre: row.genre, grade: row.grade, count: row.value }] : [],
+    )
+  }
+
   async countByGenreStatus(): Promise<GenreStatusCount[]> {
     const rows = await this.drizzle.db
       .select({ genre: records.genre, status: records.status, value: count() })

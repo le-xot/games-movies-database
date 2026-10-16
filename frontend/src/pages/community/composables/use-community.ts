@@ -1,12 +1,13 @@
 import { useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useApi } from '@/stores/use-api'
-import { useTitle } from '@/stores/use-title'
+import { parseApiError } from '@/utils/api-error'
 import type { CommunityMemberEntity } from '@/lib/api'
+
 export const useCommunity = defineStore('community/use-community', () => {
   const api = useApi()
-  const { updateTitle } = useTitle()
+  const error = ref<string | null>(null)
 
   const {
     data: members,
@@ -14,14 +15,21 @@ export const useCommunity = defineStore('community/use-community', () => {
     refetch,
   } = useQuery<CommunityMemberEntity[]>({
     key: ['community'],
-    query: async () => (await api.ratings.ratingControllerGetCommunity()).data.members,
+    query: async () => {
+      error.value = null
+      try {
+        const { data } = await api.ratings.ratingControllerGetCommunity()
+        return data.members
+      } catch (err) {
+        error.value = await parseApiError(err, 'Не удалось загрузить комьюнити')
+        throw err
+      }
+    },
   })
 
   const items = computed(() => members.value ?? [])
 
-  onMounted(() => updateTitle('Комьюнити'))
-
-  return { items, isLoading, refetch }
+  return { items, isLoading, error, refetch }
 })
 
 if (import.meta.hot) {

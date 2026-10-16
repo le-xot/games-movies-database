@@ -12,8 +12,8 @@ export class StatsService {
       byGenre,
       byStatus,
       byGrade,
-      byCommunityGrade,
-      byCommunityGenreGrade,
+      byFriendsGrade,
+      byFriendsGenreGrade,
       byGenreStatus,
       byGenreGrade,
     ] = await Promise.all([
@@ -21,8 +21,8 @@ export class StatsService {
       this.statsRepository.countByGenre(),
       this.statsRepository.countByStatus(),
       this.statsRepository.countByGrade(),
-      this.statsRepository.countByCommunityGrade(),
-      this.statsRepository.countByCommunityGenreGrade(),
+      this.statsRepository.countByFriendsGrade(),
+      this.statsRepository.countByFriendsGenreGrade(),
       this.statsRepository.countByGenreStatus(),
       this.statsRepository.countByGenreGrade(),
     ])
@@ -32,8 +32,8 @@ export class StatsService {
       byGenre,
       byStatus,
       byGrade,
-      byCommunityGrade,
-      byCommunityGenreGrade,
+      byFriendsGrade,
+      byFriendsGenreGrade,
       byGenreStatus,
       byGenreGrade,
     }

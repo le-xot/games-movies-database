@@ -1,5 +1,5 @@
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import type { RecordCommunityView } from '@/modules/rating/entities/rating-domain.entity'
+import type { RecordFriendsView } from '@/modules/rating/entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
 
 export interface CreateRecordData {
@@ -37,8 +37,8 @@ export type RecordWithRelations = RecordDomain & {
   likes?: Array<SelectRow<'likes'> & { user?: SelectRow<'users'> }>
 }
 
-/** Record row with the community rating view attached (public aggregate + own vote). */
-export type RecordWithCommunity = RecordWithRelations & RecordCommunityView
+/** Record row with the friends rating view attached (public aggregate + own vote). */
+export type RecordWithFriends = RecordWithRelations & RecordFriendsView
 
 export interface RecordFilterOptions {
   search?: string | undefined

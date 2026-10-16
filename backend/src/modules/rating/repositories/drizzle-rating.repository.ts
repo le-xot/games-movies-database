@@ -5,19 +5,19 @@ import { and, count, desc, eq, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
 import {
-  CommunityAggregate,
-  CommunityCounts,
+  FriendsAggregate,
+  FriendsCounts,
   RatingDomain,
-  emptyCommunityCounts,
+  emptyFriendsCounts,
   getTopGrade,
 } from '../entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
 
-export interface CommunityMemberRow {
+export interface FriendsMemberRow {
   userId: string
   login: string
   profileImageUrl: string
-  counts: CommunityCounts
+  counts: FriendsCounts
 }
 
 @Injectable()
@@ -52,11 +52,11 @@ export class DrizzleRatingRepository {
     return result.rowCount ?? 0
   }
 
-  async aggregateByRecords(recordIds: number[]): Promise<Map<number, CommunityAggregate>> {
-    const aggregates = new Map<number, CommunityAggregate>()
+  async aggregateByRecords(recordIds: number[]): Promise<Map<number, FriendsAggregate>> {
+    const aggregates = new Map<number, FriendsAggregate>()
     if (recordIds.length === 0) return aggregates
     for (const id of recordIds) {
-      aggregates.set(id, { counts: emptyCommunityCounts(), total: 0, top: null })
+      aggregates.set(id, { counts: emptyFriendsCounts(), total: 0, top: null })
     }
     const rows = await this.drizzle.db
       .select({ recordId: recordRatings.recordId, grade: recordRatings.grade, count: count() })
@@ -117,7 +117,7 @@ export class DrizzleRatingRepository {
     return result?.value ?? 0
   }
 
-  async getCommunityOverview(): Promise<CommunityMemberRow[]> {
+  async getFriendsOverview(): Promise<FriendsMemberRow[]> {
     const rows = await this.drizzle.db
       .select({
         userId: recordRatings.userId,
@@ -130,7 +130,7 @@ export class DrizzleRatingRepository {
       .innerJoin(users, eq(recordRatings.userId, users.id))
       .groupBy(recordRatings.userId, users.login, users.profileImageUrl, recordRatings.grade)
 
-    const members = new Map<string, CommunityMemberRow>()
+    const members = new Map<string, FriendsMemberRow>()
     for (const row of rows) {
       let member = members.get(row.userId)
       if (!member) {
@@ -138,7 +138,7 @@ export class DrizzleRatingRepository {
           userId: row.userId,
           login: row.login,
           profileImageUrl: row.profileImageUrl,
-          counts: emptyCommunityCounts(),
+          counts: emptyFriendsCounts(),
         }
         members.set(row.userId, member)
       }

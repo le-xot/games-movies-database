@@ -8,8 +8,8 @@ import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { GetUserRatingsQueryDTO, RatingUpsertDTO } from '@/modules/rating/rating.dto'
 import {
-  CommunityMemberEntity,
-  GetCommunityEntity,
+  FriendsMemberEntity,
+  GetFriendsEntity,
   GetUserRatingsEntity,
   RatingEntity,
 } from '@/modules/rating/rating.entity'
@@ -83,12 +83,12 @@ export class RatingController {
     return new GetUserRatingsEntity({ items, total })
   }
 
-  @Get('community')
-  @ApiResponse({ type: GetCommunityEntity, status: 200 })
-  async getCommunity(): Promise<GetCommunityEntity> {
-    const members = await this.ratingService.getCommunity()
-    return new GetCommunityEntity({
-      members: members.map((member) => new CommunityMemberEntity(member)),
+  @Get('friends')
+  @ApiResponse({ type: GetFriendsEntity, status: 200 })
+  async getFriends(): Promise<GetFriendsEntity> {
+    const members = await this.ratingService.getFriends()
+    return new GetFriendsEntity({
+      members: members.map((member) => new FriendsMemberEntity(member)),
     })
   }
 }

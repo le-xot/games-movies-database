@@ -3,9 +3,9 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useApi } from '@/stores/use-api'
 import { parseApiError } from '@/utils/api-error'
-import type { CommunityMemberEntity } from '@/lib/api'
+import type { FriendsMemberEntity } from '@/lib/api'
 
-export const useCommunity = defineStore('community/use-community', () => {
+export const useFriends = defineStore('friends/use-friends', () => {
   const api = useApi()
   const error = ref<string | null>(null)
 
@@ -13,15 +13,15 @@ export const useCommunity = defineStore('community/use-community', () => {
     data: members,
     isLoading,
     refetch,
-  } = useQuery<CommunityMemberEntity[]>({
-    key: ['community'],
+  } = useQuery<FriendsMemberEntity[]>({
+    key: ['friends'],
     query: async () => {
       error.value = null
       try {
-        const { data } = await api.ratings.ratingControllerGetCommunity()
+        const { data } = await api.ratings.ratingControllerGetFriends()
         return data.members
       } catch (err) {
-        error.value = await parseApiError(err, 'Не удалось загрузить комьюнити')
+        error.value = await parseApiError(err, 'Не удалось загрузить список друзей')
         throw err
       }
     },
@@ -33,5 +33,5 @@ export const useCommunity = defineStore('community/use-community', () => {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useCommunity, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useFriends, import.meta.hot))
 }

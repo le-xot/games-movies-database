@@ -5,16 +5,16 @@ import { RecordGrade } from '@/lib/api'
  * Порядок и тай-брейк обязаны совпадать с бэкендом: используется для
  * оптимистичного обновления счётчиков до прихода ответа сервера.
  */
-export const COMMUNITY_GRADE_ORDER: readonly RecordGrade[] = [
+export const FRIENDS_GRADE_ORDER: readonly RecordGrade[] = [
   RecordGrade.RECOMMEND,
   RecordGrade.LIKE,
   RecordGrade.BEER,
   RecordGrade.DISLIKE,
 ]
 
-export type CommunityCounts = Record<RecordGrade, number>
+export type FriendsCounts = Record<RecordGrade, number>
 
-export function emptyCommunityCounts(): CommunityCounts {
+export function emptyFriendsCounts(): FriendsCounts {
   return {
     [RecordGrade.DISLIKE]: 0,
     [RecordGrade.BEER]: 0,
@@ -23,10 +23,10 @@ export function emptyCommunityCounts(): CommunityCounts {
   }
 }
 
-export function getTopGrade(counts: CommunityCounts): RecordGrade | null {
+export function getTopGrade(counts: FriendsCounts): RecordGrade | null {
   let top: RecordGrade | null = null
   let topCount = 0
-  for (const grade of COMMUNITY_GRADE_ORDER) {
+  for (const grade of FRIENDS_GRADE_ORDER) {
     if (counts[grade] > topCount) {
       top = grade
       topCount = counts[grade]
@@ -35,6 +35,6 @@ export function getTopGrade(counts: CommunityCounts): RecordGrade | null {
   return top
 }
 
-export function communityTotal(counts: CommunityCounts): number {
-  return COMMUNITY_GRADE_ORDER.reduce((sum, grade) => sum + counts[grade], 0)
+export function friendsTotal(counts: FriendsCounts): number {
+  return FRIENDS_GRADE_ORDER.reduce((sum, grade) => sum + counts[grade], 0)
 }

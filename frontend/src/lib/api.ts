@@ -164,10 +164,10 @@ export interface RecordEntity {
   genre: RecordGenre | null;
   grade: RecordGrade | null;
   /** @example {"DISLIKE":0,"BEER":1,"LIKE":2,"RECOMMEND":3} */
-  communityCounts?: object | null;
+  friendsCounts?: object | null;
   /** @example 6 */
-  communityTotal?: number | null;
-  communityTop?: RecordGrade | null;
+  friendsTotal?: number | null;
+  friendsTop?: RecordGrade | null;
   myGrade?: RecordGrade | null;
   episode: string | null;
   extra?: object | null;
@@ -256,10 +256,10 @@ export interface UserRatedRecordEntity {
   genre: RecordGenre | null;
   grade: RecordGrade | null;
   /** @example {"DISLIKE":0,"BEER":1,"LIKE":2,"RECOMMEND":3} */
-  communityCounts?: object | null;
+  friendsCounts?: object | null;
   /** @example 6 */
-  communityTotal?: number | null;
-  communityTop?: RecordGrade | null;
+  friendsTotal?: number | null;
+  friendsTop?: RecordGrade | null;
   myGrade?: RecordGrade | null;
   episode: string | null;
   extra?: object | null;
@@ -276,7 +276,7 @@ export interface GetUserRatingsEntity {
   total: number;
 }
 
-export interface CommunityMemberEntity {
+export interface FriendsMemberEntity {
   userId: string;
   login: string;
   profileImageUrl: string;
@@ -285,8 +285,8 @@ export interface CommunityMemberEntity {
   total: number;
 }
 
-export interface GetCommunityEntity {
-  members: CommunityMemberEntity[];
+export interface GetFriendsEntity {
+  members: FriendsMemberEntity[];
 }
 
 export interface ChangeLimitDTO {
@@ -429,10 +429,10 @@ export interface RecordsStatsDTO {
   byGenre: GenreCountDTO[];
   byStatus: StatusCountDTO[];
   byGrade: GradeCountDTO[];
-  byCommunityGrade: GradeCountDTO[];
+  byFriendsGrade: GradeCountDTO[];
   byGenreStatus: GenreStatusCountDTO[];
   byGenreGrade: GenreGradeCountDTO[];
-  byCommunityGenreGrade: GenreGradeCountDTO[];
+  byFriendsGenreGrade: GenreGradeCountDTO[];
 }
 
 export interface WordleGuessStateDTO {
@@ -1239,15 +1239,15 @@ export namespace Ratings {
   /**
    * No description
    * @tags ratings
-   * @name RatingControllerGetCommunity
-   * @request GET:/ratings/community
+   * @name RatingControllerGetFriends
+   * @request GET:/ratings/friends
    */
-  export namespace RatingControllerGetCommunity {
+  export namespace RatingControllerGetFriends {
     export type RequestParams = {};
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = GetCommunityEntity;
+    export type ResponseBody = GetFriendsEntity;
   }
 }
 
@@ -2548,12 +2548,12 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags ratings
-     * @name RatingControllerGetCommunity
-     * @request GET:/ratings/community
+     * @name RatingControllerGetFriends
+     * @request GET:/ratings/friends
      */
-    ratingControllerGetCommunity: (params: RequestParams = {}) =>
-      this.http.request<GetCommunityEntity, ApiErrorDto>({
-        path: `/ratings/community`,
+    ratingControllerGetFriends: (params: RequestParams = {}) =>
+      this.http.request<GetFriendsEntity, ApiErrorDto>({
+        path: `/ratings/friends`,
         method: "GET",
         format: "json",
         ...params,

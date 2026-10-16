@@ -72,7 +72,7 @@ setupIntegrationSuite('DrizzleStatsRepository (integration)', ({ db }) => {
     ])
   })
 
-  it('counts community votes only on in-scope records', async () => {
+  it('counts friends votes only on in-scope records', async () => {
     const user1 = await seedUser(db, 'voter-1')
     const user2 = await seedUser(db, 'voter-2')
     const [done, ignored] = await db
@@ -89,14 +89,14 @@ setupIntegrationSuite('DrizzleStatsRepository (integration)', ({ db }) => {
       { id: crypto.randomUUID(), userId: user1.id, recordId: ignored.id, grade: 'DISLIKE' },
     ])
 
-    const byCommunityGrade = await repository.countByCommunityGrade()
-    expect(byCommunityGrade.sort((a, b) => a.grade.localeCompare(b.grade))).toEqual([
+    const byFriendsGrade = await repository.countByFriendsGrade()
+    expect(byFriendsGrade.sort((a, b) => a.grade.localeCompare(b.grade))).toEqual([
       { grade: 'LIKE', count: 1 },
       { grade: 'RECOMMEND', count: 1 },
     ])
   })
 
-  it('counts community votes by genre and grade only within scope', async () => {
+  it('counts friends votes by genre and grade only within scope', async () => {
     const voter1 = await seedUser(db, 'genre-voter-1')
     const voter2 = await seedUser(db, 'genre-voter-2')
     const [game, anime, suggestion, noGenre] = await db
@@ -122,7 +122,7 @@ setupIntegrationSuite('DrizzleStatsRepository (integration)', ({ db }) => {
       { id: crypto.randomUUID(), userId: voter2.id, recordId: noGenre.id, grade: 'LIKE' },
     ])
 
-    expect(await repository.countByCommunityGenreGrade()).toEqual([
+    expect(await repository.countByFriendsGenreGrade()).toEqual([
       { genre: 'GAME', grade: 'RECOMMEND', count: 2 },
     ])
   })

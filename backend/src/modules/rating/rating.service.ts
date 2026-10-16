@@ -4,10 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
-import {
-  CommunityCounts,
-  emptyCommunityCounts,
-} from '@/modules/rating/entities/rating-domain.entity'
+import { FriendsCounts, emptyFriendsCounts } from '@/modules/rating/entities/rating-domain.entity'
 import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
 import { DrizzleRatingRepository } from './repositories/drizzle-rating.repository'
 
@@ -93,9 +90,9 @@ export class RatingService {
       const aggregate = aggregates.get(record.id)
       return {
         ...record,
-        communityCounts: aggregate?.counts ?? emptyCommunityCounts(),
-        communityTotal: aggregate?.total ?? 0,
-        communityTop: aggregate?.top ?? null,
+        friendsCounts: aggregate?.counts ?? emptyFriendsCounts(),
+        friendsTotal: aggregate?.total ?? 0,
+        friendsTop: aggregate?.top ?? null,
         myGrade: myGrades.get(record.id) ?? null,
         userGrade: rating.grade,
         userLogin: profile.login,
@@ -105,16 +102,16 @@ export class RatingService {
     return { items, total }
   }
 
-  async getCommunity(): Promise<
+  async getFriends(): Promise<
     Array<{
       userId: string
       login: string
       profileImageUrl: string
-      counts: CommunityCounts
+      counts: FriendsCounts
       total: number
     }>
   > {
-    const members = await this.ratingRepository.getCommunityOverview()
+    const members = await this.ratingRepository.getFriendsOverview()
     return members
       .map((member) => ({
         ...member,

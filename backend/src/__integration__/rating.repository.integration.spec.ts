@@ -90,7 +90,7 @@ setupIntegrationSuite('DrizzleRatingRepository (integration)', ({ db }) => {
     expect(page).toHaveLength(1)
   })
 
-  it('groups community overview by user with per-grade counts', async () => {
+  it('groups friends overview by user with per-grade counts', async () => {
     const active = await seedUser(db, 'rater-active')
     const quiet = await seedUser(db, 'rater-quiet')
     await seedUser(db, 'rater-silent')
@@ -103,7 +103,7 @@ setupIntegrationSuite('DrizzleRatingRepository (integration)', ({ db }) => {
     await ratings.upsert(active.id, second.id, RecordGrade.LIKE)
     await ratings.upsert(quiet.id, first.id, RecordGrade.DISLIKE)
 
-    const overview = await ratings.getCommunityOverview()
+    const overview = await ratings.getFriendsOverview()
     const byLogin = new Map(overview.map((member) => [member.login, member]))
 
     expect(byLogin.get('rater-active')).toMatchObject({

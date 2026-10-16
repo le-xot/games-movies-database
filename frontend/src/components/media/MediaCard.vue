@@ -23,11 +23,11 @@ import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/
 import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useUser } from '@/stores/use-user'
 import {
-  communityTotal as sumCommunityCounts,
-  emptyCommunityCounts,
+  friendsTotal as sumFriendsCounts,
+  emptyFriendsCounts,
   getTopGrade,
-  type CommunityCounts,
-} from '@/utils/community-rating'
+  type FriendsCounts,
+} from '@/utils/friends-rating'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 
 const props = defineProps<{
@@ -124,17 +124,16 @@ function handleGradeUpdate(value: RecordGrade | undefined) {
   emit('update', { id: props.item.id, data: { grade: value ?? null } })
 }
 
-const communityCounts = computed<CommunityCounts>(
-  () =>
-    (props.item.communityCounts as CommunityCounts | null | undefined) ?? emptyCommunityCounts(),
+const friendsCounts = computed<FriendsCounts>(
+  () => (props.item.friendsCounts as FriendsCounts | null | undefined) ?? emptyFriendsCounts(),
 )
-const communityTotalCount = computed(
-  () => props.item.communityTotal ?? sumCommunityCounts(communityCounts.value),
+const friendsTotalCount = computed(
+  () => props.item.friendsTotal ?? sumFriendsCounts(friendsCounts.value),
 )
-const communityCaption = computed(() =>
-  communityTotalCount.value > 0 ? `Комьюнити · ${communityTotalCount.value}` : 'Оценок пока нет',
+const friendsCaption = computed(() =>
+  friendsTotalCount.value > 0 ? `Друзья · ${friendsTotalCount.value}` : 'Оценок пока нет',
 )
-const communityTop = computed(() => props.item.communityTop ?? getTopGrade(communityCounts.value))
+const friendsTop = computed(() => props.item.friendsTop ?? getTopGrade(friendsCounts.value))
 const myGrade = computed(() => props.item.myGrade ?? null)
 const profileVote = computed(() =>
   props.item.userGrade && props.item.userLogin
@@ -142,10 +141,10 @@ const profileVote = computed(() =>
     : null,
 )
 
-async function handleCommunityRate(grade: RecordGrade) {
+async function handleFriendsRate(grade: RecordGrade) {
   if (isRealAdmin.value) {
     toast('Твоя оценка — плашка выше', {
-      description: 'Кнопки комьюнити — для пользователей',
+      description: 'Кнопки друзей — для пользователей',
     })
     return
   }
@@ -159,7 +158,7 @@ async function handleCommunityRate(grade: RecordGrade) {
     if (myGrade.value === grade) await unrateRecord(props.item.id)
     else await rateRecord({ id: props.item.id, grade })
   } catch (error) {
-    console.error('Failed to save community rating:', error)
+    console.error('Failed to save friends rating:', error)
     toast.error('Не удалось сохранить оценку')
   } finally {
     ratingPending.value = false
@@ -270,7 +269,7 @@ const gradeButtons = gradeOrder.map((grade) => {
               >{{ profileVote.emoji }} от {{ profileVote.login }}</span
             >
             <span class="text-[11px] uppercase tracking-wide text-muted-foreground">{{
-              communityCaption
+              friendsCaption
             }}</span>
             <div class="flex items-center gap-1.5">
               <button
@@ -280,16 +279,16 @@ const gradeButtons = gradeOrder.map((grade) => {
                 :title="gradeTags[btn.grade].label"
                 class="flex-1 h-9 flex items-center justify-center gap-1 rounded-md border-2 text-base transition-all cursor-pointer"
                 :class="[
-                  communityTop === btn.grade
+                  friendsTop === btn.grade
                     ? `${btn.bg} ${btn.border}`
                     : `bg-transparent ${btn.border} opacity-60 hover:opacity-100`,
                   myGrade === btn.grade ? 'ring-2 ring-white/80 opacity-100' : '',
                 ]"
-                @click="handleCommunityRate(btn.grade)"
+                @click="handleFriendsRate(btn.grade)"
               >
                 {{ btn.emoji
-                }}<span v-if="communityCounts[btn.grade] > 0" class="text-xs tabular-nums">{{
-                  communityCounts[btn.grade]
+                }}<span v-if="friendsCounts[btn.grade] > 0" class="text-xs tabular-nums">{{
+                  friendsCounts[btn.grade]
                 }}</span>
               </button>
             </div>

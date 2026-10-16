@@ -6,7 +6,7 @@ import { RecordStatus, type StatusCountDTO } from '@/lib/api'
 const props = defineProps<{
   total: number
   byStatus: StatusCountDTO[]
-  communityVotes: number
+  friendsVotes: number
 }>()
 
 const countFor = (status: RecordStatus) =>
@@ -17,7 +17,7 @@ const cards = computed(() => [
   { title: 'Готово', value: countFor(RecordStatus.DONE) },
   { title: 'В процессе', value: countFor(RecordStatus.PROGRESS) },
   { title: 'В очереди', value: countFor(RecordStatus.QUEUE) },
-  { title: 'Голосов комьюнити', value: props.communityVotes },
+  { title: 'Голосов друзей', value: props.friendsVotes },
 ])
 </script>
 

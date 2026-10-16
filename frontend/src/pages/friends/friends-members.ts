@@ -1,7 +1,7 @@
-import { COMMUNITY_GRADE_ORDER, type CommunityCounts } from '@/utils/community-rating'
-import type { CommunityMemberEntity, RecordGrade } from '@/lib/api'
+import { FRIENDS_GRADE_ORDER, type FriendsCounts } from '@/utils/friends-rating'
+import type { FriendsMemberEntity, RecordGrade } from '@/lib/api'
 
-export type CommunitySort = 'activity' | 'name'
+export type FriendsSort = 'activity' | 'name'
 
 export interface ProportionSegment {
   grade: RecordGrade
@@ -9,23 +9,23 @@ export interface ProportionSegment {
   share: number
 }
 
-export function countsOf(member: CommunityMemberEntity): CommunityCounts {
-  return member.counts as CommunityCounts
+export function countsOf(member: FriendsMemberEntity): FriendsCounts {
+  return member.counts as FriendsCounts
 }
 
 export function filterMembers(
-  members: CommunityMemberEntity[],
+  members: FriendsMemberEntity[],
   query: string,
-): CommunityMemberEntity[] {
+): FriendsMemberEntity[] {
   const needle = query.trim().toLowerCase()
   if (!needle) return members
   return members.filter((member) => member.login.toLowerCase().includes(needle))
 }
 
 export function sortMembers(
-  members: CommunityMemberEntity[],
-  sort: CommunitySort,
-): CommunityMemberEntity[] {
+  members: FriendsMemberEntity[],
+  sort: FriendsSort,
+): FriendsMemberEntity[] {
   return [...members].sort((a, b) => {
     const byLogin = a.login.localeCompare(b.login, 'ru')
     return sort === 'name' ? byLogin : b.total - a.total || byLogin
@@ -33,16 +33,16 @@ export function sortMembers(
 }
 
 /** Место по активности: userId → 1, 2, 3… независимо от фильтра и сортировки на экране. */
-export function activityRanks(members: CommunityMemberEntity[]): Map<string, number> {
+export function activityRanks(members: FriendsMemberEntity[]): Map<string, number> {
   return new Map(
     sortMembers(members, 'activity').map((member, index) => [member.userId, index + 1]),
   )
 }
 
-export function proportionSegments(counts: CommunityCounts): ProportionSegment[] {
-  const total = COMMUNITY_GRADE_ORDER.reduce((sum, grade) => sum + counts[grade], 0)
+export function proportionSegments(counts: FriendsCounts): ProportionSegment[] {
+  const total = FRIENDS_GRADE_ORDER.reduce((sum, grade) => sum + counts[grade], 0)
   if (total === 0) return []
-  return COMMUNITY_GRADE_ORDER.filter((grade) => counts[grade] > 0).map((grade) => ({
+  return FRIENDS_GRADE_ORDER.filter((grade) => counts[grade] > 0).map((grade) => ({
     grade,
     count: counts[grade],
     share: counts[grade] / total,

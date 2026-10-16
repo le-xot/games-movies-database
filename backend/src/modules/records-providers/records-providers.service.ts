@@ -14,33 +14,33 @@ interface PreparedData {
 }
 
 interface KinopoiskFilm {
-  kinopoiskId?: number
-  nameRu?: string
-  nameEn?: string
-  nameOriginal?: string
-  posterUrl?: string
+  kinopoiskId?: number | null
+  nameRu?: string | null
+  nameEn?: string | null
+  nameOriginal?: string | null
+  posterUrl?: string | null
   type: string
   genres: Array<{ genre: string }>
 }
 
 interface ShikimoriAnime {
-  russian?: string
-  name?: string
-  image?: { original?: string }
+  russian?: string | null
+  name?: string | null
+  image?: { original?: string | null } | null
 }
 
 interface IgdbGame {
   name: string
   slug: string
-  cover?: { url?: string }
+  cover?: { url?: string | null } | null
 }
 
-function isOptionalString(value: unknown): value is string | undefined {
-  return value === undefined || typeof value === 'string'
+function isOptionalString(value: unknown): value is string | null | undefined {
+  return value == null || typeof value === 'string'
 }
 
-function isOptionalNumber(value: unknown): value is number | undefined {
-  return value === undefined || typeof value === 'number'
+function isOptionalNumber(value: unknown): value is number | null | undefined {
+  return value == null || typeof value === 'number'
 }
 
 function isKinopoiskFilm(value: unknown): value is KinopoiskFilm {
@@ -62,14 +62,14 @@ function isKinopoiskFilm(value: unknown): value is KinopoiskFilm {
 function isShikimoriAnime(value: unknown): value is ShikimoriAnime {
   if (!isRecord(value)) return false
   if (!isOptionalString(value.russian) || !isOptionalString(value.name)) return false
-  if (value.image === undefined) return true
+  if (value.image == null) return true
   return isRecord(value.image) && isOptionalString(value.image.original)
 }
 
 function isIgdbGame(value: unknown): value is IgdbGame {
   if (!isRecord(value)) return false
   if (typeof value.name !== 'string' || typeof value.slug !== 'string') return false
-  if (value.cover === undefined) return true
+  if (value.cover == null) return true
   return isRecord(value.cover) && isOptionalString(value.cover.url)
 }
 
@@ -101,7 +101,7 @@ export class RecordsProvidersService {
       hosts: ['shikimori.one', 'shikimori.io'],
       routes: [
         {
-          pattern: /^\/animes\/[a-z]?(\d+)(?:-[a-z0-9-]*)?$/i,
+          pattern: /^\/animes\/[a-z]?(\d+)(?:-[a-z0-9-]*)?\/?$/i,
           fetch: (match) => this.fetchShikimori(Number(match[1])),
         },
       ],
@@ -128,7 +128,7 @@ export class RecordsProvidersService {
       hosts: ['igdb.com'],
       routes: [
         {
-          pattern: /^\/games\/([^/]+)$/,
+          pattern: /^\/games\/([^/]+)\/?$/,
           fetch: (match) => this.fetchIGDB(this.matchGroup(match, 1)),
         },
       ],
@@ -137,7 +137,11 @@ export class RecordsProvidersService {
       hosts: ['store.steampowered.com', 'steamcommunity.com'],
       routes: [
         {
-          pattern: /^\/app\/(\d+)$/,
+          pattern: /^\/agecheck\/app\/(\d+)(?:\/[^/]*)?\/?$/,
+          fetch: (match) => this.fetchIGDBFromSteam(this.matchGroup(match, 1)),
+        },
+        {
+          pattern: /^\/app\/(\d+)(?:\/[^/]*)?\/?$/,
           fetch: (match) => this.fetchIGDBFromSteam(this.matchGroup(match, 1)),
         },
       ],
@@ -146,11 +150,11 @@ export class RecordsProvidersService {
       hosts: ['on.kinohub.vip', 'tv.kinohub.vip', 'kinobox.in'],
       routes: [
         {
-          pattern: /^\/movie\/(\d+)$/i,
+          pattern: /^\/movie\/(\d+)\/?$/i,
           fetch: (match) => this.fetchKinopoisk(Number(match[1])),
         },
         {
-          pattern: /^\/(shikimori|shikimor)\/(\d+)$/i,
+          pattern: /^\/(shikimori|shikimor)\/(\d+)\/?$/i,
           fetch: (match) => this.fetchShikimori(Number(match[2])),
         },
       ],

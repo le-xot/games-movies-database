@@ -348,6 +348,57 @@ describe('RecordsProvidersService', () => {
         'API ключ для Кинопоиска не настроен',
       )
     })
+
+    it('accepts real kinopoisk payload with null optional fields (series 1435343)', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() =>
+        jsonOk({
+          kinopoiskId: 1435343,
+          nameRu: 'Джентльмены',
+          nameEn: null,
+          nameOriginal: 'The Gentlemen',
+          posterUrl: 'https://kinopoiskapiunofficial.tech/images/posters/kp/1435343.jpg',
+          type: 'TV_SERIES',
+          genres: [{ genre: 'криминал' }, { genre: 'боевик' }, { genre: 'комедия' }],
+        }),
+      )
+
+      try {
+        const result = await service.prepareData({
+          link: 'https://www.kinopoisk.ru/series/1435343/',
+        })
+        expect(result.title).toBe('Джентльмены')
+        expect(result.genre).toBe(RecordGenre.SERIES)
+        expect(result.link).toBe('https://www.kinopoisk.ru/series/1435343')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('accepts kinopoisk payload with all names null except original', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch(() =>
+        jsonOk({
+          kinopoiskId: 326,
+          nameRu: null,
+          nameEn: null,
+          nameOriginal: 'The Shawshank Redemption',
+          posterUrl: null,
+          type: 'FILM',
+          genres: [{ genre: 'драма' }],
+        }),
+      )
+
+      try {
+        const result = await service.prepareData({ link: kinopoiskLink })
+        expect(result.title).toBe('The Shawshank Redemption')
+        expect(result.genre).toBe(RecordGenre.MOVIE)
+      } finally {
+        restoreFetch()
+      }
+    })
   })
 
   describe('prepareData — imdb', () => {
@@ -503,6 +554,86 @@ describe('RecordsProvidersService', () => {
         })
         expect(result.title).toBe('Portal 2')
         expect(result.link).toBe('https://www.igdb.com/games/portal-2')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('accepts full store link with game name and trailing slash', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch((url) => {
+        if (url.includes('external_games')) return jsonOk([{ game: 1958045 }])
+        return jsonOk([{ name: 'Kingdom Come Deliverance II', cover: { url: '' }, slug: 'kcd2' }])
+      })
+
+      try {
+        const result = await service.prepareData({
+          link: 'https://store.steampowered.com/app/1771300/Kingdom_Come_Deliverance_II/',
+        })
+        expect(result.title).toBe('Kingdom Come Deliverance II')
+        expect(result.link).toBe('https://www.igdb.com/games/kcd2')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('accepts steam bare id with trailing slash', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch((url) => {
+        if (url.includes('external_games')) return jsonOk([{ game: 620 }])
+        return jsonOk([{ name: 'Portal 2', cover: { url: '' }, slug: 'portal-2' }])
+      })
+
+      try {
+        const result = await service.prepareData({
+          link: 'https://store.steampowered.com/app/620/',
+        })
+        expect(result.title).toBe('Portal 2')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('accepts agecheck app link', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch((url) => {
+        if (url.includes('external_games')) return jsonOk([{ game: 620 }])
+        return jsonOk([{ name: 'Portal 2', cover: { url: '' }, slug: 'portal-2' }])
+      })
+
+      try {
+        const result = await service.prepareData({
+          link: 'https://store.steampowered.com/agecheck/app/620/',
+        })
+        expect(result.title).toBe('Portal 2')
+      } finally {
+        restoreFetch()
+      }
+    })
+
+    it('accepts igdb and shikimori links with trailing slash', async () => {
+      setupRepo(mockRepo)
+
+      const restoreFetch = installFetch((url) => {
+        if (url.includes('api.igdb.com')) {
+          return jsonOk([{ name: 'Portal', cover: { url: '' }, slug: 'portal' }])
+        }
+        return jsonOk(shikimoriAnime())
+      })
+
+      try {
+        const igdbResult = await service.prepareData({
+          link: 'https://www.igdb.com/games/portal/',
+        })
+        expect(igdbResult.title).toBe('Portal')
+
+        const shikiResult = await service.prepareData({
+          link: 'https://shikimori.one/animes/21/',
+        })
+        expect(shikiResult.title).toBe('Test Anime')
       } finally {
         restoreFetch()
       }

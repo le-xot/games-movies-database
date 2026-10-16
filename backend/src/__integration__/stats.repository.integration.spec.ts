@@ -95,4 +95,35 @@ setupIntegrationSuite('DrizzleStatsRepository (integration)', ({ db }) => {
       { grade: 'RECOMMEND', count: 1 },
     ])
   })
+
+  it('counts community votes by genre and grade only within scope', async () => {
+    const voter1 = await seedUser(db, 'genre-voter-1')
+    const voter2 = await seedUser(db, 'genre-voter-2')
+    const [game, anime, suggestion, noGenre] = await db
+      .insert(records)
+      .values([
+        seedRecord({ title: 'Game done', genre: 'GAME', status: 'DONE' }),
+        seedRecord({ title: 'Anime excluded', genre: 'ANIME', status: 'NOTINTERESTED' }),
+        seedRecord({
+          title: 'Suggestion excluded',
+          type: 'SUGGESTION',
+          genre: 'GAME',
+          status: 'DONE',
+        }),
+        seedRecord({ title: 'No genre', genre: null, status: 'DONE' }),
+      ])
+      .returning()
+    if (!game || !anime || !suggestion || !noGenre) throw new Error('seed failed')
+    await db.insert(recordRatings).values([
+      { id: crypto.randomUUID(), userId: voter1.id, recordId: game.id, grade: 'RECOMMEND' },
+      { id: crypto.randomUUID(), userId: voter2.id, recordId: game.id, grade: 'RECOMMEND' },
+      { id: crypto.randomUUID(), userId: voter1.id, recordId: anime.id, grade: 'DISLIKE' },
+      { id: crypto.randomUUID(), userId: voter1.id, recordId: suggestion.id, grade: 'BEER' },
+      { id: crypto.randomUUID(), userId: voter2.id, recordId: noGenre.id, grade: 'LIKE' },
+    ])
+
+    expect(await repository.countByCommunityGenreGrade()).toEqual([
+      { genre: 'GAME', grade: 'RECOMMEND', count: 2 },
+    ])
+  })
 })

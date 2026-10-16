@@ -48,6 +48,12 @@ describe('StatsService', () => {
         { grade: RecordGrade.LIKE, count: 10 },
       ]),
     )
+    mockRepo.countByCommunityGenreGrade = mock(() =>
+      Promise.resolve([
+        { genre: RecordGenre.GAME, grade: RecordGrade.RECOMMEND, count: 5 },
+        { genre: RecordGenre.MOVIE, grade: RecordGrade.LIKE, count: 3 },
+      ]),
+    )
 
     const result = await service.getRecordsStats()
 
@@ -66,6 +72,10 @@ describe('StatsService', () => {
         { grade: RecordGrade.RECOMMEND, count: 30 },
         { grade: RecordGrade.LIKE, count: 10 },
       ],
+      byCommunityGenreGrade: [
+        { genre: RecordGenre.GAME, grade: RecordGrade.RECOMMEND, count: 5 },
+        { genre: RecordGenre.MOVIE, grade: RecordGrade.LIKE, count: 3 },
+      ],
       byGenreStatus: [
         { genre: RecordGenre.MOVIE, status: RecordStatus.DONE, count: 18 },
         { genre: RecordGenre.GAME, status: RecordStatus.DROP, count: 4 },
@@ -80,6 +90,7 @@ describe('StatsService', () => {
     expect(mockRepo.countByStatus).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByGrade).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByCommunityGrade).toHaveBeenCalledTimes(1)
+    expect(mockRepo.countByCommunityGenreGrade).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByGenreStatus).toHaveBeenCalledTimes(1)
     expect(mockRepo.countByGenreGrade).toHaveBeenCalledTimes(1)
   })
@@ -90,6 +101,7 @@ describe('StatsService', () => {
     mockRepo.countByStatus = mock(() => Promise.resolve([]))
     mockRepo.countByGrade = mock(() => Promise.resolve([]))
     mockRepo.countByCommunityGrade = mock(() => Promise.resolve([]))
+    mockRepo.countByCommunityGenreGrade = mock(() => Promise.resolve([]))
     mockRepo.countByGenreStatus = mock(() => Promise.resolve([]))
     mockRepo.countByGenreGrade = mock(() => Promise.resolve([]))
 
@@ -101,6 +113,7 @@ describe('StatsService', () => {
       byStatus: [],
       byGrade: [],
       byCommunityGrade: [],
+      byCommunityGenreGrade: [],
       byGenreStatus: [],
       byGenreGrade: [],
     })

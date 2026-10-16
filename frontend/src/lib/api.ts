@@ -432,6 +432,7 @@ export interface RecordsStatsDTO {
   byCommunityGrade: GradeCountDTO[];
   byGenreStatus: GenreStatusCountDTO[];
   byGenreGrade: GenreGradeCountDTO[];
+  byCommunityGenreGrade: GenreGradeCountDTO[];
 }
 
 export interface WordleGuessStateDTO {

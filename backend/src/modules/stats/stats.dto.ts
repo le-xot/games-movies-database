@@ -73,4 +73,7 @@ export class RecordsStatsDTO {
 
   @ApiProperty({ type: [GenreGradeCountDTO] })
   byGenreGrade!: GenreGradeCountDTO[]
+
+  @ApiProperty({ type: [GenreGradeCountDTO] })
+  byCommunityGenreGrade!: GenreGradeCountDTO[]
 }

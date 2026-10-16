@@ -2,27 +2,30 @@
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RecordGenre, RecordGrade } from '@/lib/api'
+import { RecordGrade } from '@/lib/api'
 import StatsGenreBreakdown from '@/pages/stats/components/StatsGenreBreakdown.vue'
 import StatsGenreDonut from '@/pages/stats/components/StatsGenreDonut.vue'
 import StatsStackedBar from '@/pages/stats/components/StatsStackedBar.vue'
 import StatsSummaryCards from '@/pages/stats/components/StatsSummaryCards.vue'
 import { useStats } from '@/pages/stats/composables/use-stats'
 import {
-  GENRE_LABELS,
-  GENRE_ORDER,
   GRADE_COLORS,
   GRADE_ORDER,
   STATUS_COLORS,
   STATUS_ORDER,
 } from '@/pages/stats/constants/stats-constants'
-import type {
-  BreakdownCategory,
-  GenreBreakdownRow,
-  StackedSegment,
-} from '@/pages/stats/constants/stats-constants'
+import {
+  buildBreakdownRows,
+  sumCounts,
+  sumCountsByGenre,
+  type BreakdownEntry,
+} from '@/pages/stats/stats-aggregates'
+import type { BreakdownCategory, StackedSegment } from '@/pages/stats/constants/stats-constants'
+
+const RECORD_FORMS = ['запись', 'записи', 'записей'] as const
+const VOTE_FORMS = ['голос', 'голоса', 'голосов'] as const
 
 const { stats, isLoading, error } = storeToRefs(useStats())
 const { statusTags, gradeTags } = useBadgeSelect()
@@ -32,6 +35,15 @@ const byStatus = computed(() => stats.value?.byStatus ?? [])
 const byGenre = computed(() => stats.value?.byGenre ?? [])
 const byGrade = computed(() => stats.value?.byGrade ?? [])
 const byCommunityGrade = computed(() => stats.value?.byCommunityGrade ?? [])
+const communityVotes = computed(() => sumCounts(byCommunityGrade.value))
+const communityGenres = computed(() =>
+  sumCountsByGenre(
+    (stats.value?.byCommunityGenreGrade ?? []).map((item) => ({
+      genre: item.genre,
+      count: item.count,
+    })),
+  ),
+)
 
 const gradeLabel = (grade: RecordGrade) =>
   `${gradeTags[grade].name} ${gradeTags[grade].label ?? ''}`.trim()
@@ -63,34 +75,42 @@ const communityGradeSegments = computed<StackedSegment[]>(() =>
   })).filter((segment) => segment.count > 0),
 )
 
-const breakdownMode = ref<'grade' | 'status'>('grade')
+const breakdownMode = ref<'community' | 'grade' | 'status'>('grade')
 
-const breakdownEntries = computed<{ genre: RecordGenre; key: string; count: number }[]>(() =>
-  breakdownMode.value === 'grade'
-    ? (stats.value?.byGenreGrade ?? []).map((item) => ({
-        genre: item.genre,
-        key: item.grade,
-        count: item.count,
-      }))
-    : (stats.value?.byGenreStatus ?? []).map((item) => ({
-        genre: item.genre,
-        key: item.status,
-        count: item.count,
-      })),
-)
+const breakdownEntries = computed<BreakdownEntry[]>(() => {
+  if (breakdownMode.value === 'status') {
+    return (stats.value?.byGenreStatus ?? []).map((item) => ({
+      genre: item.genre,
+      key: item.status,
+      count: item.count,
+    }))
+  }
+  if (breakdownMode.value === 'community') {
+    return (stats.value?.byCommunityGenreGrade ?? []).map((item) => ({
+      genre: item.genre,
+      key: item.grade,
+      count: item.count,
+    }))
+  }
+  return (stats.value?.byGenreGrade ?? []).map((item) => ({
+    genre: item.genre,
+    key: item.grade,
+    count: item.count,
+  }))
+})
 
 const breakdownCategories = computed<BreakdownCategory[]>(() => {
   const categories: BreakdownCategory[] =
-    breakdownMode.value === 'grade'
-      ? GRADE_ORDER.map((grade) => ({
-          key: grade,
-          label: gradeLabel(grade),
-          color: GRADE_COLORS[grade],
-        }))
-      : STATUS_ORDER.map((status) => ({
+    breakdownMode.value === 'status'
+      ? STATUS_ORDER.map((status) => ({
           key: status,
           label: statusTags[status].name,
           color: STATUS_COLORS[status],
+        }))
+      : GRADE_ORDER.map((grade) => ({
+          key: grade,
+          label: gradeLabel(grade),
+          color: GRADE_COLORS[grade],
         }))
 
   return categories.filter((category) =>
@@ -98,17 +118,8 @@ const breakdownCategories = computed<BreakdownCategory[]>(() => {
   )
 })
 
-const breakdownRows = computed<GenreBreakdownRow[]>(() =>
-  [...GENRE_ORDER].reverse().map((genre, index) => ({
-    index,
-    genre,
-    label: GENRE_LABELS[genre],
-    counts: breakdownCategories.value.map(
-      (category) =>
-        breakdownEntries.value.find((entry) => entry.genre === genre && entry.key === category.key)
-          ?.count ?? 0,
-    ),
-  })),
+const breakdownRows = computed(() =>
+  buildBreakdownRows(breakdownEntries.value, breakdownCategories.value),
 )
 
 const isEmpty = computed(() => !isLoading.value && !error.value && total.value === 0)
@@ -117,8 +128,8 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
 <template>
   <div class="flex flex-col gap-4">
     <template v-if="isLoading">
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card v-for="n in 4" :key="n" class="bg-[var(--n-action-color)]">
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <Card v-for="n in 5" :key="n" class="bg-[var(--n-action-color)]">
           <CardHeader class="pb-2">
             <div class="h-4 w-16 animate-pulse rounded bg-zinc-700" />
           </CardHeader>
@@ -147,45 +158,68 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
     </div>
 
     <template v-else>
-      <StatsSummaryCards :total="total" :by-status="byStatus" />
+      <StatsSummaryCards :total="total" :by-status="byStatus" :community-votes="communityVotes" />
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card class="bg-[var(--n-action-color)]">
           <CardHeader>
             <CardTitle>По жанрам</CardTitle>
+            <CardDescription>Мои записи и голоса комьюнити</CardDescription>
           </CardHeader>
-          <CardContent>
-            <StatsGenreDonut :data="byGenre" />
+          <CardContent class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="flex min-w-0 flex-col gap-3">
+              <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Мои</h3>
+              <StatsGenreDonut :data="byGenre" :unit="RECORD_FORMS" />
+            </div>
+            <div class="flex min-w-0 flex-col gap-3">
+              <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Комьюнити
+              </h3>
+              <StatsGenreDonut :data="communityGenres" :unit="VOTE_FORMS" />
+            </div>
           </CardContent>
         </Card>
 
         <Card class="bg-[var(--n-action-color)]">
           <CardHeader>
             <CardTitle>Статусы и оценки</CardTitle>
+            <CardDescription>Прогресс коллекции и распределение оценок</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-6">
             <div class="flex flex-col gap-3">
-              <h3 class="text-sm font-medium text-muted-foreground">Статусы</h3>
+              <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Статусы
+              </h3>
               <StatsStackedBar :segments="statusSegments" />
             </div>
             <div class="flex flex-col gap-3">
-              <h3 class="text-sm font-medium text-muted-foreground">Мои оценки</h3>
+              <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Мои оценки
+              </h3>
               <StatsStackedBar :segments="gradeSegments" />
             </div>
             <div class="flex flex-col gap-3">
-              <h3 class="text-sm font-medium text-muted-foreground">Оценки комьюнити</h3>
+              <h3 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Оценки комьюнити
+              </h3>
               <StatsStackedBar :segments="communityGradeSegments" />
             </div>
           </CardContent>
         </Card>
 
         <Card class="bg-[var(--n-action-color)] lg:col-span-2">
-          <CardHeader class="flex-row items-center justify-between">
-            <CardTitle>Разрезы по жанрам</CardTitle>
+          <CardHeader
+            class="flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div class="flex flex-col gap-1.5">
+              <CardTitle>Разрезы по жанрам</CardTitle>
+              <CardDescription>Как распределены оценки и статусы внутри жанров</CardDescription>
+            </div>
             <Tabs v-model="breakdownMode">
               <TabsList>
                 <TabsTrigger value="grade">Оценки</TabsTrigger>
                 <TabsTrigger value="status">Статусы</TabsTrigger>
+                <TabsTrigger value="community">Комьюнити</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
@@ -194,6 +228,10 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
           </CardContent>
         </Card>
       </div>
+
+      <p class="text-xs text-muted-foreground">
+        Оценки комьюнити считаются без записей «Не интересно» и советов.
+      </p>
     </template>
   </div>
 </template>

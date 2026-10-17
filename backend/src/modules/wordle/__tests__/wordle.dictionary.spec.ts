@@ -124,8 +124,11 @@ describe('getRandomAnswer', () => {
   })
 
   it('never returns excluded words', () => {
-    const excluded = ANSWERS.filter((word) => word !== ANSWERS[0])
-    expect(dictionary.getRandomAnswer(excluded)).toBe(ANSWERS[0])
+    const [firstAnswer] = ANSWERS
+    if (!firstAnswer) throw new Error('Пустой список ответов')
+
+    const excluded = ANSWERS.filter((word) => word !== firstAnswer)
+    expect(dictionary.getRandomAnswer(excluded)).toBe(firstAnswer)
   })
 
   it('falls back to the full list when everything is excluded', () => {

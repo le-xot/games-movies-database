@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { Injectable } from '@nestjs/common'
 
 const DAY_MS = 24 * 60 * 60 * 1000
-const WORD_PATTERN = /^[а-я]{5}$/
+export const WORD_PATTERN = /^[а-я]{5}$/
 
 export function normalizeWord(word: string): string {
   return word.trim().toLowerCase().replace(/ё/g, 'е')
@@ -46,6 +46,16 @@ export class WordleDictionary {
 
   getAnswerForDate(dateKey: string): string {
     const answer = this.answers[this.answerIndex(dateKey)]
+    if (!answer) throw new Error('Wordle answers list is empty')
+    return answer
+  }
+
+  /** Случайное слово из списка ответов; исключения не влияют на дневной цикл. */
+  getRandomAnswer(exclude: readonly string[] = []): string {
+    const excluded = new Set(exclude)
+    const pool = this.answers.filter((word) => !excluded.has(word))
+    const source = pool.length > 0 ? pool : this.answers
+    const answer = source[Math.floor(Math.random() * source.length)]
     if (!answer) throw new Error('Wordle answers list is empty')
     return answer
   }

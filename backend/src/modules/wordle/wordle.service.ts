@@ -15,7 +15,7 @@ import {
 } from '@/modules/wordle/repositories/drizzle-wordle.repository'
 import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
 import { getMoscowDateKey, msUntilNextMoscowMidnight } from '@/modules/wordle/wordle.date'
-import { WordleDictionary, normalizeWord } from '@/modules/wordle/wordle.dictionary'
+import { WordleDictionary, WORD_PATTERN, normalizeWord } from '@/modules/wordle/wordle.dictionary'
 import { WordleLeaderboardDTO, WordleStateDTO, WordleStatsDTO } from '@/modules/wordle/wordle.dto'
 import { scoreGuess } from '@/modules/wordle/wordle.scoring'
 import {
@@ -28,7 +28,6 @@ import {
 } from '@/modules/wordle/wordle.stats'
 import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
 
-const WORD_PATTERN = /^[а-я]{5}$/
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 
 @Injectable()

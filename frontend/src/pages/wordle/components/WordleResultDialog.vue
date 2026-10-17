@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { PartyPopper, Frown } from '@lucide/vue'
+import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -11,20 +12,27 @@ import {
 import { WordleGameStatus } from '@/lib/api'
 import { useWordleShare } from '@/pages/wordle/composables/use-wordle-share'
 
-const props = defineProps<{
-  open: boolean
-  status: WordleGameStatus
-  answer: string | null
-  attempts: number
-  currentStreak: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    open: boolean
+    status: WordleGameStatus
+    answer: string | null
+    attempts: number
+    currentStreak: number
+    mode?: 'daily' | 'practice'
+  }>(),
+  { mode: 'daily' },
+)
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
   'show-stats': []
+  'play-again': []
 }>()
 
 const { shareResult, isSharing } = useWordleShare()
+
+const isPractice = computed(() => props.mode === 'practice')
 
 function openStats() {
   emit('show-stats')
@@ -45,24 +53,27 @@ function openStats() {
         <DialogTitle>
           {{ status === WordleGameStatus.WON ? 'Победа!' : 'Не угадали' }}
         </DialogTitle>
-        <DialogDescription class="sr-only">Результат партии «Вордли»</DialogDescription>
+        <DialogDescription class="sr-only">
+          {{ isPractice ? 'Результат тренировки «Вордли»' : 'Результат партии «Вордли»' }}
+        </DialogDescription>
       </DialogHeader>
 
       <p class="text-center text-sm text-muted-foreground">
-        Слово дня:
+        {{ isPractice ? 'Слово:' : 'Слово дня:' }}
         <span class="font-semibold uppercase text-foreground">{{ answer }}</span>
       </p>
 
       <p v-if="status === WordleGameStatus.WON" class="text-center text-sm text-muted-foreground">
-        Попыток: {{ attempts }} · серия: {{ currentStreak }}
+        Попыток: {{ attempts }}<template v-if="!isPractice"> · серия: {{ currentStreak }}</template>
       </p>
       <p v-else class="text-center text-sm text-muted-foreground">
-        Попробуйте завтра — слово будет новое
+        {{ isPractice ? 'Попробуйте ещё раз' : 'Попробуйте завтра — слово будет новое' }}
       </p>
 
       <div class="flex flex-col gap-2">
-        <Button :disabled="isSharing" @click="shareResult">Поделиться</Button>
-        <Button variant="outline" @click="openStats">Статистика</Button>
+        <Button v-if="isPractice" @click="emit('play-again')">Ещё слово</Button>
+        <Button v-else :disabled="isSharing" @click="shareResult">Поделиться</Button>
+        <Button v-if="!isPractice" variant="outline" @click="openStats">Статистика</Button>
         <Button variant="outline" @click="emit('update:open', false)">Закрыть</Button>
       </div>
     </DialogScrollContent>

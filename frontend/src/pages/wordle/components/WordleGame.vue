@@ -107,7 +107,7 @@ const dayProgress = computed(() => {
 
 <template>
   <div
-    class="wordle-play relative flex min-h-[calc(100dvh-132px)] flex-col xl:min-h-[calc(100dvh-64px)] xl:justify-center"
+    class="wordle-play relative flex min-h-[calc(100dvh-176px)] flex-col xl:min-h-[calc(100dvh-108px)] xl:justify-center"
   >
     <div class="flex flex-1 flex-col xl:flex-none xl:pr-[300px]">
       <div

@@ -79,7 +79,7 @@ async function playAgain() {
 <template>
   <div
     data-wordle-practice
-    class="wordle-practice relative flex min-h-[calc(100dvh-188px)] flex-col xl:min-h-[calc(100dvh-120px)] xl:justify-center"
+    class="wordle-practice relative flex min-h-[calc(100dvh-176px)] flex-col xl:min-h-[calc(100dvh-108px)] xl:justify-center"
   >
     <p class="mb-3 text-center text-xs text-muted-foreground">
       Тренировка не влияет на статистику и серию
@@ -111,7 +111,11 @@ async function playAgain() {
         @backspace="wordle.removeLetter"
       />
 
-      <div class="flex justify-center">
+      <div class="flex flex-col items-center gap-1">
+        <p v-if="isFinished" class="text-sm text-muted-foreground">
+          Слово:
+          <span class="font-semibold uppercase text-foreground">{{ practiceState?.answer }}</span>
+        </p>
         <Button
           v-if="isFinished"
           variant="secondary"

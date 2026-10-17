@@ -189,9 +189,11 @@ test.describe('authorized player', () => {
   })
 
   test('practice rounds do not touch daily stats', async ({ page }) => {
-    const statsBefore = (await (await page.request.get('/api/wordle/stats')).json()) as {
-      played: number
-    }
+    type Stats = { played: number; wins: number; currentStreak: number; maxStreak: number }
+    const readStats = async (): Promise<Stats> =>
+      (await (await page.request.get('/api/wordle/stats')).json()) as Stats
+
+    const statsBefore = await readStats()
 
     await page.goto('/db/wordle')
     await page.getByRole('tab', { name: 'Тренировка' }).click()
@@ -229,13 +231,93 @@ test.describe('authorized player', () => {
     await dialog.getByRole('button', { name: 'Ещё слово' }).click()
     await expect(page.getByRole('button', { name: 'Другое слово' })).toBeVisible()
 
-    const statsAfter = (await (await page.request.get('/api/wordle/stats')).json()) as {
-      played: number
-    }
+    const statsAfter = await readStats()
     expect(statsAfter.played).toBe(statsBefore.played)
+    expect(statsAfter.wins).toBe(statsBefore.wins)
+    expect(statsAfter.currentStreak).toBe(statsBefore.currentStreak)
+    expect(statsAfter.maxStreak).toBe(statsBefore.maxStreak)
 
     await page.getByRole('tab', { name: 'Слово дня' }).click()
     await expect(page.getByRole('grid', { name: 'Игровое поле' })).toBeVisible()
+  })
+})
+
+test.describe('practice layout', () => {
+  test.use({ storageState: ADMIN_STATE_FILE })
+
+  for (const viewport of [
+    { width: 1024, height: 900 },
+    { width: 1440, height: 900 },
+  ]) {
+    test.describe(`viewport ${viewport.width}`, () => {
+      test.use({ viewport })
+
+      test('daily fits the layout and the practice keyboard is aligned', async ({ page }) => {
+        await page.goto('/db/wordle')
+        await expect(page.getByRole('grid', { name: 'Игровое поле' })).toBeVisible()
+
+        const overflowing = await page.evaluate(
+          () =>
+            [...document.querySelectorAll('*')].filter((element) => {
+              const style = getComputedStyle(element)
+              return (
+                (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+                element.scrollHeight > element.clientHeight + 1
+              )
+            }).length,
+        )
+        expect(overflowing).toBe(0)
+
+        await page.getByRole('tab', { name: 'Тренировка' }).click()
+        await expect(page.locator('[data-wordle-practice]')).toBeVisible()
+
+        const board = await page.getByRole('grid', { name: 'Игровое поле' }).boundingBox()
+        const keyboard = await page.locator('[aria-label="Клавиатура"]').boundingBox()
+        if (!board || !keyboard) throw new Error('Нет bounding box у доски или клавиатуры')
+
+        const boardCenter = board.x + board.width / 2
+        const keyboardCenter = keyboard.x + keyboard.width / 2
+        expect(Math.abs(boardCenter - keyboardCenter)).toBeLessThanOrEqual(1)
+      })
+    })
+  }
+})
+
+test.describe('practice result on desktop', () => {
+  test.use({
+    storageState: ADMIN_STATE_FILE,
+    viewport: { width: 1440, height: 900 },
+  })
+
+  test('the finished round reveals the word without the dialog', async ({ page }) => {
+    await page.goto('/db/wordle')
+    await page.getByRole('tab', { name: 'Тренировка' }).click()
+    await expect(page.locator('[data-wordle-practice]')).toBeVisible()
+
+    const attemptButton = page.getByRole('button', { name: /Ещё слово|Другое слово/ })
+    await attemptButton.first().click()
+
+    const keyboard = page.locator('[aria-label="Клавиатура"]')
+
+    for (const word of ['кокос', 'ежики', 'птица', 'кокос', 'ежики', 'птица']) {
+      for (const letter of word) {
+        await wordleKey(page, letter).click()
+      }
+
+      const [response] = await Promise.all([
+        page.waitForResponse(
+          (res) =>
+            res.url().includes('/api/wordle/practice/guess') && res.request().method() === 'POST',
+        ),
+        keyboard.getByRole('button', { name: 'Ввод' }).click(),
+      ])
+
+      const state = (await response.json()) as { status: string }
+      if (state.status !== 'IN_PROGRESS') break
+    }
+
+    // На >=1280px диалог не открывается сам, поэтому ответ обязан быть виден на странице.
+    await expect(page.locator('[data-wordle-practice]').getByText('Слово:')).toBeVisible()
   })
 })
 

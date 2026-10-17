@@ -522,6 +522,19 @@ export interface WordleLeaderboardDTO {
   today: WordleDailyLeaderboardDTO;
 }
 
+export interface WordlePracticeStateDTO {
+  status: WordleGameStatus;
+  /** @example 3 */
+  attempts: number;
+  /** @example 6 */
+  maxAttempts: number;
+  /** @example 5 */
+  wordLength: number;
+  guesses: WordleGuessStateDTO[];
+  /** @example null */
+  answer: string | null;
+}
+
 export interface WordleNotificationsStatusDTO {
   available: boolean;
   connected: boolean;
@@ -1483,6 +1496,48 @@ export namespace Wordle {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = WordleLeaderboardDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerGetPracticeState
+   * @request GET:/wordle/practice
+   */
+  export namespace WordleControllerGetPracticeState {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordlePracticeStateDTO | null;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerStartPractice
+   * @request POST:/wordle/practice
+   */
+  export namespace WordleControllerStartPractice {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordlePracticeStateDTO;
+  }
+
+  /**
+   * No description
+   * @tags wordle
+   * @name WordleControllerMakePracticeGuess
+   * @request POST:/wordle/practice/guess
+   */
+  export namespace WordleControllerMakePracticeGuess {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = WordleGuessDTO;
+    export type RequestHeaders = {};
+    export type ResponseBody = WordlePracticeStateDTO;
   }
 
   /**
@@ -2818,6 +2873,56 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<WordleLeaderboardDTO, ApiErrorDto>({
         path: `/wordle/leaderboard`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerGetPracticeState
+     * @request GET:/wordle/practice
+     */
+    wordleControllerGetPracticeState: (params: RequestParams = {}) =>
+      this.http.request<WordlePracticeStateDTO | null, ApiErrorDto>({
+        path: `/wordle/practice`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerStartPractice
+     * @request POST:/wordle/practice
+     */
+    wordleControllerStartPractice: (params: RequestParams = {}) =>
+      this.http.request<WordlePracticeStateDTO, ApiErrorDto>({
+        path: `/wordle/practice`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags wordle
+     * @name WordleControllerMakePracticeGuess
+     * @request POST:/wordle/practice/guess
+     */
+    wordleControllerMakePracticeGuess: (
+      data: WordleGuessDTO,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<WordlePracticeStateDTO, ApiErrorDto>({
+        path: `/wordle/practice/guess`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

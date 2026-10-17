@@ -6,6 +6,7 @@ import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserEntity } from '@/modules/user/user.entity'
+import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
 import {
   WordleGuessDTO,
   WordleLeaderboardDTO,
@@ -13,7 +14,6 @@ import {
   WordleStateDTO,
   WordleStatsDTO,
 } from '@/modules/wordle/wordle.dto'
-import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
 import { WordleService } from '@/modules/wordle/wordle.service'
 import { ApiErrors } from '@/utils/api-errors'
 import { RATE_LIMITS } from '@/utils/rate-limits'

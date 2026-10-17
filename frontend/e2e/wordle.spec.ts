@@ -187,6 +187,56 @@ test.describe('authorized player', () => {
     await expect(cells.nth(1)).toHaveText('б')
     await expect(cells.nth(2)).toHaveText('а')
   })
+
+  test('practice rounds do not touch daily stats', async ({ page }) => {
+    const statsBefore = (await (await page.request.get('/api/wordle/stats')).json()) as {
+      played: number
+    }
+
+    await page.goto('/db/wordle')
+    await page.getByRole('tab', { name: 'Тренировка' }).click()
+    await expect(page.locator('[data-wordle-practice]')).toBeVisible()
+    await expect(page.getByText('Тренировка не влияет на статистику и серию')).toBeVisible()
+
+    // Сессия в Redis переживает прогоны — принудительно начинаем свежий раунд.
+    const attemptButton = page.getByRole('button', { name: /Ещё слово|Другое слово/ })
+    await attemptButton.first().click()
+
+    const keyboard = page.locator('[aria-label="Клавиатура"]')
+    const dialog = page.getByRole('dialog')
+
+    for (const word of ['кокос', 'ежики', 'птица', 'кокос', 'ежики', 'птица']) {
+      for (const letter of word) {
+        await wordleKey(page, letter).click()
+      }
+
+      // Ждём именно ответ на догадку: иначе на раннем угадывании клик по
+      // заблокированной клавиатуре повиснет до таймаута.
+      const [response] = await Promise.all([
+        page.waitForResponse(
+          (res) =>
+            res.url().includes('/api/wordle/practice/guess') && res.request().method() === 'POST',
+        ),
+        keyboard.getByRole('button', { name: 'Ввод' }).click(),
+      ])
+
+      const state = (await response.json()) as { status: string }
+      if (state.status !== 'IN_PROGRESS') break
+    }
+
+    // Вьюпорт этого блока — 1024 < 1280, поэтому диалог результата открывается сам.
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: 'Ещё слово' }).click()
+    await expect(page.getByRole('button', { name: 'Другое слово' })).toBeVisible()
+
+    const statsAfter = (await (await page.request.get('/api/wordle/stats')).json()) as {
+      played: number
+    }
+    expect(statsAfter.played).toBe(statsBefore.played)
+
+    await page.getByRole('tab', { name: 'Слово дня' }).click()
+    await expect(page.getByRole('grid', { name: 'Игровое поле' })).toBeVisible()
+  })
 })
 
 test.describe('daily leaderboard preview', () => {

@@ -1,7 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { BadRequestException } from '@nestjs/common'
 import { WordleGameStatus } from '@/enums'
-import { getMoscowDateKey, shiftDateKey } from '@/modules/wordle/wordle.date'
 import {
   PRACTICE_KEY_PREFIX,
   PRACTICE_SPOILER_WINDOW_DAYS,
@@ -9,6 +8,7 @@ import {
   WordlePracticeService,
   derivePracticeStatus,
 } from '@/modules/wordle/wordle-practice.service'
+import { getMoscowDateKey, shiftDateKey } from '@/modules/wordle/wordle.date'
 import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
 import type { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
 import type { RedisClient } from 'bun'
@@ -174,11 +174,14 @@ describe('WordlePracticeService', () => {
         throw new Error('ECONNREFUSED')
       }),
     }
-    const service = new WordlePracticeService(failing as unknown as RedisClient, {
-      isValidWord: mock(() => true),
-      getAnswerForDate: mock(() => 'ответ'),
-      getRandomAnswer: mock(() => ANSWER),
-    } as unknown as WordleDictionary)
+    const service = new WordlePracticeService(
+      failing as unknown as RedisClient,
+      {
+        isValidWord: mock(() => true),
+        getAnswerForDate: mock(() => 'ответ'),
+        getRandomAnswer: mock(() => ANSWER),
+      } as unknown as WordleDictionary,
+    )
 
     await expect(service.getState('user-1')).rejects.toThrow('ECONNREFUSED')
   })

@@ -10,6 +10,7 @@ import { UserController } from '@/modules/user/user.controller'
 import { UserService } from '@/modules/user/user.service'
 import { WeatherController } from '@/modules/weather/weather.controller'
 import { WeatherService } from '@/modules/weather/weather.service'
+import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
 import { WordleController } from '@/modules/wordle/wordle.controller'
 import { WordleService } from '@/modules/wordle/wordle.service'
 
@@ -31,6 +32,7 @@ async function buildDocument() {
       { provide: RecordService, useValue: {} },
       { provide: WeatherService, useValue: {} },
       { provide: WordleService, useValue: {} },
+      { provide: WordlePracticeService, useValue: {} },
     ],
   }).compile()
 

@@ -19,12 +19,16 @@ import type {
   WordleGameStatus as WordleGameStatusValue,
   WordleLeaderboardDTO,
   WordleLetterState,
+  WordlePracticeStateDTO,
   WordleStateDTO,
   WordleStatsDTO,
 } from '@/lib/api'
 
 export const WORDLE_STATE_KEY = 'wordle/state'
 export const WORDLE_STATS_KEY = 'wordle/stats'
+export const WORDLE_PRACTICE_KEY = 'wordle/practice'
+
+export type WordleMode = 'daily' | 'practice'
 
 function extractErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === 'object' && 'error' in error) {
@@ -40,12 +44,13 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
   const api = useApi()
   const queryCache = useQueryCache()
 
+  const mode = ref<WordleMode>('daily')
   const guessCells = ref(emptyGuessCells(WORDLE_WORD_LENGTH))
   const isShaking = ref(false)
 
   const {
     data: state,
-    isLoading: isStateLoading,
+    isLoading: isDailyStateLoading,
     refetch: refetchState,
   } = useQuery<WordleStateDTO>({
     key: [WORDLE_STATE_KEY],
@@ -65,7 +70,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     gcTime: false,
   })
 
-  const { mutateAsync: submitGuess, isLoading: isSubmitting } = useMutation({
+  const { mutateAsync: submitDailyGuess, isLoading: isSubmittingDaily } = useMutation({
     key: [WORDLE_STATE_KEY, 'guess'],
     mutation: async (word: string) => {
       const { data } = await api.wordle.wordleControllerMakeGuess({ word })
@@ -78,10 +83,47 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     },
   })
 
+  const {
+    data: practiceState,
+    isLoading: isPracticeLoading,
+    error: practiceError,
+    refetch: refetchPractice,
+  } = useQuery<WordlePracticeStateDTO | null>({
+    key: [WORDLE_PRACTICE_KEY],
+    query: async () => (await api.wordle.wordleControllerGetPracticeState()).data,
+    gcTime: false,
+  })
+
+  const { mutateAsync: startPracticeRound, isLoading: isStartingPractice } = useMutation({
+    key: [WORDLE_PRACTICE_KEY, 'start'],
+    mutation: async () => (await api.wordle.wordleControllerStartPractice()).data,
+    onSuccess: (data) => {
+      queryCache.setQueryData([WORDLE_PRACTICE_KEY], data)
+    },
+  })
+
+  const { mutateAsync: submitPracticeGuess, isLoading: isSubmittingPractice } = useMutation({
+    key: [WORDLE_PRACTICE_KEY, 'guess'],
+    mutation: async (word: string) =>
+      (await api.wordle.wordleControllerMakePracticeGuess({ word })).data,
+    onSuccess: (data) => {
+      queryCache.setQueryData([WORDLE_PRACTICE_KEY], data)
+    },
+  })
+
+  const isPractice = computed(() => mode.value === 'practice')
+  const activeState = computed(() => (isPractice.value ? practiceState.value : state.value))
+
   const status = computed<WordleGameStatusValue>(
-    () => state.value?.status ?? WordleGameStatus.IN_PROGRESS,
+    () => activeState.value?.status ?? WordleGameStatus.IN_PROGRESS,
   )
   const isFinished = computed(() => status.value !== WordleGameStatus.IN_PROGRESS)
+  const isSubmitting = computed(() =>
+    isPractice.value ? isSubmittingPractice.value : isSubmittingDaily.value,
+  )
+  const isStateLoading = computed(() =>
+    isPractice.value ? isPracticeLoading.value : isDailyStateLoading.value,
+  )
   const isInputLocked = computed(
     () => isSubmitting.value || isFinished.value || isStateLoading.value,
   )
@@ -89,7 +131,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
   const letterStates = computed<Partial<Record<string, WordleLetterState>>>(() => {
     const result: Partial<Record<string, WordleLetterState>> = {}
 
-    for (const guess of state.value?.guesses ?? []) {
+    for (const guess of activeState.value?.guesses ?? []) {
       guess.states.forEach((letterState, index) => {
         const letter = guess.word[index]
         if (!letter) return
@@ -161,9 +203,22 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
       return
     }
 
+    if (isPractice.value) {
+      try {
+        await submitPracticeGuess(word)
+        resetGuessCells()
+      } catch (error) {
+        shake()
+        toast.error('Ошибка', {
+          description: extractErrorMessage(error, 'Не удалось отправить слово'),
+        })
+      }
+      return
+    }
+
     const wasInProgress = status.value === WordleGameStatus.IN_PROGRESS
     try {
-      const result = await submitGuess(word)
+      const result = await submitDailyGuess(word)
       resetGuessCells()
       if (wasInProgress && result && result.status !== WordleGameStatus.IN_PROGRESS) {
         applyOptimisticStats(result)
@@ -174,6 +229,25 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
         description: extractErrorMessage(error, 'Не удалось отправить слово'),
       })
     }
+  }
+
+  /** Старт нового раунда тренировки — работает и как «Ещё слово», и как «Другое слово». */
+  async function startNewPracticeRound() {
+    try {
+      await startPracticeRound()
+      resetGuessCells()
+    } catch (error) {
+      shake()
+      toast.error('Ошибка', {
+        description: extractErrorMessage(error, 'Не удалось начать тренировку'),
+      })
+    }
+  }
+
+  function setMode(next: WordleMode) {
+    if (mode.value === next) return
+    mode.value = next
+    resetGuessCells()
   }
 
   /** Мгновенно обновляет статистику завершённой партии до прихода refetch. */
@@ -213,6 +287,15 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     state,
     stats,
     leaderboard,
+    mode,
+    setMode,
+    isPractice,
+    practiceState,
+    practiceError,
+    isPracticeLoading,
+    refetchPractice,
+    isStartingPractice,
+    startNewPracticeRound,
     status,
     isFinished,
     isInputLocked,

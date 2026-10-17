@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing'
 import cookieParser from 'cookie-parser'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { UserService } from '@/modules/user/user.service'
+import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
 import { WordleController } from '@/modules/wordle/wordle.controller'
 import { WordleService } from '@/modules/wordle/wordle.service'
 import type { INestApplication } from '@nestjs/common'
@@ -34,6 +35,14 @@ describe('WordleController guards', () => {
             getLeaderboard: mock().mockResolvedValue(leaderboard),
             getState: mock(),
             getStats: mock(),
+            makeGuess: mock(),
+          },
+        },
+        {
+          provide: WordlePracticeService,
+          useValue: {
+            getState: mock(),
+            start: mock(),
             makeGuess: mock(),
           },
         },
@@ -72,6 +81,28 @@ describe('WordleController guards', () => {
 
   it('rejects unauthenticated guesses', async () => {
     const response = await fetch(`${baseUrl}/wordle/guess`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ word: 'слово' }),
+    })
+
+    expect(response.status).toBe(401)
+  })
+
+  it('rejects unauthenticated practice state requests', async () => {
+    const response = await fetch(`${baseUrl}/wordle/practice`)
+
+    expect(response.status).toBe(401)
+  })
+
+  it('rejects unauthenticated practice starts', async () => {
+    const response = await fetch(`${baseUrl}/wordle/practice`, { method: 'POST' })
+
+    expect(response.status).toBe(401)
+  })
+
+  it('rejects unauthenticated practice guesses', async () => {
+    const response = await fetch(`${baseUrl}/wordle/practice/guess`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ word: 'слово' }),

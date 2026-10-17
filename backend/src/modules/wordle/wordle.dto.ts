@@ -21,6 +21,26 @@ export class WordleGuessStateDTO {
   states!: WordleLetterState[]
 }
 
+export class WordlePracticeStateDTO {
+  @ApiProperty({ enum: WordleGameStatus, enumName: WordleGameStatusName })
+  status!: WordleGameStatus
+
+  @ApiProperty({ example: 3 })
+  attempts!: number
+
+  @ApiProperty({ example: 6 })
+  maxAttempts!: number
+
+  @ApiProperty({ example: 5 })
+  wordLength!: number
+
+  @ApiProperty({ type: [WordleGuessStateDTO] })
+  guesses!: WordleGuessStateDTO[]
+
+  @ApiProperty({ type: String, nullable: true, example: null })
+  answer!: string | null
+}
+
 export class WordleStateDTO {
   @ApiProperty({ example: '2026-09-20' })
   date!: string

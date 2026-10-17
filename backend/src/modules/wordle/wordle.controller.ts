@@ -6,9 +6,11 @@ import { RolesGuard } from '@/modules/auth/auth.roles.guard'
 import { User } from '@/modules/auth/auth.user.decorator'
 import { RateLimit } from '@/modules/rate-limit/rate-limit.decorator'
 import { UserEntity } from '@/modules/user/user.entity'
+import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
 import {
   WordleGuessDTO,
   WordleLeaderboardDTO,
+  WordlePracticeStateDTO,
   WordleStateDTO,
   WordleStatsDTO,
 } from '@/modules/wordle/wordle.dto'
@@ -19,7 +21,10 @@ import { RATE_LIMITS } from '@/utils/rate-limits'
 @ApiTags('wordle')
 @Controller('wordle')
 export class WordleController {
-  constructor(private readonly wordleService: WordleService) {}
+  constructor(
+    private readonly wordleService: WordleService,
+    private readonly wordlePracticeService: WordlePracticeService,
+  ) {}
 
   @Get('state')
   @ApiErrors()
@@ -51,5 +56,34 @@ export class WordleController {
   @ApiResponse({ status: 200, type: WordleLeaderboardDTO })
   getLeaderboard(): Promise<WordleLeaderboardDTO> {
     return this.wordleService.getLeaderboard()
+  }
+
+  @Get('practice')
+  @ApiErrors()
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
+  @ApiResponse({ status: 200, type: WordlePracticeStateDTO, nullable: true })
+  getPracticeState(@User() user: UserEntity): Promise<WordlePracticeStateDTO | null> {
+    return this.wordlePracticeService.getState(user.id)
+  }
+
+  @Post('practice')
+  @RateLimit(RATE_LIMITS.wordlePractice)
+  @ApiErrors()
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
+  @ApiResponse({ status: 200, type: WordlePracticeStateDTO })
+  startPractice(@User() user: UserEntity): Promise<WordlePracticeStateDTO> {
+    return this.wordlePracticeService.start(user.id)
+  }
+
+  @Post('practice/guess')
+  @RateLimit(RATE_LIMITS.wordlePractice)
+  @ApiErrors()
+  @UseGuards(AuthGuard, new RolesGuard([UserRole.USER, UserRole.ADMIN]))
+  @ApiResponse({ status: 200, type: WordlePracticeStateDTO })
+  makePracticeGuess(
+    @Body() body: WordleGuessDTO,
+    @User() user: UserEntity,
+  ): Promise<WordlePracticeStateDTO> {
+    return this.wordlePracticeService.makeGuess(user.id, body.word)
   }
 }

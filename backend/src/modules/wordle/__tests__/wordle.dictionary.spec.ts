@@ -115,3 +115,23 @@ describe('data files', () => {
     }
   })
 })
+
+describe('getRandomAnswer', () => {
+  const dictionary = new WordleDictionary(TEST_SALT)
+
+  it('returns a word from the answers list', () => {
+    expect(ANSWERS).toContain(dictionary.getRandomAnswer())
+  })
+
+  it('never returns excluded words', () => {
+    const [firstAnswer] = ANSWERS
+    if (!firstAnswer) throw new Error('Пустой список ответов')
+
+    const excluded = ANSWERS.filter((word) => word !== firstAnswer)
+    expect(dictionary.getRandomAnswer(excluded)).toBe(firstAnswer)
+  })
+
+  it('falls back to the full list when everything is excluded', () => {
+    expect(ANSWERS).toContain(dictionary.getRandomAnswer([...ANSWERS]))
+  })
+})

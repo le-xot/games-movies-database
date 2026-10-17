@@ -55,7 +55,7 @@ function handleKey(key: string) {
 
 <template>
   <div
-    class="flex w-full max-w-[var(--wordle-keyboard-width,500px)] flex-col gap-[var(--wordle-gap,6px)] px-1"
+    class="mx-auto flex w-full max-w-[var(--wordle-keyboard-width,500px)] flex-col gap-[var(--wordle-gap,6px)] px-1"
     aria-label="Клавиатура"
   >
     <div

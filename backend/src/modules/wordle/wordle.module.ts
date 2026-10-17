@@ -11,6 +11,7 @@ import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-w
 import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
 import { WordleNotificationController } from '@/modules/wordle/wordle-notification.controller'
 import { WordleNotificationService } from '@/modules/wordle/wordle-notification.service'
+import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
 import { WordleController } from '@/modules/wordle/wordle.controller'
 import { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
 import { WordleService } from '@/modules/wordle/wordle.service'
@@ -21,6 +22,7 @@ import { env } from '@/utils/enviroments'
   controllers: [WordleController, WordleNotificationController],
   providers: [
     WordleService,
+    WordlePracticeService,
     DrizzleWordleRepository,
     DrizzleWordleNotificationRepository,
     {

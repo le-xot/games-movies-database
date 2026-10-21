@@ -37,7 +37,6 @@ export class ImgService {
 
     try {
       if (await this.s3Service.fileExists(key, env.S3_BUCKET_IMAGES)) {
-        this.logger.log(`S3 cache hit: ${key}`)
         const buffer = await this.s3Service.getFileBytes(key, env.S3_BUCKET_IMAGES)
         return { buffer, contentType: 'image/webp' }
       }
@@ -103,7 +102,6 @@ export class ImgService {
           env.S3_BUCKET_IMAGES,
           'image/webp',
         )
-        this.logger.log(`S3 cache write: ${key}`)
       } catch (e) {
         this.logger.warn('Failed to cache image in S3')
         this.logger.error(e)

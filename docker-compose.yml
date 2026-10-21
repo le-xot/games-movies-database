@@ -71,7 +71,7 @@ services:
       - traefik.http.routers.gmd-dbx.tls.certresolver=le
       - traefik.http.routers.gmd-dbx.service=gmd-dbx
       - traefik.http.services.gmd-dbx.loadbalancer.server.port=4224
-      - traefik.http.middlewares.gmd-dbx-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS:-178.105.174.181/32}
+      - traefik.http.middlewares.gmd-dbx-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS}
       - traefik.http.routers.gmd-dbx.middlewares=gmd-dbx-ipallow
       - traefik.http.routers.gmd-dbx-web.rule=Host(`dbx.le-xot.dev`)
       - traefik.http.routers.gmd-dbx-web.entrypoints=web
@@ -103,7 +103,7 @@ services:
       - traefik.http.routers.gmd-logs.tls.certresolver=le
       - traefik.http.routers.gmd-logs.service=gmd-logs
       - traefik.http.services.gmd-logs.loadbalancer.server.port=8080
-      - traefik.http.middlewares.gmd-logs-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS:-178.105.174.181/32}
+      - traefik.http.middlewares.gmd-logs-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS}
       - traefik.http.routers.gmd-logs.middlewares=gmd-logs-ipallow
       - traefik.http.routers.gmd-logs-web.rule=Host(`logs.le-xot.dev`)
       - traefik.http.routers.gmd-logs-web.entrypoints=web

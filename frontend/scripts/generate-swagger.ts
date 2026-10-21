@@ -19,11 +19,14 @@ export async function generateSwagger(): Promise<boolean> {
         singleHttpClient: true,
         extractEnums: true,
       })
-      await stripTsNocheck()
       console.log('✅ api.ts сгенерирован из /docs-json')
       return true
     } catch {
       await new Promise((resolve) => setTimeout(resolve, 1000))
+    } finally {
+      // generateApi пишет файл до того, как может упасть, поэтому чистим заголовок
+      // на любой попытке — иначе dev оставит в репозитории грязный api.ts.
+      await stripTsNocheck()
     }
   }
 
@@ -36,7 +39,10 @@ export async function generateSwagger(): Promise<boolean> {
 
 /** Сгенерированный файл чисто проходит tsc, поэтому убираем глушение типов — регрессии генератора упадут в typecheck. */
 async function stripTsNocheck(): Promise<void> {
-  const content = await Bun.file(API_FILE).text()
+  const file = Bun.file(API_FILE)
+  if (!(await file.exists())) return
+
+  const content = await file.text()
   const stripped = content
     .split('\n')
     .filter((line) => line.trim() !== '// @ts-nocheck')

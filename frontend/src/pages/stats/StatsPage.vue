@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { RotateCw } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RecordGrade } from '@/lib/api'
@@ -27,7 +29,8 @@ import type { BreakdownCategory, StackedSegment } from '@/pages/stats/constants/
 const RECORD_FORMS = ['запись', 'записи', 'записей'] as const
 const VOTE_FORMS = ['голос', 'голоса', 'голосов'] as const
 
-const { stats, isLoading, error } = storeToRefs(useStats())
+const statsStore = useStats()
+const { stats, isLoading, error } = storeToRefs(statsStore)
 const { statusTags, gradeTags } = useBadgeSelect()
 
 const total = computed(() => stats.value?.total ?? 0)
@@ -151,7 +154,13 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
       </div>
     </template>
 
-    <div v-else-if="error" class="py-8 text-center text-destructive">{{ error }}</div>
+    <div v-else-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
+      <p class="text-sm text-destructive">{{ error }}</p>
+      <Button variant="outline" size="sm" @click="statsStore.refetch()">
+        <RotateCw class="size-4" />
+        Повторить
+      </Button>
+    </div>
 
     <div v-else-if="isEmpty" class="py-16 text-center text-muted-foreground">
       Пока нечего считать — в кладовке нет записей

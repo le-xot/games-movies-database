@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Trash2Icon, Tv } from '@lucide/vue'
+import { Trash2Icon, Tv, RotateCw } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import MergeAccountsPanel from '@/pages/admin/components/MergeAccountsPanel.vue'
 import SteamSyncPanel from '@/pages/admin/components/SteamSyncPanel.vue'
 import { useAdminUsers } from '@/pages/admin/composables/use-admin-users'
@@ -14,7 +15,7 @@ import { useAdminUsers } from '@/pages/admin/composables/use-admin-users'
 const title = useTitle()
 onMounted(() => (title.value = 'Админка'))
 
-const { users, accounts, isLoading, fetchUsers, deleteUser } = useAdminUsers()
+const { users, accounts, isLoading, error, fetchUsers, deleteUser } = useAdminUsers()
 
 onMounted(async () => {
   await fetchUsers()
@@ -34,7 +35,28 @@ function toggleId(id: string) {
   <div class="flex flex-col gap-6">
     <h1 class="text-2xl font-bold">Админка</h1>
 
-    <div v-if="isLoading" class="text-center py-8 text-muted-foreground">Загрузка...</div>
+    <div
+      v-if="isLoading"
+      class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4"
+    >
+      <Card v-for="n in 6" :key="n" class="bg-[var(--n-action-color)]">
+        <CardContent class="flex items-center gap-4 pt-6">
+          <Skeleton class="size-10 shrink-0 rounded-full" />
+          <div class="flex flex-1 flex-col gap-2">
+            <Skeleton class="h-4 w-32" />
+            <Skeleton class="h-3 w-20" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <div v-else-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
+      <p class="text-sm text-destructive">{{ error }}</p>
+      <Button variant="outline" size="sm" @click="fetchUsers()">
+        <RotateCw class="size-4" />
+        Повторить
+      </Button>
+    </div>
 
     <template v-else>
       <h2 class="text-lg font-semibold text-muted-foreground">Пользователи</h2>

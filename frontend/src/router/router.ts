@@ -7,6 +7,7 @@ import type { RouteMap } from 'vue-router'
 
 export const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior: () => ({ top: 0 }),
   routes: [
     {
       path: '/auth/callback/twitch',
@@ -84,31 +85,31 @@ export const router = createRouter({
           path: ROUTER_PATHS.dbAnime,
           name: 'anime',
           component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.ANIME },
+          meta: { genre: RecordGenre.ANIME, pageKey: 'media' },
         },
         {
           path: ROUTER_PATHS.dbGames,
           name: 'games',
           component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.GAME },
+          meta: { genre: RecordGenre.GAME, pageKey: 'media' },
         },
         {
           path: ROUTER_PATHS.dbMovie,
           name: 'movie',
           component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.MOVIE },
+          meta: { genre: RecordGenre.MOVIE, pageKey: 'media' },
         },
         {
           path: ROUTER_PATHS.dbCartoon,
           name: 'cartoon',
           component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.CARTOON },
+          meta: { genre: RecordGenre.CARTOON, pageKey: 'media' },
         },
         {
           path: ROUTER_PATHS.dbSeries,
           name: 'series',
           component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.SERIES },
+          meta: { genre: RecordGenre.SERIES, pageKey: 'media' },
         },
         {
           path: ROUTER_PATHS.wordle,
@@ -124,6 +125,17 @@ export const router = createRouter({
     },
   ],
 })
+
+/** Заранее подгружает чанки страницы, чтобы переход по клику не ждал сеть. */
+export function prefetchRouteChunks(path: string) {
+  for (const record of router.resolve(path).matched) {
+    for (const component of Object.values(record.components ?? {})) {
+      if (typeof component === 'function') {
+        void (component as () => Promise<unknown>)().catch(() => {})
+      }
+    }
+  }
+}
 
 /** Синхронизировано с TypesConfig.RouteNamedMap (src/types/vue-router.d.ts): при добавлении маршрута обновить оба места. */
 const EXPECTED_ROUTE_NAMES = [
@@ -166,17 +178,20 @@ router.beforeEach(async (to) => {
   if (!to.meta.requiresAdmin && !to.meta.requiresAuth && !to.meta.hideForAdmin) return
 
   if (userStore.isLoading) {
-    await new Promise<void>((resolve) => {
-      const stop = watch(
-        () => userStore.isLoading,
-        (loading) => {
-          if (!loading) {
-            stop()
-            resolve()
-          }
-        },
-      )
-    })
+    await Promise.race([
+      new Promise<void>((resolve) => {
+        const stop = watch(
+          () => userStore.isLoading,
+          (loading) => {
+            if (!loading) {
+              stop()
+              resolve()
+            }
+          },
+        )
+      }),
+      new Promise<void>((resolve) => setTimeout(resolve, 1500)),
+    ])
   }
 
   if (!userStore.isLoggedIn) {

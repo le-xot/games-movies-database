@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { RotateCw } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import DataCards from '@/components/media/DataCards.vue'
 import FilterGrade from '@/components/media/FilterGrade.vue'
+import { Button } from '@/components/ui/button'
 import { useUserRatings } from '@/pages/ratings/composables/use-user-ratings'
 
 const ratings = useUserRatings()
@@ -30,7 +32,13 @@ const {
       <FilterGrade :value="gradeFilter" @update="ratings.setGradeFilter" />
     </div>
 
-    <div v-if="error" class="py-8 text-center text-destructive">{{ error }}</div>
+    <div v-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
+      <p class="text-sm text-destructive">{{ error }}</p>
+      <Button variant="outline" size="sm" @click="ratings.refetch()">
+        <RotateCw class="size-4" />
+        Повторить
+      </Button>
+    </div>
 
     <div v-else-if="!isLoading && total === 0" class="py-16 text-center text-muted-foreground">
       {{ isMine ? 'Ты пока ничего не оценил' : 'У пользователя пока нет оценок' }}
@@ -43,6 +51,7 @@ const {
         :is-loading-next="isLoadingNext"
         :has-next-page="hasNextPage"
         :has-episode-column="true"
+        :has-error="!!error"
         delete-confirm-title="Удалить запись?"
         @update="ratings.updateRecord"
         @update-poster="ratings.updatePoster"

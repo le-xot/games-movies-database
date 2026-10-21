@@ -31,8 +31,14 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     })
   }
 
-  const { data: suggestions, refetch: refetchSuggestions } = useQuery<RecordEntity[]>({
+  const {
+    data: suggestions,
+    isLoading,
+    refetch: refetchSuggestions,
+  } = useQuery<RecordEntity[]>({
     key: [SUGGESTION_QUERY_KEY],
+    // Фоновые обновления (WS/refetch) не должны гасить уже отрисованный список.
+    placeholderData: (previous) => previous,
     query: async () => {
       try {
         error.value = null
@@ -163,6 +169,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
   return {
     error,
     suggestions,
+    isLoading,
     refetchSuggestions,
     submitSuggestion,
     handlePatchSuggestion,

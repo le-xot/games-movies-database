@@ -1,12 +1,27 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { getImageUrl } from '@/utils/image'
 
-defineProps<{
+const props = defineProps<{
   url?: string | null
   label?: string
 }>()
 
+const isLoaded = ref(false)
+
+watch(
+  () => props.url,
+  () => {
+    isLoaded.value = false
+  },
+)
+
+function handleImageLoad() {
+  isLoaded.value = true
+}
+
 function handleImageError(event: Event) {
+  isLoaded.value = true
   const img = event.target as HTMLImageElement
   if (img.dataset.fallback) {
     img.style.display = 'none'
@@ -22,8 +37,10 @@ function handleImageError(event: Event) {
     <img
       v-if="url"
       :src="getImageUrl(url)"
-      class="w-full h-full object-cover"
+      class="w-full h-full object-cover transition-opacity duration-300 ease-out"
+      :class="isLoaded ? 'opacity-100' : 'opacity-0'"
       alt=""
+      @load="handleImageLoad"
       @error="handleImageError"
     />
     <div v-else class="absolute inset-0 flex items-center justify-center p-2">

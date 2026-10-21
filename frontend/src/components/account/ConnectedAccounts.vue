@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { AccountPlatform, AuthControllerUnlinkAccountParamsEnum } from '@/lib/api'
 import { ACCOUNT_DIALOG_ON_LOAD_KEY } from '@/stores/use-account-dialog'
 import { useApi } from '@/stores/use-api'
@@ -73,7 +74,13 @@ async function unlinkAccount(platform: AccountPlatform) {
     </span>
 
     <div class="overflow-hidden rounded-lg border">
-      <div v-if="isLoading" class="px-4 py-3 text-sm text-muted-foreground">Загрузка...</div>
+      <div v-if="isLoading" class="flex items-center gap-3 px-4 py-3">
+        <Skeleton class="size-8 shrink-0 rounded-full" />
+        <div class="flex flex-col gap-1.5">
+          <Skeleton class="h-3.5 w-32" />
+          <Skeleton class="h-3 w-20" />
+        </div>
+      </div>
       <div v-else-if="!accounts.length" class="px-4 py-3 text-sm text-muted-foreground">
         Нет привязанных аккаунтов
       </div>

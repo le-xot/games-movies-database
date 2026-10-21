@@ -19,7 +19,7 @@ const props = withDefaults(
 const userStore = useUser()
 const loginDialog = useLoginDialog()
 const accountDialog = useAccountDialog()
-const { user } = storeToRefs(userStore)
+const { user, isInitialized } = storeToRefs(userStore)
 
 const inSidebar = computed(() => props.collapsed !== undefined)
 const userRoleLabel = computed(() =>
@@ -28,8 +28,25 @@ const userRoleLabel = computed(() =>
 </script>
 
 <template>
+  <div
+    v-if="!isInitialized && inSidebar"
+    class="flex h-10 items-center"
+    :class="collapsed ? 'w-full justify-center' : 'w-[calc(100%+6px)] -ml-1.5 gap-1.5 px-2'"
+  >
+    <span class="size-7 shrink-0 animate-pulse rounded-full bg-secondary" />
+    <span v-if="!collapsed" class="flex min-w-0 flex-1 flex-col gap-1">
+      <span class="h-3 w-20 animate-pulse rounded bg-secondary" />
+      <span class="h-2.5 w-12 animate-pulse rounded bg-secondary" />
+    </span>
+  </div>
+
+  <div v-else-if="!isInitialized" class="flex items-center gap-2">
+    <span class="h-4 w-16 animate-pulse rounded bg-secondary" />
+    <span class="size-8 animate-pulse rounded-full bg-secondary" />
+  </div>
+
   <Button
-    v-if="user && inSidebar"
+    v-else-if="user && inSidebar"
     variant="ghost"
     class="w-full"
     :class="

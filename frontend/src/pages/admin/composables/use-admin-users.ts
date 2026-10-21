@@ -12,15 +12,18 @@ export function useAdminUsers() {
   const users = ref<UserEntity[]>([])
   const accounts = ref<Record<string, UserAccount[]>>({})
   const isLoading = ref(true)
+  const error = ref<string | null>(null)
 
   async function fetchUsers() {
     isLoading.value = true
+    error.value = null
     try {
       const { data } = await api.users.userControllerGetAllUsers()
       users.value = data
       await fetchAllAccounts()
-    } catch (error) {
-      console.error('Failed to fetch users:', error)
+    } catch (err) {
+      console.error('Failed to fetch users:', err)
+      error.value = 'Не удалось загрузить пользователей'
     } finally {
       isLoading.value = false
     }
@@ -48,12 +51,12 @@ export function useAdminUsers() {
         try {
           await api.users.userControllerDeleteUser(userId)
           await fetchUsers()
-        } catch (error) {
-          console.error('Failed to delete user:', error)
+        } catch (err) {
+          console.error('Failed to delete user:', err)
         }
       },
     })
   }
 
-  return { users, accounts, isLoading, fetchUsers, deleteUser }
+  return { users, accounts, isLoading, error, fetchUsers, deleteUser }
 }

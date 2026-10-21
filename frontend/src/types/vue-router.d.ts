@@ -12,6 +12,8 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     hideForAdmin?: boolean
     provider?: 'twitch' | 'kick'
+    /** Стабильный ключ страницы: маршруты с одинаковым ключом не пересоздают компонент. */
+    pageKey?: string
   }
 
   interface TypesConfig {

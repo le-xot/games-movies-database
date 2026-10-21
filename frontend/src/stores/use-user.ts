@@ -27,6 +27,11 @@ export const useUser = defineStore('global/use-user', () => {
     },
   })
 
+  // Первая попытка /me завершилась (в том числе 401) — дальше `user === null` значит именно «гость».
+  watch(isPending, (pending) => {
+    if (!pending) isInitialized.value = true
+  })
+
   const isLoggedIn = computed(() => !!user.value)
   const editorEnabled = ref(localStorage.getItem('editorEnabled') !== 'false')
   const isRealAdmin = computed(() => user.value?.role === UserRole.ADMIN)
@@ -37,9 +42,26 @@ export const useUser = defineStore('global/use-user', () => {
     localStorage.setItem('editorEnabled', String(val))
   })
 
+  /** Резолвится, когда текущий запрос /me закончился (успех или гость). */
+  const whenQuerySettled = () =>
+    new Promise<void>((resolve) => {
+      if (!isLoading.value) {
+        resolve()
+        return
+      }
+      const stop = watch(isLoading, (loading) => {
+        if (!loading) {
+          stop()
+          resolve()
+        }
+      })
+    })
+
   const fetchUser = async () => {
     try {
-      await refetchUser()
+      // useQuery стартует загрузку сам при создании стора — не дёргаем /me вторым запросом.
+      if (isLoading.value) await whenQuerySettled()
+      else await refetchUser()
     } finally {
       isInitialized.value = true
     }

@@ -14,6 +14,7 @@ const props = defineProps<{
   hasNextPage: boolean
   hasEpisodeColumn: boolean
   deleteConfirmTitle: string
+  hasError?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -27,6 +28,9 @@ const gridClass =
   'w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'
 
 const skeletonCount = 5
+
+// Скелетон показываем сразу: страница появляется вместе с ним, пустой области не видно.
+const showSkeleton = computed(() => props.isLoading && props.items.length === 0)
 
 const isSm = useMediaQuery('(min-width: 640px)')
 const isMd = useMediaQuery('(min-width: 768px)')
@@ -103,7 +107,7 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
 </script>
 
 <template>
-  <div v-if="!items.length && isLoading" :class="gridClass">
+  <div v-if="!items.length && showSkeleton" :class="gridClass" class="data-fade-in">
     <Card v-for="n in skeletonCount" :key="n" class="bg-[var(--n-action-color)]">
       <div class="flex flex-row sm:flex-col">
         <div
@@ -123,7 +127,7 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
     </Card>
   </div>
 
-  <div v-else-if="items.length" ref="listRef" class="w-full">
+  <div v-else-if="items.length" ref="listRef" class="w-full data-fade-in">
     <div :style="{ height: `${totalSize}px`, position: 'relative', width: '100%' }">
       <div
         v-for="virtualRow in virtualRows"
@@ -163,5 +167,31 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
     </div>
   </div>
 
-  <div v-else class="h-24 flex items-center justify-center text-muted-foreground">No results.</div>
+  <div
+    v-else-if="!hasError && !isLoading"
+    class="h-24 flex items-center justify-center text-muted-foreground"
+  >
+    No results.
+  </div>
 </template>
+
+<style scoped>
+.data-fade-in {
+  animation: data-fade-in 140ms ease;
+}
+
+@keyframes data-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-fade-in {
+    animation: none;
+  }
+}
+</style>

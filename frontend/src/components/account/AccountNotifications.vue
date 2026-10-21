@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { useApi } from '@/stores/use-api'
 import type { WordleNotificationsStatusDTO } from '@/lib/api'
@@ -116,12 +117,22 @@ async function disconnect() {
 </script>
 
 <template>
-  <div v-if="!isLoading" class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2">
     <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
       Уведомления
     </span>
 
-    <div class="overflow-hidden rounded-lg border">
+    <div v-if="isLoading" class="overflow-hidden rounded-lg border">
+      <div class="flex items-center justify-between gap-3 px-4 py-3">
+        <div class="flex flex-col gap-1.5">
+          <Skeleton class="h-3.5 w-36" />
+          <Skeleton class="h-3 w-48" />
+        </div>
+        <Skeleton class="h-6 w-10 rounded-full" />
+      </div>
+    </div>
+
+    <div v-else class="overflow-hidden rounded-lg border">
       <div v-if="!status?.available" class="px-4 py-3 text-sm text-muted-foreground">
         Уведомления в Telegram недоступны
       </div>

@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation } from '@pinia/colada'
 import { defineStore } from 'pinia'
-import { ComputedRef, computed, ref, watch } from 'vue'
+import { ComputedRef, computed, ref } from 'vue'
 import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RecordsQueryParams } from '@/composables/factories/create-params-store'
@@ -28,9 +28,11 @@ type MutationResult<T extends keyof Api<unknown>['records']> = ReturnType<
 export type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
   items: ComputedRef<RecordEntity[]>
   isLoading: boolean
+  error: Error | null
   hasNextPage: boolean
   isLoadingNext: boolean
   loadNextPage: () => Promise<unknown>
+  retry: () => Promise<unknown>
   updateRecord: (payload: {
     id: number
     data: RecordUpdateDTO
@@ -54,12 +56,16 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
     const {
       isLoading,
       data,
+      error,
       refetch,
       hasNextPage,
       loadNextPage: loadNextPageRaw,
     } = useInfiniteQuery<GetAllRecordsDTO, Error, number>(() => ({
       key: [config.queryKey, paramsStoreInstance.params],
       initialPageParam: 1,
+      // При поиске/фильтрах ключ меняется: держим прошлую сетку до прихода новой,
+      // чтобы список не схлопывался в скелетон на каждый запрос.
+      placeholderData: (previous) => previous,
       query: async ({ pageParam }) => {
         const { data: response } = await api.records.recordControllerGetAllRecords({
           ...paramsStoreInstance.params,
@@ -112,27 +118,18 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       return data.value.pages.flatMap((page) => page.records)
     })
 
-    const cachedItems = ref<RecordEntity[]>([])
-    watch(items, (newItems) => {
-      if (newItems.length > 0) cachedItems.value = newItems
-    })
-
-    const displayItems = computed(() => {
-      if (items.value.length > 0) return items.value
-      if (isLoading.value && cachedItems.value.length > 0) return cachedItems.value
-      return items.value
-    })
-
     // Setup-стор обязан возвращать refs, а потребитель видит уже развёрнутые значения;
     // при generic-ключах ([config.itemsName]) TS не может проверить пересечение типов,
     // поэтому нужна двойная ассерция — цель при этом полностью типизирована.
     return {
-      items: displayItems,
+      items,
       isLoading,
+      error,
       hasNextPage,
       isLoadingNext,
       loadNextPage,
-      [config.itemsName]: displayItems,
+      retry: () => refetch(),
+      [config.itemsName]: items,
       [config.refetchName]: refetch,
       updateRecord,
       updatePoster,

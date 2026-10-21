@@ -92,6 +92,7 @@ services:
       - dozzle_data:/data
     environment:
       DOZZLE_HOSTNAME: gmd-prod
+      DOZZLE_FILTER: label=com.docker.compose.project=games-movies-database
     networks:
       - default
       - traefik

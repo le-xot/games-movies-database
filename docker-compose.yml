@@ -80,6 +80,38 @@ services:
       - traefik.http.middlewares.gmd-dbx-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.gmd-dbx-redirect.redirectscheme.permanent=true
 
+  # Dozzle: веб-просмотр docker logs. Первый вход: открыть logs.le-xot.dev
+  # и создать аккаунт через setup wizard (запишется в dozzle_data:/data).
+  logs:
+    image: amir20/dozzle:latest
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: '0.25'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - dozzle_data:/data
+    environment:
+      DOZZLE_HOSTNAME: gmd-prod
+    networks:
+      - default
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.gmd-logs.rule=Host(`logs.le-xot.dev`)
+      - traefik.http.routers.gmd-logs.entrypoints=websecure
+      - traefik.http.routers.gmd-logs.tls.certresolver=le
+      - traefik.http.routers.gmd-logs.service=gmd-logs
+      - traefik.http.services.gmd-logs.loadbalancer.server.port=8080
+      - traefik.http.middlewares.gmd-logs-ipallow.ipallowlist.sourcerange=${ADMIN_ALLOWED_IPS:-178.105.174.181/32}
+      - traefik.http.routers.gmd-logs.middlewares=gmd-logs-ipallow
+      - traefik.http.routers.gmd-logs-web.rule=Host(`logs.le-xot.dev`)
+      - traefik.http.routers.gmd-logs-web.entrypoints=web
+      - traefik.http.routers.gmd-logs-web.service=gmd-logs
+      - traefik.http.routers.gmd-logs-web.middlewares=gmd-logs-ipallow,gmd-logs-redirect
+      - traefik.http.middlewares.gmd-logs-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.gmd-logs-redirect.redirectscheme.permanent=true
+
   application:
     image: ghcr.io/le-xot/games-movies-database:latest
     restart: unless-stopped
@@ -123,6 +155,7 @@ volumes:
   rustfs_data:
   redis_data:
   dbx_data:
+  dozzle_data:
 
 networks:
   traefik:

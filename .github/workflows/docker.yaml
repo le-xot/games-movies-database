@@ -89,7 +89,7 @@ jobs:
       - name: Deploy
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" \
-            "set -e; cd $DEPLOY_DIR && bash render-env.sh && docker compose pull application migrations && docker compose up -d --remove-orphans && docker image prune -f --filter until=168h"
+            "set -e; cd $DEPLOY_DIR && bash render-env.sh && docker compose pull application migrations logs && docker compose up -d --remove-orphans && docker image prune -f --filter until=168h"
 
       - name: Health check
         run: |

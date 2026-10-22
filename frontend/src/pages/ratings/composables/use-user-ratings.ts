@@ -3,6 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { unwrap } from '@/lib/api'
 import { getNextRatingsPageParam } from '@/pages/ratings/composables/user-ratings-pagination'
 import { useApi } from '@/stores/use-api'
 import { useTitle } from '@/stores/use-title'
@@ -43,9 +44,13 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
           limit: PAGE_SIZE,
           ...(gradeFilter.value?.length ? { grade: gradeFilter.value } : {}),
         }
-        const { data: response } = isMine.value
-          ? await api.ratings.ratingControllerGetMyRatings(params)
-          : await api.ratings.ratingControllerGetUserRatings(profileUserId.value, params)
+        const response = isMine.value
+          ? await unwrap(api.GET('/ratings/my', { params: { query: params } }))
+          : await unwrap(
+              api.GET('/ratings/users/{id}', {
+                params: { path: { id: profileUserId.value }, query: params },
+              }),
+            )
         return response
       } catch (err) {
         error.value = await parseApiError(err, 'Не удалось загрузить оценки')
@@ -94,7 +99,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function updateRecord(payload: { id: number; data: RecordUpdateDTO }) {
     try {
-      await api.records.recordControllerPatchRecord(payload.id, payload.data)
+      await api.PATCH('/records/{id}', { params: { path: { id: payload.id } }, body: payload.data })
       await refetchRatings()
     } catch {
       toast.error('Не удалось обновить запись')
@@ -103,7 +108,10 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function updatePoster(payload: { id: number; url: string }) {
     try {
-      await api.records.recordControllerUpdatePoster(payload.id, { url: payload.url })
+      await api.PATCH('/records/{id}/poster', {
+        params: { path: { id: payload.id } },
+        body: { url: payload.url },
+      })
       await refetchRatings()
     } catch {
       toast.error('Не удалось обновить постер')
@@ -112,7 +120,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function deleteRecord(id: number) {
     try {
-      await api.records.recordControllerDeleteRecord(id)
+      await api.DELETE('/records/{id}', { params: { path: { id } } })
       await refetchRatings()
     } catch {
       toast.error('Не удалось удалить запись')

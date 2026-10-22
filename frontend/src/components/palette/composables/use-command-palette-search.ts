@@ -1,9 +1,10 @@
 import { refDebounced } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import {
-  RecordControllerGetAllRecordsParamsDirectionEnum,
-  RecordControllerGetAllRecordsParamsOrderByEnum,
+  PathsRecordsGetParametersQueryDirection,
+  PathsRecordsGetParametersQueryOrderBy,
   RecordType,
+  unwrap,
 } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RouteItem } from '@/components/layout/db/use-db-navigation'
@@ -65,13 +66,19 @@ export function useCommandPaletteSearch(options: {
     isLoading.value = true
 
     try {
-      const { data } = await api.records.recordControllerGetAllRecords({
-        type: RecordType.WRITTEN,
-        search,
-        orderBy: RecordControllerGetAllRecordsParamsOrderByEnum.Id,
-        direction: RecordControllerGetAllRecordsParamsDirectionEnum.Desc,
-        limit: search ? PALETTE_RECORD_LIMIT : PALETTE_RECENT_LIMIT,
-      })
+      const data = await unwrap(
+        api.GET('/records', {
+          params: {
+            query: {
+              type: RecordType.WRITTEN,
+              search,
+              orderBy: PathsRecordsGetParametersQueryOrderBy.id,
+              direction: PathsRecordsGetParametersQueryDirection.desc,
+              limit: search ? PALETTE_RECORD_LIMIT : PALETTE_RECENT_LIMIT,
+            },
+          },
+        }),
+      )
 
       if (!guard.isLatest(token)) return
       records.value = data.records ?? []

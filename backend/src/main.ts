@@ -1,7 +1,5 @@
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { apiReference } from '@scalar/nestjs-api-reference'
 import cookieParser from 'cookie-parser'
 import { AppModule } from '@/app.module'
 import { parseCorsOrigins } from '@/utils/cors-origins'
@@ -20,26 +18,6 @@ async function bootstrap() {
   app.use(securityHeaders)
 
   const globalPrefix = '/api'
-
-  if (env.NODE_ENV !== 'production') {
-    const config = new DocumentBuilder().setTitle('games-movies-database').build()
-    const document = SwaggerModule.createDocument(app, config)
-    SwaggerModule.setup('docs', app, document)
-
-    const updatedDocument = {
-      ...document,
-      paths: Object.fromEntries(
-        Object.entries(document.paths).map(([path, value]) => [`${globalPrefix}${path}`, value]),
-      ),
-    }
-
-    app.use(
-      '/reference',
-      apiReference({
-        content: updatedDocument,
-      }),
-    )
-  }
 
   app.setGlobalPrefix(globalPrefix)
 

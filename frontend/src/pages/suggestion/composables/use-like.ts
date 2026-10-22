@@ -9,14 +9,14 @@ export const useLike = defineStore('queue/use-like', () => {
   const { mutateAsync: deleteLike } = useMutation({
     key: [LIKE_QUERY_KEY, 'delete'],
     mutation: async (recordId: number) => {
-      return await api.likes.likeControllerDeleteLike(recordId)
+      return await api.DELETE('/likes/{recordId}', { params: { path: { recordId } } })
     },
   })
 
   const { mutateAsync: createLike } = useMutation({
     key: [LIKE_QUERY_KEY, 'create'],
     mutation: async (recordId: number) => {
-      return await api.likes.likeControllerCreateLike({ recordId })
+      return await api.POST('/likes', { body: { recordId } })
     },
   })
 

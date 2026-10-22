@@ -57,7 +57,6 @@ export default defineConfig({
       env: {
         ...(process.env as Record<string, string>),
         VITE_BACKEND_TARGET: `http://localhost:${BACKEND_PORT}`,
-        SKIP_API_GENERATION: '1',
       },
     },
   ],

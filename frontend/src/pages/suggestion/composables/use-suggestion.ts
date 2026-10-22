@@ -4,7 +4,7 @@ import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { SUGGESTION_QUERY_KEY } from '@/composables/query-keys'
-import { RecordEntity, RecordStatus, RecordType } from '@/lib/api'
+import { RecordEntity, RecordStatus, RecordType, unwrap } from '@/lib/api'
 import SuggestionForm from '@/pages/suggestion/components/SuggestionForm.vue'
 import SupportedServices from '@/pages/suggestion/components/SupportedServices.vue'
 import { useApi } from '@/stores/use-api'
@@ -42,7 +42,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     query: async () => {
       try {
         error.value = null
-        const { data } = await api.suggestions.suggestionControllerGetSuggestions()
+        const data = await unwrap(api.GET('/suggestions'))
         return data
       } catch (err) {
         error.value = await parseApiError(err, 'Failed to load suggestions')
@@ -67,7 +67,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (link: string) => {
       try {
         error.value = null
-        return await api.suggestions.suggestionControllerUserSuggest({ link })
+        return await api.POST('/suggestions', { body: { link } })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -80,9 +80,12 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.records.recordControllerPatchRecord(id, {
-          status: RecordStatus.NOTINTERESTED,
-          type: RecordType.WRITTEN,
+        return await api.PATCH('/records/{id}', {
+          params: { path: { id } },
+          body: {
+            status: RecordStatus.NOTINTERESTED,
+            type: RecordType.WRITTEN,
+          },
         })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
@@ -96,7 +99,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.records.recordControllerDeleteRecord(id)
+        return await api.DELETE('/records/{id}', { params: { path: { id } } })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -109,7 +112,10 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.records.recordControllerPatchRecord(id, { type: RecordType.WRITTEN })
+        return await api.PATCH('/records/{id}', {
+          params: { path: { id } },
+          body: { type: RecordType.WRITTEN },
+        })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -122,7 +128,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.suggestions.suggestionControllerDeleteUserSuggestion(id)
+        return await api.DELETE('/suggestions/{id}', { params: { path: { id } } })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err

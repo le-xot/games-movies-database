@@ -4,15 +4,10 @@ import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
-import { generateSwagger } from './scripts/generate-swagger.ts'
 
 const backendTarget = process.env.VITE_BACKEND_TARGET ?? 'http://localhost:3000'
 
-export default defineConfig(({ isPreview, mode }) => {
-  if (mode !== 'production' && !isPreview) {
-    void generateSwagger()
-  }
-
+export default defineConfig(() => {
   return {
     resolve: {
       alias: {

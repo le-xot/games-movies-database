@@ -1,6 +1,7 @@
 import { useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { parseApiError } from '@/utils/api-error'
 import type { FriendsMemberEntity } from '@/lib/api'
@@ -18,7 +19,7 @@ export const useFriends = defineStore('friends/use-friends', () => {
     query: async () => {
       error.value = null
       try {
-        const { data } = await api.ratings.ratingControllerGetFriends()
+        const data = await unwrap(api.GET('/ratings/friends'))
         return data.members
       } catch (err) {
         error.value = await parseApiError(err, 'Не удалось загрузить список друзей')

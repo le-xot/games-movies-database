@@ -66,7 +66,11 @@ export class FriendsMemberEntity {
   @ApiProperty()
   profileImageUrl!: string
 
-  @ApiProperty({ type: Object, example: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 3 } })
+  @ApiProperty({
+    type: Object,
+    additionalProperties: { type: 'number' },
+    example: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 3 },
+  })
   counts!: Record<RecordGrade, number>
 
   @ApiProperty()

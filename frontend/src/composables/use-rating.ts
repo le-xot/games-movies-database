@@ -17,13 +17,14 @@ export function useRating() {
   const { mutateAsync: rateRecord } = useMutation({
     key: ['ratings', 'rate'],
     mutation: ({ id, grade }: { id: number; grade: RecordGrade }) =>
-      api.ratings.ratingControllerRate(id, { grade }),
+      api.PUT('/ratings/{recordId}', { params: { path: { recordId: id } }, body: { grade } }),
     onSuccess: () => invalidateRecords(),
   })
 
   const { mutateAsync: unrateRecord } = useMutation({
     key: ['ratings', 'unrate'],
-    mutation: (id: number) => api.ratings.ratingControllerUnrate(id),
+    mutation: (id: number) =>
+      api.DELETE('/ratings/{recordId}', { params: { path: { recordId: id } } }),
     onSuccess: () => invalidateRecords(),
   })
 

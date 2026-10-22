@@ -11,5 +11,5 @@
     "composite": true,
     "types": ["bun"]
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "e2e/**/*.ts", "scripts/**/*.ts"]
+  "include": ["vite.config.ts", "playwright.config.ts", "e2e/**/*.ts"]
 }

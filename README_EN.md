@@ -82,8 +82,6 @@ bun dev
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000/api
-- Swagger UI: http://localhost:3000/docs
-- Scalar API Reference: http://localhost:3000/reference
 - DBX: http://localhost:4224
 
 ## Environment Variables
@@ -335,9 +333,8 @@ TWIR_API=your_api_key
 
 - All routes are automatically prefixed with `/api`
 - Global validation via `ValidationPipe` with `transform: true` and `whitelist: true`
-- Swagger UI: http://localhost:3000/docs
-- Scalar API Reference: http://localhost:3000/reference
-- Frontend API client is **auto-generated** from Swagger spec on dev server start (DO NOT edit `frontend/src/lib/api.ts`)
+- The OpenAPI document is built offline by `backend/scripts/export-openapi.ts` (no running server); `openapi-typescript` turns it into `frontend/src/lib/api-types.ts` — do not edit by hand
+- The frontend client is a hand-written `openapi-fetch` wrapper in `frontend/src/lib/api.ts`; regenerate types with `bun generate:api`
 
 ### WebSocket
 
@@ -421,17 +418,17 @@ Rollback: revert the offending commit on `master` — CI rebuilds and redeploys.
 - Frontend: Vue 3 Composition API (`<script setup lang="ts">`)
 - Naming: `.vue` files — PascalCase, `.ts` files — kebab-case
 - Icons: only @lucide/vue and vue3-simple-icons
-- API client (`frontend/src/lib/api.ts`) is **auto-generated** — do not edit manually
+- API types (`frontend/src/lib/api-types.ts`) are **generated** — do not edit manually; change backend DTOs and run `bun generate:api`
 
 ## Troubleshooting
 
-| Problem                              | Solution                                                                                                                        |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Cannot connect to DB                 | Check that PostgreSQL container is running: `docker ps`                                                                         |
-| Authentication errors                | Verify Twitch/Kick API credentials in `.env`                                                                                    |
-| Services not accessible              | Check ports: frontend 5173, backend 3000, DB 6543 (dev) / 5432 (prod)                                                           |
-| Bun not installed                    | Use npm/pnpm as alternative package manager                                                                                     |
-| TypeScript errors                    | Run `bun install` and ensure all dependencies are installed                                                                     |
-| Frontend doesn't generate API client | Ensure backend is running on port 3000 (generation uses `/docs-json`)                                                           |
-| Database migration errors            | Run `bun db:migrate` and check `database/migrations/`                                                                           |
-| Rate limits stopped working          | Check that Redis is running (`bun infra:start`): when Redis is down limits are disabled (fail-open), but the site keeps working |
+| Problem                                       | Solution                                                                                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Cannot connect to DB                          | Check that PostgreSQL container is running: `docker ps`                                                                         |
+| Authentication errors                         | Verify Twitch/Kick API credentials in `.env`                                                                                    |
+| Services not accessible                       | Check ports: frontend 5173, backend 3000, DB 6543 (dev) / 5432 (prod)                                                           |
+| Bun not installed                             | Use npm/pnpm as alternative package manager                                                                                     |
+| TypeScript errors                             | Run `bun install` and ensure all dependencies are installed                                                                     |
+| Frontend build fails (missing `api-types.ts`) | Run `bun generate:api` — it needs neither backend nor database                                                                  |
+| Database migration errors                     | Run `bun db:migrate` and check `database/migrations/`                                                                           |
+| Rate limits stopped working                   | Check that Redis is running (`bun infra:start`): when Redis is down limits are disabled (fail-open), but the site keeps working |

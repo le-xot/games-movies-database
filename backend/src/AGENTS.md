@@ -8,7 +8,7 @@ NestJS 12 API source directory. Boots Swagger, Drizzle, Redis rate limiting, and
 
 ```
 backend/src/
-├── main.ts              # Swagger (/docs, /reference), cookieParser, CORS, prefix /api
+├── main.ts              # cookieParser, CORS, prefix /api (Swagger-документ собирается офлайн)
 ├── app.module.ts        # Root. Imports modules, ServeStatic, RateLimitGuard, EventEmitter
 ├── app.controller.ts    # Health check. Reads package.json version via Bun.file()
 ├── database/            # DrizzleModule + DrizzleService (pg.Pool + drizzle)
@@ -19,15 +19,15 @@ backend/src/
 
 ## WHERE TO LOOK
 
-| Target      | File/Path              | Notes                                                         |
-| ----------- | ---------------------- | ------------------------------------------------------------- |
-| API Docs    | `main.ts`              | @nestjs/swagger + @scalar/nestjs-api-reference                |
-| App Config  | `app.module.ts`        | Global guards, EventEmitter2, RateLimitGuard                  |
-| Rate Limits | `modules/rate-limit/`  | Redis fixed-window limiter; presets in `utils/rate-limits.ts` |
-| Auth Logic  | `modules/auth/`        | @Global() AuthService, JWT cookie ('token')                   |
-| DB Access   | `database/`            | Inject DrizzleService, use `.db`                              |
-| Env Schema  | `utils/enviroments.ts` | Defines required vars for envalid                             |
-| Real-time   | `modules/websocket/`   | Socket.io gateway for frontend updates                        |
+| Target      | File/Path                   | Notes                                                              |
+| ----------- | --------------------------- | ------------------------------------------------------------------ |
+| API Docs    | `scripts/export-openapi.ts` | Swagger-документ собирается из AppModule в `frontend/openapi.json` |
+| App Config  | `app.module.ts`             | Global guards, EventEmitter2, RateLimitGuard                       |
+| Rate Limits | `modules/rate-limit/`       | Redis fixed-window limiter; presets in `utils/rate-limits.ts`      |
+| Auth Logic  | `modules/auth/`             | @Global() AuthService, JWT cookie ('token')                        |
+| DB Access   | `database/`                 | Inject DrizzleService, use `.db`                                   |
+| Env Schema  | `utils/enviroments.ts`      | Defines required vars for envalid                                  |
+| Real-time   | `modules/websocket/`        | Socket.io gateway for frontend updates                             |
 
 ## CONVENTIONS
 

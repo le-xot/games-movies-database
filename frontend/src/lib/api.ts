@@ -1132,9 +1132,13 @@ export namespace Records {
   export namespace RecordControllerGetAllRecords {
     export type RequestParams = {};
     export type RequestQuery = {
+      /** @example "PROGRESS" */
       status?: RecordStatus[];
+      /** @example "WRITTEN" */
       type?: RecordType;
+      /** @example "GAME" */
       genre?: RecordGenre;
+      /** @example "LIKE" */
       grade?: RecordGrade[];
       /** @example "minecraft" */
       search?: string;
@@ -1216,6 +1220,7 @@ export namespace Ratings {
   export namespace RatingControllerGetMyRatings {
     export type RequestParams = {};
     export type RequestQuery = {
+      /** @example "LIKE" */
       grade?: RecordGrade[];
       /** @example 1 */
       page?: number;
@@ -1238,6 +1243,7 @@ export namespace Ratings {
       id: string;
     };
     export type RequestQuery = {
+      /** @example "LIKE" */
       grade?: RecordGrade[];
       /** @example 1 */
       page?: number;
@@ -2463,9 +2469,13 @@ export class Api<SecurityDataType extends unknown> {
      */
     recordControllerGetAllRecords: (
       query?: {
+        /** @example "PROGRESS" */
         status?: RecordStatus[];
+        /** @example "WRITTEN" */
         type?: RecordType;
+        /** @example "GAME" */
         genre?: RecordGenre;
+        /** @example "LIKE" */
         grade?: RecordGrade[];
         /** @example "minecraft" */
         search?: string;
@@ -2557,6 +2567,7 @@ export class Api<SecurityDataType extends unknown> {
      */
     ratingControllerGetMyRatings: (
       query?: {
+        /** @example "LIKE" */
         grade?: RecordGrade[];
         /** @example 1 */
         page?: number;
@@ -2583,6 +2594,7 @@ export class Api<SecurityDataType extends unknown> {
     ratingControllerGetUserRatings: (
       id: string,
       query?: {
+        /** @example "LIKE" */
         grade?: RecordGrade[];
         /** @example 1 */
         page?: number;

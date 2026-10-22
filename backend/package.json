@@ -10,7 +10,8 @@
     "test:integration": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts && RUN_DB_TESTS=1 bun test src/__integration__",
     "test:integration:reset": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts --reset && RUN_DB_TESTS=1 bun test src/__integration__",
     "start": "bun run ./src/main.ts",
-    "dev": "bun run --watch --no-clear-screen ./src/main.ts"
+    "dev": "bun run --watch --no-clear-screen ./src/main.ts",
+    "export:openapi": "bun run scripts/export-openapi.ts"
   },
   "dependencies": {
     "@gmd/database": "workspace:*",
@@ -23,7 +24,6 @@
     "@nestjs/serve-static": "12.0.0",
     "@nestjs/swagger": "12.0.3",
     "@nestjs/websockets": "12.2.0",
-    "@scalar/nestjs-api-reference": "1.2.30",
     "class-transformer": "0.5.1",
     "class-validator": "0.15.1",
     "cookie-parser": "1.4.7",

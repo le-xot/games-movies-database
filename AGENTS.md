@@ -38,7 +38,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Database schema      | `database/src/schema/`                                  | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes                            |
 | Database migrations  | `database/migrations/`                                  | Generated SQL; applied by `migrations` compose service                                     |
 | DB access            | `backend/src/database/drizzle.service.ts`               | Inject `DrizzleService`, use `.db`                                                         |
-| API types            | `frontend/src/lib/api.ts`                               | AUTO-GENERATED from Swagger. Never edit manually                                           |
+| API types            | `frontend/src/lib/api-types.ts`                         | GENERATED from backend OpenAPI (`bun run generate:api`). Never edit manually               |
+| API client           | `frontend/src/lib/api.ts`                               | Hand-written `openapi-fetch` client + type re-exports                                      |
 | Environment vars     | `backend/.env.example`                                  | Copy to `backend/.env`                                                                     |
 | Prod secrets         | Doppler (project `games-movies-database`, config `prd`) | `scripts/render-env.sh` renders `.env` on the server; token in `~/.config/gmd/secrets.env` |
 | Router paths         | `frontend/src/router/router-paths.ts`                   | ROUTER_PATHS constant                                                                      |
@@ -63,12 +64,12 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **Path alias**: `@/` → `./src/` in both frontend and backend
 - **TypeScript**: Backend and database type-check via `bun check` (Bun's built-in TS 7 checker, port of typescript-go). Frontend uses `vue-tsc` with `typescript` aliased to `typescript-native-bridge` (TS 6 API driving tsgo 7.0.2; ~2x faster typecheck). TNB needs glibc — the Alpine Docker image only runs `build:ci`, never typecheck
 - **vue-tsc pinned to 3.3.11**: 3.3.12+ corrupts template codegen when a component prop value contains `//` (any URL) — see language-tools #6240/#6264. Bump only after the fix lands
-- **API client**: Auto-generated via `swagger-typescript-api` from backend `/docs-json`. Regenerated on frontend dev start. Access via `useApi()` Pinia store
+- **API client**: `backend/scripts/export-openapi.ts` собирает контракт из декораторов Nest в `frontend/openapi.json` (без HTTP-сервера и БД), `openapi-typescript` превращает его в `frontend/src/lib/api-types.ts`. Оба файла в `.gitignore`, генерятся на `dev`/`build`/`typecheck`. Клиент — ручной `openapi-fetch` в `frontend/src/lib/api.ts`, доступ через `useApi()`; на ошибке бросается `Response`, поэтому `parseApiError` работает как раньше
 - **Database**: Drizzle ORM. Schema lives in `database/src/schema/`, migrations are generated SQL committed under `database/migrations/`. Never edit `database/migrations/` by hand — use `bun db:generate`.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-- **NEVER** edit `frontend/src/lib/api.ts` — it's auto-generated from Swagger
+- **NEVER** edit `frontend/src/lib/api-types.ts` — it's generated; правь DTO в бэкенде и запусти `bun run generate:api`
 - **NEVER** use icon libraries other than @lucide/vue / vue3-simple-icons
 - **NEVER** edit `database/migrations/` manually — it is generated from `database/src/schema` via `bun db:generate`; CI fails on drift
 - **NEVER** use `unique()` where the Prisma-era DB has a unique index — it creates a unique constraint; use `uniqueIndex()`
@@ -95,6 +96,7 @@ bun dev:backend                # Backend only
 
 # Build
 bun build                      # Build both
+bun generate:api               # Regenerate OpenAPI + frontend API types
 bun lint                       # Lint check (oxlint)
 bun lint:fix                   # Auto-fix (oxlint)
 bun format                     # Format codebase (oxfmt)
@@ -118,7 +120,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 ## NOTES
 
 - Backend serves built frontend via `ServeStaticModule` (frontend/dist). In production, single container serves everything
-- Frontend dev requires backend running first — Vite config auto-generates API client from `localhost:3000/docs-json` (retries 10x on failure)
+- Frontend dev не требует бэкенда: типы генерируются офлайн-скриптом из `AppModule` (`bun run generate:api`), для запуска dev-сервера достаточно `bun dev:frontend`
 - Vite proxies `/api` and `/socket.io` to `localhost:3000` in dev
 - CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`. GHCR packages must stay anonymously pullable (no `docker login` on the server)
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)

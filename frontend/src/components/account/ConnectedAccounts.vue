@@ -5,16 +5,24 @@ import { toast } from 'vue-sonner'
 import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AccountPlatform, AuthControllerUnlinkAccountParamsEnum } from '@/lib/api'
+import {
+  AccountPlatform,
+  PathsAuthAccountsPlatformDeleteParametersPathPlatform,
+  unwrap,
+} from '@/lib/api'
 import { ACCOUNT_DIALOG_ON_LOAD_KEY } from '@/stores/use-account-dialog'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
 import type { UserAccountEntity } from '@/lib/api'
 
-const UNLINK_PLATFORM: Record<AccountPlatform, AuthControllerUnlinkAccountParamsEnum> = {
-  [AccountPlatform.TWITCH]: AuthControllerUnlinkAccountParamsEnum.TWITCH,
-  [AccountPlatform.KICK]: AuthControllerUnlinkAccountParamsEnum.KICK,
-  [AccountPlatform.TELEGRAM]: AuthControllerUnlinkAccountParamsEnum.TELEGRAM,
+/** Значения платформы в контракте — строковые enum'ы, не совпадающие по типу с AccountPlatform. */
+const UNLINK_PLATFORM: Record<
+  AccountPlatform,
+  PathsAuthAccountsPlatformDeleteParametersPathPlatform
+> = {
+  [AccountPlatform.TWITCH]: PathsAuthAccountsPlatformDeleteParametersPathPlatform.TWITCH,
+  [AccountPlatform.KICK]: PathsAuthAccountsPlatformDeleteParametersPathPlatform.KICK,
+  [AccountPlatform.TELEGRAM]: PathsAuthAccountsPlatformDeleteParametersPathPlatform.TELEGRAM,
 }
 
 const api = useApi()
@@ -34,7 +42,7 @@ onMounted(loadAccounts)
 
 async function loadAccounts() {
   try {
-    const { data } = await api.auth.authControllerGetLinkedAccounts()
+    const data = await unwrap(api.GET('/auth/accounts'))
     accounts.value = data
   } catch (error) {
     console.error('Failed to fetch linked accounts:', error)
@@ -52,7 +60,9 @@ function connectAccount(platform: 'kick' | 'twitch' | 'telegram') {
 async function unlinkAccount(platform: AccountPlatform) {
   isUnlinking.value = true
   try {
-    await api.auth.authControllerUnlinkAccount(UNLINK_PLATFORM[platform])
+    await api.DELETE('/auth/accounts/{platform}', {
+      params: { path: { platform: UNLINK_PLATFORM[platform] } },
+    })
     accounts.value = accounts.value.filter((a) => a.platform !== platform)
     toast.success('Аккаунт отвязан', {
       description: `${platform} отвязан от профиля`,

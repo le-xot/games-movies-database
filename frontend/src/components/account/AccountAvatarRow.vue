@@ -15,7 +15,7 @@ async function deleteAvatar() {
   isDeleting.value = true
 
   try {
-    await api.auth.authControllerDeleteAvatar()
+    await api.DELETE('/auth/me/avatar')
     await userStore.refetchUser()
     toast.success('Аватар сброшен')
   } catch {

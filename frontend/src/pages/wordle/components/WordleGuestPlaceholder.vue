@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WORDLE_LEADERBOARD_KEY } from '@/composables/query-keys'
+import { unwrap } from '@/lib/api'
 import WordleLeaderboardList from '@/pages/wordle/components/WordleLeaderboardList.vue'
 import { formatWordleGlobalStats } from '@/pages/wordle/constants/wordle-constants'
 import { useApi } from '@/stores/use-api'
@@ -21,7 +22,7 @@ const {
   isPending,
 } = useQuery({
   key: [WORDLE_LEADERBOARD_KEY],
-  query: async () => (await api.wordle.wordleControllerGetLeaderboard()).data,
+  query: () => unwrap(api.GET('/wordle/leaderboard')),
   gcTime: false,
 })
 </script>

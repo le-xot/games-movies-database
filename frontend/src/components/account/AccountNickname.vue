@@ -36,7 +36,7 @@ async function saveNickname() {
   nicknameError.value = ''
 
   try {
-    await api.auth.authControllerUpdateNickname({ login })
+    await api.PATCH('/auth/me', { body: { login } })
     await userStore.refetchUser()
     isEditing.value = false
     toast.success('Ник сохранён')

@@ -2,7 +2,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
-import { RecordGrade, RecordStatus } from '@/lib/api'
+import { RecordGrade, RecordStatus, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { SteamGameDto } from '@/lib/api'
 
@@ -92,7 +92,7 @@ export function useSteamSync() {
     isLoadingSteam.value = true
     importResult.value = null
     try {
-      const { data } = await api.steam.steamControllerGetSteamGames()
+      const data = await unwrap(api.GET('/steam/games'))
       steamGames.value = data.games
       existingAppIds.value = new Set(data.existingAppIds)
       steamLoaded.value = true
@@ -144,7 +144,7 @@ export function useSteamSync() {
         status: opts.status,
         grade: opts.grade ?? undefined,
       }))
-      const { data } = await api.steam.steamControllerImportSteamGames({ games })
+      const data = await unwrap(api.POST('/steam/import', { body: { games } }))
       importResult.value = { created: data.created.length, failed: data.failed.length }
       toast.success(
         `Импорт завершён: добавлено ${data.created.length}, ошибок ${data.failed.length}`,

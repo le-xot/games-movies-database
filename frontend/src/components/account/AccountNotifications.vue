@@ -27,7 +27,7 @@ onBeforeUnmount(stopPolling)
 
 async function loadStatus() {
   try {
-    const response = await api.wordle.wordleNotificationControllerGetStatus()
+    const response = await api.GET('/wordle/notifications')
     status.value = response.data ?? null
   } catch {
     toast.error('Не удалось загрузить настройки уведомлений')
@@ -49,7 +49,7 @@ async function connect() {
   isConnecting.value = true
   const tab = window.open('about:blank', '_blank')
   try {
-    const response = await api.wordle.wordleNotificationControllerCreateLink()
+    const response = await api.POST('/wordle/notifications/link')
     const url = response.data?.url
     if (!url) throw new Error('empty link')
     if (tab) tab.location.href = url
@@ -87,9 +87,9 @@ async function toggleSlot(key: 'morningEnabled' | 'eveningEnabled', value: boole
   isSaving.value = true
   status.value = { ...status.value, [key]: value } as WordleNotificationsStatusDTO
   try {
-    const response = await api.wordle.wordleNotificationControllerUpdate(
-      key === 'morningEnabled' ? { morningEnabled: value } : { eveningEnabled: value },
-    )
+    const response = await api.PATCH('/wordle/notifications', {
+      body: key === 'morningEnabled' ? { morningEnabled: value } : { eveningEnabled: value },
+    })
     if (response.data) status.value = response.data
   } catch {
     status.value = { ...status.value, [key]: previous } as WordleNotificationsStatusDTO
@@ -103,7 +103,7 @@ async function disconnect() {
   if (isDisconnecting.value) return
   isDisconnecting.value = true
   try {
-    await api.wordle.wordleNotificationControllerRemove()
+    await api.DELETE('/wordle/notifications')
     if (status.value) {
       status.value = { ...status.value, connected: false, telegramUsername: null }
     }

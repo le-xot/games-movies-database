@@ -3,7 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { WORDLE_LEADERBOARD_KEY } from '@/composables/query-keys'
-import { WordleGameStatus, WordleHistoryStatus } from '@/lib/api'
+import { WordleGameStatus, WordleHistoryStatus, unwrap } from '@/lib/api'
 import {
   LETTER_STATE_RANK,
   WORDLE_WORD_LENGTH,
@@ -54,27 +54,26 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     refetch: refetchState,
   } = useQuery<WordleStateDTO>({
     key: [WORDLE_STATE_KEY],
-    query: async () => (await api.wordle.wordleControllerGetState()).data,
+    query: () => unwrap(api.GET('/wordle/state')),
     gcTime: false,
   })
 
   const { data: stats, refetch: refetchStats } = useQuery<WordleStatsDTO>({
     key: [WORDLE_STATS_KEY],
-    query: async () => (await api.wordle.wordleControllerGetStats()).data,
+    query: () => unwrap(api.GET('/wordle/stats')),
     gcTime: false,
   })
 
   const { data: leaderboard, refetch: refetchLeaderboard } = useQuery<WordleLeaderboardDTO>({
     key: [WORDLE_LEADERBOARD_KEY],
-    query: async () => (await api.wordle.wordleControllerGetLeaderboard()).data,
+    query: () => unwrap(api.GET('/wordle/leaderboard')),
     gcTime: false,
   })
 
   const { mutateAsync: submitDailyGuess, isLoading: isSubmittingDaily } = useMutation({
     key: [WORDLE_STATE_KEY, 'guess'],
-    mutation: async (word: string) => {
-      const { data } = await api.wordle.wordleControllerMakeGuess({ word })
-      return data
+    mutation: (word: string) => {
+      return unwrap(api.POST('/wordle/guess', { body: { word } }))
     },
     onSuccess: (data) => {
       queryCache.setQueryData([WORDLE_STATE_KEY], data)
@@ -90,13 +89,13 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     refetch: refetchPractice,
   } = useQuery<WordlePracticeStateDTO | null>({
     key: [WORDLE_PRACTICE_KEY],
-    query: async () => (await api.wordle.wordleControllerGetPracticeState()).data,
+    query: () => unwrap(api.GET('/wordle/practice')),
     gcTime: false,
   })
 
   const { mutateAsync: startPracticeRound, isLoading: isStartingPractice } = useMutation({
     key: [WORDLE_PRACTICE_KEY, 'start'],
-    mutation: async () => (await api.wordle.wordleControllerStartPractice()).data,
+    mutation: () => unwrap(api.POST('/wordle/practice')),
     onSuccess: (data) => {
       queryCache.setQueryData([WORDLE_PRACTICE_KEY], data)
     },
@@ -104,8 +103,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
 
   const { mutateAsync: submitPracticeGuess, isLoading: isSubmittingPractice } = useMutation({
     key: [WORDLE_PRACTICE_KEY, 'guess'],
-    mutation: async (word: string) =>
-      (await api.wordle.wordleControllerMakePracticeGuess({ word })).data,
+    mutation: (word: string) => unwrap(api.POST('/wordle/practice/guess', { body: { word } })),
     onSuccess: (data) => {
       queryCache.setQueryData([WORDLE_PRACTICE_KEY], data)
     },

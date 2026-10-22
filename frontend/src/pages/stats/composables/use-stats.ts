@@ -2,6 +2,7 @@ import { useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
 import { STATS_QUERY_KEY } from '@/composables/query-keys'
+import { unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { parseApiError } from '@/utils/api-error'
 import type { RecordsStatsDTO } from '@/lib/api'
@@ -19,7 +20,7 @@ export const useStats = defineStore('stats/use-stats', () => {
     query: async () => {
       try {
         error.value = null
-        const { data } = await api.stats.statsControllerGetRecordsStats()
+        const data = await unwrap(api.GET('/stats/records'))
         return data
       } catch (err) {
         error.value = await parseApiError(err, 'Failed to load stats')

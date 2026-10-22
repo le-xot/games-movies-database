@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
+import { unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { MergeUsersResultEntity, UserEntity } from '@/lib/api'
 import type { UserAccount } from '@/pages/admin/composables/use-admin-users'
@@ -87,9 +88,12 @@ export function useMergeAccounts(options: {
 
     isMerging.value = true
     try {
-      const { data } = await api.users.userControllerMergeUsers(target.id, {
-        sourceUserId: source.id,
-      })
+      const data = await unwrap(
+        api.POST('/users/{id}/merge', {
+          params: { path: { id: target.id } },
+          body: { sourceUserId: source.id },
+        }),
+      )
 
       const droppedTotal =
         data.accountsDropped + data.likesDropped + data.ratingsDropped + data.wordleGamesDropped

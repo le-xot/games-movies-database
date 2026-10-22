@@ -1,10 +1,9 @@
 import { useInfiniteQuery, useMutation } from '@pinia/colada'
 import { defineStore } from 'pinia'
 import { ComputedRef, computed, ref } from 'vue'
-import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO } from '@/lib/api'
+import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RecordsQueryParams } from '@/composables/factories/create-params-store'
-import type { Api } from '@/lib/api'
 
 export interface ParamsStoreReturn {
   params: RecordsQueryParams
@@ -21,10 +20,6 @@ export interface RecordsStoreConfig<TItems extends string, TRefetch extends stri
 
 const DEFAULT_PAGE_SIZE = 50
 
-type MutationResult<T extends keyof Api<unknown>['records']> = ReturnType<
-  Api<unknown>['records'][T]
->
-
 export type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
   items: ComputedRef<RecordEntity[]>
   isLoading: boolean
@@ -33,15 +28,9 @@ export type RecordsStoreReturn<TItems extends string, TRefetch extends string> =
   isLoadingNext: boolean
   loadNextPage: () => Promise<unknown>
   retry: () => Promise<unknown>
-  updateRecord: (payload: {
-    id: number
-    data: RecordUpdateDTO
-  }) => MutationResult<'recordControllerPatchRecord'>
-  updatePoster: (payload: {
-    id: number
-    url: string
-  }) => MutationResult<'recordControllerUpdatePoster'>
-  deleteRecord: (id: number) => MutationResult<'recordControllerDeleteRecord'>
+  updateRecord: (payload: { id: number; data: RecordUpdateDTO }) => Promise<unknown>
+  updatePoster: (payload: { id: number; url: string }) => Promise<unknown>
+  deleteRecord: (id: number) => Promise<unknown>
 } & Record<TItems, ComputedRef<RecordEntity[]>> &
   Record<TRefetch, () => Promise<unknown>>
 
@@ -67,11 +56,17 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       // чтобы список не схлопывался в скелетон на каждый запрос.
       placeholderData: (previous) => previous,
       query: async ({ pageParam }) => {
-        const { data: response } = await api.records.recordControllerGetAllRecords({
-          ...paramsStoreInstance.params,
-          page: pageParam,
-          limit: pageSize,
-        })
+        const response = await unwrap(
+          api.GET('/records', {
+            params: {
+              query: {
+                ...paramsStoreInstance.params,
+                page: pageParam,
+                limit: pageSize,
+              },
+            },
+          }),
+        )
         return response
       },
       getNextPageParam: (lastPage, allPages, lastPageParam) => {
@@ -95,21 +90,21 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
     const { mutateAsync: updateRecord } = useMutation({
       key: [config.queryKey, 'update'],
       mutation: ({ id, data: body }: { id: number; data: RecordUpdateDTO }) => {
-        return api.records.recordControllerPatchRecord(id, body)
+        return api.PATCH('/records/{id}', { params: { path: { id } }, body })
       },
     })
 
     const { mutateAsync: deleteRecord } = useMutation({
       key: [config.queryKey, 'delete'],
       mutation: (id: number) => {
-        return api.records.recordControllerDeleteRecord(id)
+        return api.DELETE('/records/{id}', { params: { path: { id } } })
       },
     })
 
     const { mutateAsync: updatePoster } = useMutation({
       key: [config.queryKey, 'updatePoster'],
       mutation: ({ id, url }: { id: number; url: string }) => {
-        return api.records.recordControllerUpdatePoster(id, { url })
+        return api.PATCH('/records/{id}/poster', { params: { path: { id } }, body: { url } })
       },
     })
 

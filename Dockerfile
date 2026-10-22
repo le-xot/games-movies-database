@@ -1,4 +1,4 @@
-FROM oven/bun:1.4.3-alpine AS deps
+FROM oven/bun:1.4.4-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
@@ -8,7 +8,7 @@ RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
     bun install --frozen-lockfile --filter=./frontend && \
     mkdir -p /app/frontend/node_modules
 
-FROM oven/bun:1.4.3-alpine AS runtime-deps
+FROM oven/bun:1.4.4-alpine AS runtime-deps
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY backend/package.json ./backend/
@@ -16,7 +16,7 @@ COPY database/package.json ./database/
 RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
     bun install --frozen-lockfile --production
 
-FROM oven/bun:1.4.3-alpine AS frontend-builder
+FROM oven/bun:1.4.4-alpine AS frontend-builder
 WORKDIR /app
 COPY --from=node:24-alpine /usr/local/bin/node /usr/local/bin/
 
@@ -27,7 +27,7 @@ COPY ./frontend ./frontend
 
 RUN bun --filter=./frontend run build:ci
 
-FROM oven/bun:1.4.3-alpine
+FROM oven/bun:1.4.4-alpine
 WORKDIR /app
 
 RUN apk add --no-cache fontconfig font-dejavu

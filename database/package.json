@@ -15,14 +15,14 @@
     "typecheck": "bun check"
   },
   "dependencies": {
-    "drizzle-orm": "0.45.2",
-    "pg": "8.23.0"
+    "drizzle-orm": "0.45.4",
+    "pg": "8.23.1"
   },
   "devDependencies": {
     "@types/bun": "1.4.3",
-    "@types/node": "26.4.0",
+    "@types/node": "26.6.5",
     "@types/pg": "8.23.1",
-    "drizzle-kit": "0.31.10",
+    "drizzle-kit": "0.31.11",
     "typescript": "7.0.2"
   }
 }

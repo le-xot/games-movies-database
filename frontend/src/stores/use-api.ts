@@ -1,7 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { api, apiPendingCount } from '@/lib/api'
-
-export { apiPendingCount }
+import { api } from '@/lib/api'
 
 export const useApi = defineStore('global/use-api', () => api)
 

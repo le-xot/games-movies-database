@@ -58,12 +58,11 @@ frontend/src/
 
 ## COMPOSABLES (Plain — `composables/`)
 
-| Name                   | Purpose                                                |
-| ---------------------- | ------------------------------------------------------ |
-| `useWebSocket`         | Socket.io client; triggers refetches on server events  |
-| `useRecordCreate`      | Mutation for creating records from links               |
-| `createEventCoalescer` | Debounced event batching for WebSocket updates         |
-| `useDelayedFlag`       | Shows loaders only if loading lasts longer than ~150ms |
+| Name                   | Purpose                                               |
+| ---------------------- | ----------------------------------------------------- |
+| `useWebSocket`         | Socket.io client; triggers refetches on server events |
+| `useRecordCreate`      | Mutation for creating records from links              |
+| `createEventCoalescer` | Debounced event batching for WebSocket updates        |
 
 ## COMPONENT PATTERNS
 
@@ -75,7 +74,7 @@ frontend/src/
 - **Validation**: vee-validate 5 + zod 4.
 - **Toasts**: vue-sonner (wrapper in `components/ui/sonner`).
 - **Events**: Kebab-case enforced for custom events.
-- **Loading states**: don't render empty states while `isLoading`; keep previous data with colada `placeholderData`; skeletons come from `@/components/ui/skeleton` and render immediately (the global progress bar uses `useDelayedFlag`).
+- **Loading states**: don't render empty states while `isLoading`; keep previous data with colada `placeholderData`; skeletons come from `@/components/ui/skeleton` and render immediately.
 - **Order**: `<template>` or `<script>` first, `<style>` last.
 
 ## ANTI-PATTERNS

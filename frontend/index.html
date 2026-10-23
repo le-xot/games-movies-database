@@ -27,6 +27,16 @@
         if (path === '/db' || path.indexOf('/db/') === 0) variant = 'db'
         else if (path === '/pc' || path.indexOf('/pc/') === 0) variant = 'pc'
         document.documentElement.dataset.splash = variant
+
+        // Баннер главной появляется только после монтирования Vue — тянем его заранее.
+        if (variant === 'home') {
+          var preload = document.createElement('link')
+          preload.rel = 'preload'
+          preload.as = 'image'
+          preload.href = '/images/lexot.webp'
+          preload.setAttribute('fetchpriority', 'high')
+          document.head.appendChild(preload)
+        }
       })()
     </script>
     <style>

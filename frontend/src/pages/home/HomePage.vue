@@ -8,6 +8,7 @@ import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 
 const title = useTitle()
 const weatherExpanded = ref(false)
+const heroLoaded = ref(false)
 
 onMounted(() => {
   title.value = 'Сайт Лешота'
@@ -19,10 +20,18 @@ onMounted(() => {
     <div class="w-full max-w-5xl">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <div class="relative col-span-1 md:col-span-2 md:row-span-2">
+          <!-- Заглушка на время загрузки баннера: без неё видно alt и пустую ячейку. -->
+          <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900" />
           <img
-            class="w-full rounded-xl object-contain md:h-full md:object-cover"
+            data-hero
+            class="relative w-full aspect-square rounded-xl object-contain transition-opacity duration-300 ease-out md:aspect-auto md:h-full md:object-cover"
+            :class="heroLoaded ? 'opacity-100' : 'opacity-0'"
             src="/images/lexot.webp"
-            alt="Main Banner"
+            width="666"
+            height="666"
+            alt=""
+            @load="heroLoaded = true"
+            @error="heroLoaded = true"
           />
           <TimeBadge v-show="!weatherExpanded" />
           <WeatherBadge @expand="weatherExpanded = true" @collapse="weatherExpanded = false" />

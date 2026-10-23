@@ -1,7 +1,19 @@
 import { describe, expect, it, mock } from 'bun:test'
+import { createHash } from 'node:crypto'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { securityHeaders } from '../security-headers'
 
 const makeRes = () => ({ setHeader: mock((_name: string, _value: string) => {}) })
+
+const INDEX_HTML_PATH = join(import.meta.dir, '..', '..', '..', '..', 'frontend', 'index.html')
+
+/** Хеш считается от точного текста тега <script> без атрибутов — так же, как это делает браузер. */
+function inlineScriptHash(): string {
+  const html = readFileSync(INDEX_HTML_PATH, 'utf8')
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? ''
+  return `'sha256-${createHash('sha256').update(script, 'utf8').digest('base64')}'`
+}
 
 describe('securityHeaders', () => {
   it('sets hardening headers on every response', () => {
@@ -53,5 +65,20 @@ describe('securityHeaders', () => {
     expect(cspCall![1]).toContain('https://fonts.gstatic.com')
     expect(cspCall![1]).toContain("connect-src 'self'")
     expect(cspCall![1]).toContain("frame-ancestors 'none'")
+  })
+
+  it.skipIf(!existsSync(INDEX_HTML_PATH))('allows the inline boot script from index.html', () => {
+    const res = makeRes()
+
+    securityHeaders(
+      {} as any,
+      res as any,
+      mock(() => {}),
+      true,
+    )
+
+    const csp = res.setHeader.mock.calls.find(([name]) => name === 'Content-Security-Policy')![1]
+
+    expect(csp).toContain(inlineScriptHash())
   })
 })

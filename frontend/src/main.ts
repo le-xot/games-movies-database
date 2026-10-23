@@ -13,6 +13,9 @@ const STORAGE_VERSION_KEY = 'app_version'
 /** Сколько ждём /api/auth/me до первого рендера. Дольше — монтируемся и догружаем в фоне. */
 const AUTH_BOOT_TIMEOUT_MS = 1500
 
+/** Сколько держим заставку ради баннера главной. Дольше — показываем страницу без него. */
+const HERO_IMAGE_TIMEOUT_MS = 800
+
 const KEYS_TO_CLEAR = ['viewed-suggestions', 'suggestion-sort-by']
 
 const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
@@ -56,7 +59,25 @@ async function bootstrap() {
     })
   }
 
+  await waitForHeroImage()
+
   hideBootSplash()
+}
+
+/**
+ * Баннер главной грузится только после монтирования роута, а заставка к этому моменту
+ * уже готова уйти. Ждём декод, чтобы не показать пустую ячейку с alt вместо картинки.
+ */
+async function waitForHeroImage() {
+  if (router.currentRoute.value.name !== 'home') return
+
+  const hero = document.querySelector<HTMLImageElement>('img[data-hero]')
+  if (!hero || (hero.complete && hero.naturalWidth > 0)) return
+
+  await Promise.race([
+    hero.decode().catch(() => undefined),
+    new Promise((resolve) => setTimeout(resolve, HERO_IMAGE_TIMEOUT_MS)),
+  ])
 }
 
 /** Гасит инлайновую заставку из index.html уже поверх смонтированного приложения. */

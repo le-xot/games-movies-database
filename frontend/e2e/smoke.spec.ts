@@ -4,7 +4,7 @@ import { BACKEND_PORT, FRONTEND_PORT } from './helpers/env'
 test('frontend dev server is served on the E2E port', async ({ page }) => {
   await page.goto('/')
   expect(page.url()).toContain(`:${FRONTEND_PORT}`)
-  await expect(page.getByAltText('Main Banner')).toBeVisible()
+  await expect(page.locator('img[data-hero]')).toBeVisible()
 })
 
 test('backend health endpoint answers on the E2E port', async ({ request }) => {

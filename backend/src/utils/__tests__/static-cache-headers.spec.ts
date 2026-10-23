@@ -49,4 +49,28 @@ describe('setAssetCacheHeaders', () => {
       'public, max-age=31536000, immutable',
     )
   })
+
+  it('keeps public images cached between visits', () => {
+    const res = makeRes()
+
+    setAssetCacheHeaders(res, '/app/frontend/dist/images/lexot.webp')
+
+    expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=86400')
+  })
+
+  it('matches public images on any platform separator', () => {
+    const res = makeRes()
+
+    setAssetCacheHeaders(res, 'C:\\app\\frontend\\dist\\images\\lexot.webp')
+
+    expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=86400')
+  })
+
+  it('does not treat lookalike image directories as build images', () => {
+    const res = makeRes()
+
+    setAssetCacheHeaders(res, '/app/frontend/dist/my-images/lexot.webp')
+
+    expect(res.setHeader).not.toHaveBeenCalled()
+  })
 })

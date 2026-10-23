@@ -3,7 +3,9 @@ import type { NextFunction, Request, Response } from 'express'
 
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  // Хеш инлайнового скрипта из frontend/index.html: бренд заставки и preload баннера.
+  // Пересобирается автоматически — расхождение ловит security-headers.spec.ts.
+  "script-src 'self' 'sha256-2UZi9RGYgupkvgMxCHzg3LZNkfUyWYtD3VUVo//64eM='",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob:",

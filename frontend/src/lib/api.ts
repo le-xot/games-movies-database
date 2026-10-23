@@ -1,13 +1,9 @@
 import createClient from 'openapi-fetch'
-import { ref } from 'vue'
 import type { paths } from './api-types'
 
 // Типы и enum'ы берутся из сгенерированного контракта — реэкспорт держит
 // единственную точку входа для всего приложения.
 export * from './api-types'
-
-/** Число активных запросов к API — для тонкого индикатора фоновой загрузки. */
-export const apiPendingCount = ref(0)
 
 /**
  * Клиент на fetch. openapi-fetch не бросает исключение на ошибочном статусе, а
@@ -18,14 +14,9 @@ export const api = createClient<paths>({
   baseUrl: '/api',
   credentials: 'include',
   fetch: async (request) => {
-    apiPendingCount.value += 1
-    try {
-      const response = await fetch(request)
-      if (!response.ok) throw response
-      return response
-    } finally {
-      apiPendingCount.value -= 1
-    }
+    const response = await fetch(request)
+    if (!response.ok) throw response
+    return response
   },
 })
 

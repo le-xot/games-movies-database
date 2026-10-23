@@ -13,6 +13,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['log', 'warn', 'error'],
   })
+  // Явно только SIGTERM/SIGINT: enableShutdownHooks() без аргументов подписывается
+  // на все сигналы, включая SIGSEGV/SIGBUS — в Bun это подавляет падение процесса,
+  // и вместо рестарта контейнер зависает на graceful teardown.
+  app.enableShutdownHooks(['SIGTERM', 'SIGINT'])
   app.set('trust proxy', 1)
   app.use(cookieParser())
   app.use(securityHeaders)

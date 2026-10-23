@@ -19,7 +19,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ├── docker-compose.dev.yml  # Dev: postgres + redis + rustfs + dbx
 ├── Dockerfile              # App image: multi-stage bun build (frontend → backend → serve)
 ├── .oxlintrc.json          # oxlint configuration (linting rules)
-├── .oxfmtrc.json           # oxfmt configuration (formatting + import sorting)
+├── .oxfmtrc.json           # fmt configuration (bun fmt reads it: formatting + import sorting)
 └── .github/workflows/      # CI: checks → build → GHCR → SSH deploy (server pulls images, no git)
 ```
 
@@ -51,9 +51,9 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 ## CONVENTIONS
 
 - **Package manager**: Bun only. `bun install`, `bun dev`, `bun build`
-- **Linter/Formatter**: oxlint + oxfmt. Prettier disabled.
+- **Linter/Formatter**: oxlint + `bun fmt` (встроенный форматтер Bun, читает `.oxfmtrc.json` и `.editorconfig`; пакет `oxfmt` не используется)
 - **Quotes**: Single quotes enforced (`avoidEscape: false`)
-- **Imports**: Sorted by oxfmt `sortImports` — builtin → external → internal → parent/sibling → type → side-effect
+- **Imports**: Sorted by `sortImports` из `.oxfmtrc.json` — builtin → external → internal → parent/sibling → type → side-effect
 - **Brace style**: `1tbs`
 - **Indent**: 2 spaces, max line 100 chars
 - **Vue blocks**: `<script setup lang="ts">` or `<template>` first, `<style>` last
@@ -62,7 +62,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **Stores**: Pinia 4 stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
 - **Icons**: @lucide/vue primary, vue3-simple-icons for brands. No other icon libs
 - **Path alias**: `@/` → `./src/` in both frontend and backend
-- **TypeScript**: Backend and database type-check via `bun check` (Bun's built-in TS 7 checker, port of typescript-go). Frontend uses `vue-tsc` with `typescript` aliased to `typescript-native-bridge` (TS 6 API driving tsgo 7.0.2; ~2x faster typecheck). TNB needs glibc — the Alpine Docker image only runs `build:ci`, never typecheck
+- **TypeScript**: Backend and database type-check via `bun check -b` (Bun's built-in TS 7 checker, port of typescript-go). `-b` включает shared declaration parse и кэш резолва модулей, но у нас пока no-op — project references в `tsconfig` нет; сам 1.4.4 и так ускорил `bun check`. Frontend uses `vue-tsc` with `typescript` aliased to `typescript-native-bridge` (TS 6 API driving tsgo 7.0.2; ~2x faster typecheck). TNB needs glibc — the Alpine Docker image only runs `build:ci`, never typecheck
 - **vue-tsc pinned to 3.3.11**: 3.3.12+ corrupts template codegen when a component prop value contains `//` (any URL) — see language-tools #6240/#6264. Bump only after the fix lands
 - **API client**: `backend/scripts/export-openapi.ts` собирает контракт из декораторов Nest в `frontend/openapi.json` (без HTTP-сервера и БД), `openapi-typescript` превращает его в `frontend/src/lib/api-types.ts`. Оба файла в `.gitignore`, генерятся на `dev`/`build`/`typecheck`. Клиент — ручной `openapi-fetch` в `frontend/src/lib/api.ts`, доступ через `useApi()`; на ошибке бросается `Response`, поэтому `parseApiError` работает как раньше
 - **Database**: Drizzle ORM. Schema lives in `database/src/schema/`, migrations are generated SQL committed under `database/migrations/`. Never edit `database/migrations/` by hand — use `bun db:generate`.
@@ -99,9 +99,10 @@ bun build                      # Build both
 bun generate:api               # Regenerate OpenAPI + frontend API types
 bun lint                       # Lint check (oxlint)
 bun lint:fix                   # Auto-fix (oxlint)
-bun format                     # Format codebase (oxfmt)
-bun format:check               # Check formatting (oxfmt)
-bun typecheck                  # Type check: bun check (backend, database) + vue-tsc (frontend)
+bun format                     # Format codebase (bun fmt)
+bun format:check               # Check formatting (bun fmt --check)
+bun typecheck                  # Type check: bun check -b (backend, database) + vue-tsc (frontend)
+bun hooks:install              # Enable .githooks (core.hooksPath): pre-commit runs bun fmt --staged
 
 # Database
 # Setup: cp database/.env.example database/.env (or export DATASOURCE_URL)

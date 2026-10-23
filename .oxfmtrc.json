@@ -1,5 +1,4 @@
 {
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "ignorePatterns": ["frontend/src/lib/api.ts"],
   "printWidth": 100,
   "singleQuote": true,

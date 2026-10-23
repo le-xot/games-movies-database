@@ -12,14 +12,14 @@
     "generate": "drizzle-kit generate",
     "migrate": "bun run src/migrate.ts",
     "baseline": "bun run src/baseline.ts",
-    "typecheck": "bun check"
+    "typecheck": "bun check -b"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",
     "pg": "8.23.1"
   },
   "devDependencies": {
-    "@types/bun": "1.4.3",
+    "@types/bun": "1.4.4",
     "@types/node": "26.6.5",
     "@types/pg": "8.23.1",
     "drizzle-kit": "0.31.11",

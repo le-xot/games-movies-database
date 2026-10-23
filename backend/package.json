@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run typecheck",
-    "typecheck": "bun check",
+    "typecheck": "bun check -b",
     "test": "bun test",
     "test:integration": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts && RUN_DB_TESTS=1 bun test src/__integration__",
     "test:integration:reset": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts --reset && RUN_DB_TESTS=1 bun test src/__integration__",
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@nestjs/testing": "12.2.0",
-    "@types/bun": "1.4.3",
+    "@types/bun": "1.4.4",
     "@types/cookie-parser": "1.4.10",
     "@types/express": "5.0.6",
     "@types/pg": "8.23.1",

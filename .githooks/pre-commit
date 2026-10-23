@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Форматирует только застейдженное и переиндексирует результат.
+# Файл, застейдженный частично (git add -p), bun fmt не умеет форматировать и
+# отказал бы весь прогон — такие коммиты пропускаем без форматирования.
+# Включается один раз: bun run hooks:install
+set -euo pipefail
+
+staged=()
+while IFS= read -r -d '' file; do
+  staged+=("$file")
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+if [ ${#staged[@]} -eq 0 ]; then
+  exit 0
+fi
+
+for file in "${staged[@]}"; do
+  if [ -n "$(git diff --name-only -- "$file")" ]; then
+    echo "pre-commit: форматирование пропущено — $file застейджен частично"
+    echo "            примените git add <файл> или git stash --keep-index и повторите коммит"
+    exit 0
+  fi
+done
+
+bun fmt --staged

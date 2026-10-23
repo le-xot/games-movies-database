@@ -196,34 +196,35 @@ games-movies-database/
 ├── Dockerfile                 # Многостадийная сборка (frontend → backend → serve)
 ├── package.json               # Корневой package.json (workspaces)
 ├── .oxlintrc.json             # Конфигурация oxlint
-├── .oxfmtrc.json              # Конфигурация oxfmt
+├── .oxfmtrc.json              # Конфигурация bun fmt (форматирование и сортировка импортов)
 └── .github/workflows/
     └── docker.yaml            # CI/CD: сборка в GHCR + SSH-деплой (без git на сервере)
 ```
 
 ## Доступные скрипты
 
-| Команда              | Описание                                                               |
-| -------------------- | ---------------------------------------------------------------------- |
-| `bun dev`            | Запуск frontend и backend в режиме разработки                          |
-| `bun dev:frontend`   | Только frontend (порт 5173)                                            |
-| `bun dev:backend`    | Только backend (порт 3000)                                             |
-| `bun build`          | Сборка frontend и backend для продакшена                               |
-| `bun build:frontend` | Сборка только frontend                                                 |
-| `bun build:backend`  | Сборка только backend                                                  |
-| `bun start:backend`  | Запуск backend в продакшене                                            |
-| `bun infra:start`    | Dev-инфраструктура (postgres, redis, rustfs)                           |
-| `bun infra:stop`     | Остановка dev-инфраструктуры                                           |
-| `bun db:generate`    | Генерация SQL миграции из изменений схемы                              |
-| `bun db:migrate`     | Применение миграций к базе данных                                      |
-| `bun db:baseline`    | Однократный baseline существующей базы                                 |
-| `bun lint`           | Проверка кода oxlint                                                   |
-| `bun lint:fix`       | Автоисправление oxlint                                                 |
-| `bun format`         | Форматирование oxfmt                                                   |
-| `bun format:check`   | Проверка форматирования без изменений                                  |
-| `bun typecheck`      | Проверка типов: `bun check` (backend, database) + `vue-tsc` (frontend) |
-| `bun check:socket`   | Сверка socket-контракта frontend ↔ backend                             |
-| `bun test:scripts`   | Тесты скрипта рендера `.env` (render-env.sh)                           |
+| Команда              | Описание                                                                  |
+| -------------------- | ------------------------------------------------------------------------- |
+| `bun dev`            | Запуск frontend и backend в режиме разработки                             |
+| `bun dev:frontend`   | Только frontend (порт 5173)                                               |
+| `bun dev:backend`    | Только backend (порт 3000)                                                |
+| `bun build`          | Сборка frontend и backend для продакшена                                  |
+| `bun build:frontend` | Сборка только frontend                                                    |
+| `bun build:backend`  | Сборка только backend                                                     |
+| `bun start:backend`  | Запуск backend в продакшене                                               |
+| `bun infra:start`    | Dev-инфраструктура (postgres, redis, rustfs)                              |
+| `bun infra:stop`     | Остановка dev-инфраструктуры                                              |
+| `bun db:generate`    | Генерация SQL миграции из изменений схемы                                 |
+| `bun db:migrate`     | Применение миграций к базе данных                                         |
+| `bun db:baseline`    | Однократный baseline существующей базы                                    |
+| `bun lint`           | Проверка кода oxlint                                                      |
+| `bun lint:fix`       | Автоисправление oxlint                                                    |
+| `bun format`         | Форматирование (`bun fmt`)                                                |
+| `bun format:check`   | Проверка форматирования без изменений                                     |
+| `bun typecheck`      | Проверка типов: `bun check -b` (backend, database) + `vue-tsc` (frontend) |
+| `bun hooks:install`  | Включить git-хук `.githooks/pre-commit` (`bun fmt --staged`)              |
+| `bun check:socket`   | Сверка socket-контракта frontend ↔ backend                                |
+| `bun test:scripts`   | Тесты скрипта рендера `.env` (render-env.sh)                              |
 
 ## Тестирование
 
@@ -445,7 +446,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 ## Контрибьютинг
 
 - Все PR — в новую ветку
-- Следуйте конфигурации oxlint/oxfmt для стиля кода
+- Следуйте конфигурации oxlint/bun fmt для стиля кода
 - Используйте TypeScript для всего нового кода
 - На фронтенде — Vue 3 Composition API (`<script setup lang="ts">`)
 - Именование: `.vue` файлы — PascalCase, `.ts` файлы — kebab-case

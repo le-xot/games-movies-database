@@ -22,6 +22,11 @@ const allowedOrigins = parseCorsOrigins(env.CORS_ORIGINS)
 @WebSocketGateway({
   cors: { origin: allowedOrigins },
   transports: ['websocket'],
+  // Фиксируем heartbeat и лимит кадра явно, чтобы смена ws-реализации в Bun
+  // не меняла поведение сокетов незаметно. Значения совпадают с дефолтами engine.io.
+  pingInterval: 25_000,
+  pingTimeout: 20_000,
+  maxHttpBufferSize: 1_000_000,
   allowRequest: (
     request: { headers: { origin?: string } },
     callback: (err: string | null, allow: boolean) => void,

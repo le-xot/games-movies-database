@@ -9,7 +9,7 @@ import {
 import { apiErrorModels, standardErrors } from '@/gateway/errors'
 import { likeModels } from '@/gateway/likes'
 import { recordEnumModels } from '@/gateway/models'
-import { collectArrayQuery } from '@/gateway/query'
+import { coerceQueryNumbers, collectArrayQuery } from '@/gateway/query'
 import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 import type { RateLimitConfig } from '@/utils/rate-limits'
@@ -118,6 +118,7 @@ export interface RecordRouteDeps {
 
 const ADMIN = ['ADMIN'] as const
 const ARRAY_QUERY_KEYS = ['status', 'grade'] as const
+const NUMBER_QUERY_KEYS = ['page', 'limit'] as const
 
 export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
   const limit = (
@@ -142,7 +143,9 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
       ...likeModels,
     })
     .onTransform(({ request, query }) => {
-      collectArrayQuery(request, query as Record<string, unknown>, ARRAY_QUERY_KEYS)
+      const values = query as Record<string, unknown>
+      collectArrayQuery(request, values, ARRAY_QUERY_KEYS)
+      coerceQueryNumbers(request, values, NUMBER_QUERY_KEYS)
     })
     .post(
       '/records/link',

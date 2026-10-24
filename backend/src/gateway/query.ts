@@ -23,3 +23,25 @@ export function collectArrayQuery(
     query[key] = values
   }
 }
+
+/**
+ * Приводит числовые query-параметры к числу.
+ *
+ * Нужно из-за комбинации `t.Ref` и чисел в одной схеме: если в query-схеме есть
+ * ссылка на модель, Elysia перестаёт приводить строки к числам, и `limit=5`
+ * прилетает строкой, падая на `t.Number()`. Проверка схемы идёт после
+ * `onTransform`, поэтому конвертируем там.
+ */
+export function coerceQueryNumbers(
+  _request: Request,
+  query: Record<string, unknown>,
+  keys: readonly string[],
+): void {
+  for (const key of keys) {
+    const value = query[key]
+    if (typeof value !== 'string' || value.trim() === '') continue
+
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) query[key] = parsed
+  }
+}

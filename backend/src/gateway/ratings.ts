@@ -8,7 +8,7 @@ import {
 } from '@/gateway/auth'
 import { apiErrorModels, standardErrors } from '@/gateway/errors'
 import { recordEnumModels } from '@/gateway/models'
-import { collectArrayQuery } from '@/gateway/query'
+import { coerceQueryNumbers, collectArrayQuery } from '@/gateway/query'
 import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
 import { recordModels } from '@/gateway/records'
 import { RATE_LIMITS } from '@/utils/rate-limits'
@@ -113,7 +113,9 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
       ...ratingModels,
     })
     .onTransform(({ request, query }) => {
-      collectArrayQuery(request, query as Record<string, unknown>, ['grade'])
+      const values = query as Record<string, unknown>
+      collectArrayQuery(request, values, ['grade'])
+      coerceQueryNumbers(request, values, ['page', 'limit'])
     })
     .put(
       '/ratings/:recordId',

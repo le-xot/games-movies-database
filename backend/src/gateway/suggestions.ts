@@ -1,18 +1,21 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { likeModels } from '@/gateway/likes'
-import { recordEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { recordModels, type GatewayRecord } from '@/gateway/records'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { likeModels } from '@backend/gateway/likes'
+import { recordEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { recordModels, type GatewayRecord } from '@backend/gateway/records'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
 import type { RecordGenre } from '@gmdb/contract'
+
+const { RecordGenre: recordGenreSchema } = recordEnumModels
+const { RecordEntity } = recordModels
 
 export const suggestionModels = {
   UserSuggestionDTO: t.Object({
@@ -20,7 +23,7 @@ export const suggestionModels = {
   }),
   UserSuggestionResponseDTO: t.Object({
     title: t.String(),
-    genre: t.Ref('RecordGenre'),
+    genre: recordGenreSchema,
   }),
 }
 
@@ -77,7 +80,7 @@ export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRou
       },
       {
         response: {
-          200: t.Array(t.Ref('RecordEntity')),
+          200: t.Array(RecordEntity),
           ...standardErrors(),
         },
       },

@@ -367,7 +367,7 @@ TWIR_API=your_api_key
 - Все маршруты автоматически префиксуются `/api`
 - Глобальная валидация через `ValidationPipe` с `transform: true` и `whitelist: true`
 - OpenAPI-документ собирается офлайн-скриптом `backend/scripts/export-openapi.ts` (без запущенного сервера), по нему `openapi-typescript` генерирует `frontend/src/lib/api-types.ts` — не редактировать вручную
-- Клиент на фронте — ручной `openapi-fetch` в `frontend/src/lib/api.ts`; перегенерация: `bun generate:api`
+- Клиент на фронте — Eden Treaty в `frontend/src/lib/api.ts`: типы выводятся из `App`, кодогена нет
 
 ### WebSocket
 
@@ -451,19 +451,18 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - На фронтенде — Vue 3 Composition API (`<script setup lang="ts">`)
 - Именование: `.vue` файлы — PascalCase, `.ts` файлы — kebab-case
 - Иконки: только @lucide/vue и vue3-simple-icons
-- Типы API (`frontend/src/lib/api-types.ts`) **генерируются** — не редактировать вручную; меняйте DTO в бэкенде и запускайте `bun generate:api`
+- Типы API выводятся из Elysia-роутов (Eden) — отдельного файла с контрактом нет
 
 ## Troubleshooting
 
-| Проблема                                    | Решение                                                                                                                  |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Не подключается к БД                        | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                                 |
-| Ошибки авторизации                          | Проверьте Twitch/Kick API ключи в `.env`                                                                                 |
-| Сервисы недоступны                          | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                         |
-| Bun не установлен                           | Используйте npm/pnpm как альтернативу                                                                                    |
-| Ошибки TypeScript                           | Выполните `bun install` и убедитесь, что все зависимости установлены                                                     |
-| Не собирается фронтенд (нет `api-types.ts`) | Выполните `bun generate:api` — бэкенд и БД для этого не нужны                                                            |
-| Ошибки миграций базы данных                 | Выполните `bun db:migrate`, проверьте `database/migrations/`                                                             |
-| Rate limits перестали работать              | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
-| S3 ошибки (InvalidAccessKeyId)              | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
-| Bucket не найден                            | Создайте bucket через DBX: подключение `RustFS (dev)` (плагин S3 Browser)                                                |
+| Проблема                       | Решение                                                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Не подключается к БД           | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                                 |
+| Ошибки авторизации             | Проверьте Twitch/Kick API ключи в `.env`                                                                                 |
+| Сервисы недоступны             | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                         |
+| Bun не установлен              | Используйте npm/pnpm как альтернативу                                                                                    |
+| Ошибки TypeScript              | Выполните `bun install` и убедитесь, что все зависимости установлены                                                     |
+| Ошибки миграций базы данных    | Выполните `bun db:migrate`, проверьте `database/migrations/`                                                             |
+| Rate limits перестали работать | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
+| S3 ошибки (InvalidAccessKeyId) | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
+| Bucket не найден               | Создайте bucket через DBX: подключение `RustFS (dev)` (плагин S3 Browser)                                                |

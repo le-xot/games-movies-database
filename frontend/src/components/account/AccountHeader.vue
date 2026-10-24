@@ -33,10 +33,7 @@ async function onFileChange(event: Event) {
   avatarError.value = ''
 
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-    // Контракт описывает binary как string, но openapi-fetch умеет FormData напрямую.
-    await api.POST('/auth/me/avatar', { body: formData as unknown as { file: string } })
+    await api.auth.me.avatar.post({ file })
     await userStore.refetchUser()
   } catch {
     avatarError.value = 'Ошибка при загрузке аватарки'

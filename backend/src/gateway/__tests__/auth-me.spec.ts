@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
-import type { Authenticator, GatewayUser } from '@/gateway/auth'
-import type { RateLimiter } from '@/gateway/rate-limit'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import type { Authenticator, GatewayUser } from '@backend/gateway/auth'
+import type { RateLimiter } from '@backend/gateway/rate-limit'
 
 const USER: GatewayUser = {
   id: 'user-1',

@@ -1,6 +1,6 @@
-import { RecordGrade } from '@/enums'
-import { RecordEntity } from '@/modules/record/record.entity'
-import { UserEntity } from '@/modules/user/user.entity'
+import { RecordGrade } from '@backend/enums'
+import { RecordEntity } from '@backend/modules/record/record.entity'
+import { UserEntity } from '@backend/modules/user/user.entity'
 
 export class RatingEntity {
   id!: string

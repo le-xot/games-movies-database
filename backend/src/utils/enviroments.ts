@@ -1,6 +1,6 @@
 import process from 'node:process'
+import { DEFAULT_CORS_ORIGINS } from '@backend/utils/cors-origins'
 import { cleanEnv, num, str } from 'envalid'
-import { DEFAULT_CORS_ORIGINS } from '@/utils/cors-origins'
 
 export const env = cleanEnv(process.env, {
   DATASOURCE_URL: str({}),

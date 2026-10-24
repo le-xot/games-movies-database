@@ -1,5 +1,5 @@
 import { normalize, resolve, sep } from 'node:path'
-import { setAssetCacheHeaders } from '@/utils/static-cache-headers'
+import { setAssetCacheHeaders } from '@backend/utils/static-cache-headers'
 
 const HTML_CONTENT_TYPE = 'text/html; charset=utf-8'
 

@@ -45,12 +45,8 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
           ...(gradeFilter.value?.length ? { grade: gradeFilter.value } : {}),
         }
         const response = isMine.value
-          ? await unwrap(api.GET('/ratings/my', { params: { query: params } }))
-          : await unwrap(
-              api.GET('/ratings/users/{id}', {
-                params: { path: { id: profileUserId.value }, query: params },
-              }),
-            )
+          ? await unwrap(api.ratings.my.get({ query: params }))
+          : await unwrap(api.ratings.users({ id: profileUserId.value }).get({ query: params }))
         return response
       } catch (err) {
         error.value = await parseApiError(err, 'Не удалось загрузить оценки')
@@ -99,7 +95,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function updateRecord(payload: { id: number; data: RecordUpdateDTO }) {
     try {
-      await api.PATCH('/records/{id}', { params: { path: { id: payload.id } }, body: payload.data })
+      await api.records({ id: payload.id }).patch(payload.data)
       await refetchRatings()
     } catch {
       toast.error('Не удалось обновить запись')
@@ -108,10 +104,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function updatePoster(payload: { id: number; url: string }) {
     try {
-      await api.PATCH('/records/{id}/poster', {
-        params: { path: { id: payload.id } },
-        body: { url: payload.url },
-      })
+      await api.records({ id: payload.id }).poster.patch({ url: payload.url })
       await refetchRatings()
     } catch {
       toast.error('Не удалось обновить постер')
@@ -120,7 +113,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function deleteRecord(id: number) {
     try {
-      await api.DELETE('/records/{id}', { params: { path: { id } } })
+      await api.records({ id }).delete()
       await refetchRatings()
     } catch {
       toast.error('Не удалось удалить запись')

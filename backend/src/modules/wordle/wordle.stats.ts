@@ -1,7 +1,7 @@
+import { WordleGameStatus } from '@backend/enums'
+import { daysBetween, shiftDateKey } from '@backend/modules/wordle/wordle.date'
 import { WordleHistoryStatus } from '@gmdb/contract'
-import { WordleGameStatus } from '@/enums'
-import { daysBetween, shiftDateKey } from '@/modules/wordle/wordle.date'
-import type { WordleLetterState } from '@/modules/wordle/wordle.scoring'
+import type { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
 
 export const MAX_ATTEMPTS = 6
 export const WORD_LENGTH = 5

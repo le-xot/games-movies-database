@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { isApiKeyValid } from '@/utils/api-key'
+import { isApiKeyValid } from '@backend/utils/api-key'
 
 describe('isApiKeyValid', () => {
   const expected = 'super-secret-key'

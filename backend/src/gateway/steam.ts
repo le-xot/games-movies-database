@@ -1,46 +1,55 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { likeModels } from '@/gateway/likes'
-import { recordEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { recordModels, type GatewayRecord } from '@/gateway/records'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { likeModels } from '@backend/gateway/likes'
+import { recordEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { recordModels, type GatewayRecord } from '@backend/gateway/records'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
 import type { RecordGrade, RecordStatus } from '@gmdb/contract'
 
+const { RecordGrade: recordGradeSchema, RecordStatus: recordStatusSchema } = recordEnumModels
+const { RecordEntity } = recordModels
+
+export const SteamGameDto = t.Object({
+  appid: t.Number(),
+  name: t.String(),
+  img_icon_url: t.String(),
+  header_image: t.String(),
+  playtime_forever: t.Number(),
+})
+
+export const SteamImportGameDto = t.Object({
+  appId: t.Number(),
+  status: recordStatusSchema,
+  grade: t.Optional(t.Nullable(recordGradeSchema)),
+})
+
+export const SteamImportFailureDto = t.Object({
+  appId: t.Number(),
+  reason: t.String(),
+})
+
 export const steamModels = {
-  SteamGameDto: t.Object({
-    appid: t.Number(),
-    name: t.String(),
-    img_icon_url: t.String(),
-    header_image: t.String(),
-    playtime_forever: t.Number(),
-  }),
+  SteamGameDto,
   SteamGamesResponseDTO: t.Object({
-    games: t.Array(t.Ref('SteamGameDto')),
+    games: t.Array(SteamGameDto),
     existingAppIds: t.Array(t.String()),
   }),
-  SteamImportGameDto: t.Object({
-    appId: t.Number(),
-    status: t.Ref('RecordStatus'),
-    grade: t.Optional(t.Nullable(t.Ref('RecordGrade'))),
-  }),
+  SteamImportGameDto,
   SteamImportDTO: t.Object({
-    games: t.Array(t.Ref('SteamImportGameDto')),
+    games: t.Array(SteamImportGameDto),
   }),
-  SteamImportFailureDto: t.Object({
-    appId: t.Number(),
-    reason: t.String(),
-  }),
+  SteamImportFailureDto,
   SteamImportResultDTO: t.Object({
-    created: t.Array(t.Ref('RecordEntity')),
-    failed: t.Array(t.Ref('SteamImportFailureDto')),
+    created: t.Array(RecordEntity),
+    failed: t.Array(SteamImportFailureDto),
   }),
 }
 

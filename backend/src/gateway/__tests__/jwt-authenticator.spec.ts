@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test'
+import { createJwtAuthenticator } from '@backend/gateway/jwt-authenticator'
 import { SignJWT } from 'jose'
-import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
-import type { GatewayUser } from '@/gateway/auth'
+import type { GatewayUser } from '@backend/gateway/auth'
 
 const SECRET = 'test-secret'
 const OTHER_SECRET = 'other-secret'

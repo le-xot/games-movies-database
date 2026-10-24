@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { collectArrayQuery, coerceQueryNumbers } from '@/gateway/query'
+import { collectArrayQuery, coerceQueryNumbers } from '@backend/gateway/query'
 
 function query(url: string, keys: readonly string[]) {
   const target: Record<string, unknown> = {}

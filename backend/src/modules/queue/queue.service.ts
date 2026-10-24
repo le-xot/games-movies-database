@@ -1,6 +1,6 @@
-import { RecordGenre, RecordType } from '@/enums'
-import { QueueDto, QueueItemDto } from '@/modules/queue/queue.dto'
-import { Logger } from '@/utils/logger'
+import { RecordGenre, RecordType } from '@backend/enums'
+import { QueueDto, QueueItemDto } from '@backend/modules/queue/queue.dto'
+import { Logger } from '@backend/utils/logger'
 import { DrizzleQueueRepository } from './repositories/drizzle-queue.repository'
 
 export class QueueService {

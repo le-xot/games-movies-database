@@ -1,5 +1,5 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import type { RecordFriendsView } from '@/modules/rating/entities/rating-domain.entity'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
+import type { RecordFriendsView } from '@backend/modules/rating/entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
 
 export interface CreateRecordData {

@@ -1,5 +1,5 @@
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
+import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 /** Full record row fixture: every column present, nullable columns set to null. */
 export function makeRecordRow(overrides: Partial<RecordWithRelations> = {}): RecordWithRelations {

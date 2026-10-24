@@ -1,7 +1,7 @@
+import { isOriginAllowed } from '@backend/utils/cors-origins'
 import { WsEvents } from '@gmdb/contract'
 import { Elysia } from 'elysia'
-import { isOriginAllowed } from '@/utils/cors-origins'
-import type { DomainEvents } from '@/utils/domain-events'
+import type { DomainEvents } from '@backend/utils/domain-events'
 
 /** Все клиенты сидят в одной комнате: события широковещательные. */
 export const WS_TOPIC = 'ws'

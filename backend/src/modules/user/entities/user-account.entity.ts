@@ -1,4 +1,4 @@
-import { AccountPlatform } from '@/enums'
+import { AccountPlatform } from '@backend/enums'
 import type { SelectRow } from '@gmd/database'
 
 export class UserAccountEntity implements SelectRow<'userAccounts'> {

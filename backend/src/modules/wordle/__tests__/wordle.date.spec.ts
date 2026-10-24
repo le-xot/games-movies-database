@@ -3,7 +3,7 @@ import {
   daysBetween,
   getMoscowDateKey,
   msUntilNextMoscowMidnight,
-} from '@/modules/wordle/wordle.date'
+} from '@backend/modules/wordle/wordle.date'
 
 describe('getMoscowDateKey', () => {
   it('returns the same day just before Moscow midnight', () => {

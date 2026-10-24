@@ -1,4 +1,4 @@
-import { UserRole } from '@/enums'
+import { UserRole } from '@backend/enums'
 
 export class UserEntity {
   id!: string

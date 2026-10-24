@@ -87,13 +87,21 @@ function saveEdit() {
   editing.value = null
 }
 
-const spanTwoStatuses = [RecordStatus.NOTINTERESTED, RecordStatus.QUEUE, RecordStatus.PROGRESS]
+const spanTwoStatuses: RecordStatus[] = [
+  RecordStatus.NOTINTERESTED,
+  RecordStatus.QUEUE,
+  RecordStatus.PROGRESS,
+]
 
 function shouldHideGrade(status?: RecordStatus | null): boolean {
   return status !== undefined && status !== null && spanTwoStatuses.includes(status)
 }
 
-const posterStatuses = [RecordStatus.DONE, RecordStatus.UNFINISHED, RecordStatus.DROP]
+const posterStatuses: RecordStatus[] = [
+  RecordStatus.DONE,
+  RecordStatus.UNFINISHED,
+  RecordStatus.DROP,
+]
 
 function isPosterStatus(status?: RecordStatus | null): boolean {
   return status !== undefined && status !== null && posterStatuses.includes(status)

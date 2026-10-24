@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
-import { WS_PATH, WS_TOPIC } from '@/gateway/ws'
-import { createHttpServer } from '@/server/http'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { WS_PATH, WS_TOPIC } from '@backend/gateway/ws'
+import { createHttpServer } from '@backend/server/http'
 
 const servers: Array<{ stop: () => Promise<void> }> = []
 

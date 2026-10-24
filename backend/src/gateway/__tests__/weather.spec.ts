@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
 
 const WEATHER = {
   main: { temp: 12.5, feels_like: 10.1, humidity: 60, pressure: 1012 },

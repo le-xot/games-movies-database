@@ -1,28 +1,28 @@
-import { Elysia } from 'elysia'
-import { oauthRoutes, type OAuthConfig, type OAuthPort } from '@/gateway/auth-oauth'
-import { authSessionRoutes, type AuthSessionPort } from '@/gateway/auth-session'
-import { errorBody, fromDomainError } from '@/gateway/errors'
-import { healthRoutes } from '@/gateway/health'
-import { likeRoutes, type LikesService } from '@/gateway/likes'
-import { limitRoutes, type LimitsService } from '@/gateway/limits'
-import { meRoutes } from '@/gateway/me'
-import { mediaRoutes, type AvatarReader, type ImageReader } from '@/gateway/media'
-import { queueRoutes, type QueueReader } from '@/gateway/queue'
-import { ratingRoutes, type RatingsService } from '@/gateway/ratings'
-import { recordRoutes, type RecordsService } from '@/gateway/records'
-import { statsRoutes, type StatsReader } from '@/gateway/stats'
-import { steamRoutes, type SteamPort } from '@/gateway/steam'
-import { suggestionRoutes, type SuggestionsService } from '@/gateway/suggestions'
-import { twirRoutes, type TwirService } from '@/gateway/twir'
-import { userRoutes, type UsersService } from '@/gateway/users'
-import { weatherRoutes, type WeatherReader } from '@/gateway/weather'
+import { oauthRoutes, type OAuthConfig, type OAuthPort } from '@backend/gateway/auth-oauth'
+import { authSessionRoutes, type AuthSessionPort } from '@backend/gateway/auth-session'
+import { errorBody, fromDomainError } from '@backend/gateway/errors'
+import { healthRoutes } from '@backend/gateway/health'
+import { likeRoutes, type LikesService } from '@backend/gateway/likes'
+import { limitRoutes, type LimitsService } from '@backend/gateway/limits'
+import { meRoutes } from '@backend/gateway/me'
+import { mediaRoutes, type AvatarReader, type ImageReader } from '@backend/gateway/media'
+import { queueRoutes, type QueueReader } from '@backend/gateway/queue'
+import { ratingRoutes, type RatingsService } from '@backend/gateway/ratings'
+import { recordRoutes, type RecordsService } from '@backend/gateway/records'
+import { statsRoutes, type StatsReader } from '@backend/gateway/stats'
+import { steamRoutes, type SteamPort } from '@backend/gateway/steam'
+import { suggestionRoutes, type SuggestionsService } from '@backend/gateway/suggestions'
+import { twirRoutes, type TwirService } from '@backend/gateway/twir'
+import { userRoutes, type UsersService } from '@backend/gateway/users'
+import { weatherRoutes, type WeatherReader } from '@backend/gateway/weather'
 import {
   wordleRoutes,
   type WordleNotificationsPort,
   type WordleServicePort,
-} from '@/gateway/wordle'
-import type { Authenticator } from '@/gateway/auth'
-import type { RateLimiter } from '@/gateway/rate-limit'
+} from '@backend/gateway/wordle'
+import { Elysia } from 'elysia'
+import type { Authenticator } from '@backend/gateway/auth'
+import type { RateLimiter } from '@backend/gateway/rate-limit'
 
 /**
  * Composition root гейтвея: доменные сервисы и инфраструктура передаются явно,
@@ -100,3 +100,10 @@ export function createGateway(deps: GatewayDeps) {
 }
 
 export type Gateway = ReturnType<typeof createGateway>
+
+/**
+ * Тип приложения для Eden. Фронт импортирует его как `import type` — в бандл
+ * ничего не попадает, но весь контракт (пути, параметры, тело, ответы)
+ * выводится напрямую из роутов.
+ */
+export type App = ReturnType<typeof createGateway>

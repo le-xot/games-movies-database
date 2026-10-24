@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it, jest, mock, spyOn } from 'bun:test'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { WordleGameStatus } from '@/enums'
-import { WsEvents } from '@/modules/websocket/websocket.events'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { WordleGameStatus } from '@backend/enums'
+import { WsEvents } from '@backend/modules/websocket/websocket.events'
 import {
   DrizzleWordleRepository,
   type WordleGameRecord,
-} from '@/modules/wordle/repositories/drizzle-wordle.repository'
-import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
-import { getMoscowDateKey } from '@/modules/wordle/wordle.date'
-import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
-import { WordleService } from '@/modules/wordle/wordle.service'
-import { DomainEvents } from '@/utils/domain-events'
-import { BadRequestException } from '@/utils/errors'
-import type { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
+} from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
+import { WordleLeaderboardCache } from '@backend/modules/wordle/wordle-leaderboard.cache'
+import { getMoscowDateKey } from '@backend/modules/wordle/wordle.date'
+import { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
+import { WordleService } from '@backend/modules/wordle/wordle.service'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { BadRequestException } from '@backend/utils/errors'
+import type { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 
 const NOW = new Date('2026-09-20T10:00:00.000Z')
 const TODAY = getMoscowDateKey(NOW)

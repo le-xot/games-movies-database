@@ -1,10 +1,10 @@
 import { describe } from 'bun:test'
+import { assertTestDatabase } from '@backend/utils/assert-test-database'
 import * as schema from '@gmd/database/schema'
 import { getTableName, is } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { PgTable } from 'drizzle-orm/pg-core'
 import { Pool } from 'pg'
-import { assertTestDatabase } from '@/utils/assert-test-database'
 
 export const TEST_DATASOURCE_URL = process.env.TEST_DATASOURCE_URL
 

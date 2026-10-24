@@ -1,5 +1,5 @@
 import { jwtVerify } from 'jose'
-import type { Authenticator, GatewayUser } from '@/gateway/auth'
+import type { Authenticator, GatewayUser } from '@backend/gateway/auth'
 
 export interface JwtAuthenticatorOptions {
   secret: string

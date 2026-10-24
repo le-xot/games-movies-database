@@ -19,7 +19,7 @@ export const useUser = defineStore('global/use-user', () => {
     key: [USER_QUERY_KEY],
     query: async () => {
       try {
-        const { data } = await api.GET('/auth/me')
+        const { data } = await api.auth.me.get()
         return data
       } catch {
         return null
@@ -71,7 +71,7 @@ export const useUser = defineStore('global/use-user', () => {
   const { mutateAsync: userLogin } = useMutation({
     key: [USER_QUERY_KEY, 'login'],
     mutation: (input: { code: string; state: string }) => {
-      return api.POST('/auth/twitch/callback', { body: input })
+      return api.auth.twitch.callback.post(input)
     },
     onSuccess: () => refetchUser(),
   })
@@ -79,7 +79,7 @@ export const useUser = defineStore('global/use-user', () => {
   const { mutateAsync: userLogout } = useMutation({
     key: [USER_QUERY_KEY, 'logout'],
     mutation: async () => {
-      return await api.POST('/auth/logout')
+      return await api.auth.logout.post()
     },
     onSuccess: () => refetchUser(),
   })

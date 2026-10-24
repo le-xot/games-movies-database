@@ -1,4 +1,4 @@
-import { RecordGenre, RecordGrade, RecordStatus } from '@/enums'
+import { RecordGenre, RecordGrade, RecordStatus } from '@backend/enums'
 
 export class GenreCountDTO {
   genre!: RecordGenre

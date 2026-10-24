@@ -4,7 +4,8 @@
     "jsx": "preserve",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@backend/*": ["../backend/src/*"]
     },
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
@@ -22,5 +23,9 @@
     "tsBuildInfoFile": "./node_modules/.cache/vue-tsc/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.svg"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

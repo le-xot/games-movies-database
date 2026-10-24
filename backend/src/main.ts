@@ -1,11 +1,11 @@
 import { resolve } from 'node:path'
 import process from 'node:process'
-import { createGateway } from '@/gateway'
-import { bridgeWsEvents } from '@/gateway/ws'
-import { createContainer } from '@/server/container'
-import { createHttpServer } from '@/server/http'
-import { parseCorsOrigins } from '@/utils/cors-origins'
-import { env } from '@/utils/enviroments'
+import { createGateway } from '@backend/gateway'
+import { bridgeWsEvents } from '@backend/gateway/ws'
+import { createContainer } from '@backend/server/container'
+import { createHttpServer } from '@backend/server/http'
+import { parseCorsOrigins } from '@backend/utils/cors-origins'
+import { env } from '@backend/utils/enviroments'
 
 /**
  * Точка входа нового слоя. Пока живёт параллельно Nest и слушает свой порт:
@@ -18,7 +18,7 @@ const container = createContainer()
 const app = createHttpServer(createGateway(container.deps), {
   corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
   production: env.NODE_ENV === 'production',
-  staticRoot: resolve(import.meta.dir, '../../../frontend/dist'),
+  staticRoot: resolve(import.meta.dir, '../../frontend/dist'),
 })
 
 const port = Number(process.env['GATEWAY_PORT'] ?? env.APP_PORT)

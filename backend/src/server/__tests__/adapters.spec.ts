@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { toGatewayLike, toGatewayUser } from '@/server/adapters'
+import { toGatewayLike, toGatewayUser } from '@backend/server/adapters'
 
 const createdAt = new Date('2026-02-03T04:05:06.000Z')
 

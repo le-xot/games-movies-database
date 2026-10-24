@@ -1,6 +1,6 @@
-import { ApiError } from '@/gateway/errors'
-import type { RateLimitResult } from '@/utils/rate-limit'
-import type { RateLimitConfig } from '@/utils/rate-limits'
+import { ApiError } from '@backend/gateway/errors'
+import type { RateLimitResult } from '@backend/utils/rate-limit'
+import type { RateLimitConfig } from '@backend/utils/rate-limits'
 
 /**
  * Что гейтвею нужно от лимитера. Реализация на Redis живёт в

@@ -1,8 +1,8 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { WordleGameStatus } from '@backend/enums'
 import { wordleGames, wordleNotificationSubscriptions } from '@gmd/database/schema'
 import { and, asc, eq, inArray, ne } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { WordleGameStatus } from '@/enums'
-import type { WordleGameRecord } from '@/modules/wordle/repositories/drizzle-wordle.repository'
+import type { WordleGameRecord } from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
 import type { SelectRow } from '@gmd/database'
 
 export type WordleNotificationSubscriptionRecord = SelectRow<'wordleNotificationSubscriptions'>

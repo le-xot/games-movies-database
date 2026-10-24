@@ -1,10 +1,10 @@
-import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
-import { Logger } from '@/utils/logger'
+import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
+import { Logger } from '@backend/utils/logger'
 import type {
   TelegramCommandDefinition,
   TelegramCommandHandler,
   TelegramMenuItem,
-} from '@/modules/telegram/telegram-bot.types'
+} from '@backend/modules/telegram/telegram-bot.types'
 
 export const TELEGRAM_COMMAND_NAME_PATTERN = /^[a-z0-9_]{1,32}$/
 

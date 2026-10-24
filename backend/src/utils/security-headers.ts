@@ -1,4 +1,4 @@
-import { env } from '@/utils/enviroments'
+import { env } from '@backend/utils/enviroments'
 
 /** Минимум от Express-совместимых объектов: гейтвей их не использует. */
 interface Response {

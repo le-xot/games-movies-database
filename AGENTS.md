@@ -39,7 +39,7 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Database schema      | `database/src/schema/`                                          | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes                            |
 | Database migrations  | `database/migrations/`                                          | Generated SQL; applied by `migrations` compose service                                     |
 | DB access            | `backend/src/database/drizzle.service.ts`                       | Inject `DrizzleService`, use `.db`                                                         |
-| API types            | `frontend/src/lib/api-types.ts`                                 | GENERATED from backend OpenAPI (`bun run generate:api`). Never edit manually               |
+| API client           | `frontend/src/lib/api.ts`                                       | Eden Treaty: типы выводятся из `App`, кодогена нет                                         |
 | API client           | `frontend/src/lib/api.ts`                                       | Hand-written `openapi-fetch` client + type re-exports                                      |
 | Environment vars     | `backend/.env.example`                                          | Copy to `backend/.env`                                                                     |
 | Prod secrets         | Doppler (project `games-movies-database`, config `prd`)         | `scripts/render-env.sh` renders `.env` on the server; token in `~/.config/gmd/secrets.env` |
@@ -70,7 +70,6 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-- **NEVER** edit `frontend/src/lib/api-types.ts` — it's generated; правь DTO в бэкенде и запусти `bun run generate:api`
 - **NEVER** use icon libraries other than @lucide/vue / vue3-simple-icons
 - **NEVER** edit `database/migrations/` manually — it is generated from `database/src/schema` via `bun db:generate`; CI fails on drift
 - **NEVER** use `unique()` where the Prisma-era DB has a unique index — it creates a unique constraint; use `uniqueIndex()`
@@ -105,7 +104,6 @@ bun dev:backend                # Backend only
 
 # Build
 bun build                      # Build both
-bun generate:api               # Regenerate OpenAPI + frontend API types
 bun lint                       # Lint check (oxlint)
 bun lint:fix                   # Auto-fix (oxlint)
 bun format                     # Format codebase (bun fmt)
@@ -130,7 +128,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 ## NOTES
 
 - Backend serves built frontend сам (`server/static.ts`, frontend/dist с SPA-фолбэком). В проде один контейнер отдаёт всё
-- Frontend dev не требует бэкенда: типы генерируются офлайн-скриптом из гейтвея (`bun run generate:api`), для запуска dev-сервера достаточно `bun dev:frontend`
+- Frontend dev не требует бэкенда: типы приходят из Eden (`import type { App }`), для запуска dev-сервера достаточно `bun dev:frontend`
 - Vite proxies `/api` and `/ws` to `localhost:3000` in dev
 - CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`. GHCR packages must stay anonymously pullable (no `docker login` on the server)
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)

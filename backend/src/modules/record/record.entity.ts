@@ -1,6 +1,6 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import { LikeEntity } from '@/modules/like/like.entity'
-import { UserEntity } from '@/modules/user/user.entity'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
+import { LikeEntity } from '@backend/modules/like/like.entity'
+import { UserEntity } from '@backend/modules/user/user.entity'
 
 export class SuggestionOwnershipEntity {
   id!: number

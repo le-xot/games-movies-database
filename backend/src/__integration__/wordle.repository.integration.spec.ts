@@ -1,11 +1,11 @@
 import { expect, it } from 'bun:test'
 import crypto from 'node:crypto'
+import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
+import { DrizzleWordleRepository } from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
 import { wordleGames } from '@gmd/database/schema'
-import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
-import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
 import { seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 const WRONG_GUESSES = ['ййййй', 'ццццц', 'ууууу', 'ккккк', 'еееее', 'ннннн']
 

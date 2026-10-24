@@ -1,7 +1,7 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { LimitType } from '@backend/enums'
 import { limits } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { LimitType } from '@/enums'
 import { LimitDomain } from '../entities/limit.entity'
 
 export class DrizzleLimitRepository {

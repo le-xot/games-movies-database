@@ -1,9 +1,9 @@
 import { describe, expect, it, mock } from 'bun:test'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { S3Service } from '@backend/modules/s3/s3.service'
+import { env } from '@backend/utils/enviroments'
+import { BadRequestException } from '@backend/utils/errors'
 import sharp from 'sharp'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { S3Service } from '@/modules/s3/s3.service'
-import { env } from '@/utils/enviroments'
-import { BadRequestException } from '@/utils/errors'
 import {
   AVATAR_PALETTE,
   AvatarService,

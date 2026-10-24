@@ -1,5 +1,5 @@
+import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
 import { Elysia, t } from 'elysia'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
 
 /**
  * Описание погодного ответа в TypeBox. Имена моделей повторяют DTO из
@@ -38,7 +38,15 @@ export const weatherModels = {
   }),
 }
 
-export type WeatherResponse = typeof weatherModels.WeatherDTO.static
+export interface WeatherResponse {
+  main: { temp: number; feels_like: number; humidity: number; pressure: number }
+  weather: { main: string; description: string }[]
+  wind: { speed: number }
+  visibility: number
+  clouds: { all: number }
+  sys: { sunrise: number; sunset: number }
+  name: string
+}
 
 /** Что гейтвею нужно от доменного слоя. Ни Nest, ни HTTP здесь нет. */
 export interface WeatherReader {
@@ -62,7 +70,7 @@ export function weatherRoutes(weather: WeatherReader) {
       response: {
         200: 'WeatherDTO' as const,
         503: 'ApiErrorDto' as const,
-        ...standardErrors({ auth: false }),
+        ...publicErrors(),
       },
     },
   )

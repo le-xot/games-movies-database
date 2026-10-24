@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { HttpException } from '@backend/utils/errors'
 import { jwtVerify } from 'jose'
-import { HttpException } from '@/utils/errors'
 import { AuthService } from '../auth.service'
 
 const JWT_SECRET = 'test-secret'

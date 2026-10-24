@@ -1,4 +1,4 @@
-import { RecordGrade } from '@/enums'
+import { RecordGrade } from '@backend/enums'
 import type { SelectRow } from '@gmd/database'
 
 export type RatingDomain = SelectRow<'recordRatings'>

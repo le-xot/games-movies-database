@@ -1,45 +1,68 @@
+import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { recordEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { recordEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+
+const {
+  RecordGenre: recordGenreSchema,
+  RecordGrade: recordGradeSchema,
+  RecordStatus: recordStatusSchema,
+} = recordEnumModels
+
+export const genreCountSchema = t.Object({
+  genre: recordGenreSchema,
+  count: t.Number(),
+})
+
+export const statusCountSchema = t.Object({
+  status: recordStatusSchema,
+  count: t.Number(),
+})
+
+export const gradeCountSchema = t.Object({
+  grade: recordGradeSchema,
+  count: t.Number(),
+})
+
+export const genreStatusCountSchema = t.Object({
+  genre: recordGenreSchema,
+  status: recordStatusSchema,
+  count: t.Number(),
+})
+
+export const genreGradeCountSchema = t.Object({
+  genre: recordGenreSchema,
+  grade: recordGradeSchema,
+  count: t.Number(),
+})
+
+export const RecordsStatsDTO = t.Object({
+  total: t.Number(),
+  byGenre: t.Array(genreCountSchema),
+  byStatus: t.Array(statusCountSchema),
+  byGrade: t.Array(gradeCountSchema),
+  byFriendsGrade: t.Array(gradeCountSchema),
+  byGenreStatus: t.Array(genreStatusCountSchema),
+  byGenreGrade: t.Array(genreGradeCountSchema),
+  byFriendsGenreGrade: t.Array(genreGradeCountSchema),
+})
 
 export const statsModels = {
-  GenreCountDTO: t.Object({
-    genre: t.Ref('RecordGenre'),
-    count: t.Number(),
-  }),
-  StatusCountDTO: t.Object({
-    status: t.Ref('RecordStatus'),
-    count: t.Number(),
-  }),
-  GradeCountDTO: t.Object({
-    grade: t.Ref('RecordGrade'),
-    count: t.Number(),
-  }),
-  GenreStatusCountDTO: t.Object({
-    genre: t.Ref('RecordGenre'),
-    status: t.Ref('RecordStatus'),
-    count: t.Number(),
-  }),
-  GenreGradeCountDTO: t.Object({
-    genre: t.Ref('RecordGenre'),
-    grade: t.Ref('RecordGrade'),
-    count: t.Number(),
-  }),
-  RecordsStatsDTO: t.Object({
-    total: t.Number(),
-    byGenre: t.Array(t.Ref('GenreCountDTO')),
-    byStatus: t.Array(t.Ref('StatusCountDTO')),
-    byGrade: t.Array(t.Ref('GradeCountDTO')),
-    byFriendsGrade: t.Array(t.Ref('GradeCountDTO')),
-    byGenreStatus: t.Array(t.Ref('GenreStatusCountDTO')),
-    byGenreGrade: t.Array(t.Ref('GenreGradeCountDTO')),
-    byFriendsGenreGrade: t.Array(t.Ref('GenreGradeCountDTO')),
-  }),
+  GenreCountDTO: genreCountSchema,
+  StatusCountDTO: statusCountSchema,
+  GradeCountDTO: gradeCountSchema,
+  GenreStatusCountDTO: genreStatusCountSchema,
+  GenreGradeCountDTO: genreGradeCountSchema,
+  RecordsStatsDTO,
 }
 
-export type RecordsStats = typeof statsModels.RecordsStatsDTO.static
+export type GenreCountDTO = typeof genreCountSchema.static
+export type StatusCountDTO = typeof statusCountSchema.static
+export type GradeCountDTO = typeof gradeCountSchema.static
+export type GenreStatusCountDTO = typeof genreStatusCountSchema.static
+export type GenreGradeCountDTO = typeof genreGradeCountSchema.static
+export type RecordsStats = typeof RecordsStatsDTO.static
 
 export interface StatsReader {
   getRecordsStats(): Promise<RecordsStats>
@@ -68,7 +91,7 @@ export function statsRoutes({ stats, rateLimit }: StatsRouteDeps) {
       {
         response: {
           200: 'RecordsStatsDTO' as const,
-          ...standardErrors({ auth: false }),
+          ...publicErrors(),
         },
       },
     )

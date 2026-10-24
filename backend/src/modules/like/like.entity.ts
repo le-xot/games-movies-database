@@ -1,4 +1,4 @@
-import { UserEntity } from '@/modules/user/user.entity'
+import { UserEntity } from '@backend/modules/user/user.entity'
 
 export class LikeEntity {
   id!: string

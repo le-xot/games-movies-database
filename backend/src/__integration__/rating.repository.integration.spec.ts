@@ -1,11 +1,11 @@
 import { expect, it } from 'bun:test'
+import { RecordGrade } from '@backend/enums'
+import { DrizzleRatingRepository } from '@backend/modules/rating/repositories/drizzle-rating.repository'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
 import { records } from '@gmd/database/schema'
-import { RecordGrade } from '@/enums'
-import { DrizzleRatingRepository } from '@/modules/rating/repositories/drizzle-rating.repository'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleRatingRepository (integration)', ({ db }) => {
   const drizzle = { db } as unknown as DrizzleService

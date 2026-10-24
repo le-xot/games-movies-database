@@ -1,8 +1,10 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
 import { api } from '@/lib/api'
 
-export const useApi = defineStore('global/use-api', () => api)
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useApi, import.meta.hot))
+/**
+ * Eden-клиент нельзя держать в Pinia: он Proxy, а `reactive()` ломает его
+ * внутренние ловушки (вызовы перестают собирать URL). Поэтому просто
+ * возвращаем клиент — вызовы на местах выглядят как раньше.
+ */
+export function useApi() {
+  return api
 }

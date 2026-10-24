@@ -1,7 +1,7 @@
-import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
-import { DomainEvents } from '@/utils/domain-events'
-import { BadRequestException, NotFoundException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
+import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { BadRequestException, NotFoundException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 import { DrizzleLikeRepository } from './repositories/drizzle-like.repository'
 
 export class LikeService {

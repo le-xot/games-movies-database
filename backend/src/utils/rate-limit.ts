@@ -1,5 +1,5 @@
 import { RedisClient } from 'bun'
-import type { RateLimitConfig } from '@/utils/rate-limits'
+import type { RateLimitConfig } from '@backend/utils/rate-limits'
 
 const INCREMENT_SCRIPT = `
 local count = redis.call('INCR', KEYS[1])

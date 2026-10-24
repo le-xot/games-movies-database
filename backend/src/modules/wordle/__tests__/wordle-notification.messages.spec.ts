@@ -8,7 +8,7 @@ import {
   buildMorningText,
   buildPlayUrl,
   pluralizeDays,
-} from '@/modules/wordle/wordle-notification.messages'
+} from '@backend/modules/wordle/wordle-notification.messages'
 
 describe('pluralizeDays', () => {
   it('declines days correctly', () => {

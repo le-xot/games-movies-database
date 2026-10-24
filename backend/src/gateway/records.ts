@@ -1,61 +1,74 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { likeModels } from '@/gateway/likes'
-import { recordEnumModels } from '@/gateway/models'
-import { coerceQueryNumbers, collectArrayQuery } from '@/gateway/query'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
-import type { RateLimitConfig } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { likeModels } from '@backend/gateway/likes'
+import { recordEnumModels } from '@backend/gateway/models'
+import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
+import type { RateLimitConfig } from '@backend/utils/rate-limits'
 import type { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@gmdb/contract'
 
+const { UserEntity } = authModels
+const { LikeEntity } = likeModels
+const {
+  RecordGenre: recordGenreSchema,
+  RecordGrade: recordGradeSchema,
+  RecordStatus: recordStatusSchema,
+  RecordType: recordTypeSchema,
+} = recordEnumModels
+
+export const SuggestionOwnershipEntity = t.Object({
+  id: t.Number(),
+  recordId: t.Number(),
+  userId: t.String(),
+  user: t.Optional(t.Nullable(UserEntity)),
+  createdAt: t.String(),
+})
+
+export const RecordEntity = t.Object({
+  id: t.Number(),
+  title: t.String(),
+  link: t.String(),
+  posterUrl: t.String(),
+  status: t.Nullable(recordStatusSchema),
+  type: t.Nullable(recordTypeSchema),
+  genre: t.Nullable(recordGenreSchema),
+  grade: t.Nullable(recordGradeSchema),
+  friendsCounts: t.Optional(t.Nullable(t.Object({}))),
+  friendsTotal: t.Optional(t.Nullable(t.Number())),
+  friendsTop: t.Optional(t.Nullable(recordGradeSchema)),
+  myGrade: t.Optional(t.Nullable(recordGradeSchema)),
+  episode: t.Nullable(t.String()),
+  extra: t.Optional(t.Nullable(t.Object({}))),
+  likes: t.Optional(t.Nullable(t.Array(LikeEntity))),
+  suggestionOwnership: t.Optional(t.Nullable(SuggestionOwnershipEntity)),
+  createdAt: t.String(),
+})
+
 export const recordModels = {
-  SuggestionOwnershipEntity: t.Object({
-    id: t.Number(),
-    recordId: t.Number(),
-    userId: t.String(),
-    user: t.Optional(t.Nullable(t.Ref('UserEntity'))),
-    createdAt: t.String(),
-  }),
-  RecordEntity: t.Object({
-    id: t.Number(),
-    title: t.String(),
-    link: t.String(),
-    posterUrl: t.String(),
-    status: t.Nullable(t.Ref('RecordStatus')),
-    type: t.Nullable(t.Ref('RecordType')),
-    genre: t.Nullable(t.Ref('RecordGenre')),
-    grade: t.Nullable(t.Ref('RecordGrade')),
-    friendsCounts: t.Optional(t.Nullable(t.Object({}))),
-    friendsTotal: t.Optional(t.Nullable(t.Number())),
-    friendsTop: t.Optional(t.Nullable(t.Ref('RecordGrade'))),
-    myGrade: t.Optional(t.Nullable(t.Ref('RecordGrade'))),
-    episode: t.Nullable(t.String()),
-    extra: t.Optional(t.Nullable(t.Object({}))),
-    likes: t.Optional(t.Nullable(t.Array(t.Ref('LikeEntity')))),
-    suggestionOwnership: t.Optional(t.Nullable(t.Ref('SuggestionOwnershipEntity'))),
-    createdAt: t.String(),
-  }),
+  SuggestionOwnershipEntity,
+  RecordEntity,
   GetAllRecordsDTO: t.Object({
-    records: t.Array(t.Ref('RecordEntity')),
+    records: t.Array(RecordEntity),
     total: t.Number(),
   }),
   RecordCreateFromLinkDTO: t.Object({
     link: t.String(),
-    status: t.Optional(t.Ref('RecordStatus')),
-    type: t.Optional(t.Ref('RecordType')),
+    status: t.Optional(recordStatusSchema),
+    type: t.Optional(recordTypeSchema),
   }),
   RecordUpdateDTO: t.Object({
-    status: t.Optional(t.Ref('RecordStatus')),
-    grade: t.Optional(t.Nullable(t.Ref('RecordGrade'))),
+    status: t.Optional(recordStatusSchema),
+    grade: t.Optional(t.Nullable(recordGradeSchema)),
     episode: t.Optional(t.String()),
-    type: t.Optional(t.Ref('RecordType')),
+    type: t.Optional(recordTypeSchema),
   }),
   RecordUpdatePosterDTO: t.Object({
     url: t.String(),
@@ -97,8 +110,39 @@ export interface RecordsQuery {
   viewerId?: string | undefined
 }
 
-export type GatewayRecord = typeof recordModels.RecordEntity.static
+export type GatewayRecord = typeof RecordEntity.static
+export type GatewayOwnership = typeof SuggestionOwnershipEntity.static
 export type RecordsPage = typeof recordModels.GetAllRecordsDTO.static
+
+export interface RecordCreateInput {
+  link: string
+  status?: RecordStatus | undefined
+  type?: RecordType | undefined
+}
+
+export interface RecordUpdateInput {
+  status?: RecordStatus | undefined
+  grade?: RecordGrade | null | undefined
+  episode?: string | undefined
+  type?: RecordType | undefined
+}
+
+export interface RecordUpdatePosterInput {
+  url: string
+}
+
+export interface RecordsQuery {
+  page?: number | undefined
+  limit?: number | undefined
+  orderBy?: 'id' | 'title' | undefined
+  direction?: 'asc' | 'desc' | undefined
+  status?: RecordStatus[] | undefined
+  type?: RecordType | undefined
+  genre?: RecordGenre | undefined
+  grade?: RecordGrade[] | undefined
+  search?: string | undefined
+  viewerId?: string | undefined
+}
 
 /** Что гейтвею нужно от домена записей. */
 export interface RecordsService {
@@ -183,7 +227,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
       {
         query: t.Object({
           status: t.Optional(t.Array(t.Ref('RecordStatus'))),
-          type: t.Optional(t.Ref('RecordType')),
+          type: t.Optional(recordTypeSchema),
           genre: t.Optional(t.Ref('RecordGenre')),
           grade: t.Optional(t.Array(t.Ref('RecordGrade'))),
           search: t.Optional(t.String()),

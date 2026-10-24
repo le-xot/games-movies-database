@@ -42,7 +42,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     query: async () => {
       try {
         error.value = null
-        const data = await unwrap(api.GET('/suggestions'))
+        const data = await unwrap(api.suggestions.get())
         return data
       } catch (err) {
         error.value = await parseApiError(err, 'Failed to load suggestions')
@@ -67,7 +67,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (link: string) => {
       try {
         error.value = null
-        return await api.POST('/suggestions', { body: { link } })
+        return await api.suggestions.post({ link })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -80,12 +80,9 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.PATCH('/records/{id}', {
-          params: { path: { id } },
-          body: {
-            status: RecordStatus.NOTINTERESTED,
-            type: RecordType.WRITTEN,
-          },
+        return await api.records({ id }).patch({
+          status: RecordStatus.NOTINTERESTED,
+          type: RecordType.WRITTEN,
         })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
@@ -99,7 +96,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.DELETE('/records/{id}', { params: { path: { id } } })
+        return await api.records({ id }).delete()
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -112,10 +109,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.PATCH('/records/{id}', {
-          params: { path: { id } },
-          body: { type: RecordType.WRITTEN },
-        })
+        return await api.records({ id }).patch({ type: RecordType.WRITTEN })
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -128,7 +122,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.DELETE('/suggestions/{id}', { params: { path: { id } } })
+        return await api.suggestions({ id }).delete()
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err

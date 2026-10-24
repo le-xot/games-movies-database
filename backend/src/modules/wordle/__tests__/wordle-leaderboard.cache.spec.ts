@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
-import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
+import { WordleLeaderboardCache } from '@backend/modules/wordle/wordle-leaderboard.cache'
+import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
 const VALUE: WordleLeaderboardResult = { entries: [], totalPlayers: 0, totalGames: 0, ranks: {} }
 

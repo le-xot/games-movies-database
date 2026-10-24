@@ -1,4 +1,4 @@
-import type { DomainEvents } from '@/utils/domain-events'
+import type { DomainEvents } from '@backend/utils/domain-events'
 import type { WsEventMap } from '@gmdb/contract'
 
 export * from '@gmdb/contract'

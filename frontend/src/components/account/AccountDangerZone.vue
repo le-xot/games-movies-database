@@ -32,7 +32,7 @@ async function deleteAccount() {
 
   isDeleting.value = true
   try {
-    await api.DELETE('/auth/me')
+    await api.auth.me.delete()
     await userStore.userLogout()
     window.location.href = '/'
   } catch (error) {

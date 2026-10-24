@@ -1,15 +1,27 @@
 import crypto from 'node:crypto'
-import { WordleGameStatus } from '@/enums'
-import { WsEvents, emitWs, type UpdateWordlePayload } from '@/modules/websocket/websocket.events'
+import { WordleGameStatus } from '@backend/enums'
+import {
+  WsEvents,
+  emitWs,
+  type UpdateWordlePayload,
+} from '@backend/modules/websocket/websocket.events'
 import {
   DrizzleWordleRepository,
   type WordleGameRecord,
-} from '@/modules/wordle/repositories/drizzle-wordle.repository'
-import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
-import { getMoscowDateKey, msUntilNextMoscowMidnight } from '@/modules/wordle/wordle.date'
-import { WordleDictionary, WORD_PATTERN, normalizeWord } from '@/modules/wordle/wordle.dictionary'
-import { WordleLeaderboardDTO, WordleStateDTO, WordleStatsDTO } from '@/modules/wordle/wordle.dto'
-import { scoreGuess } from '@/modules/wordle/wordle.scoring'
+} from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
+import { WordleLeaderboardCache } from '@backend/modules/wordle/wordle-leaderboard.cache'
+import { getMoscowDateKey, msUntilNextMoscowMidnight } from '@backend/modules/wordle/wordle.date'
+import {
+  WordleDictionary,
+  WORD_PATTERN,
+  normalizeWord,
+} from '@backend/modules/wordle/wordle.dictionary'
+import {
+  WordleLeaderboardDTO,
+  WordleStateDTO,
+  WordleStatsDTO,
+} from '@backend/modules/wordle/wordle.dto'
+import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 import {
   MAX_ATTEMPTS,
   WORD_LENGTH,
@@ -17,11 +29,11 @@ import {
   buildHistory,
   buildLeaderboard,
   computeWordleStats,
-} from '@/modules/wordle/wordle.stats'
-import { DomainEvents } from '@/utils/domain-events'
-import { BadRequestException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
-import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
+} from '@backend/modules/wordle/wordle.stats'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { BadRequestException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
+import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 

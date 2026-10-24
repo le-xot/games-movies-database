@@ -1,7 +1,7 @@
-import { env } from '@/utils/enviroments'
-import { Logger } from '@/utils/logger'
-import { isRecord } from '@/utils/type-guards'
-import type { WeatherDTO } from '@/modules/weather/weather.dto'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
+import { isRecord } from '@backend/utils/type-guards'
+import type { WeatherDTO } from '@backend/modules/weather/weather.dto'
 
 function isWeatherData(value: unknown): value is WeatherDTO {
   if (!isRecord(value)) return false

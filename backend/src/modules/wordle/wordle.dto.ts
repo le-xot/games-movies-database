@@ -1,6 +1,6 @@
-import { WordleGameStatus } from '@/enums'
-import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
-import { WordleHistoryStatus } from '@/modules/wordle/wordle.stats'
+import { WordleGameStatus } from '@backend/enums'
+import { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
+import { WordleHistoryStatus } from '@backend/modules/wordle/wordle.stats'
 
 export class WordleGuessDTO {
   word!: string

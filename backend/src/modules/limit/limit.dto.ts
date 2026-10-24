@@ -1,4 +1,4 @@
-import { LimitType } from '@/enums'
+import { LimitType } from '@backend/enums'
 
 export class ChangeLimitDTO {
   name!: LimitType

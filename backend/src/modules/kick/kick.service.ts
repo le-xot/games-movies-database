@@ -1,5 +1,5 @@
-import { env } from '@/utils/enviroments'
-import { Logger } from '@/utils/logger'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
 
 interface KickToken {
   access_token: string

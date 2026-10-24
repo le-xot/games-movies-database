@@ -1,12 +1,12 @@
-import type { GatewayUser } from '@/gateway/auth'
-import type { Like } from '@/gateway/likes'
-import type { Rating, RatedRecord } from '@/gateway/ratings'
-import type { GatewayRecord } from '@/gateway/records'
-import type { UserAccount } from '@/gateway/users'
-import type { LikeEntity } from '@/modules/like/like.entity'
-import type { RatingEntity, UserRatedRecordEntity } from '@/modules/rating/rating.entity'
-import type { RecordEntity, SuggestionOwnershipEntity } from '@/modules/record/record.entity'
-import type { UserEntity } from '@/modules/user/user.entity'
+import type { GatewayUser } from '@backend/gateway/auth'
+import type { Like } from '@backend/gateway/likes'
+import type { Rating, RatedRecord } from '@backend/gateway/ratings'
+import type { GatewayRecord } from '@backend/gateway/records'
+import type { UserAccount } from '@backend/gateway/users'
+import type { LikeEntity } from '@backend/modules/like/like.entity'
+import type { RatingEntity, UserRatedRecordEntity } from '@backend/modules/rating/rating.entity'
+import type { RecordEntity, SuggestionOwnershipEntity } from '@backend/modules/record/record.entity'
+import type { UserEntity } from '@backend/modules/user/user.entity'
 import type { AccountPlatform } from '@gmdb/contract'
 
 /**
@@ -63,9 +63,9 @@ export function toGatewayRecord(record: RecordEntity): GatewayRecord {
     ...(record.suggestionOwnership !== undefined
       ? {
           suggestionOwnership: record.suggestionOwnership
-            ? (toGatewayOwnership(
-                record.suggestionOwnership,
-              ) as GatewayRecord['suggestionOwnership'])
+            ? (toGatewayOwnership(record.suggestionOwnership) as NonNullable<
+                GatewayRecord['suggestionOwnership']
+              >)
             : null,
         }
       : {}),

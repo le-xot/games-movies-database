@@ -1,4 +1,4 @@
-import { createGateway, type GatewayDeps } from '@/gateway'
+import { createGateway, type GatewayDeps } from '@backend/gateway'
 
 const EMPTY_STATS = {
   total: 0,

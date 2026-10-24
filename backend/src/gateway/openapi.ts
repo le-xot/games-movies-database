@@ -1,5 +1,5 @@
 import { openapi } from '@elysia/openapi'
-import type { Gateway } from '@/gateway'
+import type { Gateway } from '@backend/gateway'
 
 /** Префикс служебных роутов документации — их нет в контракте продукта. */
 export const SPEC_PATH = '/__openapi'
@@ -25,6 +25,16 @@ function canonicalizeRefs(node: unknown): void {
   }
 
   for (const value of Object.values(record)) canonicalizeRefs(value)
+}
+
+/** Служебные роуты документации в продуктовый контракт не входят. */
+function dropSpecRoutes(document: Record<string, unknown>): void {
+  const paths = document['paths'] as Record<string, unknown> | undefined
+  if (!paths) return
+
+  for (const path of Object.keys(paths)) {
+    if (path.startsWith(SPEC_PATH)) delete paths[path]
+  }
 }
 
 /**
@@ -68,7 +78,9 @@ function pruneBodyMediaTypes(document: Record<string, unknown>): void {
 }
 
 export async function readGatewayDocument(app: Gateway) {
-  const documented = app.use(openapi({ provider: null, path: SPEC_PATH }))
+  // 3.0, а не 3.1: фронтовый `openapi-typescript` ждёт nullable-идиому из 3.0,
+  // иначе `{nullable: true, $ref}` теряет null в сгенерированных типах.
+  const documented = app.use(openapi({ provider: null, path: SPEC_PATH, openapiVersion: '3.0.3' }))
 
   const response = await documented.handle(new Request(`http://localhost${SPEC_PATH}/json`))
   if (!response.ok) {
@@ -77,7 +89,110 @@ export async function readGatewayDocument(app: Gateway) {
 
   const document = (await response.json()) as Record<string, unknown>
   canonicalizeRefs(document)
+  collapseRefs(document)
   pruneBodyMediaTypes(document)
+  dropSpecRoutes(document)
 
   return document
+}
+
+/**
+ * Elysia не даёт «ссылку на модель» внутри другой схемы без потери типа: `t.Ref`
+ * в статическом типе превращается в `unknown`, и Eden теряет информацию.
+ *
+ * Поэтому модели ссылаются друг на друга настоящими объектами, а документ
+ * сворачивает одинаковые куски обратно в `$ref` — контракт остаётся прежним,
+ * типы — точными.
+ */
+export function collapseRefs(document: Record<string, unknown>): void {
+  const schemas = (document['components'] as { schemas?: Record<string, unknown> } | undefined)
+    ?.schemas
+  if (!schemas) return
+
+  const byShape = new Map<string, string>()
+  for (const [name, schema] of Object.entries(schemas)) {
+    byShape.set(stableStringify(stripIgnore(schema)), `#/components/schemas/${name}`)
+  }
+
+  const walk = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item)
+      return
+    }
+    if (!node || typeof node !== 'object') return
+
+    const record = node as Record<string, unknown>
+    for (const [key, value] of Object.entries(record)) {
+      // Path-параметры Nest описывал инлайн-перечислением, а query — ссылкой
+      // на модель. Держим контракт байт-в-байт: path не сворачиваем.
+      if (key === 'parameters' && Array.isArray(value)) {
+        for (const parameter of value as Record<string, unknown>[]) {
+          if (parameter['in'] === 'path') continue
+          walk(parameter)
+        }
+        continue
+      }
+
+      if (
+        value &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        !('$ref' in (value as object))
+      ) {
+        const ref = byShape.get(stableStringify(stripIgnore(value)))
+        if (ref) {
+          // `nullable` живёт на самой схеме, а не в определении модели —
+          // при сворачивании в `$ref` его надо сохранить рядом.
+          // Nullable отдаём идиомой Swagger: `$ref` рядом с `nullable`
+          // спецификацией игнорируется, а `allOf` из одного элемента —
+          // понимает и `openapi-typescript`, и наш нормализатор.
+          record[key] =
+            (value as { nullable?: boolean }).nullable === true
+              ? { nullable: true, allOf: [{ $ref: ref }] }
+              : { $ref: ref }
+          continue
+        }
+      }
+
+      walk(value)
+    }
+  }
+
+  walk(document['paths'])
+
+  // Внутри компонентов тоже сворачиваем, но не сами определения.
+  for (const schema of Object.values(schemas)) walk(schema)
+}
+
+function stripIgnore(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(stripIgnore)
+  if (!node || typeof node !== 'object') return node
+
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+    // `$id` — служебное имя модели, `nullable` — модификатор ссылки.
+    if (key === '$id' || key === 'nullable') continue
+
+    // TypeBox пишет nullable ещё и как `type: ['object', 'null']`.
+    if (key === 'type' && Array.isArray(value)) {
+      const rest = value.filter((item) => item !== 'null')
+      out['type'] = rest.length === 1 ? rest[0] : rest
+      continue
+    }
+
+    out[key] = stripIgnore(value)
+  }
+
+  return out
+}
+
+function stableStringify(node: unknown): string {
+  if (Array.isArray(node)) return `[${node.map(stableStringify).join(',')}]`
+  if (!node || typeof node !== 'object') return JSON.stringify(node) ?? 'null'
+
+  const entries = Object.entries(node as Record<string, unknown>)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${JSON.stringify(key)}:${stableStringify(value)}`)
+
+  return `{${entries.join(',')}}`
 }

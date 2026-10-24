@@ -2,8 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
-import { createHttpServer } from '@/server/http'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { createHttpServer } from '@backend/server/http'
 
 /** Как в проде: каталог собранного фронта называется dist — от него зависит логика кеша. */
 let root: string

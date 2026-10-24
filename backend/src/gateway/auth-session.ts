@@ -1,17 +1,17 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireUser,
   resolveUser,
   type Authenticator,
   type GatewayUser,
-} from '@/gateway/auth'
-import { clearCookie } from '@/gateway/cookies'
-import { ApiError, apiErrorModels, standardErrors } from '@/gateway/errors'
-import { accountEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { userModels, type UserAccount } from '@/gateway/users'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { clearCookie } from '@backend/gateway/cookies'
+import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { accountEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { userModels, type UserAccount } from '@backend/gateway/users'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
 import type { AccountPlatform } from '@gmdb/contract'
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024
@@ -77,7 +77,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       },
       {
         response: {
-          200: t.Array(t.Ref('UserAccountEntity')),
+          200: t.Array(userModels.UserAccountEntity),
           ...standardErrors(),
         },
       },

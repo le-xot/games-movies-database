@@ -1,4 +1,4 @@
-import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
+import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
 export const WORDLE_LEADERBOARD_TTL_MS = 60_000
 

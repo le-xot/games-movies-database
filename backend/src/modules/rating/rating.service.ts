@@ -1,12 +1,15 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { RecordGrade } from '@backend/enums'
+import {
+  FriendsCounts,
+  emptyFriendsCounts,
+} from '@backend/modules/rating/entities/rating-domain.entity'
+import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { NotFoundException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 import { records, users } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { RecordGrade } from '@/enums'
-import { FriendsCounts, emptyFriendsCounts } from '@/modules/rating/entities/rating-domain.entity'
-import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
-import { DomainEvents } from '@/utils/domain-events'
-import { NotFoundException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
 import { DrizzleRatingRepository } from './repositories/drizzle-rating.repository'
 
 export class RatingService {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
-import { createHttpServer } from '@/server/http'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { createHttpServer } from '@backend/server/http'
 
 const ALLOWED_ORIGIN = 'https://le-xot.dev'
 const CORS_ORIGINS = [ALLOWED_ORIGIN, 'http://localhost:5173']

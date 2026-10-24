@@ -1,4 +1,4 @@
-import { RecordGenre, RecordType } from '@/enums'
+import { RecordGenre, RecordType } from '@backend/enums'
 
 export class QueueItemDto {
   title!: string

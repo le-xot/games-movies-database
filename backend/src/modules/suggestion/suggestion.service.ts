@@ -1,10 +1,10 @@
-import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
-import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
-import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
-import { DomainEvents } from '@/utils/domain-events'
-import { BadRequestException, ForbiddenException, NotFoundException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
+import { LimitType, RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
+import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/repositories/drizzle-suggestion.repository'
+import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { BadRequestException, ForbiddenException, NotFoundException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 
 export class SuggestionService {
   private readonly logger = new Logger(SuggestionService.name)

@@ -1,5 +1,7 @@
 import { expect, it } from 'bun:test'
 import crypto from 'node:crypto'
+import { RecordGrade, UserRole } from '@backend/enums'
+import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
 import {
   likes,
   recordRatings,
@@ -10,12 +12,10 @@ import {
   wordleGames,
 } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
-import { RecordGrade, UserRole } from '@/enums'
-import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
 import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
-import type { CreateUserData } from '@/modules/user/entities/user-domain.entity'
+import type { DrizzleService } from '@backend/database/drizzle.service'
+import type { CreateUserData } from '@backend/modules/user/entities/user-domain.entity'
 
 function userData(overrides: Partial<CreateUserData> = {}): CreateUserData {
   return {

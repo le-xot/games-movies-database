@@ -1,53 +1,61 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { recordEnumModels } from '@/gateway/models'
-import { coerceQueryNumbers, collectArrayQuery } from '@/gateway/query'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { recordModels } from '@/gateway/records'
-import { RATE_LIMITS } from '@/utils/rate-limits'
-import type { RateLimitConfig } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { recordEnumModels } from '@backend/gateway/models'
+import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { recordModels } from '@backend/gateway/records'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
+import type { RateLimitConfig } from '@backend/utils/rate-limits'
 import type { RecordGrade } from '@gmdb/contract'
+
+const { RecordGrade: recordGradeSchema } = recordEnumModels
+const { UserEntity } = authModels
+const { RecordEntity } = recordModels
+
+export const RatingEntity = t.Object({
+  id: t.String(),
+  userId: t.String(),
+  recordId: t.Number(),
+  grade: recordGradeSchema,
+  user: t.Optional(t.Nullable(UserEntity)),
+  createdAt: t.String(),
+  updatedAt: t.String(),
+})
+
+export const UserRatedRecordEntity = t.Object({
+  ...RecordEntity.properties,
+  userGrade: recordGradeSchema,
+  userLogin: t.String(),
+})
+
+export const FriendsMemberEntity = t.Object({
+  userId: t.String(),
+  login: t.String(),
+  profileImageUrl: t.String(),
+  counts: t.Record(t.String(), t.Number()),
+  total: t.Number(),
+})
 
 export const ratingModels = {
   RatingUpsertDTO: t.Object({
-    grade: t.Ref('RecordGrade'),
+    grade: recordGradeSchema,
   }),
-  RatingEntity: t.Object({
-    id: t.String(),
-    userId: t.String(),
-    recordId: t.Number(),
-    grade: t.Ref('RecordGrade'),
-    user: t.Optional(t.Nullable(t.Ref('UserEntity'))),
-    createdAt: t.String(),
-    updatedAt: t.String(),
-  }),
-  // Наследуется от RecordEntity на бэке — переиспользуем те же схемы, чтобы
-  // поля не разъехались.
-  UserRatedRecordEntity: t.Object({
-    ...recordModels.RecordEntity.properties,
-    userGrade: t.Ref('RecordGrade'),
-    userLogin: t.String(),
-  }),
+  RatingEntity,
+  UserRatedRecordEntity,
   GetUserRatingsEntity: t.Object({
-    items: t.Array(t.Ref('UserRatedRecordEntity')),
+    items: t.Array(UserRatedRecordEntity),
     total: t.Number(),
   }),
-  FriendsMemberEntity: t.Object({
-    userId: t.String(),
-    login: t.String(),
-    profileImageUrl: t.String(),
-    counts: t.Record(t.String(), t.Number()),
-    total: t.Number(),
-  }),
+  FriendsMemberEntity,
   GetFriendsEntity: t.Object({
-    members: t.Array(t.Ref('FriendsMemberEntity')),
+    members: t.Array(FriendsMemberEntity),
   }),
 }
 
@@ -61,12 +69,12 @@ export interface RatingsQuery {
   grade?: RecordGrade[] | undefined
 }
 
-export type Rating = typeof ratingModels.RatingEntity.static
-export type RatedRecord = typeof ratingModels.UserRatedRecordEntity.static
+export type Rating = typeof RatingEntity.static
+export type RatedRecord = typeof UserRatedRecordEntity.static
 export type RatingsPage = typeof ratingModels.GetUserRatingsEntity.static
 export type Friends = typeof ratingModels.GetFriendsEntity.static
+export type FriendMember = typeof FriendsMemberEntity.static
 
-/** Что гейтвею нужно от домена рейтингов. */
 export interface RatingsService {
   rate(userId: string, recordId: number, grade: RecordGrade): Promise<Rating>
   unrate(userId: string, recordId: number): Promise<void>
@@ -99,7 +107,7 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
     })
 
   const querySchema = t.Object({
-    grade: t.Optional(t.Array(t.Ref('RecordGrade'))),
+    grade: t.Optional(t.Array(recordGradeSchema)),
     page: t.Optional(t.Number()),
     limit: t.Optional(t.Number()),
   })

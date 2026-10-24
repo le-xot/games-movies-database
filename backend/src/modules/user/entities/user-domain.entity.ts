@@ -1,5 +1,5 @@
-import { UserRole } from '@/enums'
-import type { AccountPlatform } from '@/enums'
+import { UserRole } from '@backend/enums'
+import type { AccountPlatform } from '@backend/enums'
 import type { SelectRow } from '@gmd/database'
 
 export interface CreateUserData {

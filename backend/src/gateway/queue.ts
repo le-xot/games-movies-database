@@ -1,25 +1,41 @@
+import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { recordEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { recordEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+import type { RecordGenre, RecordType } from '@gmdb/contract'
 
-export const queueModels = {
-  QueueItemDto: t.Object({
-    title: t.String(),
-    link: t.String(),
-    posterUrl: t.String(),
-    createdAt: t.String(),
-    type: t.Nullable(t.Ref('RecordType')),
-    genre: t.Nullable(t.Ref('RecordGenre')),
-  }),
-  QueueDto: t.Object({
-    games: t.Array(t.Ref('QueueItemDto')),
-    videos: t.Array(t.Ref('QueueItemDto')),
-  }),
+const { RecordGenre: recordGenreSchema, RecordType: recordTypeSchema } = recordEnumModels
+
+export const QueueItemDto = t.Object({
+  title: t.String(),
+  link: t.String(),
+  posterUrl: t.String(),
+  createdAt: t.String(),
+  type: t.Nullable(recordTypeSchema),
+  genre: t.Nullable(recordGenreSchema),
+})
+
+export const QueueDto = t.Object({
+  games: t.Array(QueueItemDto),
+  videos: t.Array(QueueItemDto),
+})
+
+export const queueModels = { QueueItemDto, QueueDto }
+
+export interface QueueItem {
+  title: string
+  link: string
+  posterUrl: string
+  createdAt: string
+  type: RecordType | null
+  genre: RecordGenre | null
 }
 
-export type Queue = typeof queueModels.QueueDto.static
+export interface Queue {
+  games: QueueItem[]
+  videos: QueueItem[]
+}
 
 export interface QueueReader {
   getQueue(): Promise<Queue>
@@ -48,7 +64,7 @@ export function queueRoutes({ queue, rateLimit }: QueueRouteDeps) {
       {
         response: {
           200: 'QueueDto' as const,
-          ...standardErrors({ auth: false }),
+          ...publicErrors(),
         },
       },
     )

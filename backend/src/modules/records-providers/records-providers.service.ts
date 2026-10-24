@@ -1,11 +1,11 @@
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import { TwitchService } from '@/modules/twitch/twitch.service'
-import { env } from '@/utils/enviroments'
-import { BadRequestException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
-import { isRecord } from '@/utils/type-guards'
+import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import { TwitchService } from '@backend/modules/twitch/twitch.service'
+import { env } from '@backend/utils/enviroments'
+import { BadRequestException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
+import { isRecord } from '@backend/utils/type-guards'
 import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
-import type { RecordDomain } from '@/modules/record/entities/record-domain.entity'
+import type { RecordDomain } from '@backend/modules/record/entities/record-domain.entity'
 
 interface PreparedData {
   title: string

@@ -25,7 +25,7 @@ const providers: Record<'twitch' | 'kick', ProviderConfig> = {
     name: 'Twitch',
     link: async (code, state) => {
       try {
-        await api.POST('/auth/twitch/link', { body: { code, state } })
+        await api.auth.twitch.link.post({ code, state })
       } catch {
         throw new Error('Не удалось привязать Twitch')
       }
@@ -37,14 +37,14 @@ const providers: Record<'twitch' | 'kick', ProviderConfig> = {
     name: 'Kick',
     link: async (code, state) => {
       try {
-        await api.POST('/auth/kick/link', { body: { code, state } })
+        await api.auth.kick.link.post({ code, state })
       } catch {
         throw new Error('Не удалось привязать Kick')
       }
     },
     login: async (code, state) => {
       try {
-        await api.POST('/auth/kick/callback', { body: { code, state } })
+        await api.auth.kick.callback.post({ code, state })
       } catch {
         throw new Error('Ошибка авторизации через Kick')
       }

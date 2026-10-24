@@ -1,6 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
-import type { GatewayUser } from '@/gateway/auth'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import type { GatewayUser } from '@backend/gateway/auth'
+import type { WordleGuessState, WordleServicePort } from '@backend/gateway/wordle'
 
 const USER: GatewayUser = {
   id: 'user-1',
@@ -18,7 +19,12 @@ const STATE = {
   attempts: 1,
   maxAttempts: 6,
   wordLength: 5,
-  guesses: [{ word: 'слово', states: ['CORRECT', 'PRESENT', 'ABSENT', 'ABSENT', 'ABSENT'] }],
+  guesses: [
+    {
+      word: 'слово',
+      states: ['CORRECT', 'PRESENT', 'ABSENT', 'ABSENT', 'ABSENT'] as WordleGuessState['states'],
+    },
+  ],
   answer: null,
   msUntilNextWord: 1000,
 }
@@ -29,7 +35,7 @@ function build(options: { user?: GatewayUser | null; practice?: unknown } = {}) 
     auth: { resolve: async () => options.user ?? null },
     wordle: {
       getState: async () => STATE,
-      makeGuess,
+      makeGuess: makeGuess as WordleServicePort['makeGuess'],
       getStats: async () => {
         throw new Error('getStats не заглушен')
       },

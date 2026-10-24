@@ -27,7 +27,6 @@
     "format:check": "bun fmt --check",
     "typecheck": "bun run --filter '*' --parallel --elide-lines=0 typecheck",
     "test:scripts": "bash scripts/__tests__/render-env.test.sh",
-    "generate:api": "bun --filter=./frontend run generate:api",
     "hooks:install": "git config core.hooksPath .githooks",
     "infra:start": "docker compose -f docker-compose.dev.yml up -d",
     "infra:stop": "docker compose -f docker-compose.dev.yml down"

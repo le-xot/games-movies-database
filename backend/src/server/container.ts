@@ -1,44 +1,43 @@
-import { RedisClient } from 'bun'
-import { DrizzleService } from '@/database/drizzle.service'
-import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
-import { AuthService } from '@/modules/auth/auth.service'
-import { AvatarService } from '@/modules/avatar/avatar.service'
-import { ImgVariant } from '@/modules/img/img.dto'
-import { ImgService } from '@/modules/img/img.service'
-import { KickService } from '@/modules/kick/kick.service'
-import { LikeService } from '@/modules/like/like.service'
-import { DrizzleLikeRepository } from '@/modules/like/repositories/drizzle-like.repository'
-import { LimitService } from '@/modules/limit/limit.service'
-import { DrizzleLimitRepository } from '@/modules/limit/repositories/drizzle-limit.repository'
-import { QueueService } from '@/modules/queue/queue.service'
-import { DrizzleQueueRepository } from '@/modules/queue/repositories/drizzle-queue.repository'
-import { RatingService } from '@/modules/rating/rating.service'
-import { DrizzleRatingRepository } from '@/modules/rating/repositories/drizzle-rating.repository'
-import { RecordService } from '@/modules/record/record.service'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
-import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { DrizzleRecordsProvidersRepository } from '@/modules/records-providers/repositories/drizzle-records-providers.repository'
-import { S3Service } from '@/modules/s3/s3.service'
-import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
-import { StatsService } from '@/modules/stats/stats.service'
-import { SteamService } from '@/modules/steam/steam.service'
-import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
-import { SuggestionService } from '@/modules/suggestion/suggestion.service'
-import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
-import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
-import { TelegramService } from '@/modules/telegram/telegram.service'
-import { TwirService } from '@/modules/twir/twir.service'
-import { TwitchService } from '@/modules/twitch/twitch.service'
-import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
-import { UserService } from '@/modules/user/user.service'
-import { WeatherService } from '@/modules/weather/weather.service'
-import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
-import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
-import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
-import { WordleNotificationService } from '@/modules/wordle/wordle-notification.service'
-import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
-import { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
-import { WordleService } from '@/modules/wordle/wordle.service'
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { createJwtAuthenticator } from '@backend/gateway/jwt-authenticator'
+import { AuthService } from '@backend/modules/auth/auth.service'
+import { AvatarService } from '@backend/modules/avatar/avatar.service'
+import { ImgVariant } from '@backend/modules/img/img.dto'
+import { ImgService } from '@backend/modules/img/img.service'
+import { KickService } from '@backend/modules/kick/kick.service'
+import { LikeService } from '@backend/modules/like/like.service'
+import { DrizzleLikeRepository } from '@backend/modules/like/repositories/drizzle-like.repository'
+import { LimitService } from '@backend/modules/limit/limit.service'
+import { DrizzleLimitRepository } from '@backend/modules/limit/repositories/drizzle-limit.repository'
+import { QueueService } from '@backend/modules/queue/queue.service'
+import { DrizzleQueueRepository } from '@backend/modules/queue/repositories/drizzle-queue.repository'
+import { RatingService } from '@backend/modules/rating/rating.service'
+import { DrizzleRatingRepository } from '@backend/modules/rating/repositories/drizzle-rating.repository'
+import { RecordService } from '@backend/modules/record/record.service'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
+import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
+import { DrizzleRecordsProvidersRepository } from '@backend/modules/records-providers/repositories/drizzle-records-providers.repository'
+import { S3Service } from '@backend/modules/s3/s3.service'
+import { DrizzleStatsRepository } from '@backend/modules/stats/repositories/drizzle-stats.repository'
+import { StatsService } from '@backend/modules/stats/stats.service'
+import { SteamService } from '@backend/modules/steam/steam.service'
+import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/repositories/drizzle-suggestion.repository'
+import { SuggestionService } from '@backend/modules/suggestion/suggestion.service'
+import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
+import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
+import { TelegramService } from '@backend/modules/telegram/telegram.service'
+import { TwirService } from '@backend/modules/twir/twir.service'
+import { TwitchService } from '@backend/modules/twitch/twitch.service'
+import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
+import { UserService } from '@backend/modules/user/user.service'
+import { WeatherService } from '@backend/modules/weather/weather.service'
+import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
+import { DrizzleWordleRepository } from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
+import { WordleLeaderboardCache } from '@backend/modules/wordle/wordle-leaderboard.cache'
+import { WordleNotificationService } from '@backend/modules/wordle/wordle-notification.service'
+import { WordlePracticeService } from '@backend/modules/wordle/wordle-practice.service'
+import { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
+import { WordleService } from '@backend/modules/wordle/wordle.service'
 import {
   toGatewayAccount,
   toGatewayLike,
@@ -46,12 +45,13 @@ import {
   toGatewayRating,
   toGatewayRecord,
   toGatewayUser,
-} from '@/server/adapters'
-import { DomainEvents } from '@/utils/domain-events'
-import { env } from '@/utils/enviroments'
-import { hitRateLimit } from '@/utils/rate-limit'
-import type { GatewayDeps } from '@/gateway'
-import type { RateLimiter } from '@/gateway/rate-limit'
+} from '@backend/server/adapters'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { env } from '@backend/utils/enviroments'
+import { hitRateLimit } from '@backend/utils/rate-limit'
+import { RedisClient } from 'bun'
+import type { GatewayDeps } from '@backend/gateway'
+import type { RateLimiter } from '@backend/gateway/rate-limit'
 
 export interface Container {
   deps: GatewayDeps
@@ -250,9 +250,21 @@ export function createContainer(): Container {
         createLike: async (userId, recordId) =>
           toGatewayLike(await likes.createLike(userId, recordId)),
         deleteLike: (userId, recordId) => likes.deleteLike(userId, recordId),
-        getLikesByRecordId: (recordId) => likes.getLikesByRecordId(recordId),
-        getLikesByUserId: (userId) => likes.getLikesByUserId(userId),
-        getLikes: (page, limit) => likes.getLikes(page, limit),
+        getLikesByRecordId: async (recordId) => {
+          const page = await likes.getLikesByRecordId(recordId)
+
+          return { likes: page.likes.map(toGatewayLike), total: page.total }
+        },
+        getLikesByUserId: async (userId) => {
+          const page = await likes.getLikesByUserId(userId)
+
+          return { likes: page.likes.map(toGatewayLike), total: page.total }
+        },
+        getLikes: async (page, limit) => {
+          const result = await likes.getLikes(page, limit)
+
+          return { likes: result.likes.map(toGatewayLike), total: result.total }
+        },
       },
       users: {
         getAll: async () => (await users.getAllUsers()).map(toGatewayUser),

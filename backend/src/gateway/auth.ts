@@ -1,24 +1,26 @@
+import { ApiError } from '@backend/gateway/errors'
 import { t } from 'elysia'
-import { ApiError } from '@/gateway/errors'
 
 /**
  * Схемы пользователя. Имена (`UserEntity`, `UserRole`) и набор полей повторяют
  * то, что генерировал Nest: от них зависит `$ref` в контракте и типы фронта.
  */
-export const authModels = {
-  UserRole: t.Union([t.Literal('USER'), t.Literal('ADMIN')]),
-  UserEntity: t.Object({
-    id: t.String(),
-    login: t.String(),
-    role: t.Ref('UserRole'),
-    profileImageUrl: t.String(),
-    color: t.String(),
-    hasCustomAvatar: t.Boolean(),
-    createdAt: t.String(),
-  }),
-}
+const userRoleSchema = t.Union([t.Literal('USER'), t.Literal('ADMIN')])
 
-export type GatewayUser = typeof authModels.UserEntity.static
+export const UserEntity = t.Object({
+  id: t.String(),
+  login: t.String(),
+  role: userRoleSchema,
+  profileImageUrl: t.String(),
+  color: t.String(),
+  hasCustomAvatar: t.Boolean(),
+  createdAt: t.String(),
+})
+
+export const authModels = { UserRole: userRoleSchema, UserEntity }
+
+/** Пользователь в том виде, в каком его видит HTTP-слой. */
+export type GatewayUser = typeof UserEntity.static
 
 /**
  * Что гейтвею нужно от аутентификации. Реализация (JWT + поиск пользователя)

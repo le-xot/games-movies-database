@@ -14,11 +14,15 @@ process.env.DATASOURCE_URL ??= 'postgresql://openapi:openapi@127.0.0.1:5432/open
 process.env.JWT_SECRET ??= 'openapi-export'
 process.env.TWITCH_CALLBACK_URL ??= 'http://localhost:3000/api/auth/twitch/callback'
 
-const { buildContract, normalizeContract } = await import('@/utils/openapi-contract')
+const { createContainer } = await import('@backend/server/container')
+const { createGateway } = await import('@backend/gateway')
+const { readGatewayDocument } = await import('@backend/gateway/openapi')
+const { normalizeContract } = await import('@backend/utils/openapi-contract')
 
 const OUTPUT = join(import.meta.dir, '..', 'src', '__tests__', 'fixtures', 'openapi.golden.json')
 
-const document = await buildContract()
+const container = createContainer()
+const document = await readGatewayDocument(createGateway(container.deps))
 const normalized = normalizeContract(document)
 
 mkdirSync(join(OUTPUT, '..'), { recursive: true })
@@ -29,8 +33,9 @@ writeFileSync(OUTPUT, `${JSON.stringify(normalized, null, 2)}\n`)
 Bun.spawnSync(['bun', 'fmt', OUTPUT], { stdout: 'ignore', stderr: 'ignore' })
 
 console.log(
-  `✅ Контракт: ${Object.keys(normalized.paths as object).length} операций, ` +
-    `${Object.keys(normalized.schemas as object).length} схем → ${OUTPUT}`,
+  `✅ Контракт: ${Object.keys(normalized.paths).length} операций, ` +
+    `${Object.keys(normalized.schemas).length} схем → ${OUTPUT}`,
 )
 
+await container.close()
 process.exit(0)

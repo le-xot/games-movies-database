@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { UserRole } from '@backend/enums'
 import {
   likes,
   recordRatings,
@@ -7,7 +8,6 @@ import {
   users,
   wordleGames,
 } from '@gmd/database/schema'
-import { UserRole } from '@/enums'
 import { DrizzleUserRepository } from '../repositories/drizzle-user.repository'
 
 interface UpdateCall {

@@ -1,10 +1,10 @@
 import { expect, it } from 'bun:test'
 import crypto from 'node:crypto'
+import { DrizzleStatsRepository } from '@backend/modules/stats/repositories/drizzle-stats.repository'
 import { recordRatings, records } from '@gmd/database/schema'
-import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
 import { seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleStatsRepository (integration)', ({ db }) => {
   const repository = new DrizzleStatsRepository({ db } as unknown as DrizzleService)

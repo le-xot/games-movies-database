@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
-import { readGatewayDocument } from '@/gateway/openapi'
-import { normalizeContract } from '@/utils/openapi-contract'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { readGatewayDocument } from '@backend/gateway/openapi'
+import { normalizeContract } from '@backend/utils/openapi-contract'
 
 const GOLDEN = JSON.parse(
   readFileSync(join(import.meta.dir, 'fixtures', 'openapi.golden.json'), 'utf8'),

@@ -1,5 +1,5 @@
-import { RecordGrade, RecordStatus } from '@/enums'
-import { RecordEntity } from '@/modules/record/record.entity'
+import { RecordGrade, RecordStatus } from '@backend/enums'
+import { RecordEntity } from '@backend/modules/record/record.entity'
 
 export class SteamGameDto {
   appid!: number

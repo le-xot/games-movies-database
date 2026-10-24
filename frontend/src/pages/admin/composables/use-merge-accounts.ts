@@ -89,10 +89,7 @@ export function useMergeAccounts(options: {
     isMerging.value = true
     try {
       const data = await unwrap(
-        api.POST('/users/{id}/merge', {
-          params: { path: { id: target.id } },
-          body: { sourceUserId: source.id },
-        }),
+        api.users({ id: target.id }).merge.post({ sourceUserId: source.id }),
       )
 
       const droppedTotal =

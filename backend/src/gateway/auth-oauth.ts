@@ -1,22 +1,22 @@
 import crypto from 'node:crypto'
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   readCookie,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { serializeCookie, type CookieOptions } from '@/gateway/cookies'
-import { ApiError, apiErrorModels, standardErrors } from '@/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
+} from '@backend/gateway/auth'
+import { serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
+import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import {
   TELEGRAM_OIDC_LINKING_COOKIE,
   TELEGRAM_OIDC_STATE_COOKIE,
   TELEGRAM_OIDC_TTL_SECONDS,
   TELEGRAM_OIDC_VERIFIER_COOKIE,
-} from '@/modules/telegram/telegram.constants'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/modules/telegram/telegram.constants'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
 
 export const oauthModels = {
   CallbackDto: t.Object({

@@ -1,9 +1,9 @@
 import { expect, it } from 'bun:test'
+import { DrizzleRecordsProvidersRepository } from '@backend/modules/records-providers/repositories/drizzle-records-providers.repository'
 import { records, suggestionRules } from '@gmd/database/schema'
-import { DrizzleRecordsProvidersRepository } from '@/modules/records-providers/repositories/drizzle-records-providers.repository'
 import { seedRecord } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleRecordsProvidersRepository (integration)', ({ db }) => {
   const repository = new DrizzleRecordsProvidersRepository({ db } as unknown as DrizzleService)

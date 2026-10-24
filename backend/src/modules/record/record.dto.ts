@@ -1,5 +1,5 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import { RecordEntity } from '@/modules/record/record.entity'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
+import { RecordEntity } from '@backend/modules/record/record.entity'
 
 export class RecordCreateFromLinkDTO {
   link!: string

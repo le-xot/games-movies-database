@@ -1,5 +1,5 @@
-import { env } from '@/utils/enviroments'
-import { Logger } from '@/utils/logger'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
 
 export class S3Service {
   private readonly logger = new Logger(S3Service.name)

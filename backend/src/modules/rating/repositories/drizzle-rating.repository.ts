@@ -1,8 +1,8 @@
 import crypto from 'node:crypto'
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { RecordGrade } from '@backend/enums'
 import { recordRatings, records, users } from '@gmd/database/schema'
 import { and, count, desc, eq, inArray } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { RecordGrade } from '@/enums'
 import {
   FriendsAggregate,
   FriendsCounts,

@@ -1,4 +1,4 @@
-import { RecordGrade } from '@/enums'
+import { RecordGrade } from '@backend/enums'
 
 export class RatingUpsertDTO {
   grade!: RecordGrade

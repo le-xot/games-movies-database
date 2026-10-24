@@ -1,21 +1,25 @@
-import { AccountPlatform, UserRole } from '@/enums'
-import { AvatarService } from '@/modules/avatar/avatar.service'
+import { AccountPlatform, UserRole } from '@backend/enums'
+import { AvatarService } from '@backend/modules/avatar/avatar.service'
 import {
   LinkPlatformData,
   MergeUsersResult,
   UserDomain,
-} from '@/modules/user/entities/user-domain.entity'
-import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
-import { WsEvents, emitWs, type UpdateUsersPayload } from '@/modules/websocket/websocket.events'
-import { DomainEvents } from '@/utils/domain-events'
+} from '@backend/modules/user/entities/user-domain.entity'
+import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
+import {
+  WsEvents,
+  emitWs,
+  type UpdateUsersPayload,
+} from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
 import {
   BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
   NotFoundException,
-} from '@/utils/errors'
-import { Logger } from '@/utils/logger'
+} from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 
 export class UserService {
   private readonly logger = new Logger(UserService.name)

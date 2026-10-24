@@ -1,4 +1,4 @@
-import { LikeEntity } from '@/modules/like/like.entity'
+import { LikeEntity } from '@backend/modules/like/like.entity'
 
 export class LikeCreateDTO {
   recordId!: number

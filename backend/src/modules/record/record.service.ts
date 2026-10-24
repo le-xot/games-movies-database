@@ -1,26 +1,26 @@
 import { Buffer } from 'node:buffer'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import { ImgService } from '@/modules/img/img.service'
-import { emptyFriendsCounts } from '@/modules/rating/entities/rating-domain.entity'
-import { DrizzleRatingRepository } from '@/modules/rating/repositories/drizzle-rating.repository'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
+import { ImgService } from '@backend/modules/img/img.service'
+import { emptyFriendsCounts } from '@backend/modules/rating/entities/rating-domain.entity'
+import { DrizzleRatingRepository } from '@backend/modules/rating/repositories/drizzle-rating.repository'
 import {
   RecordWithFriends,
   RecordWithRelations,
-} from '@/modules/record/entities/record-domain.entity'
-import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@/modules/record/record.dto'
-import { RecordEntity } from '@/modules/record/record.entity'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
-import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
+} from '@backend/modules/record/entities/record-domain.entity'
+import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@backend/modules/record/record.dto'
+import { RecordEntity } from '@backend/modules/record/record.entity'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
+import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
 import {
   WsEvents,
   emitWs,
   type UpdateQueuePayload,
   type UpdateRecordsPayload,
   type UpdateSuggestionsPayload,
-} from '@/modules/websocket/websocket.events'
-import { DomainEvents } from '@/utils/domain-events'
-import { NotFoundException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
+} from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { NotFoundException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 
 export class RecordService {
   private readonly logger = new Logger(RecordService.name)

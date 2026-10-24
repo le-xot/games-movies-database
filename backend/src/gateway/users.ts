@@ -1,27 +1,33 @@
-import { Elysia, t } from 'elysia'
 import {
+  UserEntity,
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
   type GatewayUser,
-} from '@/gateway/auth'
-import { ApiError, apiErrorModels, standardErrors } from '@/gateway/errors'
-import { accountEnumModels, recordEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { accountEnumModels, recordEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
+import type { AccountPlatform } from '@gmdb/contract'
+
+const { AccountPlatform: accountPlatformSchema } = accountEnumModels
+
+const UserAccountEntitySchema = t.Object({
+  id: t.Number(),
+  userId: t.String(),
+  platform: accountPlatformSchema,
+  platformUserId: t.String(),
+  platformLogin: t.String(),
+  platformAvatar: t.Nullable(t.String()),
+  createdAt: t.String(),
+})
 
 export const userModels = {
-  UserAccountEntity: t.Object({
-    id: t.Number(),
-    userId: t.String(),
-    platform: t.Ref('AccountPlatform'),
-    platformUserId: t.String(),
-    platformLogin: t.String(),
-    platformAvatar: t.Nullable(t.String()),
-    createdAt: t.String(),
-  }),
+  UserAccountEntity: UserAccountEntitySchema,
   MergeUsersDto: t.Object({
     sourceUserId: t.String(),
   }),
@@ -38,8 +44,27 @@ export const userModels = {
   }),
 }
 
-export type UserAccount = typeof userModels.UserAccountEntity.static
-export type MergeResult = typeof userModels.MergeUsersResultEntity.static
+export interface UserAccount {
+  id: number
+  userId: string
+  platform: AccountPlatform
+  platformUserId: string
+  platformLogin: string
+  platformAvatar: string | null
+  createdAt: string
+}
+
+export interface MergeResult {
+  accountsMoved: number
+  accountsDropped: number
+  likesMoved: number
+  likesDropped: number
+  ratingsMoved: number
+  ratingsDropped: number
+  suggestionsMoved: number
+  wordleGamesMoved: number
+  wordleGamesDropped: number
+}
 export interface MergeInput {
   sourceUserId: string
 }
@@ -87,7 +112,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       },
       {
         response: {
-          200: t.Array(t.Ref('UserEntity')),
+          200: t.Array(UserEntity),
           ...standardErrors(),
         },
       },
@@ -103,7 +128,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       {
         params: t.Object({ id: t.String() }),
         response: {
-          200: t.Array(t.Ref('UserAccountEntity')),
+          200: t.Array(UserAccountEntitySchema),
           ...standardErrors(),
         },
       },

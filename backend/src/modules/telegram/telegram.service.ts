@@ -1,9 +1,9 @@
 import { Buffer } from 'node:buffer'
 import { randomBytes } from 'node:crypto'
+import { env } from '@backend/utils/enviroments'
+import { HttpException, HttpStatus } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
-import { env } from '@/utils/enviroments'
-import { HttpException, HttpStatus } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
 import {
   TELEGRAM_OIDC_ISSUER,
   TELEGRAM_OIDC_JWKS_URL,

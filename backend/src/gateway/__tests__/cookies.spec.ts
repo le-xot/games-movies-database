@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { clearCookie, serializeCookie } from '@/gateway/cookies'
+import { clearCookie, serializeCookie } from '@backend/gateway/cookies'
 
 describe('serializeCookie', () => {
   it('builds an httpOnly session cookie', () => {

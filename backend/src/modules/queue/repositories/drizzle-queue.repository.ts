@@ -1,8 +1,8 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { RecordStatus, RecordType } from '@backend/enums'
+import { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 import { records } from '@gmd/database/schema'
 import { and, eq, inArray } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { RecordStatus, RecordType } from '@/enums'
-import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 export class DrizzleQueueRepository {
   constructor(private readonly drizzle: DrizzleService) {}

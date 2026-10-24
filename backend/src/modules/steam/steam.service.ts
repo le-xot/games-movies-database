@@ -1,12 +1,12 @@
-import { RecordGenre, RecordType } from '@/enums'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
-import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
-import { DomainEvents } from '@/utils/domain-events'
-import { env } from '@/utils/enviroments'
-import { Logger } from '@/utils/logger'
+import { RecordGenre, RecordType } from '@backend/enums'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
+import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
+import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
 import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
+import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 interface SteamOwnedGamesResponse {
   response: {

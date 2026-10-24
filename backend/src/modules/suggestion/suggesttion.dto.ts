@@ -1,4 +1,4 @@
-import { RecordGenre } from '@/enums'
+import { RecordGenre } from '@backend/enums'
 
 export class UserSuggestionDTO {
   link!: string

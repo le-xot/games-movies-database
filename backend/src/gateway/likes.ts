@@ -1,33 +1,37 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
+
+const { UserEntity } = authModels
+
+export const LikeEntity = t.Object({
+  id: t.String(),
+  userId: t.String(),
+  recordId: t.Number(),
+  user: t.Optional(t.Nullable(UserEntity)),
+  createdAt: t.String(),
+})
 
 export const likeModels = {
   LikeCreateDTO: t.Object({
     recordId: t.Number(),
   }),
-  LikeEntity: t.Object({
-    id: t.String(),
-    userId: t.String(),
-    recordId: t.Number(),
-    user: t.Optional(t.Nullable(t.Ref('UserEntity'))),
-    createdAt: t.String(),
-  }),
+  LikeEntity,
   GetLikesByIdDTO: t.Object({
-    likes: t.Array(t.Ref('LikeEntity')),
+    likes: t.Array(LikeEntity),
     total: t.Number(),
   }),
 }
 
-export type Like = typeof likeModels.LikeEntity.static
+export type Like = typeof LikeEntity.static
 export type LikesPage = typeof likeModels.GetLikesByIdDTO.static
 
 /** Что гейтвею нужно от домена лайков. */

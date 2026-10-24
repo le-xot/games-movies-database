@@ -4,7 +4,7 @@ import {
   isValidWebhookSecret,
   webhookSecretsMatch,
   type TelegramBotConfig,
-} from '@/modules/telegram/telegram-bot.service'
+} from '@backend/modules/telegram/telegram-bot.service'
 
 const CONFIG: TelegramBotConfig = {
   token: '123:abc',

@@ -4,13 +4,13 @@ import {
   assertPublicHttpUrl,
   fetchPublicImage,
   MAX_IMAGE_BYTES,
-} from '@/modules/img/img-url-safety'
-import { ImgVariant } from '@/modules/img/img.dto'
-import { S3Service } from '@/modules/s3/s3.service'
-import { env } from '@/utils/enviroments'
-import { BadRequestException } from '@/utils/errors'
-import { assertPixelLimit } from '@/utils/image-limits'
-import { Logger } from '@/utils/logger'
+} from '@backend/modules/img/img-url-safety'
+import { ImgVariant } from '@backend/modules/img/img.dto'
+import { S3Service } from '@backend/modules/s3/s3.service'
+import { env } from '@backend/utils/enviroments'
+import { BadRequestException } from '@backend/utils/errors'
+import { assertPixelLimit } from '@backend/utils/image-limits'
+import { Logger } from '@backend/utils/logger'
 
 interface ImgPreset {
   width: number

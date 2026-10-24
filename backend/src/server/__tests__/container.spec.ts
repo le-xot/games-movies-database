@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { createContainer } from '@/server/container'
+import { createContainer } from '@backend/server/container'
 
 describe('createContainer', () => {
   it('wires real services without a Nest DI container', async () => {

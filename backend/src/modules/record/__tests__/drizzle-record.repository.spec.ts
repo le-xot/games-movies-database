@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
 import { suggestionOwnerships } from '@gmd/database/schema'
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { DrizzleRecordRepository } from '../repositories/drizzle-record.repository'
 
 interface InsertCall {

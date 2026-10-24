@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { BadRequestException } from '@/utils/errors'
+import { BadRequestException } from '@backend/utils/errors'
 import { assertPixelLimit, MAX_IMAGE_PIXELS } from '../image-limits'
 
 describe('assertPixelLimit', () => {

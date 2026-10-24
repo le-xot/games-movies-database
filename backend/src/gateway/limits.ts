@@ -1,24 +1,26 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { accountEnumModels } from '@/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { accountEnumModels } from '@backend/gateway/models'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
 import type { LimitType } from '@gmdb/contract'
+
+const { LimitType: limitTypeSchema } = accountEnumModels
 
 export const limitModels = {
   ChangeLimitDTO: t.Object({
-    name: t.Ref('LimitType'),
+    name: limitTypeSchema,
     quantity: t.Number(),
   }),
   LimitEntity: t.Object({
-    name: t.Ref('LimitType'),
+    name: limitTypeSchema,
     quantity: t.Number(),
   }),
 }

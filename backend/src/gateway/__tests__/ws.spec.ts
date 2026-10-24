@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test'
+import { bridgeWsEvents, WS_TOPIC } from '@backend/gateway/ws'
+import { DomainEvents } from '@backend/utils/domain-events'
 import { WsEvents } from '@gmdb/contract'
-import { bridgeWsEvents, WS_TOPIC } from '@/gateway/ws'
-import { DomainEvents } from '@/utils/domain-events'
 
 function setup() {
   const emitter = new DomainEvents()

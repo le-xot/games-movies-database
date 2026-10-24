@@ -1,5 +1,5 @@
-import { ChangeLimitDTO, LimitEntity } from '@/modules/limit/limit.dto'
-import { Logger } from '@/utils/logger'
+import { ChangeLimitDTO, LimitEntity } from '@backend/modules/limit/limit.dto'
+import { Logger } from '@backend/utils/logger'
 import { DrizzleLimitRepository } from './repositories/drizzle-limit.repository'
 
 export class LimitService {

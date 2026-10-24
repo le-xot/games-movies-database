@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
+import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import { wordleNotificationSubscriptions } from '@gmd/database/schema'
-import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
 
 const ROW = {
   id: 1,

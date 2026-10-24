@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'bun:test'
-import { WordleGameStatus } from '@/enums'
+import { WordleGameStatus } from '@backend/enums'
 import {
   buildDailyLeaderboard,
   buildHistory,
   buildLeaderboard,
   computeWordleStats,
-} from '@/modules/wordle/wordle.stats'
+} from '@backend/modules/wordle/wordle.stats'
 import type {
   WordleDailyLeaderboardRow,
   WordleFinishedGame,
   WordleLeaderboardRow,
-} from '@/modules/wordle/wordle.stats'
+} from '@backend/modules/wordle/wordle.stats'
 
 const { WON, LOST } = WordleGameStatus
 const TODAY = '2026-09-20'

@@ -1,14 +1,15 @@
-import { Elysia, t } from 'elysia'
 import {
   authModels,
   requireRole,
   requireUser,
   resolveUser,
   type Authenticator,
-} from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
+} from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { Elysia, t } from 'elysia'
+import type { WordleGameStatus, WordleHistoryStatus, WordleLetterState } from '@gmdb/contract'
 
 export const wordleModels = {
   WordleGameStatus: t.Union([t.Literal('IN_PROGRESS'), t.Literal('WON'), t.Literal('LOST')]),
@@ -111,14 +112,83 @@ export const wordleNotificationModels = {
   }),
 }
 
-export type WordleState = typeof wordleModels.WordleStateDTO.static
-export type WordleStats = typeof wordleModels.WordleStatsDTO.static
-export type WordleLeaderboard = typeof wordleModels.WordleLeaderboardDTO.static
-export type WordlePracticeState = typeof wordleModels.WordlePracticeStateDTO.static
-export type WordleNotificationStatus =
-  typeof wordleNotificationModels.WordleNotificationsStatusDTO.static
-export type WordleNotificationLink =
-  typeof wordleNotificationModels.WordleNotificationsLinkDTO.static
+export interface WordleGuessState {
+  word: string
+  states: WordleLetterState[]
+}
+
+export interface WordleState {
+  date: string
+  status: WordleGameStatus
+  attempts: number
+  maxAttempts: number
+  wordLength: number
+  guesses: WordleGuessState[]
+  answer: string | null
+  msUntilNextWord: number
+}
+
+export interface WordleStats {
+  played: number
+  wins: number
+  winRate: number
+  currentStreak: number
+  maxStreak: number
+  distribution: number[]
+  totalPlayers: number
+  rank: number | null
+  history: { date: string; status: WordleHistoryStatus }[]
+}
+
+export interface WordleLeaderboard {
+  entries: {
+    userId: string
+    login: string
+    profileImageUrl: string
+    color: string
+    wins: number
+    avgAttempts: number
+    currentStreak: number
+    maxStreak: number
+  }[]
+  totalPlayers: number
+  totalGames: number
+  winsToday: number
+  today: {
+    entries: {
+      userId: string
+      login: string
+      profileImageUrl: string
+      color: string
+      status: WordleGameStatus
+      attempts: number
+      guesses: { states: WordleLetterState[] }[]
+    }[]
+    total: number
+  }
+}
+
+export interface WordlePracticeState {
+  status: WordleGameStatus
+  attempts: number
+  maxAttempts: number
+  wordLength: number
+  guesses: WordleGuessState[]
+  answer: string | null
+}
+export interface WordleNotificationStatus {
+  available: boolean
+  connected: boolean
+  morningEnabled: boolean
+  morningTime: string
+  eveningEnabled: boolean
+  eveningTime: string
+  telegramUsername: string | null
+}
+
+export interface WordleNotificationLink {
+  url: string
+}
 
 export interface WordleNotificationInput {
   morningEnabled?: boolean | undefined
@@ -219,7 +289,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
         return await wordle.getLeaderboard()
       },
       {
-        response: { 200: 'WordleLeaderboardDTO' as const, ...standardErrors({ auth: false }) },
+        response: { 200: 'WordleLeaderboardDTO' as const, ...publicErrors() },
       },
     )
     .get(
@@ -230,12 +300,14 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
         const state = await wordle.getPracticeState((await requirePlayer(ctx.request)).id)
 
         // Elysia отдаёт `null` пустым телом, а Nest — телом `null`. Фронт
-        // читает ответ как JSON, поэтому пустое тело — это сломанный контракт.
+        // читает ответ как JSON, поэтому пустое тело — сломанный контракт.
+        // Возвращаем готовый Response в обеих ветках: он обходит валидацию,
+        // но схема всё равно описана и даёт типы фронту.
         if (state === null) {
           return new Response('null', { headers: { 'content-type': 'application/json' } })
         }
 
-        return state
+        return Response.json(state)
       },
       {
         response: {

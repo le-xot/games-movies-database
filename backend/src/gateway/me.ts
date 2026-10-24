@@ -1,8 +1,8 @@
+import { authModels, requireUser, resolveUser, type Authenticator } from '@backend/gateway/auth'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia } from 'elysia'
-import { authModels, requireUser, resolveUser, type Authenticator } from '@/gateway/auth'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
 
 export interface MeRouteDeps {
   auth: Authenticator

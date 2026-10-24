@@ -1,12 +1,16 @@
+import { WordleGameStatus } from '@backend/enums'
+import { getMoscowDateKey, shiftDateKey } from '@backend/modules/wordle/wordle.date'
+import {
+  WordleDictionary,
+  WORD_PATTERN,
+  normalizeWord,
+} from '@backend/modules/wordle/wordle.dictionary'
+import { WordlePracticeStateDTO } from '@backend/modules/wordle/wordle.dto'
+import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
+import { MAX_ATTEMPTS, WORD_LENGTH } from '@backend/modules/wordle/wordle.stats'
+import { BadRequestException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 import { RedisClient } from 'bun'
-import { WordleGameStatus } from '@/enums'
-import { getMoscowDateKey, shiftDateKey } from '@/modules/wordle/wordle.date'
-import { WordleDictionary, WORD_PATTERN, normalizeWord } from '@/modules/wordle/wordle.dictionary'
-import { WordlePracticeStateDTO } from '@/modules/wordle/wordle.dto'
-import { scoreGuess } from '@/modules/wordle/wordle.scoring'
-import { MAX_ATTEMPTS, WORD_LENGTH } from '@/modules/wordle/wordle.stats'
-import { BadRequestException } from '@/utils/errors'
-import { Logger } from '@/utils/logger'
 
 export const PRACTICE_KEY_PREFIX = 'wordle:practice'
 export const PRACTICE_TTL_SECONDS = 86_400

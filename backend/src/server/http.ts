@@ -1,9 +1,9 @@
+import { wsRoutes } from '@backend/gateway/ws'
+import { createStaticHandler } from '@backend/server/static'
+import { isOriginAllowed } from '@backend/utils/cors-origins'
+import { buildSecurityHeaders } from '@backend/utils/security-headers'
 import { Elysia } from 'elysia'
-import { wsRoutes } from '@/gateway/ws'
-import { createStaticHandler } from '@/server/static'
-import { isOriginAllowed } from '@/utils/cors-origins'
-import { buildSecurityHeaders } from '@/utils/security-headers'
-import type { Gateway } from '@/gateway'
+import type { Gateway } from '@backend/gateway'
 
 export interface HttpOptions {
   corsOrigins: string[]

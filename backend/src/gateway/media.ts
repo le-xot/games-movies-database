@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto'
+import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
-import { apiErrorModels, standardErrors } from '@/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
-import { RATE_LIMITS } from '@/utils/rate-limits'
 
 export type ImageVariant = 'poster' | 'avatar'
 
@@ -57,7 +57,7 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
           urlEncoded: t.String(),
           variant: t.Optional(t.Union([t.Literal('poster'), t.Literal('avatar')])),
         }),
-        response: { 200: t.Void(), ...standardErrors({ auth: false }) },
+        response: { 200: t.Void(), ...publicErrors() },
       },
     )
     .get(
@@ -78,7 +78,7 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
       },
       {
         params: t.Object({ userId: t.String() }),
-        response: { 200: t.Void(), ...standardErrors({ auth: false }) },
+        response: { 200: t.Void(), ...publicErrors() },
       },
     )
 }

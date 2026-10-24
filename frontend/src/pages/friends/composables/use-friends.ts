@@ -19,7 +19,7 @@ export const useFriends = defineStore('friends/use-friends', () => {
     query: async () => {
       error.value = null
       try {
-        const data = await unwrap(api.GET('/ratings/friends'))
+        const data = await unwrap(api.ratings.friends.get())
         return data.members
       } catch (err) {
         error.value = await parseApiError(err, 'Не удалось загрузить список друзей')

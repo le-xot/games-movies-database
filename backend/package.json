@@ -11,7 +11,6 @@
     "test:integration:reset": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts --reset && RUN_DB_TESTS=1 bun test src/__integration__",
     "start": "bun run ./src/main.ts",
     "dev": "bun run --watch --no-clear-screen ./src/main.ts",
-    "export:openapi": "bun run scripts/export-openapi.ts",
     "openapi:golden": "bun run scripts/generate-openapi-golden.ts"
   },
   "dependencies": {

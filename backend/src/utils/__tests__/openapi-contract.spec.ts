@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { normalizeContract } from '@/utils/openapi-contract'
+import { normalizeContract } from '@backend/utils/openapi-contract'
 
 function normalizeOperation(response: unknown, contentType = 'application/json') {
   const document = {

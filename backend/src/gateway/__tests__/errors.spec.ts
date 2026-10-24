@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { ApiError, errorBody, fromDomainError } from '@/gateway/errors'
-import { NotFoundException } from '@/utils/errors'
+import { ApiError, errorBody, fromDomainError } from '@backend/gateway/errors'
+import { NotFoundException } from '@backend/utils/errors'
 
 describe('fromDomainError', () => {
   it('keeps gateway errors as is', () => {

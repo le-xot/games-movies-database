@@ -81,6 +81,14 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - `CustomJwtModule` is a global wrapper around `@nestjs/jwt`; `JwtService` is available everywhere
 - `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
 
+## GIT
+
+- **Коммитить и пушить можно только в ворктри на отдельной ветке.** На `master` — никогда.
+- Ворктри создаётся через Herdr: `herdr worktree create --branch <branch> --base master --no-focus` → `~/.herdr/worktrees/<repo>/<branch>`.
+- `commit` и `push` в ветку ворктри — без отдельного разрешения.
+- **Требует явного подтверждения каждый раз:** merge/сквош PR в `master`, force-push, удаление ветки, всё, что попадает в задеплоенную ветку.
+- Pre-commit хук (`bun run hooks:install`) форматирует застейдженное через `bun fmt --staged`.
+
 ## COMMANDS
 
 ```bash

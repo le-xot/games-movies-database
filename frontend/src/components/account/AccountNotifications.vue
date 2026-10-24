@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
+import { assertOk, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { WordleNotificationStatus } from '@/lib/api'
 
@@ -27,8 +28,7 @@ onBeforeUnmount(stopPolling)
 
 async function loadStatus() {
   try {
-    const response = await api.wordle.notifications.get()
-    status.value = response.data ?? null
+    status.value = await unwrap(api.wordle.notifications.get())
   } catch {
     toast.error('Не удалось загрузить настройки уведомлений')
   } finally {
@@ -49,9 +49,7 @@ async function connect() {
   isConnecting.value = true
   const tab = window.open('about:blank', '_blank')
   try {
-    const response = await api.wordle.notifications.link.post()
-    const url = response.data?.url
-    if (!url) throw new Error('empty link')
+    const { url } = await unwrap(api.wordle.notifications.link.post())
     if (tab) tab.location.href = url
     else window.open(url, '_blank')
     pollHint.value = true
@@ -87,10 +85,11 @@ async function toggleSlot(key: 'morningEnabled' | 'eveningEnabled', value: boole
   isSaving.value = true
   status.value = { ...status.value, [key]: value } as WordleNotificationStatus
   try {
-    const response = await api.wordle.notifications.patch(
-      key === 'morningEnabled' ? { morningEnabled: value } : { eveningEnabled: value },
+    status.value = await unwrap(
+      api.wordle.notifications.patch(
+        key === 'morningEnabled' ? { morningEnabled: value } : { eveningEnabled: value },
+      ),
     )
-    if (response.data) status.value = response.data
   } catch {
     status.value = { ...status.value, [key]: previous } as WordleNotificationStatus
     toast.error('Не удалось сохранить настройку')
@@ -103,7 +102,7 @@ async function disconnect() {
   if (isDisconnecting.value) return
   isDisconnecting.value = true
   try {
-    await api.wordle.notifications.delete()
+    await assertOk(api.wordle.notifications.delete())
     if (status.value) {
       status.value = { ...status.value, connected: false, telegramUsername: null }
     }

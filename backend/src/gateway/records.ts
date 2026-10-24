@@ -62,7 +62,7 @@ export const recordModels = {
     total: t.Number(),
   }),
   RecordCreateFromLinkDTO: t.Object({
-    link: t.String(),
+    link: t.String({ pattern: '^https?://\\S+$' }),
     status: t.Optional(recordStatusSchema),
     type: t.Optional(recordTypeSchema),
   }),
@@ -73,7 +73,7 @@ export const recordModels = {
     type: t.Optional(recordTypeSchema),
   }),
   RecordUpdatePosterDTO: t.Object({
-    url: t.String(),
+    url: t.String({ pattern: '^https?://\\S+$' }),
   }),
 }
 
@@ -233,8 +233,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
           genre: t.Optional(t.Ref('RecordGenre')),
           grade: t.Optional(t.Array(t.Ref('RecordGrade'))),
           search: t.Optional(t.String()),
-          page: t.Optional(t.Number()),
-          limit: t.Optional(t.Number()),
+          page: t.Optional(t.Number({ minimum: 1, maximum: 10_000, multipleOf: 1 })),
+          limit: t.Optional(t.Number({ minimum: 1, maximum: 100, multipleOf: 1 })),
           orderBy: t.Optional(t.Union([t.Literal('id'), t.Literal('title')])),
           direction: t.Optional(t.Union([t.Literal('asc'), t.Literal('desc')])),
         }),

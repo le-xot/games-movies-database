@@ -63,6 +63,13 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
     .get(
       '/avatar/:userId',
       async (ctx) => {
+        await enforceRateLimit(rateLimit, {
+          request: ctx.request,
+          route: 'AvatarController.getAvatar',
+          config: RATE_LIMITS.public,
+          ip: ctx.server?.requestIP(ctx.request)?.address,
+        })
+
         const buffer = await avatars.getAvatar(ctx.params.userId)
 
         if (!buffer) {

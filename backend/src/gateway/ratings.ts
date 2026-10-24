@@ -108,8 +108,8 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
 
   const querySchema = t.Object({
     grade: t.Optional(t.Array(recordGradeSchema)),
-    page: t.Optional(t.Number()),
-    limit: t.Optional(t.Number()),
+    page: t.Optional(t.Number({ minimum: 1, maximum: 10_000, multipleOf: 1 })),
+    limit: t.Optional(t.Number({ minimum: 1, maximum: 100, multipleOf: 1 })),
   })
 
   return new Elysia({ name: 'ratings' })

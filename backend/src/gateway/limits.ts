@@ -17,7 +17,7 @@ const { LimitType: limitTypeSchema } = accountEnumModels
 export const limitModels = {
   ChangeLimitDTO: t.Object({
     name: limitTypeSchema,
-    quantity: t.Number(),
+    quantity: t.Number({ minimum: 1, multipleOf: 1 }),
   }),
   LimitEntity: t.Object({
     name: limitTypeSchema,

@@ -29,7 +29,7 @@ const UserAccountEntitySchema = t.Object({
 export const userModels = {
   UserAccountEntity: UserAccountEntitySchema,
   MergeUsersDto: t.Object({
-    sourceUserId: t.String(),
+    sourceUserId: t.String({ minLength: 1 }),
   }),
   MergeUsersResultEntity: t.Object({
     accountsMoved: t.Number(),

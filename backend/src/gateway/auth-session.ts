@@ -21,7 +21,7 @@ export const authSessionModels = {
     success: t.Boolean(),
   }),
   UpdateNicknameDTO: t.Object({
-    login: t.String(),
+    login: t.String({ minLength: 2, maxLength: 32 }),
   }),
 }
 

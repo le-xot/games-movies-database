@@ -3,6 +3,7 @@ import { Trash2 } from '@lucide/vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
+import { assertOk } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
@@ -15,7 +16,7 @@ async function deleteAvatar() {
   isDeleting.value = true
 
   try {
-    await api.auth.me.avatar.delete()
+    await assertOk(api.auth.me.avatar.delete())
     await userStore.refetchUser()
     toast.success('Аватар сброшен')
   } catch {

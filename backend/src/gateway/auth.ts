@@ -39,7 +39,16 @@ export function readCookie(header: string | null, name: string): string | undefi
     if (separator === -1) continue
     if (part.slice(0, separator).trim() !== name) continue
 
-    return decodeURIComponent(part.slice(separator + 1).trim())
+    const raw = part.slice(separator + 1).trim()
+
+    // Express-cookie, которым пользовался Nest, при битом percent-encoding
+    // отдавал сырое значение. `decodeURIComponent` бросает — и весь роут
+    // превращался в 500.
+    try {
+      return decodeURIComponent(raw)
+    } catch {
+      return raw
+    }
   }
 
   return undefined

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { UserRole } from '@/lib/api'
+import { assertOk, UserRole } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 
 export const USER_QUERY_KEY = 'user'
@@ -71,7 +71,7 @@ export const useUser = defineStore('global/use-user', () => {
   const { mutateAsync: userLogin } = useMutation({
     key: [USER_QUERY_KEY, 'login'],
     mutation: (input: { code: string; state: string }) => {
-      return api.auth.twitch.callback.post(input)
+      return assertOk(api.auth.twitch.callback.post(input))
     },
     onSuccess: () => refetchUser(),
   })
@@ -79,7 +79,7 @@ export const useUser = defineStore('global/use-user', () => {
   const { mutateAsync: userLogout } = useMutation({
     key: [USER_QUERY_KEY, 'logout'],
     mutation: async () => {
-      return await api.auth.logout.post()
+      return await assertOk(api.auth.logout.post())
     },
     onSuccess: () => refetchUser(),
   })

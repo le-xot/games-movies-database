@@ -1,4 +1,6 @@
 import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
 
 /**
@@ -53,10 +55,22 @@ export interface WeatherReader {
   getWeatherData(): Promise<WeatherResponse | null>
 }
 
-export function weatherRoutes(weather: WeatherReader) {
+export interface WeatherRouteDeps {
+  weather: WeatherReader
+  rateLimit: RateLimiter
+}
+
+export function weatherRoutes({ weather, rateLimit }: WeatherRouteDeps) {
   return new Elysia({ name: 'weather' }).model({ ...apiErrorModels, ...weatherModels }).get(
     '/weather',
-    async ({ set }) => {
+    async ({ set, request, server }) => {
+      await enforceRateLimit(rateLimit, {
+        request,
+        route: 'WeatherController.getWeather',
+        config: RATE_LIMITS.public,
+        ip: server?.requestIP(request)?.address,
+      })
+
       const data = await weather.getWeatherData()
 
       if (!data) {

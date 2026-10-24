@@ -1,5 +1,6 @@
 import { useMutation } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { assertOk } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 
 export const LIKE_QUERY_KEY = 'like'
@@ -9,14 +10,14 @@ export const useLike = defineStore('queue/use-like', () => {
   const { mutateAsync: deleteLike } = useMutation({
     key: [LIKE_QUERY_KEY, 'delete'],
     mutation: async (recordId: number) => {
-      return await api.likes({ recordId }).delete()
+      return await assertOk(api.likes({ recordId }).delete())
     },
   })
 
   const { mutateAsync: createLike } = useMutation({
     key: [LIKE_QUERY_KEY, 'create'],
     mutation: async (recordId: number) => {
-      return await api.likes.post({ recordId })
+      return await assertOk(api.likes.post({ recordId }))
     },
   })
 

@@ -90,6 +90,49 @@ describe('records routes', () => {
     expect(body.records[0]?.extra).toEqual({ steam: '123' })
   })
 
+  it('rejects a page size of zero', async () => {
+    const { gateway, records } = build()
+
+    const response = await gateway.handle(request('/records?limit=0'))
+
+    expect(response.status).toBe(400)
+    expect(records.getAll).not.toHaveBeenCalled()
+  })
+
+  it('rejects a fractional page size instead of sending it to Postgres', async () => {
+    const { gateway, records } = build()
+
+    const response = await gateway.handle(request('/records?limit=1.5'))
+
+    expect(response.status).toBe(400)
+    expect(records.getAll).not.toHaveBeenCalled()
+  })
+
+  it('rejects malformed JSON as a client error', async () => {
+    const { gateway } = build({ user: ADMIN })
+
+    const response = await gateway.handle(
+      request('/records/link', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: '{"link":',
+      }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({ statusCode: 400 })
+  })
+
+  it('survives a broken percent-encoding in the token cookie', async () => {
+    const { gateway } = build()
+
+    const response = await gateway.handle(
+      new Request('http://localhost/records', { headers: { cookie: 'token=%zz' } }),
+    )
+
+    expect(response.status).toBe(200)
+  })
+
   it('passes the viewer id when a cookie is present', async () => {
     const { gateway, records } = build({ user: USER })
 

@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { unwrap } from '@/lib/api'
+import { assertOk } from '@/lib/api'
 import { getNextRatingsPageParam } from '@/pages/ratings/composables/user-ratings-pagination'
 import { useApi } from '@/stores/use-api'
 import { useTitle } from '@/stores/use-title'
@@ -95,7 +96,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function updateRecord(payload: { id: number; data: RecordUpdateDTO }) {
     try {
-      await api.records({ id: payload.id }).patch(payload.data)
+      await assertOk(api.records({ id: payload.id }).patch(payload.data))
       await refetchRatings()
     } catch {
       toast.error('Не удалось обновить запись')
@@ -104,7 +105,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function updatePoster(payload: { id: number; url: string }) {
     try {
-      await api.records({ id: payload.id }).poster.patch({ url: payload.url })
+      await assertOk(api.records({ id: payload.id }).poster.patch({ url: payload.url }))
       await refetchRatings()
     } catch {
       toast.error('Не удалось обновить постер')
@@ -113,7 +114,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   async function deleteRecord(id: number) {
     try {
-      await api.records({ id }).delete()
+      await assertOk(api.records({ id }).delete())
       await refetchRatings()
     } catch {
       toast.error('Не удалось удалить запись')

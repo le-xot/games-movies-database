@@ -158,8 +158,8 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
       },
       {
         query: t.Object({
-          page: t.Optional(t.Number()),
-          limit: t.Optional(t.Number()),
+          page: t.Optional(t.Number({ minimum: 1, maximum: 10_000, multipleOf: 1 })),
+          limit: t.Optional(t.Number({ minimum: 1, maximum: 100, multipleOf: 1 })),
         }),
         response: {
           200: 'GetLikesByIdDTO' as const,

@@ -5,7 +5,7 @@ import { toast } from 'vue-sonner'
 import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AccountPlatform, unwrap } from '@/lib/api'
+import { AccountPlatform, assertOk, unwrap } from '@/lib/api'
 import { ACCOUNT_DIALOG_ON_LOAD_KEY } from '@/stores/use-account-dialog'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
@@ -46,7 +46,7 @@ function connectAccount(platform: 'kick' | 'twitch' | 'telegram') {
 async function unlinkAccount(platform: AccountPlatform) {
   isUnlinking.value = true
   try {
-    await api.auth.accounts({ platform }).delete()
+    await assertOk(api.auth.accounts({ platform }).delete())
     accounts.value = accounts.value.filter((a) => a.platform !== platform)
     toast.success('Аккаунт отвязан', {
       description: `${platform} отвязан от профиля`,

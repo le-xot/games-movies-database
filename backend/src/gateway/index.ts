@@ -76,6 +76,12 @@ export function createGateway(deps: GatewayDeps) {
         return errorBody(404, 'Not Found')
       }
 
+      // Битый JSON — ошибка клиента, а не сервера: Nest отвечал 400.
+      if (code === 'PARSE') {
+        set.status = 400
+        return errorBody(400, 'Malformed request body')
+      }
+
       console.error('[gateway] unhandled error', error)
       set.status = 500
       return errorBody(500, 'Internal server error')
@@ -83,7 +89,7 @@ export function createGateway(deps: GatewayDeps) {
     .use(meRoutes(deps))
     .use(authSessionRoutes(deps))
     .use(oauthRoutes({ ...deps, config: deps.oauthConfig }))
-    .use(weatherRoutes(deps.weather))
+    .use(weatherRoutes(deps))
     .use(statsRoutes(deps))
     .use(queueRoutes(deps))
     .use(likeRoutes(deps))

@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { assertOk } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
@@ -32,7 +33,7 @@ async function deleteAccount() {
 
   isDeleting.value = true
   try {
-    await api.auth.me.delete()
+    await assertOk(api.auth.me.delete())
     await userStore.userLogout()
     window.location.href = '/'
   } catch (error) {

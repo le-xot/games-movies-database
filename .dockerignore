@@ -19,4 +19,4 @@ backend/images
 coverage
 *.log
 README*.md
-AGENTS.md
+**/AGENTS.md

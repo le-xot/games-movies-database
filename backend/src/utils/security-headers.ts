@@ -1,13 +1,3 @@
-import { env } from '@backend/utils/enviroments'
-
-/** Минимум от Express-совместимых объектов: гейтвей их не использует. */
-interface Response {
-  setHeader(name: string, value: string): void
-}
-interface NextFunction {
-  (): void
-}
-
 const CSP = [
   "default-src 'self'",
   // Хеш инлайнового скрипта из frontend/index.html: бренд заставки и preload баннера.
@@ -24,9 +14,8 @@ const CSP = [
 ].join('; ')
 
 /**
- * Заголовки безопасности одним словарём: их ставит и Express-мидлварь старого
- * слоя, и Elysia-гейтвей. CSP отдаётся только в проде — на dev-сервере Vite его
- * ломает HMR.
+ * Заголовки безопасности одним словарём: их ставит `server/http.ts` на входе.
+ * CSP отдаётся только в проде — на dev-сервере Vite его ломает HMR.
  */
 export function buildSecurityHeaders(isProduction: boolean): Record<string, string> {
   const headers: Record<string, string> = {
@@ -42,19 +31,4 @@ export function buildSecurityHeaders(isProduction: boolean): Record<string, stri
   }
 
   return headers
-}
-
-export function securityHeaders(
-  _req: unknown,
-  res: Response,
-  next: NextFunction,
-  isProduction = env.NODE_ENV === 'production',
-): void {
-  const headers = buildSecurityHeaders(isProduction)
-
-  for (const [name, value] of Object.entries(headers)) {
-    res.setHeader(name, value)
-  }
-
-  next()
 }

@@ -12,7 +12,11 @@ const WEATHER = {
 }
 
 async function getWeather(data: typeof WEATHER | null) {
-  const app = createGateway({ weather: { getWeatherData: async () => data } })
+  const app = createGateway({
+    weather: { getWeatherData: async () => data },
+    auth: { resolve: async () => null },
+    rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
+  })
 
   const response = await app.handle(new Request('http://localhost/weather'))
 

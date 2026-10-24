@@ -33,6 +33,8 @@ function collectRefs(node: unknown, found = new Set<string>()): Set<string> {
 async function expectSameOperation(key: string) {
   const gateway = createGateway({
     weather: { getWeatherData: async () => null },
+    auth: { resolve: async () => null },
+    rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
   })
 
   const actual = normalizeContract(await readGatewayDocument(gateway))
@@ -48,5 +50,9 @@ async function expectSameOperation(key: string) {
 describe('Elysia gateway contract', () => {
   it('serves GET /weather exactly like the Nest contract', async () => {
     await expectSameOperation('GET /weather')
+  }, 20_000)
+
+  it('serves GET /auth/me exactly like the Nest contract', async () => {
+    await expectSameOperation('GET /auth/me')
   }, 20_000)
 })

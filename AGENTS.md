@@ -38,9 +38,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Rate limiting        | `backend/src/gateway/rate-limit.ts`                             | Custom Redis limiter; presets in `utils/rate-limits.ts`                                    |
 | Database schema      | `database/src/schema/`                                          | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes                            |
 | Database migrations  | `database/migrations/`                                          | Generated SQL; applied by `migrations` compose service                                     |
-| DB access            | `backend/src/database/drizzle.service.ts`                       | Inject `DrizzleService`, use `.db`                                                         |
+| DB access            | `backend/src/database/drizzle.service.ts`                       | `DrizzleService` создаётся в `server/container.ts`, сервисы получают его в конструктор     |
 | API client           | `frontend/src/lib/api.ts`                                       | Eden Treaty: типы выводятся из `App`, кодогена нет                                         |
-| API client           | `frontend/src/lib/api.ts`                                       | Hand-written `openapi-fetch` client + type re-exports                                      |
 | Environment vars     | `backend/.env.example`                                          | Copy to `backend/.env`                                                                     |
 | Prod secrets         | Doppler (project `games-movies-database`, config `prd`)         | `scripts/render-env.sh` renders `.env` on the server; token in `~/.config/gmd/secrets.env` |
 | Router paths         | `frontend/src/router/router-paths.ts`                           | ROUTER_PATHS constant                                                                      |
@@ -62,10 +61,10 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **Vue events**: kebab-case enforced
 - **Stores**: Pinia 4 stores in `frontend/src/stores/`, plain composables in `frontend/src/composables/`
 - **Icons**: @lucide/vue primary, vue3-simple-icons for brands. No other icon libs
-- **Path alias**: `@/` → `./src/` in both frontend and backend
+- **Path alias**: frontend uses `@/` → `frontend/src/`; backend uses `@backend/*` → `backend/src/*`. `@backend/*` во фронте — **только для типов** (tsconfig path, стирается компилятором); значения берутся из `@gmdb/contract` или из самого фронта
 - **TypeScript**: Backend and database type-check via `bun check -b` (Bun's built-in TS 7 checker, port of typescript-go). `-b` включает shared declaration parse и кэш резолва модулей, но у нас пока no-op — project references в `tsconfig` нет; сам 1.4.4 и так ускорил `bun check`. Frontend uses `vue-tsc` with `typescript` aliased to `typescript-native-bridge` (TS 6 API driving tsgo 7.0.2; ~2x faster typecheck). TNB needs glibc — the Alpine Docker image only runs `build:ci`, never typecheck
 - **vue-tsc pinned to 3.3.11**: 3.3.12+ corrupts template codegen when a component prop value contains `//` (any URL) — see language-tools #6240/#6264. Bump only after the fix lands
-- **API client**: `backend/scripts/export-openapi.ts` собирает контракт из TypeBox-схем гейтвея в `frontend/openapi.json` (через `app.handle()`, без HTTP-сервера и БД), `openapi-typescript` превращает его в `frontend/src/lib/api-types.ts`. Оба файла в `.gitignore`, генерятся на `dev`/`build`/`typecheck`. Клиент — ручной `openapi-fetch` в `frontend/src/lib/api.ts`, доступ через `useApi()`; на ошибке бросается `Response`, поэтому `parseApiError` работает как раньше
+- **API client**: `frontend/src/lib/api.ts` — Eden Treaty (`@elysia/eden`), `treaty<App>`, где `App` — `import type { App } from '@backend/gateway'`. Типы домена переэкспортируются из `@backend/api-types`, значения (enum'ы, WS-события) — из `@gmdb/contract`. Кодогена нет: ни `openapi.json`, ни `api-types.ts` не генерятся. Хелперы `unwrap()` / `assertOk()` достают данные или бросают `Response` с телом ошибки, поэтому `parseApiError` работает как раньше. `useApi()` — обычная функция, возвращающая клиент (не Pinia store)
 - **Database**: Drizzle ORM. Schema lives in `database/src/schema/`, migrations are generated SQL committed under `database/migrations/`. Never edit `database/migrations/` by hand — use `bun db:generate`.
 
 ## ANTI-PATTERNS (THIS PROJECT)
@@ -119,6 +118,11 @@ bun db:baseline                # One-time: mark 0000_init applied on an existing
 
 # Tests
 cd backend && bun test         # Backend unit tests (bun test)
+bun --filter=./backend run test:integration   # Integration tests (RUN_DB_TESTS=1 + Postgres)
+cd backend && bun run openapi:golden          # Re-capture the contract golden
+cd frontend && bun run test    # Frontend unit tests
+cd frontend && bun run test:e2e               # Playwright E2E
+bun run test:scripts           # render-env.sh script tests
 
 # Docker
 docker build -t games-movies-database .
@@ -131,8 +135,9 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Frontend dev не требует бэкенда: типы приходят из Eden (`import type { App }`), для запуска dev-сервера достаточно `bun dev:frontend`
 - Vite proxies `/api` and `/ws` to `localhost:3000` in dev
 - CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`. GHCR packages must stay anonymously pullable (no `docker login` on the server)
+- Contract: `contract/` (`@gmdb/contract`) — enum'ы, карта WS-событий, `parseWsMessage`. Потребляется как сырой TypeScript и Bun, и Vite, поэтому пакет обязан оставаться без зависимостей
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
-- Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import
+- Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import. Contract tests: `gateway-contract.spec.ts` (all 64 operations) and `openapi-contract.spec.ts` против `fixtures/openapi.golden.json` (снят с Nest до переезда; только оракул сравнения — фронт его не читает)
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)
 - Existing Prisma-era DBs must be baselined once (`docker compose run --rm --no-deps migrations bun run baseline`); `_prisma_migrations` is intentionally kept for rollback
 - Dockerfile copies node binary into bun image for frontend build compatibility

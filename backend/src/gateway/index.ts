@@ -12,6 +12,11 @@ import { suggestionRoutes, type SuggestionsService } from '@/gateway/suggestions
 import { twirRoutes, type TwirService } from '@/gateway/twir'
 import { userRoutes, type UsersService } from '@/gateway/users'
 import { weatherRoutes, type WeatherReader } from '@/gateway/weather'
+import {
+  wordleRoutes,
+  type WordleNotificationsPort,
+  type WordleServicePort,
+} from '@/gateway/wordle'
 import type { Authenticator } from '@/gateway/auth'
 import type { RateLimiter } from '@/gateway/rate-limit'
 
@@ -32,6 +37,8 @@ export interface GatewayDeps {
   limits: LimitsService
   twir: TwirService
   twirApiKey: string | undefined
+  wordle: WordleServicePort
+  wordleNotifications: WordleNotificationsPort
   auth: Authenticator
   rateLimit: RateLimiter
 }
@@ -75,6 +82,7 @@ export function createGateway(deps: GatewayDeps) {
     .use(limitRoutes(deps))
     .use(twirRoutes({ twir: deps.twir, rateLimit: deps.rateLimit, apiKey: deps.twirApiKey }))
     .use(healthRoutes(deps))
+    .use(wordleRoutes(deps))
 }
 
 export type Gateway = ReturnType<typeof createGateway>

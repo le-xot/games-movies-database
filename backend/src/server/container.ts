@@ -21,11 +21,20 @@ import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-sta
 import { StatsService } from '@/modules/stats/stats.service'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '@/modules/suggestion/suggestion.service'
+import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
+import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
 import { TwirService } from '@/modules/twir/twir.service'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
 import { UserService } from '@/modules/user/user.service'
 import { WeatherService } from '@/modules/weather/weather.service'
+import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
+import { DrizzleWordleRepository } from '@/modules/wordle/repositories/drizzle-wordle.repository'
+import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
+import { WordleNotificationService } from '@/modules/wordle/wordle-notification.service'
+import { WordlePracticeService } from '@/modules/wordle/wordle-practice.service'
+import { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
+import { WordleService } from '@/modules/wordle/wordle.service'
 import {
   toGatewayAccount,
   toGatewayLike,
@@ -84,10 +93,37 @@ export function createContainer(): Container {
   const limits = new LimitService(new DrizzleLimitRepository(drizzle))
   const twir = new TwirService(users, suggestions)
 
-  const redis = new RedisClient(env.REDIS_URL)
+  const redisClient = new RedisClient(env.REDIS_URL)
+
+  const dictionary = new WordleDictionary(env.WORDLE_ANSWERS_SALT)
+  const wordle = new WordleService(
+    new DrizzleWordleRepository(drizzle),
+    dictionary,
+    new WordleLeaderboardCache(),
+    events,
+  )
+  const wordlePractice = new WordlePracticeService(redisClient, dictionary)
+  const telegramBot = new TelegramBotService({
+    token: env.TELEGRAM_BOT_TOKEN ?? null,
+    webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL ?? null,
+    webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET ?? null,
+  })
+  const wordleNotifications = new WordleNotificationService(
+    telegramBot,
+    new TelegramCommandRegistry(telegramBot),
+    new DrizzleWordleNotificationRepository(drizzle),
+    users,
+    redisClient,
+    {
+      appPublicUrl: env.APP_PUBLIC_URL,
+      morningRaw: env.WORDLE_NOTIFY_MORNING,
+      eveningRaw: env.WORDLE_NOTIFY_EVENING,
+    },
+  )
+
   const rateLimit: RateLimiter = {
     hit: (key, config) =>
-      hitRateLimit(redis, key, config, (error) => {
+      hitRateLimit(redisClient, key, config, (error) => {
         console.warn(`[gateway] Redis недоступен, лимит пропущен: ${String(error)}`)
       }),
   }
@@ -200,6 +236,25 @@ export function createContainer(): Container {
         createSuggestion: (input) => twir.createSuggestionWithTwir(input),
       },
       twirApiKey: env.TWIR_API,
+      wordle: {
+        getState: (userId) => wordle.getState(userId),
+        makeGuess: (userId, word) => wordle.makeGuess(userId, word),
+        getStats: (userId) => wordle.getStats(userId),
+        getLeaderboard: () => wordle.getLeaderboard(),
+        getPracticeState: (userId) => wordlePractice.getState(userId),
+        startPractice: (userId) => wordlePractice.start(userId),
+        makePracticeGuess: (userId, word) => wordlePractice.makeGuess(userId, word),
+      },
+      wordleNotifications: {
+        getStatus: (userId) => wordleNotifications.getStatus(userId),
+        updateFlags: (userId, input) =>
+          wordleNotifications.updateFlags(userId, {
+            ...(input.morningEnabled !== undefined ? { morningEnabled: input.morningEnabled } : {}),
+            ...(input.eveningEnabled !== undefined ? { eveningEnabled: input.eveningEnabled } : {}),
+          }),
+        createLink: (userId) => wordleNotifications.createLink(userId),
+        disconnect: (userId) => wordleNotifications.disconnect(userId),
+      },
       auth: createJwtAuthenticator({
         secret: env.JWT_SECRET,
         users: {
@@ -214,7 +269,7 @@ export function createContainer(): Container {
     },
     async close() {
       await drizzle.pool.end()
-      redis.close()
+      redisClient.close()
     },
   }
 }

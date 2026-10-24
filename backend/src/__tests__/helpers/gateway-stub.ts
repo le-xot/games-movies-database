@@ -89,6 +89,37 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       createSuggestion: async () => ({ title: '', genre: 'GAME' }),
     },
     twirApiKey: undefined,
+    wordle: {
+      getState: async () => {
+        throw new Error('getState не заглушен')
+      },
+      makeGuess: async () => {
+        throw new Error('makeGuess не заглушен')
+      },
+      getStats: async () => {
+        throw new Error('getStats не заглушен')
+      },
+      getLeaderboard: async () => {
+        throw new Error('getLeaderboard не заглушен')
+      },
+      getPracticeState: async () => null,
+      startPractice: async () => {
+        throw new Error('startPractice не заглушен')
+      },
+      makePracticeGuess: async () => {
+        throw new Error('makePracticeGuess не заглушен')
+      },
+    },
+    wordleNotifications: {
+      getStatus: async () => {
+        throw new Error('getStatus не заглушен')
+      },
+      updateFlags: async () => {
+        throw new Error('updateFlags не заглушен')
+      },
+      createLink: async () => ({ url: '' }),
+      disconnect: async () => {},
+    },
     auth: { resolve: async () => null },
     rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
     ...overrides,

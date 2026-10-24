@@ -64,6 +64,17 @@ const MIGRATED_OPERATIONS = [
   'POST /auth/logout',
   'POST /auth/me/avatar',
   'DELETE /auth/me/avatar',
+  'GET /auth/twitch',
+  'GET /auth/twitch/link',
+  'POST /auth/twitch/callback',
+  'POST /auth/twitch/link',
+  'GET /auth/kick',
+  'GET /auth/kick/link',
+  'POST /auth/kick/callback',
+  'POST /auth/kick/link',
+  'GET /auth/telegram',
+  'GET /auth/telegram/link',
+  'GET /auth/telegram/oidc/callback',
 ] as const
 
 type Normalized = ReturnType<typeof normalizeContract>

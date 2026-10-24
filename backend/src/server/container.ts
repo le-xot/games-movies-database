@@ -1,9 +1,12 @@
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { JwtService } from '@nestjs/jwt'
 import { RedisClient } from 'bun'
 import { DrizzleService } from '@/database/drizzle.service'
 import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
+import { AuthService } from '@/modules/auth/auth.service'
 import { AvatarService } from '@/modules/avatar/avatar.service'
 import { ImgService } from '@/modules/img/img.service'
+import { KickService } from '@/modules/kick/kick.service'
 import { LikeService } from '@/modules/like/like.service'
 import { DrizzleLikeRepository } from '@/modules/like/repositories/drizzle-like.repository'
 import { LimitService } from '@/modules/limit/limit.service'
@@ -23,6 +26,7 @@ import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/d
 import { SuggestionService } from '@/modules/suggestion/suggestion.service'
 import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
 import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
+import { TelegramService } from '@/modules/telegram/telegram.service'
 import { TwirService } from '@/modules/twir/twir.service'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
@@ -74,9 +78,10 @@ export function createContainer(): Container {
   const ratingRepository = new DrizzleRatingRepository(drizzle)
   const ratings = new RatingService(ratingRepository, drizzle, events)
 
+  const twitch = new TwitchService()
   const providers = new RecordsProvidersService(
     new DrizzleRecordsProvidersRepository(drizzle),
-    new TwitchService(),
+    twitch,
   )
   const records = new RecordService(
     new DrizzleRecordRepository(drizzle),
@@ -103,6 +108,14 @@ export function createContainer(): Container {
     events,
   )
   const wordlePractice = new WordlePracticeService(redisClient, dictionary)
+  const telegramService = new TelegramService()
+  const kick = new KickService()
+  const authService = new AuthService(
+    new JwtService({ secret: env.JWT_SECRET, signOptions: { expiresIn: '30d' } }),
+    users,
+    twitch,
+    kick,
+  )
   const telegramBot = new TelegramBotService({
     token: env.TELEGRAM_BOT_TOKEN ?? null,
     webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL ?? null,
@@ -236,6 +249,30 @@ export function createContainer(): Container {
         createSuggestion: (input) => twir.createSuggestionWithTwir(input),
       },
       twirApiKey: env.TWIR_API,
+      oauth: {
+        exchangeTwitch: (code) => authService.handleTwitchCallback(code),
+        exchangeKick: (code, verifier) => authService.handleKickCallback(code, verifier),
+        linkTwitch: async (userId, code) => {
+          await authService.linkTwitchAccount(userId, code)
+        },
+        linkKick: async (userId, code, verifier) => {
+          await authService.linkKickAccount(userId, code, verifier)
+        },
+        createTelegramRequest: () => telegramService.createAuthorizationRequest(),
+        exchangeTelegram: (code, verifier) => telegramService.exchangeCode(code, verifier),
+        loginTelegram: (profile) => authService.handleTelegramOidcLogin(profile as never),
+        linkTelegram: async (userId, profile) => {
+          await authService.linkTelegramOidc(userId, profile as never)
+        },
+      },
+      oauthConfig: {
+        twitchClientId: env.TWITCH_CLIENT_ID ?? '',
+        twitchCallbackUrl: env.TWITCH_CALLBACK_URL,
+        kickClientId: env.KICK_CLIENT_ID ?? '',
+        kickCallbackUrl: env.KICK_CALLBACK_URL ?? '',
+        telegramCallbackUrl: env.TELEGRAM_CALLBACK_URL,
+        production: env.NODE_ENV === 'production',
+      },
       authSession: {
         getAccounts: async (userId) =>
           (await users.getLinkedAccounts(userId)).map(toGatewayAccount),

@@ -89,6 +89,36 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       createSuggestion: async () => ({ title: '', genre: 'GAME' }),
     },
     twirApiKey: undefined,
+    oauth: {
+      exchangeTwitch: async () => {
+        throw new Error('exchangeTwitch не заглушен')
+      },
+      exchangeKick: async () => {
+        throw new Error('exchangeKick не заглушен')
+      },
+      linkTwitch: async () => {},
+      linkKick: async () => {},
+      createTelegramRequest: () => ({
+        url: 'https://t.me/auth',
+        state: 'state',
+        codeVerifier: 'verifier',
+      }),
+      exchangeTelegram: async () => {
+        throw new Error('exchangeTelegram не заглушен')
+      },
+      loginTelegram: async () => {
+        throw new Error('loginTelegram не заглушен')
+      },
+      linkTelegram: async () => {},
+    },
+    oauthConfig: {
+      twitchClientId: 'twitch-client',
+      twitchCallbackUrl: 'http://localhost/api/auth/twitch/callback',
+      kickClientId: 'kick-client',
+      kickCallbackUrl: 'http://localhost/api/auth/kick/callback',
+      telegramCallbackUrl: 'http://localhost/auth/callback/telegram',
+      production: false,
+    },
     authSession: {
       getAccounts: async () => [],
       unlinkAccount: async () => {},

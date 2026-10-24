@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia'
+import { oauthRoutes, type OAuthConfig, type OAuthPort } from '@/gateway/auth-oauth'
 import { authSessionRoutes, type AuthSessionPort } from '@/gateway/auth-session'
 import { errorBody, fromDomainError } from '@/gateway/errors'
 import { healthRoutes } from '@/gateway/health'
@@ -39,6 +40,8 @@ export interface GatewayDeps {
   twir: TwirService
   twirApiKey: string | undefined
   authSession: AuthSessionPort
+  oauth: OAuthPort
+  oauthConfig: OAuthConfig
   wordle: WordleServicePort
   wordleNotifications: WordleNotificationsPort
   auth: Authenticator
@@ -74,6 +77,7 @@ export function createGateway(deps: GatewayDeps) {
     })
     .use(meRoutes(deps))
     .use(authSessionRoutes(deps))
+    .use(oauthRoutes({ ...deps, config: deps.oauthConfig }))
     .use(weatherRoutes(deps.weather))
     .use(statsRoutes(deps))
     .use(queueRoutes(deps))

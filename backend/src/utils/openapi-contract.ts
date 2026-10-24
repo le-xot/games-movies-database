@@ -42,10 +42,25 @@ function sortKeys(value: { [key: string]: Json }): { [key: string]: Json } {
  */
 function canonical(schema: any): Json {
   const base = canonicalCore(schema)
-  if (schema?.nullable && typeof base === 'object' && base !== null && !Array.isArray(base)) {
+  const nullable = Boolean(schema?.nullable) || hasNullVariant(schema)
+
+  if (nullable && typeof base === 'object' && base !== null && !Array.isArray(base)) {
     return sortKeys({ ...base, nullable: true })
   }
+
   return base
+}
+
+/**
+ * `t.Nullable(t.Ref('X'))` в TypeBox превращается в
+ * `anyOf: [{ $ref: 'X' }, { type: 'null' }]`, а Swagger пишет
+ * `nullable: true` рядом с `$ref`. Это одна и та же семантика — сводим к одной.
+ */
+function hasNullVariant(schema: any): boolean {
+  const union = schema?.oneOf ?? schema?.anyOf
+  if (!Array.isArray(union)) return false
+
+  return union.some((variant: any) => variant?.type === 'null')
 }
 
 function canonicalCore(schema: any): Json {
@@ -61,12 +76,20 @@ function canonicalCore(schema: any): Json {
 
   const union = schema.oneOf ?? schema.anyOf
   if (Array.isArray(union)) {
-    const variants = union
-      .map((variant: any) => JSON.stringify(canonical(variant)))
-      .sort()
-      .map((variant: string) => JSON.parse(variant) as Json)
+    const variants = union.map((variant: any) => canonical(variant))
+    const withoutNull = variants.filter(
+      (variant) => JSON.stringify(variant) !== JSON.stringify({ type: 'null' }),
+    )
 
-    return { union: variants }
+    // Единственный вариант + null — это nullable-значение, а не union.
+    if (withoutNull.length === 1 && variants.length === 2) return withoutNull[0] as Json
+
+    const sorted = withoutNull
+      .map((variant) => JSON.stringify(variant))
+      .sort()
+      .map((variant) => JSON.parse(variant) as Json)
+
+    return { union: sorted }
   }
 
   if (Array.isArray(schema.enum)) {

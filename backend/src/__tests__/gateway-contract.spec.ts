@@ -1,13 +1,30 @@
 import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { createGateway } from '@/gateway'
+import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
 import { readGatewayDocument } from '@/gateway/openapi'
 import { normalizeContract } from '@/utils/openapi-contract'
 
 const GOLDEN = JSON.parse(
   readFileSync(join(import.meta.dir, 'fixtures', 'openapi.golden.json'), 'utf8'),
 )
+
+/**
+ * Операции, которые уже переехали в гейтвей. Каждая обязана совпадать с
+ * эталоном Nest: форма ответа, коды, параметры и все схемы, на которые она
+ * ссылается (имена схем — это `$ref` в типах фронта).
+ */
+const MIGRATED_OPERATIONS = [
+  'GET /weather',
+  'GET /auth/me',
+  'GET /stats/records',
+  'GET /queue',
+  'POST /likes',
+  'DELETE /likes/{recordId}',
+  'GET /likes/records/{id}',
+  'GET /likes/users/{id}',
+  'GET /likes/count',
+] as const
 
 type Normalized = ReturnType<typeof normalizeContract>
 type Json = Record<string, unknown>
@@ -25,34 +42,20 @@ function collectRefs(node: unknown, found = new Set<string>()): Set<string> {
   return found
 }
 
-/**
- * Сверяет одну операцию Elysia-гейтвея с эталоном Nest: и саму операцию, и все
- * схемы, на которые она ссылается. Так проверяется не только форма ответа, но и
- * имена компонентов — от них зависит `$ref` в сгенерированных типах фронта.
- */
-async function expectSameOperation(key: string) {
-  const gateway = createGateway({
-    weather: { getWeatherData: async () => null },
-    auth: { resolve: async () => null },
-    rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
-  })
-
-  const actual = normalizeContract(await readGatewayDocument(gateway))
+describe('Elysia gateway contract', () => {
   const expected = GOLDEN as Normalized
 
-  expect(actual.paths[key]).toEqual(expected.paths[key])
+  it.each(MIGRATED_OPERATIONS)(
+    '%s matches the Nest contract',
+    async (operation) => {
+      const actual = normalizeContract(await readGatewayDocument(createTestGateway()))
 
-  for (const name of collectRefs(actual.paths[key])) {
-    expect({ [name]: actual.schemas[name] }).toEqual({ [name]: expected.schemas[name] })
-  }
-}
+      expect(actual.paths[operation]).toEqual(expected.paths[operation])
 
-describe('Elysia gateway contract', () => {
-  it('serves GET /weather exactly like the Nest contract', async () => {
-    await expectSameOperation('GET /weather')
-  }, 20_000)
-
-  it('serves GET /auth/me exactly like the Nest contract', async () => {
-    await expectSameOperation('GET /auth/me')
-  }, 20_000)
+      for (const name of collectRefs(actual.paths[operation])) {
+        expect({ [name]: actual.schemas[name] }).toEqual({ [name]: expected.schemas[name] })
+      }
+    },
+    20_000,
+  )
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { createGateway } from '@/gateway'
+import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
 
 const WEATHER = {
   main: { temp: 12.5, feels_like: 10.1, humidity: 60, pressure: 1012 },
@@ -12,10 +12,8 @@ const WEATHER = {
 }
 
 async function getWeather(data: typeof WEATHER | null) {
-  const app = createGateway({
+  const app = createTestGateway({
     weather: { getWeatherData: async () => data },
-    auth: { resolve: async () => null },
-    rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
   })
 
   const response = await app.handle(new Request('http://localhost/weather'))

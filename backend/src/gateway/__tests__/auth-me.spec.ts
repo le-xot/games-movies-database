@@ -1,5 +1,5 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { createGateway } from '@/gateway'
+import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
 import type { Authenticator, GatewayUser } from '@/gateway/auth'
 import type { RateLimiter } from '@/gateway/rate-limit'
 
@@ -25,11 +25,7 @@ function gatewayWith({ user, allowed = true }: { user: GatewayUser | null; allow
   const auth = authenticator(user)
   const rateLimit = limiter(allowed)
 
-  const gateway = createGateway({
-    weather: { getWeatherData: async () => null },
-    auth,
-    rateLimit,
-  })
+  const gateway = createTestGateway({ auth, rateLimit })
 
   return { gateway, auth, rateLimit }
 }

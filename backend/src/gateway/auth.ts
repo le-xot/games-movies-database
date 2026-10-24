@@ -59,3 +59,13 @@ export function requireUser(user: GatewayUser | null): GatewayUser {
 
   return user
 }
+
+/** Повторяет RolesGuard: чужую роль отбиваем 403, как это делал Nest. */
+export function requireRole(
+  user: GatewayUser,
+  allowed: readonly GatewayUser['role'][],
+): GatewayUser {
+  if (!allowed.includes(user.role)) throw new ApiError(403, 'Forbidden')
+
+  return user
+}

@@ -1,19 +1,15 @@
 import { describe, expect, it } from 'bun:test'
-import { createGateway } from '@/gateway'
+import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
 import { createHttpServer } from '@/server/http'
 
 const ALLOWED_ORIGIN = 'https://le-xot.dev'
 const CORS_ORIGINS = [ALLOWED_ORIGIN, 'http://localhost:5173']
 
 function server() {
-  return createHttpServer(
-    createGateway({
-      weather: { getWeatherData: async () => null },
-      auth: { resolve: async () => null },
-      rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
-    }),
-    { corsOrigins: CORS_ORIGINS, production: true },
-  )
+  return createHttpServer(createTestGateway(), {
+    corsOrigins: CORS_ORIGINS,
+    production: true,
+  })
 }
 
 async function get(path: string, headers: Record<string, string> = {}) {
@@ -45,14 +41,10 @@ describe('HTTP layer', () => {
   })
 
   it('omits CSP outside production', async () => {
-    const app = createHttpServer(
-      createGateway({
-        weather: { getWeatherData: async () => null },
-        auth: { resolve: async () => null },
-        rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
-      }),
-      { corsOrigins: CORS_ORIGINS, production: false },
-    )
+    const app = createHttpServer(createTestGateway(), {
+      corsOrigins: CORS_ORIGINS,
+      production: false,
+    })
 
     const response = await app.handle(new Request('http://localhost/api/auth/me'))
 

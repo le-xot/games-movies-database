@@ -3,10 +3,17 @@ import { RedisClient } from 'bun'
 import { DrizzleService } from '@/database/drizzle.service'
 import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
 import { AvatarService } from '@/modules/avatar/avatar.service'
+import { LikeService } from '@/modules/like/like.service'
+import { DrizzleLikeRepository } from '@/modules/like/repositories/drizzle-like.repository'
+import { QueueService } from '@/modules/queue/queue.service'
+import { DrizzleQueueRepository } from '@/modules/queue/repositories/drizzle-queue.repository'
 import { S3Service } from '@/modules/s3/s3.service'
+import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
+import { StatsService } from '@/modules/stats/stats.service'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
 import { UserService } from '@/modules/user/user.service'
 import { WeatherService } from '@/modules/weather/weather.service'
+import { toGatewayLike, toGatewayUser } from '@/server/adapters'
 import { env } from '@/utils/enviroments'
 import { hitRateLimit } from '@/utils/rate-limit'
 import type { GatewayDeps } from '@/gateway'
@@ -33,6 +40,9 @@ export function createContainer(): Container {
     events,
     new AvatarService(new S3Service()),
   )
+  const likes = new LikeService(new DrizzleLikeRepository(drizzle), events)
+  const stats = new StatsService(new DrizzleStatsRepository(drizzle))
+  const queue = new QueueService(new DrizzleQueueRepository(drizzle))
   const weather = new WeatherService()
 
   const redis = new RedisClient(env.REDIS_URL)
@@ -46,16 +56,23 @@ export function createContainer(): Container {
   return {
     deps: {
       weather,
+      stats,
+      queue,
+      likes: {
+        createLike: async (userId, recordId) =>
+          toGatewayLike(await likes.createLike(userId, recordId)),
+        deleteLike: (userId, recordId) => likes.deleteLike(userId, recordId),
+        getLikesByRecordId: (recordId) => likes.getLikesByRecordId(recordId),
+        getLikesByUserId: (userId) => likes.getLikesByUserId(userId),
+        getLikes: (page, limit) => likes.getLikes(page, limit),
+      },
       auth: createJwtAuthenticator({
         secret: env.JWT_SECRET,
         users: {
-          // Домен отдаёт Date, HTTP-слой — ISO-строку: в JSON `Date` и так
-          // сериализуется в строку, но тип должен это отражать.
           getById: async (id) => {
             const user = await users.getUserById(id)
-            if (!user) return null
 
-            return { ...user, createdAt: user.createdAt.toISOString() }
+            return user ? toGatewayUser(user) : null
           },
         },
       }),

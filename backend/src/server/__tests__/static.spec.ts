@@ -2,21 +2,18 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { createGateway } from '@/gateway'
+import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
 import { createHttpServer } from '@/server/http'
 
 /** Как в проде: каталог собранного фронта называется dist — от него зависит логика кеша. */
 let root: string
 
 function build() {
-  return createHttpServer(
-    createGateway({
-      weather: { getWeatherData: async () => null },
-      auth: { resolve: async () => null },
-      rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
-    }),
-    { corsOrigins: [], production: false, staticRoot: root },
-  )
+  return createHttpServer(createTestGateway(), {
+    corsOrigins: [],
+    production: false,
+    staticRoot: root,
+  })
 }
 
 async function get(path: string) {

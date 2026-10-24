@@ -1,6 +1,9 @@
 import { Elysia } from 'elysia'
 import { ApiError, errorBody } from '@/gateway/errors'
+import { likeRoutes, type LikesService } from '@/gateway/likes'
 import { meRoutes } from '@/gateway/me'
+import { queueRoutes, type QueueReader } from '@/gateway/queue'
+import { statsRoutes, type StatsReader } from '@/gateway/stats'
 import { weatherRoutes, type WeatherReader } from '@/gateway/weather'
 import type { Authenticator } from '@/gateway/auth'
 import type { RateLimiter } from '@/gateway/rate-limit'
@@ -12,6 +15,9 @@ import type { RateLimiter } from '@/gateway/rate-limit'
  */
 export interface GatewayDeps {
   weather: WeatherReader
+  stats: StatsReader
+  queue: QueueReader
+  likes: LikesService
   auth: Authenticator
   rateLimit: RateLimiter
 }
@@ -43,6 +49,9 @@ export function createGateway(deps: GatewayDeps) {
     })
     .use(meRoutes(deps))
     .use(weatherRoutes(deps.weather))
+    .use(statsRoutes(deps))
+    .use(queueRoutes(deps))
+    .use(likeRoutes(deps))
 }
 
 export type Gateway = ReturnType<typeof createGateway>

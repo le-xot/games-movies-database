@@ -11,10 +11,12 @@
     "test:integration:reset": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts --reset && RUN_DB_TESTS=1 bun test src/__integration__",
     "start": "bun run ./src/main.ts",
     "dev": "bun run --watch --no-clear-screen ./src/main.ts",
-    "export:openapi": "bun run scripts/export-openapi.ts"
+    "export:openapi": "bun run scripts/export-openapi.ts",
+    "openapi:golden": "bun run scripts/generate-openapi-golden.ts"
   },
   "dependencies": {
     "@gmd/database": "workspace:*",
+    "@gmdb/contract": "workspace:*",
     "@nestjs/common": "12.2.0",
     "@nestjs/core": "12.2.0",
     "@nestjs/event-emitter": "12.0.1",

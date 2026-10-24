@@ -1,3 +1,4 @@
+import { WsEvents, type ClientToServerEvents, type ServerToClientEvents } from '@gmdb/contract'
 import { useQueryCache } from '@pinia/colada'
 import { onMounted, onUnmounted, ref } from 'vue'
 import {
@@ -15,11 +16,6 @@ import {
 } from '@/composables/websocket-resync'
 import { RecordGenre } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
-import {
-  WsEvents,
-  type ClientToServerEvents,
-  type ServerToClientEvents,
-} from '@/types/socket-events'
 import type { Socket } from 'socket.io-client'
 
 export function useWebSocket() {

@@ -62,9 +62,6 @@ jobs:
       - name: Script tests
         run: bun run test:scripts
 
-      - name: Socket contract
-        run: bun run check:socket
-
       - name: Format check
         run: bun format:check
 

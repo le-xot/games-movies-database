@@ -1,9 +1,14 @@
-import type { RecordGenre, RecordGrade } from '@/lib/api'
+import type { RecordGenre, RecordGrade } from './enums'
 
 /**
- * Зеркало backend-контракта `backend/src/modules/websocket/websocket.events.ts`.
- * При изменении событий на бэкенде — обновить здесь и в `socket-events.check.ts`.
+ * Контракт WebSocket-событий: единственный источник и для бэкенда, и для фронта.
+ *
+ * Раньше эти типы были продублированы в
+ * `backend/src/modules/websocket/websocket.events.ts` и
+ * `frontend/src/types/socket-events.ts`, а расхождение ловил отдельный скрипт
+ * `scripts/check-socket-contract.ts`. Теперь расходиться нечему.
  */
+
 export const WsEvents = {
   UPDATE_RECORDS: 'update-records',
   UPDATE_SUGGESTIONS: 'update-suggestions',
@@ -15,7 +20,7 @@ export const WsEvents = {
 } as const
 
 export interface UpdateRecordsPayload {
-  genre?: RecordGenre
+  genre?: RecordGenre | undefined
   id: number
   action: 'created' | 'updated' | 'deleted'
 }
@@ -54,6 +59,7 @@ export interface UpdateWordlePayload {
   action: 'finished'
 }
 
+/** События, которые сервер отправляет клиенту. */
 export type ServerToClientEvents = {
   [WsEvents.UPDATE_RECORDS]: (payload: UpdateRecordsPayload) => void
   [WsEvents.UPDATE_SUGGESTIONS]: (payload: UpdateSuggestionsPayload) => void
@@ -66,3 +72,14 @@ export type ServerToClientEvents = {
 
 /** Клиент ничего на сервер не отправляет. */
 export type ClientToServerEvents = Record<never, never>
+
+/** Сопоставление имени события и его payload — для проверки `emit`. */
+export interface WsEventMap {
+  [WsEvents.UPDATE_RECORDS]: UpdateRecordsPayload
+  [WsEvents.UPDATE_SUGGESTIONS]: UpdateSuggestionsPayload
+  [WsEvents.UPDATE_QUEUE]: UpdateQueuePayload
+  [WsEvents.UPDATE_LIKES]: UpdateLikesPayload
+  [WsEvents.UPDATE_RATINGS]: UpdateRatingsPayload
+  [WsEvents.UPDATE_USERS]: UpdateUsersPayload
+  [WsEvents.UPDATE_WORDLE]: UpdateWordlePayload
+}

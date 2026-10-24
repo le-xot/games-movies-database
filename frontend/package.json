@@ -15,6 +15,7 @@
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
+    "@gmdb/contract": "workspace:*",
     "@lucide/vue": "1.61.0",
     "@pinia/colada": "1.4.8",
     "@tailwindcss/vite": "4.3.3",

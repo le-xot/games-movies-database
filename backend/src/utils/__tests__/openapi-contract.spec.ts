@@ -1,24 +1,45 @@
 import { describe, expect, it } from 'bun:test'
 import { normalizeContract } from '@/utils/openapi-contract'
 
-function normalizeSchema(schema: unknown) {
+function normalizeOperation(response: unknown, contentType = 'application/json') {
   const document = {
     paths: {
-      '/x': { get: { responses: { 200: { content: { 'application/json': { schema } } } } } },
+      '/x': { get: { responses: { 200: { content: { [contentType]: { schema: response } } } } } },
     },
     components: { schemas: {} },
   }
 
   const operation = normalizeContract(document).paths['GET /x'] as
-    | { responses: unknown }
+    | { responses: Record<string, Record<string, unknown>> }
     | undefined
 
   return operation?.responses
 }
 
+function normalizeSchema(schema: unknown) {
+  return normalizeOperation(schema)?.['200']?.['application/json']
+}
+
 describe('normalizeContract', () => {
+  it('keeps the media type of the response body', () => {
+    expect(
+      normalizeOperation(
+        { type: 'object', properties: { file: { type: 'string' } } },
+        'multipart/form-data',
+      ),
+    ).toEqual({
+      '200': {
+        'multipart/form-data': {
+          type: 'object',
+          properties: { file: { type: 'string' } },
+          required: [],
+        },
+      },
+    })
+  })
+
   it('unwraps the Swagger nullable idiom (allOf of one)', () => {
-    const responses = normalizeSchema({
+    const schema = normalizeSchema({
       type: 'object',
       properties: {
         genre: { nullable: true, allOf: [{ $ref: '#/components/schemas/RecordGenre' }] },
@@ -26,17 +47,15 @@ describe('normalizeContract', () => {
       required: ['genre'],
     })
 
-    expect(responses).toEqual({
-      '200': {
-        type: 'object',
-        properties: { genre: { $ref: 'RecordGenre', nullable: true } },
-        required: ['genre'],
-      },
+    expect(schema).toEqual({
+      type: 'object',
+      properties: { genre: { $ref: 'RecordGenre', nullable: true } },
+      required: ['genre'],
     })
   })
 
   it('unwraps the TypeBox nullable idiom (anyOf with null)', () => {
-    const responses = normalizeSchema({
+    const schema = normalizeSchema({
       type: 'object',
       properties: {
         genre: {
@@ -47,17 +66,15 @@ describe('normalizeContract', () => {
       required: ['genre'],
     })
 
-    expect(responses).toEqual({
-      '200': {
-        type: 'object',
-        properties: { genre: { $ref: 'RecordGenre', nullable: true } },
-        required: ['genre'],
-      },
+    expect(schema).toEqual({
+      type: 'object',
+      properties: { genre: { $ref: 'RecordGenre', nullable: true } },
+      required: ['genre'],
     })
   })
 
   it('unwraps nullable written as a type array', () => {
-    const responses = normalizeSchema({
+    const schema = normalizeSchema({
       type: 'object',
       properties: {
         episode: { nullable: true, type: ['string', 'null'] },
@@ -70,20 +87,18 @@ describe('normalizeContract', () => {
       required: ['episode'],
     })
 
-    expect(responses).toEqual({
-      '200': {
-        type: 'object',
-        properties: {
-          episode: { type: 'string', nullable: true },
-          likes: { type: 'array', items: { $ref: 'Like' }, nullable: true },
-        },
-        required: ['episode'],
+    expect(schema).toEqual({
+      type: 'object',
+      properties: {
+        episode: { type: 'string', nullable: true },
+        likes: { type: 'array', items: { $ref: 'Like' }, nullable: true },
       },
+      required: ['episode'],
     })
   })
 
   it('treats a catch-all patternProperties as additionalProperties', () => {
-    const responses = normalizeSchema({
+    const schema = normalizeSchema({
       type: 'object',
       properties: {
         counts: { type: 'object', patternProperties: { '^(.*)$': { type: 'number' } } },
@@ -91,19 +106,23 @@ describe('normalizeContract', () => {
       required: ['counts'],
     })
 
-    expect(responses).toEqual({
-      '200': {
-        type: 'object',
-        properties: {
-          counts: {
-            type: 'object',
-            properties: {},
-            required: [],
-            additionalProperties: { type: 'number' },
-          },
+    expect(schema).toEqual({
+      type: 'object',
+      properties: {
+        counts: {
+          type: 'object',
+          properties: {},
+          required: [],
+          additionalProperties: { type: 'number' },
         },
-        required: ['counts'],
       },
+      required: ['counts'],
+    })
+  })
+
+  it('treats a single const as a one-value enum', () => {
+    expect(normalizeSchema({ type: 'string', const: 'SUGGESTION' })).toEqual({
+      enum: ['SUGGESTION'],
     })
   })
 
@@ -119,9 +138,8 @@ describe('normalizeContract', () => {
   })
 
   it('drops descriptions and examples', () => {
-    const withNoise = normalizeSchema({ type: 'string', description: 'hi', example: 'x' })
-    const without = normalizeSchema({ type: 'string' })
-
-    expect(withNoise).toEqual(without)
+    expect(normalizeSchema({ type: 'string', description: 'hi', example: 'x' })).toEqual(
+      normalizeSchema({ type: 'string' }),
+    )
   })
 })

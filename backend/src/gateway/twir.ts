@@ -3,7 +3,7 @@ import { ApiError, apiErrorModels, standardErrors } from '@/gateway/errors'
 import { recordEnumModels } from '@/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@/gateway/rate-limit'
 import { suggestionModels, type SuggestionResponse } from '@/gateway/suggestions'
-import { isApiKeyValid } from '@/modules/auth/auth.apikey.guard'
+import { isApiKeyValid } from '@/utils/api-key'
 import { RATE_LIMITS } from '@/utils/rate-limits'
 
 export const twirModels = {

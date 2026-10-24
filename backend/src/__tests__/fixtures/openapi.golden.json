@@ -14,28 +14,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "SuccessResponseDTO"
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -44,28 +60,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "SuccessResponseDTO"
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -74,28 +106,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "UserEntity"
+          "application/json": {
+            "$ref": "UserEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -114,25 +162,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -151,25 +213,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -188,25 +264,39 @@
       "responses": {
         "204": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -225,25 +315,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -262,25 +366,39 @@
       "responses": {
         "204": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -289,28 +407,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordleNotificationsDeleteDTO"
+          "application/json": {
+            "$ref": "WordleNotificationsDeleteDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -319,31 +453,47 @@
       "body": null,
       "responses": {
         "200": {
-          "type": "array",
-          "items": {
-            "$ref": "UserAccountEntity"
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "UserAccountEntity"
+            }
           }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -353,25 +503,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -381,25 +545,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -408,28 +586,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "UserEntity"
+          "application/json": {
+            "$ref": "UserEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -439,25 +633,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -467,25 +675,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -520,25 +742,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -548,25 +784,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -576,25 +826,39 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -613,19 +877,29 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -634,22 +908,34 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "HealthResponseDTO"
+          "application/json": {
+            "$ref": "HealthResponseDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -676,19 +962,29 @@
       "responses": {
         "200": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -714,28 +1010,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetLikesByIdDTO"
+          "application/json": {
+            "$ref": "GetLikesByIdDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -753,28 +1065,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetLikesByIdDTO"
+          "application/json": {
+            "$ref": "GetLikesByIdDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -792,28 +1120,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetLikesByIdDTO"
+          "application/json": {
+            "$ref": "GetLikesByIdDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -822,22 +1166,34 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "QueueDto"
+          "application/json": {
+            "$ref": "QueueDto"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -846,28 +1202,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetFriendsEntity"
+          "application/json": {
+            "$ref": "GetFriendsEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -904,28 +1276,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetUserRatingsEntity"
+          "application/json": {
+            "$ref": "GetUserRatingsEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -970,28 +1358,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetUserRatingsEntity"
+          "application/json": {
+            "$ref": "GetUserRatingsEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1079,28 +1483,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "GetAllRecordsDTO"
+          "application/json": {
+            "$ref": "GetAllRecordsDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1118,28 +1538,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "RecordEntity"
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1148,22 +1584,34 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "RecordsStatsDTO"
+          "application/json": {
+            "$ref": "RecordsStatsDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1172,28 +1620,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "SteamGamesResponseDTO"
+          "application/json": {
+            "$ref": "SteamGamesResponseDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1202,31 +1666,47 @@
       "body": null,
       "responses": {
         "200": {
-          "type": "array",
-          "items": {
-            "$ref": "RecordEntity"
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "RecordEntity"
+            }
           }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1244,28 +1724,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "UserEntity"
+          "application/json": {
+            "$ref": "UserEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1283,31 +1779,47 @@
       "body": null,
       "responses": {
         "200": {
-          "type": "array",
-          "items": {
-            "$ref": "UserAccountEntity"
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "UserAccountEntity"
+            }
           }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1316,31 +1828,47 @@
       "body": null,
       "responses": {
         "200": {
-          "type": "array",
-          "items": {
-            "$ref": "UserEntity"
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "UserEntity"
+            }
           }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1349,25 +1877,39 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WeatherDTO"
+          "application/json": {
+            "$ref": "WeatherDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "503": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1376,22 +1918,34 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordleLeaderboardDTO"
+          "application/json": {
+            "$ref": "WordleLeaderboardDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1400,28 +1954,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordleNotificationsStatusDTO"
+          "application/json": {
+            "$ref": "WordleNotificationsStatusDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1430,29 +2000,45 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordlePracticeStateDTO",
-          "nullable": true
+          "application/json": {
+            "$ref": "WordlePracticeStateDTO",
+            "nullable": true
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1461,28 +2047,44 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordleStateDTO"
+          "application/json": {
+            "$ref": "WordleStateDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1491,60 +2093,94 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordleStatsDTO"
+          "application/json": {
+            "$ref": "WordleStatsDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "PATCH /auth/me": {
       "parameters": [],
       "body": {
-        "$ref": "UpdateNicknameDTO"
+        "application/json": {
+          "$ref": "UpdateNicknameDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "UserEntity"
+          "application/json": {
+            "$ref": "UserEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1560,32 +2196,50 @@
         }
       ],
       "body": {
-        "$ref": "RecordUpdateDTO"
+        "application/json": {
+          "$ref": "RecordUpdateDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "RecordEntity"
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1601,124 +2255,192 @@
         }
       ],
       "body": {
-        "$ref": "RecordUpdatePosterDTO"
+        "application/json": {
+          "$ref": "RecordUpdatePosterDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "RecordEntity"
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "PATCH /wordle/notifications": {
       "parameters": [],
       "body": {
-        "$ref": "WordleNotificationsUpdateDTO"
+        "application/json": {
+          "$ref": "WordleNotificationsUpdateDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "WordleNotificationsStatusDTO"
+          "application/json": {
+            "$ref": "WordleNotificationsStatusDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /auth/kick/callback": {
       "parameters": [],
       "body": {
-        "$ref": "CallbackDto"
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
       },
       "responses": {
         "201": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /auth/kick/link": {
       "parameters": [],
       "body": {
-        "$ref": "CallbackDto"
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
       },
       "responses": {
         "201": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -1728,307 +2450,487 @@
       "responses": {
         "201": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /auth/me/avatar": {
       "parameters": [],
-      "body": null,
+      "body": {
+        "multipart/form-data": {
+          "properties": {
+            "file": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
       "responses": {
         "200": {
-          "$ref": "UserEntity"
+          "application/json": {
+            "$ref": "UserEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /auth/twitch/callback": {
       "parameters": [],
       "body": {
-        "$ref": "CallbackDto"
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
       },
       "responses": {
         "201": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /auth/twitch/link": {
       "parameters": [],
       "body": {
-        "$ref": "CallbackDto"
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
       },
       "responses": {
         "201": null,
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /likes": {
       "parameters": [],
       "body": {
-        "$ref": "LikeCreateDTO"
+        "application/json": {
+          "$ref": "LikeCreateDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "LikeEntity"
+          "application/json": {
+            "$ref": "LikeEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /limits": {
       "parameters": [],
       "body": {
-        "$ref": "ChangeLimitDTO"
+        "application/json": {
+          "$ref": "ChangeLimitDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "LimitEntity"
+          "application/json": {
+            "$ref": "LimitEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /records/link": {
       "parameters": [],
       "body": {
-        "$ref": "RecordCreateFromLinkDTO"
+        "application/json": {
+          "$ref": "RecordCreateFromLinkDTO"
+        }
       },
       "responses": {
         "201": {
-          "$ref": "RecordEntity"
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /steam/import": {
       "parameters": [],
       "body": {
-        "$ref": "SteamImportDTO"
+        "application/json": {
+          "$ref": "SteamImportDTO"
+        }
       },
       "responses": {
         "201": {
-          "$ref": "SteamImportResultDTO"
+          "application/json": {
+            "$ref": "SteamImportResultDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /suggestions": {
       "parameters": [],
       "body": {
-        "$ref": "UserSuggestionDTO"
+        "application/json": {
+          "$ref": "UserSuggestionDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "UserSuggestionResponseDTO"
+          "application/json": {
+            "$ref": "UserSuggestionResponseDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /twir/suggestion": {
       "parameters": [],
       "body": {
-        "$ref": "SuggestionCreateByTwirDTO"
+        "application/json": {
+          "$ref": "SuggestionCreateByTwirDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "UserSuggestionResponseDTO"
+          "application/json": {
+            "$ref": "UserSuggestionResponseDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -2044,64 +2946,100 @@
         }
       ],
       "body": {
-        "$ref": "MergeUsersDto"
+        "application/json": {
+          "$ref": "MergeUsersDto"
+        }
       },
       "responses": {
         "201": {
-          "$ref": "MergeUsersResultEntity"
+          "application/json": {
+            "$ref": "MergeUsersResultEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /wordle/guess": {
       "parameters": [],
       "body": {
-        "$ref": "WordleGuessDTO"
+        "application/json": {
+          "$ref": "WordleGuessDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "WordleStateDTO"
+          "application/json": {
+            "$ref": "WordleStateDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -2110,28 +3048,44 @@
       "body": null,
       "responses": {
         "201": {
-          "$ref": "WordleNotificationsLinkDTO"
+          "application/json": {
+            "$ref": "WordleNotificationsLinkDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -2140,60 +3094,94 @@
       "body": null,
       "responses": {
         "200": {
-          "$ref": "WordlePracticeStateDTO"
+          "application/json": {
+            "$ref": "WordlePracticeStateDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
     "POST /wordle/practice/guess": {
       "parameters": [],
       "body": {
-        "$ref": "WordleGuessDTO"
+        "application/json": {
+          "$ref": "WordleGuessDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "WordlePracticeStateDTO"
+          "application/json": {
+            "$ref": "WordlePracticeStateDTO"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     },
@@ -2209,32 +3197,50 @@
         }
       ],
       "body": {
-        "$ref": "RatingUpsertDTO"
+        "application/json": {
+          "$ref": "RatingUpsertDTO"
+        }
       },
       "responses": {
         "200": {
-          "$ref": "RatingEntity"
+          "application/json": {
+            "$ref": "RatingEntity"
+          }
         },
         "400": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "401": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "403": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "404": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "409": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "429": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         },
         "500": {
-          "$ref": "ApiErrorDto"
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
         }
       }
     }

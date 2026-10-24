@@ -1,23 +1,4 @@
-import { NestFactory } from '@nestjs/core'
-import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from '@nestjs/swagger'
-import { AppModule } from '@/app.module'
-
 const HTTP_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete', 'options', 'head'])
-
-/**
- * Собирает OpenAPI без HTTP-сервера и без подключения к БД: Nest вызывает
- * onModuleInit только на `app.init()`, поэтому достаточно создать приложение.
- * Тем же способом контракт достаёт `scripts/export-openapi.ts`.
- */
-export async function buildContract(): Promise<OpenAPIObject> {
-  const app = await NestFactory.create(AppModule, { logger: false })
-
-  try {
-    return SwaggerModule.createDocument(app, new DocumentBuilder().build())
-  } finally {
-    await app.close()
-  }
-}
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json }
 
@@ -118,6 +99,11 @@ function canonicalCore(schema: any): Json {
     return { union: sorted }
   }
 
+  // TypeBox сворачивает union из одного литерала в `const` — это тоже enum.
+  if (schema.const !== undefined) {
+    return { enum: [schema.const as Json] }
+  }
+
   if (Array.isArray(schema.enum)) {
     return { enum: schema.enum.map((value: unknown) => value as Json) }
   }
@@ -163,6 +149,25 @@ export interface NormalizedContract {
 }
 
 /**
+ * Тело запроса/ответа по типам содержимого. Раньше смотрели только на
+ * `application/json` и из-за этого не замечали `multipart/form-data` —
+ * загрузка аватара разъезжалась в сгенерированных типах фронта.
+ */
+function canonicalContent(content: unknown): Json {
+  if (!content || typeof content !== 'object') return null
+
+  // Медиа-тип всегда содержит слэш. Elysia кладёт в `content` ещё и служебные
+  // `{ type: 'void' }` — это отсутствие тела, а не тип содержимого.
+  const entries = Object.entries(content as Record<string, any>)
+    .filter(([mediaType]) => mediaType.includes('/'))
+    .map(([mediaType, value]) => [mediaType, canonical(value?.schema)])
+
+  if (entries.length === 0) return null
+
+  return sortKeys(Object.fromEntries(entries))
+}
+
+/**
  * Каноническая форма всего контракта: `METHOD path` → параметры, тело и схемы
  * ответов по кодам. Этого достаточно, чтобы `api-types.ts` не поехал.
  */
@@ -182,20 +187,16 @@ export function normalizeContract(document: OpenApiDocument): NormalizedContract
         }))
         .sort((a: any, b: any) => `${a.in}:${a.name}`.localeCompare(`${b.in}:${b.name}`))
 
-      const requestBody = operation.requestBody?.content?.['application/json']?.schema
-
       const responses = Object.fromEntries(
         Object.entries(operation.responses ?? {}).map(([code, response]: [string, any]) => [
           code,
-          response.content?.['application/json']?.schema
-            ? canonical(response.content['application/json'].schema)
-            : null,
+          canonicalContent(response.content),
         ]),
       )
 
       operations[`${method.toUpperCase()} ${path}`] = {
         parameters,
-        body: requestBody ? canonical(requestBody) : null,
+        body: canonicalContent(operation.requestBody?.content),
         responses: sortKeys(responses),
       }
     }

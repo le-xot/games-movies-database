@@ -174,6 +174,8 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
         return await authSession.uploadAvatar(user.id, Buffer.from(await file.arrayBuffer()))
       },
       {
+        // Файл необязателен в схеме (как было в Nest), но без него — 400.
+        body: t.Object({ file: t.Optional(t.File()) }),
         response: {
           200: 'UserEntity' as const,
           ...standardErrors(),

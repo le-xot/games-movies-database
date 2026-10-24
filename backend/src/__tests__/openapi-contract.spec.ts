@@ -1,20 +1,24 @@
 import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { buildContract, normalizeContract } from '@/utils/openapi-contract'
+import { createTestGateway } from '@/__tests__/helpers/gateway-stub'
+import { readGatewayDocument } from '@/gateway/openapi'
+import { normalizeContract } from '@/utils/openapi-contract'
 
 const FIXTURE = join(import.meta.dir, 'fixtures', 'openapi.golden.json')
 
 /**
- * Golden-снапшот контракта. Пока в проекте есть `api-types.ts`, он генерится
- * из этого контракта — значит любое расхождение здесь означает, что фронт
- * поедет. Во время переезда на Elysia этот тест — главный oracle.
+ * Контракт целиком: все операции и все схемы разом.
+ *
+ * Фикстура снята с Nest перед переездом и с тех пор не менялась — она и есть
+ * «тот самый API». Пока `api-types.ts` генерится из контракта, любое расхождение
+ * здесь означает, что фронт поедет.
  *
  * Обновлять осознанно: `bun run openapi:golden` в backend.
  */
 describe('OpenAPI contract', () => {
   it('matches the golden snapshot', async () => {
-    const document = await buildContract()
+    const document = await readGatewayDocument(createTestGateway())
 
     expect(normalizeContract(document)).toEqual(JSON.parse(readFileSync(FIXTURE, 'utf8')))
   }, 30_000)

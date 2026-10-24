@@ -236,6 +236,16 @@ export function createContainer(): Container {
         createSuggestion: (input) => twir.createSuggestionWithTwir(input),
       },
       twirApiKey: env.TWIR_API,
+      authSession: {
+        getAccounts: async (userId) =>
+          (await users.getLinkedAccounts(userId)).map(toGatewayAccount),
+        unlinkAccount: (userId, platform) => users.unlinkPlatformAccount(userId, platform),
+        updateLogin: async (userId, login) => toGatewayUser(await users.updateLogin(userId, login)),
+        deleteUser: (userId) => users.deleteUserById(userId),
+        uploadAvatar: async (userId, buffer) =>
+          toGatewayUser(await users.uploadAvatar(userId, buffer)),
+        deleteAvatar: async (userId) => toGatewayUser(await users.deleteAvatar(userId)),
+      },
       wordle: {
         getState: (userId) => wordle.getState(userId),
         makeGuess: (userId, word) => wordle.makeGuess(userId, word),

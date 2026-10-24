@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia'
+import { authSessionRoutes, type AuthSessionPort } from '@/gateway/auth-session'
 import { errorBody, fromDomainError } from '@/gateway/errors'
 import { healthRoutes } from '@/gateway/health'
 import { likeRoutes, type LikesService } from '@/gateway/likes'
@@ -37,6 +38,7 @@ export interface GatewayDeps {
   limits: LimitsService
   twir: TwirService
   twirApiKey: string | undefined
+  authSession: AuthSessionPort
   wordle: WordleServicePort
   wordleNotifications: WordleNotificationsPort
   auth: Authenticator
@@ -71,6 +73,7 @@ export function createGateway(deps: GatewayDeps) {
       return errorBody(500, 'Internal server error')
     })
     .use(meRoutes(deps))
+    .use(authSessionRoutes(deps))
     .use(weatherRoutes(deps.weather))
     .use(statsRoutes(deps))
     .use(queueRoutes(deps))

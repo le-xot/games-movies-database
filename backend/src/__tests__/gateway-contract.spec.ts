@@ -57,6 +57,13 @@ const MIGRATED_OPERATIONS = [
   'PATCH /wordle/notifications',
   'POST /wordle/notifications/link',
   'DELETE /wordle/notifications',
+  'GET /auth/accounts',
+  'DELETE /auth/accounts/{platform}',
+  'PATCH /auth/me',
+  'DELETE /auth/me',
+  'POST /auth/logout',
+  'POST /auth/me/avatar',
+  'DELETE /auth/me/avatar',
 ] as const
 
 type Normalized = ReturnType<typeof normalizeContract>

@@ -89,6 +89,20 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       createSuggestion: async () => ({ title: '', genre: 'GAME' }),
     },
     twirApiKey: undefined,
+    authSession: {
+      getAccounts: async () => [],
+      unlinkAccount: async () => {},
+      updateLogin: async () => {
+        throw new Error('updateLogin не заглушен')
+      },
+      deleteUser: async () => {},
+      uploadAvatar: async () => {
+        throw new Error('uploadAvatar не заглушен')
+      },
+      deleteAvatar: async () => {
+        throw new Error('deleteAvatar не заглушен')
+      },
+    },
     wordle: {
       getState: async () => {
         throw new Error('getState не заглушен')

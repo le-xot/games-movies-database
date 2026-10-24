@@ -21,6 +21,16 @@ export async function buildContract(): Promise<OpenAPIObject> {
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json }
 
+/**
+ * Минимальная форма OpenAPI, которой достаточно для сравнения. Не завязана на
+ * `OpenAPIObject` из Nest: тот же нормализатор должен принимать документ Elysia
+ * и обычный JSON из фикстуры.
+ */
+export interface OpenApiDocument {
+  paths?: Record<string, Record<string, any>>
+  components?: { schemas?: Record<string, any> }
+}
+
 function sortKeys(value: { [key: string]: Json }): { [key: string]: Json } {
   return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)))
 }
@@ -92,15 +102,20 @@ function canonicalCore(schema: any): Json {
   return { type: schema.type ?? 'any' }
 }
 
+export interface NormalizedContract {
+  paths: { [key: string]: Json }
+  schemas: { [key: string]: Json }
+}
+
 /**
  * Каноническая форма всего контракта: `METHOD path` → параметры, тело и схемы
  * ответов по кодам. Этого достаточно, чтобы `api-types.ts` не поехал.
  */
-export function normalizeContract(document: OpenAPIObject): Json {
+export function normalizeContract(document: OpenApiDocument): NormalizedContract {
   const operations: { [key: string]: Json } = {}
 
   for (const [path, item] of Object.entries(document.paths ?? {})) {
-    for (const [method, operation] of Object.entries(item as Record<string, any>)) {
+    for (const [method, operation] of Object.entries(item)) {
       if (!HTTP_METHODS.has(method)) continue
 
       const parameters = (operation.parameters ?? [])

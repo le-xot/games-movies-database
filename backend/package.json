@@ -15,6 +15,7 @@
     "openapi:golden": "bun run scripts/generate-openapi-golden.ts"
   },
   "dependencies": {
+    "@elysia/openapi": "1.4.16",
     "@gmd/database": "workspace:*",
     "@gmdb/contract": "workspace:*",
     "@nestjs/common": "12.2.0",
@@ -30,6 +31,7 @@
     "class-validator": "0.15.1",
     "cookie-parser": "1.4.7",
     "drizzle-orm": "0.45.4",
+    "elysia": "1.4.30",
     "envalid": "8.2.0",
     "jose": "6.2.13",
     "pg": "8.23.1",

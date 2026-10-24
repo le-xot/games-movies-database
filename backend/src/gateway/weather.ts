@@ -1,4 +1,4 @@
-import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { apiErrorModels, errorBody, publicErrors } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
@@ -75,7 +75,7 @@ export function weatherRoutes({ weather, rateLimit }: WeatherRouteDeps) {
 
       if (!data) {
         set.status = 503
-        return { statusCode: 503, message: 'Weather data is not available yet' }
+        return errorBody(503, 'Weather data is not available yet')
       }
 
       return data

@@ -36,6 +36,7 @@ describe('GET /weather', () => {
     expect(body).toEqual({
       statusCode: 503,
       message: 'Weather data is not available yet',
+      error: 'Service Unavailable',
     })
   })
 })

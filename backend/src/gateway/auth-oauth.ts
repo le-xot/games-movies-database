@@ -145,7 +145,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return redirect(twitchUrl(state))
         },
-        { response: { 200: t.Void(), ...standardErrors() } },
+        { response: { 302: t.Void(), ...standardErrors() } },
       )
       .get(
         '/auth/twitch/link',
@@ -160,7 +160,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return redirect(twitchUrl(state))
         },
-        { response: { 200: t.Void(), ...standardErrors() } },
+        { response: { 302: t.Void(), ...standardErrors() } },
       )
       .post(
         '/auth/twitch/callback',
@@ -179,7 +179,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return new Response('Authentication successful')
         },
-        { body: 'CallbackDto' as const, response: { 201: t.Void(), ...standardErrors() } },
+        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
       )
       .post(
         '/auth/twitch/link',
@@ -198,7 +198,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return new Response('Twitch account linked')
         },
-        { body: 'CallbackDto' as const, response: { 201: t.Void(), ...standardErrors() } },
+        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
       )
       .get(
         '/auth/kick',
@@ -219,7 +219,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return redirect(kickUrl(state, challenge))
         },
-        { response: { 200: t.Void(), ...standardErrors() } },
+        { response: { 302: t.Void(), ...standardErrors() } },
       )
       .get(
         '/auth/kick/link',
@@ -242,7 +242,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return redirect(kickUrl(state, challenge))
         },
-        { response: { 200: t.Void(), ...standardErrors() } },
+        { response: { 302: t.Void(), ...standardErrors() } },
       )
       .post(
         '/auth/kick/callback',
@@ -262,7 +262,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return new Response('Authentication successful')
         },
-        { body: 'CallbackDto' as const, response: { 201: t.Void(), ...standardErrors() } },
+        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
       )
       .post(
         '/auth/kick/link',
@@ -282,7 +282,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return new Response('Kick account linked')
         },
-        { body: 'CallbackDto' as const, response: { 201: t.Void(), ...standardErrors() } },
+        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
       )
       .get(
         '/auth/telegram',
@@ -293,7 +293,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return redirect(request.url)
         },
-        { response: { 200: t.Void(), ...standardErrors() } },
+        { response: { 302: t.Void(), ...standardErrors() } },
       )
       .get(
         '/auth/telegram/link',
@@ -308,7 +308,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
           return redirect(request.url)
         },
-        { response: { 200: t.Void(), ...standardErrors() } },
+        { response: { 302: t.Void(), ...standardErrors() } },
       )
       .get(
         '/auth/telegram/oidc/callback',
@@ -356,7 +356,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
             state: t.String(),
             error: t.String(),
           }),
-          response: { 200: t.Void(), ...standardErrors() },
+          response: { 302: t.Void(), ...standardErrors() },
         },
       )
   )

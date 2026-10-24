@@ -501,7 +501,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -543,7 +543,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -631,7 +631,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -673,7 +673,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -740,7 +740,7 @@
       ],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -782,7 +782,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -824,7 +824,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "200": null,
+        "302": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2360,7 +2360,7 @@
         }
       },
       "responses": {
-        "201": null,
+        "200": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2406,7 +2406,7 @@
         }
       },
       "responses": {
-        "201": null,
+        "200": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2448,7 +2448,7 @@
       "parameters": [],
       "body": null,
       "responses": {
-        "201": null,
+        "200": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2550,7 +2550,7 @@
         }
       },
       "responses": {
-        "201": null,
+        "200": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2596,7 +2596,7 @@
         }
       },
       "responses": {
-        "201": null,
+        "200": null,
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"

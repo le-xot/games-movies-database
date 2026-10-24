@@ -144,14 +144,13 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       '/auth/logout',
       async (ctx) => {
         await limit(ctx, 'AuthController.logout', RATE_LIMITS.auth)
-        ctx.set.status = 201
         ctx.set.headers['set-cookie'] = clearCookie('token')
         // Именно `undefined`: `null` не проходит схему `t.Void()` и даёт 422.
         return undefined
       },
       {
         response: {
-          201: t.Void(),
+          200: t.Void(),
           ...standardErrors(),
         },
       },

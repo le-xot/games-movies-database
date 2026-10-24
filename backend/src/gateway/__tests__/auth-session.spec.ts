@@ -43,12 +43,12 @@ function request(path: string, init: RequestInit = {}, cookie = true) {
 }
 
 describe('auth session', () => {
-  it('clears the token cookie on logout and answers 201', async () => {
+  it('clears the token cookie on logout and answers 200', async () => {
     const response = await build().gateway.handle(
       request('/auth/logout', { method: 'POST' }, false),
     )
 
-    expect(response.status).toBe(201)
+    expect(response.status).toBe(200)
     expect(response.headers.get('set-cookie')).toContain('token=;')
   })
 

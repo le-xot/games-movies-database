@@ -21,11 +21,11 @@
 
 ## Стек технологий
 
-| Слой           | Технологии                                                                                                                      |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Eden Treaty (@elysia/eden), @tanstack/vue-table, vee-validate + zod |
-| Backend        | Elysia (Bun) 1.4, TypeBox, Drizzle ORM, PostgreSQL, Redis, нативный WebSocket (Bun), Sharp, JWT                                 |
-| Инфраструктура | Docker, Bun, Redis (rate limiting), RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                              |
+| Слой           | Технологии                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Eden Treaty (@elysia/eden), @tanstack/vue-table, vee-validate |
+| Backend        | Elysia (Bun) 1.4, TypeBox, Drizzle ORM, PostgreSQL, Redis, нативный WebSocket (Bun), Sharp, JWT                           |
+| Инфраструктура | Docker, Bun, Redis (rate limiting), RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                        |
 
 ## Быстрый старт
 
@@ -93,10 +93,12 @@ bun dev
 | `DATASOURCE_URL`              | Строка подключения к PostgreSQL           | Да                                                            |
 | `JWT_SECRET`                  | Секрет для подписи JWT токенов            | Да                                                            |
 | `APP_PORT`                    | Порт backend сервера (по умолчанию: 3000) | Нет                                                           |
+| `CORS_ORIGINS`                | Список разрешённых origin через запятую   | Нет (dev: localhost)                                          |
+| `WORDLE_ANSWERS_SALT`         | Соль для выбора слова дня                 | Да в проде (в dev есть небезопасный дефолт)                   |
 | `REDIS_URL`                   | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)                                |
 | `TWITCH_CLIENT_ID`            | Twitch OAuth Client ID                    | Нет                                                           |
 | `TWITCH_CLIENT_SECRET`        | Twitch OAuth Client Secret                | Нет                                                           |
-| `TWITCH_CALLBACK_URL`         | URL callback после Twitch авторизации     | Нет                                                           |
+| `TWITCH_CALLBACK_URL`         | URL callback после Twitch авторизации     | Да                                                            |
 | `KICK_CLIENT_ID`              | Kick OAuth Client ID                      | Нет                                                           |
 | `KICK_CLIENT_SECRET`          | Kick OAuth Client Secret                  | Нет                                                           |
 | `KICK_CALLBACK_URL`           | URL callback после Kick авторизации       | Нет                                                           |

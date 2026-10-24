@@ -3,7 +3,7 @@ import { Camera } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { UserRole } from '@/lib/api'
+import { UserRole, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 import type { UserEntity } from '@/lib/api'
@@ -33,7 +33,7 @@ async function onFileChange(event: Event) {
   avatarError.value = ''
 
   try {
-    await api.auth.me.avatar.post({ file })
+    await unwrap(api.auth.me.avatar.post({ file }))
     await userStore.refetchUser()
   } catch {
     avatarError.value = 'Ошибка при загрузке аватарки'

@@ -1,8 +1,7 @@
 import { useInfiniteQuery, useMutation } from '@pinia/colada'
 import { defineStore } from 'pinia'
 import { ComputedRef, computed, ref } from 'vue'
-import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO, unwrap } from '@/lib/api'
-import { assertOk } from '@/lib/api'
+import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO, assertOk, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RecordsQueryParams } from '@/composables/factories/create-params-store'
 

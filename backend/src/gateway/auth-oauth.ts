@@ -6,7 +6,7 @@ import {
   resolveUser,
   type Authenticator,
 } from '@backend/gateway/auth'
-import { serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
+import { clearCookie, serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
 import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { assertOAuthState } from '@backend/modules/auth/auth.oauth-state'
@@ -364,7 +364,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
 /** Гасим одноразовые cookies после успешного обмена — как это делал Nest. */
 function clearCookies(names: string[]): string[] {
-  return names.map((name) => `${name}=; Path=/; Max-Age=0`)
+  return names.map(clearCookie)
 }
 
 function telegramCookies(

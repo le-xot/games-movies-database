@@ -73,7 +73,7 @@ frontend/src/
 - **Barrel imports**: Shared component directories have `index.ts` barrels. Example: `import { DataCards } from '@/components/media'`
 - **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension. Use `@/` alias for all internal paths.
 - **UI Primitives**: shadcn-vue + reka-ui. Import via barrel: `import { Button } from '@/components/ui/button'`.
-- **Validation**: vee-validate 5 + zod 4.
+- **Validation**: vee-validate 5.
 - **Toasts**: vue-sonner (wrapper in `components/ui/sonner`).
 - **Events**: Kebab-case enforced for custom events.
 - **Loading states**: don't render empty states while `isLoading`; keep previous data with colada `placeholderData`; skeletons come from `@/components/ui/skeleton` and render immediately.

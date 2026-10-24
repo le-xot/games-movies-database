@@ -60,7 +60,7 @@ export async function unwrap<T>(request: Promise<EdenResult<T>>): Promise<T> {
     throw toErrorResponse(result)
   }
 
-  if (result.data === undefined) {
+  if (result.data === undefined || (result.data as unknown) === '') {
     throw new Error('API вернул пустой ответ')
   }
 

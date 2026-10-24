@@ -133,6 +133,24 @@ describe('records routes', () => {
     expect(response.status).toBe(200)
   })
 
+  it('answers 500 without echoing the record when the response breaks the schema', async () => {
+    const record = {
+      ...RECORD,
+      friendsCounts: { DISLIKE: 'много' } as unknown as Record<string, number>,
+    }
+    const { gateway } = build({
+      records: recordsStub({ getAll: mock(async () => ({ records: [record], total: 1 })) }),
+    })
+
+    const response = await gateway.handle(request('/records'))
+    const body = await response.text()
+
+    // Ошибка схемы ответа — баг сервера, а не клиента: 400 с телом записи
+    // отдавать нельзя.
+    expect(response.status).toBe(500)
+    expect(body).not.toContain('много')
+  })
+
   it('passes the viewer id when a cookie is present', async () => {
     const { gateway, records } = build({ user: USER })
 

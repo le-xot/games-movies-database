@@ -97,6 +97,7 @@ jobs:
   # сломанный Dockerfile (например, забытый workspace `contract`) всплывает
   # уже после мержа — и валит весь деплой.
   images:
+    needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -135,14 +136,17 @@ jobs:
             -e WORDLE_ANSWERS_SALT=ci-smoke-salt \
             gmd-app:ci
 
+          # --max-time обязателен: пока Redis недоступен, первый запрос ждёт
+          # переподключения десятками секунд, и цикл перестаёт быть ограничением.
           for attempt in $(seq 1 30); do
-            if curl -fsS http://localhost:3000/api/health; then break; fi
+            if curl -fsS --max-time 2 http://localhost:3000/api/health; then break; fi
             sleep 1
           done
 
-          curl -fsS http://localhost:3000/api/health | grep -q '"status":"ok"'
-          curl -fsS http://localhost:3000/db/games | grep -q '<!doctype html'
-          curl -sS -o /dev/null -w '%{http_code}' http://localhost:3000/api/nope | grep -q 404
+          curl -fsS --max-time 5 http://localhost:3000/api/health | grep -q '"status":"ok"'
+          curl -fsS --max-time 5 http://localhost:3000/db/games | grep -q '<!doctype html'
+          # Проверяем не только код, но и то, что под /api не уехал HTML.
+          curl -sS --max-time 5 http://localhost:3000/api/nope | grep -q '"statusCode":404'
 
       - name: Container logs
         if: failure()

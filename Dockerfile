@@ -20,7 +20,6 @@ RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
 
 FROM oven/bun:1.4.4-alpine AS frontend-builder
 WORKDIR /app
-COPY --from=node:24-alpine /usr/local/bin/node /usr/local/bin/
 
 COPY package.json ./
 COPY --from=deps /app/node_modules ./node_modules

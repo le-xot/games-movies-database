@@ -40,8 +40,6 @@ export interface AuthSessionRouteDeps {
   rateLimit: RateLimiter
 }
 
-const PLATFORMS = ['TWITCH', 'KICK', 'TELEGRAM'] as const
-
 export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionRouteDeps) {
   const limit = (
     ctx: {
@@ -87,10 +85,6 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       async (ctx) => {
         await limit(ctx, 'AuthController.unlinkAccount', RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
-
-        if (!PLATFORMS.includes(ctx.params.platform as AccountPlatform)) {
-          throw new ApiError(400, 'Validation failed (enum string is expected)')
-        }
 
         await authSession.unlinkAccount(user.id, ctx.params.platform as AccountPlatform)
 

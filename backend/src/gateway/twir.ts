@@ -9,7 +9,7 @@ import { Elysia, t } from 'elysia'
 export const twirModels = {
   SuggestionCreateByTwirDTO: t.Object({
     userId: t.String(),
-    link: t.String(),
+    link: t.String({ pattern: '^https?://\\S+$' }),
   }),
 }
 

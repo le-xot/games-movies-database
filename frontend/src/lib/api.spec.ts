@@ -39,6 +39,15 @@ describe('unwrap', () => {
     expect(await unwrap(api.wordle.practice.get())).toBeNull()
   })
 
+  it('rejects an empty body instead of returning it as data', async () => {
+    stubFetch(200, '')
+
+    const error = await unwrap(api.auth.me.get()).catch((caught: unknown) => caught)
+
+    expect(error).toBeInstanceOf(Error)
+    expect((error as Error).message).toContain('пустой ответ')
+  })
+
   it('throws a Response carrying the server envelope', async () => {
     stubFetch(409, JSON.stringify({ statusCode: 409, message: 'Ник уже занят' }))
 

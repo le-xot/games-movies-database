@@ -12,12 +12,8 @@ const backendDir = fileURLToPath(new URL('../backend', import.meta.url))
 const frontendDir = fileURLToPath(new URL('.', import.meta.url))
 const e2eJwtSecret = process.env.E2E_JWT_SECRET ?? randomUUID()
 
-/**
- * Какой сервер поднимать под e2e: Nest (`src/main.ts`) или Elysia-гейтвей
- * (`src/server/main.ts`). Переключается без правки конфига — так один и тот же
- * набор проверок гоняется по обоим слоям во время переезда.
- */
-const backendEntry = process.env.E2E_BACKEND_ENTRY ?? './src/main.ts'
+/** Под e2e поднимается продовый вход бэкенда — он же и есть гейтвей. */
+const backendEntry = './src/main.ts'
 
 export default defineConfig({
   testDir: './e2e',

@@ -26,7 +26,7 @@ export const SteamGameDto = t.Object({
 })
 
 export const SteamImportGameDto = t.Object({
-  appId: t.Number(),
+  appId: t.Number({ multipleOf: 1 }),
   status: recordStatusSchema,
   grade: t.Optional(t.Nullable(recordGradeSchema)),
 })

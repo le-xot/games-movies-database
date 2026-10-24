@@ -67,6 +67,15 @@ export function createGateway(deps: GatewayDeps) {
 
       // Валидация схемы: Elysia присылает VALIDATION с деталями.
       if (code === 'VALIDATION') {
+        // `type: 'response'` — это не ошибка клиента, а баг сервера: данные не
+        // сошлись со схемой. В сообщении Elysia лежит фрагмент ответа, поэтому
+        // наружу отдаём общий 500, а подробности — в лог.
+        if ((error as { type?: string }).type === 'response') {
+          console.error('[gateway] response schema violation', error)
+          set.status = 500
+          return errorBody(500, 'Internal server error')
+        }
+
         set.status = 400
         return errorBody(400, error.message)
       }
@@ -80,6 +89,14 @@ export function createGateway(deps: GatewayDeps) {
       if (code === 'PARSE') {
         set.status = 400
         return errorBody(400, 'Malformed request body')
+      }
+
+      // Прочие ошибки Elysia с 4xx-статусом (например, INVALID_COOKIE_SIGNATURE)
+      // тоже клиентские: не превращаем их в 500.
+      const status = (error as { status?: unknown }).status
+      if (typeof status === 'number' && status >= 400 && status < 500) {
+        set.status = status
+        return errorBody(status, error instanceof Error ? error.message : 'Bad Request')
       }
 
       console.error('[gateway] unhandled error', error)

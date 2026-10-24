@@ -56,6 +56,8 @@ import type { RateLimiter } from '@/gateway/rate-limit'
 
 export interface Container {
   deps: GatewayDeps
+  /** Доменная шина: через неё же идут события в WebSocket. */
+  emitter: EventEmitter2
   close(): Promise<void>
 }
 
@@ -147,6 +149,7 @@ export function createContainer(): Container {
   }
 
   return {
+    emitter: events,
     deps: {
       weather,
       stats,

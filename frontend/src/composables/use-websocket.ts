@@ -1,4 +1,10 @@
-import { WsEvents, type ClientToServerEvents, type ServerToClientEvents } from '@gmdb/contract'
+import {
+  parseWsMessage,
+  WsEvents,
+  type ClientToServerEvents,
+  type ServerToClientEvents,
+  type WsMessage,
+} from '@gmdb/contract'
 import { useQueryCache } from '@pinia/colada'
 import { onMounted, onUnmounted, ref } from 'vue'
 import {
@@ -16,13 +22,20 @@ import {
 } from '@/composables/websocket-resync'
 import { RecordGenre } from '@/lib/api'
 import { useUser } from '@/stores/use-user'
-import type { Socket } from 'socket.io-client'
+
+/** Первая пауза перед переподключением и её потолок. */
+const RECONNECT_BASE_MS = 1000
+const RECONNECT_MAX_MS = 30_000
 
 export function useWebSocket() {
-  const socket = ref<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null)
+  const socket = ref<WebSocket | null>(null)
   const isConnected = ref(false)
   const queryCache = useQueryCache()
   const userStore = useUser()
+
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+  let reconnectAttempt = 0
+  let stopped = false
 
   const coalescer = createEventCoalescer<CoalescerKey>({
     handlers: {
@@ -45,75 +58,110 @@ export function useWebSocket() {
 
   const trackConnect = createConnectTracker(() => enqueueResync(coalescer))
 
-  async function connect() {
+  function socketUrl(): string {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+
+    return `${protocol}//${window.location.host}/ws`
+  }
+
+  function scheduleReconnect() {
+    if (stopped || reconnectTimer) return
+
+    const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempt, RECONNECT_MAX_MS)
+    const jitter = Math.random() * delay * 0.2
+    reconnectAttempt += 1
+
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null
+      connect()
+    }, delay + jitter)
+  }
+
+  function handleMessage(message: WsMessage) {
+    switch (message.event) {
+      case WsEvents.UPDATE_RECORDS: {
+        coalescer.enqueue('stats')
+        const genre = (message.payload as { genre?: RecordGenre } | undefined)?.genre
+        if (genre) {
+          coalescer.enqueue(`records:${genre}`)
+        } else {
+          for (const item of RECORD_GENRES) coalescer.enqueue(`records:${item}`)
+        }
+        break
+      }
+      case WsEvents.UPDATE_LIKES:
+      case WsEvents.UPDATE_SUGGESTIONS:
+        coalescer.enqueue('suggestions')
+        break
+      case WsEvents.UPDATE_RATINGS:
+        for (const genre of RECORD_GENRES) coalescer.enqueue(`records:${genre}`)
+        break
+      case WsEvents.UPDATE_QUEUE:
+        coalescer.enqueue('suggestions')
+        coalescer.enqueue('stats')
+        break
+      case WsEvents.UPDATE_USERS:
+        coalescer.enqueue('user')
+        coalescer.enqueue('wordle')
+        break
+      case WsEvents.UPDATE_WORDLE:
+        coalescer.enqueue('wordle')
+        break
+    }
+  }
+
+  function connect() {
+    if (stopped) return
+
     try {
-      const { io } = await import('socket.io-client')
-
-      const client: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-        `${window.location.protocol}//${window.location.host}`,
-        {
-          transports: ['websocket'],
-        },
-      )
-
+      const client = new WebSocket(socketUrl())
       socket.value = client
-        .on('connect', () => {
-          isConnected.value = true
-          trackConnect()
-        })
-        .on('disconnect', () => {
-          isConnected.value = false
-        })
-        .on(WsEvents.UPDATE_RECORDS, (payload) => {
-          coalescer.enqueue('stats')
-          if (payload?.genre) {
-            coalescer.enqueue(`records:${payload.genre}`)
-          } else {
-            for (const genre of RECORD_GENRES) {
-              coalescer.enqueue(`records:${genre}`)
-            }
-          }
-        })
-        .on(WsEvents.UPDATE_LIKES, () => {
-          coalescer.enqueue('suggestions')
-        })
-        .on(WsEvents.UPDATE_RATINGS, () => {
-          for (const genre of RECORD_GENRES) {
-            coalescer.enqueue(`records:${genre}`)
-          }
-        })
-        .on(WsEvents.UPDATE_QUEUE, () => {
-          coalescer.enqueue('suggestions')
-          coalescer.enqueue('stats')
-        })
-        .on(WsEvents.UPDATE_SUGGESTIONS, () => {
-          coalescer.enqueue('suggestions')
-        })
-        .on(WsEvents.UPDATE_USERS, () => {
-          coalescer.enqueue('user')
-          coalescer.enqueue('wordle')
-        })
-        .on(WsEvents.UPDATE_WORDLE, () => {
-          coalescer.enqueue('wordle')
-        })
-        .on('connect_error', (error) => {
-          console.error('WebSocket connection error:', error)
-          isConnected.value = false
-        })
+
+      client.onopen = () => {
+        isConnected.value = true
+        reconnectAttempt = 0
+        trackConnect()
+      }
+
+      client.onmessage = (event: MessageEvent) => {
+        const message = parseWsMessage(event.data)
+        if (message) handleMessage(message)
+      }
+
+      client.onclose = () => {
+        isConnected.value = false
+        socket.value = null
+        scheduleReconnect()
+      }
+
+      client.onerror = () => {
+        isConnected.value = false
+        console.error('WebSocket connection error')
+      }
     } catch (error) {
       console.error('WebSocket connection error:', error)
       isConnected.value = false
+      scheduleReconnect()
     }
   }
 
   function disconnect() {
+    stopped = true
     coalescer.cancel()
-    socket.value?.disconnect()
+
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer)
+      reconnectTimer = null
+    }
+
+    socket.value?.close()
     socket.value = null
+    isConnected.value = false
   }
 
   onMounted(() => {
-    void connect()
+    stopped = false
+    connect()
   })
   onUnmounted(() => disconnect())
 
@@ -124,3 +172,5 @@ export function useWebSocket() {
     disconnect,
   }
 }
+
+export type { ClientToServerEvents, ServerToClientEvents }

@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia'
+import { wsRoutes } from '@/gateway/ws'
 import { createStaticHandler } from '@/server/static'
 import { isOriginAllowed } from '@/utils/cors-origins'
 import { buildSecurityHeaders } from '@/utils/security-headers'
@@ -49,6 +50,7 @@ export function createHttpServer(gateway: Gateway, options: HttpOptions) {
       set.status = 204
       return null
     })
+    .use(wsRoutes({ corsOrigins }))
     .use(new Elysia({ prefix: '/api' }).use(gateway))
 
   if (!staticRoot) return app

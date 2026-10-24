@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { createGateway } from '@/gateway'
+import { bridgeWsEvents } from '@/gateway/ws'
 import { createContainer } from '@/server/container'
 import { createHttpServer } from '@/server/http'
 import { parseCorsOrigins } from '@/utils/cors-origins'
@@ -22,11 +23,14 @@ const app = createHttpServer(createGateway(container.deps), {
 
 const port = Number(process.env['GATEWAY_PORT'] ?? env.APP_PORT + 1)
 
-app.listen({ port, hostname: '0.0.0.0' }, (server) => {
-  console.log(`🌿 Gateway слушает http://localhost:${port}/api`)
-  console.log(`   смонтировано: GET /api/weather, GET /api/auth/me`)
+app.listen({ port, hostname: '0.0.0.0' }, () => {
+  bridgeWsEvents({
+    emitter: container.emitter,
+    publisher: () => app.server ?? undefined,
+  })
 
-  void server
+  console.log(`🌿 Gateway слушает http://localhost:${port}/api`)
+  console.log(`   WebSocket: ws://localhost:${port}/ws`)
 })
 
 async function shutdown(signal: string) {

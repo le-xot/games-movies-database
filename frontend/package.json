@@ -29,7 +29,6 @@
     "openapi-fetch": "0.17.0",
     "pinia": "4.1.0",
     "reka-ui": "2.11.0",
-    "socket.io-client": "4.8.4",
     "tailwind-merge": "3.7.0",
     "tailwindcss-animate": "1.0.7",
     "vee-validate": "5.0.0-beta.0",

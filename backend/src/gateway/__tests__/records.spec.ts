@@ -68,6 +68,28 @@ describe('records routes', () => {
     expect(records.getAll).toHaveBeenCalledWith(expect.objectContaining({ viewerId: undefined }))
   })
 
+  it('keeps the friends counts and provider metadata intact', async () => {
+    const record = {
+      ...RECORD,
+      friendsCounts: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 0 },
+      friendsTotal: 3,
+      extra: { steam: '123' },
+    }
+    const { gateway } = build({
+      records: recordsStub({ getAll: mock(async () => ({ records: [record], total: 1 })) }),
+    })
+
+    const response = await gateway.handle(request('/records'))
+    const body = (await response.json()) as {
+      records: { friendsCounts: unknown; extra: unknown }[]
+    }
+
+    // Elysia прогоняет ответ через TypeBox `Value.Clean`: схема `t.Object({})`
+    // вычищает все ключи, и счётчики друзей молча превращаются в `{}`.
+    expect(body.records[0]?.friendsCounts).toEqual({ DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 0 })
+    expect(body.records[0]?.extra).toEqual({ steam: '123' })
+  })
+
   it('passes the viewer id when a cookie is present', async () => {
     const { gateway, records } = build({ user: USER })
 

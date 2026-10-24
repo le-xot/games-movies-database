@@ -3648,12 +3648,16 @@
           "type": "string"
         },
         "extra": {
+          "additionalProperties": true,
           "nullable": true,
           "properties": {},
           "required": [],
           "type": "object"
         },
         "friendsCounts": {
+          "additionalProperties": {
+            "type": "number"
+          },
           "nullable": true,
           "properties": {},
           "required": [],
@@ -4067,12 +4071,16 @@
           "type": "string"
         },
         "extra": {
+          "additionalProperties": true,
           "nullable": true,
           "properties": {},
           "required": [],
           "type": "object"
         },
         "friendsCounts": {
+          "additionalProperties": {
+            "type": "number"
+          },
           "nullable": true,
           "properties": {},
           "required": [],

@@ -70,4 +70,21 @@ describe('static assets', () => {
     expect(response.status).toBe(401)
     expect(await response.json()).toMatchObject({ statusCode: 401 })
   })
+
+  it('answers an unknown /api route with the JSON error envelope', async () => {
+    const response = await get('/api/nope')
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get('content-type')).toContain('application/json')
+    expect(await response.json()).toMatchObject({ statusCode: 404, error: 'Not Found' })
+  })
+
+  it('answers a wrong method on an /api route with the JSON error envelope', async () => {
+    const response = await build().handle(
+      new Request('http://localhost/api/records', { method: 'PUT' }),
+    )
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toMatchObject({ statusCode: 404, error: 'Not Found' })
+  })
 })

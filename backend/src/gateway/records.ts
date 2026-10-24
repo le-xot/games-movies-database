@@ -41,12 +41,14 @@ export const RecordEntity = t.Object({
   type: t.Nullable(recordTypeSchema),
   genre: t.Nullable(recordGenreSchema),
   grade: t.Nullable(recordGradeSchema),
-  friendsCounts: t.Optional(t.Nullable(t.Object({}))),
+  // Формы описываем явно: Elysia чистит ответ по схеме, а `t.Object({})` не
+  // перечисляет ни одного ключа и вырезает всё содержимое.
+  friendsCounts: t.Optional(t.Nullable(t.Record(t.String(), t.Number()))),
   friendsTotal: t.Optional(t.Nullable(t.Number())),
   friendsTop: t.Optional(t.Nullable(recordGradeSchema)),
   myGrade: t.Optional(t.Nullable(recordGradeSchema)),
   episode: t.Nullable(t.String()),
-  extra: t.Optional(t.Nullable(t.Object({}))),
+  extra: t.Optional(t.Nullable(t.Object({}, { additionalProperties: true }))),
   likes: t.Optional(t.Nullable(t.Array(LikeEntity))),
   suggestionOwnership: t.Optional(t.Nullable(SuggestionOwnershipEntity)),
   createdAt: t.String(),

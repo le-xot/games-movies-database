@@ -1,22 +1,22 @@
 # MODULES OVERVIEW
 
-NestJS feature modules for media tracking, auth, and external integrations.
+Доменные сервисы для медиатеки, авторизации и внешних интеграций.
+
+Nest здесь больше нет: модуль — это папка с сервисом и репозиториями. HTTP-слой
+живёт в `backend/src/gateway/{домен}.ts`, проводка — в `server/container.ts`.
 
 ## MODULE TEMPLATE
 
-Standard file set for new features:
-
-- `{name}.module.ts`: Dependency wiring
-- `{name}.controller.ts`: HTTP endpoints (DTO validation)
-- `{name}.service.ts`: Business logic (Drizzle access)
-- `{name}.dto.ts`: Input validation schemas
-- `{name}.entity.ts`: Response shapes (optional)
+- `{name}.service.ts` — бизнес-логика, обычный класс без декораторов
+- `repositories/drizzle-{name}.repository.ts` — доступ к БД через `DrizzleService`
+- `{name}.dto.ts` / `{name}.entity.ts` — типы; схемы валидации и OpenAPI лежат
+  в гейтвее (`gateway/<домен>.ts`), а не здесь
 
 ## MODULE INVENTORY
 
 | Module                | Files | Purpose                                                             |
 | :-------------------- | :---- | :------------------------------------------------------------------ |
-| **auth**              | 8     | Twitch/Kick/Telegram OIDC, JWT, @Global() guards, @User() decorator |
+| **auth**              | 3     | Twitch/Kick/Telegram OIDC, выпуск JWT                               |
 | **user**              | 6     | User CRUD, profile management, account merging, update-users events |
 | **record**            | 5     | Media entries (games/movies), provider integration                  |
 | **stats**             | 5     | Public records stats (genre/status/grade breakdowns)                |
@@ -25,8 +25,8 @@ Standard file set for new features:
 | **avatar**            | 3     | Avatar upload/delete via S3, Sharp image processing                 |
 | **s3**                | 2     | S3/RustFS storage abstraction (upload, delete, exists)              |
 | **kick**              | 2     | Kick API client for user metadata                                   |
-| **twir**              | 4     | External bot webhooks, ApikeyGuard protection                       |
-| **websocket**         | 2     | Socket.IO gateway for real-time frontend updates                    |
+| **twir**              | 4     | External bot webhooks, проверка API-ключа                           |
+| **websocket**         | 1     | Типы WS-событий (транспорт — `gateway/ws.ts`)                       |
 | **records-providers** | 2     | External metadata fetchers (Kinopoisk, etc.)                        |
 | **img**               | 3     | Image proxy and resizing via Sharp                                  |
 | **jwt**               | 1     | CustomJwtModule wrapper for @nestjs/jwt                             |

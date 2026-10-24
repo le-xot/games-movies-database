@@ -58,11 +58,11 @@ frontend/src/
 
 ## COMPOSABLES (Plain — `composables/`)
 
-| Name                   | Purpose                                               |
-| ---------------------- | ----------------------------------------------------- |
-| `useWebSocket`         | Socket.io client; triggers refetches on server events |
-| `useRecordCreate`      | Mutation for creating records from links              |
-| `createEventCoalescer` | Debounced event batching for WebSocket updates        |
+| Name                   | Purpose                                                                  |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `useWebSocket`         | Native WebSocket (`/ws`), кадры `{event, payload}`; рефетчит по событиям |
+| `useRecordCreate`      | Mutation for creating records from links                                 |
+| `createEventCoalescer` | Debounced event batching for WebSocket updates                           |
 
 ## COMPONENT PATTERNS
 

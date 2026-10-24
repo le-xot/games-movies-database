@@ -2,10 +2,12 @@ import type { GatewayUser } from '@/gateway/auth'
 import type { Like } from '@/gateway/likes'
 import type { Rating, RatedRecord } from '@/gateway/ratings'
 import type { GatewayRecord } from '@/gateway/records'
+import type { UserAccount } from '@/gateway/users'
 import type { LikeEntity } from '@/modules/like/like.entity'
 import type { RatingEntity, UserRatedRecordEntity } from '@/modules/rating/rating.entity'
 import type { RecordEntity, SuggestionOwnershipEntity } from '@/modules/record/record.entity'
 import type { UserEntity } from '@/modules/user/user.entity'
+import type { AccountPlatform } from '@gmdb/contract'
 
 /**
  * Мост между доменом и HTTP. Домен работает с `Date`, наружу уходит ISO-строка:
@@ -88,4 +90,16 @@ export function toGatewayRating(rating: RatingEntity): Rating {
     updatedAt: rating.updatedAt.toISOString(),
     ...(rating.user !== undefined ? { user: rating.user ? toGatewayUser(rating.user) : null } : {}),
   }
+}
+
+export function toGatewayAccount(account: {
+  id: number
+  userId: string
+  platform: AccountPlatform
+  platformUserId: string
+  platformLogin: string
+  platformAvatar: string | null
+  createdAt: Date
+}): UserAccount {
+  return { ...account, createdAt: account.createdAt.toISOString() }
 }

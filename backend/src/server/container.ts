@@ -6,6 +6,8 @@ import { AvatarService } from '@/modules/avatar/avatar.service'
 import { ImgService } from '@/modules/img/img.service'
 import { LikeService } from '@/modules/like/like.service'
 import { DrizzleLikeRepository } from '@/modules/like/repositories/drizzle-like.repository'
+import { LimitService } from '@/modules/limit/limit.service'
+import { DrizzleLimitRepository } from '@/modules/limit/repositories/drizzle-limit.repository'
 import { QueueService } from '@/modules/queue/queue.service'
 import { DrizzleQueueRepository } from '@/modules/queue/repositories/drizzle-queue.repository'
 import { RatingService } from '@/modules/rating/rating.service'
@@ -17,11 +19,15 @@ import { DrizzleRecordsProvidersRepository } from '@/modules/records-providers/r
 import { S3Service } from '@/modules/s3/s3.service'
 import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
 import { StatsService } from '@/modules/stats/stats.service'
+import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
+import { SuggestionService } from '@/modules/suggestion/suggestion.service'
+import { TwirService } from '@/modules/twir/twir.service'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
 import { UserService } from '@/modules/user/user.service'
 import { WeatherService } from '@/modules/weather/weather.service'
 import {
+  toGatewayAccount,
   toGatewayLike,
   toGatewayRatedRecord,
   toGatewayRating,
@@ -59,16 +65,24 @@ export function createContainer(): Container {
   const ratingRepository = new DrizzleRatingRepository(drizzle)
   const ratings = new RatingService(ratingRepository, drizzle, events)
 
+  const providers = new RecordsProvidersService(
+    new DrizzleRecordsProvidersRepository(drizzle),
+    new TwitchService(),
+  )
   const records = new RecordService(
     new DrizzleRecordRepository(drizzle),
-    new RecordsProvidersService(
-      new DrizzleRecordsProvidersRepository(drizzle),
-      new TwitchService(),
-    ),
+    providers,
     events,
     new ImgService(s3),
     ratingRepository,
   )
+  const suggestions = new SuggestionService(
+    new DrizzleSuggestionRepository(drizzle),
+    providers,
+    events,
+  )
+  const limits = new LimitService(new DrizzleLimitRepository(drizzle))
+  const twir = new TwirService(users, suggestions)
 
   const redis = new RedisClient(env.REDIS_URL)
   const rateLimit: RateLimiter = {
@@ -163,6 +177,29 @@ export function createContainer(): Container {
         getLikesByUserId: (userId) => likes.getLikesByUserId(userId),
         getLikes: (page, limit) => likes.getLikes(page, limit),
       },
+      users: {
+        getAll: async () => (await users.getAllUsers()).map(toGatewayUser),
+        getById: async (id) => {
+          const user = await users.getUserById(id)
+
+          return user ? toGatewayUser(user) : null
+        },
+        getAccounts: async (id) => (await users.getLinkedAccounts(id)).map(toGatewayAccount),
+        remove: (id) => users.deleteUserById(id),
+        merge: (targetId, sourceUserId) => users.mergeUsers(targetId, sourceUserId),
+      },
+      suggestions: {
+        list: async () => (await suggestions.getSuggestions()).map(toGatewayRecord),
+        create: (input) => suggestions.userSuggest(input),
+        remove: (id, userId) => suggestions.deleteUserSuggestion(id, userId),
+      },
+      limits: {
+        change: (input) => limits.changeLimit(input),
+      },
+      twir: {
+        createSuggestion: (input) => twir.createSuggestionWithTwir(input),
+      },
+      twirApiKey: env.TWIR_API,
       auth: createJwtAuthenticator({
         secret: env.JWT_SECRET,
         users: {

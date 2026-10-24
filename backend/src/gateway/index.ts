@@ -1,11 +1,16 @@
 import { Elysia } from 'elysia'
 import { errorBody, fromDomainError } from '@/gateway/errors'
+import { healthRoutes } from '@/gateway/health'
 import { likeRoutes, type LikesService } from '@/gateway/likes'
+import { limitRoutes, type LimitsService } from '@/gateway/limits'
 import { meRoutes } from '@/gateway/me'
 import { queueRoutes, type QueueReader } from '@/gateway/queue'
 import { ratingRoutes, type RatingsService } from '@/gateway/ratings'
 import { recordRoutes, type RecordsService } from '@/gateway/records'
 import { statsRoutes, type StatsReader } from '@/gateway/stats'
+import { suggestionRoutes, type SuggestionsService } from '@/gateway/suggestions'
+import { twirRoutes, type TwirService } from '@/gateway/twir'
+import { userRoutes, type UsersService } from '@/gateway/users'
 import { weatherRoutes, type WeatherReader } from '@/gateway/weather'
 import type { Authenticator } from '@/gateway/auth'
 import type { RateLimiter } from '@/gateway/rate-limit'
@@ -22,6 +27,11 @@ export interface GatewayDeps {
   likes: LikesService
   records: RecordsService
   ratings: RatingsService
+  users: UsersService
+  suggestions: SuggestionsService
+  limits: LimitsService
+  twir: TwirService
+  twirApiKey: string | undefined
   auth: Authenticator
   rateLimit: RateLimiter
 }
@@ -60,6 +70,11 @@ export function createGateway(deps: GatewayDeps) {
     .use(likeRoutes(deps))
     .use(recordRoutes(deps))
     .use(ratingRoutes(deps))
+    .use(userRoutes(deps))
+    .use(suggestionRoutes(deps))
+    .use(limitRoutes(deps))
+    .use(twirRoutes({ twir: deps.twir, rateLimit: deps.rateLimit, apiKey: deps.twirApiKey }))
+    .use(healthRoutes(deps))
 }
 
 export type Gateway = ReturnType<typeof createGateway>

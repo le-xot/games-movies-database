@@ -35,6 +35,17 @@ const MIGRATED_OPERATIONS = [
   'GET /ratings/my',
   'GET /ratings/users/{id}',
   'GET /ratings/friends',
+  'GET /health',
+  'GET /users/users',
+  'GET /users/{id}',
+  'GET /users/{id}/accounts',
+  'DELETE /users/{id}',
+  'POST /users/{id}/merge',
+  'GET /suggestions',
+  'POST /suggestions',
+  'DELETE /suggestions/{id}',
+  'POST /limits',
+  'POST /twir/suggestion',
 ] as const
 
 type Normalized = ReturnType<typeof normalizeContract>

@@ -5,6 +5,11 @@ import { t } from 'elysia'
  * ссылка на модель (`200: 'QueueDto'`) проверяется по реестру того `Elysia`, на
  * котором висит роут.
  */
+export const accountEnumModels = {
+  AccountPlatform: t.Union([t.Literal('TWITCH'), t.Literal('KICK'), t.Literal('TELEGRAM')]),
+  LimitType: t.Union([t.Literal('SUGGESTION')]),
+}
+
 export const recordEnumModels = {
   RecordGenre: t.Union([
     t.Literal('GAME'),

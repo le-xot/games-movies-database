@@ -16,19 +16,38 @@ const CSP = [
   "frame-ancestors 'none'",
 ].join('; ')
 
+/**
+ * Заголовки безопасности одним словарём: их ставит и Express-мидлварь старого
+ * слоя, и Elysia-гейтвей. CSP отдаётся только в проде — на dev-сервере Vite его
+ * ломает HMR.
+ */
+export function buildSecurityHeaders(isProduction: boolean): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+  }
+
+  if (isProduction) {
+    headers['Content-Security-Policy'] = CSP
+  }
+
+  return headers
+}
+
 export function securityHeaders(
   _req: Request,
   res: Response,
   next: NextFunction,
   isProduction = env.NODE_ENV === 'production',
 ): void {
-  res.setHeader('X-Content-Type-Options', 'nosniff')
-  res.setHeader('X-Frame-Options', 'DENY')
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
-  if (isProduction) {
-    res.setHeader('Content-Security-Policy', CSP)
+  const headers = buildSecurityHeaders(isProduction)
+
+  for (const [name, value] of Object.entries(headers)) {
+    res.setHeader(name, value)
   }
+
   next()
 }

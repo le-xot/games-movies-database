@@ -75,6 +75,10 @@ const MIGRATED_OPERATIONS = [
   'GET /auth/telegram',
   'GET /auth/telegram/link',
   'GET /auth/telegram/oidc/callback',
+  'GET /img',
+  'GET /avatar/{userId}',
+  'GET /steam/games',
+  'POST /steam/import',
 ] as const
 
 type Normalized = ReturnType<typeof normalizeContract>

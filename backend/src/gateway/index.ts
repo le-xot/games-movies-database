@@ -6,10 +6,12 @@ import { healthRoutes } from '@/gateway/health'
 import { likeRoutes, type LikesService } from '@/gateway/likes'
 import { limitRoutes, type LimitsService } from '@/gateway/limits'
 import { meRoutes } from '@/gateway/me'
+import { mediaRoutes, type AvatarReader, type ImageReader } from '@/gateway/media'
 import { queueRoutes, type QueueReader } from '@/gateway/queue'
 import { ratingRoutes, type RatingsService } from '@/gateway/ratings'
 import { recordRoutes, type RecordsService } from '@/gateway/records'
 import { statsRoutes, type StatsReader } from '@/gateway/stats'
+import { steamRoutes, type SteamPort } from '@/gateway/steam'
 import { suggestionRoutes, type SuggestionsService } from '@/gateway/suggestions'
 import { twirRoutes, type TwirService } from '@/gateway/twir'
 import { userRoutes, type UsersService } from '@/gateway/users'
@@ -42,6 +44,9 @@ export interface GatewayDeps {
   authSession: AuthSessionPort
   oauth: OAuthPort
   oauthConfig: OAuthConfig
+  images: ImageReader
+  avatars: AvatarReader
+  steam: SteamPort
   wordle: WordleServicePort
   wordleNotifications: WordleNotificationsPort
   auth: Authenticator
@@ -90,6 +95,8 @@ export function createGateway(deps: GatewayDeps) {
     .use(twirRoutes({ twir: deps.twir, rateLimit: deps.rateLimit, apiKey: deps.twirApiKey }))
     .use(healthRoutes(deps))
     .use(wordleRoutes(deps))
+    .use(mediaRoutes(deps))
+    .use(steamRoutes(deps))
 }
 
 export type Gateway = ReturnType<typeof createGateway>

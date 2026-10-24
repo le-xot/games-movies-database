@@ -89,6 +89,16 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       createSuggestion: async () => ({ title: '', genre: 'GAME' }),
     },
     twirApiKey: undefined,
+    images: {
+      getImage: async () => ({ buffer: new Uint8Array(), contentType: 'image/webp' }),
+    },
+    avatars: {
+      getAvatar: async () => null,
+    },
+    steam: {
+      getGames: async () => ({ games: [], existingAppIds: [] }),
+      importGames: async () => ({ created: [], failed: [] }),
+    },
     oauth: {
       exchangeTwitch: async () => {
         throw new Error('exchangeTwitch не заглушен')

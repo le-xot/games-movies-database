@@ -5,6 +5,7 @@ import { DrizzleService } from '@/database/drizzle.service'
 import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
 import { AuthService } from '@/modules/auth/auth.service'
 import { AvatarService } from '@/modules/avatar/avatar.service'
+import { ImgVariant } from '@/modules/img/img.dto'
 import { ImgService } from '@/modules/img/img.service'
 import { KickService } from '@/modules/kick/kick.service'
 import { LikeService } from '@/modules/like/like.service'
@@ -22,6 +23,7 @@ import { DrizzleRecordsProvidersRepository } from '@/modules/records-providers/r
 import { S3Service } from '@/modules/s3/s3.service'
 import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
 import { StatsService } from '@/modules/stats/stats.service'
+import { SteamService } from '@/modules/steam/steam.service'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '@/modules/suggestion/suggestion.service'
 import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
@@ -69,7 +71,8 @@ export function createContainer(): Container {
   const events = new EventEmitter2()
   const s3 = new S3Service()
 
-  const users = new UserService(new DrizzleUserRepository(drizzle), events, new AvatarService(s3))
+  const avatars = new AvatarService(s3)
+  const users = new UserService(new DrizzleUserRepository(drizzle), events, avatars)
   const likes = new LikeService(new DrizzleLikeRepository(drizzle), events)
   const stats = new StatsService(new DrizzleStatsRepository(drizzle))
   const queue = new QueueService(new DrizzleQueueRepository(drizzle))
@@ -96,6 +99,8 @@ export function createContainer(): Container {
     events,
   )
   const limits = new LimitService(new DrizzleLimitRepository(drizzle))
+  const imgService = new ImgService(s3)
+  const steam = new SteamService(providers, new DrizzleRecordRepository(drizzle), events)
   const twir = new TwirService(users, suggestions)
 
   const redisClient = new RedisClient(env.REDIS_URL)
@@ -249,6 +254,43 @@ export function createContainer(): Container {
         createSuggestion: (input) => twir.createSuggestionWithTwir(input),
       },
       twirApiKey: env.TWIR_API,
+      images: {
+        getImage: (urlEncoded, variant) =>
+          imgService.getImageContent(
+            urlEncoded,
+            variant === 'avatar' ? ImgVariant.AVATAR : ImgVariant.POSTER,
+          ),
+      },
+      avatars: {
+        getAvatar: (userId) => avatars.getAvatarBuffer(userId),
+      },
+      steam: {
+        getGames: async () => {
+          const [games, existing] = await Promise.all([
+            steam.getOwnedGames(),
+            steam.findDuplicateGames(),
+          ])
+
+          return {
+            games,
+            existingAppIds: games
+              .filter((game) => steam.isDuplicate(game, existing))
+              .map((game) => String(game.appid)),
+          }
+        },
+        importGames: async (games, userId) => {
+          const result = await steam.importGames(
+            games.map((game) => ({
+              appId: game.appId,
+              status: game.status,
+              ...(game.grade !== undefined && game.grade !== null ? { grade: game.grade } : {}),
+            })),
+            userId,
+          )
+
+          return { ...result, created: result.created.map(toGatewayRecord) }
+        },
+      },
       oauth: {
         exchangeTwitch: (code) => authService.handleTwitchCallback(code),
         exchangeKick: (code, verifier) => authService.handleKickCallback(code, verifier),

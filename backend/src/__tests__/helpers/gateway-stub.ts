@@ -31,6 +31,35 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       getLikesByUserId: async () => ({ likes: [], total: 0 }),
       getLikes: async () => ({ likes: [], total: 0 }),
     },
+    records: {
+      createFromLink: async () => {
+        throw new Error('createFromLink не заглушен')
+      },
+      findById: async () => {
+        throw new Error('findById не заглушен')
+      },
+      patch: async () => {
+        throw new Error('patch не заглушен')
+      },
+      updatePoster: async () => {
+        throw new Error('updatePoster не заглушен')
+      },
+      remove: async () => {
+        throw new Error('remove не заглушен')
+      },
+      getAll: async () => ({ records: [], total: 0 }),
+    },
+    ratings: {
+      rate: async () => {
+        throw new Error('rate не заглушен')
+      },
+      unrate: async () => {
+        throw new Error('unrate не заглушен')
+      },
+      getMy: async () => ({ items: [], total: 0 }),
+      getUser: async () => ({ items: [], total: 0 }),
+      getFriends: async () => ({ members: [] }),
+    },
     auth: { resolve: async () => null },
     rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
     ...overrides,

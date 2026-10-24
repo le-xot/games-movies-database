@@ -80,3 +80,26 @@ export function errorBody(statusCode: number, message: string) {
     error: STATUS_TEXT[statusCode] ?? 'Error',
   }
 }
+
+/**
+ * Мост для доменных ошибок. Доменные сервисы пока бросают Nest-исключения
+ * (`NotFoundException`, `ConflictException`, …) — их нужно отдать тем же
+ * статусом, что отдавал Nest.
+ *
+ * Проверка по `getStatus`, а не `instanceof HttpException`: гейтвей не должен
+ * импортировать Nest. Когда домен перестанет знать про HTTP (#242, этап 2),
+ * этот мост удаляется.
+ */
+export function fromDomainError(error: unknown): ApiError | null {
+  if (error instanceof ApiError) return error
+
+  const getStatus = (error as { getStatus?: unknown }).getStatus
+  if (typeof getStatus !== 'function') return null
+
+  const status = getStatus.call(error) as unknown
+  if (typeof status !== 'number' || status < 400 || status > 599) return null
+
+  const message = error instanceof Error ? error.message : (STATUS_TEXT[status] ?? 'Error')
+
+  return new ApiError(status, message)
+}

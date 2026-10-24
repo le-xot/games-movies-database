@@ -56,6 +56,15 @@ function canonical(schema: any): Json {
  * `anyOf: [{ $ref: 'X' }, { type: 'null' }]`, а Swagger пишет
  * `nullable: true` рядом с `$ref`. Это одна и та же семантика — сводим к одной.
  */
+function catchAllPattern(patterns: unknown): unknown {
+  if (!patterns || typeof patterns !== 'object') return undefined
+
+  const entries = Object.entries(patterns as Record<string, unknown>)
+  const catchAll = entries.find(([pattern]) => pattern === '^(.*)$' || pattern === '^.*$')
+
+  return catchAll?.[1]
+}
+
 function hasNullVariant(schema: any): boolean {
   const union = schema?.oneOf ?? schema?.anyOf
   if (!Array.isArray(union)) return false
@@ -65,6 +74,23 @@ function hasNullVariant(schema: any): boolean {
 
 function canonicalCore(schema: any): Json {
   if (!schema || typeof schema !== 'object') return null
+
+  // TypeBox пишет nullable как `type: ['string', 'null']` (JSON Schema 2020-12),
+  // Swagger — как `type: 'string'` + `nullable: true`. Это одно и то же.
+  if (Array.isArray(schema.type)) {
+    const types = schema.type.filter((type: unknown) => type !== 'null')
+
+    if (types.length === 1) {
+      return canonicalCore({ ...schema, type: types[0] })
+    }
+
+    return {
+      union: types
+        .map((type: string) => JSON.stringify({ type }))
+        .sort()
+        .map((value: string) => JSON.parse(value) as Json),
+    }
+  }
 
   if (schema.$ref) {
     return { $ref: String(schema.$ref).replace('#/components/schemas/', '') }
@@ -108,11 +134,17 @@ function canonicalCore(schema: any): Json {
       required: [...(schema.required ?? [])].sort(),
     }
 
+    // TypeBox описывает «объект-словарь» через `patternProperties` с ловящим
+    // всё шаблоном, Swagger — через `additionalProperties`. Это одна семантика.
+    const catchAll = catchAllPattern(schema.patternProperties)
+
     if (schema.additionalProperties !== undefined) {
       result.additionalProperties =
         typeof schema.additionalProperties === 'object'
           ? canonical(schema.additionalProperties)
           : Boolean(schema.additionalProperties)
+    } else if (catchAll !== undefined) {
+      result.additionalProperties = canonical(catchAll)
     }
 
     return sortKeys(result)

@@ -56,6 +56,57 @@ describe('normalizeContract', () => {
     })
   })
 
+  it('unwraps nullable written as a type array', () => {
+    const responses = normalizeSchema({
+      type: 'object',
+      properties: {
+        episode: { nullable: true, type: ['string', 'null'] },
+        likes: {
+          nullable: true,
+          type: ['array', 'null'],
+          items: { $ref: '#/components/schemas/Like' },
+        },
+      },
+      required: ['episode'],
+    })
+
+    expect(responses).toEqual({
+      '200': {
+        type: 'object',
+        properties: {
+          episode: { type: 'string', nullable: true },
+          likes: { type: 'array', items: { $ref: 'Like' }, nullable: true },
+        },
+        required: ['episode'],
+      },
+    })
+  })
+
+  it('treats a catch-all patternProperties as additionalProperties', () => {
+    const responses = normalizeSchema({
+      type: 'object',
+      properties: {
+        counts: { type: 'object', patternProperties: { '^(.*)$': { type: 'number' } } },
+      },
+      required: ['counts'],
+    })
+
+    expect(responses).toEqual({
+      '200': {
+        type: 'object',
+        properties: {
+          counts: {
+            type: 'object',
+            properties: {},
+            required: [],
+            additionalProperties: { type: 'number' },
+          },
+        },
+        required: ['counts'],
+      },
+    })
+  })
+
   it('keeps real unions, order-independent', () => {
     const first = normalizeSchema({
       oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],

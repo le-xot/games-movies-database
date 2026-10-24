@@ -1,8 +1,10 @@
 import { Elysia } from 'elysia'
-import { ApiError, errorBody } from '@/gateway/errors'
+import { errorBody, fromDomainError } from '@/gateway/errors'
 import { likeRoutes, type LikesService } from '@/gateway/likes'
 import { meRoutes } from '@/gateway/me'
 import { queueRoutes, type QueueReader } from '@/gateway/queue'
+import { ratingRoutes, type RatingsService } from '@/gateway/ratings'
+import { recordRoutes, type RecordsService } from '@/gateway/records'
 import { statsRoutes, type StatsReader } from '@/gateway/stats'
 import { weatherRoutes, type WeatherReader } from '@/gateway/weather'
 import type { Authenticator } from '@/gateway/auth'
@@ -18,6 +20,8 @@ export interface GatewayDeps {
   stats: StatsReader
   queue: QueueReader
   likes: LikesService
+  records: RecordsService
+  ratings: RatingsService
   auth: Authenticator
   rateLimit: RateLimiter
 }
@@ -25,11 +29,13 @@ export interface GatewayDeps {
 export function createGateway(deps: GatewayDeps) {
   return new Elysia({ name: 'gateway' })
     .onError(({ code, error, set }) => {
-      if (error instanceof ApiError) {
-        set.status = error.statusCode
-        if (error.headers) set.headers = { ...set.headers, ...error.headers }
+      const httpError = fromDomainError(error)
 
-        return errorBody(error.statusCode, error.message)
+      if (httpError) {
+        set.status = httpError.statusCode
+        if (httpError.headers) set.headers = { ...set.headers, ...httpError.headers }
+
+        return errorBody(httpError.statusCode, httpError.message)
       }
 
       // Валидация схемы: Elysia присылает VALIDATION с деталями.
@@ -52,6 +58,8 @@ export function createGateway(deps: GatewayDeps) {
     .use(statsRoutes(deps))
     .use(queueRoutes(deps))
     .use(likeRoutes(deps))
+    .use(recordRoutes(deps))
+    .use(ratingRoutes(deps))
 }
 
 export type Gateway = ReturnType<typeof createGateway>

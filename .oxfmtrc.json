@@ -1,5 +1,5 @@
 {
-  "ignorePatterns": ["frontend/src/lib/api.ts"],
+  "ignorePatterns": [],
   "printWidth": 100,
   "singleQuote": true,
   "tabWidth": 2,

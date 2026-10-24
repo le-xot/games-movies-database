@@ -81,20 +81,13 @@ export function errorBody(statusCode: number, message: string) {
  * (`NotFoundException`, `ConflictException`, …) — их нужно отдать тем же
  * статусом, что отдавал Nest.
  *
- * Проверка по `getStatus`, а не `instanceof HttpException`: гейтвей не должен
- * импортировать Nest. Когда домен перестанет знать про HTTP (#242, этап 2),
- * этот мост удаляется.
+ * Статус берём из поля `statusCode`, которое выставляют доменные исключения:
+ * гейтвей не должен импортировать HTTP-фреймворк.
  */
 export function fromDomainError(error: unknown): ApiError | null {
   if (error instanceof ApiError) return error
 
-  // Nest отдавал статус через getStatus(), наши доменные ошибки — через
-  // поле statusCode. Понимаем оба вида.
-  const candidate = error as { getStatus?: unknown; statusCode?: unknown }
-  const status =
-    typeof candidate.getStatus === 'function'
-      ? (candidate.getStatus as () => unknown).call(error)
-      : candidate.statusCode
+  const status = (error as { statusCode?: unknown }).statusCode
 
   if (typeof status !== 'number' || status < 400 || status > 599) return null
 

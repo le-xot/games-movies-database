@@ -8,11 +8,14 @@ import { parseCorsOrigins } from '@backend/utils/cors-origins'
 import { env } from '@backend/utils/enviroments'
 
 /**
- * Точка входа нового слоя. Пока живёт параллельно Nest и слушает свой порт:
- * переехавшие роуты можно потыкать вживую, не трогая прод.
+ * Продовая точка входа: HTTP-обвязка вокруг Elysia-гейтвея, раздача собранного
+ * фронта и мост доменных событий в нативный WebSocket.
  *
- * Запуск: `bun run dev:gateway` (порт `GATEWAY_PORT`, по умолчанию 3001).
+ * Запуск: `bun run start` (порт `APP_PORT`).
  */
+
+/** Больше 8 МиБ не принимаем: аватар ограничен 5 МиБ, остальные тела мелкие. */
+const MAX_REQUEST_BODY_BYTES = 8 * 1024 * 1024
 const container = createContainer()
 
 const app = createHttpServer(createGateway(container.deps), {
@@ -21,11 +24,11 @@ const app = createHttpServer(createGateway(container.deps), {
   staticRoot: resolve(import.meta.dir, '../../frontend/dist'),
 })
 
-const port = Number(process.env['GATEWAY_PORT'] ?? env.APP_PORT)
+const port = env.APP_PORT
 
 await container.init()
 
-app.listen({ port, hostname: '0.0.0.0' }, () => {
+app.listen({ port, hostname: '0.0.0.0', maxRequestBodySize: MAX_REQUEST_BODY_BYTES }, () => {
   bridgeWsEvents({
     emitter: container.emitter,
     publisher: () => app.server ?? undefined,

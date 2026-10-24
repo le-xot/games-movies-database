@@ -15,7 +15,9 @@ export type * from '@backend/api-types'
 // В браузере база абсолютная (относительный URL Eden не собирает), в тестах
 // `window` нет — там клиент всё равно не ходит в сеть.
 const apiBase =
-  typeof window === 'undefined' ? 'http://localhost/api' : new URL('/api', window.location.origin).toString()
+  typeof window === 'undefined'
+    ? 'http://localhost/api'
+    : new URL('/api', window.location.origin).toString()
 
 export const api = treaty<App>(apiBase, {
   fetch: { credentials: 'include' },

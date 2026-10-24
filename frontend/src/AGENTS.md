@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-Vue 3 SPA using Vite, Tailwind 4, shadcn-vue, Pinia, and OpenAPI-generated types.
+Vue 3 SPA using Vite, Tailwind 4, shadcn-vue, Pinia, and an Eden Treaty API client (types come from the backend's Elysia routes, no codegen).
 
 ## STRUCTURE
 
@@ -20,11 +20,11 @@ frontend/src/
 │   ├── record/    # RecordCreateForm
 │   ├── media/     # DataCards, filters, search, badge/
 │   └── ui/        # shadcn-vue primitives (managed, do not edit)
-├── composables/   # Plain composables (useWebSocket, useRecordCreate) + factories/
-├── lib/           # API client (openapi-fetch) + generated api-types.ts, cn() helper
+├── composables/   # Plain composables (useWebSocket, useRating, useScrollContainer) + factories/
+├── lib/           # Eden API client (api.ts), cn() helper
 ├── pages/         # Route components (feature folders, PascalCase .vue)
 ├── router/        # Vue Router config + route paths
-├── stores/        # Pinia stores (useApi, useUser, useAccountDialog, useLoginDialog, useBreakpoints, useNewRecords, useTitle)
+├── stores/        # Pinia stores (useUser, useAccountDialog, useLoginDialog, useBreakpoints, useNewRecords, useTitle) + plain useApi helper
 └── utils/         # Image proxy, watch link generation
 ```
 
@@ -33,7 +33,7 @@ frontend/src/
 | Task             | Location                     | Pattern                                                                                                  |
 | ---------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Add Page         | `pages/{name}/`              | Create `{Name}Page.vue` + `composables/` if complex                                                      |
-| Update API       | `lib/api.ts`                 | Eden Treaty; типы приходят из `@backend/api-types`, кодогена нет                                         |
+| Update API       | `lib/api.ts`                 | Eden Treaty; типы из `App` (`@backend/gateway`), реэкспорт из `@backend/api-types`                       |
 | Route            | `router/`                    | Add to `router-paths.ts` then `router.ts`                                                                |
 | Styling          | `assets/index.css`           | Tailwind 4 CSS variables + global overrides                                                              |
 | Utils            | `lib/utils.ts`               | Primary `cn()` helper (clsx + tailwind-merge)                                                            |
@@ -48,7 +48,6 @@ frontend/src/
 
 | Name               | Purpose                                                      |
 | ------------------ | ------------------------------------------------------------ |
-| `useApi`           | Singleton API client (baseUrl: /api, credentials: include)   |
 | `useUser`          | Auth state, login/logout, /auth/me data, admin/login getters |
 | `useAccountDialog` | Account modal open state (`ACCOUNT_DIALOG_ON_LOAD_KEY`)      |
 | `useLoginDialog`   | Login modal open state                                       |
@@ -56,12 +55,15 @@ frontend/src/
 | `useNewRecords`    | localStorage tracking for "new" record badges                |
 | `useTitle`         | Document title management                                    |
 
+`useApi` (`stores/use-api.ts`) — **не** Pinia store, а обычная функция, возвращающая Eden-клиент из `lib/api.ts`: клиент — `Proxy`, и `reactive()` ломает его ловушки.
+
 ## COMPOSABLES (Plain — `composables/`)
 
 | Name                   | Purpose                                                                  |
 | ---------------------- | ------------------------------------------------------------------------ |
 | `useWebSocket`         | Native WebSocket (`/ws`), кадры `{event, payload}`; рефетчит по событиям |
-| `useRecordCreate`      | Mutation for creating records from links                                 |
+| `useRating`            | Mutation for rating a record (PUT/DELETE `/ratings` via Eden)            |
+| `useScrollContainer`   | `provide`/`inject` для scroll-контейнера медиа-страниц                   |
 | `createEventCoalescer` | Debounced event batching for WebSocket updates                           |
 
 ## COMPONENT PATTERNS
@@ -79,7 +81,7 @@ frontend/src/
 
 ## ANTI-PATTERNS
 
-- **NEVER** заводить кодоген контракта: типы идут из Eden и `@backend/api-types`.
+- **NEVER** заводить кодоген контракта: типы идут из Eden (`App`) и `@backend/api-types` (статические `export type` из `gateway/*`); файлов `openapi.json` и `src/lib/api-types.ts` в проекте нет.
 - **Don't** remove the autofill hack in `index.css` (9999s transition delay).
 - **Don't** use icon libraries other than @lucide/vue or vue3-simple-icons.
 - **Don't** bypass `useUser` guards for auth-protected routes.

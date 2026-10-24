@@ -13,8 +13,8 @@ const SCHEMA_PREFIX = '#/components/schemas/'
 
 /**
  * Elysia ссылается на модели внутри схем коротким именем (`$ref: 'UserEntity'`),
- * а в ответах — полным путём. OpenAPI такого не допускает, и `openapi-typescript`
- * на коротких ссылках падает с `Can't resolve $ref`. Приводим всё к полному виду.
+ * а в ответах — полным путём. OpenAPI допускает только полный, и любой внешний
+ * потребитель документа ломается на коротких ссылках. Приводим всё к полному виду.
  */
 function canonicalizeRefs(node: unknown): void {
   if (!node || typeof node !== 'object') return
@@ -78,8 +78,8 @@ function pruneBodyMediaTypes(document: Record<string, unknown>): void {
 }
 
 export async function readGatewayDocument(app: Gateway) {
-  // 3.0, а не 3.1: фронтовый `openapi-typescript` ждёт nullable-идиому из 3.0,
-  // иначе `{nullable: true, $ref}` теряет null в сгенерированных типах.
+  // 3.0, а не 3.1: nullable отдаём Swagger-идиомой (`nullable` + `allOf`), а в
+  // 3.1 такого ключа нет — внешние генераторы клиентов теряли бы `| null`.
   const documented = app.use(openapi({ provider: null, path: SPEC_PATH, openapiVersion: '3.0.3' }))
 
   const response = await documented.handle(new Request(`http://localhost${SPEC_PATH}/json`))
@@ -141,11 +141,10 @@ export function collapseRefs(document: Record<string, unknown>): void {
       ) {
         const ref = byShape.get(stableStringify(stripIgnore(value)))
         if (ref) {
-          // `nullable` живёт на самой схеме, а не в определении модели —
-          // при сворачивании в `$ref` его надо сохранить рядом.
-          // Nullable отдаём идиомой Swagger: `$ref` рядом с `nullable`
-          // спецификацией игнорируется, а `allOf` из одного элемента —
-          // понимает и `openapi-typescript`, и наш нормализатор.
+          // `nullable` живёт на самой схеме, а не в определении модели.
+          // `$ref` рядом с `nullable` спецификацией игнорируется, поэтому
+          // оборачиваем ссылку в `allOf` из одного элемента — эту идиому
+          // понимают генераторы клиентов и наш нормализатор.
           record[key] =
             (value as { nullable?: boolean }).nullable === true
               ? { nullable: true, allOf: [{ $ref: ref }] }

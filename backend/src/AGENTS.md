@@ -3,8 +3,8 @@
 ## OVERVIEW
 
 Elysia API на Bun. HTTP-слой — тонкий гейтвей (`gateway/`), домен — обычные классы в
-`modules/` без DI-контейнера. Схемы TypeBox в гейтвее — единственный источник и
-валидации, и OpenAPI для типов фронта.
+`modules/` без DI-контейнера. Схемы TypeBox в гейтвее — единственный источник
+валидации, OpenAPI и типов фронта (Eden выводит их из `export type App`).
 
 ## STRUCTURE
 
@@ -13,7 +13,7 @@ backend/src/
 ├── main.ts              # Точка входа: container.init() → http-сервер → listen
 ├── gateway/             # HTTP/WS-слой: роуты, схемы TypeBox, auth, лимит, ошибки
 │   ├── index.ts         # createGateway(deps) + onError (конверт ApiErrorDto)
-│   ├── openapi.ts       # документ через app.handle() — для export:openapi и тестов
+│   ├── openapi.ts       # документ через app.handle() — для контрактных тестов
 │   ├── ws.ts            # native WebSocket на Bun + мост из доменных событий
 │   └── <домен>.ts       # модели + роуты одного домена
 ├── server/              # обвязка: composition root, http-сервер, статика
@@ -30,7 +30,7 @@ backend/src/
 | Роут        | `gateway/<домен>.ts`                       | Модели + `.get/.post`, схемы ответов по кодам              |
 | Сборка      | `gateway/index.ts`                         | `createGateway(deps)` — список портов и подключение роутов |
 | Проводка    | `server/container.ts`                      | Composition root: сервисы создаются руками, хуки — явно    |
-| Контракт    | `gateway/openapi.ts`                       | Документ для `frontend/openapi.json`                       |
+| Контракт    | `gateway/openapi.ts`                       | Документ для контрактных тестов и `openapi:golden`         |
 | Rate limits | `utils/rate-limits.ts`                     | Пресеты; сам лимитер — `utils/rate-limit.ts` (Redis)       |
 | Ошибки      | `utils/errors.ts`                          | Домен бросает `HttpError`, гейтвей превращает в конверт    |
 | Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole` |

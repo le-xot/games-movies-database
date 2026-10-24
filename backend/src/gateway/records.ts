@@ -116,37 +116,6 @@ export type GatewayRecord = typeof RecordEntity.static
 export type GatewayOwnership = typeof SuggestionOwnershipEntity.static
 export type RecordsPage = typeof recordModels.GetAllRecordsDTO.static
 
-export interface RecordCreateInput {
-  link: string
-  status?: RecordStatus | undefined
-  type?: RecordType | undefined
-}
-
-export interface RecordUpdateInput {
-  status?: RecordStatus | undefined
-  grade?: RecordGrade | null | undefined
-  episode?: string | undefined
-  type?: RecordType | undefined
-}
-
-export interface RecordUpdatePosterInput {
-  url: string
-}
-
-export interface RecordsQuery {
-  page?: number | undefined
-  limit?: number | undefined
-  orderBy?: 'id' | 'title' | undefined
-  direction?: 'asc' | 'desc' | undefined
-  status?: RecordStatus[] | undefined
-  type?: RecordType | undefined
-  genre?: RecordGenre | undefined
-  grade?: RecordGrade[] | undefined
-  search?: string | undefined
-  viewerId?: string | undefined
-}
-
-/** Что гейтвею нужно от домена записей. */
 export interface RecordsService {
   createFromLink(data: RecordCreateInput): Promise<GatewayRecord>
   findById(id: number, viewerId: string | undefined): Promise<GatewayRecord>

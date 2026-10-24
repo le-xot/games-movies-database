@@ -337,9 +337,9 @@ export function createContainer(): Container {
         },
         createTelegramRequest: () => telegramService.createAuthorizationRequest(),
         exchangeTelegram: (code, verifier) => telegramService.exchangeCode(code, verifier),
-        loginTelegram: (profile) => authService.handleTelegramOidcLogin(profile as never),
+        loginTelegram: (profile) => authService.handleTelegramOidcLogin(profile),
         linkTelegram: async (userId, profile) => {
-          await authService.linkTelegramOidc(userId, profile as never)
+          await authService.linkTelegramOidc(userId, profile)
         },
       },
       oauthConfig: {

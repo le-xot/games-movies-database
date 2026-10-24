@@ -1,5 +1,3 @@
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { JwtService } from '@nestjs/jwt'
 import { RedisClient } from 'bun'
 import { DrizzleService } from '@/database/drizzle.service'
 import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
@@ -49,6 +47,7 @@ import {
   toGatewayRecord,
   toGatewayUser,
 } from '@/server/adapters'
+import { DomainEvents } from '@/utils/domain-events'
 import { env } from '@/utils/enviroments'
 import { hitRateLimit } from '@/utils/rate-limit'
 import type { GatewayDeps } from '@/gateway'
@@ -57,7 +56,13 @@ import type { RateLimiter } from '@/gateway/rate-limit'
 export interface Container {
   deps: GatewayDeps
   /** Доменная шина: через неё же идут события в WebSocket. */
-  emitter: EventEmitter2
+  emitter: DomainEvents
+  /**
+   * Запускает хуки инициализации сервисов. Раньше это делал Nest; теперь
+   * composition root вызывает их сам, иначе прогрев погоды, расписание
+   * уведомлений и таймер уборки просто не стартуют.
+   */
+  init(): Promise<void>
   close(): Promise<void>
 }
 
@@ -70,7 +75,7 @@ export interface Container {
  */
 export function createContainer(): Container {
   const drizzle = new DrizzleService()
-  const events = new EventEmitter2()
+  const events = new DomainEvents()
   const s3 = new S3Service()
 
   const avatars = new AvatarService(s3)
@@ -117,20 +122,16 @@ export function createContainer(): Container {
   const wordlePractice = new WordlePracticeService(redisClient, dictionary)
   const telegramService = new TelegramService()
   const kick = new KickService()
-  const authService = new AuthService(
-    new JwtService({ secret: env.JWT_SECRET, signOptions: { expiresIn: '30d' } }),
-    users,
-    twitch,
-    kick,
-  )
+  const authService = new AuthService(env.JWT_SECRET, users, twitch, kick)
   const telegramBot = new TelegramBotService({
     token: env.TELEGRAM_BOT_TOKEN ?? null,
     webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL ?? null,
     webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET ?? null,
   })
+  const telegramCommands = new TelegramCommandRegistry(telegramBot)
   const wordleNotifications = new WordleNotificationService(
     telegramBot,
-    new TelegramCommandRegistry(telegramBot),
+    telegramCommands,
     new DrizzleWordleNotificationRepository(drizzle),
     users,
     redisClient,
@@ -148,8 +149,27 @@ export function createContainer(): Container {
       }),
   }
 
+  const started: Array<{
+    onModuleInit?: () => unknown
+    onApplicationBootstrap?: () => unknown
+  }> = [twitch, kick, telegramBot, telegramCommands, weather, wordle, wordleNotifications]
+
+  const stoppable: Array<{ onModuleDestroy?: () => unknown }> = [wordle, wordleNotifications]
+
   return {
     emitter: events,
+    async init() {
+      for (const service of started) {
+        try {
+          await service.onModuleInit?.()
+          await service.onApplicationBootstrap?.()
+        } catch (error) {
+          // Nest ронял старт приложения; здесь живём дальше: погода или
+          // телеграм могут быть недоступны, но сайт обязан подняться.
+          console.warn(`[gateway] init ${service.constructor.name} упал: ${String(error)}`)
+        }
+      }
+    },
     deps: {
       weather,
       stats,
@@ -360,6 +380,14 @@ export function createContainer(): Container {
       rateLimit,
     },
     async close() {
+      for (const service of stoppable) {
+        try {
+          await service.onModuleDestroy?.()
+        } catch (error) {
+          console.warn(`[gateway] shutdown ${service.constructor.name} упал: ${String(error)}`)
+        }
+      }
+
       await drizzle.pool.end()
       redisClient.close()
     },

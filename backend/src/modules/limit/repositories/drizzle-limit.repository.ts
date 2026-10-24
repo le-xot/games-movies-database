@@ -1,11 +1,9 @@
 import { limits } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { LimitType } from '@/enums'
 import { LimitDomain } from '../entities/limit.entity'
 
-@Injectable()
 export class DrizzleLimitRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

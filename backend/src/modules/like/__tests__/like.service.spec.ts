@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
+import { BadRequestException, NotFoundException } from '@/utils/errors'
 import { LikeService } from '../like.service'
 import { DrizzleLikeRepository } from '../repositories/drizzle-like.repository'
 

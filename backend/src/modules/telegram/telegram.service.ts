@@ -1,8 +1,9 @@
 import { Buffer } from 'node:buffer'
 import { randomBytes } from 'node:crypto'
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { env } from '@/utils/enviroments'
+import { HttpException, HttpStatus } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 import {
   TELEGRAM_OIDC_ISSUER,
   TELEGRAM_OIDC_JWKS_URL,
@@ -11,7 +12,6 @@ import {
 import { buildTelegramAuthorizeUrl, createPkcePair, mapTelegramOidcClaims } from './telegram.utils'
 import type { TelegramOidcClaims, TelegramProfile } from './telegram.types'
 
-@Injectable()
 export class TelegramService {
   private readonly logger = new Logger(TelegramService.name)
   private readonly jwks = createRemoteJWKSet(new URL(TELEGRAM_OIDC_JWKS_URL))

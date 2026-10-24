@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { NotFoundException } from '@nestjs/common'
 import { RecordGrade } from '@/enums'
+import { NotFoundException } from '@/utils/errors'
 import { RatingService } from '../rating.service'
 import { DrizzleRatingRepository } from '../repositories/drizzle-rating.repository'
 import type { DrizzleService } from '@/database/drizzle.service'

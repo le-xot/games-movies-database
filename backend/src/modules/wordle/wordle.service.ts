@@ -1,12 +1,4 @@
 import crypto from 'node:crypto'
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  type OnModuleDestroy,
-  type OnModuleInit,
-} from '@nestjs/common'
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { WordleGameStatus } from '@/enums'
 import { WsEvents, emitWs, type UpdateWordlePayload } from '@/modules/websocket/websocket.events'
 import {
@@ -26,12 +18,14 @@ import {
   buildLeaderboard,
   computeWordleStats,
 } from '@/modules/wordle/wordle.stats'
+import { DomainEvents } from '@/utils/domain-events'
+import { BadRequestException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
 
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 
-@Injectable()
-export class WordleService implements OnModuleInit, OnModuleDestroy {
+export class WordleService {
   private readonly logger = new Logger(WordleService.name)
   private staleCleanupTimer: ReturnType<typeof setInterval> | null = null
 
@@ -39,7 +33,7 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
     private readonly repository: DrizzleWordleRepository,
     private readonly dictionary: WordleDictionary,
     private readonly leaderboardCache: WordleLeaderboardCache,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
   ) {}
 
   onModuleInit(): void {
@@ -59,7 +53,6 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
     })
   }
 
-  @OnEvent(WsEvents.UPDATE_USERS)
   handleUserUpdated(): void {
     this.leaderboardCache.invalidate()
   }

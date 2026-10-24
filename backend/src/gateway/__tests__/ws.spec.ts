@@ -1,10 +1,10 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { WsEvents } from '@gmdb/contract'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { bridgeWsEvents, WS_TOPIC } from '@/gateway/ws'
+import { DomainEvents } from '@/utils/domain-events'
 
 function setup() {
-  const emitter = new EventEmitter2()
+  const emitter = new DomainEvents()
   const publish = mock((_topic: string, _data: string) => {})
 
   bridgeWsEvents({ emitter, publisher: () => ({ publish }) })
@@ -38,14 +38,14 @@ describe('bridgeWsEvents', () => {
   })
 
   it('does not blow up when the server is not listening yet', () => {
-    const emitter = new EventEmitter2()
+    const emitter = new DomainEvents()
     bridgeWsEvents({ emitter, publisher: () => undefined })
 
     expect(() => emitter.emit(WsEvents.UPDATE_USERS, { userId: 'u1' })).not.toThrow()
   })
 
   it('swallows a failing publish', () => {
-    const emitter = new EventEmitter2()
+    const emitter = new DomainEvents()
     bridgeWsEvents({
       emitter,
       publisher: () => ({

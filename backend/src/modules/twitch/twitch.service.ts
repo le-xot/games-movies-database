@@ -1,5 +1,5 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
+import { Logger } from '@/utils/logger'
 
 interface TwitchToken {
   access_token: string
@@ -7,8 +7,7 @@ interface TwitchToken {
   expiresAt: number
 }
 
-@Injectable()
-export class TwitchService implements OnModuleInit {
+export class TwitchService {
   private token: TwitchToken | null = null
   private readonly logger = new Logger(TwitchService.name)
 

@@ -1,9 +1,7 @@
-import { Injectable } from '@nestjs/common'
 import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
 
 export const WORDLE_LEADERBOARD_TTL_MS = 60_000
 
-@Injectable()
 export class WordleLeaderboardCache {
   private value: WordleLeaderboardResult | null = null
   private expiresAt = 0

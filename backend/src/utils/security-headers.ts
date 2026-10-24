@@ -1,5 +1,12 @@
 import { env } from '@/utils/enviroments'
-import type { NextFunction, Request, Response } from 'express'
+
+/** Минимум от Express-совместимых объектов: гейтвей их не использует. */
+interface Response {
+  setHeader(name: string, value: string): void
+}
+interface NextFunction {
+  (): void
+}
 
 const CSP = [
   "default-src 'self'",
@@ -38,7 +45,7 @@ export function buildSecurityHeaders(isProduction: boolean): Record<string, stri
 }
 
 export function securityHeaders(
-  _req: Request,
+  _req: unknown,
   res: Response,
   next: NextFunction,
   isProduction = env.NODE_ENV === 'production',

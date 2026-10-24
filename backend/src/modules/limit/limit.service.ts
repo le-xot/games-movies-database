@@ -1,8 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common'
 import { ChangeLimitDTO, LimitEntity } from '@/modules/limit/limit.dto'
+import { Logger } from '@/utils/logger'
 import { DrizzleLimitRepository } from './repositories/drizzle-limit.repository'
 
-@Injectable()
 export class LimitService {
   private readonly logger = new Logger(LimitService.name)
   constructor(private readonly limitRepository: DrizzleLimitRepository) {}

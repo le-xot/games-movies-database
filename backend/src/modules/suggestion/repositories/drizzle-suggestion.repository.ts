@@ -1,5 +1,4 @@
 import { likes, limits, records, suggestionOwnerships } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, count, eq, inArray, or, type SQL } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
@@ -19,7 +18,6 @@ export interface SuggestionFilters {
   statuses?: string[]
 }
 
-@Injectable()
 export class DrizzleSuggestionRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

@@ -1,7 +1,7 @@
 import { WsEvents } from '@gmdb/contract'
 import { Elysia } from 'elysia'
 import { isOriginAllowed } from '@/utils/cors-origins'
-import type { EventEmitter2 } from '@nestjs/event-emitter'
+import type { DomainEvents } from '@/utils/domain-events'
 
 /** Все клиенты сидят в одной комнате: события широковещательные. */
 export const WS_TOPIC = 'ws'
@@ -51,7 +51,7 @@ export interface WsPublisher {
 }
 
 export interface WsBridgeOptions {
-  emitter: Pick<EventEmitter2, 'on'>
+  emitter: Pick<DomainEvents, 'on'>
   /** Сервер появляется только после `listen()`, поэтому берём его лениво. */
   publisher: () => WsPublisher | undefined
 }

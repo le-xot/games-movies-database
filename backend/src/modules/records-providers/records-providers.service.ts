@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { env } from '@/utils/enviroments'
+import { BadRequestException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 import { isRecord } from '@/utils/type-guards'
 import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
 import type { RecordDomain } from '@/modules/record/entities/record-domain.entity'
@@ -93,7 +94,6 @@ interface LinkProvider {
   routes: LinkRoute[]
 }
 
-@Injectable()
 export class RecordsProvidersService {
   private readonly logger = new Logger(RecordsProvidersService.name)
   private readonly linkProviders: LinkProvider[] = [

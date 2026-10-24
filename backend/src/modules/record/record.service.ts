@@ -1,6 +1,4 @@
 import { Buffer } from 'node:buffer'
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 import { ImgService } from '@/modules/img/img.service'
 import { emptyFriendsCounts } from '@/modules/rating/entities/rating-domain.entity'
@@ -20,15 +18,17 @@ import {
   type UpdateRecordsPayload,
   type UpdateSuggestionsPayload,
 } from '@/modules/websocket/websocket.events'
+import { DomainEvents } from '@/utils/domain-events'
+import { NotFoundException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 
-@Injectable()
 export class RecordService {
   private readonly logger = new Logger(RecordService.name)
 
   constructor(
     private readonly recordRepository: DrizzleRecordRepository,
     private readonly recordsProviderService: RecordsProvidersService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
     private readonly imgService: ImgService,
     private readonly ratingRepository: DrizzleRatingRepository,
   ) {}

@@ -1,9 +1,9 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { BadRequestException } from '@nestjs/common'
 import sharp from 'sharp'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { S3Service } from '@/modules/s3/s3.service'
 import { env } from '@/utils/enviroments'
+import { BadRequestException } from '@/utils/errors'
 import {
   AVATAR_PALETTE,
   AvatarService,

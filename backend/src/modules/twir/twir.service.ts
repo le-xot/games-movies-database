@@ -1,9 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { SuggestionService } from '@/modules/suggestion/suggestion.service'
 import { SuggestionCreateByTwirDTO } from '@/modules/twir/twir.dto'
 import { UserService } from '@/modules/user/user.service'
+import { NotFoundException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 
-@Injectable()
 export class TwirService {
   private readonly logger = new Logger(TwirService.name)
   constructor(

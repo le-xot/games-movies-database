@@ -7,7 +7,6 @@ import {
   users,
   wordleGames,
 } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { AccountPlatform, UserRole } from '@/enums'
@@ -19,7 +18,6 @@ import {
   UserDomain,
 } from '@/modules/user/entities/user-domain.entity'
 
-@Injectable()
 export class DrizzleUserRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

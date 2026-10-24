@@ -1,28 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import {
-  RecordGenre as RecordGenreName,
-  RecordGrade as RecordGradeName,
-  RecordStatus as RecordStatusName,
-  RecordType as RecordTypeName,
-} from '@/enums/enums.names'
 import { LikeEntity } from '@/modules/like/like.entity'
 import { UserEntity } from '@/modules/user/user.entity'
 
 export class SuggestionOwnershipEntity {
-  @ApiProperty()
   id!: number
 
-  @ApiProperty()
   recordId!: number
 
-  @ApiProperty()
   userId!: string
 
-  @ApiProperty({ type: UserEntity, required: false, nullable: true })
   user?: UserEntity | null
 
-  @ApiProperty()
   createdAt!: Date
 
   constructor(partial: Partial<SuggestionOwnershipEntity>) {
@@ -31,60 +19,38 @@ export class SuggestionOwnershipEntity {
 }
 
 export class RecordEntity {
-  @ApiProperty()
   id!: number
 
-  @ApiProperty()
   title!: string
 
-  @ApiProperty()
   link!: string
 
-  @ApiProperty()
   posterUrl!: string
 
-  @ApiProperty({ enum: RecordStatus, enumName: RecordStatusName, nullable: true })
   status!: RecordStatus | null
 
-  @ApiProperty({ enum: RecordType, enumName: RecordTypeName, nullable: true })
   type!: RecordType | null
 
-  @ApiProperty({ enum: RecordGenre, enumName: RecordGenreName, nullable: true })
   genre!: RecordGenre | null
 
-  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, nullable: true })
   grade!: RecordGrade | null
 
-  @ApiProperty({
-    required: false,
-    nullable: true,
-    type: Object,
-    example: { DISLIKE: 0, BEER: 1, LIKE: 2, RECOMMEND: 3 },
-  })
   friendsCounts?: Record<RecordGrade, number> | null
 
-  @ApiProperty({ required: false, nullable: true, example: 6 })
   friendsTotal?: number | null
 
-  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
   friendsTop?: RecordGrade | null
 
-  @ApiProperty({ enum: RecordGrade, enumName: RecordGradeName, required: false, nullable: true })
   myGrade?: RecordGrade | null
 
-  @ApiProperty({ nullable: true })
   episode!: string | null
 
-  @ApiProperty({ required: false, nullable: true, type: Object })
   extra?: unknown
 
-  @ApiProperty({ type: SuggestionOwnershipEntity, required: false, nullable: true })
   suggestionOwnership?: SuggestionOwnershipEntity | null
 
-  @ApiProperty({ type: [LikeEntity], required: false, nullable: true })
   likes?: LikeEntity[] | null
 
-  @ApiProperty()
   createdAt!: Date
 
   constructor(partial: Partial<RecordEntity>) {

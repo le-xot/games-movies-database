@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { UserRole } from '@/enums'
+import { BadRequestException, ConflictException, NotFoundException } from '@/utils/errors'
 import { UserDomain } from '../entities/user-domain.entity'
 import { DrizzleUserRepository } from '../repositories/drizzle-user.repository'
 import { UserService } from '../user.service'

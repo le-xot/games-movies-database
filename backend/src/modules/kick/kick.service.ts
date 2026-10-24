@@ -1,5 +1,5 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { env } from '@/utils/enviroments'
+import { Logger } from '@/utils/logger'
 
 interface KickToken {
   access_token: string
@@ -14,8 +14,7 @@ interface KickUser {
   profile_picture: string
 }
 
-@Injectable()
-export class KickService implements OnModuleInit {
+export class KickService {
   private token: KickToken | null = null
   private readonly logger = new Logger(KickService.name)
 

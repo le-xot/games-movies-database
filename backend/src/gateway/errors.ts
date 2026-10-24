@@ -93,10 +93,14 @@ export function errorBody(statusCode: number, message: string) {
 export function fromDomainError(error: unknown): ApiError | null {
   if (error instanceof ApiError) return error
 
-  const getStatus = (error as { getStatus?: unknown }).getStatus
-  if (typeof getStatus !== 'function') return null
+  // Nest отдавал статус через getStatus(), наши доменные ошибки — через
+  // поле statusCode. Понимаем оба вида.
+  const candidate = error as { getStatus?: unknown; statusCode?: unknown }
+  const status =
+    typeof candidate.getStatus === 'function'
+      ? (candidate.getStatus as () => unknown).call(error)
+      : candidate.statusCode
 
-  const status = getStatus.call(error) as unknown
   if (typeof status !== 'number' || status < 400 || status > 599) return null
 
   const message = error instanceof Error ? error.message : (STATUS_TEXT[status] ?? 'Error')

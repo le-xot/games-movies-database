@@ -1,9 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common'
 import { RecordGenre, RecordType } from '@/enums'
 import { QueueDto, QueueItemDto } from '@/modules/queue/queue.dto'
+import { Logger } from '@/utils/logger'
 import { DrizzleQueueRepository } from './repositories/drizzle-queue.repository'
 
-@Injectable()
 export class QueueService {
   private readonly logger = new Logger(QueueService.name)
 

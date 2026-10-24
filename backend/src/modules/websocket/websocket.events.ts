@@ -1,10 +1,10 @@
+import type { DomainEvents } from '@/utils/domain-events'
 import type { WsEventMap } from '@gmdb/contract'
-import type { EventEmitter2 } from '@nestjs/event-emitter'
 
 export * from '@gmdb/contract'
 
 export function emitWs<K extends keyof WsEventMap>(
-  emitter: Pick<EventEmitter2, 'emit'>,
+  emitter: Pick<DomainEvents, 'emit'>,
   event: K,
   payload: WsEventMap[K],
 ): boolean {

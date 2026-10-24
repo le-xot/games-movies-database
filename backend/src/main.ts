@@ -21,7 +21,9 @@ const app = createHttpServer(createGateway(container.deps), {
   staticRoot: resolve(import.meta.dir, '../../../frontend/dist'),
 })
 
-const port = Number(process.env['GATEWAY_PORT'] ?? env.APP_PORT + 1)
+const port = Number(process.env['GATEWAY_PORT'] ?? env.APP_PORT)
+
+await container.init()
 
 app.listen({ port, hostname: '0.0.0.0' }, () => {
   bridgeWsEvents({

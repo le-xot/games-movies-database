@@ -1,25 +1,32 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
+import { SignJWT } from 'jose'
 import { KickService } from '@/modules/kick/kick.service'
 import { formatTelegramLogin } from '@/modules/telegram/telegram.utils'
 import { TwitchService } from '@/modules/twitch/twitch.service'
 import { UserService } from '@/modules/user/user.service'
+import { HttpException, HttpStatus } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 import type { TelegramProfile } from '@/modules/telegram/telegram.types'
 import type { UserDomain } from '@/modules/user/entities/user-domain.entity'
 
-@Injectable()
+const TOKEN_TTL = '30d'
+
 export class AuthService {
   private readonly logger = new Logger(AuthService.name)
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly jwtSecret: string,
     private readonly userService: UserService,
     private readonly twitch: TwitchService,
     private readonly kick: KickService,
   ) {}
 
-  private signJwt(userId: string): Promise<string> {
+  private async signJwt(userId: string): Promise<string> {
     this.logger.log(`Signing JWT for userId=${userId}`)
-    return this.jwtService.signAsync({ id: userId })
+
+    return await new SignJWT({ id: userId })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(TOKEN_TTL)
+      .sign(new TextEncoder().encode(this.jwtSecret))
   }
 
   private async completeLogin(provider: string, user: UserDomain): Promise<string> {

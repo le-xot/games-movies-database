@@ -1,12 +1,10 @@
 import { records, suggestionRules } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGenre } from '@/enums'
 import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
 import { SuggestionRulesDomain } from '@/modules/suggestion/entities/suggestion-rules.entity'
 
-@Injectable()
 export class DrizzleRecordsProvidersRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

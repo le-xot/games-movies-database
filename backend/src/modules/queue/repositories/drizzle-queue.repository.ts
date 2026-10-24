@@ -1,11 +1,9 @@
 import { records } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, eq, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordStatus, RecordType } from '@/enums'
 import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
-@Injectable()
 export class DrizzleQueueRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

@@ -1,11 +1,4 @@
 import { randomBytes } from 'node:crypto'
-import {
-  Logger,
-  NotFoundException,
-  ServiceUnavailableException,
-  type OnModuleDestroy,
-  type OnModuleInit,
-} from '@nestjs/common'
 import { AccountPlatform, WordleGameStatus } from '@/enums'
 import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
 import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
@@ -35,6 +28,8 @@ import {
 } from '@/modules/wordle/wordle-notification.schedule'
 import { getMoscowDateKey } from '@/modules/wordle/wordle.date'
 import { computeWordleStats } from '@/modules/wordle/wordle.stats'
+import { NotFoundException, ServiceUnavailableException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 import type { TelegramCommandContext } from '@/modules/telegram/telegram-bot.types'
 import type { RedisClient } from 'bun'
 
@@ -56,7 +51,7 @@ export interface WordleNotificationRecipient {
   streak: number
 }
 
-export class WordleNotificationService implements OnModuleInit, OnModuleDestroy {
+export class WordleNotificationService {
   private readonly logger = new Logger(WordleNotificationService.name)
   private readonly appPublicUrl: string
   private readonly slots: Slots

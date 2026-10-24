@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
-import { Logger, type OnModuleInit } from '@nestjs/common'
+import { Logger } from '@/utils/logger'
 import type { TelegramMenuItem } from '@/modules/telegram/telegram-bot.types'
 
 export const TELEGRAM_API_BASE = 'https://api.telegram.org'
@@ -31,7 +31,7 @@ export function webhookSecretsMatch(header: string | undefined, expected: string
   return timingSafeEqual(headerBytes, expectedBytes)
 }
 
-export class TelegramBotService implements OnModuleInit {
+export class TelegramBotService {
   private readonly logger = new Logger(TelegramBotService.name)
   private botUsername: string | null = null
 

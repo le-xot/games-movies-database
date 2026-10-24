@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { JwtService } from '@nestjs/jwt'
+import { SignJWT } from 'jose'
 import { createJwtAuthenticator } from '@/gateway/jwt-authenticator'
 import type { GatewayUser } from '@/gateway/auth'
 
@@ -16,9 +16,13 @@ const USER: GatewayUser = {
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
-// Токены подписываются тем же @nestjs/jwt, которым подписывает прод: проверяем
-// совместимость с тем, что уже лежит в куках у пользователей.
-const jwt = new JwtService({ secret: SECRET, signOptions: { expiresIn: '30d' } })
+async function sign(payload: Record<string, unknown>, secret = SECRET): Promise<string> {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('30d')
+    .sign(new TextEncoder().encode(secret))
+}
 
 function authenticator(user: GatewayUser | null = USER) {
   return createJwtAuthenticator({
@@ -28,21 +32,20 @@ function authenticator(user: GatewayUser | null = USER) {
 }
 
 describe('createJwtAuthenticator', () => {
-  it('resolves the user from a token signed by @nestjs/jwt', async () => {
-    const token = await jwt.signAsync({ id: USER.id })
+  it('resolves the user from a signed token', async () => {
+    const token = await sign({ id: USER.id })
 
     expect(await authenticator().resolve(token)).toEqual(USER)
   })
 
   it('returns null for a user that no longer exists', async () => {
-    const token = await jwt.signAsync({ id: 'deleted-user' })
+    const token = await sign({ id: 'deleted-user' })
 
     expect(await authenticator(null).resolve(token)).toBeNull()
   })
 
   it('returns null for a token signed with another secret', async () => {
-    const foreign = new JwtService({ secret: OTHER_SECRET })
-    const token = await foreign.signAsync({ id: USER.id })
+    const token = await sign({ id: USER.id }, OTHER_SECRET)
 
     expect(await authenticator().resolve(token)).toBeNull()
   })
@@ -52,7 +55,15 @@ describe('createJwtAuthenticator', () => {
   })
 
   it('returns null when the payload has no user id', async () => {
-    const token = await jwt.signAsync({ login: USER.login })
+    const token = await sign({ login: USER.login })
+
+    expect(await authenticator().resolve(token)).toBeNull()
+  })
+
+  it('returns null for a token with another algorithm', async () => {
+    const token = await new SignJWT({ id: USER.id })
+      .setProtectedHeader({ alg: 'HS512' })
+      .sign(new TextEncoder().encode(SECRET))
 
     expect(await authenticator().resolve(token)).toBeNull()
   })

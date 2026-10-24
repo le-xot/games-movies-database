@@ -1,6 +1,4 @@
 import { beforeEach, describe, expect, it, jest, mock, spyOn } from 'bun:test'
-import { BadRequestException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { createMock } from '@/__tests__/helpers/mock-factory'
 import { WordleGameStatus } from '@/enums'
 import { WsEvents } from '@/modules/websocket/websocket.events'
@@ -12,6 +10,8 @@ import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cach
 import { getMoscowDateKey } from '@/modules/wordle/wordle.date'
 import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
 import { WordleService } from '@/modules/wordle/wordle.service'
+import { DomainEvents } from '@/utils/domain-events'
+import { BadRequestException } from '@/utils/errors'
 import type { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
 
 const NOW = new Date('2026-09-20T10:00:00.000Z')
@@ -33,7 +33,7 @@ describe('WordleService', () => {
   let service: WordleService
   let mockRepo: DrizzleWordleRepository
   let cache: WordleLeaderboardCache
-  let events: EventEmitter2
+  let events: DomainEvents
   let mockDictionary: {
     isValidWord: ReturnType<typeof mock>
     getAnswerForDate: ReturnType<typeof mock>
@@ -42,7 +42,7 @@ describe('WordleService', () => {
   beforeEach(() => {
     mockRepo = createMock(DrizzleWordleRepository)
     cache = new WordleLeaderboardCache(60_000)
-    events = new EventEmitter2()
+    events = new DomainEvents()
     mockDictionary = {
       isValidWord: mock((word: string) => ['слово', 'кокос', 'ежики', 'птица'].includes(word)),
       getAnswerForDate: mock(() => ANSWER),

@@ -1,5 +1,4 @@
 import { likes, recordRatings, records, suggestionOwnerships } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, asc, count, desc, eq, ilike, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import {
@@ -10,7 +9,6 @@ import {
   UpdateRecordData,
 } from '@/modules/record/entities/record-domain.entity'
 
-@Injectable()
 export class DrizzleRecordRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

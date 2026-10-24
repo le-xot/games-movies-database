@@ -1,23 +1,17 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
 import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
 import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
+import { DomainEvents } from '@/utils/domain-events'
+import { BadRequestException, ForbiddenException, NotFoundException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 
-@Injectable()
 export class SuggestionService {
   private readonly logger = new Logger(SuggestionService.name)
   constructor(
     private readonly suggestionRepository: DrizzleSuggestionRepository,
     private recordsProviderService: RecordsProvidersService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
   ) {}
 
   async userSuggest(data: {

@@ -1,5 +1,4 @@
 import { wordleGames, wordleNotificationSubscriptions } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, asc, eq, inArray, ne } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { WordleGameStatus } from '@/enums'
@@ -13,7 +12,6 @@ export interface WordleNotificationFlags {
   eveningEnabled?: boolean | undefined
 }
 
-@Injectable()
 export class DrizzleWordleNotificationRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

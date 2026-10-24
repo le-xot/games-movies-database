@@ -1,5 +1,4 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { BadRequestException } from '@nestjs/common'
 import { WordleGameStatus } from '@/enums'
 import {
   PRACTICE_KEY_PREFIX,
@@ -10,6 +9,7 @@ import {
 } from '@/modules/wordle/wordle-practice.service'
 import { getMoscowDateKey, shiftDateKey } from '@/modules/wordle/wordle.date'
 import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
+import { BadRequestException } from '@/utils/errors'
 import type { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
 import type { RedisClient } from 'bun'
 

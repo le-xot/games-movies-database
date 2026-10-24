@@ -1,6 +1,5 @@
 import crypto from 'node:crypto'
 import { recordRatings, records, users } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, count, desc, eq, inArray } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { RecordGrade } from '@/enums'
@@ -20,7 +19,6 @@ export interface FriendsMemberRow {
   counts: FriendsCounts
 }
 
-@Injectable()
 export class DrizzleRatingRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

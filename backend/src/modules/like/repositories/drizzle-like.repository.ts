@@ -1,11 +1,9 @@
 import crypto from 'node:crypto'
 import { likes } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, count, eq } from 'drizzle-orm'
 import { DrizzleService } from '@/database/drizzle.service'
 import { LikeDomain } from '../entities/like.entity'
 
-@Injectable()
 export class DrizzleLikeRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

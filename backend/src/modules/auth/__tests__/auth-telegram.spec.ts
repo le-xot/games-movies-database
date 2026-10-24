@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { HttpException } from '@nestjs/common'
+import { jwtVerify } from 'jose'
+import { HttpException } from '@/utils/errors'
 import { AuthService } from '../auth.service'
+
+const JWT_SECRET = 'test-secret'
 
 describe('AuthService telegram oidc', () => {
   let service: AuthService
-  let jwtService: { signAsync: ReturnType<typeof mock> }
   let userService: Record<string, ReturnType<typeof mock>>
 
   const profile = {
@@ -15,7 +17,6 @@ describe('AuthService telegram oidc', () => {
   }
 
   beforeEach(() => {
-    jwtService = { signAsync: mock(() => Promise.resolve('jwt-token')) }
     userService = {
       getUserById: mock(() => Promise.resolve({ id: 'user-1' })),
       upsertUser: mock(() => Promise.resolve({ id: 'user-1' })),
@@ -23,13 +24,14 @@ describe('AuthService telegram oidc', () => {
       getLinkedAccounts: mock(() => Promise.resolve([])),
       linkPlatformAccount: mock(() => Promise.resolve()),
     }
-    service = new AuthService(jwtService as any, userService as any, {} as any, {} as any)
+    service = new AuthService(JWT_SECRET, userService as any, {} as any, {} as any)
   })
 
   it('creates a user and returns a jwt on login', async () => {
     const jwt = await service.handleTelegramOidcLogin(profile)
+    const { payload } = await jwtVerify(jwt, new TextEncoder().encode(JWT_SECRET))
 
-    expect(jwt).toBe('jwt-token')
+    expect(payload['id']).toBe('user-1')
     expect(userService.upsertUser).toHaveBeenCalledWith(
       '42',
       { login: 'ivan', platformAvatar: 'https://cdn4.telesco.pe/file/photo.jpg' },

@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { isIP } from 'node:net'
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException } from '@/utils/errors'
 import {
   assertPublicHttpUrl,
   fetchPublicImage,

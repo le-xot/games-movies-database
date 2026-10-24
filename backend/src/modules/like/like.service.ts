@@ -1,14 +1,14 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
+import { DomainEvents } from '@/utils/domain-events'
+import { BadRequestException, NotFoundException } from '@/utils/errors'
+import { Logger } from '@/utils/logger'
 import { DrizzleLikeRepository } from './repositories/drizzle-like.repository'
 
-@Injectable()
 export class LikeService {
   private readonly logger = new Logger(LikeService.name)
   constructor(
     private readonly likeRepository: DrizzleLikeRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
   ) {}
 
   async createLike(userId: string, recordId: number) {

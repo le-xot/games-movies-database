@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { NotFoundException } from '@nestjs/common'
 import { ApiError, errorBody, fromDomainError } from '@/gateway/errors'
+import { NotFoundException } from '@/utils/errors'
 
 describe('fromDomainError', () => {
   it('keeps gateway errors as is', () => {

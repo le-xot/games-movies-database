@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException } from '@/utils/errors'
 
 export const MAX_IMAGE_PIXELS = 25_000_000
 

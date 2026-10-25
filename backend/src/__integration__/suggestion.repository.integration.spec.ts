@@ -1,10 +1,10 @@
 import { expect, it } from 'bun:test'
+import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { limits, records, suggestionOwnerships } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
-import { DrizzleSuggestionRepository } from '@/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleSuggestionRepository (integration)', ({ db }) => {
   const repository = new DrizzleSuggestionRepository({ db } as unknown as DrizzleService)

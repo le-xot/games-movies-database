@@ -1,10 +1,8 @@
-import { describe, expect, it, mock } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { securityHeaders } from '../security-headers'
-
-const makeRes = () => ({ setHeader: mock((_name: string, _value: string) => {}) })
+import { buildSecurityHeaders } from '../security-headers'
 
 const INDEX_HTML_PATH = join(import.meta.dir, '..', '..', '..', '..', 'frontend', 'index.html')
 
@@ -15,69 +13,33 @@ function inlineScriptHash(): string {
   return `'sha256-${createHash('sha256').update(script, 'utf8').digest('base64')}'`
 }
 
-describe('securityHeaders', () => {
+describe('buildSecurityHeaders', () => {
   it('sets hardening headers on every response', () => {
-    const res = makeRes()
-    const next = mock(() => {})
+    const headers = buildSecurityHeaders(false)
 
-    securityHeaders({} as any, res as any, next, false)
-
-    expect(res.setHeader).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff')
-    expect(res.setHeader).toHaveBeenCalledWith('X-Frame-Options', 'DENY')
-    expect(res.setHeader).toHaveBeenCalledWith('Referrer-Policy', 'strict-origin-when-cross-origin')
-    expect(res.setHeader).toHaveBeenCalledWith(
-      'Permissions-Policy',
-      'camera=(), microphone=(), geolocation=()',
-    )
-    expect(res.setHeader).toHaveBeenCalledWith('Cross-Origin-Opener-Policy', 'same-origin')
-    expect(next).toHaveBeenCalledTimes(1)
+    expect(headers['X-Content-Type-Options']).toBe('nosniff')
+    expect(headers['X-Frame-Options']).toBe('DENY')
+    expect(headers['Referrer-Policy']).toBe('strict-origin-when-cross-origin')
+    expect(headers['Permissions-Policy']).toBe('camera=(), microphone=(), geolocation=()')
+    expect(headers['Cross-Origin-Opener-Policy']).toBe('same-origin')
   })
 
   it('omits CSP outside production', () => {
-    const res = makeRes()
-
-    securityHeaders(
-      {} as any,
-      res as any,
-      mock(() => {}),
-      false,
-    )
-
-    const names = res.setHeader.mock.calls.map(([name]) => name)
-    expect(names).not.toContain('Content-Security-Policy')
+    expect(buildSecurityHeaders(false)['Content-Security-Policy']).toBeUndefined()
   })
 
   it('adds a CSP in production allowing fonts and same-origin connections', () => {
-    const res = makeRes()
+    const csp = buildSecurityHeaders(true)['Content-Security-Policy']
 
-    securityHeaders(
-      {} as any,
-      res as any,
-      mock(() => {}),
-      true,
-    )
-
-    const cspCall = res.setHeader.mock.calls.find(([name]) => name === 'Content-Security-Policy')
-
-    expect(cspCall).toBeDefined()
-    expect(cspCall![1]).toContain("default-src 'self'")
-    expect(cspCall![1]).toContain('https://fonts.googleapis.com')
-    expect(cspCall![1]).toContain('https://fonts.gstatic.com')
-    expect(cspCall![1]).toContain("connect-src 'self'")
-    expect(cspCall![1]).toContain("frame-ancestors 'none'")
+    expect(csp).toContain("default-src 'self'")
+    expect(csp).toContain('https://fonts.googleapis.com')
+    expect(csp).toContain('https://fonts.gstatic.com')
+    expect(csp).toContain("connect-src 'self'")
+    expect(csp).toContain("frame-ancestors 'none'")
   })
 
   it.skipIf(!existsSync(INDEX_HTML_PATH))('allows the inline boot script from index.html', () => {
-    const res = makeRes()
-
-    securityHeaders(
-      {} as any,
-      res as any,
-      mock(() => {}),
-      true,
-    )
-
-    const csp = res.setHeader.mock.calls.find(([name]) => name === 'Content-Security-Policy')![1]
+    const csp = buildSecurityHeaders(true)['Content-Security-Policy']
 
     expect(csp).toContain(inlineScriptHash())
   })

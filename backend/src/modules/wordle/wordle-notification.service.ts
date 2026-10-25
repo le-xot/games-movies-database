@@ -1,21 +1,14 @@
 import { randomBytes } from 'node:crypto'
-import {
-  Logger,
-  NotFoundException,
-  ServiceUnavailableException,
-  type OnModuleDestroy,
-  type OnModuleInit,
-} from '@nestjs/common'
-import { AccountPlatform, WordleGameStatus } from '@/enums'
-import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
-import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
-import { UserService } from '@/modules/user/user.service'
-import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
+import { AccountPlatform, WordleGameStatus } from '@backend/enums'
+import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
+import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
+import { UserService } from '@backend/modules/user/user.service'
+import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import {
   WordleNotificationsLinkDTO,
   WordleNotificationsStatusDTO,
   WordleNotificationsUpdateDTO,
-} from '@/modules/wordle/wordle-notification.dto'
+} from '@backend/modules/wordle/wordle-notification.dto'
 import {
   OPEN_SITE_BUTTON_TEXT,
   PLAY_BUTTON_TEXT,
@@ -24,7 +17,7 @@ import {
   buildEveningText,
   buildMorningText,
   buildPlayUrl,
-} from '@/modules/wordle/wordle-notification.messages'
+} from '@backend/modules/wordle/wordle-notification.messages'
 import {
   formatSlotTime,
   nextSlotAt,
@@ -32,10 +25,12 @@ import {
   resolveSlots,
   type SlotName,
   type Slots,
-} from '@/modules/wordle/wordle-notification.schedule'
-import { getMoscowDateKey } from '@/modules/wordle/wordle.date'
-import { computeWordleStats } from '@/modules/wordle/wordle.stats'
-import type { TelegramCommandContext } from '@/modules/telegram/telegram-bot.types'
+} from '@backend/modules/wordle/wordle-notification.schedule'
+import { getMoscowDateKey } from '@backend/modules/wordle/wordle.date'
+import { computeWordleStats } from '@backend/modules/wordle/wordle.stats'
+import { NotFoundException, ServiceUnavailableException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
+import type { TelegramCommandContext } from '@backend/modules/telegram/telegram-bot.types'
 import type { RedisClient } from 'bun'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -56,7 +51,7 @@ export interface WordleNotificationRecipient {
   streak: number
 }
 
-export class WordleNotificationService implements OnModuleInit, OnModuleDestroy {
+export class WordleNotificationService {
   private readonly logger = new Logger(WordleNotificationService.name)
   private readonly appPublicUrl: string
   private readonly slots: Slots

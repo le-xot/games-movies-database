@@ -2,46 +2,62 @@
 
 ## OVERVIEW
 
-NestJS 12 API source directory. Boots Swagger, Drizzle, Redis rate limiting, and 21 feature modules.
+Elysia API на Bun. HTTP-слой — тонкий гейтвей (`gateway/`), домен — обычные классы в
+`modules/` без DI-контейнера. Схемы TypeBox в гейтвее — единственный источник
+валидации, OpenAPI и типов фронта (Eden выводит их из `export type App`).
 
 ## STRUCTURE
 
 ```
 backend/src/
-├── main.ts              # cookieParser, CORS, prefix /api (Swagger-документ собирается офлайн)
-├── app.module.ts        # Root. Imports modules, ServeStatic, RateLimitGuard, EventEmitter
-├── app.controller.ts    # Health check. Reads package.json version via Bun.file()
-├── database/            # DrizzleModule + DrizzleService (pg.Pool + drizzle)
-├── enums/               # enums.names.ts: String constants for database enum types
-├── utils/               # enviroments.ts (envalid, typo in filename), rate-limits.ts (presets)
-└── modules/             # Feature modules (see modules/AGENTS.md for details)
+├── main.ts              # Точка входа: container.init() → http-сервер → listen
+├── gateway/             # HTTP/WS-слой: роуты, схемы TypeBox, auth, лимит, ошибки
+│   ├── index.ts         # createGateway(deps) + onError (конверт ApiErrorDto)
+│   ├── openapi.ts       # документ через app.handle() — для контрактных тестов
+│   ├── ws.ts            # native WebSocket на Bun + мост из доменных событий
+│   └── <домен>.ts       # модели + роуты одного домена
+├── server/              # обвязка: composition root, http-сервер, статика
+├── database/            # DrizzleService (pg.Pool + drizzle)
+├── enums/               # ре-экспорт констант из @gmdb/contract
+├── utils/               # env, ошибки, логгер, лимиты, доменные события
+└── modules/             # Доменные сервисы и репозитории (без Nest)
 ```
 
 ## WHERE TO LOOK
 
-| Target      | File/Path                   | Notes                                                              |
-| ----------- | --------------------------- | ------------------------------------------------------------------ |
-| API Docs    | `scripts/export-openapi.ts` | Swagger-документ собирается из AppModule в `frontend/openapi.json` |
-| App Config  | `app.module.ts`             | Global guards, EventEmitter2, RateLimitGuard                       |
-| Rate Limits | `modules/rate-limit/`       | Redis fixed-window limiter; presets in `utils/rate-limits.ts`      |
-| Auth Logic  | `modules/auth/`             | @Global() AuthService, JWT cookie ('token')                        |
-| DB Access   | `database/`                 | Inject DrizzleService, use `.db`                                   |
-| Env Schema  | `utils/enviroments.ts`      | Defines required vars for envalid                                  |
-| Real-time   | `modules/websocket/`        | Socket.io gateway for frontend updates                             |
+| Target      | File/Path                                  | Notes                                                      |
+| ----------- | ------------------------------------------ | ---------------------------------------------------------- |
+| Роут        | `gateway/<домен>.ts`                       | Модели + `.get/.post`, схемы ответов по кодам              |
+| Сборка      | `gateway/index.ts`                         | `createGateway(deps)` — список портов и подключение роутов |
+| Проводка    | `server/container.ts`                      | Composition root: сервисы создаются руками, хуки — явно    |
+| Контракт    | `gateway/openapi.ts`                       | Документ для контрактных тестов и `openapi:golden`         |
+| Rate limits | `utils/rate-limits.ts`                     | Пресеты; сам лимитер — `utils/rate-limit.ts` (Redis)       |
+| Ошибки      | `utils/errors.ts`                          | Домен бросает `HttpError`, гейтвей превращает в конверт    |
+| Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole` |
+| Real-time   | `gateway/ws.ts`                            | `/ws`, одна комната, кадры `{ event, payload }`            |
+| Env         | `utils/enviroments.ts`                     | envalid (в имени файла опечатка — так и надо)              |
 
 ## CONVENTIONS
 
-- **Prefix**: All routes automatically prefixed with `/api` via `setGlobalPrefix`.
-- **Validation**: Global `ValidationPipe` with `transform: true` and `whitelist: true`.
-- **Auth**: Use `@User()` decorator to access `request.user`.
-- **Guards**: `AuthGuard` (JWT), `ApikeyGuard` (TWIR header), `RolesGuard` (inline roles), `RateLimitGuard` (global Redis limiter).
-- **Events**: `EventEmitter2` for cross-module updates (users, likes, records).
-- **CORS**: Restricted to `localhost:3000` and `:5173`.
-- **Runtime**: Uses `Bun.file()` in `app.controller.ts` — requires Bun to run.
+- **Роут = модель + ответ по кодам.** Имена моделей в TypeBox повторяют имена схем
+  контракта (`RecordEntity`, `ApiErrorDto`) — от них зависит `$ref` и типы фронта.
+- **Модели регистрируются в том плагине, где объявлен роут.** Ссылка `200: 'X'`
+  проверяется по реестру того `Elysia`, на котором висит роут.
+- **Порядок middleware**: лимит → auth → роли. Тесты это фиксируют.
+- **`onTransform` только на уровне плагина**: в опциях роута Elysia его игнорирует.
+- **Числа в query**: если в схеме есть `t.Ref`, Elysia перестаёт приводить строки к
+  числу — используйте `coerceQueryNumbers` (см. `gateway/query.ts`).
+- **Домен не знает про HTTP-слой.** Гейтвей получает порты (`WeatherReader`,
+  `LikesService`), а не классы Nest.
+- **События**: `DomainEvents` (см. `utils/domain-events.ts`), мост в WS — `bridgeWsEvents`.
 
 ## ANTI-PATTERNS
 
-- **Typo**: Do not "fix" `utils/enviroments.ts` without updating every import.
-- **Drizzle**: Never instantiate a pg Pool outside `DrizzleService`; always inject it.
-- **Throttler**: `@nestjs/throttler` was removed — use `@RateLimit()` from `modules/rate-limit/`.
-- **Auth**: Avoid manual JWT parsing. Use the provided guards and `@User()` decorator.
+- **Typo**: не «исправлять» `utils/enviroments.ts` без обновления всех импортов.
+- **Drizzle**: не создавать `pg.Pool` вне `DrizzleService`.
+- **`t.Unsafe` в схемах ответа**: ломает рантайм-валидацию TypeBox («Unknown type»),
+  выглядит валидным в OpenAPI и падает 500 на живом запросе.
+- **`null` в ответе**: Elysia отдаёт пустое тело — для nullable-ответов нужен явный
+  `Response('null')`.
+- **Сервисы не должны бросать Nest-исключения** — их больше нет; домен бросает
+  `HttpError` из `utils/errors.ts`.

@@ -1,4 +1,13 @@
 import crypto from 'node:crypto'
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { AccountPlatform, UserRole } from '@backend/enums'
+import {
+  CreateUserData,
+  LinkPlatformData,
+  MergeUsersResult,
+  UpdateUserData,
+  UserDomain,
+} from '@backend/modules/user/entities/user-domain.entity'
 import {
   likes,
   recordRatings,
@@ -7,19 +16,8 @@ import {
   users,
   wordleGames,
 } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, eq, inArray, sql } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { AccountPlatform, UserRole } from '@/enums'
-import {
-  CreateUserData,
-  LinkPlatformData,
-  MergeUsersResult,
-  UpdateUserData,
-  UserDomain,
-} from '@/modules/user/entities/user-domain.entity'
 
-@Injectable()
 export class DrizzleUserRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

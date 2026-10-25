@@ -1,18 +1,13 @@
-import { WordleGameStatus } from '@/enums'
-import { daysBetween, shiftDateKey } from '@/modules/wordle/wordle.date'
-import type { WordleLetterState } from '@/modules/wordle/wordle.scoring'
+import { WordleGameStatus } from '@backend/enums'
+import { daysBetween, shiftDateKey } from '@backend/modules/wordle/wordle.date'
+import { WordleHistoryStatus } from '@gmdb/contract'
+import type { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
 
 export const MAX_ATTEMPTS = 6
 export const WORD_LENGTH = 5
 export const WORDLE_HISTORY_DAYS = 7
 
-export const WordleHistoryStatus = {
-  WON: 'WON',
-  LOST: 'LOST',
-  NONE: 'NONE',
-} as const
-
-export type WordleHistoryStatus = (typeof WordleHistoryStatus)[keyof typeof WordleHistoryStatus]
+export { WordleHistoryStatus }
 
 export interface WordleHistoryDay {
   date: string

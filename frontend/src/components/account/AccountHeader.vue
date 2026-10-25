@@ -3,9 +3,10 @@ import { Camera } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { UserRole } from '@/lib/api'
+import { UserRole, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
+import { parseApiError } from '@/utils/api-error'
 import type { UserEntity } from '@/lib/api'
 
 const props = defineProps<{
@@ -33,13 +34,10 @@ async function onFileChange(event: Event) {
   avatarError.value = ''
 
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-    // Контракт описывает binary как string, но openapi-fetch умеет FormData напрямую.
-    await api.POST('/auth/me/avatar', { body: formData as unknown as { file: string } })
+    await unwrap(api.auth.me.avatar.post({ file }))
     await userStore.refetchUser()
-  } catch {
-    avatarError.value = 'Ошибка при загрузке аватарки'
+  } catch (error) {
+    avatarError.value = await parseApiError(error, 'Ошибка при загрузке аватарки')
   } finally {
     isUploading.value = false
     if (fileInput.value) fileInput.value.value = ''

@@ -5,6 +5,7 @@ import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { SUGGESTION_QUERY_KEY } from '@/composables/query-keys'
 import { RecordEntity, RecordStatus, RecordType, unwrap } from '@/lib/api'
+import { assertOk } from '@/lib/api'
 import SuggestionForm from '@/pages/suggestion/components/SuggestionForm.vue'
 import SupportedServices from '@/pages/suggestion/components/SupportedServices.vue'
 import { useApi } from '@/stores/use-api'
@@ -42,7 +43,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     query: async () => {
       try {
         error.value = null
-        const data = await unwrap(api.GET('/suggestions'))
+        const data = await unwrap(api.suggestions.get())
         return data
       } catch (err) {
         error.value = await parseApiError(err, 'Failed to load suggestions')
@@ -67,7 +68,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (link: string) => {
       try {
         error.value = null
-        return await api.POST('/suggestions', { body: { link } })
+        return await assertOk(api.suggestions.post({ link }))
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -80,13 +81,12 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.PATCH('/records/{id}', {
-          params: { path: { id } },
-          body: {
+        return await assertOk(
+          api.records({ id }).patch({
             status: RecordStatus.NOTINTERESTED,
             type: RecordType.WRITTEN,
-          },
-        })
+          }),
+        )
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -99,7 +99,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.DELETE('/records/{id}', { params: { path: { id } } })
+        return await assertOk(api.records({ id }).delete())
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -112,10 +112,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.PATCH('/records/{id}', {
-          params: { path: { id } },
-          body: { type: RecordType.WRITTEN },
-        })
+        return await assertOk(api.records({ id }).patch({ type: RecordType.WRITTEN }))
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err
@@ -128,7 +125,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     mutation: async (id: number) => {
       try {
         error.value = null
-        return await api.DELETE('/suggestions/{id}', { params: { path: { id } } })
+        return await assertOk(api.suggestions({ id }).delete())
       } catch (err) {
         error.value = await parseApiError(err, 'Неизвестная ошибка')
         throw err

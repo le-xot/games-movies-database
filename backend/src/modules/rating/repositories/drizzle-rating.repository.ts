@@ -1,9 +1,8 @@
 import crypto from 'node:crypto'
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { RecordGrade } from '@backend/enums'
 import { recordRatings, records, users } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, count, desc, eq, inArray } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { RecordGrade } from '@/enums'
 import {
   FriendsAggregate,
   FriendsCounts,
@@ -20,7 +19,6 @@ export interface FriendsMemberRow {
   counts: FriendsCounts
 }
 
-@Injectable()
 export class DrizzleRatingRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 
@@ -38,7 +36,7 @@ export class DrizzleRatingRepository {
       .values({ id: crypto.randomUUID(), userId, recordId, grade })
       .onConflictDoUpdate({
         target: [recordRatings.userId, recordRatings.recordId],
-        set: { grade, updatedAt: new Date() },
+        set: { grade, updatedAt: new Date().toISOString() },
       })
       .returning()
     if (!rating) throw new Error('Failed to upsert rating')

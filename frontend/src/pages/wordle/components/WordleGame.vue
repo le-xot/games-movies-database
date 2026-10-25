@@ -4,6 +4,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { WordleGameStatus } from '@/lib/api'
 import WordleBoard from '@/pages/wordle/components/WordleBoard.vue'
 import WordleDragGhost from '@/pages/wordle/components/WordleDragGhost.vue'
@@ -16,8 +17,16 @@ import { useWordleKeyboard } from '@/pages/wordle/composables/use-wordle-keyboar
 import { WORDLE_MAX_ATTEMPTS, WORDLE_WORD_LENGTH } from '@/pages/wordle/constants/wordle-constants'
 
 const wordle = useWordle()
-const { state, stats, guessCells, isShaking, letterStates, isInputLocked, isFinished } =
-  storeToRefs(wordle)
+const {
+  state,
+  stats,
+  guessCells,
+  isShaking,
+  letterStates,
+  isInputLocked,
+  isFinished,
+  isStateLoading,
+} = storeToRefs(wordle)
 
 const isDesktop = useMediaQuery('(min-width: 1280px)')
 const isStatsOpen = ref(false)
@@ -139,7 +148,14 @@ const dayProgress = computed(() => {
         </div>
 
         <div class="flex flex-1 items-center justify-center xl:flex-none">
+          <!-- Пока состояние грузится, поле не интерактивно: показать пустую
+               сетку и молча глотать нажатия — хуже, чем скелетон. -->
+          <Skeleton
+            v-if="isStateLoading"
+            class="h-[calc(var(--wordle-tile)_*_6_+_var(--wordle-gap)_*_5)] w-[calc(var(--wordle-tile)_*_5_+_var(--wordle-gap)_*_4)] rounded-lg sm:h-[calc(var(--wordle-tile-sm)_*_6_+_var(--wordle-gap)_*_5)] sm:w-[calc(var(--wordle-tile-sm)_*_5_+_var(--wordle-gap)_*_4)]"
+          />
           <WordleBoard
+            v-else
             :guesses="state?.guesses ?? []"
             :cells="guessCells"
             :word-length="WORDLE_WORD_LENGTH"

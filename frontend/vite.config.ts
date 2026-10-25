@@ -31,7 +31,7 @@ export default defineConfig(() => {
           target: backendTarget,
           changeOrigin: true,
         },
-        '/socket.io': {
+        '/ws': {
           ws: true,
           rewriteWsOrigin: true,
           target: backendTarget,

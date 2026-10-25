@@ -40,6 +40,17 @@ function extractErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
+/**
+ * Скелетон нужен только пока данных ещё нет.
+ *
+ * `isLoading` у colada истинно и на рефетче, а подменять доску скелетоном на
+ * каждом возврате на страницу — значит снова терять нажатия: ввод заблокирован,
+ * пока показывается заглушка.
+ */
+export function isInitialStateLoad(loading: boolean, state: unknown): boolean {
+  return loading && state === undefined
+}
+
 export const useWordle = defineStore('wordle/use-wordle', () => {
   const api = useApi()
   const queryCache = useQueryCache()
@@ -54,26 +65,26 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     refetch: refetchState,
   } = useQuery<WordleStateDTO>({
     key: [WORDLE_STATE_KEY],
-    query: () => unwrap(api.GET('/wordle/state')),
+    query: () => unwrap(api.wordle.state.get()),
     gcTime: false,
   })
 
   const { data: stats, refetch: refetchStats } = useQuery<WordleStatsDTO>({
     key: [WORDLE_STATS_KEY],
-    query: () => unwrap(api.GET('/wordle/stats')),
+    query: () => unwrap(api.wordle.stats.get()),
     gcTime: false,
   })
 
   const { data: leaderboard, refetch: refetchLeaderboard } = useQuery<WordleLeaderboardDTO>({
     key: [WORDLE_LEADERBOARD_KEY],
-    query: () => unwrap(api.GET('/wordle/leaderboard')),
+    query: () => unwrap(api.wordle.leaderboard.get()),
     gcTime: false,
   })
 
   const { mutateAsync: submitDailyGuess, isLoading: isSubmittingDaily } = useMutation({
     key: [WORDLE_STATE_KEY, 'guess'],
     mutation: (word: string) => {
-      return unwrap(api.POST('/wordle/guess', { body: { word } }))
+      return unwrap(api.wordle.guess.post({ word }))
     },
     onSuccess: (data) => {
       queryCache.setQueryData([WORDLE_STATE_KEY], data)
@@ -89,13 +100,13 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     refetch: refetchPractice,
   } = useQuery<WordlePracticeStateDTO | null>({
     key: [WORDLE_PRACTICE_KEY],
-    query: () => unwrap(api.GET('/wordle/practice')),
+    query: () => unwrap(api.wordle.practice.get()),
     gcTime: false,
   })
 
   const { mutateAsync: startPracticeRound, isLoading: isStartingPractice } = useMutation({
     key: [WORDLE_PRACTICE_KEY, 'start'],
-    mutation: () => unwrap(api.POST('/wordle/practice')),
+    mutation: () => unwrap(api.wordle.practice.post()),
     onSuccess: (data) => {
       queryCache.setQueryData([WORDLE_PRACTICE_KEY], data)
     },
@@ -103,7 +114,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
 
   const { mutateAsync: submitPracticeGuess, isLoading: isSubmittingPractice } = useMutation({
     key: [WORDLE_PRACTICE_KEY, 'guess'],
-    mutation: (word: string) => unwrap(api.POST('/wordle/practice/guess', { body: { word } })),
+    mutation: (word: string) => unwrap(api.wordle.practice.guess.post({ word })),
     onSuccess: (data) => {
       queryCache.setQueryData([WORDLE_PRACTICE_KEY], data)
     },
@@ -120,7 +131,10 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     isPractice.value ? isSubmittingPractice.value : isSubmittingDaily.value,
   )
   const isStateLoading = computed(() =>
-    isPractice.value ? isPracticeLoading.value : isDailyStateLoading.value,
+    isInitialStateLoad(
+      isPractice.value ? isPracticeLoading.value : isDailyStateLoading.value,
+      activeState.value,
+    ),
   )
   const isInputLocked = computed(
     () => isSubmitting.value || isFinished.value || isStateLoading.value,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException } from '@backend/utils/errors'
 import { assertOAuthState } from '../auth.oauth-state'
 
 describe('assertOAuthState', () => {

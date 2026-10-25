@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
-import { WordleDictionary, normalizeWord } from '@/modules/wordle/wordle.dictionary'
+import { WordleDictionary, normalizeWord } from '@backend/modules/wordle/wordle.dictionary'
 
 const TEST_SALT = 'test-salt'
 

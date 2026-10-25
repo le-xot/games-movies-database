@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { RecordGenre, RecordGrade, RecordStatus } from '@/enums'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { RecordGenre, RecordGrade, RecordStatus } from '@backend/enums'
 import { DrizzleStatsRepository } from '../repositories/drizzle-stats.repository'
 import { StatsService } from '../stats.service'
 

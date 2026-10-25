@@ -1,23 +1,27 @@
 import crypto from 'node:crypto'
+import { WordleGameStatus } from '@backend/enums'
 import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  type OnModuleDestroy,
-  type OnModuleInit,
-} from '@nestjs/common'
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
-import { WordleGameStatus } from '@/enums'
-import { WsEvents, emitWs, type UpdateWordlePayload } from '@/modules/websocket/websocket.events'
+  WsEvents,
+  emitWs,
+  type UpdateWordlePayload,
+} from '@backend/modules/websocket/websocket.events'
 import {
   DrizzleWordleRepository,
   type WordleGameRecord,
-} from '@/modules/wordle/repositories/drizzle-wordle.repository'
-import { WordleLeaderboardCache } from '@/modules/wordle/wordle-leaderboard.cache'
-import { getMoscowDateKey, msUntilNextMoscowMidnight } from '@/modules/wordle/wordle.date'
-import { WordleDictionary, WORD_PATTERN, normalizeWord } from '@/modules/wordle/wordle.dictionary'
-import { WordleLeaderboardDTO, WordleStateDTO, WordleStatsDTO } from '@/modules/wordle/wordle.dto'
-import { scoreGuess } from '@/modules/wordle/wordle.scoring'
+} from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
+import { WordleLeaderboardCache } from '@backend/modules/wordle/wordle-leaderboard.cache'
+import { getMoscowDateKey, msUntilNextMoscowMidnight } from '@backend/modules/wordle/wordle.date'
+import {
+  WordleDictionary,
+  WORD_PATTERN,
+  normalizeWord,
+} from '@backend/modules/wordle/wordle.dictionary'
+import {
+  WordleLeaderboardDTO,
+  WordleStateDTO,
+  WordleStatsDTO,
+} from '@backend/modules/wordle/wordle.dto'
+import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 import {
   MAX_ATTEMPTS,
   WORD_LENGTH,
@@ -25,13 +29,15 @@ import {
   buildHistory,
   buildLeaderboard,
   computeWordleStats,
-} from '@/modules/wordle/wordle.stats'
-import type { WordleLeaderboardResult } from '@/modules/wordle/wordle.stats'
+} from '@backend/modules/wordle/wordle.stats'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { BadRequestException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
+import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 
-@Injectable()
-export class WordleService implements OnModuleInit, OnModuleDestroy {
+export class WordleService {
   private readonly logger = new Logger(WordleService.name)
   private staleCleanupTimer: ReturnType<typeof setInterval> | null = null
 
@@ -39,7 +45,7 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
     private readonly repository: DrizzleWordleRepository,
     private readonly dictionary: WordleDictionary,
     private readonly leaderboardCache: WordleLeaderboardCache,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
   ) {}
 
   onModuleInit(): void {
@@ -59,7 +65,6 @@ export class WordleService implements OnModuleInit, OnModuleDestroy {
     })
   }
 
-  @OnEvent(WsEvents.UPDATE_USERS)
   handleUserUpdated(): void {
     this.leaderboardCache.invalidate()
   }

@@ -1,5 +1,5 @@
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
+import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 /** Full record row fixture: every column present, nullable columns set to null. */
 export function makeRecordRow(overrides: Partial<RecordWithRelations> = {}): RecordWithRelations {
@@ -14,8 +14,8 @@ export function makeRecordRow(overrides: Partial<RecordWithRelations> = {}): Rec
     grade: null,
     episode: null,
     extra: null,
-    createdAt: new Date('2026-01-02T03:04:05.000Z'),
-    updatedAt: new Date('2026-01-02T03:04:05.000Z'),
+    createdAt: '2026-01-02T03:04:05.000Z',
+    updatedAt: '2026-01-02T03:04:05.000Z',
     ...overrides,
   }
 }

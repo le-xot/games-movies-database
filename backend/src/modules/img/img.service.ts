@@ -1,15 +1,16 @@
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import {
   assertPublicHttpUrl,
   fetchPublicImage,
   MAX_IMAGE_BYTES,
-} from '@/modules/img/img-url-safety'
-import { ImgVariant } from '@/modules/img/img.dto'
-import { S3Service } from '@/modules/s3/s3.service'
-import { env } from '@/utils/enviroments'
-import { assertPixelLimit } from '@/utils/image-limits'
+} from '@backend/modules/img/img-url-safety'
+import { ImgVariant } from '@backend/modules/img/img.dto'
+import { S3Service } from '@backend/modules/s3/s3.service'
+import { env } from '@backend/utils/enviroments'
+import { BadRequestException } from '@backend/utils/errors'
+import { assertPixelLimit } from '@backend/utils/image-limits'
+import { Logger } from '@backend/utils/logger'
 
 interface ImgPreset {
   width: number
@@ -23,7 +24,6 @@ const IMG_PRESETS: Record<ImgVariant, ImgPreset> = {
   [ImgVariant.AVATAR]: { width: 64, height: 64, quality: 80, keySuffix: '_avatar' },
 }
 
-@Injectable()
 export class ImgService {
   private readonly logger = new Logger(ImgService.name)
 

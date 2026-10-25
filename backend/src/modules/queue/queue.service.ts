@@ -1,9 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { RecordGenre, RecordType } from '@/enums'
-import { QueueDto, QueueItemDto } from '@/modules/queue/queue.dto'
+import { RecordGenre, RecordType } from '@backend/enums'
+import { QueueDto, QueueItemDto } from '@backend/modules/queue/queue.dto'
+import { Logger } from '@backend/utils/logger'
 import { DrizzleQueueRepository } from './repositories/drizzle-queue.repository'
 
-@Injectable()
 export class QueueService {
   private readonly logger = new Logger(QueueService.name)
 
@@ -18,7 +17,7 @@ export class QueueService {
     ): QueueItemDto => ({
       title: record.title,
       posterUrl: record.posterUrl,
-      createdAt: record.createdAt.toLocaleDateString('ru-RU', {
+      createdAt: new Date(record.createdAt).toLocaleDateString('ru-RU', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',

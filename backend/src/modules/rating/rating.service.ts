@@ -1,21 +1,24 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { RecordGrade } from '@backend/enums'
+import {
+  FriendsCounts,
+  emptyFriendsCounts,
+} from '@backend/modules/rating/entities/rating-domain.entity'
+import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { NotFoundException } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 import { records, users } from '@gmd/database/schema'
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { eq } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { RecordGrade } from '@/enums'
-import { FriendsCounts, emptyFriendsCounts } from '@/modules/rating/entities/rating-domain.entity'
-import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
 import { DrizzleRatingRepository } from './repositories/drizzle-rating.repository'
 
-@Injectable()
 export class RatingService {
   private readonly logger = new Logger(RatingService.name)
 
   constructor(
     private readonly ratingRepository: DrizzleRatingRepository,
     private readonly drizzle: DrizzleService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
   ) {}
 
   async rate(userId: string, recordId: number, grade: RecordGrade) {

@@ -11,36 +11,21 @@
     "test:integration:reset": "RUN_DB_TESTS=1 bun run src/__integration__/setup-db.ts --reset && RUN_DB_TESTS=1 bun test src/__integration__",
     "start": "bun run ./src/main.ts",
     "dev": "bun run --watch --no-clear-screen ./src/main.ts",
-    "export:openapi": "bun run scripts/export-openapi.ts"
+    "openapi:golden": "bun run scripts/generate-openapi-golden.ts"
   },
   "dependencies": {
     "@gmd/database": "workspace:*",
-    "@nestjs/common": "12.2.0",
-    "@nestjs/core": "12.2.0",
-    "@nestjs/event-emitter": "12.0.1",
-    "@nestjs/jwt": "12.0.3",
-    "@nestjs/platform-express": "12.2.0",
-    "@nestjs/platform-socket.io": "12.2.0",
-    "@nestjs/serve-static": "12.0.0",
-    "@nestjs/swagger": "12.0.3",
-    "@nestjs/websockets": "12.2.0",
-    "class-transformer": "0.5.1",
-    "class-validator": "0.15.1",
-    "cookie-parser": "1.4.7",
+    "@gmdb/contract": "workspace:*",
     "drizzle-orm": "0.45.4",
+    "elysia": "1.4.30",
     "envalid": "8.2.0",
     "jose": "6.2.13",
     "pg": "8.23.1",
-    "reflect-metadata": "0.2.2",
-    "rxjs": "7.8.2",
-    "sharp": "0.35.5",
-    "socket.io": "4.8.4"
+    "sharp": "0.35.5"
   },
   "devDependencies": {
-    "@nestjs/testing": "12.2.0",
+    "@elysia/openapi": "1.4.16",
     "@types/bun": "1.4.4",
-    "@types/cookie-parser": "1.4.10",
-    "@types/express": "5.0.6",
     "@types/pg": "8.23.1",
     "typescript": "7.0.2"
   }

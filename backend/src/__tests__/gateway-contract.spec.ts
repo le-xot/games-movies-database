@@ -1,0 +1,116 @@
+import { describe, expect, it } from 'bun:test'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { readGatewayDocument } from '@backend/gateway/openapi'
+import { normalizeContract } from '@backend/utils/openapi-contract'
+
+const GOLDEN = JSON.parse(
+  readFileSync(join(import.meta.dir, 'fixtures', 'openapi.golden.json'), 'utf8'),
+)
+
+/**
+ * Операции, которые уже переехали в гейтвей. Каждая обязана совпадать с
+ * эталоном Nest: форма ответа, коды, параметры и все схемы, на которые она
+ * ссылается (имена схем — это `$ref` в типах фронта).
+ */
+const MIGRATED_OPERATIONS = [
+  'GET /weather',
+  'GET /auth/me',
+  'GET /stats/records',
+  'GET /queue',
+  'POST /likes',
+  'DELETE /likes/{recordId}',
+  'GET /likes/records/{id}',
+  'GET /likes/users/{id}',
+  'GET /likes/count',
+  'POST /records/link',
+  'GET /records',
+  'GET /records/{id}',
+  'PATCH /records/{id}',
+  'PATCH /records/{id}/poster',
+  'DELETE /records/{id}',
+  'PUT /ratings/{recordId}',
+  'DELETE /ratings/{recordId}',
+  'GET /ratings/my',
+  'GET /ratings/users/{id}',
+  'GET /ratings/friends',
+  'GET /health',
+  'GET /users/users',
+  'GET /users/{id}',
+  'GET /users/{id}/accounts',
+  'DELETE /users/{id}',
+  'POST /users/{id}/merge',
+  'GET /suggestions',
+  'POST /suggestions',
+  'DELETE /suggestions/{id}',
+  'POST /limits',
+  'POST /twir/suggestion',
+  'GET /wordle/state',
+  'POST /wordle/guess',
+  'GET /wordle/stats',
+  'GET /wordle/leaderboard',
+  'GET /wordle/practice',
+  'POST /wordle/practice',
+  'POST /wordle/practice/guess',
+  'GET /wordle/notifications',
+  'PATCH /wordle/notifications',
+  'POST /wordle/notifications/link',
+  'DELETE /wordle/notifications',
+  'GET /auth/accounts',
+  'DELETE /auth/accounts/{platform}',
+  'PATCH /auth/me',
+  'DELETE /auth/me',
+  'POST /auth/logout',
+  'POST /auth/me/avatar',
+  'DELETE /auth/me/avatar',
+  'GET /auth/twitch',
+  'GET /auth/twitch/link',
+  'POST /auth/twitch/callback',
+  'POST /auth/twitch/link',
+  'GET /auth/kick',
+  'GET /auth/kick/link',
+  'POST /auth/kick/callback',
+  'POST /auth/kick/link',
+  'GET /auth/telegram',
+  'GET /auth/telegram/link',
+  'GET /auth/telegram/oidc/callback',
+  'GET /img',
+  'GET /avatar/{userId}',
+  'GET /steam/games',
+  'POST /steam/import',
+] as const
+
+type Normalized = ReturnType<typeof normalizeContract>
+type Json = Record<string, unknown>
+
+function collectRefs(node: unknown, found = new Set<string>()): Set<string> {
+  if (!node || typeof node !== 'object') return found
+
+  if (typeof (node as Json).$ref === 'string') {
+    found.add(String((node as Json).$ref))
+    return found
+  }
+
+  for (const value of Object.values(node)) collectRefs(value, found)
+
+  return found
+}
+
+describe('Elysia gateway contract', () => {
+  const expected = GOLDEN as Normalized
+
+  it.each(MIGRATED_OPERATIONS)(
+    '%s matches the Nest contract',
+    async (operation) => {
+      const actual = normalizeContract(await readGatewayDocument(createTestGateway()))
+
+      expect(actual.paths[operation]).toEqual(expected.paths[operation])
+
+      for (const name of collectRefs(actual.paths[operation])) {
+        expect({ [name]: actual.schemas[name] }).toEqual({ [name]: expected.schemas[name] })
+      }
+    },
+    20_000,
+  )
+})

@@ -71,7 +71,7 @@ export function useWeather() {
     if (cached && Date.now() - cachedAt < WEATHER_CACHE_TTL_MS) return
 
     try {
-      const data = await unwrap(api.GET('/weather'))
+      const data = await unwrap(api.weather.get())
       city.value = data.name
       temp.value = Math.round(data.main.temp)
       condition.value = data.weather[0]?.main ?? ''

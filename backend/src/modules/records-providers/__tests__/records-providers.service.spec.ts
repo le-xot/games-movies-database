@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import { RecordDomain } from '@/modules/record/entities/record-domain.entity'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@backend/__tests__/helpers/record-fixture'
+import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import { RecordDomain } from '@backend/modules/record/entities/record-domain.entity'
 import { RecordsProvidersService } from '../records-providers.service'
 import { DrizzleRecordsProvidersRepository } from '../repositories/drizzle-records-providers.repository'
 

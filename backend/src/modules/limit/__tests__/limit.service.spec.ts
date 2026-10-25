@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { LimitType } from '@/enums'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { LimitType } from '@backend/enums'
 import { LimitService } from '../limit.service'
 import { DrizzleLimitRepository } from '../repositories/drizzle-limit.repository'
 

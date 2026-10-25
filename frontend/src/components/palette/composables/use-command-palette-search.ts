@@ -1,11 +1,6 @@
 import { refDebounced } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
-import {
-  PathsRecordsGetParametersQueryDirection,
-  PathsRecordsGetParametersQueryOrderBy,
-  RecordType,
-  unwrap,
-} from '@/lib/api'
+import { RecordDirection, RecordOrderBy, RecordType, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RouteItem } from '@/components/layout/db/use-db-navigation'
 import type { RecordEntity } from '@/lib/api'
@@ -67,15 +62,13 @@ export function useCommandPaletteSearch(options: {
 
     try {
       const data = await unwrap(
-        api.GET('/records', {
-          params: {
-            query: {
-              type: RecordType.WRITTEN,
-              search,
-              orderBy: PathsRecordsGetParametersQueryOrderBy.id,
-              direction: PathsRecordsGetParametersQueryDirection.desc,
-              limit: search ? PALETTE_RECORD_LIMIT : PALETTE_RECENT_LIMIT,
-            },
+        api.records.get({
+          query: {
+            type: RecordType.WRITTEN,
+            search,
+            orderBy: RecordOrderBy.id,
+            direction: RecordDirection.desc,
+            limit: search ? PALETTE_RECORD_LIMIT : PALETTE_RECENT_LIMIT,
           },
         }),
       )

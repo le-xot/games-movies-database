@@ -1,16 +1,16 @@
-import { Logger, type OnApplicationBootstrap } from '@nestjs/common'
-import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
+import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
+import { Logger } from '@backend/utils/logger'
 import type {
   TelegramCommandDefinition,
   TelegramCommandHandler,
   TelegramMenuItem,
-} from '@/modules/telegram/telegram-bot.types'
+} from '@backend/modules/telegram/telegram-bot.types'
 
 export const TELEGRAM_COMMAND_NAME_PATTERN = /^[a-z0-9_]{1,32}$/
 
 export const TELEGRAM_HELP_HEADER = 'Вот что я умею:'
 
-export class TelegramCommandRegistry implements OnApplicationBootstrap {
+export class TelegramCommandRegistry {
   private readonly logger = new Logger(TelegramCommandRegistry.name)
   private readonly commands = new Map<string, TelegramCommandDefinition>()
   private startPayloadHandler: TelegramCommandHandler | null = null

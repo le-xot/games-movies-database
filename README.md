@@ -6,7 +6,7 @@
 
 - **Трекинг медиа** — учёт игр, аниме, фильмов, мультфильмов, сериалов и PC-игр со статусами и оценками
 - **Авторизация** — OAuth через Twitch и Kick, Telegram Login (OpenID Connect), JWT в httpOnly cookie
-- **Реал-тайм** — мгновенные обновления интерфейса через Socket.IO
+- **Реал-тайм** — мгновенные обновления интерфейса через нативный WebSocket (Bun)
 - **Система предложений** — пользователи предлагают новый контент для добавления
 - **Система очередей** — управление очередью элементов
 - **Статистика** — публичная сводка «Кладовки»: итоги, жанры, статусы, оценки и разрезы по жанрам
@@ -21,11 +21,11 @@
 
 ## Стек технологий
 
-| Слой           | Технологии                                                                                                            |
-| -------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Socket.IO Client, @tanstack/vue-table, vee-validate + zod |
-| Backend        | NestJS 12, Drizzle ORM, PostgreSQL, Redis, Socket.IO, Sharp, JWT                                                      |
-| Инфраструктура | Docker, Bun, Redis (rate limiting), RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                    |
+| Слой           | Технологии                                                                                                                  |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | Vue 3, Vite, TypeScript, Tailwind CSS 4, shadcn-vue, Pinia, Eden Treaty (@elysia/eden), @tanstack/vue-virtual, vee-validate |
+| Backend        | Elysia (Bun) 1.4, TypeBox, Drizzle ORM, PostgreSQL, Redis, нативный WebSocket (Bun), Sharp, JWT                             |
+| Инфраструктура | Docker, Bun, Redis (rate limiting), RustFS (S3-хранилище), Traefik (reverse proxy), GitHub Actions                          |
 
 ## Быстрый старт
 
@@ -88,41 +88,44 @@ bun dev
 
 Файл: `backend/.env` (скопируйте из `backend/.env.example`)
 
-| Переменная                    | Описание                                  | Обязательна                                                   |
-| ----------------------------- | ----------------------------------------- | ------------------------------------------------------------- |
-| `DATASOURCE_URL`              | Строка подключения к PostgreSQL           | Да                                                            |
-| `JWT_SECRET`                  | Секрет для подписи JWT токенов            | Да                                                            |
-| `APP_PORT`                    | Порт backend сервера (по умолчанию: 3000) | Нет                                                           |
-| `REDIS_URL`                   | Строка подключения к Redis (rate limits)  | Нет (`redis://localhost:6379`)                                |
-| `TWITCH_CLIENT_ID`            | Twitch OAuth Client ID                    | Нет                                                           |
-| `TWITCH_CLIENT_SECRET`        | Twitch OAuth Client Secret                | Нет                                                           |
-| `TWITCH_CALLBACK_URL`         | URL callback после Twitch авторизации     | Нет                                                           |
-| `KICK_CLIENT_ID`              | Kick OAuth Client ID                      | Нет                                                           |
-| `KICK_CLIENT_SECRET`          | Kick OAuth Client Secret                  | Нет                                                           |
-| `KICK_CALLBACK_URL`           | URL callback после Kick авторизации       | Нет                                                           |
-| `TELEGRAM_CLIENT_ID`          | Telegram Login Client ID (OpenID Connect) | Нет                                                           |
-| `TELEGRAM_CLIENT_SECRET`      | Telegram Login Client Secret              | Нет                                                           |
-| `TELEGRAM_OIDC_REDIRECT_URI`  | Backend callback для Telegram OIDC        | Нет (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
-| `TELEGRAM_CALLBACK_URL`       | Frontend-страница после Telegram OIDC     | Нет (`http://localhost:5173/auth/callback/telegram`)          |
-| `TELEGRAM_BOT_TOKEN`          | Bot API token бота для уведомлений        | Нет                                                           |
-| `TELEGRAM_BOT_WEBHOOK_URL`    | Публичный URL вебхука бота                | Нет                                                           |
-| `TELEGRAM_BOT_WEBHOOK_SECRET` | Секрет вебхука (`[A-Za-z0-9_-]{1,256}`)   | Нет                                                           |
-| `APP_PUBLIC_URL`              | Публичный URL фронтенда для ссылок в боте | Нет (`https://le-xot.dev`, dev — `http://localhost:5173`)     |
-| `WORDLE_NOTIFY_MORNING`       | Время утреннего напоминания (МСК)         | Нет (`12:00`)                                                 |
-| `WORDLE_NOTIFY_EVENING`       | Время вечернего напоминания (МСК)         | Нет (`20:00`)                                                 |
-| `KINOPOISK_API`               | API ключ Кинопоиска                       | Нет                                                           |
-| `STEAM_API_KEY`               | API ключ Steam                            | Нет                                                           |
-| `STEAM_ID`                    | Steam ID пользователя                     | Нет                                                           |
-| `WEATHER_API_KEY`             | OpenWeatherMap API ключ                   | Нет                                                           |
-| `WEATHER_LAT`                 | Широта для погоды                         | Нет                                                           |
-| `WEATHER_LON`                 | Долгота для погоды                        | Нет                                                           |
-| `PROXY`                       | URL прокси для внешних API                | Нет                                                           |
-| `TWIR_API`                    | API ключ для TWIR вебхуков                | Нет                                                           |
-| `S3_ENDPOINT`                 | Endpoint S3-хранилища (RustFS)            | Нет (default: `http://rustfs:9000`)                           |
-| `S3_ACCESS_KEY_ID`            | S3 Access Key                             | Нет (default: `rustfsadmin`)                                  |
-| `S3_SECRET_ACCESS_KEY`        | S3 Secret Key                             | Нет (default: `rustfsadmin`)                                  |
-| `S3_BUCKET_IMAGES`            | Bucket для изображений (default: images)  | Нет                                                           |
-| `S3_BUCKET_AVATARS`           | Bucket для аватаров (default: avatars)    | Нет                                                           |
+| Переменная                    | Описание                                               | Обязательна                                                   |
+| ----------------------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
+| `DATASOURCE_URL`              | Строка подключения к PostgreSQL                        | Да                                                            |
+| `JWT_SECRET`                  | Секрет для подписи JWT токенов                         | Да                                                            |
+| `NODE_ENV`                    | Режим: `production` включает CSP и требует соль Wordle | Нет (`development`)                                           |
+| `APP_PORT`                    | Порт backend сервера (по умолчанию: 3000)              | Нет                                                           |
+| `CORS_ORIGINS`                | Список разрешённых origin через запятую                | Нет (dev: localhost)                                          |
+| `WORDLE_ANSWERS_SALT`         | Соль для выбора слова дня                              | Да в проде (в dev есть небезопасный дефолт)                   |
+| `REDIS_URL`                   | Строка подключения к Redis (rate limits)               | Нет (`redis://localhost:6379`)                                |
+| `TWITCH_CLIENT_ID`            | Twitch OAuth Client ID                                 | Нет                                                           |
+| `TWITCH_CLIENT_SECRET`        | Twitch OAuth Client Secret                             | Нет                                                           |
+| `TWITCH_CALLBACK_URL`         | URL callback после Twitch авторизации                  | Да                                                            |
+| `KICK_CLIENT_ID`              | Kick OAuth Client ID                                   | Нет                                                           |
+| `KICK_CLIENT_SECRET`          | Kick OAuth Client Secret                               | Нет                                                           |
+| `KICK_CALLBACK_URL`           | URL callback после Kick авторизации                    | Нет                                                           |
+| `TELEGRAM_CLIENT_ID`          | Telegram Login Client ID (OpenID Connect)              | Нет                                                           |
+| `TELEGRAM_CLIENT_SECRET`      | Telegram Login Client Secret                           | Нет                                                           |
+| `TELEGRAM_OIDC_REDIRECT_URI`  | Backend callback для Telegram OIDC                     | Нет (`http://localhost:3000/api/auth/telegram/oidc/callback`) |
+| `TELEGRAM_CALLBACK_URL`       | Frontend-страница после Telegram OIDC                  | Нет (`http://localhost:5173/auth/callback/telegram`)          |
+| `TELEGRAM_BOT_TOKEN`          | Bot API token бота для уведомлений                     | Нет                                                           |
+| `TELEGRAM_BOT_WEBHOOK_URL`    | Публичный URL вебхука бота                             | Нет                                                           |
+| `TELEGRAM_BOT_WEBHOOK_SECRET` | Секрет вебхука (`[A-Za-z0-9_-]{1,256}`)                | Нет                                                           |
+| `APP_PUBLIC_URL`              | Публичный URL фронтенда для ссылок в боте              | Нет (`https://le-xot.dev`, dev — `http://localhost:5173`)     |
+| `WORDLE_NOTIFY_MORNING`       | Время утреннего напоминания (МСК)                      | Нет (`12:00`)                                                 |
+| `WORDLE_NOTIFY_EVENING`       | Время вечернего напоминания (МСК)                      | Нет (`20:00`)                                                 |
+| `KINOPOISK_API`               | API ключ Кинопоиска                                    | Нет                                                           |
+| `STEAM_API_KEY`               | API ключ Steam                                         | Нет                                                           |
+| `STEAM_ID`                    | Steam ID пользователя                                  | Нет                                                           |
+| `WEATHER_API_KEY`             | OpenWeatherMap API ключ                                | Нет                                                           |
+| `WEATHER_LAT`                 | Широта для погоды                                      | Нет                                                           |
+| `WEATHER_LON`                 | Долгота для погоды                                     | Нет                                                           |
+| `PROXY`                       | URL прокси для внешних API                             | Нет                                                           |
+| `TWIR_API`                    | API ключ для TWIR вебхуков                             | Нет                                                           |
+| `S3_ENDPOINT`                 | Endpoint S3-хранилища (RustFS)                         | Нет (default: `http://rustfs:9000`)                           |
+| `S3_ACCESS_KEY_ID`            | S3 Access Key                                          | Нет (default: `rustfsadmin`)                                  |
+| `S3_SECRET_ACCESS_KEY`        | S3 Secret Key                                          | Нет (default: `rustfsadmin`)                                  |
+| `S3_BUCKET_IMAGES`            | Bucket для изображений (default: images)               | Нет                                                           |
+| `S3_BUCKET_AVATARS`           | Bucket для аватаров (default: avatars)                 | Нет                                                           |
 
 ## Структура проекта
 
@@ -139,7 +142,7 @@ games-movies-database/
 │   │   │   ├── media/         # DataCards, поиск и фильтры
 │   │   │   └── ui/            # shadcn-vue примитивы (НЕ редактировать)
 │   │   ├── composables/       # Composables + фабрики для медиа-страниц
-│   │   ├── lib/               # API клиент (авто-генерируется), cn() утилита
+│   │   ├── lib/               # Eden-клиент (api.ts), общие типы контракта, cn() утилита
 │   │   ├── pages/             # Страницы приложения
 │   │   │   ├── admin/         # Панель администратора
 │   │   │   ├── anime/         # Трекинг аниме
@@ -153,22 +156,28 @@ games-movies-database/
 │   │   │   ├── stats/         # Статистика кладовки
 │   │   │   └── suggestion/    # Предложения контента
 │   │   ├── router/            # Vue Router конфигурация
-│   │   ├── stores/            # Pinia stores (useApi, useUser, и др.)
+│   │   ├── stores/            # Pinia stores (useUser, модалки и др.) + хелпер useApi
 │   │   └── utils/             # Прокси изображений, генерация watch-ссылок
 │   ├── index.html
 │   ├── vite.config.ts
 │   └── package.json
-├── backend/                   # NestJS API сервер
+├── backend/                   # Elysia API сервер (Bun)
 │   ├── src/
-│   │   ├── main.ts            # Точка входа, Swagger, CORS, cookieParser
-│   │   ├── app.module.ts      # Корневой модуль
-│   │   ├── database/          # DrizzleModule + DrizzleService
-│   │   ├── enums/             # Реэкспорт enum-констант из @gmd/database
-│   │   ├── utils/             # Валидация окружения (envalid)
-│   │   └── modules/           # Фича-модули
-│   │       ├── auth/          # Twitch/Kick/Telegram OAuth, JWT, guards
+│   │   ├── main.ts            # Точка входа: container → http-сервер → listen
+│   │   ├── gateway/           # HTTP/WS-слой: роуты, TypeBox-схемы, auth, лимит
+│   │   │   ├── index.ts       # createGateway(deps) + export type App (для Eden)
+│   │   │   ├── openapi.ts     # документ через app.handle() — только для контрактных тестов
+│   │   │   └── ws.ts          # нативный WebSocket на /ws + мост доменных событий
+│   │   ├── server/            # createHttpServer (/api, CORS, статика) + container.ts
+│   │   ├── api-types.ts       # Имена доменных типов для фронта (только типы)
+│   │   ├── database/          # DrizzleService (pg.Pool + drizzle)
+│   │   ├── enums/             # Реэкспорт enum-констант из @gmdb/contract
+│   │   ├── utils/             # Валидация окружения (envalid), ошибки, лимиты, DomainEvents
+│   │   └── modules/           # Доменные сервисы и репозитории
+│   │       ├── auth/          # Twitch/Kick/Telegram OAuth, JWT
 │   │       ├── user/          # CRUD пользователей
 │   │       ├── record/        # Медиа-записи
+│   │       ├── rating/        # Оценки записей
 │   │       ├── like/          # Лайки/избранное
 │   │       ├── suggestion/    # Предложения контента
 │   │       ├── stats/         # Публичная статистика кладовки
@@ -176,15 +185,19 @@ games-movies-database/
 │   │       ├── twitch/        # Twitch API клиент
 │   │       ├── kick/          # Kick API клиент
 │   │       ├── telegram/      # Telegram Login (OpenID Connect: PKCE, JWKS)
-│   │       ├── websocket/     # Socket.IO gateway
+│   │       ├── websocket/     # Типы WS-событий (транспорт — gateway/ws.ts)
 │   │       ├── records-providers/  # Внешние источники метаданных
 │   │       ├── img/           # Прокси и ресайз изображений (RustFS/S3)
-│   │       ├── rate-limit/    # Кастомный rate limiter на Redis
+│   │       ├── avatar/        # Загрузка и обработка аватаров
+│   │       ├── s3/            # S3/RustFS хранилище
 │   │       ├── twir/          # TWIR вебхуки
 │   │       ├── weather/       # Погода (OpenWeatherMap)
-│   │       ├── jwt/           # CustomJwtModule обёртка
+│   │       ├── steam/         # Steam Sync
+│   │       ├── wordle/        # Игра в слова
 │   │       └── limit/         # Лимиты предложений
 │   └── package.json
+├── contract/                  # @gmdb/contract: enum'ы, WS-события, parseWsMessage
+│   └── src/
 ├── database/                  # Drizzle схема и миграции
 │   ├── src/
 │   │   ├── schema/            # Схема базы данных (pgTable/pgEnum)
@@ -198,6 +211,7 @@ games-movies-database/
 ├── .oxlintrc.json             # Конфигурация oxlint
 ├── .oxfmtrc.json              # Конфигурация bun fmt (форматирование и сортировка импортов)
 └── .github/workflows/
+    ├── checks.yaml            # CI: lint, format, typecheck, тесты + сборка образов
     └── docker.yaml            # CI/CD: сборка в GHCR + SSH-деплой (без git на сервере)
 ```
 
@@ -223,7 +237,6 @@ games-movies-database/
 | `bun format:check`   | Проверка форматирования без изменений                                     |
 | `bun typecheck`      | Проверка типов: `bun check -b` (backend, database) + `vue-tsc` (frontend) |
 | `bun hooks:install`  | Включить git-хук `.githooks/pre-commit` (`bun fmt --staged`)              |
-| `bun check:socket`   | Сверка socket-контракта frontend ↔ backend                                |
 | `bun test:scripts`   | Тесты скрипта рендера `.env` (render-env.sh)                              |
 
 ## Тестирование
@@ -234,7 +247,8 @@ games-movies-database/
 | `cd frontend && bun test`  | Unit-тесты frontend (чистые `.ts`: coalescer, parseError, query-keys)       |
 | `bun run test:e2e`         | E2E (Playwright, Chromium): гости + админ на изолированных портах 3100/5273 |
 | `bun run test:integration` | Интеграционные тесты репозиториев на реальном Postgres (см. ниже)           |
-| `bun run check:socket`     | Проверка, что зеркало Socket.IO-событий совпадает с backend-контрактом      |
+
+Контрактные тесты живут в `backend/src/__tests__/`: `gateway-contract.spec.ts` проверяет все операции гейтвея, `openapi-contract.spec.ts` сверяет документ с эталоном `fixtures/openapi.golden.json` (снят с Nest до переезда). Эталон — только оракул сравнения, фронт его не читает: типы приходят из Eden. Переснять эталон — `bun --filter=./backend run openapi:golden`.
 
 Интеграционные тесты используют отдельную БД `lists_test` в dev-контейнере postgres и включаются только явным флагом:
 
@@ -354,7 +368,7 @@ WEATHER_LON=your_longitude
 
 ### TWIR
 
-Вебхуки от внешнего TWIR бота. Защищены API-ключом через `ApikeyGuard`.
+Вебхуки от внешнего TWIR бота. Защищены API-ключом: `x-api-key` сверяется в `backend/src/utils/api-key.ts` (сравнение в постоянном времени).
 
 ```
 TWIR_API=your_api_key
@@ -364,17 +378,18 @@ TWIR_API=your_api_key
 
 ### REST API
 
-- Все маршруты автоматически префиксуются `/api`
-- Глобальная валидация через `ValidationPipe` с `transform: true` и `whitelist: true`
-- OpenAPI-документ собирается офлайн-скриптом `backend/scripts/export-openapi.ts` (без запущенного сервера), по нему `openapi-typescript` генерирует `frontend/src/lib/api-types.ts` — не редактировать вручную
-- Клиент на фронте — ручной `openapi-fetch` в `frontend/src/lib/api.ts`; перегенерация: `bun generate:api`
+- Гейтвей монтируется под префиксом `/api` в `backend/src/server/http.ts`; неизвестный путь под `/api` отдаёт JSON-конверт `ApiErrorDto` с 404, а не SPA-фолбэк
+- Валидация — TypeBox-схемы на роутах Elysia (`backend/src/gateway/*.ts`); ошибка схемы превращается в конверт ошибки с кодом 400
+- Клиент на фронте — Eden Treaty в `frontend/src/lib/api.ts`: типы выводятся из `App` (`import type { App } from '@backend/gateway'`), кодогена нет
+- OpenAPI-документ собирается только для контрактных тестов (`backend/src/gateway/openapi.ts`), фронт его не читает
 
 ### WebSocket
 
-- Socket.IO для реал-тайм обновлений
-- Серверные модули отправляют события через `EventEmitter2`
-- `WebsocketModule` слушает события и пушит обновления на клиент
-- Фронтенд подключается через `useWebSocket` composable
+- Нативный WebSocket на Bun по пути `/ws` (`backend/src/gateway/ws.ts`), без Socket.IO
+- Серверные сервисы эмитят доменные события через `DomainEvents` (`backend/src/utils/domain-events.ts`)
+- `bridgeWsEvents` подписывается на них и публикует кадры `{ event, payload }` всем клиентам одной комнаты
+- Фронтенд подключается через `useWebSocket` composable (`frontend/src/composables/use-websocket.ts`) с реконнектом и экспоненциальным бэкоффом
+- В dev Vite проксирует `/api` и `/ws` на `localhost:3000`
 
 ### База данных
 
@@ -388,10 +403,9 @@ TWIR_API=your_api_key
 
 ### Guards и авторизация
 
-- `AuthGuard` — JWT валидация (cookie `token`)
-- `ApikeyGuard` — защита TWIR эндпоинтов по API-ключу
-- `RolesGuard` — ролевой доступ
-- `RateLimitGuard` — кастомный rate limiter на Redis (глобальный). Пресеты в `backend/src/utils/rate-limits.ts` (public 1000/мин, auth 5/мин и т.д.), оверрайд через декоратор `@RateLimit`. Фикс-окно через Lua, ключ `rl:{route}:{ip}`, при недоступности Redis — fail-open
+- `requireUser` / `requireRole` — обычные функции-гарды в `backend/src/gateway/auth.ts`: JWT читается из cookie `token`
+- API-ключ TWIR — `isApiKeyValid` из `backend/src/utils/api-key.ts` (сравнение в постоянном времени)
+- `enforceRateLimit` — кастомный rate limiter на Redis, вызывается внутри роутов. Пресеты `RATE_LIMITS` в `backend/src/utils/rate-limits.ts` (public 1000/мин, auth 5/мин, write 20/мин, like 60/мин, suggestion 20/мин, img 3000/мин, twir 120/мин, wordlePractice 120/мин). Фикс-окно через Lua, ключ `rl:{route}:{ip}`, при недоступности Redis — fail-open. Порядок: лимит → auth → роли
 
 ## Деплой
 
@@ -422,11 +436,32 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 
 При пуше в `master` автоматически:
 
-1. `Checks` — линт, типы, тесты, drift-чеки
-2. `Deploy` (job `build`) — сборка образов приложения и миграций, push в GHCR (тег `latest`, кэш `type=gha`)
-3. `Deploy` (job `deploy`) — `docker-compose.yml` и `scripts/render-env.sh` копируются на сервер по scp; на сервере генерируется `.env` из Doppler и выполняется `docker compose pull application migrations && docker compose up -d --remove-orphans`
+1. `Checks` — линт, формат, типы, тесты (backend/frontend/integration), drift миграций и job `images`: сборка обоих Docker-образов и smoke-тест приложения
+2. `Deploy` (job `build`) — запускается после успешных `Checks` (`workflow_run`), собирает образы приложения и миграций, пушит в GHCR (теги `latest` и `sha-<commit>`, кэш `type=gha`)
+3. `Deploy` (job `deploy`) — `docker-compose.yml`, `scripts/render-env.sh` и `scripts/rollback.sh` копируются на сервер по scp; на сервере запоминается id текущего образа в `.rollback-image`, генерируется `.env` из Doppler и выполняется `docker compose pull application migrations && docker compose up -d --remove-orphans`
+4. Health check — если `https://le-xot.dev/api/health` не ответил за минуту, автоматически запускается `rollback.sh`: возвращает `:latest` на предыдущий образ и поднимает его заново
 
 Сервер не делает `git pull` и не собирает образы.
+
+### Откат
+
+| Способ            | Как                                                                                                                                            | Время    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Автоматически     | Провал health-check в `Deploy` сам вызывает `scripts/rollback.sh`                                                                              | ~1 мин   |
+| Руками на сервере | `cd <DEPLOY_DIR> && bash rollback.sh` — вернёт образ из `.rollback-image`                                                                      | секунды  |
+| Через git         | `git revert <merge-commit>` в `master`, CI пересоберёт и выкатит                                                                               | ~5–8 мин |
+| По тегу           | `docker tag ghcr.io/le-xot/games-movies-database:sha-<commit> ghcr.io/le-xot/games-movies-database:latest && docker compose up -d application` | минуты   |
+
+Точку возврата можно сохранить заранее:
+
+```bash
+docker buildx imagetools inspect ghcr.io/le-xot/games-movies-database:latest | head -3
+```
+
+Ограничения: откатывается только `application`. Образ `migrations` — one-shot, и
+если схема БД уже уехала вперёд, откат кода её не отменит: сначала откат
+миграции, потом приложение. `rollback.sh` в этом случае честно сообщит, что
+приложение не поднялось, вместо тихой поломки.
 
 Для настройки CI/CD добавьте секреты в GitHub:
 
@@ -451,19 +486,18 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - На фронтенде — Vue 3 Composition API (`<script setup lang="ts">`)
 - Именование: `.vue` файлы — PascalCase, `.ts` файлы — kebab-case
 - Иконки: только @lucide/vue и vue3-simple-icons
-- Типы API (`frontend/src/lib/api-types.ts`) **генерируются** — не редактировать вручную; меняйте DTO в бэкенде и запускайте `bun generate:api`
+- Типы API выводятся из Elysia-роутов (Eden) — отдельного файла с контрактом нет
 
 ## Troubleshooting
 
-| Проблема                                    | Решение                                                                                                                  |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Не подключается к БД                        | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                                 |
-| Ошибки авторизации                          | Проверьте Twitch/Kick API ключи в `.env`                                                                                 |
-| Сервисы недоступны                          | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                         |
-| Bun не установлен                           | Используйте npm/pnpm как альтернативу                                                                                    |
-| Ошибки TypeScript                           | Выполните `bun install` и убедитесь, что все зависимости установлены                                                     |
-| Не собирается фронтенд (нет `api-types.ts`) | Выполните `bun generate:api` — бэкенд и БД для этого не нужны                                                            |
-| Ошибки миграций базы данных                 | Выполните `bun db:migrate`, проверьте `database/migrations/`                                                             |
-| Rate limits перестали работать              | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
-| S3 ошибки (InvalidAccessKeyId)              | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
-| Bucket не найден                            | Создайте bucket через DBX: подключение `RustFS (dev)` (плагин S3 Browser)                                                |
+| Проблема                       | Решение                                                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Не подключается к БД           | Проверьте, что контейнер PostgreSQL запущен: `docker ps`                                                                 |
+| Ошибки авторизации             | Проверьте Twitch/Kick API ключи в `.env`                                                                                 |
+| Сервисы недоступны             | Проверьте порты: frontend 5173, backend 3000, БД 5432 (dev/prod)                                                         |
+| Bun не установлен              | Используйте npm/pnpm как альтернативу                                                                                    |
+| Ошибки TypeScript              | Выполните `bun install` и убедитесь, что все зависимости установлены                                                     |
+| Ошибки миграций базы данных    | Выполните `bun db:migrate`, проверьте `database/migrations/`                                                             |
+| Rate limits перестали работать | Проверьте, что Redis запущен (`bun infra:start`): при недоступном Redis лимиты отключаются (fail-open), но сайт работает |
+| S3 ошибки (InvalidAccessKeyId) | Убедитесь что `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` совпадают с `RUSTFS_ACCESS_KEY`/`RUSTFS_SECRET_KEY` в `.env`     |
+| Bucket не найден               | Создайте bucket через DBX: подключение `RustFS (dev)` (плагин S3 Browser)                                                |

@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
+import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import { wordleNotificationSubscriptions } from '@gmd/database/schema'
-import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
 
 const ROW = {
   id: 1,
@@ -9,7 +9,7 @@ const ROW = {
   telegramUsername: 'ivan',
   morningEnabled: false,
   eveningEnabled: true,
-  createdAt: new Date('2026-09-20T09:00:00Z'),
+  createdAt: '2026-09-20T09:00:00Z',
 }
 
 function createTxMock(options: { updatedRows?: unknown[]; insertedRows?: unknown[] }) {

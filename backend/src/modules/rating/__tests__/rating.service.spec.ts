@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { NotFoundException } from '@nestjs/common'
-import { RecordGrade } from '@/enums'
+import { RecordGrade } from '@backend/enums'
+import { NotFoundException } from '@backend/utils/errors'
 import { RatingService } from '../rating.service'
 import { DrizzleRatingRepository } from '../repositories/drizzle-rating.repository'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 const makeRating = (
   overrides?: Partial<{ id: string; userId: string; recordId: number; grade: RecordGrade }>,

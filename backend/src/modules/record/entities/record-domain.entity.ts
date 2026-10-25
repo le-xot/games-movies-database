@@ -1,5 +1,5 @@
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
-import type { RecordFriendsView } from '@/modules/rating/entities/rating-domain.entity'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
+import type { RecordFriendsView } from '@backend/modules/rating/entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
 
 export interface CreateRecordData {
@@ -9,7 +9,7 @@ export interface CreateRecordData {
   link: string
   status?: RecordStatus
   type?: RecordType
-  extra?: unknown
+  extra?: Record<string, unknown> | null
   userId?: string
 }
 
@@ -31,7 +31,7 @@ export type RecordWithRelations = RecordDomain & {
     id: number
     recordId: number
     userId: string
-    createdAt: Date
+    createdAt: string
     user?: SelectRow<'users'>
   } | null
   likes?: Array<SelectRow<'likes'> & { user?: SelectRow<'users'> }>

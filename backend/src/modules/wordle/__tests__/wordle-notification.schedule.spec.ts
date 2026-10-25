@@ -6,7 +6,7 @@ import {
   parseSlotTime,
   pickCatchUpSlot,
   resolveSlots,
-} from '@/modules/wordle/wordle-notification.schedule'
+} from '@backend/modules/wordle/wordle-notification.schedule'
 
 describe('parseSlotTime', () => {
   it('parses valid times', () => {

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
-import { LimitType, RecordStatus, RecordType } from '@/enums'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@backend/__tests__/helpers/record-fixture'
+import { LimitType, RecordStatus, RecordType } from '@backend/enums'
+import { BadRequestException, ForbiddenException, NotFoundException } from '@backend/utils/errors'
 import { DrizzleSuggestionRepository } from '../repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '../suggestion.service'
-import type { LimitDomain } from '@/modules/limit/entities/limit.entity'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
+import type { LimitDomain } from '@backend/modules/limit/entities/limit.entity'
+import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 const makeRecord = (overrides?: Partial<RecordWithRelations>): RecordWithRelations =>
   makeRecordRow(overrides)

@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { RecordGenre, RecordType } from '@/enums'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
-import { RecordsProvidersService } from '@/modules/records-providers/records-providers.service'
-import { WsEvents, emitWs } from '@/modules/websocket/websocket.events'
-import { env } from '@/utils/enviroments'
+import { RecordGenre, RecordType } from '@backend/enums'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
+import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
+import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
 import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
+import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 interface SteamOwnedGamesResponse {
   response: {
@@ -21,14 +21,13 @@ interface SteamOwnedGamesResponse {
   }
 }
 
-@Injectable()
 export class SteamService {
   private readonly logger = new Logger(SteamService.name)
 
   constructor(
     private readonly recordsProvidersService: RecordsProvidersService,
     private readonly recordRepository: DrizzleRecordRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
   ) {}
 
   async getOwnedGames(): Promise<SteamGameDto[]> {
@@ -82,7 +81,7 @@ export class SteamService {
     const normalizedName = game.name?.toLowerCase().trim()
 
     return existingGames.some((record) => {
-      const extra = record.extra as Record<string, unknown> | null
+      const extra = record.extra
       if (extra?.steamAppId === appIdStr) return true
       if (record.link.includes(steamLink)) return true
       if (normalizedName && record.title.toLowerCase().trim() === normalizedName) return true

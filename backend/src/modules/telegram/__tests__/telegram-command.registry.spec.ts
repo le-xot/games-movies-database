@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
-import type { TelegramCommandContext } from '@/modules/telegram/telegram-bot.types'
+import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
+import type { TelegramCommandContext } from '@backend/modules/telegram/telegram-bot.types'
 
 const CONTEXT: TelegramCommandContext = {
   command: 'wordle',

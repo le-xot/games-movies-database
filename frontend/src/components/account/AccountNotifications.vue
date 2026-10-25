@@ -4,15 +4,16 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
+import { assertOk, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
-import type { WordleNotificationsStatusDTO } from '@/lib/api'
+import type { WordleNotificationStatus } from '@/lib/api'
 
 const POLL_INTERVAL_MS = 3000
 const POLL_TIMEOUT_MS = 120_000
 
 const api = useApi()
 
-const status = ref<WordleNotificationsStatusDTO | null>(null)
+const status = ref<WordleNotificationStatus | null>(null)
 const isLoading = ref(true)
 const isConnecting = ref(false)
 const isSaving = ref(false)
@@ -27,8 +28,7 @@ onBeforeUnmount(stopPolling)
 
 async function loadStatus() {
   try {
-    const response = await api.GET('/wordle/notifications')
-    status.value = response.data ?? null
+    status.value = await unwrap(api.wordle.notifications.get())
   } catch {
     toast.error('Не удалось загрузить настройки уведомлений')
   } finally {
@@ -49,9 +49,7 @@ async function connect() {
   isConnecting.value = true
   const tab = window.open('about:blank', '_blank')
   try {
-    const response = await api.POST('/wordle/notifications/link')
-    const url = response.data?.url
-    if (!url) throw new Error('empty link')
+    const { url } = await unwrap(api.wordle.notifications.link.post())
     if (tab) tab.location.href = url
     else window.open(url, '_blank')
     pollHint.value = true
@@ -85,14 +83,15 @@ async function toggleSlot(key: 'morningEnabled' | 'eveningEnabled', value: boole
   if (!status.value || isSaving.value) return
   const previous = status.value[key]
   isSaving.value = true
-  status.value = { ...status.value, [key]: value } as WordleNotificationsStatusDTO
+  status.value = { ...status.value, [key]: value } as WordleNotificationStatus
   try {
-    const response = await api.PATCH('/wordle/notifications', {
-      body: key === 'morningEnabled' ? { morningEnabled: value } : { eveningEnabled: value },
-    })
-    if (response.data) status.value = response.data
+    status.value = await unwrap(
+      api.wordle.notifications.patch(
+        key === 'morningEnabled' ? { morningEnabled: value } : { eveningEnabled: value },
+      ),
+    )
   } catch {
-    status.value = { ...status.value, [key]: previous } as WordleNotificationsStatusDTO
+    status.value = { ...status.value, [key]: previous } as WordleNotificationStatus
     toast.error('Не удалось сохранить настройку')
   } finally {
     isSaving.value = false
@@ -103,7 +102,7 @@ async function disconnect() {
   if (isDisconnecting.value) return
   isDisconnecting.value = true
   try {
-    await api.DELETE('/wordle/notifications')
+    await assertOk(api.wordle.notifications.delete())
     if (status.value) {
       status.value = { ...status.value, connected: false, telegramUsername: null }
     }

@@ -1,10 +1,10 @@
 import { expect, it } from 'bun:test'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
 import { likes, records, suggestionOwnerships } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
 import { seedLike, seedRecord, recordCreateData, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleRecordRepository (integration)', ({ db }) => {
   const repository = new DrizzleRecordRepository({ db } as unknown as DrizzleService)
@@ -19,7 +19,9 @@ setupIntegrationSuite('DrizzleRecordRepository (integration)', ({ db }) => {
     expect(created.grade).toBeNull()
     expect(created.episode).toBeNull()
     expect(created.extra).toBeNull()
-    expect(created.createdAt).toBeInstanceOf(Date)
+    // Колонка отдаёт ISO-строку: конвертация живёт на границе с БД.
+    expect(created.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+    expect(new Date(created.createdAt).toISOString()).toBe(created.createdAt)
   })
 
   it('passes explicit create fields through to the database', async () => {

@@ -1,7 +1,7 @@
-import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { env } from '@/utils/enviroments'
-import { isRecord } from '@/utils/type-guards'
-import type { WeatherDTO } from '@/modules/weather/weather.dto'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
+import { isRecord } from '@backend/utils/type-guards'
+import type { WeatherDTO } from '@backend/modules/weather/weather.dto'
 
 function isWeatherData(value: unknown): value is WeatherDTO {
   if (!isRecord(value)) return false
@@ -33,8 +33,7 @@ function isWeatherData(value: unknown): value is WeatherDTO {
   )
 }
 
-@Injectable()
-export class WeatherService implements OnModuleInit {
+export class WeatherService {
   private readonly logger = new Logger(WeatherService.name)
   private cachedData: WeatherDTO | null = null
   private lastFetch: number = 0

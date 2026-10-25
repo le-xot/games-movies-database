@@ -44,7 +44,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/le-xot/games-movies-database:latest
+          tags: |
+            ghcr.io/le-xot/games-movies-database:latest
+            ghcr.io/le-xot/games-movies-database:sha-${{ github.event.workflow_run.head_sha || github.sha }}
           cache-from: type=gha,scope=app
           cache-to: type=gha,mode=max,scope=app
 
@@ -54,7 +56,9 @@ jobs:
           context: .
           file: ./database/Dockerfile
           push: true
-          tags: ghcr.io/le-xot/games-movies-database-migrations:latest
+          tags: |
+            ghcr.io/le-xot/games-movies-database-migrations:latest
+            ghcr.io/le-xot/games-movies-database-migrations:sha-${{ github.event.workflow_run.head_sha || github.sha }}
           cache-from: type=gha,scope=migrations
           cache-to: type=gha,mode=max,scope=migrations
 
@@ -83,15 +87,21 @@ jobs:
       - name: Upload compose file and render script
         run: |
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-            docker-compose.yml scripts/render-env.sh \
+            docker-compose.yml scripts/render-env.sh scripts/rollback.sh \
             "$SERVER_USER@$SERVER_HOST:$DEPLOY_DIR/"
 
       - name: Deploy
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" \
-            "set -e; cd $DEPLOY_DIR && bash render-env.sh && docker compose pull application migrations logs && docker compose up -d --remove-orphans && docker image prune -f --filter until=168h"
+            "set -e; cd $DEPLOY_DIR && \
+             docker compose ps -q application | xargs -r docker inspect --format '{{.Image}}' > .rollback-image || true; \
+             bash render-env.sh && docker compose pull application migrations logs && \
+             docker compose up -d --remove-orphans && docker image prune -f --filter until=168h"
 
       - name: Health check
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" \
-            "set -e; cd $DEPLOY_DIR; for _ in \$(seq 1 30); do curl -fsS https://le-xot.dev/api/health > /dev/null && exit 0; sleep 2; done; echo 'health check failed'; docker compose logs --tail 50 application || true; exit 1"
+            "set -e; cd $DEPLOY_DIR; \
+             for _ in \$(seq 1 30); do curl -fsS --max-time 5 https://le-xot.dev/api/health > /dev/null && exit 0; sleep 2; done; \
+             echo 'health check failed'; docker compose logs --tail 50 application || true; \
+             bash rollback.sh || echo 'rollback failed — нужен ручной разбор'; exit 1"

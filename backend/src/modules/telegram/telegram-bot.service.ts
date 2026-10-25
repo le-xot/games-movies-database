@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
-import { Logger, type OnModuleInit } from '@nestjs/common'
-import type { TelegramMenuItem } from '@/modules/telegram/telegram-bot.types'
+import { Logger } from '@backend/utils/logger'
+import type { TelegramMenuItem } from '@backend/modules/telegram/telegram-bot.types'
 
 export const TELEGRAM_API_BASE = 'https://api.telegram.org'
 const WEBHOOK_SECRET_PATTERN = /^[A-Za-z0-9_-]{1,256}$/
@@ -31,7 +31,7 @@ export function webhookSecretsMatch(header: string | undefined, expected: string
   return timingSafeEqual(headerBytes, expectedBytes)
 }
 
-export class TelegramBotService implements OnModuleInit {
+export class TelegramBotService {
   private readonly logger = new Logger(TelegramBotService.name)
   private botUsername: string | null = null
 

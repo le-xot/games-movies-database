@@ -1,7 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { env } from '@/utils/enviroments'
+import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
 
-@Injectable()
 export class S3Service {
   private readonly logger = new Logger(S3Service.name)
   private readonly client = new Bun.S3Client({

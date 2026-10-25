@@ -1,10 +1,10 @@
 import { expect, it } from 'bun:test'
+import { DrizzleLikeRepository } from '@backend/modules/like/repositories/drizzle-like.repository'
+import { DrizzleLimitRepository } from '@backend/modules/limit/repositories/drizzle-limit.repository'
 import { limits, records } from '@gmd/database/schema'
-import { DrizzleLikeRepository } from '@/modules/like/repositories/drizzle-like.repository'
-import { DrizzleLimitRepository } from '@/modules/limit/repositories/drizzle-limit.repository'
 import { seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
-import type { DrizzleService } from '@/database/drizzle.service'
+import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleLikeRepository / DrizzleLimitRepository (integration)', ({ db }) => {
   const likeRepository = new DrizzleLikeRepository({ db } as unknown as DrizzleService)

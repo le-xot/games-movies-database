@@ -20,7 +20,7 @@ export const useStats = defineStore('stats/use-stats', () => {
     query: async () => {
       try {
         error.value = null
-        const data = await unwrap(api.GET('/stats/records'))
+        const data = await unwrap(api.stats.records.get())
         return data
       } catch (err) {
         error.value = await parseApiError(err, 'Failed to load stats')

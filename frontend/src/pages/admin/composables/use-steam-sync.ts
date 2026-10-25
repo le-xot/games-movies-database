@@ -92,7 +92,7 @@ export function useSteamSync() {
     isLoadingSteam.value = true
     importResult.value = null
     try {
-      const data = await unwrap(api.GET('/steam/games'))
+      const data = await unwrap(api.steam.games.get())
       steamGames.value = data.games
       existingAppIds.value = new Set(data.existingAppIds)
       steamLoaded.value = true
@@ -144,7 +144,7 @@ export function useSteamSync() {
         status: opts.status,
         grade: opts.grade ?? undefined,
       }))
-      const data = await unwrap(api.POST('/steam/import', { body: { games } }))
+      const data = await unwrap(api.steam.import.post({ games }))
       importResult.value = { created: data.created.length, failed: data.failed.length }
       toast.success(
         `Импорт завершён: добавлено ${data.created.length}, ошибок ${data.failed.length}`,

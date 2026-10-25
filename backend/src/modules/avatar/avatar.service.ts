@@ -1,9 +1,10 @@
 import crypto from 'node:crypto'
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import { S3Service } from '@backend/modules/s3/s3.service'
+import { env } from '@backend/utils/enviroments'
+import { BadRequestException } from '@backend/utils/errors'
+import { assertPixelLimit, MAX_IMAGE_PIXELS } from '@backend/utils/image-limits'
+import { Logger } from '@backend/utils/logger'
 import sharp from 'sharp'
-import { S3Service } from '@/modules/s3/s3.service'
-import { env } from '@/utils/enviroments'
-import { assertPixelLimit, MAX_IMAGE_PIXELS } from '@/utils/image-limits'
 
 const AVATAR_SIZE = 256
 const AVATAR_QUALITY = 80
@@ -47,7 +48,6 @@ export function buildDefaultAvatarSvg(userId: string, login: string): Buffer {
   return Buffer.from(svg)
 }
 
-@Injectable()
 export class AvatarService {
   private readonly logger = new Logger(AvatarService.name)
 

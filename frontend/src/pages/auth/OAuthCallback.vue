@@ -3,6 +3,7 @@ import { Loader2 } from '@lucide/vue'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { assertOk } from '@/lib/api'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
@@ -25,7 +26,7 @@ const providers: Record<'twitch' | 'kick', ProviderConfig> = {
     name: 'Twitch',
     link: async (code, state) => {
       try {
-        await api.POST('/auth/twitch/link', { body: { code, state } })
+        await assertOk(api.auth.twitch.link.post({ code, state }))
       } catch {
         throw new Error('Не удалось привязать Twitch')
       }
@@ -37,14 +38,14 @@ const providers: Record<'twitch' | 'kick', ProviderConfig> = {
     name: 'Kick',
     link: async (code, state) => {
       try {
-        await api.POST('/auth/kick/link', { body: { code, state } })
+        await assertOk(api.auth.kick.link.post({ code, state }))
       } catch {
         throw new Error('Не удалось привязать Kick')
       }
     },
     login: async (code, state) => {
       try {
-        await api.POST('/auth/kick/callback', { body: { code, state } })
+        await assertOk(api.auth.kick.callback.post({ code, state }))
       } catch {
         throw new Error('Ошибка авторизации через Kick')
       }

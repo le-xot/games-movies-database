@@ -1,0 +1,5 @@
+[test]
+# Без этого `bun test` без аргументов подхватывает `e2e/*.spec.ts` и падает на
+# импорте `@playwright/test` («Playwright Test did not expect test() to be called
+# here»). E2E гоняются отдельно: `bun run test:e2e`.
+root = "./src"

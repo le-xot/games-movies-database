@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common'
-import { DrizzleStatsRepository } from '@/modules/stats/repositories/drizzle-stats.repository'
-import { RecordsStatsDTO } from '@/modules/stats/stats.dto'
+import { DrizzleStatsRepository } from '@backend/modules/stats/repositories/drizzle-stats.repository'
+import { RecordsStatsDTO } from '@backend/modules/stats/stats.dto'
 
-@Injectable()
 export class StatsService {
   constructor(private readonly statsRepository: DrizzleStatsRepository) {}
 

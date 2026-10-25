@@ -1,9 +1,6 @@
-export const WordleLetterState = {
-  CORRECT: 'CORRECT',
-  PRESENT: 'PRESENT',
-  ABSENT: 'ABSENT',
-} as const
-export type WordleLetterState = (typeof WordleLetterState)[keyof typeof WordleLetterState]
+import { WordleLetterState } from '@gmdb/contract'
+
+export { WordleLetterState }
 
 export function scoreGuess(answer: string, guess: string): WordleLetterState[] {
   const states: WordleLetterState[] = new Array(guess.length).fill(WordleLetterState.ABSENT)

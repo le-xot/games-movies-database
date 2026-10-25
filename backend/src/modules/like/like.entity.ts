@@ -1,21 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { UserEntity } from '@/modules/user/user.entity'
+import { UserEntity } from '@backend/modules/user/user.entity'
 
 export class LikeEntity {
-  @ApiProperty()
   id!: string
 
-  @ApiProperty()
   userId!: string
 
-  @ApiProperty()
   recordId!: number
 
-  @ApiProperty({ type: UserEntity, required: false, nullable: true })
   user?: UserEntity | null
 
-  @ApiProperty()
-  createdAt!: Date
+  createdAt!: string
 
   constructor(partial: Partial<LikeEntity>) {
     Object.assign(this, partial)

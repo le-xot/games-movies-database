@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { Injectable } from '@nestjs/common'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 export const WORD_PATTERN = /^[а-я]{5}$/
@@ -29,7 +28,6 @@ function shuffleBySalt(words: string[], salt: string): string[] {
     .map(({ word }) => word)
 }
 
-@Injectable()
 export class WordleDictionary {
   private readonly words: Set<string>
   private readonly answers: string[]

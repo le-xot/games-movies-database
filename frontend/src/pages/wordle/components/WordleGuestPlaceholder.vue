@@ -22,7 +22,7 @@ const {
   isPending,
 } = useQuery({
   key: [WORDLE_LEADERBOARD_KEY],
-  query: () => unwrap(api.GET('/wordle/leaderboard')),
+  query: () => unwrap(api.wordle.leaderboard.get()),
   gcTime: false,
 })
 </script>

@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation } from '@pinia/colada'
 import { defineStore } from 'pinia'
 import { ComputedRef, computed, ref } from 'vue'
-import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO, unwrap } from '@/lib/api'
+import { GetAllRecordsDTO, RecordEntity, RecordUpdateDTO, assertOk, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RecordsQueryParams } from '@/composables/factories/create-params-store'
 
@@ -56,18 +56,15 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
       // чтобы список не схлопывался в скелетон на каждый запрос.
       placeholderData: (previous) => previous,
       query: async ({ pageParam }) => {
-        const response = await unwrap(
-          api.GET('/records', {
-            params: {
-              query: {
-                ...paramsStoreInstance.params,
-                page: pageParam,
-                limit: pageSize,
-              },
+        return await unwrap(
+          api.records.get({
+            query: {
+              ...paramsStoreInstance.params,
+              page: pageParam,
+              limit: pageSize,
             },
           }),
         )
-        return response
       },
       getNextPageParam: (lastPage, allPages, lastPageParam) => {
         const loadedCount = allPages.reduce((total, page) => total + page.records.length, 0)
@@ -90,21 +87,21 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
     const { mutateAsync: updateRecord } = useMutation({
       key: [config.queryKey, 'update'],
       mutation: ({ id, data: body }: { id: number; data: RecordUpdateDTO }) => {
-        return api.PATCH('/records/{id}', { params: { path: { id } }, body })
+        return assertOk(api.records({ id }).patch(body))
       },
     })
 
     const { mutateAsync: deleteRecord } = useMutation({
       key: [config.queryKey, 'delete'],
       mutation: (id: number) => {
-        return api.DELETE('/records/{id}', { params: { path: { id } } })
+        return assertOk(api.records({ id }).delete())
       },
     })
 
     const { mutateAsync: updatePoster } = useMutation({
       key: [config.queryKey, 'updatePoster'],
       mutation: ({ id, url }: { id: number; url: string }) => {
-        return api.PATCH('/records/{id}/poster', { params: { path: { id } }, body: { url } })
+        return assertOk(api.records({ id }).poster.patch({ url }))
       },
     })
 

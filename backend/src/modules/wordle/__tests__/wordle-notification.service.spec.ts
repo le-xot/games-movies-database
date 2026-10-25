@@ -1,14 +1,14 @@
 import { describe, expect, it, mock, spyOn } from 'bun:test'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { WordleGameStatus } from '@/enums'
-import { TelegramBotService } from '@/modules/telegram/telegram-bot.service'
-import { TelegramCommandRegistry } from '@/modules/telegram/telegram-command.registry'
-import { UserService } from '@/modules/user/user.service'
-import { DrizzleWordleNotificationRepository } from '@/modules/wordle/repositories/drizzle-wordle-notification.repository'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { WordleGameStatus } from '@backend/enums'
+import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
+import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
+import { UserService } from '@backend/modules/user/user.service'
+import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import {
   WordleNotificationService,
   type WordleNotificationConfig,
-} from '@/modules/wordle/wordle-notification.service'
+} from '@backend/modules/wordle/wordle-notification.service'
 import type { RedisClient } from 'bun'
 
 const NOW = new Date('2026-09-20T10:00:00.000Z') // 13:00 MSK

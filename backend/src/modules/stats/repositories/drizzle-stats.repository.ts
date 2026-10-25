@@ -1,8 +1,7 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
 import { recordRatings, records } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, count, eq, isNotNull, isNull, ne, or } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@/enums'
 
 export interface GenreCount {
   genre: RecordGenre
@@ -31,7 +30,6 @@ export interface GenreGradeCount {
   count: number
 }
 
-@Injectable()
 export class DrizzleStatsRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

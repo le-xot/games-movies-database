@@ -1,9 +1,8 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { WordleGameStatus } from '@backend/enums'
+import { MAX_ATTEMPTS } from '@backend/modules/wordle/wordle.stats'
 import { users, wordleGames } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, asc, count, eq, lt, ne, sql } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { WordleGameStatus } from '@/enums'
-import { MAX_ATTEMPTS } from '@/modules/wordle/wordle.stats'
 import type { SelectRow } from '@gmd/database'
 
 export type WordleGameRecord = SelectRow<'wordleGames'>
@@ -13,7 +12,6 @@ export type WordleGameWithUser = {
   user: Pick<SelectRow<'users'>, 'id' | 'login' | 'profileImageUrl' | 'color'>
 }
 
-@Injectable()
 export class DrizzleWordleRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

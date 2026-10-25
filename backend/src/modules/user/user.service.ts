@@ -1,30 +1,32 @@
+import { AccountPlatform, UserRole } from '@backend/enums'
+import { AvatarService } from '@backend/modules/avatar/avatar.service'
+import {
+  LinkPlatformData,
+  MergeUsersResult,
+  UserDomain,
+} from '@backend/modules/user/entities/user-domain.entity'
+import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
+import {
+  WsEvents,
+  emitWs,
+  type UpdateUsersPayload,
+} from '@backend/modules/websocket/websocket.events'
+import { DomainEvents } from '@backend/utils/domain-events'
 import {
   BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
-  Injectable,
-  Logger,
   NotFoundException,
-} from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { AccountPlatform, UserRole } from '@/enums'
-import { AvatarService } from '@/modules/avatar/avatar.service'
-import {
-  LinkPlatformData,
-  MergeUsersResult,
-  UserDomain,
-} from '@/modules/user/entities/user-domain.entity'
-import { DrizzleUserRepository } from '@/modules/user/repositories/drizzle-user.repository'
-import { WsEvents, emitWs, type UpdateUsersPayload } from '@/modules/websocket/websocket.events'
+} from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 
-@Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name)
 
   constructor(
     private readonly userRepository: DrizzleUserRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: DomainEvents,
     private readonly avatarService: AvatarService,
   ) {}
 

@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException } from '@backend/utils/errors'
 
 export function assertOAuthState(stored: string | undefined, provided: string | undefined): void {
   const expected = Buffer.from(stored ?? '')

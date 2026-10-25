@@ -1,6 +1,3 @@
-import { env } from '@/utils/enviroments'
-import type { NextFunction, Request, Response } from 'express'
-
 const CSP = [
   "default-src 'self'",
   // Хеш инлайнового скрипта из frontend/index.html: бренд заставки и preload баннера.
@@ -16,19 +13,22 @@ const CSP = [
   "frame-ancestors 'none'",
 ].join('; ')
 
-export function securityHeaders(
-  _req: Request,
-  res: Response,
-  next: NextFunction,
-  isProduction = env.NODE_ENV === 'production',
-): void {
-  res.setHeader('X-Content-Type-Options', 'nosniff')
-  res.setHeader('X-Frame-Options', 'DENY')
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
-  if (isProduction) {
-    res.setHeader('Content-Security-Policy', CSP)
+/**
+ * Заголовки безопасности одним словарём: их ставит `server/http.ts` на входе.
+ * CSP отдаётся только в проде — на dev-сервере Vite его ломает HMR.
+ */
+export function buildSecurityHeaders(isProduction: boolean): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    'Cross-Origin-Opener-Policy': 'same-origin',
   }
-  next()
+
+  if (isProduction) {
+    headers['Content-Security-Policy'] = CSP
+  }
+
+  return headers
 }

@@ -1,15 +1,8 @@
-import {
-  foreignKey,
-  index,
-  integer,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core'
+import { foreignKey, index, integer, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { currentTimestamp } from './defaults'
 import { recordGradeEnum } from './enums'
 import { records } from './records'
+import { isoTimestamp } from './timestamp'
 import { users } from './users'
 
 export const recordRatings = pgTable(
@@ -19,8 +12,8 @@ export const recordRatings = pgTable(
     userId: text('userId').notNull(),
     recordId: integer('recordId').notNull(),
     grade: recordGradeEnum('grade').notNull(),
-    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
-    updatedAt: timestamp('updatedAt', { precision: 3 })
+    createdAt: isoTimestamp('createdAt').default(currentTimestamp).notNull(),
+    updatedAt: isoTimestamp('updatedAt')
       .default(currentTimestamp)
       .notNull()
       .$onUpdate(() => currentTimestamp),

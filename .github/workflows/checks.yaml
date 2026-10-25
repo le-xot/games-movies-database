@@ -62,9 +62,6 @@ jobs:
       - name: Script tests
         run: bun run test:scripts
 
-      - name: Socket contract
-        run: bun run check:socket
-
       - name: Format check
         run: bun format:check
 
@@ -95,3 +92,62 @@ jobs:
           RUN_DB_TESTS: '1'
           TEST_DATASOURCE_URL: postgresql://le_xot:abc@127.0.0.1:5432/lists_test
         run: bun --filter=./backend run test:integration
+
+  # Образы собираются только в deploy-пайплайне на master. Без этой проверки
+  # сломанный Dockerfile (например, забытый workspace `contract`) всплывает
+  # уже после мержа — и валит весь деплой.
+  images:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: gmd-app:ci
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,mode=max,scope=app
+
+      - name: Build migrations image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./database/Dockerfile
+          push: false
+          load: true
+          tags: gmd-migrations:ci
+          cache-from: type=gha,scope=migrations
+          cache-to: type=gha,mode=max,scope=migrations
+
+      - name: Smoke test the app image
+        run: |
+          docker run -d --name gmd-smoke -p 3000:3000 \
+            -e NODE_ENV=production \
+            -e DATASOURCE_URL=postgresql://user:password@127.0.0.1:5432/db \
+            -e JWT_SECRET=ci-smoke-secret \
+            -e TWITCH_CALLBACK_URL=http://localhost:3000/api/auth/twitch/callback \
+            -e WORDLE_ANSWERS_SALT=ci-smoke-salt \
+            gmd-app:ci
+
+          # --max-time обязателен: пока Redis недоступен, первый запрос ждёт
+          # переподключения десятками секунд, и цикл перестаёт быть ограничением.
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://localhost:3000/api/health; then break; fi
+            sleep 1
+          done
+
+          curl -fsS --max-time 5 http://localhost:3000/api/health | grep -q '"status":"ok"'
+          curl -fsS --max-time 5 http://localhost:3000/db/games | grep -q '<!doctype html'
+          # Проверяем не только код, но и то, что под /api не уехал HTML.
+          curl -sS --max-time 5 http://localhost:3000/api/nope | grep -q '"statusCode":404'
+
+      - name: Container logs
+        if: failure()
+        run: docker logs gmd-smoke

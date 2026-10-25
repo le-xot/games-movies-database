@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { assertOk } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 
@@ -36,7 +37,7 @@ async function saveNickname() {
   nicknameError.value = ''
 
   try {
-    await api.PATCH('/auth/me', { body: { login } })
+    await assertOk(api.auth.me.patch({ login }))
     await userStore.refetchUser()
     isEditing.value = false
     toast.success('Ник сохранён')

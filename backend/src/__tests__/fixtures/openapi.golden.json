@@ -1,0 +1,4646 @@
+{
+  "paths": {
+    "DELETE /auth/accounts/{platform}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "platform",
+          "required": true,
+          "schema": {
+            "enum": ["TWITCH", "KICK", "TELEGRAM"]
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /auth/me": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /auth/me/avatar": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /likes/{recordId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "recordId",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /ratings/{recordId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "recordId",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /records/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "204": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /suggestions/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /users/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "204": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "DELETE /wordle/notifications": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleNotificationsDeleteDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/accounts": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "UserAccountEntity"
+            }
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/kick": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/kick/link": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/me": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/telegram": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/telegram/link": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/telegram/oidc/callback": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "code",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "in": "query",
+          "name": "error",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "in": "query",
+          "name": "state",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/twitch": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /auth/twitch/link": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "302": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /avatar/{userId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "userId",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /health": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "HealthResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /img": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "urlEncoded",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "in": "query",
+          "name": "variant",
+          "required": false,
+          "schema": {
+            "enum": ["poster", "avatar"]
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /likes/count": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetLikesByIdDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /likes/records/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetLikesByIdDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /likes/users/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetLikesByIdDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /queue": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "QueueDto"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /ratings/friends": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetFriendsEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /ratings/my": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "grade",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "RecordGrade"
+            }
+          }
+        },
+        {
+          "in": "query",
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetUserRatingsEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /ratings/users/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "in": "query",
+          "name": "grade",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "RecordGrade"
+            }
+          }
+        },
+        {
+          "in": "query",
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetUserRatingsEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /records": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "direction",
+          "required": false,
+          "schema": {
+            "enum": ["asc", "desc"]
+          }
+        },
+        {
+          "in": "query",
+          "name": "genre",
+          "required": false,
+          "schema": {
+            "$ref": "RecordGenre"
+          }
+        },
+        {
+          "in": "query",
+          "name": "grade",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "RecordGrade"
+            }
+          }
+        },
+        {
+          "in": "query",
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "in": "query",
+          "name": "orderBy",
+          "required": false,
+          "schema": {
+            "enum": ["id", "title"]
+          }
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "required": false,
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "in": "query",
+          "name": "search",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "in": "query",
+          "name": "status",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "RecordStatus"
+            }
+          }
+        },
+        {
+          "in": "query",
+          "name": "type",
+          "required": false,
+          "schema": {
+            "$ref": "RecordType"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "GetAllRecordsDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /records/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /stats/records": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "RecordsStatsDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /steam/games": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SteamGamesResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /suggestions": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "RecordEntity"
+            }
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /users/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /users/{id}/accounts": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "UserAccountEntity"
+            }
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /users/users": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "type": "array",
+            "items": {
+              "$ref": "UserEntity"
+            }
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /weather": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WeatherDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "503": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /wordle/leaderboard": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleLeaderboardDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /wordle/notifications": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleNotificationsStatusDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /wordle/practice": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordlePracticeStateDTO",
+            "nullable": true
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /wordle/state": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleStateDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "GET /wordle/stats": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleStatsDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "PATCH /auth/me": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "UpdateNicknameDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "PATCH /records/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "$ref": "RecordUpdateDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "PATCH /records/{id}/poster": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "$ref": "RecordUpdatePosterDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "PATCH /wordle/notifications": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "WordleNotificationsUpdateDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleNotificationsStatusDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /auth/kick/callback": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /auth/kick/link": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /auth/logout": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": null,
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /auth/me/avatar": {
+      "parameters": [],
+      "body": {
+        "multipart/form-data": {
+          "properties": {
+            "file": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /auth/twitch/callback": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /auth/twitch/link": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "CallbackDto"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /likes": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "LikeCreateDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "LikeEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /limits": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "ChangeLimitDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "LimitEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /records/link": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "RecordCreateFromLinkDTO"
+        }
+      },
+      "responses": {
+        "201": {
+          "application/json": {
+            "$ref": "RecordEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /steam/import": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "SteamImportDTO"
+        }
+      },
+      "responses": {
+        "201": {
+          "application/json": {
+            "$ref": "SteamImportResultDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /suggestions": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "UserSuggestionDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserSuggestionResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /twir/suggestion": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "SuggestionCreateByTwirDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "UserSuggestionResponseDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /users/{id}/merge": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "$ref": "MergeUsersDto"
+        }
+      },
+      "responses": {
+        "201": {
+          "application/json": {
+            "$ref": "MergeUsersResultEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /wordle/guess": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "WordleGuessDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordleStateDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /wordle/notifications/link": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "201": {
+          "application/json": {
+            "$ref": "WordleNotificationsLinkDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /wordle/practice": {
+      "parameters": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordlePracticeStateDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "POST /wordle/practice/guess": {
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "$ref": "WordleGuessDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "WordlePracticeStateDTO"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    },
+    "PUT /ratings/{recordId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "recordId",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "$ref": "RatingUpsertDTO"
+        }
+      },
+      "responses": {
+        "200": {
+          "application/json": {
+            "$ref": "RatingEntity"
+          }
+        },
+        "400": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "401": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "403": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "404": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "409": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "429": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        },
+        "500": {
+          "application/json": {
+            "$ref": "ApiErrorDto"
+          }
+        }
+      }
+    }
+  },
+  "schemas": {
+    "AccountPlatform": {
+      "enum": ["TWITCH", "KICK", "TELEGRAM"]
+    },
+    "ApiErrorDto": {
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "message": {
+          "union": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "statusCode": {
+          "type": "number"
+        }
+      },
+      "required": ["message", "statusCode"],
+      "type": "object"
+    },
+    "CallbackDto": {
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      },
+      "required": ["code", "state"],
+      "type": "object"
+    },
+    "ChangeLimitDTO": {
+      "properties": {
+        "name": {
+          "$ref": "LimitType"
+        },
+        "quantity": {
+          "type": "number"
+        }
+      },
+      "required": ["name", "quantity"],
+      "type": "object"
+    },
+    "FriendsMemberEntity": {
+      "properties": {
+        "counts": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "login": {
+          "type": "string"
+        },
+        "profileImageUrl": {
+          "type": "string"
+        },
+        "total": {
+          "type": "number"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["counts", "login", "profileImageUrl", "total", "userId"],
+      "type": "object"
+    },
+    "GenreCountDTO": {
+      "properties": {
+        "count": {
+          "type": "number"
+        },
+        "genre": {
+          "$ref": "RecordGenre"
+        }
+      },
+      "required": ["count", "genre"],
+      "type": "object"
+    },
+    "GenreGradeCountDTO": {
+      "properties": {
+        "count": {
+          "type": "number"
+        },
+        "genre": {
+          "$ref": "RecordGenre"
+        },
+        "grade": {
+          "$ref": "RecordGrade"
+        }
+      },
+      "required": ["count", "genre", "grade"],
+      "type": "object"
+    },
+    "GenreStatusCountDTO": {
+      "properties": {
+        "count": {
+          "type": "number"
+        },
+        "genre": {
+          "$ref": "RecordGenre"
+        },
+        "status": {
+          "$ref": "RecordStatus"
+        }
+      },
+      "required": ["count", "genre", "status"],
+      "type": "object"
+    },
+    "GetAllRecordsDTO": {
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "RecordEntity"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": ["records", "total"],
+      "type": "object"
+    },
+    "GetFriendsEntity": {
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "FriendsMemberEntity"
+          }
+        }
+      },
+      "required": ["members"],
+      "type": "object"
+    },
+    "GetLikesByIdDTO": {
+      "properties": {
+        "likes": {
+          "type": "array",
+          "items": {
+            "$ref": "LikeEntity"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": ["likes", "total"],
+      "type": "object"
+    },
+    "GetUserRatingsEntity": {
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "UserRatedRecordEntity"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": ["items", "total"],
+      "type": "object"
+    },
+    "GradeCountDTO": {
+      "properties": {
+        "count": {
+          "type": "number"
+        },
+        "grade": {
+          "$ref": "RecordGrade"
+        }
+      },
+      "required": ["count", "grade"],
+      "type": "object"
+    },
+    "HealthResponseDTO": {
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": ["status"],
+      "type": "object"
+    },
+    "LikeCreateDTO": {
+      "properties": {
+        "recordId": {
+          "type": "number"
+        }
+      },
+      "required": ["recordId"],
+      "type": "object"
+    },
+    "LikeEntity": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "recordId": {
+          "type": "number"
+        },
+        "user": {
+          "$ref": "UserEntity",
+          "nullable": true
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["createdAt", "id", "recordId", "userId"],
+      "type": "object"
+    },
+    "LimitEntity": {
+      "properties": {
+        "name": {
+          "$ref": "LimitType"
+        },
+        "quantity": {
+          "type": "number"
+        }
+      },
+      "required": ["name", "quantity"],
+      "type": "object"
+    },
+    "LimitType": {
+      "enum": ["SUGGESTION"]
+    },
+    "MergeUsersDto": {
+      "properties": {
+        "sourceUserId": {
+          "type": "string"
+        }
+      },
+      "required": ["sourceUserId"],
+      "type": "object"
+    },
+    "MergeUsersResultEntity": {
+      "properties": {
+        "accountsDropped": {
+          "type": "number"
+        },
+        "accountsMoved": {
+          "type": "number"
+        },
+        "likesDropped": {
+          "type": "number"
+        },
+        "likesMoved": {
+          "type": "number"
+        },
+        "ratingsDropped": {
+          "type": "number"
+        },
+        "ratingsMoved": {
+          "type": "number"
+        },
+        "suggestionsMoved": {
+          "type": "number"
+        },
+        "wordleGamesDropped": {
+          "type": "number"
+        },
+        "wordleGamesMoved": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "accountsDropped",
+        "accountsMoved",
+        "likesDropped",
+        "likesMoved",
+        "ratingsDropped",
+        "ratingsMoved",
+        "suggestionsMoved",
+        "wordleGamesDropped",
+        "wordleGamesMoved"
+      ],
+      "type": "object"
+    },
+    "QueueDto": {
+      "properties": {
+        "games": {
+          "type": "array",
+          "items": {
+            "$ref": "QueueItemDto"
+          }
+        },
+        "videos": {
+          "type": "array",
+          "items": {
+            "$ref": "QueueItemDto"
+          }
+        }
+      },
+      "required": ["games", "videos"],
+      "type": "object"
+    },
+    "QueueItemDto": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "genre": {
+          "$ref": "RecordGenre",
+          "nullable": true
+        },
+        "link": {
+          "type": "string"
+        },
+        "posterUrl": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "RecordType",
+          "nullable": true
+        }
+      },
+      "required": ["createdAt", "genre", "link", "posterUrl", "title", "type"],
+      "type": "object"
+    },
+    "RatingEntity": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "grade": {
+          "$ref": "RecordGrade"
+        },
+        "id": {
+          "type": "string"
+        },
+        "recordId": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "UserEntity",
+          "nullable": true
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["createdAt", "grade", "id", "recordId", "updatedAt", "userId"],
+      "type": "object"
+    },
+    "RatingUpsertDTO": {
+      "properties": {
+        "grade": {
+          "$ref": "RecordGrade"
+        }
+      },
+      "required": ["grade"],
+      "type": "object"
+    },
+    "RecordCreateFromLinkDTO": {
+      "properties": {
+        "link": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "RecordStatus"
+        },
+        "type": {
+          "$ref": "RecordType"
+        }
+      },
+      "required": ["link"],
+      "type": "object"
+    },
+    "RecordEntity": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "episode": {
+          "nullable": true,
+          "type": "string"
+        },
+        "extra": {
+          "additionalProperties": true,
+          "nullable": true,
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "friendsCounts": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "nullable": true,
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "friendsTop": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "friendsTotal": {
+          "nullable": true,
+          "type": "number"
+        },
+        "genre": {
+          "$ref": "RecordGenre",
+          "nullable": true
+        },
+        "grade": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "id": {
+          "type": "number"
+        },
+        "likes": {
+          "items": {
+            "$ref": "LikeEntity"
+          },
+          "nullable": true,
+          "type": "array"
+        },
+        "link": {
+          "type": "string"
+        },
+        "myGrade": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "posterUrl": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "RecordStatus",
+          "nullable": true
+        },
+        "suggestionOwnership": {
+          "$ref": "SuggestionOwnershipEntity",
+          "nullable": true
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "RecordType",
+          "nullable": true
+        }
+      },
+      "required": [
+        "createdAt",
+        "episode",
+        "genre",
+        "grade",
+        "id",
+        "link",
+        "posterUrl",
+        "status",
+        "title",
+        "type"
+      ],
+      "type": "object"
+    },
+    "RecordGenre": {
+      "enum": ["GAME", "MOVIE", "ANIME", "CARTOON", "SERIES"]
+    },
+    "RecordGrade": {
+      "enum": ["DISLIKE", "BEER", "LIKE", "RECOMMEND"]
+    },
+    "RecordsStatsDTO": {
+      "properties": {
+        "byFriendsGenreGrade": {
+          "type": "array",
+          "items": {
+            "$ref": "GenreGradeCountDTO"
+          }
+        },
+        "byFriendsGrade": {
+          "type": "array",
+          "items": {
+            "$ref": "GradeCountDTO"
+          }
+        },
+        "byGenre": {
+          "type": "array",
+          "items": {
+            "$ref": "GenreCountDTO"
+          }
+        },
+        "byGenreGrade": {
+          "type": "array",
+          "items": {
+            "$ref": "GenreGradeCountDTO"
+          }
+        },
+        "byGenreStatus": {
+          "type": "array",
+          "items": {
+            "$ref": "GenreStatusCountDTO"
+          }
+        },
+        "byGrade": {
+          "type": "array",
+          "items": {
+            "$ref": "GradeCountDTO"
+          }
+        },
+        "byStatus": {
+          "type": "array",
+          "items": {
+            "$ref": "StatusCountDTO"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "byFriendsGenreGrade",
+        "byFriendsGrade",
+        "byGenre",
+        "byGenreGrade",
+        "byGenreStatus",
+        "byGrade",
+        "byStatus",
+        "total"
+      ],
+      "type": "object"
+    },
+    "RecordStatus": {
+      "enum": ["QUEUE", "PROGRESS", "DROP", "NOTINTERESTED", "UNFINISHED", "DONE"]
+    },
+    "RecordType": {
+      "enum": ["WRITTEN", "SUGGESTION", "ORDER"]
+    },
+    "RecordUpdateDTO": {
+      "properties": {
+        "episode": {
+          "type": "string"
+        },
+        "grade": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "status": {
+          "$ref": "RecordStatus"
+        },
+        "type": {
+          "$ref": "RecordType"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "RecordUpdatePosterDTO": {
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["url"],
+      "type": "object"
+    },
+    "StatusCountDTO": {
+      "properties": {
+        "count": {
+          "type": "number"
+        },
+        "status": {
+          "$ref": "RecordStatus"
+        }
+      },
+      "required": ["count", "status"],
+      "type": "object"
+    },
+    "SteamGameDto": {
+      "properties": {
+        "appid": {
+          "type": "number"
+        },
+        "header_image": {
+          "type": "string"
+        },
+        "img_icon_url": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "playtime_forever": {
+          "type": "number"
+        }
+      },
+      "required": ["appid", "header_image", "img_icon_url", "name", "playtime_forever"],
+      "type": "object"
+    },
+    "SteamGamesResponseDTO": {
+      "properties": {
+        "existingAppIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "games": {
+          "type": "array",
+          "items": {
+            "$ref": "SteamGameDto"
+          }
+        }
+      },
+      "required": ["existingAppIds", "games"],
+      "type": "object"
+    },
+    "SteamImportDTO": {
+      "properties": {
+        "games": {
+          "type": "array",
+          "items": {
+            "$ref": "SteamImportGameDto"
+          }
+        }
+      },
+      "required": ["games"],
+      "type": "object"
+    },
+    "SteamImportFailureDto": {
+      "properties": {
+        "appId": {
+          "type": "number"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": ["appId", "reason"],
+      "type": "object"
+    },
+    "SteamImportGameDto": {
+      "properties": {
+        "appId": {
+          "type": "number"
+        },
+        "grade": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "status": {
+          "$ref": "RecordStatus"
+        }
+      },
+      "required": ["appId", "status"],
+      "type": "object"
+    },
+    "SteamImportResultDTO": {
+      "properties": {
+        "created": {
+          "type": "array",
+          "items": {
+            "$ref": "RecordEntity"
+          }
+        },
+        "failed": {
+          "type": "array",
+          "items": {
+            "$ref": "SteamImportFailureDto"
+          }
+        }
+      },
+      "required": ["created", "failed"],
+      "type": "object"
+    },
+    "SuccessResponseDTO": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "required": ["success"],
+      "type": "object"
+    },
+    "SuggestionCreateByTwirDTO": {
+      "properties": {
+        "link": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["link", "userId"],
+      "type": "object"
+    },
+    "SuggestionOwnershipEntity": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "id": {
+          "type": "number"
+        },
+        "recordId": {
+          "type": "number"
+        },
+        "user": {
+          "$ref": "UserEntity",
+          "nullable": true
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["createdAt", "id", "recordId", "userId"],
+      "type": "object"
+    },
+    "UpdateNicknameDTO": {
+      "properties": {
+        "login": {
+          "type": "string"
+        }
+      },
+      "required": ["login"],
+      "type": "object"
+    },
+    "UserAccountEntity": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "id": {
+          "type": "number"
+        },
+        "platform": {
+          "$ref": "AccountPlatform"
+        },
+        "platformAvatar": {
+          "nullable": true,
+          "type": "string"
+        },
+        "platformLogin": {
+          "type": "string"
+        },
+        "platformUserId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "createdAt",
+        "id",
+        "platform",
+        "platformAvatar",
+        "platformLogin",
+        "platformUserId",
+        "userId"
+      ],
+      "type": "object"
+    },
+    "UserEntity": {
+      "properties": {
+        "color": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "hasCustomAvatar": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "login": {
+          "type": "string"
+        },
+        "profileImageUrl": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "UserRole"
+        }
+      },
+      "required": [
+        "color",
+        "createdAt",
+        "hasCustomAvatar",
+        "id",
+        "login",
+        "profileImageUrl",
+        "role"
+      ],
+      "type": "object"
+    },
+    "UserRatedRecordEntity": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "episode": {
+          "nullable": true,
+          "type": "string"
+        },
+        "extra": {
+          "additionalProperties": true,
+          "nullable": true,
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "friendsCounts": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "nullable": true,
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "friendsTop": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "friendsTotal": {
+          "nullable": true,
+          "type": "number"
+        },
+        "genre": {
+          "$ref": "RecordGenre",
+          "nullable": true
+        },
+        "grade": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "id": {
+          "type": "number"
+        },
+        "likes": {
+          "items": {
+            "$ref": "LikeEntity"
+          },
+          "nullable": true,
+          "type": "array"
+        },
+        "link": {
+          "type": "string"
+        },
+        "myGrade": {
+          "$ref": "RecordGrade",
+          "nullable": true
+        },
+        "posterUrl": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "RecordStatus",
+          "nullable": true
+        },
+        "suggestionOwnership": {
+          "$ref": "SuggestionOwnershipEntity",
+          "nullable": true
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "RecordType",
+          "nullable": true
+        },
+        "userGrade": {
+          "$ref": "RecordGrade"
+        },
+        "userLogin": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "createdAt",
+        "episode",
+        "genre",
+        "grade",
+        "id",
+        "link",
+        "posterUrl",
+        "status",
+        "title",
+        "type",
+        "userGrade",
+        "userLogin"
+      ],
+      "type": "object"
+    },
+    "UserRole": {
+      "enum": ["USER", "ADMIN"]
+    },
+    "UserSuggestionDTO": {
+      "properties": {
+        "link": {
+          "type": "string"
+        }
+      },
+      "required": ["link"],
+      "type": "object"
+    },
+    "UserSuggestionResponseDTO": {
+      "properties": {
+        "genre": {
+          "$ref": "RecordGenre"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": ["genre", "title"],
+      "type": "object"
+    },
+    "WeatherCloudsDTO": {
+      "properties": {
+        "all": {
+          "type": "number"
+        }
+      },
+      "required": ["all"],
+      "type": "object"
+    },
+    "WeatherConditionDTO": {
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "main": {
+          "type": "string"
+        }
+      },
+      "required": ["description", "main"],
+      "type": "object"
+    },
+    "WeatherDTO": {
+      "properties": {
+        "clouds": {
+          "$ref": "WeatherCloudsDTO"
+        },
+        "main": {
+          "$ref": "WeatherMainDTO"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sys": {
+          "$ref": "WeatherSysDTO"
+        },
+        "visibility": {
+          "type": "number"
+        },
+        "weather": {
+          "type": "array",
+          "items": {
+            "$ref": "WeatherConditionDTO"
+          }
+        },
+        "wind": {
+          "$ref": "WeatherWindDTO"
+        }
+      },
+      "required": ["clouds", "main", "name", "sys", "visibility", "weather", "wind"],
+      "type": "object"
+    },
+    "WeatherMainDTO": {
+      "properties": {
+        "feels_like": {
+          "type": "number"
+        },
+        "humidity": {
+          "type": "number"
+        },
+        "pressure": {
+          "type": "number"
+        },
+        "temp": {
+          "type": "number"
+        }
+      },
+      "required": ["feels_like", "humidity", "pressure", "temp"],
+      "type": "object"
+    },
+    "WeatherSysDTO": {
+      "properties": {
+        "sunrise": {
+          "type": "number"
+        },
+        "sunset": {
+          "type": "number"
+        }
+      },
+      "required": ["sunrise", "sunset"],
+      "type": "object"
+    },
+    "WeatherWindDTO": {
+      "properties": {
+        "speed": {
+          "type": "number"
+        }
+      },
+      "required": ["speed"],
+      "type": "object"
+    },
+    "WordleDailyGuessDTO": {
+      "properties": {
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleLetterState"
+          }
+        }
+      },
+      "required": ["states"],
+      "type": "object"
+    },
+    "WordleDailyLeaderboardDTO": {
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleDailyLeaderboardEntryDTO"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": ["entries", "total"],
+      "type": "object"
+    },
+    "WordleDailyLeaderboardEntryDTO": {
+      "properties": {
+        "attempts": {
+          "type": "number"
+        },
+        "color": {
+          "type": "string"
+        },
+        "guesses": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleDailyGuessDTO"
+          }
+        },
+        "login": {
+          "type": "string"
+        },
+        "profileImageUrl": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "WordleGameStatus"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["attempts", "color", "guesses", "login", "profileImageUrl", "status", "userId"],
+      "type": "object"
+    },
+    "WordleGameStatus": {
+      "enum": ["IN_PROGRESS", "WON", "LOST"]
+    },
+    "WordleGuessDTO": {
+      "properties": {
+        "word": {
+          "type": "string"
+        }
+      },
+      "required": ["word"],
+      "type": "object"
+    },
+    "WordleGuessStateDTO": {
+      "properties": {
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleLetterState"
+          }
+        },
+        "word": {
+          "type": "string"
+        }
+      },
+      "required": ["states", "word"],
+      "type": "object"
+    },
+    "WordleHistoryDayDTO": {
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "WordleHistoryStatus"
+        }
+      },
+      "required": ["date", "status"],
+      "type": "object"
+    },
+    "WordleHistoryStatus": {
+      "enum": ["WON", "LOST", "NONE"]
+    },
+    "WordleLeaderboardDTO": {
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleLeaderboardEntryDTO"
+          }
+        },
+        "today": {
+          "$ref": "WordleDailyLeaderboardDTO"
+        },
+        "totalGames": {
+          "type": "number"
+        },
+        "totalPlayers": {
+          "type": "number"
+        },
+        "winsToday": {
+          "type": "number"
+        }
+      },
+      "required": ["entries", "today", "totalGames", "totalPlayers", "winsToday"],
+      "type": "object"
+    },
+    "WordleLeaderboardEntryDTO": {
+      "properties": {
+        "avgAttempts": {
+          "type": "number"
+        },
+        "color": {
+          "type": "string"
+        },
+        "currentStreak": {
+          "type": "number"
+        },
+        "login": {
+          "type": "string"
+        },
+        "maxStreak": {
+          "type": "number"
+        },
+        "profileImageUrl": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "wins": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "avgAttempts",
+        "color",
+        "currentStreak",
+        "login",
+        "maxStreak",
+        "profileImageUrl",
+        "userId",
+        "wins"
+      ],
+      "type": "object"
+    },
+    "WordleLetterState": {
+      "enum": ["CORRECT", "PRESENT", "ABSENT"]
+    },
+    "WordleNotificationsDeleteDTO": {
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        }
+      },
+      "required": ["ok"],
+      "type": "object"
+    },
+    "WordleNotificationsLinkDTO": {
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["url"],
+      "type": "object"
+    },
+    "WordleNotificationsStatusDTO": {
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "connected": {
+          "type": "boolean"
+        },
+        "eveningEnabled": {
+          "type": "boolean"
+        },
+        "eveningTime": {
+          "type": "string"
+        },
+        "morningEnabled": {
+          "type": "boolean"
+        },
+        "morningTime": {
+          "type": "string"
+        },
+        "telegramUsername": {
+          "nullable": true,
+          "type": "string"
+        }
+      },
+      "required": [
+        "available",
+        "connected",
+        "eveningEnabled",
+        "eveningTime",
+        "morningEnabled",
+        "morningTime",
+        "telegramUsername"
+      ],
+      "type": "object"
+    },
+    "WordleNotificationsUpdateDTO": {
+      "properties": {
+        "eveningEnabled": {
+          "type": "boolean"
+        },
+        "morningEnabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "WordlePracticeStateDTO": {
+      "properties": {
+        "answer": {
+          "nullable": true,
+          "type": "string"
+        },
+        "attempts": {
+          "type": "number"
+        },
+        "guesses": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleGuessStateDTO"
+          }
+        },
+        "maxAttempts": {
+          "type": "number"
+        },
+        "status": {
+          "$ref": "WordleGameStatus"
+        },
+        "wordLength": {
+          "type": "number"
+        }
+      },
+      "required": ["answer", "attempts", "guesses", "maxAttempts", "status", "wordLength"],
+      "type": "object"
+    },
+    "WordleStateDTO": {
+      "properties": {
+        "answer": {
+          "nullable": true,
+          "type": "string"
+        },
+        "attempts": {
+          "type": "number"
+        },
+        "date": {
+          "type": "string"
+        },
+        "guesses": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleGuessStateDTO"
+          }
+        },
+        "maxAttempts": {
+          "type": "number"
+        },
+        "msUntilNextWord": {
+          "type": "number"
+        },
+        "status": {
+          "$ref": "WordleGameStatus"
+        },
+        "wordLength": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "answer",
+        "attempts",
+        "date",
+        "guesses",
+        "maxAttempts",
+        "msUntilNextWord",
+        "status",
+        "wordLength"
+      ],
+      "type": "object"
+    },
+    "WordleStatsDTO": {
+      "properties": {
+        "currentStreak": {
+          "type": "number"
+        },
+        "distribution": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "WordleHistoryDayDTO"
+          }
+        },
+        "maxStreak": {
+          "type": "number"
+        },
+        "played": {
+          "type": "number"
+        },
+        "rank": {
+          "nullable": true,
+          "type": "number"
+        },
+        "totalPlayers": {
+          "type": "number"
+        },
+        "winRate": {
+          "type": "number"
+        },
+        "wins": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "currentStreak",
+        "distribution",
+        "history",
+        "maxStreak",
+        "played",
+        "rank",
+        "totalPlayers",
+        "winRate",
+        "wins"
+      ],
+      "type": "object"
+    }
+  }
+}

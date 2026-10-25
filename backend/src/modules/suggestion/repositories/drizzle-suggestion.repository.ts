@@ -1,10 +1,9 @@
+import { DrizzleService } from '@backend/database/drizzle.service'
+import { LimitType, RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import { LimitDomain } from '@backend/modules/limit/entities/limit.entity'
+import { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 import { likes, limits, records, suggestionOwnerships } from '@gmd/database/schema'
-import { Injectable } from '@nestjs/common'
 import { and, count, eq, inArray, or, type SQL } from 'drizzle-orm'
-import { DrizzleService } from '@/database/drizzle.service'
-import { LimitType, RecordGenre, RecordStatus, RecordType } from '@/enums'
-import { LimitDomain } from '@/modules/limit/entities/limit.entity'
-import { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
 
 export interface CreateSuggestionData {
   title: string
@@ -19,7 +18,6 @@ export interface SuggestionFilters {
   statuses?: string[]
 }
 
-@Injectable()
 export class DrizzleSuggestionRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 

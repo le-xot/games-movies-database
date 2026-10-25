@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { createMock } from '@/__tests__/helpers/mock-factory'
-import { makeRecordRow } from '@/__tests__/helpers/record-fixture'
-import { RecordGenre, RecordStatus, RecordType } from '@/enums'
-import { DrizzleRecordRepository } from '@/modules/record/repositories/drizzle-record.repository'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { makeRecordRow } from '@backend/__tests__/helpers/record-fixture'
+import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
 import { SteamService } from '../steam.service'
-import type { RecordWithRelations } from '@/modules/record/entities/record-domain.entity'
+import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 const makeRecord = (overrides?: Partial<RecordWithRelations>) => makeRecordRow(overrides)
 

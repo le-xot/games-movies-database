@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
-import { createMock } from '@/__tests__/helpers/mock-factory'
+import { createMock } from '@backend/__tests__/helpers/mock-factory'
+import { BadRequestException, NotFoundException } from '@backend/utils/errors'
 import { LikeService } from '../like.service'
 import { DrizzleLikeRepository } from '../repositories/drizzle-like.repository'
 
@@ -8,7 +8,7 @@ const makeLike = (overrides?: Partial<{ id: string; userId: string; recordId: nu
   id: 'like-1',
   userId: 'user-1',
   recordId: 1,
-  createdAt: new Date(),
+  createdAt: new Date().toISOString(),
   ...overrides,
 })
 

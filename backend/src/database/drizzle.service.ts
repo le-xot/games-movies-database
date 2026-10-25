@@ -1,11 +1,10 @@
 import process from 'node:process'
+import { Logger } from '@backend/utils/logger'
 import * as schema from '@gmd/database/schema'
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
-@Injectable()
-export class DrizzleService implements OnModuleInit, OnModuleDestroy {
+export class DrizzleService {
   private readonly logger = new Logger(DrizzleService.name)
   readonly pool: Pool
   readonly db: NodePgDatabase<typeof schema>

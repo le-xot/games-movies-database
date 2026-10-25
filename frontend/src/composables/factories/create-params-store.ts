@@ -2,8 +2,8 @@ import { refDebounced } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
-  PathsRecordsGetParametersQueryDirection,
-  PathsRecordsGetParametersQueryOrderBy,
+  RecordDirection,
+  RecordOrderBy,
   RecordGenre,
   RecordGrade,
   RecordStatus,
@@ -16,8 +16,8 @@ export type RecordsQueryParams = {
   search?: string
   page?: number
   limit?: number
-  orderBy?: PathsRecordsGetParametersQueryOrderBy
-  direction?: PathsRecordsGetParametersQueryDirection
+  orderBy?: RecordOrderBy
+  direction?: RecordDirection
   status?: RecordStatus[]
   grade?: RecordGrade[]
 }
@@ -39,8 +39,8 @@ export function createParamsStore(config: ParamsStoreConfig) {
         genre: config.genre,
         type: RecordType.WRITTEN,
         search: debouncedSearch.value,
-        orderBy: PathsRecordsGetParametersQueryOrderBy.id,
-        direction: PathsRecordsGetParametersQueryDirection.desc,
+        orderBy: RecordOrderBy.id,
+        direction: RecordDirection.desc,
       }
 
       if (statusesFilter.value !== null) {

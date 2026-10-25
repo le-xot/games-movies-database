@@ -1,16 +1,16 @@
 import { describe, expect, it, mock } from 'bun:test'
-import { BadRequestException } from '@nestjs/common'
-import { WordleGameStatus } from '@/enums'
+import { WordleGameStatus } from '@backend/enums'
 import {
   PRACTICE_KEY_PREFIX,
   PRACTICE_SPOILER_WINDOW_DAYS,
   PRACTICE_TTL_SECONDS,
   WordlePracticeService,
   derivePracticeStatus,
-} from '@/modules/wordle/wordle-practice.service'
-import { getMoscowDateKey, shiftDateKey } from '@/modules/wordle/wordle.date'
-import { WordleLetterState } from '@/modules/wordle/wordle.scoring'
-import type { WordleDictionary } from '@/modules/wordle/wordle.dictionary'
+} from '@backend/modules/wordle/wordle-practice.service'
+import { getMoscowDateKey, shiftDateKey } from '@backend/modules/wordle/wordle.date'
+import { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
+import { BadRequestException } from '@backend/utils/errors'
+import type { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 import type { RedisClient } from 'bun'
 
 const NOW = new Date('2026-09-20T10:00:00.000Z')

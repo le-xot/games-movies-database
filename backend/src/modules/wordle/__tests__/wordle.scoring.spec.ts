@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { WordleLetterState, scoreGuess } from '@/modules/wordle/wordle.scoring'
+import { WordleLetterState, scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 
 const { CORRECT, PRESENT, ABSENT } = WordleLetterState
 

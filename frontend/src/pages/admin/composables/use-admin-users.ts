@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { unwrap } from '@/lib/api'
+import { assertOk } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { UserAccountEntity, UserEntity } from '@/lib/api'
 
@@ -19,7 +20,7 @@ export function useAdminUsers() {
     isLoading.value = true
     error.value = null
     try {
-      const data = await unwrap(api.GET('/users/users'))
+      const data = await unwrap(api.users.users.get())
       users.value = data
       await fetchAllAccounts()
     } catch (err) {
@@ -33,9 +34,7 @@ export function useAdminUsers() {
   async function fetchAllAccounts() {
     const results = await Promise.allSettled(
       users.value.map(async (user) => {
-        const data = await unwrap(
-          api.GET('/users/{id}/accounts', { params: { path: { id: user.id } } }),
-        )
+        const data = await unwrap(api.users({ id: user.id }).accounts.get())
         return { userId: user.id, accounts: data }
       }),
     )
@@ -52,7 +51,7 @@ export function useAdminUsers() {
       description: `Вы уверены, что хотите удалить пользователя ${username}?`,
       onSubmit: async () => {
         try {
-          await api.DELETE('/users/{id}', { params: { path: { id: userId } } })
+          await assertOk(api.users({ id: userId }).delete())
           await fetchUsers()
         } catch (err) {
           console.error('Failed to delete user:', err)

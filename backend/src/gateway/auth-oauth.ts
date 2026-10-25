@@ -8,6 +8,7 @@ import {
 } from '@backend/gateway/auth'
 import { clearCookie, serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
 import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { commonModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { assertOAuthState } from '@backend/modules/auth/auth.oauth-state'
 import {
@@ -141,7 +142,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
 
   return (
     new Elysia({ name: 'auth-oauth' })
-      .model({ ...apiErrorModels, ...authModels, ...oauthModels })
+      .model({ ...apiErrorModels, ...authModels, ...oauthModels, ...commonModels })
       // Хук уровня плагина: в опциях роута Elysia его игнорирует. Nest
       // документирует code/state/error как обязательные, но при отказе
       // пользователя `code` не приходит — подставляем пустые значения.
@@ -195,9 +196,12 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           setToken(ctx.set, token)
           ctx.set.status = 200
 
-          return new Response('Authentication successful')
+          return { success: true }
         },
-        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
+        {
+          body: 'CallbackDto' as const,
+          response: { 200: 'SuccessResponseDTO' as const, ...standardErrors() },
+        },
       )
       .post(
         '/auth/twitch/link',
@@ -215,9 +219,12 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           await oauth.linkTwitch(user.id, body.code)
           ctx.set.status = 200
 
-          return new Response('Twitch account linked')
+          return { success: true }
         },
-        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
+        {
+          body: 'CallbackDto' as const,
+          response: { 200: 'SuccessResponseDTO' as const, ...standardErrors() },
+        },
       )
       .get(
         '/auth/kick',
@@ -283,9 +290,12 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           setToken(ctx.set, token)
           ctx.set.status = 200
 
-          return new Response('Authentication successful')
+          return { success: true }
         },
-        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
+        {
+          body: 'CallbackDto' as const,
+          response: { 200: 'SuccessResponseDTO' as const, ...standardErrors() },
+        },
       )
       .post(
         '/auth/kick/link',
@@ -307,9 +317,12 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           await oauth.linkKick(user.id, body.code, verifier)
           ctx.set.status = 200
 
-          return new Response('Kick account linked')
+          return { success: true }
         },
-        { body: 'CallbackDto' as const, response: { 200: t.Void(), ...standardErrors() } },
+        {
+          body: 'CallbackDto' as const,
+          response: { 200: 'SuccessResponseDTO' as const, ...standardErrors() },
+        },
       )
       .get(
         '/auth/telegram',

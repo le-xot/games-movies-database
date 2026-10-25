@@ -88,6 +88,25 @@ describe('OAuth: twitch', () => {
     expect(response.headers.getSetCookie().join(';')).toContain('twitch_state=;')
   })
 
+  it('answers the link callback with a JSON body', async () => {
+    const { gateway } = build({ user: USER })
+
+    const response = await gateway.handle(
+      request(
+        '/auth/twitch/link',
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ code: 'c', state: 'real' }),
+        },
+        'token=jwt; twitch_state=real',
+      ),
+    )
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ success: true })
+  })
+
   it('exchanges the code and sets the session cookie', async () => {
     const { gateway, exchangeTwitch } = build()
 
@@ -104,7 +123,10 @@ describe('OAuth: twitch', () => {
     )
 
     expect(response.status).toBe(200)
-    expect(await response.text()).toBe('Authentication successful')
+    // Тело — JSON, а не текст: клиенты вроде openapi-fetch всегда парсят JSON
+    // и падали с `SyntaxError` на строке `Authentication successful`.
+    expect(response.headers.get('content-type')).toContain('application/json')
+    expect(await response.json()).toEqual({ success: true })
     expect(response.headers.getSetCookie().join(';')).toContain('token=jwt-token')
     expect(exchangeTwitch).toHaveBeenCalledWith('c')
   })

@@ -2360,7 +2360,11 @@
         }
       },
       "responses": {
-        "200": null,
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2406,7 +2410,11 @@
         }
       },
       "responses": {
-        "200": null,
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2550,7 +2558,11 @@
         }
       },
       "responses": {
-        "200": null,
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"
@@ -2596,7 +2608,11 @@
         }
       },
       "responses": {
-        "200": null,
+        "200": {
+          "application/json": {
+            "$ref": "SuccessResponseDTO"
+          }
+        },
         "400": {
           "application/json": {
             "$ref": "ApiErrorDto"

@@ -49,3 +49,8 @@ export const recordEnumModels = { RecordGenre, RecordStatus, RecordGrade, Record
  * тут проходят, но их всё равно отбивает allow-list провайдеров.
  */
 export const HTTP_URL_PATTERN = '^https?://[^/\\s]+\\.[^/\\s]+'
+
+/** Ответ на действие без полезной нагрузки: `{ success: true }`. */
+export const SuccessResponseDTO = t.Object({ success: t.Boolean() })
+
+export const commonModels = { SuccessResponseDTO }

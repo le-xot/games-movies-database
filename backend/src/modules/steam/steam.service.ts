@@ -81,7 +81,7 @@ export class SteamService {
     const normalizedName = game.name?.toLowerCase().trim()
 
     return existingGames.some((record) => {
-      const extra = record.extra as Record<string, unknown> | null
+      const extra = record.extra
       if (extra?.steamAppId === appIdStr) return true
       if (record.link.includes(steamLink)) return true
       if (normalizedName && record.title.toLowerCase().trim() === normalizedName) return true

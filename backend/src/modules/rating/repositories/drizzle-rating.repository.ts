@@ -36,7 +36,7 @@ export class DrizzleRatingRepository {
       .values({ id: crypto.randomUUID(), userId, recordId, grade })
       .onConflictDoUpdate({
         target: [recordRatings.userId, recordRatings.recordId],
-        set: { grade, updatedAt: new Date() },
+        set: { grade, updatedAt: new Date().toISOString() },
       })
       .returning()
     if (!rating) throw new Error('Failed to upsert rating')

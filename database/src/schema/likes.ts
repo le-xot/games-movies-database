@@ -1,6 +1,7 @@
-import { foreignKey, integer, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+import { foreignKey, integer, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { currentTimestamp } from './defaults'
 import { records } from './records'
+import { isoTimestamp } from './timestamp'
 import { users } from './users'
 
 export const likes = pgTable(
@@ -9,7 +10,7 @@ export const likes = pgTable(
     id: text('id').primaryKey(),
     userId: text('userId').notNull(),
     recordId: integer('recordId').notNull(),
-    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
+    createdAt: isoTimestamp('createdAt').default(currentTimestamp).notNull(),
   },
   (table) => [
     uniqueIndex('likes_userId_recordId_key').on(table.userId, table.recordId),

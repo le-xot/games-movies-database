@@ -9,7 +9,7 @@ export class LikeEntity {
 
   user?: UserEntity | null
 
-  createdAt!: Date
+  createdAt!: string
 
   constructor(partial: Partial<LikeEntity>) {
     Object.assign(this, partial)

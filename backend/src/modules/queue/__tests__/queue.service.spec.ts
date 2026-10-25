@@ -16,7 +16,7 @@ describe('QueueService', () => {
   })
 
   it('getQueue calls repository and maps records into queue dto', async () => {
-    const createdAt = new Date('2026-01-02T03:04:05.000Z')
+    const createdAt = '2026-01-02T03:04:05.000Z'
     let receivedType: RecordType | undefined
     mockRepo.findQueueRecords = ((type: RecordType): Promise<RecordWithRelations[]> => {
       receivedType = type
@@ -51,7 +51,7 @@ describe('QueueService', () => {
         {
           title: 'Game 1',
           posterUrl: 'poster-1',
-          createdAt: createdAt.toLocaleDateString('ru-RU', {
+          createdAt: new Date(createdAt).toLocaleDateString('ru-RU', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -65,7 +65,7 @@ describe('QueueService', () => {
         {
           title: 'Movie 1',
           posterUrl: 'poster-2',
-          createdAt: createdAt.toLocaleDateString('ru-RU', {
+          createdAt: new Date(createdAt).toLocaleDateString('ru-RU', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',

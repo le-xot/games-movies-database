@@ -1,13 +1,6 @@
-import {
-  boolean,
-  foreignKey,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core'
+import { boolean, foreignKey, pgTable, serial, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { currentTimestamp } from './defaults'
+import { isoTimestamp } from './timestamp'
 import { users } from './users'
 
 export const wordleNotificationSubscriptions = pgTable(
@@ -19,7 +12,7 @@ export const wordleNotificationSubscriptions = pgTable(
     telegramUsername: text('telegramUsername'),
     morningEnabled: boolean('morningEnabled').default(true).notNull(),
     eveningEnabled: boolean('eveningEnabled').default(true).notNull(),
-    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
+    createdAt: isoTimestamp('createdAt').default(currentTimestamp).notNull(),
   },
   (table) => [
     uniqueIndex('wordle_notification_subscriptions_userId_key').on(table.userId),

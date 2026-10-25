@@ -17,7 +17,7 @@ export class QueueService {
     ): QueueItemDto => ({
       title: record.title,
       posterUrl: record.posterUrl,
-      createdAt: record.createdAt.toLocaleDateString('ru-RU', {
+      createdAt: new Date(record.createdAt).toLocaleDateString('ru-RU', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',

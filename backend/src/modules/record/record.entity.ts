@@ -11,7 +11,7 @@ export class SuggestionOwnershipEntity {
 
   user?: UserEntity | null
 
-  createdAt!: Date
+  createdAt!: string
 
   constructor(partial: Partial<SuggestionOwnershipEntity>) {
     Object.assign(this, partial)
@@ -45,13 +45,13 @@ export class RecordEntity {
 
   episode!: string | null
 
-  extra?: unknown
+  extra?: Record<string, unknown> | null
 
   suggestionOwnership?: SuggestionOwnershipEntity | null
 
   likes?: LikeEntity[] | null
 
-  createdAt!: Date
+  createdAt!: string
 
   constructor(partial: Partial<RecordEntity>) {
     Object.assign(this, partial)

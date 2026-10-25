@@ -13,7 +13,7 @@ export class UserEntity {
 
   hasCustomAvatar!: boolean
 
-  createdAt!: Date
+  createdAt!: string
 
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial)

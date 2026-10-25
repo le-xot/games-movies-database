@@ -9,7 +9,7 @@ export interface CreateRecordData {
   link: string
   status?: RecordStatus
   type?: RecordType
-  extra?: unknown
+  extra?: Record<string, unknown> | null
   userId?: string
 }
 
@@ -31,7 +31,7 @@ export type RecordWithRelations = RecordDomain & {
     id: number
     recordId: number
     userId: string
-    createdAt: Date
+    createdAt: string
     user?: SelectRow<'users'>
   } | null
   likes?: Array<SelectRow<'likes'> & { user?: SelectRow<'users'> }>

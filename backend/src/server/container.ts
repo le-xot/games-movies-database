@@ -2,7 +2,6 @@ import { DrizzleService } from '@backend/database/drizzle.service'
 import { createJwtAuthenticator } from '@backend/gateway/jwt-authenticator'
 import { AuthService } from '@backend/modules/auth/auth.service'
 import { AvatarService } from '@backend/modules/avatar/avatar.service'
-import { ImgVariant } from '@backend/modules/img/img.dto'
 import { ImgService } from '@backend/modules/img/img.service'
 import { KickService } from '@backend/modules/kick/kick.service'
 import { LikeService } from '@backend/modules/like/like.service'
@@ -38,14 +37,11 @@ import { WordleNotificationService } from '@backend/modules/wordle/wordle-notifi
 import { WordlePracticeService } from '@backend/modules/wordle/wordle-practice.service'
 import { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 import { WordleService } from '@backend/modules/wordle/wordle.service'
-import {
-  toGatewayAccount,
-  toGatewayLike,
-  toGatewayRatedRecord,
-  toGatewayRating,
-  toGatewayRecord,
-  toGatewayUser,
-} from '@backend/server/adapters'
+import { analyticsPorts } from '@backend/server/wiring/analytics'
+import { catalogPorts } from '@backend/server/wiring/catalog'
+import { integrationPorts } from '@backend/server/wiring/integrations'
+import { peoplePorts } from '@backend/server/wiring/people'
+import { wordlePorts } from '@backend/server/wiring/wordle'
 import { DomainEvents } from '@backend/utils/domain-events'
 import { env } from '@backend/utils/enviroments'
 import { hitRateLimit } from '@backend/utils/rate-limit'
@@ -67,11 +63,12 @@ export interface Container {
 }
 
 /**
- * Composition root гейтвея: зависимости собираются руками, явно и в одном месте.
+ * Composition root: здесь и только здесь собираются сервисы и порты гейтвея.
  *
- * Доменные сервисы пока помечены `@Injectable()` и пользуются Nest-логгером, но
- * это обычные классы — DI им не нужен, декораторы не мешают `new`. Поэтому
- * гейтвей может подняться, пока Nest ещё жив.
+ * Сервисы — обычные классы без DI; зависимости передаются в конструктор.
+ * Порты по доменам собирают `server/wiring/*`: они приводят форму запроса
+ * (query/body) к аргументам сервиса, данные при этом идут как есть — сущности
+ * уже отдают ISO-строки для дат.
  */
 export function createContainer(): Container {
   const drizzle = new DrizzleService()
@@ -158,6 +155,11 @@ export function createContainer(): Container {
       }),
   }
 
+  const auth = createJwtAuthenticator({
+    secret: env.JWT_SECRET,
+    users: { getById: (id) => users.getUserById(id) },
+  })
+
   const started: Array<{
     onModuleInit?: () => unknown
     onApplicationBootstrap?: () => unknown
@@ -180,224 +182,20 @@ export function createContainer(): Container {
       }
     },
     deps: {
-      weather,
-      stats,
-      queue,
-      records: {
-        createFromLink: async (data) =>
-          toGatewayRecord(
-            await records.createRecordFromLink({
-              link: data.link,
-              ...(data.status ? { status: data.status } : {}),
-              ...(data.type ? { type: data.type } : {}),
-            }),
-          ),
-        findById: async (id, viewerId) =>
-          toGatewayRecord(await records.findRecordById(id, viewerId)),
-        patch: async (id, data) =>
-          toGatewayRecord(
-            await records.patchRecord(id, {
-              ...(data.status ? { status: data.status } : {}),
-              ...(data.grade !== undefined ? { grade: data.grade } : {}),
-              ...(data.episode !== undefined ? { episode: data.episode } : {}),
-              ...(data.type ? { type: data.type } : {}),
-            }),
-          ),
-        updatePoster: async (id, url) => toGatewayRecord(await records.updatePoster(id, url)),
-        remove: (id) => records.deleteRecord(id),
-        getAll: async (query) => {
-          const { page, limit, orderBy, direction, viewerId, ...rest } = query
-          const filters = {
-            ...(rest.search !== undefined ? { search: rest.search } : {}),
-            ...(rest.status !== undefined ? { status: rest.status } : {}),
-            ...(rest.type !== undefined ? { type: rest.type } : {}),
-            ...(rest.grade !== undefined ? { grade: rest.grade } : {}),
-            ...(rest.genre !== undefined ? { genre: rest.genre } : {}),
-          }
-
-          const result = await records.getAllRecords(
-            page,
-            limit,
-            filters,
-            orderBy,
-            direction,
-            viewerId,
-          )
-
-          return { records: result.records.map(toGatewayRecord), total: result.total }
-        },
-      },
-      ratings: {
-        rate: async (userId, recordId, grade) =>
-          toGatewayRating(await ratings.rate(userId, recordId, grade)),
-        unrate: (userId, recordId) => ratings.unrate(userId, recordId),
-        getMy: async (userId, query) => {
-          const { items, total } = await ratings.getUserRatings(
-            userId,
-            userId,
-            query.page,
-            query.limit,
-            query.grade,
-          )
-
-          return { items: items.map(toGatewayRatedRecord), total }
-        },
-        getUser: async (viewerId, userId, query) => {
-          const { items, total } = await ratings.getUserRatings(
-            viewerId,
-            userId,
-            query.page,
-            query.limit,
-            query.grade,
-          )
-
-          return { items: items.map(toGatewayRatedRecord), total }
-        },
-        getFriends: async () => ({ members: await ratings.getFriends() }),
-      },
-      likes: {
-        createLike: async (userId, recordId) =>
-          toGatewayLike(await likes.createLike(userId, recordId)),
-        deleteLike: (userId, recordId) => likes.deleteLike(userId, recordId),
-        getLikesByRecordId: async (recordId) => {
-          const page = await likes.getLikesByRecordId(recordId)
-
-          return { likes: page.likes.map(toGatewayLike), total: page.total }
-        },
-        getLikesByUserId: async (userId) => {
-          const page = await likes.getLikesByUserId(userId)
-
-          return { likes: page.likes.map(toGatewayLike), total: page.total }
-        },
-        getLikes: async (page, limit) => {
-          const result = await likes.getLikes(page, limit)
-
-          return { likes: result.likes.map(toGatewayLike), total: result.total }
-        },
-      },
-      users: {
-        getAll: async () => (await users.getAllUsers()).map(toGatewayUser),
-        getById: async (id) => {
-          const user = await users.getUserById(id)
-
-          return user ? toGatewayUser(user) : null
-        },
-        getAccounts: async (id) => (await users.getLinkedAccounts(id)).map(toGatewayAccount),
-        remove: (id) => users.deleteUserById(id),
-        merge: (targetId, sourceUserId) => users.mergeUsers(targetId, sourceUserId),
-      },
-      suggestions: {
-        list: async () => (await suggestions.getSuggestions()).map(toGatewayRecord),
-        create: (input) => suggestions.userSuggest(input),
-        remove: (id, userId) => suggestions.deleteUserSuggestion(id, userId),
-      },
-      limits: {
-        change: (input) => limits.changeLimit(input),
-      },
-      twir: {
-        createSuggestion: (input) => twir.createSuggestionWithTwir(input),
-      },
-      twirApiKey: env.TWIR_API,
-      images: {
-        getImage: (urlEncoded, variant) =>
-          imgService.getImageContent(
-            urlEncoded,
-            variant === 'avatar' ? ImgVariant.AVATAR : ImgVariant.POSTER,
-          ),
-      },
-      avatars: {
-        getAvatar: (userId) => avatars.getAvatarBuffer(userId),
-      },
-      steam: {
-        getGames: async () => {
-          const [games, existing] = await Promise.all([
-            steam.getOwnedGames(),
-            steam.findDuplicateGames(),
-          ])
-
-          return {
-            games,
-            existingAppIds: games
-              .filter((game) => steam.isDuplicate(game, existing))
-              .map((game) => String(game.appid)),
-          }
-        },
-        importGames: async (games, userId) => {
-          const result = await steam.importGames(
-            games.map((game) => ({
-              appId: game.appId,
-              status: game.status,
-              ...(game.grade !== undefined && game.grade !== null ? { grade: game.grade } : {}),
-            })),
-            userId,
-          )
-
-          return { ...result, created: result.created.map(toGatewayRecord) }
-        },
-      },
-      oauth: {
-        exchangeTwitch: (code) => authService.handleTwitchCallback(code),
-        exchangeKick: (code, verifier) => authService.handleKickCallback(code, verifier),
-        linkTwitch: async (userId, code) => {
-          await authService.linkTwitchAccount(userId, code)
-        },
-        linkKick: async (userId, code, verifier) => {
-          await authService.linkKickAccount(userId, code, verifier)
-        },
-        createTelegramRequest: () => telegramService.createAuthorizationRequest(),
-        exchangeTelegram: (code, verifier) => telegramService.exchangeCode(code, verifier),
-        loginTelegram: (profile) => authService.handleTelegramOidcLogin(profile),
-        linkTelegram: async (userId, profile) => {
-          await authService.linkTelegramOidc(userId, profile)
-        },
-      },
-      oauthConfig: {
-        twitchClientId: env.TWITCH_CLIENT_ID ?? '',
-        twitchCallbackUrl: env.TWITCH_CALLBACK_URL,
-        kickClientId: env.KICK_CLIENT_ID ?? '',
-        kickCallbackUrl: env.KICK_CALLBACK_URL ?? '',
-        telegramCallbackUrl: env.TELEGRAM_CALLBACK_URL,
-        production: env.NODE_ENV === 'production',
-      },
-      authSession: {
-        getAccounts: async (userId) =>
-          (await users.getLinkedAccounts(userId)).map(toGatewayAccount),
-        unlinkAccount: (userId, platform) => users.unlinkPlatformAccount(userId, platform),
-        updateLogin: async (userId, login) => toGatewayUser(await users.updateLogin(userId, login)),
-        deleteUser: (userId) => users.deleteUserById(userId),
-        uploadAvatar: async (userId, buffer) =>
-          toGatewayUser(await users.uploadAvatar(userId, buffer)),
-        deleteAvatar: async (userId) => toGatewayUser(await users.deleteAvatar(userId)),
-      },
-      wordle: {
-        getState: (userId) => wordle.getState(userId),
-        makeGuess: (userId, word) => wordle.makeGuess(userId, word),
-        getStats: (userId) => wordle.getStats(userId),
-        getLeaderboard: () => wordle.getLeaderboard(),
-        getPracticeState: (userId) => wordlePractice.getState(userId),
-        startPractice: (userId) => wordlePractice.start(userId),
-        makePracticeGuess: (userId, word) => wordlePractice.makeGuess(userId, word),
-      },
-      wordleNotifications: {
-        getStatus: (userId) => wordleNotifications.getStatus(userId),
-        updateFlags: (userId, input) =>
-          wordleNotifications.updateFlags(userId, {
-            ...(input.morningEnabled !== undefined ? { morningEnabled: input.morningEnabled } : {}),
-            ...(input.eveningEnabled !== undefined ? { eveningEnabled: input.eveningEnabled } : {}),
-          }),
-        createLink: (userId) => wordleNotifications.createLink(userId),
-        disconnect: (userId) => wordleNotifications.disconnect(userId),
-      },
-      auth: createJwtAuthenticator({
-        secret: env.JWT_SECRET,
-        users: {
-          getById: async (id) => {
-            const user = await users.getUserById(id)
-
-            return user ? toGatewayUser(user) : null
-          },
-        },
+      ...analyticsPorts({ weather, stats, queue }),
+      ...catalogPorts({ records, ratings, likes, suggestions }),
+      ...peoplePorts({ users, auth }),
+      ...integrationPorts({
+        limits,
+        twir,
+        twirApiKey: env.TWIR_API,
+        images: imgService,
+        avatars,
+        steam,
+        auth: authService,
+        telegram: telegramService,
       }),
+      ...wordlePorts({ wordle, wordlePractice, wordleNotifications }),
       rateLimit,
     },
     async close() {

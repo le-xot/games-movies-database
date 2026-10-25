@@ -13,9 +13,9 @@ export class RatingEntity {
 
   user?: UserEntity | null
 
-  createdAt!: Date
+  createdAt!: string
 
-  updatedAt!: Date
+  updatedAt!: string
 
   constructor(partial: Partial<RatingEntity>) {
     Object.assign(this, partial)

@@ -1,15 +1,7 @@
-import {
-  date,
-  foreignKey,
-  index,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core'
+import { date, foreignKey, index, jsonb, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { currentTimestamp } from './defaults'
 import { wordleGameStatusEnum } from './enums'
+import { isoTimestamp } from './timestamp'
 import { users } from './users'
 
 export const wordleGames = pgTable(
@@ -21,7 +13,7 @@ export const wordleGames = pgTable(
     answer: text('answer').notNull(),
     guesses: jsonb('guesses').$type<string[]>().default([]).notNull(),
     status: wordleGameStatusEnum('status').default('IN_PROGRESS').notNull(),
-    createdAt: timestamp('createdAt', { precision: 3 }).default(currentTimestamp).notNull(),
+    createdAt: isoTimestamp('createdAt').default(currentTimestamp).notNull(),
   },
   (table) => [
     uniqueIndex('wordle_games_userId_date_key').on(table.userId, table.date),

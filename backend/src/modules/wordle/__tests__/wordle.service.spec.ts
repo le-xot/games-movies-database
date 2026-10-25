@@ -25,7 +25,7 @@ const makeGame = (overrides?: Partial<WordleGameRecord>): WordleGameRecord => ({
   answer: ANSWER,
   guesses: [],
   status: WordleGameStatus.IN_PROGRESS,
-  createdAt: new Date('2026-09-20T09:00:00Z'),
+  createdAt: '2026-09-20T09:00:00.000Z',
   ...overrides,
 })
 

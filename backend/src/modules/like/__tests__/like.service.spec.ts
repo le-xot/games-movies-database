@@ -8,7 +8,7 @@ const makeLike = (overrides?: Partial<{ id: string; userId: string; recordId: nu
   id: 'like-1',
   userId: 'user-1',
   recordId: 1,
-  createdAt: new Date(),
+  createdAt: new Date().toISOString(),
   ...overrides,
 })
 

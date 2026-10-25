@@ -14,5 +14,5 @@ export class UserAccountEntity implements SelectRow<'userAccounts'> {
 
   platformAvatar!: string | null
 
-  createdAt!: Date
+  createdAt!: string
 }

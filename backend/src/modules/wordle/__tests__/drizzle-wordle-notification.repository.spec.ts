@@ -9,7 +9,7 @@ const ROW = {
   telegramUsername: 'ivan',
   morningEnabled: false,
   eveningEnabled: true,
-  createdAt: new Date('2026-09-20T09:00:00Z'),
+  createdAt: '2026-09-20T09:00:00Z',
 }
 
 function createTxMock(options: { updatedRows?: unknown[]; insertedRows?: unknown[] }) {

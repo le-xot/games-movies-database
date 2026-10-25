@@ -31,7 +31,7 @@ describe('UserService', () => {
       profileImageUrl: '/api/avatar/user-1?t=old',
       color: '#111111',
       hasCustomAvatar: false,
-      createdAt: new Date('2024-01-01'),
+      createdAt: '2024-01-01',
     }
 
     it('regenerates the default avatar on every login without custom avatar', async () => {
@@ -112,7 +112,7 @@ describe('UserService', () => {
         profileImageUrl: '',
         color: '#333333',
         hasCustomAvatar: false,
-        createdAt: new Date('2024-01-02'),
+        createdAt: '2024-01-02',
       }
       const updatedUser: UserDomain = {
         ...createdUser,
@@ -166,7 +166,7 @@ describe('UserService', () => {
         profileImageUrl: 'url',
         color: '#555555',
         hasCustomAvatar: false,
-        createdAt: new Date('2024-01-06'),
+        createdAt: '2024-01-06',
       }
       const findById = mock(() =>
         Promise.resolve(user),
@@ -190,7 +190,7 @@ describe('UserService', () => {
           profileImageUrl: 'url',
           color: '#666666',
           hasCustomAvatar: false,
-          createdAt: new Date('2024-01-07'),
+          createdAt: '2024-01-07',
         },
       ]
       const findAll = mock(() =>
@@ -214,7 +214,7 @@ describe('UserService', () => {
         profileImageUrl: 'url',
         color: '#888888',
         hasCustomAvatar: false,
-        createdAt: new Date('2024-01-09'),
+        createdAt: '2024-01-09',
       }
       const findById = mock(() =>
         Promise.resolve(user),
@@ -257,7 +257,7 @@ describe('UserService', () => {
           platformUserId: 'twitch-123',
           platformLogin: 'twitchuser',
           platformAvatar: 'url',
-          createdAt: new Date('2024-01-10'),
+          createdAt: '2024-01-10',
         },
       ]
       const findAccountsByUserId = mock(() =>
@@ -281,7 +281,7 @@ describe('UserService', () => {
         profileImageUrl: '/api/avatar/user-8?t=old',
         color: '#888888',
         hasCustomAvatar: true,
-        createdAt: new Date('2024-01-09'),
+        createdAt: '2024-01-09',
       }
       const updatedUser: UserDomain = {
         ...user,
@@ -320,7 +320,7 @@ describe('UserService', () => {
         profileImageUrl: '/api/avatar/user-8?t=old',
         color: '#888888',
         hasCustomAvatar: true,
-        createdAt: new Date('2024-01-09'),
+        createdAt: '2024-01-09',
       }
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
       mockAvatarService.generateAndStoreDefaultAvatar = mock(() =>
@@ -341,7 +341,7 @@ describe('UserService', () => {
       profileImageUrl: 'url',
       color: '#111111',
       hasCustomAvatar: false,
-      createdAt: new Date('2024-01-01'),
+      createdAt: '2024-01-01',
     }
 
     it('rejects a login already used by another user', async () => {
@@ -389,7 +389,7 @@ describe('UserService', () => {
       profileImageUrl: 'url',
       color: '#111111',
       hasCustomAvatar: false,
-      createdAt: new Date('2024-01-01'),
+      createdAt: '2024-01-01',
     }
     const sourceUser: UserDomain = {
       ...targetUser,

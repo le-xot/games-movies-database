@@ -36,7 +36,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Modify auth flow     | `backend/src/modules/auth/`                                     | JWT in cookie, Twitch/Kick OAuth, Telegram OIDC, guards                                    |
 | Telegram login       | `backend/src/modules/telegram/`                                 | OIDC (PKCE, JWKS); cookies `tg_oidc_*`, env `TELEGRAM_*`                                   |
 | Rate limiting        | `backend/src/gateway/rate-limit.ts`                             | Custom Redis limiter; presets in `utils/rate-limits.ts`                                    |
-| Database schema      | `database/src/schema/`                                          | Drizzle `pgTable`/`pgEnum`; run `bun db:generate` after changes                            |
+| Database schema      | `database/src/schema/`                                          | Drizzle `pgTable`/`pgEnum`; `isoTimestamp` отдаёт ISO-строку вместо `Date`                 |
+| Server layer         | `backend/src/server/`                                           | Composition root, порты по доменам (`wiring/`), HTTP и статика; см. `server/AGENTS.md`     |
 | Database migrations  | `database/migrations/`                                          | Generated SQL; applied by `migrations` compose service                                     |
 | DB access            | `backend/src/database/drizzle.service.ts`                       | `DrizzleService` создаётся в `server/container.ts`, сервисы получают его в конструктор     |
 | API client           | `frontend/src/lib/api.ts`                                       | Eden Treaty: типы выводятся из `App`, кодогена нет                                         |

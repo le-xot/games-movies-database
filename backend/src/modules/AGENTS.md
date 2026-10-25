@@ -9,36 +9,38 @@ Nest здесь больше нет: модуль — это папка с се�
 
 - `{name}.service.ts` — бизнес-логика, обычный класс без декораторов
 - `repositories/drizzle-{name}.repository.ts` — доступ к БД через `DrizzleService`
-- `{name}.dto.ts` / `{name}.entity.ts` — типы; схемы валидации и OpenAPI лежат
+- `{name}.dto.ts` / `{name}.entity.ts` — типы; схемы валидации лежат
   в гейтвее (`gateway/<домен>.ts`), а не здесь
 - хуки `onModuleInit` / `onApplicationBootstrap` / `onModuleDestroy` остались
   по имени с Nest-эпохи: их вызывает `container.init()` / `container.close()`
 
 ## MODULE INVENTORY
 
+Счётчик — не-тестовые `.ts` файлы модуля.
+
 | Module                | Files | Purpose                                                             |
 | :-------------------- | :---- | :------------------------------------------------------------------ |
-| **auth**              | 3     | Twitch/Kick/Telegram OIDC, выпуск JWT                               |
+| **auth**              | 5     | Выпуск JWT, OAuth-state/PKCE (роуты OAuth — в гейтвее)              |
 | **user**              | 6     | User CRUD, profile management, account merging, update-users events |
 | **record**            | 5     | Media entries (games/movies), provider integration                  |
 | **rating**            | 5     | Оценки записей, средние и топ по пользователям                      |
-| **stats**             | 5     | Public records stats (genre/status/grade breakdowns)                |
-| **like**              | 5     | User favorites, cascade deletes                                     |
+| **stats**             | 3     | Public records stats (genre/status/grade breakdowns)                |
+| **like**              | 5     | Лайки советов, каскадное удаление по пользователю                   |
 | **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)            |
-| **avatar**            | 3     | Avatar upload/delete via S3, Sharp image processing                 |
-| **s3**                | 2     | S3/RustFS storage abstraction (upload, delete, exists)              |
-| **kick**              | 2     | Kick API client for user metadata                                   |
-| **twir**              | 4     | External bot webhooks, проверка API-ключа                           |
+| **avatar**            | 1     | Avatar upload/delete via S3, Sharp image processing                 |
+| **s3**                | 1     | S3/RustFS storage abstraction (upload, delete, exists)              |
+| **kick**              | 1     | Kick API client for user metadata                                   |
+| **twir**              | 2     | External bot webhooks: payload → `UserService`/`SuggestionService`  |
 | **websocket**         | 1     | Типы WS-событий (транспорт — `gateway/ws.ts`)                       |
-| **records-providers** | 2     | External metadata fetchers (Kinopoisk, etc.)                        |
+| **records-providers** | 2     | External metadata fetchers (Kinopoisk, Shikimori, IGDB, Steam)      |
 | **img**               | 3     | Image proxy and resizing via Sharp                                  |
 | **limit**             | 4     | Suggestion quantity constraints                                     |
-| **queue**             | 4     | General purpose item queue management                               |
-| **twitch**            | 2     | Twitch API client for metadata and validation                       |
-| **telegram**          | 5     | Telegram Login via OpenID Connect (PKCE, id_token/JWKS)             |
-| **weather**           | 3     | Weather data fetcher (OpenWeatherMap)                               |
-| **steam**             | 4     | Steam library sync and IGDB import (admin)                          |
-| **wordle**            | 15    | Daily word game + unlimited practice mode (Redis, no stats)         |
+| **queue**             | 3     | Read-only выдача очереди (`GET /api/queue`)                         |
+| **twitch**            | 1     | Twitch API client for metadata and validation                       |
+| **telegram**          | 7     | Telegram Login (OIDC, PKCE, JWKS) + бот, команды, рассылки          |
+| **weather**           | 2     | Weather data fetcher (OpenWeatherMap)                               |
+| **steam**             | 2     | Steam library sync and IGDB import (admin)                          |
+| **wordle**            | 15    | Слово дня, тренировка, лидерборды, статистика, уведомления          |
 
 ## MODULE INTERACTIONS
 
@@ -48,19 +50,23 @@ Nest здесь больше нет: модуль — это папка с се�
 - **Broadcasting**: транспорт — `gateway/ws.ts` (нативный WebSocket на `/ws`); `bridgeWsEvents` подписывает эмиттер на `WsEvents` и пушит кадры клиентам.
 - **Rate Limiting**: `enforceRateLimit` + пресеты `RATE_LIMITS` из `utils/rate-limits.ts`, вызов внутри роута; порядок — лимит → auth → роли.
 - **Wiring**: граф зависимостей собирается руками в `createContainer()`:
+  - `AuthService` -> `UserService`, `TwitchService`, `KickService`
   - `RecordService` -> `RecordsProviders`, `ImgService`, `DrizzleRatingRepository`, events
+  - `RatingService` -> `DrizzleRatingRepository`, `DrizzleService`, events
   - `LikeService` -> `DrizzleLikeRepository`, events
   - `SuggestionService` -> `RecordsProviders`, events
+  - `SteamService` -> `RecordsProviders`, `DrizzleRecordRepository`, events
   - `TwirService` -> `UserService`, `SuggestionService`
   - `AvatarService` -> `S3Service`; `UserService` -> `AvatarService`
   - `ImgService` -> `S3Service`
+  - `WordleNotificationService` -> `TelegramBotService`, `TelegramCommandRegistry`, репозитории, `UserService`, Redis
   - `TelegramService` -> `oauth.telegram.org` (OpenID Connect, outbound)
 
 ## ANTI-PATTERNS
 
-- **Manual Mapping**: маппинг доменных сущностей в DTO гейтвея живёт в `backend/src/server/adapters.ts` — не размазывайте его по роутам.
+- **Manual Mapping**: маппинг доменных сущностей в DTO гейтвея живёт в `backend/src/server/wiring/` — не размазывайте его по роутам.
 - **Direct Socket Calls**: сервисы эмитят события через `DomainEvents`, а не трогают WebSocket напрямую.
 - **Guard Sprawl**: не переписывайте проверку доступа; используйте `requireUser` / `requireRole` из `gateway/auth.ts`.
 - **Typo Fixes**: Do not rename `suggesttion.dto.ts` without a full project refactor.
 - **Throttler**: `@nestjs/throttler` удалён — лимиты ставятся `enforceRateLimit` с пресетами `RATE_LIMITS` в роутах гейтвея.
-- **Provider Leaks**: Keep external API keys in `.env` and validate via `EnviromentVariables`.
+- **Provider Leaks**: Keep external API keys in `.env` and validate via `env` из `backend/src/utils/enviroments.ts`.

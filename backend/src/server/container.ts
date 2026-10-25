@@ -142,9 +142,18 @@ export function createContainer(): Container {
     },
   )
 
+  // При падении Redis срабатывает каждый запрос: без троттлинга это тысячи
+  // одинаковых строк в минуту.
+  let lastRateLimitWarning = 0
+  const RATE_LIMIT_WARNING_INTERVAL_MS = 10_000
+
   const rateLimit: RateLimiter = {
     hit: (key, config) =>
       hitRateLimit(redisClient, key, config, (error) => {
+        const now = Date.now()
+        if (now - lastRateLimitWarning < RATE_LIMIT_WARNING_INTERVAL_MS) return
+
+        lastRateLimitWarning = now
         console.warn(`[gateway] Redis недоступен, лимит пропущен: ${String(error)}`)
       }),
   }

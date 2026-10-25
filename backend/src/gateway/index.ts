@@ -71,7 +71,12 @@ export function createGateway(deps: GatewayDeps) {
         // сошлись со схемой. В сообщении Elysia лежит фрагмент ответа, поэтому
         // наружу отдаём общий 500, а подробности — в лог.
         if ((error as { type?: string }).type === 'response') {
-          console.error('[gateway] response schema violation', error)
+          // Тело ошибки содержит сам ответ (а значит и данные из БД) —
+          // наружу и в лог отдаём только место расхождения.
+          console.error('[gateway] response schema violation', {
+            type: (error as { type?: string }).type,
+            path: (error as { valueError?: { path?: string } }).valueError?.path,
+          })
           set.status = 500
           return errorBody(500, 'Internal server error')
         }

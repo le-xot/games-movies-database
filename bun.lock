@@ -16,7 +16,6 @@
       "name": "backend",
       "version": "2.0.1",
       "dependencies": {
-        "@elysia/openapi": "1.4.16",
         "@gmd/database": "workspace:*",
         "@gmdb/contract": "workspace:*",
         "drizzle-orm": "0.45.4",
@@ -27,6 +26,7 @@
         "sharp": "0.35.5",
       },
       "devDependencies": {
+        "@elysia/openapi": "1.4.16",
         "@types/bun": "1.4.4",
         "@types/pg": "8.23.1",
         "typescript": "7.0.2",

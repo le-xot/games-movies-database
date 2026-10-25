@@ -91,6 +91,8 @@ async function playAgain() {
     </div>
 
     <div v-else class="flex flex-1 flex-col gap-4 xl:flex-none">
+      <!-- Скелетона здесь нет намеренно: у тренировки есть собственное пустое
+           состояние с кнопкой старта, а клавиатура до загрузки видимо disabled. -->
       <div class="flex flex-1 items-center justify-center xl:flex-none">
         <WordleBoard
           :guesses="practiceState?.guesses ?? []"

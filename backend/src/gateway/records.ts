@@ -7,7 +7,7 @@ import {
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
-import { recordEnumModels } from '@backend/gateway/models'
+import { HTTP_URL_PATTERN, recordEnumModels } from '@backend/gateway/models'
 import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
@@ -62,7 +62,7 @@ export const recordModels = {
     total: t.Number(),
   }),
   RecordCreateFromLinkDTO: t.Object({
-    link: t.String({ pattern: '^https?://\\S+$' }),
+    link: t.String({ pattern: HTTP_URL_PATTERN }),
     status: t.Optional(recordStatusSchema),
     type: t.Optional(recordTypeSchema),
   }),
@@ -73,7 +73,7 @@ export const recordModels = {
     type: t.Optional(recordTypeSchema),
   }),
   RecordUpdatePosterDTO: t.Object({
-    url: t.String({ pattern: '^https?://\\S+$' }),
+    url: t.String({ pattern: HTTP_URL_PATTERN }),
   }),
 }
 

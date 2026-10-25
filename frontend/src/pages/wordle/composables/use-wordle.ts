@@ -40,6 +40,17 @@ function extractErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
+/**
+ * Скелетон нужен только пока данных ещё нет.
+ *
+ * `isLoading` у colada истинно и на рефетче, а подменять доску скелетоном на
+ * каждом возврате на страницу — значит снова терять нажатия: ввод заблокирован,
+ * пока показывается заглушка.
+ */
+export function isInitialStateLoad(loading: boolean, state: unknown): boolean {
+  return loading && state === undefined
+}
+
 export const useWordle = defineStore('wordle/use-wordle', () => {
   const api = useApi()
   const queryCache = useQueryCache()
@@ -120,7 +131,10 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     isPractice.value ? isSubmittingPractice.value : isSubmittingDaily.value,
   )
   const isStateLoading = computed(() =>
-    isPractice.value ? isPracticeLoading.value : isDailyStateLoading.value,
+    isInitialStateLoad(
+      isPractice.value ? isPracticeLoading.value : isDailyStateLoading.value,
+      activeState.value,
+    ),
   )
   const isInputLocked = computed(
     () => isSubmitting.value || isFinished.value || isStateLoading.value,

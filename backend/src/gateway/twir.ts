@@ -1,5 +1,6 @@
 import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
 import { recordEnumModels } from '@backend/gateway/models'
+import { HTTP_URL_PATTERN } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { suggestionModels, type SuggestionResponse } from '@backend/gateway/suggestions'
 import { isApiKeyValid } from '@backend/utils/api-key'
@@ -9,7 +10,7 @@ import { Elysia, t } from 'elysia'
 export const twirModels = {
   SuggestionCreateByTwirDTO: t.Object({
     userId: t.String(),
-    link: t.String({ pattern: '^https?://\\S+$' }),
+    link: t.String({ pattern: HTTP_URL_PATTERN }),
   }),
 }
 

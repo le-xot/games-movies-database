@@ -386,8 +386,8 @@ function telegramCookies(
 
 function telegramClearCookies(): string[] {
   return [
-    `${TELEGRAM_OIDC_STATE_COOKIE}=; Path=/; Max-Age=0`,
-    `${TELEGRAM_OIDC_VERIFIER_COOKIE}=; Path=/; Max-Age=0`,
-    `${TELEGRAM_OIDC_LINKING_COOKIE}=; Path=/; Max-Age=0`,
-  ]
+    TELEGRAM_OIDC_STATE_COOKIE,
+    TELEGRAM_OIDC_VERIFIER_COOKIE,
+    TELEGRAM_OIDC_LINKING_COOKIE,
+  ].map(clearCookie)
 }

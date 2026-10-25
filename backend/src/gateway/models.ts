@@ -42,3 +42,10 @@ export const RecordType = t.Union([
 ])
 
 export const recordEnumModels = { RecordGenre, RecordStatus, RecordGrade, RecordType }
+
+/**
+ * Ссылка на внешний ресурс. Ближе всего к `@IsUrl()` из class-validator:
+ * абсолютный http(s) с хостом, в котором есть точка. IP-литералы и `localhost`
+ * тут проходят, но их всё равно отбивает allow-list провайдеров.
+ */
+export const HTTP_URL_PATTERN = '^https?://[^/\\s]+\\.[^/\\s]+'

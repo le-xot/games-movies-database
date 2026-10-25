@@ -50,6 +50,8 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 | Watch links          | `frontend/src/utils/generate-watch-link.ts`                     | Kinobox canonical URLs                                                                                                         |
 | Env validation       | `backend/src/utils/enviroments.ts`                              | envalid; note the typo in filename                                                                                             |
 | Media page factories | `frontend/src/composables/factories/`                           | `create-params-store.ts`, `create-records-store.ts`                                                                            |
+| Архитектура          | `docs/architecture.md`                                          | Слои, жизненный цикл запроса, чек-лист нового домена                                                                           |
+| API-справочник       | `docs/api.md`                                                   | Роуты, доступ, лимиты, WS-события (Swagger нет)                                                                                |
 
 ## CONVENTIONS
 

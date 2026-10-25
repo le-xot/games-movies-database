@@ -20,6 +20,13 @@
 - **Погода** — виджет погоды через OpenWeatherMap
 - **TWIR** — вебхуки от внешнего бота с защитой API-ключом
 
+## Документация
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — ветки, коммиты, проверки перед PR
+- [docs/architecture.md](docs/architecture.md) — слои, жизненный цикл запроса, как добавить домен
+- [docs/api.md](docs/api.md) — справочник эндпоинтов, лимиты, WS-события
+- [AGENTS.md](AGENTS.md) — правила и структура репозитория для агентов
+
 ## Стек технологий
 
 | Слой           | Технологии                                                                                                                  |
@@ -232,6 +239,8 @@ games-movies-database/
 ├── docker-compose.dev.yml     # Dev окружение (PostgreSQL + Redis + RustFS + DBX)
 ├── Dockerfile                 # Многостадийная сборка (deps → runtime-deps → frontend-builder → runtime)
 ├── scripts/                   # render-env.sh, rollback.sh и их тесты
+├── docs/                      # architecture.md, api.md
+├── CONTRIBUTING.md            # Ветки, коммиты, проверки перед PR
 ├── package.json               # Корневой package.json (workspaces)
 ├── .oxlintrc.json             # Конфигурация oxlint
 ├── .oxfmtrc.json              # Конфигурация bun fmt (форматирование и сортировка импортов)

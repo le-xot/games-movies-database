@@ -354,6 +354,16 @@ TELEGRAM_CALLBACK_URL=http://localhost:5173/auth/callback/telegram
 
 > Telegram требует HTTPS для redirect URI, поэтому в локальной разработке вход не заработает без HTTPS-туннеля (ngrok, Cloudflare Tunnel или домен с сертификатом). В продакшене используйте `https://<домен>/api/auth/telegram/oidc/callback` и `https://<домен>/auth/callback/telegram`.
 
+### Бот Wordle
+
+Уведомления и привязка чата идут через отдельный бот (`TELEGRAM_BOT_TOKEN`). При старте сервис сам регистрирует вебхук на `TELEGRAM_BOT_WEBHOOK_URL`; этот URL обязан указывать на наш роут — `https://<домен>/api/telegram/webhook`. Секрет `TELEGRAM_BOT_WEBHOOK_SECRET` (`[A-Za-z0-9_-]{1,256}`) сверяется по заголовку `x-telegram-bot-api-secret-token`; без него вебхук отвечает 401.
+
+```
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_BOT_WEBHOOK_URL=https://<домен>/api/telegram/webhook
+TELEGRAM_BOT_WEBHOOK_SECRET=your_webhook_secret
+```
+
 ### Кинопоиск
 
 API для получения данных о фильмах и сериалах с Кинопоиска.

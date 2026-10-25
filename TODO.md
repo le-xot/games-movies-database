@@ -27,11 +27,6 @@ Swagger и сгенерированный клиент выпилены — пу
       границе (`frontend/src/composables/factories/create-records-store.ts`). Нужно либо
       расширение типов Pinia для setup-стор с generic-ключами, либо официальный хелпер;
       сейчас это ограничение TS, а не лень.
-- [ ] **Входящий Telegram-webhook [M]** — регрессия после переезда на Elysia:
-      `TelegramBotService.setWebhook()` вызывается на `TELEGRAM_BOT_WEBHOOK_URL`, но роута,
-      принимающего `/api/telegram/webhook`, в `backend/src/gateway/` нет. Из-за этого привязка
-      чата через `/start` не завершается, а уведомления уходят только тем, у кого подписка уже
-      есть в БД. Подписки, планировщик и UI (`AccountNotifications.vue`) на месте.
 - [ ] **Дашборд покрытия [S]** — `bun test --coverage` для backend unit + integration,
       при желании — артефакт в CI.
 - [ ] **`suggesttion.dto.ts` typo** — не переименовывать без полного рефактора импортов

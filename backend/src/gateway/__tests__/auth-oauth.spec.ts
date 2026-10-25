@@ -84,6 +84,8 @@ describe('OAuth: twitch', () => {
     )
 
     expect(response.status).toBe(400)
+    // Одноразовый state гасится и при неудаче: иначе он переживает подбор.
+    expect(response.headers.getSetCookie().join(';')).toContain('twitch_state=;')
   })
 
   it('exchanges the code and sets the session cookie', async () => {

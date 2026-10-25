@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { apiErrorModels, errorBody, publicErrors } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
@@ -73,7 +73,11 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
         const buffer = await avatars.getAvatar(ctx.params.userId)
 
         if (!buffer) {
-          return new Response(null, { status: 404 })
+          // Контракт обещает `ApiErrorDto` на 404 — пустое тело ему противоречит.
+          return new Response(JSON.stringify(errorBody(404, 'Not Found')), {
+            status: 404,
+            headers: { 'content-type': 'application/json; charset=utf-8' },
+          })
         }
 
         return new Response(new Uint8Array(buffer), {

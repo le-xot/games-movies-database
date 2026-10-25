@@ -152,7 +152,7 @@ const dayProgress = computed(() => {
                сетку и молча глотать нажатия — хуже, чем скелетон. -->
           <Skeleton
             v-if="isStateLoading"
-            class="h-[calc(var(--wordle-tile)_*_6_+_var(--wordle-gap)_*_5)] w-[calc(var(--wordle-tile)_*_5_+_var(--wordle-gap)_*_4)] rounded-lg"
+            class="h-[calc(var(--wordle-tile)_*_6_+_var(--wordle-gap)_*_5)] w-[calc(var(--wordle-tile)_*_5_+_var(--wordle-gap)_*_4)] rounded-lg sm:h-[calc(var(--wordle-tile-sm)_*_6_+_var(--wordle-gap)_*_5)] sm:w-[calc(var(--wordle-tile-sm)_*_5_+_var(--wordle-gap)_*_4)]"
           />
           <WordleBoard
             v-else

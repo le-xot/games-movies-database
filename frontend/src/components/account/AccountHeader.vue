@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { UserRole, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
+import { parseApiError } from '@/utils/api-error'
 import type { UserEntity } from '@/lib/api'
 
 const props = defineProps<{
@@ -35,8 +36,8 @@ async function onFileChange(event: Event) {
   try {
     await unwrap(api.auth.me.avatar.post({ file }))
     await userStore.refetchUser()
-  } catch {
-    avatarError.value = 'Ошибка при загрузке аватарки'
+  } catch (error) {
+    avatarError.value = await parseApiError(error, 'Ошибка при загрузке аватарки')
   } finally {
     isUploading.value = false
     if (fileInput.value) fileInput.value.value = ''

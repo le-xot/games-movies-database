@@ -63,6 +63,8 @@ describe('avatar', () => {
     const response = await build(null).handle(request('/avatar/user-1', {}, false))
 
     expect(response.status).toBe(404)
+    // Схема обещает `ApiErrorDto`, значит тело, а не пустой ответ.
+    expect(await response.json()).toMatchObject({ statusCode: 404 })
   })
 
   it('serves the avatar with a short cache', async () => {
@@ -129,5 +131,26 @@ describe('steam', () => {
 
     expect(response.status).toBe(201)
     expect(importGames).toHaveBeenCalledWith([{ appId: 2, status: 'QUEUE' }], ADMIN.id)
+  })
+
+  it('rejects a fractional app id instead of passing it to the database', async () => {
+    const importGames = mock(async () => ({ created: [], failed: [] }))
+    const gateway = build(ADMIN, {
+      steam: {
+        getGames: async () => ({ games: [], existingAppIds: [] }),
+        importGames,
+      },
+    })
+
+    const response = await gateway.handle(
+      request('/steam/import', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ games: [{ appId: 1.5, status: 'QUEUE' }] }),
+      }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(importGames).not.toHaveBeenCalled()
   })
 })

@@ -162,6 +162,22 @@ describe('twir', () => {
     expect(await response.json()).toEqual({ title: 'Paprika', genre: 'ANIME' })
   })
 
+  it('rejects a link that is not an absolute http(s) url', async () => {
+    const gateway = createTestGateway({ twirApiKey: 'secret' })
+
+    for (const link of ['notaurl', 'javascript:alert(1)', 'https://nodot']) {
+      const response = await gateway.handle(
+        request('/twir/suggestion', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-api-key': 'secret' },
+          body: JSON.stringify({ userId: 'u1', link }),
+        }),
+      )
+
+      expect(response.status).toBe(400)
+    }
+  })
+
   it('rejects everything when the key is not configured', async () => {
     const gateway = createTestGateway({ twirApiKey: undefined })
 

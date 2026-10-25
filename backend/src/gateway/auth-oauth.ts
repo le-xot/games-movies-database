@@ -81,6 +81,23 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
     ]
   }
 
+  /**
+   * Проверяет state и в любом случае гасит одноразовые cookies: после неудачной
+   * попытки они не должны переживать подбор (так было в Nest).
+   */
+  const verifyState = (
+    ctx: { set: { headers: Record<string, unknown> } },
+    cookieNames: string[],
+    stored: string | undefined,
+    received: string | undefined,
+  ) => {
+    try {
+      assertOAuthState(stored, received)
+    } finally {
+      addCookies(ctx.set, clearCookies(cookieNames))
+    }
+  }
+
   const addCookies = (set: { headers: Record<string, unknown> }, cookies: string[]) => {
     set.headers['set-cookie'] = [
       ...((set.headers['set-cookie'] as string[] | undefined) ?? []),
@@ -167,14 +184,15 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
         async (ctx) => {
           await limit(ctx, 'AuthController.twitchAuthCallback')
           const body = ctx.body as { code: string; state: string }
-          assertOAuthState(
+          verifyState(
+            ctx,
+            ['twitch_state', 'twitch_linking'],
             readCookie(ctx.request.headers.get('cookie'), 'twitch_state'),
             body.state,
           )
 
           const token = await oauth.exchangeTwitch(body.code)
           setToken(ctx.set, token)
-          addCookies(ctx.set, clearCookies(['twitch_state', 'twitch_linking']))
           ctx.set.status = 200
 
           return new Response('Authentication successful')
@@ -187,13 +205,14 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           await limit(ctx, 'AuthController.linkTwitch')
           const user = requireUser(await resolveUser(auth, ctx.request))
           const body = ctx.body as { code: string; state: string }
-          assertOAuthState(
+          verifyState(
+            ctx,
+            ['twitch_state', 'twitch_linking'],
             readCookie(ctx.request.headers.get('cookie'), 'twitch_state'),
             body.state,
           )
 
           await oauth.linkTwitch(user.id, body.code)
-          addCookies(ctx.set, clearCookies(['twitch_state', 'twitch_linking']))
           ctx.set.status = 200
 
           return new Response('Twitch account linked')
@@ -253,11 +272,15 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           const verifier = readCookie(cookie, 'kick_code_verifier')
 
           if (!verifier) throw new ApiError(400, 'Missing code verifier')
-          assertOAuthState(readCookie(cookie, 'kick_state'), body.state)
+          verifyState(
+            ctx,
+            ['kick_state', 'kick_code_verifier', 'kick_linking'],
+            readCookie(cookie, 'kick_state'),
+            body.state,
+          )
 
           const token = await oauth.exchangeKick(body.code, verifier)
           setToken(ctx.set, token)
-          addCookies(ctx.set, clearCookies(['kick_state', 'kick_code_verifier', 'kick_linking']))
           ctx.set.status = 200
 
           return new Response('Authentication successful')
@@ -274,10 +297,14 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           const verifier = readCookie(cookie, 'kick_code_verifier')
 
           if (!verifier) throw new ApiError(400, 'Missing code verifier')
-          assertOAuthState(readCookie(cookie, 'kick_state'), body.state)
+          verifyState(
+            ctx,
+            ['kick_state', 'kick_code_verifier', 'kick_linking'],
+            readCookie(cookie, 'kick_state'),
+            body.state,
+          )
 
           await oauth.linkKick(user.id, body.code, verifier)
-          addCookies(ctx.set, clearCookies(['kick_state', 'kick_code_verifier', 'kick_linking']))
           ctx.set.status = 200
 
           return new Response('Kick account linked')

@@ -12,6 +12,7 @@ import { recordRoutes, type RecordsService } from '@backend/gateway/records'
 import { statsRoutes, type StatsReader } from '@backend/gateway/stats'
 import { steamRoutes, type SteamPort } from '@backend/gateway/steam'
 import { suggestionRoutes, type SuggestionsService } from '@backend/gateway/suggestions'
+import { telegramWebhookRoutes, type TelegramWebhookPort } from '@backend/gateway/telegram'
 import { twirRoutes, type TwirService } from '@backend/gateway/twir'
 import { userRoutes, type UsersService } from '@backend/gateway/users'
 import { weatherRoutes, type WeatherReader } from '@backend/gateway/weather'
@@ -49,6 +50,7 @@ export interface GatewayDeps {
   steam: SteamPort
   wordle: WordleServicePort
   wordleNotifications: WordleNotificationsPort
+  telegramWebhook: TelegramWebhookPort
   auth: Authenticator
   rateLimit: RateLimiter
 }
@@ -121,6 +123,9 @@ export function createGateway(deps: GatewayDeps) {
     .use(suggestionRoutes(deps))
     .use(limitRoutes(deps))
     .use(twirRoutes({ twir: deps.twir, rateLimit: deps.rateLimit, apiKey: deps.twirApiKey }))
+    .use(
+      telegramWebhookRoutes({ telegramWebhook: deps.telegramWebhook, rateLimit: deps.rateLimit }),
+    )
     .use(healthRoutes(deps))
     .use(wordleRoutes(deps))
     .use(mediaRoutes(deps))

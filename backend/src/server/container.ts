@@ -24,6 +24,7 @@ import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/reposit
 import { SuggestionService } from '@backend/modules/suggestion/suggestion.service'
 import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
 import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
+import { TelegramUpdateHandler } from '@backend/modules/telegram/telegram-update.handler'
 import { TelegramService } from '@backend/modules/telegram/telegram.service'
 import { TwirService } from '@backend/modules/twir/twir.service'
 import { TwitchService } from '@backend/modules/twitch/twitch.service'
@@ -126,6 +127,7 @@ export function createContainer(): Container {
     webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET ?? null,
   })
   const telegramCommands = new TelegramCommandRegistry(telegramBot)
+  const telegramUpdateHandler = new TelegramUpdateHandler(telegramBot, telegramCommands)
   const wordleNotifications = new WordleNotificationService(
     telegramBot,
     telegramCommands,
@@ -194,6 +196,8 @@ export function createContainer(): Container {
         steam,
         auth: authService,
         telegram: telegramService,
+        telegramBot,
+        telegramWebhook: telegramUpdateHandler,
       }),
       ...wordlePorts({ wordle, wordlePractice, wordleNotifications }),
       rateLimit,

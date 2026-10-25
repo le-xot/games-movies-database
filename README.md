@@ -248,7 +248,7 @@ games-movies-database/
 | `bun run test:e2e`         | E2E (Playwright, Chromium): гости + админ на изолированных портах 3100/5273 |
 | `bun run test:integration` | Интеграционные тесты репозиториев на реальном Postgres (см. ниже)           |
 
-Контрактные тесты живут в `backend/src/__tests__/`: `gateway-contract.spec.ts` проверяет все операции гейтвея, `openapi-contract.spec.ts` сверяет документ с эталоном `fixtures/openapi.golden.json` (снят с Nest до переезда). Эталон — только оракул сравнения, фронт его не читает: типы приходят из Eden. Переснять эталон — `bun --filter=./backend run openapi:golden`.
+Поведение роутов покрыто тестами в `backend/src/gateway/__tests__/`: конверты ошибок, авторизация, лимиты и коды ответов. Отдельного эталона OpenAPI нет — типы фронта выводятся из тех же схем через Eden, поэтому смена контракта ломает типизацию сама по себе.
 
 Интеграционные тесты используют отдельную БД `lists_test` в dev-контейнере postgres и включаются только явным флагом:
 
@@ -381,7 +381,6 @@ TWIR_API=your_api_key
 - Гейтвей монтируется под префиксом `/api` в `backend/src/server/http.ts`; неизвестный путь под `/api` отдаёт JSON-конверт `ApiErrorDto` с 404, а не SPA-фолбэк
 - Валидация — TypeBox-схемы на роутах Elysia (`backend/src/gateway/*.ts`); ошибка схемы превращается в конверт ошибки с кодом 400
 - Клиент на фронте — Eden Treaty в `frontend/src/lib/api.ts`: типы выводятся из `App` (`import type { App } from '@backend/gateway'`), кодогена нет
-- OpenAPI-документ собирается только для контрактных тестов (`backend/src/gateway/openapi.ts`), фронт его не читает
 
 ### WebSocket
 

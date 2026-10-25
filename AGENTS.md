@@ -120,7 +120,6 @@ bun db:baseline                # One-time: mark 0000_init applied on an existing
 # Tests
 cd backend && bun test         # Backend unit tests (bun test)
 bun --filter=./backend run test:integration   # Integration tests (RUN_DB_TESTS=1 + Postgres)
-cd backend && bun run openapi:golden          # Re-capture the contract golden
 cd frontend && bun run test    # Frontend unit tests
 cd frontend && bun run test:e2e               # Playwright E2E
 bun run test:scripts           # render-env.sh script tests
@@ -138,7 +137,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh, `render-env.sh` generates `.env` from Doppler, `docker compose pull application migrations && up -d`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`. GHCR packages must stay anonymously pullable (no `docker login` on the server)
 - Contract: `contract/` (`@gmdb/contract`) — enum'ы, карта WS-событий, `parseWsMessage`. Потребляется как сырой TypeScript и Bun, и Vite, поэтому пакет обязан оставаться без зависимостей
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
-- Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import. Contract tests: `gateway-contract.spec.ts` (all 64 operations) and `openapi-contract.spec.ts` против `fixtures/openapi.golden.json` (снят с Nest до переезда; только оракул сравнения — фронт его не читает)
+- Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import.
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)
 - Existing Prisma-era DBs must be baselined once (`docker compose run --rm --no-deps migrations bun run baseline`); `_prisma_migrations` is intentionally kept for rollback
 - Rate limiting: `enforceRateLimit` в гейтвее поверх Redis (`Bun.redis`). Fixed window via Lua, пресеты в `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, twir 120/min, wordlePractice 120/min). Fail-open when Redis is down, но с таймаутом 250 мс — иначе первый запрос после падения Redis висит ~30 с на переподключении. Client tracked by first `X-Forwarded-For` hop. Порядок: лимит → auth → роли

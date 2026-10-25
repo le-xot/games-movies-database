@@ -30,7 +30,6 @@ backend/src/
 | Роут        | `gateway/<домен>.ts`                       | Модели + `.get/.post`, схемы ответов по кодам              |
 | Сборка      | `gateway/index.ts`                         | `createGateway(deps)` — список портов и подключение роутов |
 | Проводка    | `server/container.ts`                      | Composition root: сервисы создаются руками, хуки — явно    |
-| Контракт    | `gateway/openapi.ts`                       | Документ для контрактных тестов и `openapi:golden`         |
 | Rate limits | `utils/rate-limits.ts`                     | Пресеты; сам лимитер — `utils/rate-limit.ts` (Redis)       |
 | Ошибки      | `utils/errors.ts`                          | Домен бросает `HttpError`, гейтвей превращает в конверт    |
 | Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole` |

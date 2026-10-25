@@ -6,6 +6,9 @@ import type { AvatarService } from '@backend/modules/avatar/avatar.service'
 import type { ImgService } from '@backend/modules/img/img.service'
 import type { LimitService } from '@backend/modules/limit/limit.service'
 import type { SteamService } from '@backend/modules/steam/steam.service'
+import type { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
+import type { TelegramUpdate } from '@backend/modules/telegram/telegram-bot.types'
+import type { TelegramUpdateHandler } from '@backend/modules/telegram/telegram-update.handler'
 import type { TelegramService } from '@backend/modules/telegram/telegram.service'
 import type { TwirService } from '@backend/modules/twir/twir.service'
 
@@ -19,6 +22,8 @@ export interface IntegrationServices {
   steam: SteamService
   auth: AuthService
   telegram: TelegramService
+  telegramBot: TelegramBotService
+  telegramWebhook: TelegramUpdateHandler
 }
 
 /** Внешние интеграции: OAuth, Steam, картинки, лимиты, TWIR. */
@@ -31,9 +36,19 @@ export function integrationPorts({
   steam,
   auth,
   telegram,
+  telegramBot,
+  telegramWebhook,
 }: IntegrationServices): Pick<
   GatewayDeps,
-  'limits' | 'twir' | 'twirApiKey' | 'images' | 'avatars' | 'steam' | 'oauth' | 'oauthConfig'
+  | 'limits'
+  | 'twir'
+  | 'twirApiKey'
+  | 'images'
+  | 'avatars'
+  | 'steam'
+  | 'oauth'
+  | 'oauthConfig'
+  | 'telegramWebhook'
 > {
   return {
     limits: {
@@ -100,6 +115,10 @@ export function integrationPorts({
       kickCallbackUrl: env.KICK_CALLBACK_URL ?? '',
       telegramCallbackUrl: env.TELEGRAM_CALLBACK_URL,
       production: env.NODE_ENV === 'production',
+    },
+    telegramWebhook: {
+      getWebhookSecret: () => telegramBot.getWebhookSecret(),
+      handleUpdate: (update) => telegramWebhook.handle(update as TelegramUpdate),
     },
   }
 }

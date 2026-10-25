@@ -174,6 +174,10 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       createLink: async () => ({ url: '' }),
       disconnect: async () => {},
     },
+    telegramWebhook: {
+      getWebhookSecret: () => null,
+      handleUpdate: async () => {},
+    },
     auth: { resolve: async () => null },
     rateLimit: { hit: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
     ...overrides,

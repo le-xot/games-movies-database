@@ -437,10 +437,31 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 При пуше в `master` автоматически:
 
 1. `Checks` — линт, формат, типы, тесты (backend/frontend/integration), drift миграций и job `images`: сборка обоих Docker-образов и smoke-тест приложения
-2. `Deploy` (job `build`) — запускается после успешных `Checks` (`workflow_run`), собирает образы приложения и миграций, пушит в GHCR (тег `latest`, кэш `type=gha`)
-3. `Deploy` (job `deploy`) — `docker-compose.yml` и `scripts/render-env.sh` копируются на сервер по scp; на сервере генерируется `.env` из Doppler и выполняется `docker compose pull application migrations && docker compose up -d --remove-orphans`
+2. `Deploy` (job `build`) — запускается после успешных `Checks` (`workflow_run`), собирает образы приложения и миграций, пушит в GHCR (теги `latest` и `sha-<commit>`, кэш `type=gha`)
+3. `Deploy` (job `deploy`) — `docker-compose.yml`, `scripts/render-env.sh` и `scripts/rollback.sh` копируются на сервер по scp; на сервере запоминается id текущего образа в `.rollback-image`, генерируется `.env` из Doppler и выполняется `docker compose pull application migrations && docker compose up -d --remove-orphans`
+4. Health check — если `https://le-xot.dev/api/health` не ответил за минуту, автоматически запускается `rollback.sh`: возвращает `:latest` на предыдущий образ и поднимает его заново
 
 Сервер не делает `git pull` и не собирает образы.
+
+### Откат
+
+| Способ            | Как                                                                                                                                            | Время    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Автоматически     | Провал health-check в `Deploy` сам вызывает `scripts/rollback.sh`                                                                              | ~1 мин   |
+| Руками на сервере | `cd <DEPLOY_DIR> && bash rollback.sh` — вернёт образ из `.rollback-image`                                                                      | секунды  |
+| Через git         | `git revert <merge-commit>` в `master`, CI пересоберёт и выкатит                                                                               | ~5–8 мин |
+| По тегу           | `docker tag ghcr.io/le-xot/games-movies-database:sha-<commit> ghcr.io/le-xot/games-movies-database:latest && docker compose up -d application` | минуты   |
+
+Точку возврата можно сохранить заранее:
+
+```bash
+docker buildx imagetools inspect ghcr.io/le-xot/games-movies-database:latest | head -3
+```
+
+Ограничения: откатывается только `application`. Образ `migrations` — one-shot, и
+если схема БД уже уехала вперёд, откат кода её не отменит: сначала откат
+миграции, потом приложение. `rollback.sh` в этом случае честно сообщит, что
+приложение не поднялось, вместо тихой поломки.
 
 Для настройки CI/CD добавьте секреты в GitHub:
 

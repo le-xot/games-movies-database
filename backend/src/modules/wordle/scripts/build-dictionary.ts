@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 const DATA_DIR = fileURLToPath(new URL('../data/', import.meta.url))
 const ANSWERS_SOURCE_PATH = `${DATA_DIR}answers-source.txt`
 const WORDS_PATH = `${DATA_DIR}words.txt`
+const EXTRA_WORDS_PATH = `${DATA_DIR}extra-words.txt`
 const BLACKLIST_PATH = `${DATA_DIR}blacklist.txt`
 const SOURCES_PATH = `${DATA_DIR}sources.json`
 
@@ -26,6 +27,19 @@ function parseWords(content: string): string[] {
     .split('\n')
     .map((line) => normalizeWord(line))
     .filter((word) => WORD_PATTERN.test(word))
+}
+
+/** Как parseWords, но падает на недопустимой записи: файл правится руками. */
+function parseStrict(content: string, name: string): string[] {
+  const words = content
+    .split('\n')
+    .map((line) => normalizeWord(line))
+    .filter((word) => word.length > 0)
+  const invalid = words.filter((word) => !WORD_PATTERN.test(word))
+  if (invalid.length > 0) {
+    throw new Error(`${name}: недопустимые слова: ${invalid.join(', ')}`)
+  }
+  return words
 }
 
 function unique(words: string[]): string[] {
@@ -65,6 +79,7 @@ async function build() {
 
   const blacklist = new Set(parseWords(readFileSync(BLACKLIST_PATH, 'utf-8')))
   const answersSource = unique(parseWords(readFileSync(ANSWERS_SOURCE_PATH, 'utf-8')))
+  const extraWords = unique(parseStrict(readFileSync(EXTRA_WORDS_PATH, 'utf-8'), 'extra-words.txt'))
 
   if (answersSource.length === 0) {
     throw new Error('Список ответов пуст: заполни data/answers-source.txt')
@@ -75,11 +90,22 @@ async function build() {
     throw new Error(`Ответы попали в блэклист: ${blacklistedAnswers.join(', ')}`)
   }
 
-  const words = unique([...parseWords(danakt.text), ...answersSource])
+  const blacklistedExtra = extraWords.filter((word) => blacklist.has(word))
+  if (blacklistedExtra.length > 0) {
+    throw new Error(`extra-words.txt пересекается с блэклистом: ${blacklistedExtra.join(', ')}`)
+  }
+
+  const words = unique([
+    ...parseWords(danakt.text),
+    ...parseWords(nouns.text),
+    ...answersSource,
+    ...extraWords,
+  ])
     .filter((word) => !blacklist.has(word))
     .sort()
 
   const answersSourceContent = `${answersSource.join('\n')}\n`
+  const extraWordsContent = `${extraWords.join('\n')}\n`
   const wordsContent = `${words.join('\n')}\n`
 
   const wordsChanged = writeIfChanged(WORDS_PATH, wordsContent)
@@ -100,13 +126,17 @@ async function build() {
             url: NOUNS_URL,
             license: 'MIT',
             sha256: nouns.sha256,
-            usedFor: 'answers-candidates',
+            usedFor: 'words-and-answers-candidates',
           },
         ],
         inputs: {
           'answers-source.txt': {
             count: answersSource.length,
             sha256: sha256(answersSourceContent),
+          },
+          'extra-words.txt': {
+            count: extraWords.length,
+            sha256: sha256(extraWordsContent),
           },
         },
         outputs: {
@@ -118,7 +148,8 @@ async function build() {
     )}\n`,
   )
 
-  console.log(`answers: ${answersSource.length}, words: ${words.length}`)
+  console.log(`answers: ${answersSource.length}, extra words: ${extraWords.length}`)
+  console.log(`words: ${words.length}`)
   console.log(`words.txt: ${wordsChanged ? 'обновлён' : 'без изменений'}`)
 }
 

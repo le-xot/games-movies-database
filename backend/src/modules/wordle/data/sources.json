@@ -12,19 +12,23 @@
       "url": "https://raw.githubusercontent.com/Harrix/Russian-Nouns/main/dist/russian_nouns.txt",
       "license": "MIT",
       "sha256": "661949699919aa968dd0033f7bdd8abbe4db09d161b565f3f0181283fd0d0da7",
-      "usedFor": "answers-candidates"
+      "usedFor": "words-and-answers-candidates"
     }
   ],
   "inputs": {
     "answers-source.txt": {
-      "count": 1413,
-      "sha256": "304f6125aa98e8872d754b02d7be1ccf17f6675ed09c0c2bc15d28ae0d906c8b"
+      "count": 2108,
+      "sha256": "72e2bdc531ed80d97e55afd08fe2493d98f2abb6cf351ce506a72a0a6894a195"
+    },
+    "extra-words.txt": {
+      "count": 115,
+      "sha256": "214b825a62e73ec1d220109c2e9415e7940ecfea3d15c06a3bf6c49be62c4be1"
     }
   },
   "outputs": {
     "words.txt": {
-      "count": 25624,
-      "sha256": "1bcbb04fb069097b5148eb4e397d3ebc766ae934d127c345006b03d508dbf683"
+      "count": 25971,
+      "sha256": "770e6d1318a3937742d594ff0916293682776465c0603c473cd372d8d86d95f4"
     }
   }
 }

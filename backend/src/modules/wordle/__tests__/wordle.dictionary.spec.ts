@@ -14,6 +14,7 @@ const parseData = (name: string) =>
 
 const ANSWERS = parseData('answers-source.txt')
 const WORDS = parseData('words.txt')
+const EXTRA_WORDS = parseData('extra-words.txt')
 const BLACKLIST = parseData('blacklist.txt')
 
 describe('normalizeWord', () => {
@@ -31,6 +32,12 @@ describe('WordleDictionary', () => {
 
   it('accepts a known word', () => {
     expect(dictionary.isValidWord('слово')).toBe(true)
+  })
+
+  it('accepts every hand-picked extra word', () => {
+    for (const word of EXTRA_WORDS) {
+      expect(dictionary.isValidWord(word)).toBe(true)
+    }
   })
 
   it('rejects an unknown word', () => {
@@ -76,7 +83,7 @@ describe('WordleDictionary', () => {
 
 describe('data files', () => {
   it('uses the expected format for every word', () => {
-    for (const word of [...ANSWERS, ...WORDS, ...BLACKLIST]) {
+    for (const word of [...ANSWERS, ...WORDS, ...EXTRA_WORDS, ...BLACKLIST]) {
       expect(word).toMatch(/^[а-я]{5}$/)
     }
   })
@@ -84,6 +91,7 @@ describe('data files', () => {
   it('has no duplicates', () => {
     expect(new Set(ANSWERS).size).toBe(ANSWERS.length)
     expect(new Set(WORDS).size).toBe(WORDS.length)
+    expect(new Set(EXTRA_WORDS).size).toBe(EXTRA_WORDS.length)
     expect(new Set(BLACKLIST).size).toBe(BLACKLIST.length)
   })
 
@@ -94,6 +102,13 @@ describe('data files', () => {
     }
   })
 
+  it('keeps every extra word within the allowed guesses', () => {
+    const words = new Set(WORDS)
+    for (const word of EXTRA_WORDS) {
+      expect(words.has(word)).toBe(true)
+    }
+  })
+
   it('does not intersect answers with the blacklist', () => {
     const blacklist = new Set(BLACKLIST)
     for (const answer of ANSWERS) {
@@ -101,13 +116,21 @@ describe('data files', () => {
     }
   })
 
+  it('does not intersect extra words with the blacklist', () => {
+    const blacklist = new Set(BLACKLIST)
+    for (const word of EXTRA_WORDS) {
+      expect(blacklist.has(word)).toBe(false)
+    }
+  })
+
   it('has enough answers and guesses for a long game cycle', () => {
-    expect(ANSWERS.length).toBeGreaterThanOrEqual(1200)
-    expect(WORDS.length).toBeGreaterThanOrEqual(20000)
+    expect(ANSWERS.length).toBeGreaterThanOrEqual(2000)
+    expect(WORDS.length).toBeGreaterThanOrEqual(25000)
+    expect(EXTRA_WORDS.length).toBeGreaterThanOrEqual(100)
   })
 
   it('has no trailing or double line breaks', () => {
-    for (const name of ['answers-source.txt', 'words.txt']) {
+    for (const name of ['answers-source.txt', 'extra-words.txt', 'words.txt']) {
       const raw = readData(name)
       expect(raw.endsWith('\n')).toBe(true)
       expect(raw).not.toMatch(/\n\n/)

@@ -14,12 +14,12 @@ import {
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import MediaPoster from '@/components/media/MediaPoster.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import { RecordEntity, RecordGenre, RecordType, UserRole } from '@/lib/api'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
@@ -300,13 +300,13 @@ function toggleGenreCollapse(genre: string) {
                         :key="likeItem.id"
                         class="flex items-center gap-2"
                       >
-                        <Avatar class="w-5 h-5">
-                          <AvatarImage
-                            v-if="likeItem.user?.profileImageUrl"
-                            :src="likeItem.user.profileImageUrl"
-                          />
-                          <AvatarFallback />
-                        </Avatar>
+                        <UserAvatar
+                          v-if="likeItem.user"
+                          :profile-image-url="likeItem.user.profileImageUrl"
+                          :login="likeItem.user.login"
+                          :frame-id="likeItem.user.avatarFrameId"
+                          size="size-5"
+                        />
                         <span class="text-sm">{{ likeItem.user?.login }}</span>
                       </div>
                     </TooltipContent>
@@ -378,10 +378,13 @@ function toggleGenreCollapse(genre: string) {
                         class="flex justify-between w-full mb-3"
                       >
                         <div class="flex items-center">
-                          <Avatar class="w-8 h-8 mr-2">
-                            <AvatarImage :src="item.suggestionOwnership.user.profileImageUrl" />
-                            <AvatarFallback />
-                          </Avatar>
+                          <UserAvatar
+                            :profile-image-url="item.suggestionOwnership.user.profileImageUrl"
+                            :login="item.suggestionOwnership.user.login"
+                            :frame-id="item.suggestionOwnership.user.avatarFrameId"
+                            size="size-8"
+                            class="mr-2"
+                          />
                           <div class="text-base text-white font-medium">
                             {{ item.suggestionOwnership.user.login }}
                           </div>

@@ -57,6 +57,13 @@
       "when": 1792156342501,
       "tag": "0007_tough_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793052138846,
+      "tag": "0008_needy_hitman",
+      "breakpoints": true
     }
   ]
 }

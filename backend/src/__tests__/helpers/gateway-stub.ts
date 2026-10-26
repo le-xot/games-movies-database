@@ -135,6 +135,12 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       updateLogin: async () => {
         throw new Error('updateLogin не заглушен')
       },
+      getCustomization: async () => {
+        throw new Error('getCustomization не заглушен')
+      },
+      updateCustomization: async () => {
+        throw new Error('updateCustomization не заглушен')
+      },
       deleteUser: async () => {},
       uploadAvatar: async () => {
         throw new Error('uploadAvatar не заглушен')

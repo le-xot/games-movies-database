@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import WordleDailyLeaderboardRow from '@/pages/wordle/components/WordleDailyLeaderboardRow.vue'
 import { useUser } from '@/stores/use-user'
 import type { WordleLeaderboardDTO, WordleLeaderboardEntryDTO } from '@/lib/api'
@@ -74,10 +74,12 @@ function isCurrentUser(userId: string) {
       <span class="w-4 shrink-0 text-xs text-muted-foreground" :class="{ 'w-5 text-sm': !compact }">
         {{ index + 1 }}
       </span>
-      <Avatar size="sm" shape="circle">
-        <AvatarImage :src="entry.profileImageUrl" :alt="entry.login" />
-        <AvatarFallback>{{ entry.login.slice(0, 1).toUpperCase() }}</AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        :profile-image-url="entry.profileImageUrl"
+        :login="entry.login"
+        :frame-id="entry.avatarFrameId"
+        size="size-10"
+      />
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-medium">{{ entry.login }}</p>
         <p v-if="entry.wins > 0" class="text-muted-foreground" :class="subTextClass">

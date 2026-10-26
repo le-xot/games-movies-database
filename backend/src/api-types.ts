@@ -6,6 +6,7 @@
  * зависел от кодогена. Импортировать нужно только как `import type`.
  */
 export type { GatewayUser as UserEntity } from '@backend/gateway/auth'
+export type { GatewayCustomization as UserCustomizationEntity } from '@backend/gateway/auth-session'
 export type {
   GatewayRecord as RecordEntity,
   GatewayOwnership as SuggestionOwnershipEntity,

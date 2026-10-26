@@ -24,6 +24,8 @@ export function peoplePorts({
       getAccounts: (userId) => users.getLinkedAccounts(userId),
       unlinkAccount: (userId, platform) => users.unlinkPlatformAccount(userId, platform),
       updateLogin: (userId, login) => users.updateLogin(userId, login),
+      getCustomization: (userId) => users.getCustomization(userId),
+      updateCustomization: (userId, data) => users.updateCustomization(userId, data),
       deleteUser: (userId) => users.deleteUserById(userId),
       uploadAvatar: (userId, buffer) => users.uploadAvatar(userId, buffer),
       deleteAvatar: (userId) => users.deleteAvatar(userId),

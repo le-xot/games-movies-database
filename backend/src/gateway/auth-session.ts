@@ -11,21 +11,43 @@ import { accountEnumModels, commonModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { userModels, type UserAccount } from '@backend/gateway/users'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { isAvatarFrameId } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 import type { AccountPlatform } from '@gmdb/contract'
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024
 
+const avatarFrameIdSchema = t.Nullable(t.String())
+
 export const authSessionModels = {
   UpdateNicknameDTO: t.Object({
     login: t.String({ minLength: 2, maxLength: 32 }),
   }),
+  // Что выбрано и что уже открыто: заблокированные рамки фронт показывает
+  // с замком, поэтому список открытых едет вместе с выбором.
+  CustomizationEntity: t.Object({
+    avatarFrameId: avatarFrameIdSchema,
+    unlockedAvatarFrameIds: t.Array(t.String()),
+  }),
+  // Отсутствие поля — «не менять», `null` — «сбросить». Id проверяются по
+  // каталогу `@gmdb/contract` уже в роуте: `string` ещё ничего не гарантирует.
+  CustomizationUpdateDTO: t.Object({
+    avatarFrameId: t.Optional(t.Union([t.String(), t.Null()])),
+  }),
 }
+
+export interface CustomizationUpdateInput {
+  avatarFrameId?: string | null | undefined
+}
+
+export type GatewayCustomization = typeof authSessionModels.CustomizationEntity.static
 
 export interface AuthSessionPort {
   getAccounts(userId: string): Promise<UserAccount[]>
   unlinkAccount(userId: string, platform: AccountPlatform): Promise<void>
   updateLogin(userId: string, login: string): Promise<GatewayUser>
+  getCustomization(userId: string): Promise<GatewayCustomization>
+  updateCustomization(userId: string, data: CustomizationUpdateInput): Promise<GatewayUser>
   deleteUser(userId: string): Promise<void>
   uploadAvatar(userId: string, buffer: Buffer): Promise<GatewayUser>
   deleteAvatar(userId: string): Promise<GatewayUser>
@@ -108,6 +130,46 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       },
       {
         body: 'UpdateNicknameDTO' as const,
+        response: {
+          200: 'UserEntity' as const,
+          ...standardErrors(),
+        },
+      },
+    )
+    .get(
+      '/auth/me/customization',
+      async (ctx) => {
+        await limit(ctx, 'AuthController.getCustomization', RATE_LIMITS.public)
+        const user = await requireSession(ctx.request)
+
+        return await authSession.getCustomization(user.id)
+      },
+      {
+        response: {
+          200: 'CustomizationEntity' as const,
+          ...standardErrors(),
+        },
+      },
+    )
+    .patch(
+      '/auth/me/customization',
+      async (ctx) => {
+        await limit(ctx, 'AuthController.updateCustomization', RATE_LIMITS.write)
+        const user = await requireSession(ctx.request)
+        const body = ctx.body as CustomizationUpdateInput
+
+        // Проверка по каталогу, а не только по типу: неизвестный/устаревший id
+        // не должен доехать до БД.
+        if (typeof body.avatarFrameId === 'string' && !isAvatarFrameId(body.avatarFrameId)) {
+          throw new ApiError(400, 'Неизвестная рамка аватара')
+        }
+
+        return await authSession.updateCustomization(user.id, {
+          avatarFrameId: body.avatarFrameId,
+        })
+      },
+      {
+        body: 'CustomizationUpdateDTO' as const,
         response: {
           200: 'UserEntity' as const,
           ...standardErrors(),

@@ -39,6 +39,7 @@ export const FriendsMemberEntity = t.Object({
   userId: t.String(),
   login: t.String(),
   profileImageUrl: t.String(),
+  avatarFrameId: t.Nullable(t.String()),
   counts: t.Record(t.String(), t.Number()),
   total: t.Number(),
 })

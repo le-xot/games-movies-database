@@ -10,6 +10,7 @@ const USER: GatewayUser = {
   profileImageUrl: 'https://example.com/avatar.png',
   color: '#22c55e',
   hasCustomAvatar: false,
+  avatarFrameId: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 

@@ -3,11 +3,11 @@ import { Trash2Icon, Tv, RotateCw } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import MergeAccountsPanel from '@/pages/admin/components/MergeAccountsPanel.vue'
 import SteamSyncPanel from '@/pages/admin/components/SteamSyncPanel.vue'
 import { useAdminUsers } from '@/pages/admin/composables/use-admin-users'
@@ -64,10 +64,12 @@ function toggleId(id: string) {
       <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
         <Card v-for="user in users" :key="user.id" data-testid="user-card">
           <CardContent class="flex items-center gap-4 pt-6">
-            <Avatar class="size-10 shrink-0">
-              <AvatarImage :src="user.profileImageUrl" :alt="user.login" />
-              <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              :profile-image-url="user.profileImageUrl"
+              :login="user.login"
+              :frame-id="user.avatarFrameId"
+              size="size-10"
+            />
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">

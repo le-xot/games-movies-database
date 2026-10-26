@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Camera } from '@lucide/vue'
 import { computed, ref } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import { UserRole, unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
@@ -48,10 +48,13 @@ async function onFileChange(event: Event) {
 <template>
   <div class="flex flex-col items-center gap-2 min-w-0">
     <div class="relative">
-      <Avatar class="size-16">
-        <AvatarImage :src="user.profileImageUrl" :alt="user.login" />
-        <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        data-testid="account-avatar"
+        :profile-image-url="user.profileImageUrl"
+        :login="user.login"
+        :frame-id="user.avatarFrameId"
+        size="size-16"
+      />
       <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
       <button
         type="button"

@@ -1,5 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { ForbiddenException } from '@backend/utils/errors'
 import type { GatewayUser } from '@backend/gateway/auth'
 import type { AuthSessionPort } from '@backend/gateway/auth-session'
 
@@ -10,6 +11,7 @@ const USER: GatewayUser = {
   profileImageUrl: '',
   color: '#000000',
   hasCustomAvatar: false,
+  avatarFrameId: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
@@ -18,6 +20,11 @@ function sessionStub(overrides: Partial<AuthSessionPort> = {}): AuthSessionPort 
     getAccounts: mock(async () => []),
     unlinkAccount: mock(async () => {}),
     updateLogin: mock(async () => USER),
+    getCustomization: mock(async () => ({
+      avatarFrameId: null,
+      unlockedAvatarFrameIds: [],
+    })),
+    updateCustomization: mock(async () => USER),
     deleteUser: mock(async () => {}),
     uploadAvatar: mock(async () => USER),
     deleteAvatar: mock(async () => USER),
@@ -140,5 +147,116 @@ describe('auth session', () => {
     const response = await build().gateway.handle(request('/auth/accounts', {}, false))
 
     expect(response.status).toBe(401)
+  })
+
+  describe('customization', () => {
+    function patchCustomization(payload: unknown, cookie = true) {
+      return request(
+        '/auth/me/customization',
+        {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        },
+        cookie,
+      )
+    }
+
+    it('returns the selected and unlocked cosmetics', async () => {
+      const { gateway, authSession } = build({
+        user: USER,
+        session: sessionStub({
+          getCustomization: mock(async () => ({
+            avatarFrameId: 'admin',
+            unlockedAvatarFrameIds: ['admin'],
+          })),
+        }),
+      })
+
+      const response = await gateway.handle(request('/auth/me/customization'))
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({
+        avatarFrameId: 'admin',
+        unlockedAvatarFrameIds: ['admin'],
+      })
+      expect(authSession.getCustomization).toHaveBeenCalledWith(USER.id)
+    })
+
+    it('requires a session for the customization state', async () => {
+      const response = await build().gateway.handle(request('/auth/me/customization', {}, false))
+
+      expect(response.status).toBe(401)
+    })
+
+    it('saves a frame and a badge from the catalog', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(
+        patchCustomization({ avatarFrameId: 'admin', activeBadgeId: 'cinema-buff' }),
+      )
+
+      expect(response.status).toBe(200)
+      expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
+        avatarFrameId: 'admin',
+      })
+    })
+
+    it('resets the frame and the badge with null', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(
+        patchCustomization({ avatarFrameId: null, activeBadgeId: null }),
+      )
+
+      expect(response.status).toBe(200)
+      expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
+        avatarFrameId: null,
+      })
+    })
+
+    it('leaves omitted fields untouched', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(patchCustomization({ activeBadgeId: 'night-owl' }))
+
+      expect(response.status).toBe(200)
+      expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
+        avatarFrameId: undefined,
+      })
+    })
+
+    it('rejects an unknown frame and does not touch the domain', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'diamond' }))
+
+      expect(response.status).toBe(400)
+      expect(authSession.updateCustomization).not.toHaveBeenCalled()
+    })
+
+    it('answers 403 when the frame is not unlocked yet', async () => {
+      const { gateway } = build({
+        user: USER,
+        session: sessionStub({
+          updateCustomization: mock(async () => {
+            throw new ForbiddenException('Рамка ещё не открыта')
+          }),
+        }),
+      })
+
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'wordle-streak' }))
+
+      expect(response.status).toBe(403)
+    })
+
+    it('requires a session', async () => {
+      const { gateway, authSession } = build()
+
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'admin' }, false))
+
+      expect(response.status).toBe(401)
+      expect(authSession.updateCustomization).not.toHaveBeenCalled()
+    })
   })
 })

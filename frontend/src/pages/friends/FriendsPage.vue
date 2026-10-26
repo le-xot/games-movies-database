@@ -4,9 +4,9 @@ import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import { useFriends } from '@/pages/friends/composables/use-friends'
 import {
   activityRanks,
@@ -173,15 +173,18 @@ function retry() {
           </span>
 
           <div class="flex items-center gap-4">
-            <Avatar
-              class="size-16 shrink-0 border-2"
-              :style="{ borderColor: favoriteColor(member) }"
-            >
-              <AvatarImage :src="member.profileImageUrl" :alt="member.login" />
-              <AvatarFallback class="text-lg font-semibold">
-                {{ member.login.charAt(0).toUpperCase() }}
-              </AvatarFallback>
-            </Avatar>
+            <!-- Рамка каталога заменяет цветную обводку по любимой оценке: две
+                 рамки друг на друге дали бы двойной контур. -->
+            <UserAvatar
+              :profile-image-url="member.profileImageUrl"
+              :login="member.login"
+              :frame-id="member.avatarFrameId"
+              size="size-16"
+              class="shrink-0"
+              :class="member.avatarFrameId ? '' : 'border-2'"
+              :style="member.avatarFrameId ? undefined : { borderColor: favoriteColor(member) }"
+              fallback-class="text-lg font-semibold"
+            />
             <div class="flex min-w-0 flex-col gap-1">
               <div class="flex items-center gap-2">
                 <span class="truncate text-lg font-semibold">{{ member.login }}</span>

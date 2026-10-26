@@ -13,6 +13,8 @@ export class UserEntity {
 
   hasCustomAvatar!: boolean
 
+  avatarFrameId!: string | null
+
   createdAt!: string
 
   constructor(partial: Partial<UserEntity>) {

@@ -19,6 +19,19 @@ export interface UpdateUserData {
   profileImageUrl?: string | undefined
   color?: string | undefined
   hasCustomAvatar?: boolean | undefined
+  avatarFrameId?: string | null | undefined
+  unlockedAvatarFrameIds?: string[] | undefined
+}
+
+/** Правка косметики: отсутствие поля = не менять, `null` = сбросить. */
+export interface UpdateCustomizationData {
+  avatarFrameId?: string | null | undefined
+}
+
+/** Состояние косметики для аккаунт-диалога: что выбрано и что уже открыто. */
+export interface UserCustomization {
+  avatarFrameId: string | null
+  unlockedAvatarFrameIds: string[]
 }
 
 export interface LinkPlatformData {

@@ -1,10 +1,17 @@
 import { AccountPlatform, UserRole } from '@backend/enums'
 import { AvatarService } from '@backend/modules/avatar/avatar.service'
 import {
+  earnedAvatarFrames,
+  mergeUnlockedFrames,
+} from '@backend/modules/user/customization.achievements'
+import {
   LinkPlatformData,
   MergeUsersResult,
+  UpdateCustomizationData,
+  UserCustomization,
   UserDomain,
 } from '@backend/modules/user/entities/user-domain.entity'
+import { DrizzleCustomizationStatsRepository } from '@backend/modules/user/repositories/drizzle-customization-stats.repository'
 import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
 import {
   WsEvents,
@@ -15,6 +22,7 @@ import { DomainEvents } from '@backend/utils/domain-events'
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   NotFoundException,
@@ -28,6 +36,7 @@ export class UserService {
     private readonly userRepository: DrizzleUserRepository,
     private readonly eventEmitter: DomainEvents,
     private readonly avatarService: AvatarService,
+    private readonly customizationStats: DrizzleCustomizationStatsRepository,
   ) {}
 
   private emitUserUpdate(userId: string, action: UpdateUsersPayload['action']) {
@@ -196,6 +205,67 @@ export class UserService {
 
   getLinkedAccounts(userId: string) {
     return this.userRepository.findAccountsByUserId(userId)
+  }
+
+  /**
+   * Открывает рамки, условия которых выполнены. Только union: раз открытая
+   * рамка не отзывается, даже если админа разжаловали или оценки удалили.
+   * Возвращает актуальный список открытых.
+   */
+  private async unlockEarnedFrames(user: UserDomain): Promise<string[]> {
+    const [ratingsCount, maxWordleStreak] = await Promise.all([
+      this.customizationStats.countRatings(user.id),
+      this.customizationStats.maxWordleStreak(user.id),
+    ])
+
+    const unlocked = mergeUnlockedFrames(
+      user.unlockedAvatarFrameIds,
+      earnedAvatarFrames({ role: user.role, ratingsCount, maxWordleStreak }),
+    )
+    if (unlocked.join(',') === user.unlockedAvatarFrameIds.join(',')) {
+      return user.unlockedAvatarFrameIds
+    }
+
+    await this.userRepository.update(user.id, { unlockedAvatarFrameIds: unlocked })
+
+    return unlocked
+  }
+
+  /** Состояние косметики для аккаунт-диалога; заодно открывает заработанное. */
+  async getCustomization(userId: string): Promise<UserCustomization> {
+    const user = await this.userRepository.findById(userId)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    return {
+      avatarFrameId: user.avatarFrameId,
+      unlockedAvatarFrameIds: await this.unlockEarnedFrames(user),
+    }
+  }
+
+  /**
+   * Косметика профиля. Существование id в каталоге проверяет гейтвей
+   * (`isAvatarFrameId`), а вот «открыта ли рамка» знает только домен: для этого
+   * нужны оценки и партии Wordle.
+   */
+  async updateCustomization(userId: string, data: UpdateCustomizationData): Promise<UserDomain> {
+    const current = await this.userRepository.findById(userId)
+    if (!current) {
+      throw new NotFoundException('User not found')
+    }
+
+    const unlocked = await this.unlockEarnedFrames(current)
+    if (data.avatarFrameId && !unlocked.includes(data.avatarFrameId)) {
+      throw new ForbiddenException('Рамка ещё не открыта')
+    }
+
+    const user = await this.userRepository.update(userId, {
+      avatarFrameId: data.avatarFrameId,
+    })
+
+    this.emitUserUpdate(userId, 'updated')
+    return user
   }
 
   async uploadAvatar(userId: string, imageBuffer: Buffer): Promise<UserDomain> {

@@ -10,6 +10,7 @@ const USER: GatewayUser = {
   profileImageUrl: '',
   color: '#000000',
   hasCustomAvatar: false,
+  avatarFrameId: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
@@ -234,6 +235,7 @@ describe('ratings friends', () => {
               userId: 'u1',
               login: 'friend',
               profileImageUrl: '',
+              avatarFrameId: null,
               counts: { LIKE: 2 },
               total: 2,
             },
@@ -247,7 +249,14 @@ describe('ratings friends', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       members: [
-        { userId: 'u1', login: 'friend', profileImageUrl: '', counts: { LIKE: 2 }, total: 2 },
+        {
+          userId: 'u1',
+          login: 'friend',
+          profileImageUrl: '',
+          avatarFrameId: null,
+          counts: { LIKE: 2 },
+          total: 2,
+        },
       ],
     })
   })

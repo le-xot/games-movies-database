@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, ref } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import { WordleGameStatus } from '@/lib/api'
 import WordleGuessGrid from '@/pages/wordle/components/WordleGuessGrid.vue'
 import type { WordleDailyLeaderboardEntryDTO } from '@/lib/api'
@@ -81,10 +81,12 @@ onBeforeUnmount(() => {
           @mouseenter="handleRowEnter"
           @mouseleave="handleRowLeave"
         >
-          <Avatar size="sm" shape="circle">
-            <AvatarImage :src="entry.profileImageUrl" :alt="entry.login" />
-            <AvatarFallback>{{ entry.login.slice(0, 1).toUpperCase() }}</AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            :profile-image-url="entry.profileImageUrl"
+            :login="entry.login"
+            :frame-id="entry.avatarFrameId"
+            size="size-10"
+          />
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium">{{ entry.login }}</p>
             <p class="text-muted-foreground" :class="subTextClass">{{ dailyResult(entry) }}</p>

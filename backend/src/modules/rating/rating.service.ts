@@ -110,6 +110,7 @@ export class RatingService {
       userId: string
       login: string
       profileImageUrl: string
+      avatarFrameId: string | null
       counts: FriendsCounts
       total: number
     }>

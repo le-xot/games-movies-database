@@ -1,5 +1,5 @@
 {
-  "id": "976ce12b-df19-45a4-aa17-817b18581491",
+  "id": "d907f380-acf4-4a0e-98f9-7a0c231ae45d",
   "prevId": "33a61872-144c-46ea-8768-b426453c5a1b",
   "version": "7",
   "dialect": "postgresql",
@@ -626,11 +626,12 @@
           "primaryKey": false,
           "notNull": false
         },
-        "activeBadgeId": {
-          "name": "activeBadgeId",
-          "type": "text",
+        "unlockedAvatarFrameIds": {
+          "name": "unlockedAvatarFrameIds",
+          "type": "text[]",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "'{}'"
         }
       },
       "indexes": {

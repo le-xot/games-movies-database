@@ -61,22 +61,8 @@
     {
       "idx": 8,
       "version": "7",
-      "when": 1793047184617,
-      "tag": "0008_quiet_abomination",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1793048712797,
-      "tag": "0009_superb_silver_surfer",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1793050486579,
-      "tag": "0010_needy_tinkerer",
+      "when": 1793052138846,
+      "tag": "0008_needy_hitman",
       "breakpoints": true
     }
   ]

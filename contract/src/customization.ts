@@ -20,7 +20,7 @@
 export const AVATAR_FRAME_RULES = {
   /** Максимальная серия побед в Wordle. */
   wordleStreak: 30,
-  /** Количество поставленных оценок: «больше», то есть строго больше порога. */
+  /** Количество поставленных оценок: порог включительно. */
   ratings: 100,
 } as const
 
@@ -41,7 +41,7 @@ export const AVATAR_FRAMES = [
     id: 'ratings-100',
     title: 'Сотня',
     description: 'Зелёное кольцо',
-    requirement: `Больше ${AVATAR_FRAME_RULES.ratings} оценок`,
+    requirement: `${AVATAR_FRAME_RULES.ratings}+ оценок`,
   },
 ] as const
 

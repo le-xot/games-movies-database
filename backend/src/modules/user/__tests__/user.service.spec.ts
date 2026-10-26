@@ -412,13 +412,13 @@ describe('UserService', () => {
       expect(state.unlockedAvatarFrameIds).toEqual([])
     })
 
-    it('opens the ratings frame only above 100 ratings', async () => {
+    it('opens the ratings frame from 100 ratings', async () => {
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
 
-      mockStats.countRatings = mock(() => Promise.resolve(100))
+      mockStats.countRatings = mock(() => Promise.resolve(99))
       expect((await service.getCustomization('user-3')).unlockedAvatarFrameIds).toEqual([])
 
-      mockStats.countRatings = mock(() => Promise.resolve(101))
+      mockStats.countRatings = mock(() => Promise.resolve(100))
       expect((await service.getCustomization('user-3')).unlockedAvatarFrameIds).toEqual([
         'ratings-100',
       ])

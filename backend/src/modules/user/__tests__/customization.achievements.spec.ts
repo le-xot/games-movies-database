@@ -25,18 +25,19 @@ describe('earnedAvatarFrames', () => {
     expect(earnedAvatarFrames({ ...NO_STATS, maxWordleStreak: at })).toEqual(['wordle-streak'])
   })
 
-  it('gives the ratings frame only strictly above the threshold', () => {
+  it('gives the ratings frame from the threshold', () => {
+    const below = AVATAR_FRAME_RULES.ratings - 1
     const at = AVATAR_FRAME_RULES.ratings
 
-    expect(earnedAvatarFrames({ ...NO_STATS, ratingsCount: at })).toEqual([])
-    expect(earnedAvatarFrames({ ...NO_STATS, ratingsCount: at + 1 })).toEqual(['ratings-100'])
+    expect(earnedAvatarFrames({ ...NO_STATS, ratingsCount: below })).toEqual([])
+    expect(earnedAvatarFrames({ ...NO_STATS, ratingsCount: at })).toEqual(['ratings-100'])
   })
 
   it('returns every earned frame in catalog order', () => {
     expect(
       earnedAvatarFrames({
         role: UserRole.ADMIN,
-        ratingsCount: AVATAR_FRAME_RULES.ratings + 1,
+        ratingsCount: AVATAR_FRAME_RULES.ratings,
         maxWordleStreak: AVATAR_FRAME_RULES.wordleStreak,
       }),
     ).toEqual(['admin', 'wordle-streak', 'ratings-100'])

@@ -18,7 +18,7 @@ export function earnedAvatarFrames({ role, ratingsCount, maxWordleStreak }: Cust
 
   if (role === UserRole.ADMIN) earned.push('admin')
   if (maxWordleStreak >= AVATAR_FRAME_RULES.wordleStreak) earned.push('wordle-streak')
-  if (ratingsCount > AVATAR_FRAME_RULES.ratings) earned.push('ratings-100')
+  if (ratingsCount >= AVATAR_FRAME_RULES.ratings) earned.push('ratings-100')
 
   return earned
 }

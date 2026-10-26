@@ -7,7 +7,6 @@ import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-s
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import UserAvatar from '@/components/user/UserAvatar.vue'
-import UserBadge from '@/components/user/UserBadge.vue'
 import { useFriends } from '@/pages/friends/composables/use-friends'
 import {
   activityRanks,
@@ -189,7 +188,6 @@ function retry() {
             <div class="flex min-w-0 flex-col gap-1">
               <div class="flex items-center gap-2">
                 <span class="truncate text-lg font-semibold">{{ member.login }}</span>
-                <UserBadge :badge-id="member.activeBadgeId" />
                 <span
                   v-if="isSelf(member)"
                   class="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider"

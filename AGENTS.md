@@ -139,7 +139,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Frontend dev не требует бэкенда: типы приходят из Eden (`import type { App }`), для запуска dev-сервера достаточно `bun dev:frontend`
 - Vite proxies `/api` and `/ws` to `localhost:3000` in dev
 - CI: push to master → Checks → Deploy (build → GHCR → SSH: scp compose + render-env.sh + rollback.sh, `render-env.sh` generates `.env` from the configured provider, `docker compose pull application migrations logs && up -d --remove-orphans`, then `docker image prune -f --filter until=168h`; health-check с авто-откатом через `rollback.sh`). Server has no git checkout and builds nothing. GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`; repo variable `DEPLOY_DIR`.
-- Contract: `contract/` (`@gmdb/contract`) — enum'ы, карта WS-событий, каталог косметики (`customization.ts`: рамки-чекпоинты, бейджи, пороги условий), `parseWsMessage`. Потребляется как сырой TypeScript и Bun, и Vite, поэтому пакет обязан оставаться без зависимостей
+- Contract: `contract/` (`@gmdb/contract`) — enum'ы, карта WS-событий, каталог косметики (`customization.ts`: рамки-чекпоинты и пороги условий), `parseWsMessage`. Потребляется как сырой TypeScript и Bun, и Vite, поэтому пакет обязан оставаться без зависимостей
 - Production docker-compose expects external `traefik-public` network (Traefik reverse proxy, swarm overlay, attachable)
 - Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import.
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)

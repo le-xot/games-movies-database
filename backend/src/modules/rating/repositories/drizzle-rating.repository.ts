@@ -17,7 +17,6 @@ export interface FriendsMemberRow {
   login: string
   profileImageUrl: string
   avatarFrameId: string | null
-  activeBadgeId: string | null
   counts: FriendsCounts
 }
 
@@ -124,7 +123,6 @@ export class DrizzleRatingRepository {
         login: users.login,
         profileImageUrl: users.profileImageUrl,
         avatarFrameId: users.avatarFrameId,
-        activeBadgeId: users.activeBadgeId,
         grade: recordRatings.grade,
         value: count(),
       })
@@ -135,7 +133,6 @@ export class DrizzleRatingRepository {
         users.login,
         users.profileImageUrl,
         users.avatarFrameId,
-        users.activeBadgeId,
         recordRatings.grade,
       )
 
@@ -148,7 +145,6 @@ export class DrizzleRatingRepository {
           login: row.login,
           profileImageUrl: row.profileImageUrl,
           avatarFrameId: row.avatarFrameId,
-          activeBadgeId: row.activeBadgeId,
           counts: emptyFriendsCounts(),
         }
         members.set(row.userId, member)

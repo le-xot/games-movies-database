@@ -12,23 +12,17 @@ async function openAccountDialog(page: import('@playwright/test').Page) {
   return dialog
 }
 
-test('avatar frame and badge survive a reload', async ({ page }) => {
+test('avatar frame survives a reload', async ({ page }) => {
   const dialog = await openAccountDialog(page)
 
   await dialog.getByTestId('frame-admin').click()
   await expect(dialog.getByTestId('frame-admin')).toHaveAttribute('aria-pressed', 'true')
   await expect(dialog.getByTestId('account-avatar')).toHaveAttribute('data-frame', 'admin')
 
-  await dialog.getByTestId('badge-cinema-buff').click()
-  await expect(dialog.getByTestId('badge-cinema-buff')).toHaveAttribute('aria-pressed', 'true')
-  await expect(dialog.getByRole('img', { name: 'Кинолюб' })).toBeVisible()
-
   const reloaded = await openAccountDialog(page)
 
   await expect(reloaded.getByTestId('frame-admin')).toHaveAttribute('aria-pressed', 'true')
   await expect(reloaded.getByTestId('account-avatar')).toHaveAttribute('data-frame', 'admin')
-  await expect(reloaded.getByTestId('badge-cinema-buff')).toHaveAttribute('aria-pressed', 'true')
-  await expect(reloaded.getByRole('img', { name: 'Кинолюб' })).toBeVisible()
 })
 
 test('checkpoint frames that are not earned stay locked', async ({ page }) => {
@@ -40,14 +34,10 @@ test('checkpoint frames that are not earned stay locked', async ({ page }) => {
   await expect(dialog.getByTestId('frame-admin')).toBeEnabled()
 })
 
-test('frames and badges can be reset to none', async ({ page }) => {
+test('the frame can be reset to none', async ({ page }) => {
   const dialog = await openAccountDialog(page)
 
   await dialog.getByTestId('frame-none').click()
   await expect(dialog.getByTestId('frame-none')).toHaveAttribute('aria-pressed', 'true')
   await expect(dialog.getByTestId('account-avatar')).not.toHaveAttribute('data-frame', 'admin')
-
-  await dialog.getByTestId('badge-none').click()
-  await expect(dialog.getByTestId('badge-none')).toHaveAttribute('aria-pressed', 'true')
-  await expect(dialog.getByRole('img', { name: 'Кинолюб' })).toBeHidden()
 })

@@ -47,7 +47,6 @@ describe('UserService', () => {
       color: '#111111',
       hasCustomAvatar: false,
       avatarFrameId: null,
-      activeBadgeId: null,
       unlockedAvatarFrameIds: [],
       createdAt: '2024-01-01',
     }
@@ -131,7 +130,6 @@ describe('UserService', () => {
         color: '#333333',
         hasCustomAvatar: false,
         avatarFrameId: null,
-        activeBadgeId: null,
         unlockedAvatarFrameIds: [],
         createdAt: '2024-01-02',
       }
@@ -188,7 +186,6 @@ describe('UserService', () => {
         color: '#555555',
         hasCustomAvatar: false,
         avatarFrameId: null,
-        activeBadgeId: null,
         unlockedAvatarFrameIds: [],
         createdAt: '2024-01-06',
       }
@@ -215,7 +212,6 @@ describe('UserService', () => {
           color: '#666666',
           hasCustomAvatar: false,
           avatarFrameId: null,
-          activeBadgeId: null,
           unlockedAvatarFrameIds: [],
           createdAt: '2024-01-07',
         },
@@ -242,7 +238,6 @@ describe('UserService', () => {
         color: '#888888',
         hasCustomAvatar: false,
         avatarFrameId: null,
-        activeBadgeId: null,
         unlockedAvatarFrameIds: [],
         createdAt: '2024-01-09',
       }
@@ -312,7 +307,6 @@ describe('UserService', () => {
         color: '#888888',
         hasCustomAvatar: true,
         avatarFrameId: null,
-        activeBadgeId: null,
         unlockedAvatarFrameIds: [],
         createdAt: '2024-01-09',
       }
@@ -321,7 +315,6 @@ describe('UserService', () => {
         profileImageUrl: '/api/avatar/user-8?t=2',
         hasCustomAvatar: false,
         avatarFrameId: null,
-        activeBadgeId: null,
         unlockedAvatarFrameIds: [],
       }
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
@@ -357,7 +350,6 @@ describe('UserService', () => {
         color: '#888888',
         hasCustomAvatar: true,
         avatarFrameId: null,
-        activeBadgeId: null,
         unlockedAvatarFrameIds: [],
         createdAt: '2024-01-09',
       }
@@ -381,7 +373,6 @@ describe('UserService', () => {
       color: '#333333',
       hasCustomAvatar: false,
       avatarFrameId: null,
-      activeBadgeId: null,
       unlockedAvatarFrameIds: [],
       createdAt: '2024-01-03',
     }
@@ -456,7 +447,6 @@ describe('UserService', () => {
       const updatedUser: UserDomain = {
         ...user,
         avatarFrameId: 'admin',
-        activeBadgeId: 'wordle-ace',
         unlockedAvatarFrameIds: ['admin'],
       }
       const update = mock(() => Promise.resolve(updatedUser)) as any
@@ -465,12 +455,10 @@ describe('UserService', () => {
 
       const result = await service.updateCustomization('user-3', {
         avatarFrameId: 'admin',
-        activeBadgeId: 'wordle-ace',
       })
 
       expect(update).toHaveBeenCalledWith('user-3', {
         avatarFrameId: 'admin',
-        activeBadgeId: 'wordle-ace',
       })
       expect(result).toEqual(updatedUser)
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
@@ -488,11 +476,10 @@ describe('UserService', () => {
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
 
-    it('resets the frame and the badge with null', async () => {
+    it('resets the frame with null', async () => {
       const current: UserDomain = {
         ...user,
         avatarFrameId: 'admin',
-        activeBadgeId: 'cinema-buff',
         role: UserRole.ADMIN,
         unlockedAvatarFrameIds: ['admin'],
       }
@@ -500,11 +487,10 @@ describe('UserService', () => {
       mockRepo.findById = mock(() => Promise.resolve(current)) as any
       mockRepo.update = update
 
-      await service.updateCustomization('user-3', { avatarFrameId: null, activeBadgeId: null })
+      await service.updateCustomization('user-3', { avatarFrameId: null })
 
       expect(update).toHaveBeenCalledWith('user-3', {
         avatarFrameId: null,
-        activeBadgeId: null,
       })
     })
 
@@ -527,7 +513,6 @@ describe('UserService', () => {
       color: '#111111',
       hasCustomAvatar: false,
       avatarFrameId: null,
-      activeBadgeId: null,
       unlockedAvatarFrameIds: [],
       createdAt: '2024-01-01',
     }
@@ -578,7 +563,6 @@ describe('UserService', () => {
       color: '#111111',
       hasCustomAvatar: false,
       avatarFrameId: null,
-      activeBadgeId: null,
       unlockedAvatarFrameIds: [],
       createdAt: '2024-01-01',
     }

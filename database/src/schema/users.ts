@@ -16,7 +16,6 @@ export const users = pgTable(
     // Косметика профиля: id из каталога `@gmdb/contract`, без FK — каталог живёт в коде.
     // `null` = без рамки / без бейджа.
     avatarFrameId: text('avatarFrameId'),
-    activeBadgeId: text('activeBadgeId'),
     // Открытые рамки-чекпоинты: условие достаточно выполнить один раз.
     unlockedAvatarFrameIds: text('unlockedAvatarFrameIds').array().notNull().default([]),
   },

@@ -81,8 +81,6 @@ export class WordleLeaderboardEntryDTO {
 
   avatarFrameId!: string | null
 
-  activeBadgeId!: string | null
-
   wins!: number
 
   currentStreak!: number
@@ -106,8 +104,6 @@ export class WordleDailyLeaderboardEntryDTO {
   color!: string
 
   avatarFrameId!: string | null
-
-  activeBadgeId!: string | null
 
   status!: WordleGameStatus
 

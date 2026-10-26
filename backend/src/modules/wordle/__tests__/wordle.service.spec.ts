@@ -245,7 +245,6 @@ describe('WordleService', () => {
               profileImageUrl: '',
               color: '#000',
               avatarFrameId: null,
-              activeBadgeId: null,
             },
           },
           {
@@ -256,7 +255,6 @@ describe('WordleService', () => {
               profileImageUrl: '',
               color: '#111',
               avatarFrameId: null,
-              activeBadgeId: null,
             },
           },
         ]),
@@ -278,7 +276,6 @@ describe('WordleService', () => {
         profileImageUrl: 'https://example.com/1.png',
         color: '#123456',
         avatarFrameId: null,
-        activeBadgeId: null,
       },
     }
 
@@ -313,7 +310,6 @@ describe('WordleService', () => {
               profileImageUrl: '',
               color: '#000',
               avatarFrameId: null,
-              activeBadgeId: null,
             },
           },
           {
@@ -324,7 +320,6 @@ describe('WordleService', () => {
               profileImageUrl: '',
               color: '#111',
               avatarFrameId: null,
-              activeBadgeId: null,
             },
           },
         ]),
@@ -340,7 +335,6 @@ describe('WordleService', () => {
         profileImageUrl: '',
         color: '#111',
         avatarFrameId: null,
-        activeBadgeId: null,
         status: WordleGameStatus.WON,
         attempts: 1,
         guesses: [
@@ -361,7 +355,6 @@ describe('WordleService', () => {
         profileImageUrl: '',
         color: '#000',
         avatarFrameId: null,
-        activeBadgeId: null,
         status: WordleGameStatus.LOST,
         attempts: 1,
         guesses: [

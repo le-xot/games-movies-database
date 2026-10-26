@@ -111,7 +111,6 @@ export class RatingService {
       login: string
       profileImageUrl: string
       avatarFrameId: string | null
-      activeBadgeId: string | null
       counts: FriendsCounts
       total: number
     }>

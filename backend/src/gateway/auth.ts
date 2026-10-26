@@ -14,9 +14,8 @@ export const UserEntity = t.Object({
   profileImageUrl: t.String(),
   color: t.String(),
   hasCustomAvatar: t.Boolean(),
-  // Косметика: id из каталога `@gmdb/contract`, `null` — не выбрано.
+  // Косметика: id из каталога `@gmdb/contract`, `null` — без рамки.
   avatarFrameId: t.Nullable(t.String()),
-  activeBadgeId: t.Nullable(t.String()),
   createdAt: t.String(),
 })
 

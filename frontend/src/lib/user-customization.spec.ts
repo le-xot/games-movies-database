@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { AVATAR_FRAMES, USER_BADGES } from '@gmdb/contract'
-import { resolveBadge, resolveFrame } from '@/lib/user-customization'
+import { AVATAR_FRAMES } from '@gmdb/contract'
+import { resolveFrame } from '@/lib/user-customization'
 
 describe('resolveFrame', () => {
   it('resolves every catalog frame to a ring with its requirement', () => {
@@ -24,22 +24,5 @@ describe('resolveFrame', () => {
   it('returns nothing for an unknown or retired id', () => {
     expect(resolveFrame('diamond')).toBeNull()
     expect(resolveFrame('neon')).toBeNull()
-  })
-})
-
-describe('resolveBadge', () => {
-  it('resolves every catalog badge to an icon', () => {
-    for (const badge of USER_BADGES) {
-      const resolved = resolveBadge(badge.id)
-
-      expect(resolved?.id).toBe(badge.id)
-      expect(resolved?.title).toBe(badge.title)
-      expect(resolved?.icon).toBeTruthy()
-    }
-  })
-
-  it('returns nothing for an unknown id', () => {
-    expect(resolveBadge('vip')).toBeNull()
-    expect(resolveBadge(null)).toBeNull()
   })
 })

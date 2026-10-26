@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import UserAvatar from '@/components/user/UserAvatar.vue'
-import UserBadge from '@/components/user/UserBadge.vue'
 import { UserRole } from '@/lib/api'
 import { useAccountDialog } from '@/stores/use-account-dialog'
 import { useLoginDialog } from '@/stores/use-login-dialog'
@@ -65,10 +64,7 @@ const userRoleLabel = computed(() =>
     />
     <template v-if="!collapsed">
       <span class="flex min-w-0 flex-col items-start">
-        <span class="flex items-center gap-1.5">
-          <span class="truncate text-sm font-medium">{{ user.login }}</span>
-          <UserBadge :badge-id="user.activeBadgeId" />
-        </span>
+        <span class="truncate text-sm font-medium">{{ user.login }}</span>
         <span class="text-xs text-muted-foreground">{{ userRoleLabel }}</span>
       </span>
     </template>
@@ -76,7 +72,6 @@ const userRoleLabel = computed(() =>
 
   <Button v-else-if="user" variant="ghost" class="gap-2" @click="accountDialog.openAccount()">
     <span class="text-base">{{ user.login }}</span>
-    <UserBadge :badge-id="user.activeBadgeId" />
     <UserAvatar
       :profile-image-url="user.profileImageUrl"
       :login="user.login"

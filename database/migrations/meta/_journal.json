@@ -71,6 +71,13 @@
       "when": 1793048712797,
       "tag": "0009_superb_silver_surfer",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793050486579,
+      "tag": "0010_needy_tinkerer",
+      "breakpoints": true
     }
   ]
 }

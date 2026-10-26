@@ -15,8 +15,6 @@ export class UserEntity {
 
   avatarFrameId!: string | null
 
-  activeBadgeId!: string | null
-
   createdAt!: string
 
   constructor(partial: Partial<UserEntity>) {

@@ -20,7 +20,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import UserAvatar from '@/components/user/UserAvatar.vue'
-import UserBadge from '@/components/user/UserBadge.vue'
 import { RecordEntity, RecordGenre, RecordType, UserRole } from '@/lib/api'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
@@ -386,9 +385,8 @@ function toggleGenreCollapse(genre: string) {
                             size="size-8"
                             class="mr-2"
                           />
-                          <div class="flex items-center gap-1.5 text-base text-white font-medium">
-                            <span>{{ item.suggestionOwnership.user.login }}</span>
-                            <UserBadge :badge-id="item.suggestionOwnership.user.activeBadgeId" />
+                          <div class="text-base text-white font-medium">
+                            {{ item.suggestionOwnership.user.login }}
                           </div>
                         </div>
                       </div>

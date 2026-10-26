@@ -2,7 +2,6 @@
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import UserAvatar from '@/components/user/UserAvatar.vue'
-import UserBadge from '@/components/user/UserBadge.vue'
 import WordleDailyLeaderboardRow from '@/pages/wordle/components/WordleDailyLeaderboardRow.vue'
 import { useUser } from '@/stores/use-user'
 import type { WordleLeaderboardDTO, WordleLeaderboardEntryDTO } from '@/lib/api'
@@ -82,10 +81,7 @@ function isCurrentUser(userId: string) {
         size="size-10"
       />
       <div class="min-w-0 flex-1">
-        <p class="flex items-center gap-1.5 text-sm font-medium">
-          <span class="truncate">{{ entry.login }}</span>
-          <UserBadge :badge-id="entry.activeBadgeId" />
-        </p>
+        <p class="truncate text-sm font-medium">{{ entry.login }}</p>
         <p v-if="entry.wins > 0" class="text-muted-foreground" :class="subTextClass">
           в среднем {{ entry.avgAttempts }} попыток
         </p>

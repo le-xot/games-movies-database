@@ -52,8 +52,6 @@ export class FriendsMemberEntity {
 
   avatarFrameId!: string | null
 
-  activeBadgeId!: string | null
-
   counts!: Record<RecordGrade, number>
 
   total!: number

@@ -3,7 +3,6 @@ import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import UserAvatar from '@/components/user/UserAvatar.vue'
-import UserBadge from '@/components/user/UserBadge.vue'
 import { WordleGameStatus } from '@/lib/api'
 import WordleGuessGrid from '@/pages/wordle/components/WordleGuessGrid.vue'
 import type { WordleDailyLeaderboardEntryDTO } from '@/lib/api'
@@ -89,10 +88,7 @@ onBeforeUnmount(() => {
             size="size-10"
           />
           <div class="min-w-0 flex-1">
-            <p class="flex items-center gap-1.5 text-sm font-medium">
-              <span class="truncate">{{ entry.login }}</span>
-              <UserBadge :badge-id="entry.activeBadgeId" />
-            </p>
+            <p class="truncate text-sm font-medium">{{ entry.login }}</p>
             <p class="text-muted-foreground" :class="subTextClass">{{ dailyResult(entry) }}</p>
           </div>
           <span class="text-base font-bold">

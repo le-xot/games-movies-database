@@ -12,7 +12,6 @@ const USER: GatewayUser = {
   color: '#000000',
   hasCustomAvatar: false,
   avatarFrameId: null,
-  activeBadgeId: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
@@ -23,7 +22,6 @@ function sessionStub(overrides: Partial<AuthSessionPort> = {}): AuthSessionPort 
     updateLogin: mock(async () => USER),
     getCustomization: mock(async () => ({
       avatarFrameId: null,
-      activeBadgeId: null,
       unlockedAvatarFrameIds: [],
     })),
     updateCustomization: mock(async () => USER),
@@ -170,7 +168,6 @@ describe('auth session', () => {
         session: sessionStub({
           getCustomization: mock(async () => ({
             avatarFrameId: 'admin',
-            activeBadgeId: 'cinema-buff',
             unlockedAvatarFrameIds: ['admin'],
           })),
         }),
@@ -181,7 +178,6 @@ describe('auth session', () => {
       expect(response.status).toBe(200)
       expect(await response.json()).toEqual({
         avatarFrameId: 'admin',
-        activeBadgeId: 'cinema-buff',
         unlockedAvatarFrameIds: ['admin'],
       })
       expect(authSession.getCustomization).toHaveBeenCalledWith(USER.id)
@@ -203,7 +199,6 @@ describe('auth session', () => {
       expect(response.status).toBe(200)
       expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
         avatarFrameId: 'admin',
-        activeBadgeId: 'cinema-buff',
       })
     })
 
@@ -217,7 +212,6 @@ describe('auth session', () => {
       expect(response.status).toBe(200)
       expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
         avatarFrameId: null,
-        activeBadgeId: null,
       })
     })
 
@@ -229,7 +223,6 @@ describe('auth session', () => {
       expect(response.status).toBe(200)
       expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
         avatarFrameId: undefined,
-        activeBadgeId: 'night-owl',
       })
     })
 
@@ -237,15 +230,6 @@ describe('auth session', () => {
       const { gateway, authSession } = build({ user: USER })
 
       const response = await gateway.handle(patchCustomization({ avatarFrameId: 'diamond' }))
-
-      expect(response.status).toBe(400)
-      expect(authSession.updateCustomization).not.toHaveBeenCalled()
-    })
-
-    it('rejects an unknown badge', async () => {
-      const { gateway, authSession } = build({ user: USER })
-
-      const response = await gateway.handle(patchCustomization({ activeBadgeId: 'vip' }))
 
       expect(response.status).toBe(400)
       expect(authSession.updateCustomization).not.toHaveBeenCalled()

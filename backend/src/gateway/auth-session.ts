@@ -11,7 +11,7 @@ import { accountEnumModels, commonModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { userModels, type UserAccount } from '@backend/gateway/users'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
-import { isAvatarFrameId, isUserBadgeId } from '@gmdb/contract'
+import { isAvatarFrameId } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 import type { AccountPlatform } from '@gmdb/contract'
 
@@ -27,20 +27,17 @@ export const authSessionModels = {
   // с замком, поэтому список открытых едет вместе с выбором.
   CustomizationEntity: t.Object({
     avatarFrameId: avatarFrameIdSchema,
-    activeBadgeId: t.Nullable(t.String()),
     unlockedAvatarFrameIds: t.Array(t.String()),
   }),
   // Отсутствие поля — «не менять», `null` — «сбросить». Id проверяются по
   // каталогу `@gmdb/contract` уже в роуте: `string` ещё ничего не гарантирует.
   CustomizationUpdateDTO: t.Object({
     avatarFrameId: t.Optional(t.Union([t.String(), t.Null()])),
-    activeBadgeId: t.Optional(t.Union([t.String(), t.Null()])),
   }),
 }
 
 export interface CustomizationUpdateInput {
   avatarFrameId?: string | null | undefined
-  activeBadgeId?: string | null | undefined
 }
 
 export type GatewayCustomization = typeof authSessionModels.CustomizationEntity.static
@@ -166,13 +163,9 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
         if (typeof body.avatarFrameId === 'string' && !isAvatarFrameId(body.avatarFrameId)) {
           throw new ApiError(400, 'Неизвестная рамка аватара')
         }
-        if (typeof body.activeBadgeId === 'string' && !isUserBadgeId(body.activeBadgeId)) {
-          throw new ApiError(400, 'Неизвестный бейдж')
-        }
 
         return await authSession.updateCustomization(user.id, {
           avatarFrameId: body.avatarFrameId,
-          activeBadgeId: body.activeBadgeId,
         })
       },
       {

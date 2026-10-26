@@ -68,8 +68,8 @@ Elysia через Eden (`import type { App }`). Этот файл — справ
 | `DELETE` | `/auth/accounts/:platform` | user   | write  | отвязать `TWITCH` / `KICK` / `TELEGRAM` |
 | `POST`   | `/auth/me/avatar`          | user   | write  | загрузка аватара (multipart, до 5 МиБ)  |
 | `DELETE` | `/auth/me/avatar`          | user   | write  | сброс на дефолтный аватар               |
-| `GET`    | `/auth/me/customization`   | user   | public | выбор и открытые рамки-чекпоинты        |
-| `PATCH`  | `/auth/me/customization`   | user   | write  | рамка (только открытая) и бейдж         |
+| `GET`    | `/auth/me/customization`   | user   | public | выбранная рамка и список открытых       |
+| `PATCH`  | `/auth/me/customization`   | user   | write  | рамка аватара (только открытая)         |
 
 ## OAuth
 

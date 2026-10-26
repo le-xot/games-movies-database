@@ -240,7 +240,6 @@ export class UserService {
 
     return {
       avatarFrameId: user.avatarFrameId,
-      activeBadgeId: user.activeBadgeId,
       unlockedAvatarFrameIds: await this.unlockEarnedFrames(user),
     }
   }
@@ -263,7 +262,6 @@ export class UserService {
 
     const user = await this.userRepository.update(userId, {
       avatarFrameId: data.avatarFrameId,
-      activeBadgeId: data.activeBadgeId,
     })
 
     this.emitUserUpdate(userId, 'updated')

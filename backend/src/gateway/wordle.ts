@@ -55,6 +55,8 @@ export const wordleModels = {
     login: t.String(),
     profileImageUrl: t.String(),
     color: t.String(),
+    avatarFrameId: t.Nullable(t.String()),
+    activeBadgeId: t.Nullable(t.String()),
     wins: t.Number(),
     avgAttempts: t.Number(),
     currentStreak: t.Number(),
@@ -65,6 +67,8 @@ export const wordleModels = {
     login: t.String(),
     profileImageUrl: t.String(),
     color: t.String(),
+    avatarFrameId: t.Nullable(t.String()),
+    activeBadgeId: t.Nullable(t.String()),
     status: t.Ref('WordleGameStatus'),
     attempts: t.Number(),
     guesses: t.Array(t.Ref('WordleDailyGuessDTO')),
@@ -146,6 +150,8 @@ export interface WordleLeaderboard {
     login: string
     profileImageUrl: string
     color: string
+    avatarFrameId: string | null
+    activeBadgeId: string | null
     wins: number
     avgAttempts: number
     currentStreak: number
@@ -160,6 +166,8 @@ export interface WordleLeaderboard {
       login: string
       profileImageUrl: string
       color: string
+      avatarFrameId: string | null
+      activeBadgeId: string | null
       status: WordleGameStatus
       attempts: number
       guesses: { states: WordleLetterState[] }[]

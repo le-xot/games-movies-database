@@ -10,6 +10,8 @@ const USER: GatewayUser = {
   profileImageUrl: '',
   color: '#000000',
   hasCustomAvatar: false,
+  avatarFrameId: null,
+  activeBadgeId: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
@@ -18,6 +20,7 @@ function sessionStub(overrides: Partial<AuthSessionPort> = {}): AuthSessionPort 
     getAccounts: mock(async () => []),
     unlinkAccount: mock(async () => {}),
     updateLogin: mock(async () => USER),
+    updateCustomization: mock(async () => USER),
     deleteUser: mock(async () => {}),
     uploadAvatar: mock(async () => USER),
     deleteAvatar: mock(async () => USER),
@@ -140,5 +143,86 @@ describe('auth session', () => {
     const response = await build().gateway.handle(request('/auth/accounts', {}, false))
 
     expect(response.status).toBe(401)
+  })
+
+  describe('customization', () => {
+    function patchCustomization(payload: unknown, cookie = true) {
+      return request(
+        '/auth/me/customization',
+        {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        },
+        cookie,
+      )
+    }
+
+    it('saves a frame and a badge from the catalog', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(
+        patchCustomization({ avatarFrameId: 'gold', activeBadgeId: 'cinema-buff' }),
+      )
+
+      expect(response.status).toBe(200)
+      expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
+        avatarFrameId: 'gold',
+        activeBadgeId: 'cinema-buff',
+      })
+    })
+
+    it('resets the frame and the badge with null', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(
+        patchCustomization({ avatarFrameId: null, activeBadgeId: null }),
+      )
+
+      expect(response.status).toBe(200)
+      expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
+        avatarFrameId: null,
+        activeBadgeId: null,
+      })
+    })
+
+    it('leaves omitted fields untouched', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(patchCustomization({ activeBadgeId: 'night-owl' }))
+
+      expect(response.status).toBe(200)
+      expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
+        avatarFrameId: undefined,
+        activeBadgeId: 'night-owl',
+      })
+    })
+
+    it('rejects an unknown frame and does not touch the domain', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'diamond' }))
+
+      expect(response.status).toBe(400)
+      expect(authSession.updateCustomization).not.toHaveBeenCalled()
+    })
+
+    it('rejects an unknown badge', async () => {
+      const { gateway, authSession } = build({ user: USER })
+
+      const response = await gateway.handle(patchCustomization({ activeBadgeId: 'vip' }))
+
+      expect(response.status).toBe(400)
+      expect(authSession.updateCustomization).not.toHaveBeenCalled()
+    })
+
+    it('requires a session', async () => {
+      const { gateway, authSession } = build()
+
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'gold' }, false))
+
+      expect(response.status).toBe(401)
+      expect(authSession.updateCustomization).not.toHaveBeenCalled()
+    })
   })
 })

@@ -12,6 +12,8 @@ const member = (
     userId: login,
     login,
     profileImageUrl: '',
+    avatarFrameId: null,
+    activeBadgeId: null,
     counts: full,
     total: Object.values(full).reduce((sum, count) => sum + count, 0),
   }

@@ -31,6 +31,8 @@ describe('UserService', () => {
       profileImageUrl: '/api/avatar/user-1?t=old',
       color: '#111111',
       hasCustomAvatar: false,
+      avatarFrameId: null,
+      activeBadgeId: null,
       createdAt: '2024-01-01',
     }
 
@@ -112,6 +114,8 @@ describe('UserService', () => {
         profileImageUrl: '',
         color: '#333333',
         hasCustomAvatar: false,
+        avatarFrameId: null,
+        activeBadgeId: null,
         createdAt: '2024-01-02',
       }
       const updatedUser: UserDomain = {
@@ -166,6 +170,8 @@ describe('UserService', () => {
         profileImageUrl: 'url',
         color: '#555555',
         hasCustomAvatar: false,
+        avatarFrameId: null,
+        activeBadgeId: null,
         createdAt: '2024-01-06',
       }
       const findById = mock(() =>
@@ -190,6 +196,8 @@ describe('UserService', () => {
           profileImageUrl: 'url',
           color: '#666666',
           hasCustomAvatar: false,
+          avatarFrameId: null,
+          activeBadgeId: null,
           createdAt: '2024-01-07',
         },
       ]
@@ -214,6 +222,8 @@ describe('UserService', () => {
         profileImageUrl: 'url',
         color: '#888888',
         hasCustomAvatar: false,
+        avatarFrameId: null,
+        activeBadgeId: null,
         createdAt: '2024-01-09',
       }
       const findById = mock(() =>
@@ -281,12 +291,16 @@ describe('UserService', () => {
         profileImageUrl: '/api/avatar/user-8?t=old',
         color: '#888888',
         hasCustomAvatar: true,
+        avatarFrameId: null,
+        activeBadgeId: null,
         createdAt: '2024-01-09',
       }
       const updatedUser: UserDomain = {
         ...user,
         profileImageUrl: '/api/avatar/user-8?t=2',
         hasCustomAvatar: false,
+        avatarFrameId: null,
+        activeBadgeId: null,
       }
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
       const update = mock(() => Promise.resolve(updatedUser)) as any
@@ -320,6 +334,8 @@ describe('UserService', () => {
         profileImageUrl: '/api/avatar/user-8?t=old',
         color: '#888888',
         hasCustomAvatar: true,
+        avatarFrameId: null,
+        activeBadgeId: null,
         createdAt: '2024-01-09',
       }
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
@@ -333,6 +349,69 @@ describe('UserService', () => {
     })
   })
 
+  describe('updateCustomization', () => {
+    const user: UserDomain = {
+      id: 'user-3',
+      login: 'login-3',
+      role: UserRole.USER,
+      profileImageUrl: 'url',
+      color: '#333333',
+      hasCustomAvatar: false,
+      avatarFrameId: null,
+      activeBadgeId: null,
+      createdAt: '2024-01-03',
+    }
+
+    it('writes the frame and the badge and emits an update', async () => {
+      const updatedUser: UserDomain = {
+        ...user,
+        avatarFrameId: 'neon',
+        activeBadgeId: 'wordle-ace',
+      }
+      const update = mock(() => Promise.resolve(updatedUser)) as any
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+      mockRepo.update = update
+
+      const result = await service.updateCustomization('user-3', {
+        avatarFrameId: 'neon',
+        activeBadgeId: 'wordle-ace',
+      })
+
+      expect(update).toHaveBeenCalledWith('user-3', {
+        avatarFrameId: 'neon',
+        activeBadgeId: 'wordle-ace',
+      })
+      expect(result).toEqual(updatedUser)
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('update-users', {
+        userId: 'user-3',
+        action: 'updated',
+      })
+    })
+
+    it('resets the cosmetics with null', async () => {
+      const current: UserDomain = { ...user, avatarFrameId: 'gold', activeBadgeId: 'cinema-buff' }
+      const update = mock(() => Promise.resolve(user)) as any
+      mockRepo.findById = mock(() => Promise.resolve(current)) as any
+      mockRepo.update = update
+
+      await service.updateCustomization('user-3', { avatarFrameId: null, activeBadgeId: null })
+
+      expect(update).toHaveBeenCalledWith('user-3', {
+        avatarFrameId: null,
+        activeBadgeId: null,
+      })
+    })
+
+    it('rejects an unknown user', async () => {
+      mockRepo.findById = mock(() => Promise.resolve(null)) as any
+
+      await expect(
+        service.updateCustomization('missing', { avatarFrameId: 'gold' }),
+      ).rejects.toThrow(NotFoundException)
+      expect(mockRepo.update).not.toHaveBeenCalled()
+    })
+  })
+
   describe('updateLogin', () => {
     const user: UserDomain = {
       id: 'user-1',
@@ -341,6 +420,8 @@ describe('UserService', () => {
       profileImageUrl: 'url',
       color: '#111111',
       hasCustomAvatar: false,
+      avatarFrameId: null,
+      activeBadgeId: null,
       createdAt: '2024-01-01',
     }
 
@@ -389,6 +470,8 @@ describe('UserService', () => {
       profileImageUrl: 'url',
       color: '#111111',
       hasCustomAvatar: false,
+      avatarFrameId: null,
+      activeBadgeId: null,
       createdAt: '2024-01-01',
     }
     const sourceUser: UserDomain = {

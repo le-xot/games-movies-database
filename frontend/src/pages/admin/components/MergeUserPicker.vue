@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { SearchIcon, XIcon } from '@lucide/vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import UserAvatar from '@/components/user/UserAvatar.vue'
 import PlatformBadge from '@/pages/admin/components/PlatformBadge.vue'
 import type { UserEntity } from '@/lib/api'
 import type { UserAccount } from '@/pages/admin/composables/use-admin-users'
@@ -33,10 +33,12 @@ const query = defineModel<string>('query', { required: true })
     </div>
 
     <div v-if="selected" class="flex items-center gap-3 rounded-lg border px-3 py-2">
-      <Avatar class="size-8 shrink-0">
-        <AvatarImage :src="selected.profileImageUrl" :alt="selected.login" />
-        <AvatarFallback>{{ selected.login.charAt(0).toUpperCase() }}</AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        :profile-image-url="selected.profileImageUrl"
+        :login="selected.login"
+        :frame-id="selected.avatarFrameId"
+        size="size-8"
+      />
       <div class="min-w-0 flex-1">
         <div class="truncate text-sm font-medium">{{ selected.login }}</div>
         <div class="mt-1 flex flex-wrap gap-1">
@@ -83,10 +85,12 @@ const query = defineModel<string>('query', { required: true })
           class="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-accent"
           @click="emit('select', user.id)"
         >
-          <Avatar class="size-8 shrink-0">
-            <AvatarImage :src="user.profileImageUrl" :alt="user.login" />
-            <AvatarFallback>{{ user.login.charAt(0).toUpperCase() }}</AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            :profile-image-url="user.profileImageUrl"
+            :login="user.login"
+            :frame-id="user.avatarFrameId"
+            size="size-8"
+          />
           <span class="min-w-0 flex-1">
             <span class="flex items-center gap-1.5">
               <span class="truncate text-sm font-medium">{{ user.login }}</span>

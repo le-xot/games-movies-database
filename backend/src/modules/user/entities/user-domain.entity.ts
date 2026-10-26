@@ -19,6 +19,14 @@ export interface UpdateUserData {
   profileImageUrl?: string | undefined
   color?: string | undefined
   hasCustomAvatar?: boolean | undefined
+  avatarFrameId?: string | null | undefined
+  activeBadgeId?: string | null | undefined
+}
+
+/** Правка косметики: отсутствие поля = не менять, `null` = сбросить. */
+export interface UpdateCustomizationData {
+  avatarFrameId?: string | null | undefined
+  activeBadgeId?: string | null | undefined
 }
 
 export interface LinkPlatformData {

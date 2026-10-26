@@ -16,6 +16,8 @@ export interface FriendsMemberRow {
   userId: string
   login: string
   profileImageUrl: string
+  avatarFrameId: string | null
+  activeBadgeId: string | null
   counts: FriendsCounts
 }
 
@@ -121,12 +123,21 @@ export class DrizzleRatingRepository {
         userId: recordRatings.userId,
         login: users.login,
         profileImageUrl: users.profileImageUrl,
+        avatarFrameId: users.avatarFrameId,
+        activeBadgeId: users.activeBadgeId,
         grade: recordRatings.grade,
         value: count(),
       })
       .from(recordRatings)
       .innerJoin(users, eq(recordRatings.userId, users.id))
-      .groupBy(recordRatings.userId, users.login, users.profileImageUrl, recordRatings.grade)
+      .groupBy(
+        recordRatings.userId,
+        users.login,
+        users.profileImageUrl,
+        users.avatarFrameId,
+        users.activeBadgeId,
+        recordRatings.grade,
+      )
 
     const members = new Map<string, FriendsMemberRow>()
     for (const row of rows) {
@@ -136,6 +147,8 @@ export class DrizzleRatingRepository {
           userId: row.userId,
           login: row.login,
           profileImageUrl: row.profileImageUrl,
+          avatarFrameId: row.avatarFrameId,
+          activeBadgeId: row.activeBadgeId,
           counts: emptyFriendsCounts(),
         }
         members.set(row.userId, member)

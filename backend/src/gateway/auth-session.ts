@@ -11,6 +11,7 @@ import { accountEnumModels, commonModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { userModels, type UserAccount } from '@backend/gateway/users'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { isAvatarFrameId, isUserBadgeId } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 import type { AccountPlatform } from '@gmdb/contract'
 
@@ -20,12 +21,24 @@ export const authSessionModels = {
   UpdateNicknameDTO: t.Object({
     login: t.String({ minLength: 2, maxLength: 32 }),
   }),
+  // Отсутствие поля — «не менять», `null` — «сбросить». Id проверяются по
+  // каталогу `@gmdb/contract` уже в роуте: `string` ещё ничего не гарантирует.
+  CustomizationUpdateDTO: t.Object({
+    avatarFrameId: t.Optional(t.Union([t.String(), t.Null()])),
+    activeBadgeId: t.Optional(t.Union([t.String(), t.Null()])),
+  }),
+}
+
+export interface CustomizationUpdateInput {
+  avatarFrameId?: string | null | undefined
+  activeBadgeId?: string | null | undefined
 }
 
 export interface AuthSessionPort {
   getAccounts(userId: string): Promise<UserAccount[]>
   unlinkAccount(userId: string, platform: AccountPlatform): Promise<void>
   updateLogin(userId: string, login: string): Promise<GatewayUser>
+  updateCustomization(userId: string, data: CustomizationUpdateInput): Promise<GatewayUser>
   deleteUser(userId: string): Promise<void>
   uploadAvatar(userId: string, buffer: Buffer): Promise<GatewayUser>
   deleteAvatar(userId: string): Promise<GatewayUser>
@@ -108,6 +121,35 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       },
       {
         body: 'UpdateNicknameDTO' as const,
+        response: {
+          200: 'UserEntity' as const,
+          ...standardErrors(),
+        },
+      },
+    )
+    .patch(
+      '/auth/me/customization',
+      async (ctx) => {
+        await limit(ctx, 'AuthController.updateCustomization', RATE_LIMITS.write)
+        const user = await requireSession(ctx.request)
+        const body = ctx.body as CustomizationUpdateInput
+
+        // Проверка по каталогу, а не только по типу: неизвестный/устаревший id
+        // не должен доехать до БД.
+        if (typeof body.avatarFrameId === 'string' && !isAvatarFrameId(body.avatarFrameId)) {
+          throw new ApiError(400, 'Неизвестная рамка аватара')
+        }
+        if (typeof body.activeBadgeId === 'string' && !isUserBadgeId(body.activeBadgeId)) {
+          throw new ApiError(400, 'Неизвестный бейдж')
+        }
+
+        return await authSession.updateCustomization(user.id, {
+          avatarFrameId: body.avatarFrameId,
+          activeBadgeId: body.activeBadgeId,
+        })
+      },
+      {
+        body: 'CustomizationUpdateDTO' as const,
         response: {
           200: 'UserEntity' as const,
           ...standardErrors(),

@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AccountAvatarRow from '@/components/account/AccountAvatarRow.vue'
+import AccountCustomization from '@/components/account/AccountCustomization.vue'
 import AccountDangerZone from '@/components/account/AccountDangerZone.vue'
 import AccountHeader from '@/components/account/AccountHeader.vue'
 import AccountNickname from '@/components/account/AccountNickname.vue'
@@ -55,6 +56,12 @@ async function logout() {
         <template v-if="user?.hasCustomAvatar">
           <div class="h-px bg-border" />
           <AccountAvatarRow />
+        </template>
+
+        <!-- Косметика доступна всегда: рамка работает и с дефолтным аватаром. -->
+        <template v-if="user">
+          <div class="h-px bg-border" />
+          <AccountCustomization :user="user" />
         </template>
 
         <template v-if="isRealAdmin">

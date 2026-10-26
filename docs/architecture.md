@@ -30,7 +30,7 @@
 | Проводка  | `backend/src/server/wiring/`                   | query/body → аргументы сервиса, маппинг сущностей в DTO        | бизнес-логику        |
 | Домен     | `backend/src/modules/`                         | бизнес-логика, репозитории, события                            | HTTP, Elysia, cookie |
 | Данные    | `backend/src/database/`, `database/src/schema` | пул соединений, схема, миграции                                | HTTP-формы           |
-| Контракт  | `contract/` (`@gmdb/contract`)                 | enum'ы, WS-события, `parseWsMessage`                           | всё остальное        |
+| Контракт  | `contract/` (`@gmdb/contract`)                 | enum'ы, WS-события, каталог косметики, `parseWsMessage`        | всё остальное        |
 
 Направление зависимостей — `server → gateway → modules`. Единственное исключение: гейтвей может
 импортировать из `modules/` чистые функции и константы (`assertOAuthState`, `TELEGRAM_OIDC_*`),
@@ -121,7 +121,8 @@
 - `frontend/src/lib/api.ts` — `treaty<App>()`; `unwrap()` / `assertOk()` достают данные или
   бросают `Response` с телом ошибки
 - Имена доменных типов для фронта — `backend/src/api-types.ts` (ручные алиасы, не кодоген)
-- Enum'ы и WS-события — `@gmdb/contract`, общий пакет для бэкенда и фронта
+- Enum'ы и WS-события — `@gmdb/contract`, общий пакет для бэкенда и фронта; там же каталог
+  косметики профиля (рамки аватара, бейджи): бэкенд валидирует по нему id, фронт по нему рендерит
 
 ## Данные
 

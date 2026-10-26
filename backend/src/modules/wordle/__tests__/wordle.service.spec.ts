@@ -239,11 +239,25 @@ describe('WordleService', () => {
         Promise.resolve([
           {
             game: makeGame({ userId: 'user-2', guesses: [ANSWER], status: WordleGameStatus.WON }),
-            user: { id: 'user-2', login: 'bob', profileImageUrl: '', color: '#000' },
+            user: {
+              id: 'user-2',
+              login: 'bob',
+              profileImageUrl: '',
+              color: '#000',
+              avatarFrameId: null,
+              activeBadgeId: null,
+            },
           },
           {
             game: makeGame({ userId: 'user-1', guesses: ['кокос'], status: WordleGameStatus.LOST }),
-            user: { id: 'user-1', login: 'lexa', profileImageUrl: '', color: '#111' },
+            user: {
+              id: 'user-1',
+              login: 'lexa',
+              profileImageUrl: '',
+              color: '#111',
+              avatarFrameId: null,
+              activeBadgeId: null,
+            },
           },
         ]),
       )
@@ -263,6 +277,8 @@ describe('WordleService', () => {
         login: 'lexa',
         profileImageUrl: 'https://example.com/1.png',
         color: '#123456',
+        avatarFrameId: null,
+        activeBadgeId: null,
       },
     }
 
@@ -291,11 +307,25 @@ describe('WordleService', () => {
         Promise.resolve([
           {
             game: makeGame({ guesses: ['кокос'], status: WordleGameStatus.LOST }),
-            user: { id: 'user-2', login: 'bob', profileImageUrl: '', color: '#000' },
+            user: {
+              id: 'user-2',
+              login: 'bob',
+              profileImageUrl: '',
+              color: '#000',
+              avatarFrameId: null,
+              activeBadgeId: null,
+            },
           },
           {
             game: makeGame({ guesses: [ANSWER], status: WordleGameStatus.WON }),
-            user: { id: 'user-1', login: 'lexa', profileImageUrl: '', color: '#111' },
+            user: {
+              id: 'user-1',
+              login: 'lexa',
+              profileImageUrl: '',
+              color: '#111',
+              avatarFrameId: null,
+              activeBadgeId: null,
+            },
           },
         ]),
       )
@@ -309,6 +339,8 @@ describe('WordleService', () => {
         login: 'lexa',
         profileImageUrl: '',
         color: '#111',
+        avatarFrameId: null,
+        activeBadgeId: null,
         status: WordleGameStatus.WON,
         attempts: 1,
         guesses: [
@@ -328,6 +360,8 @@ describe('WordleService', () => {
         login: 'bob',
         profileImageUrl: '',
         color: '#000',
+        avatarFrameId: null,
+        activeBadgeId: null,
         status: WordleGameStatus.LOST,
         attempts: 1,
         guesses: [

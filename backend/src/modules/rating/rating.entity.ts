@@ -50,6 +50,10 @@ export class FriendsMemberEntity {
 
   profileImageUrl!: string
 
+  avatarFrameId!: string | null
+
+  activeBadgeId!: string | null
+
   counts!: Record<RecordGrade, number>
 
   total!: number

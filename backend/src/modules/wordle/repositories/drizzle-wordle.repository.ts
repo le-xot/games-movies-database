@@ -9,7 +9,10 @@ export type WordleGameRecord = SelectRow<'wordleGames'>
 
 export type WordleGameWithUser = {
   game: WordleGameRecord
-  user: Pick<SelectRow<'users'>, 'id' | 'login' | 'profileImageUrl' | 'color'>
+  user: Pick<
+    SelectRow<'users'>,
+    'id' | 'login' | 'profileImageUrl' | 'color' | 'avatarFrameId' | 'activeBadgeId'
+  >
 }
 
 export class DrizzleWordleRepository {
@@ -86,6 +89,8 @@ export class DrizzleWordleRepository {
           login: users.login,
           profileImageUrl: users.profileImageUrl,
           color: users.color,
+          avatarFrameId: users.avatarFrameId,
+          activeBadgeId: users.activeBadgeId,
         },
       })
       .from(wordleGames)
@@ -102,6 +107,8 @@ export class DrizzleWordleRepository {
           login: users.login,
           profileImageUrl: users.profileImageUrl,
           color: users.color,
+          avatarFrameId: users.avatarFrameId,
+          activeBadgeId: users.activeBadgeId,
         },
       })
       .from(wordleGames)

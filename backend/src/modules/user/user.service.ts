@@ -3,6 +3,7 @@ import { AvatarService } from '@backend/modules/avatar/avatar.service'
 import {
   LinkPlatformData,
   MergeUsersResult,
+  UpdateCustomizationData,
   UserDomain,
 } from '@backend/modules/user/entities/user-domain.entity'
 import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
@@ -196,6 +197,25 @@ export class UserService {
 
   getLinkedAccounts(userId: string) {
     return this.userRepository.findAccountsByUserId(userId)
+  }
+
+  /**
+   * Косметика профиля. Проверка id по каталогу — в гейтвее (`isAvatarFrameId`),
+   * здесь только запись: сервис не знает про HTTP-коды.
+   */
+  async updateCustomization(userId: string, data: UpdateCustomizationData): Promise<UserDomain> {
+    const current = await this.userRepository.findById(userId)
+    if (!current) {
+      throw new NotFoundException('User not found')
+    }
+
+    const user = await this.userRepository.update(userId, {
+      avatarFrameId: data.avatarFrameId,
+      activeBadgeId: data.activeBadgeId,
+    })
+
+    this.emitUserUpdate(userId, 'updated')
+    return user
   }
 
   async uploadAvatar(userId: string, imageBuffer: Buffer): Promise<UserDomain> {

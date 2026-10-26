@@ -34,6 +34,8 @@ export interface WordleLeaderboardRow {
   login: string
   profileImageUrl: string
   color: string
+  avatarFrameId: string | null
+  activeBadgeId: string | null
   date: string
   status: WordleGameStatus
   attempts: number
@@ -44,6 +46,8 @@ export interface WordleLeaderboardEntry {
   login: string
   profileImageUrl: string
   color: string
+  avatarFrameId: string | null
+  activeBadgeId: string | null
   wins: number
   currentStreak: number
   maxStreak: number
@@ -67,6 +71,8 @@ export interface WordleDailyLeaderboardRow {
   login: string
   profileImageUrl: string
   color: string
+  avatarFrameId: string | null
+  activeBadgeId: string | null
   status: WordleGameStatus
   attempts: number
   guesses: WordleDailyGuess[]
@@ -170,6 +176,8 @@ export function buildLeaderboard(
       login: profile.login,
       profileImageUrl: profile.profileImageUrl,
       color: profile.color,
+      avatarFrameId: profile.avatarFrameId,
+      activeBadgeId: profile.activeBadgeId,
       wins: stats.wins,
       currentStreak: stats.currentStreak,
       maxStreak: stats.maxStreak,

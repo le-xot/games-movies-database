@@ -60,7 +60,7 @@ const initial = computed(() => props.login.charAt(0).toUpperCase())
         'relative inline-flex shrink-0',
         size,
         frameShape,
-        frame && [frame.ringClassName, frame.glowClassName, ringPadding],
+        frame && [frame.ringClassName, ringPadding],
         props.class,
       )
     "

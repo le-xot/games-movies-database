@@ -11,7 +11,7 @@ describe('resolveFrame', () => {
       expect(resolved?.id).toBe(frame.id)
       expect(resolved?.title).toBe(frame.title)
       expect(resolved?.requirement).toBe(frame.requirement)
-      expect(resolved?.ringClassName).toContain('bg-')
+      expect(resolved?.ringClassName).toContain('border-')
     }
   })
 

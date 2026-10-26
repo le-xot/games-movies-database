@@ -16,15 +16,20 @@ export interface ResolvedFrame {
   description: string
   /** Как открыть рамку — показываем на заблокированной карточке. */
   requirement: string
-  /** Цвет кольца: обёртка аватара с отступом. */
+  /** Цвет кольца: рамка-бордер на обёртке аватара. */
   ringClassName: string
 }
 
-/** Рамка — просто цвет, без градиентов и свечения. */
+/**
+ * Рамка — просто цвет, без градиентов и свечения.
+ *
+ * Рисуем бордером, а не подложкой с отступом: дробные отступы на мелких
+ * размерах дают неравномерное кольцо из-за округления пикселей.
+ */
 const FRAME_STYLES: Record<AvatarFrameId, string> = {
-  admin: 'bg-red-500',
-  'wordle-streak': 'bg-amber-400',
-  'ratings-100': 'bg-emerald-500',
+  admin: 'border-red-500',
+  'wordle-streak': 'border-amber-400',
+  'ratings-100': 'border-emerald-500',
 }
 
 export function resolveFrame(id: string | null | undefined): ResolvedFrame | null {

@@ -2,8 +2,9 @@
 import { CircleUserRound } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import UserAvatar from '@/components/user/UserAvatar.vue'
+import UserBadge from '@/components/user/UserBadge.vue'
 import { UserRole } from '@/lib/api'
 import { useAccountDialog } from '@/stores/use-account-dialog'
 import { useLoginDialog } from '@/stores/use-login-dialog'
@@ -56,13 +57,18 @@ const userRoleLabel = computed(() =>
     "
     @click="accountDialog.openAccount()"
   >
-    <Avatar class="size-7">
-      <AvatarImage :src="user.profileImageUrl" alt="@radix-vue" />
-      <AvatarFallback>{{ user.login.charAt(0) }}</AvatarFallback>
-    </Avatar>
+    <UserAvatar
+      :profile-image-url="user.profileImageUrl"
+      :login="user.login"
+      :frame-id="user.avatarFrameId"
+      size="size-7"
+    />
     <template v-if="!collapsed">
       <span class="flex min-w-0 flex-col items-start">
-        <span class="truncate text-sm font-medium">{{ user.login }}</span>
+        <span class="flex items-center gap-1.5">
+          <span class="truncate text-sm font-medium">{{ user.login }}</span>
+          <UserBadge :badge-id="user.activeBadgeId" />
+        </span>
         <span class="text-xs text-muted-foreground">{{ userRoleLabel }}</span>
       </span>
     </template>
@@ -70,10 +76,13 @@ const userRoleLabel = computed(() =>
 
   <Button v-else-if="user" variant="ghost" class="gap-2" @click="accountDialog.openAccount()">
     <span class="text-base">{{ user.login }}</span>
-    <Avatar class="size-8">
-      <AvatarImage :src="user.profileImageUrl" alt="@radix-vue" />
-      <AvatarFallback>{{ user.login.charAt(0) }}</AvatarFallback>
-    </Avatar>
+    <UserBadge :badge-id="user.activeBadgeId" />
+    <UserAvatar
+      :profile-image-url="user.profileImageUrl"
+      :login="user.login"
+      :frame-id="user.avatarFrameId"
+      size="size-8"
+    />
   </Button>
 
   <Button

@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { UserRole } from '@backend/enums'
-import { BadRequestException, ConflictException, NotFoundException } from '@backend/utils/errors'
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@backend/utils/errors'
 import { UserDomain } from '../entities/user-domain.entity'
 import { DrizzleUserRepository } from '../repositories/drizzle-user.repository'
 import { UserService } from '../user.service'
@@ -13,6 +18,7 @@ describe('UserService', () => {
   let mockAvatarService: {
     generateAndStoreDefaultAvatar: ReturnType<typeof mock>
   }
+  let mockStats: { countRatings: ReturnType<typeof mock>; maxWordleStreak: ReturnType<typeof mock> }
 
   beforeEach(() => {
     mockRepo = createMock(DrizzleUserRepository)
@@ -20,7 +26,16 @@ describe('UserService', () => {
     mockAvatarService = {
       generateAndStoreDefaultAvatar: mock(() => Promise.resolve('/api/avatar/user-1?t=1')),
     }
-    service = new UserService(mockRepo, mockEventEmitter as any, mockAvatarService as any)
+    mockStats = {
+      countRatings: mock(() => Promise.resolve(0)),
+      maxWordleStreak: mock(() => Promise.resolve(0)),
+    }
+    service = new UserService(
+      mockRepo,
+      mockEventEmitter as any,
+      mockAvatarService as any,
+      mockStats as any,
+    )
   })
 
   describe('upsertUser', () => {
@@ -33,6 +48,7 @@ describe('UserService', () => {
       hasCustomAvatar: false,
       avatarFrameId: null,
       activeBadgeId: null,
+      unlockedAvatarFrameIds: [],
       createdAt: '2024-01-01',
     }
 
@@ -116,6 +132,7 @@ describe('UserService', () => {
         hasCustomAvatar: false,
         avatarFrameId: null,
         activeBadgeId: null,
+        unlockedAvatarFrameIds: [],
         createdAt: '2024-01-02',
       }
       const updatedUser: UserDomain = {
@@ -172,6 +189,7 @@ describe('UserService', () => {
         hasCustomAvatar: false,
         avatarFrameId: null,
         activeBadgeId: null,
+        unlockedAvatarFrameIds: [],
         createdAt: '2024-01-06',
       }
       const findById = mock(() =>
@@ -198,6 +216,7 @@ describe('UserService', () => {
           hasCustomAvatar: false,
           avatarFrameId: null,
           activeBadgeId: null,
+          unlockedAvatarFrameIds: [],
           createdAt: '2024-01-07',
         },
       ]
@@ -224,6 +243,7 @@ describe('UserService', () => {
         hasCustomAvatar: false,
         avatarFrameId: null,
         activeBadgeId: null,
+        unlockedAvatarFrameIds: [],
         createdAt: '2024-01-09',
       }
       const findById = mock(() =>
@@ -293,6 +313,7 @@ describe('UserService', () => {
         hasCustomAvatar: true,
         avatarFrameId: null,
         activeBadgeId: null,
+        unlockedAvatarFrameIds: [],
         createdAt: '2024-01-09',
       }
       const updatedUser: UserDomain = {
@@ -301,6 +322,7 @@ describe('UserService', () => {
         hasCustomAvatar: false,
         avatarFrameId: null,
         activeBadgeId: null,
+        unlockedAvatarFrameIds: [],
       }
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
       const update = mock(() => Promise.resolve(updatedUser)) as any
@@ -336,6 +358,7 @@ describe('UserService', () => {
         hasCustomAvatar: true,
         avatarFrameId: null,
         activeBadgeId: null,
+        unlockedAvatarFrameIds: [],
         createdAt: '2024-01-09',
       }
       mockRepo.findById = mock(() => Promise.resolve(user)) as any
@@ -349,7 +372,7 @@ describe('UserService', () => {
     })
   })
 
-  describe('updateCustomization', () => {
+  describe('customization', () => {
     const user: UserDomain = {
       id: 'user-3',
       login: 'login-3',
@@ -359,26 +382,94 @@ describe('UserService', () => {
       hasCustomAvatar: false,
       avatarFrameId: null,
       activeBadgeId: null,
+      unlockedAvatarFrameIds: [],
       createdAt: '2024-01-03',
     }
 
-    it('writes the frame and the badge and emits an update', async () => {
+    it('opens the admin frame for an admin', async () => {
+      mockRepo.findById = mock(() => Promise.resolve({ ...user, role: UserRole.ADMIN })) as any
+
+      const state = await service.getCustomization('user-3')
+
+      expect(state.unlockedAvatarFrameIds).toEqual(['admin'])
+    })
+
+    it('opens the streak frame from 30 wins in a row', async () => {
+      mockStats.maxWordleStreak = mock(() => Promise.resolve(30))
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+
+      const state = await service.getCustomization('user-3')
+
+      expect(state.unlockedAvatarFrameIds).toEqual(['wordle-streak'])
+    })
+
+    it('does not open the streak frame below the threshold', async () => {
+      mockStats.maxWordleStreak = mock(() => Promise.resolve(29))
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+
+      const state = await service.getCustomization('user-3')
+
+      expect(state.unlockedAvatarFrameIds).toEqual([])
+    })
+
+    it('opens the ratings frame only above 100 ratings', async () => {
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+
+      mockStats.countRatings = mock(() => Promise.resolve(100))
+      expect((await service.getCustomization('user-3')).unlockedAvatarFrameIds).toEqual([])
+
+      mockStats.countRatings = mock(() => Promise.resolve(101))
+      expect((await service.getCustomization('user-3')).unlockedAvatarFrameIds).toEqual([
+        'ratings-100',
+      ])
+    })
+
+    it('persists newly earned frames and keeps the ones already unlocked', async () => {
+      mockStats.countRatings = mock(() => Promise.resolve(150))
+      const update = mock(() => Promise.resolve(user)) as any
+      mockRepo.findById = mock(() =>
+        Promise.resolve({ ...user, unlockedAvatarFrameIds: ['wordle-streak'] }),
+      ) as any
+      mockRepo.update = update
+
+      const state = await service.getCustomization('user-3')
+
+      expect(state.unlockedAvatarFrameIds).toEqual(['wordle-streak', 'ratings-100'])
+      expect(update).toHaveBeenCalledWith('user-3', {
+        unlockedAvatarFrameIds: ['wordle-streak', 'ratings-100'],
+      })
+    })
+
+    it('keeps a frame unlocked after the condition no longer holds', async () => {
+      mockStats.maxWordleStreak = mock(() => Promise.resolve(0))
+      mockRepo.findById = mock(() =>
+        Promise.resolve({ ...user, unlockedAvatarFrameIds: ['wordle-streak'] }),
+      ) as any
+
+      const state = await service.getCustomization('user-3')
+
+      expect(state.unlockedAvatarFrameIds).toEqual(['wordle-streak'])
+      expect(mockRepo.update).not.toHaveBeenCalled()
+    })
+
+    it('selects an unlocked frame and emits an update', async () => {
       const updatedUser: UserDomain = {
         ...user,
-        avatarFrameId: 'neon',
+        avatarFrameId: 'admin',
         activeBadgeId: 'wordle-ace',
+        unlockedAvatarFrameIds: ['admin'],
       }
       const update = mock(() => Promise.resolve(updatedUser)) as any
-      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+      mockRepo.findById = mock(() => Promise.resolve({ ...user, role: UserRole.ADMIN })) as any
       mockRepo.update = update
 
       const result = await service.updateCustomization('user-3', {
-        avatarFrameId: 'neon',
+        avatarFrameId: 'admin',
         activeBadgeId: 'wordle-ace',
       })
 
       expect(update).toHaveBeenCalledWith('user-3', {
-        avatarFrameId: 'neon',
+        avatarFrameId: 'admin',
         activeBadgeId: 'wordle-ace',
       })
       expect(result).toEqual(updatedUser)
@@ -388,8 +479,23 @@ describe('UserService', () => {
       })
     })
 
-    it('resets the cosmetics with null', async () => {
-      const current: UserDomain = { ...user, avatarFrameId: 'gold', activeBadgeId: 'cinema-buff' }
+    it('rejects a frame that is not unlocked yet', async () => {
+      mockRepo.findById = mock(() => Promise.resolve(user)) as any
+
+      await expect(
+        service.updateCustomization('user-3', { avatarFrameId: 'wordle-streak' }),
+      ).rejects.toThrow(ForbiddenException)
+      expect(mockRepo.update).not.toHaveBeenCalled()
+    })
+
+    it('resets the frame and the badge with null', async () => {
+      const current: UserDomain = {
+        ...user,
+        avatarFrameId: 'admin',
+        activeBadgeId: 'cinema-buff',
+        role: UserRole.ADMIN,
+        unlockedAvatarFrameIds: ['admin'],
+      }
       const update = mock(() => Promise.resolve(user)) as any
       mockRepo.findById = mock(() => Promise.resolve(current)) as any
       mockRepo.update = update
@@ -406,7 +512,7 @@ describe('UserService', () => {
       mockRepo.findById = mock(() => Promise.resolve(null)) as any
 
       await expect(
-        service.updateCustomization('missing', { avatarFrameId: 'gold' }),
+        service.updateCustomization('missing', { avatarFrameId: 'admin' }),
       ).rejects.toThrow(NotFoundException)
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
@@ -422,6 +528,7 @@ describe('UserService', () => {
       hasCustomAvatar: false,
       avatarFrameId: null,
       activeBadgeId: null,
+      unlockedAvatarFrameIds: [],
       createdAt: '2024-01-01',
     }
 
@@ -472,6 +579,7 @@ describe('UserService', () => {
       hasCustomAvatar: false,
       avatarFrameId: null,
       activeBadgeId: null,
+      unlockedAvatarFrameIds: [],
       createdAt: '2024-01-01',
     }
     const sourceUser: UserDomain = {

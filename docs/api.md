@@ -58,17 +58,18 @@ Elysia через Eden (`import type { App }`). Этот файл — справ
 
 ## Сессия и аккаунт
 
-| Метод    | Путь                       | Доступ | Лимит  | Описание                                         |
-| -------- | -------------------------- | ------ | ------ | ------------------------------------------------ |
-| `GET`    | `/auth/me`                 | user   | public | текущий пользователь                             |
-| `PATCH`  | `/auth/me`                 | user   | write  | смена ника                                       |
-| `DELETE` | `/auth/me`                 | user   | write  | удаление аккаунта                                |
-| `POST`   | `/auth/logout`             | public | auth   | снять cookie `token`                             |
-| `GET`    | `/auth/accounts`           | user   | public | привязанные провайдеры                           |
-| `DELETE` | `/auth/accounts/:platform` | user   | write  | отвязать `TWITCH` / `KICK` / `TELEGRAM`          |
-| `POST`   | `/auth/me/avatar`          | user   | write  | загрузка аватара (multipart, до 5 МиБ)           |
-| `DELETE` | `/auth/me/avatar`          | user   | write  | сброс на дефолтный аватар                        |
-| `PATCH`  | `/auth/me/customization`   | user   | write  | рамка аватара и бейдж (каталог `@gmdb/contract`) |
+| Метод    | Путь                       | Доступ | Лимит  | Описание                                |
+| -------- | -------------------------- | ------ | ------ | --------------------------------------- |
+| `GET`    | `/auth/me`                 | user   | public | текущий пользователь                    |
+| `PATCH`  | `/auth/me`                 | user   | write  | смена ника                              |
+| `DELETE` | `/auth/me`                 | user   | write  | удаление аккаунта                       |
+| `POST`   | `/auth/logout`             | public | auth   | снять cookie `token`                    |
+| `GET`    | `/auth/accounts`           | user   | public | привязанные провайдеры                  |
+| `DELETE` | `/auth/accounts/:platform` | user   | write  | отвязать `TWITCH` / `KICK` / `TELEGRAM` |
+| `POST`   | `/auth/me/avatar`          | user   | write  | загрузка аватара (multipart, до 5 МиБ)  |
+| `DELETE` | `/auth/me/avatar`          | user   | write  | сброс на дефолтный аватар               |
+| `GET`    | `/auth/me/customization`   | user   | public | выбор и открытые рамки-чекпоинты        |
+| `PATCH`  | `/auth/me/customization`   | user   | write  | рамка (только открытая) и бейдж         |
 
 ## OAuth
 

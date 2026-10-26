@@ -1,21 +1,48 @@
 /**
- * Каталог косметики профиля: рамки аватара и бейджи.
+ * Каталог косметики профиля: рамки аватара (чекпоинты) и бейджи.
  *
- * Единственный источник правды и для валидации на бэкенде, и для рендера на
- * фронте — расхождение физически невозможно. В БД лежит только выбранный `id`
- * (`users.avatarFrameId`, `users.activeBadgeId`), сам вид рисует фронт:
- * неизвестный или устаревший id = «без косметики», без падения.
+ * Единственный источник правды и для проверок на бэкенде, и для рендера на
+ * фронте — расхождение невозможно. В БД лежит только выбранный `id`
+ * (`users.avatarFrameId`, `users.activeBadgeId`) и список открытых рамок
+ * (`users.unlockedAvatarFrameIds`); вид рисует фронт: неизвестный или
+ * устаревший id = «без косметики», без падения.
+ *
+ * Рамки — не свободная косметика, а чекпоинты: условие достаточно выполнить
+ * один раз, после этого рамка открыта навсегда и между открытыми можно
+ * переключаться. Пороги условий живут здесь же, чтобы текст требования и
+ * проверка на бэкенде не разъехались.
  *
  * Здесь только метаданные: как выглядит рамка, решает фронт
  * (`frontend/src/lib/user-customization.ts`). Никаких зависимостей — файл
  * попадает и в бандл фронта, и в Bun-бэкенд.
  */
 
+export const AVATAR_FRAME_RULES = {
+  /** Максимальная серия побед в Wordle. */
+  wordleStreak: 30,
+  /** Количество поставленных оценок: «больше», то есть строго больше порога. */
+  ratings: 100,
+} as const
+
 export const AVATAR_FRAMES = [
-  { id: 'gold', title: 'Золотая', description: 'Тёплая обводка' },
-  { id: 'neon', title: 'Неон', description: 'Светящийся контур' },
-  { id: 'frost', title: 'Иней', description: 'Холодный голубой градиент' },
-  { id: 'ember', title: 'Угли', description: 'Оранжевое свечение' },
+  {
+    id: 'admin',
+    title: 'Админ',
+    description: 'Красное кольцо',
+    requirement: 'Роль администратора',
+  },
+  {
+    id: 'wordle-streak',
+    title: 'Серия',
+    description: 'Золотое кольцо',
+    requirement: `Серия побед в Wordle ${AVATAR_FRAME_RULES.wordleStreak}+`,
+  },
+  {
+    id: 'ratings-100',
+    title: 'Сотня',
+    description: 'Зелёное кольцо',
+    requirement: `Больше ${AVATAR_FRAME_RULES.ratings} оценок`,
+  },
 ] as const
 
 export const USER_BADGES = [
@@ -31,6 +58,8 @@ export interface AvatarFrame {
   id: AvatarFrameId
   title: string
   description: string
+  /** Как получить рамку — показываем на заблокированной карточке. */
+  requirement: string
 }
 
 export interface UserBadge {

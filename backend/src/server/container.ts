@@ -28,6 +28,7 @@ import { TelegramUpdateHandler } from '@backend/modules/telegram/telegram-update
 import { TelegramService } from '@backend/modules/telegram/telegram.service'
 import { TwirService } from '@backend/modules/twir/twir.service'
 import { TwitchService } from '@backend/modules/twitch/twitch.service'
+import { DrizzleCustomizationStatsRepository } from '@backend/modules/user/repositories/drizzle-customization-stats.repository'
 import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
 import { UserService } from '@backend/modules/user/user.service'
 import { WeatherService } from '@backend/modules/weather/weather.service'
@@ -77,7 +78,12 @@ export function createContainer(): Container {
   const s3 = new S3Service()
 
   const avatars = new AvatarService(s3)
-  const users = new UserService(new DrizzleUserRepository(drizzle), events, avatars)
+  const users = new UserService(
+    new DrizzleUserRepository(drizzle),
+    events,
+    avatars,
+    new DrizzleCustomizationStatsRepository(drizzle),
+  )
   const likes = new LikeService(new DrizzleLikeRepository(drizzle), events)
   const stats = new StatsService(new DrizzleStatsRepository(drizzle))
   const queue = new QueueService(new DrizzleQueueRepository(drizzle))

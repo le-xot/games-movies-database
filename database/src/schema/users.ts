@@ -17,6 +17,8 @@ export const users = pgTable(
     // `null` = без рамки / без бейджа.
     avatarFrameId: text('avatarFrameId'),
     activeBadgeId: text('activeBadgeId'),
+    // Открытые рамки-чекпоинты: условие достаточно выполнить один раз.
+    unlockedAvatarFrameIds: text('unlockedAvatarFrameIds').array().notNull().default([]),
   },
   (table) => [uniqueIndex('users_id_key').on(table.id), index('users_login_idx').on(table.login)],
 )

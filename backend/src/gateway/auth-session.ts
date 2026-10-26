@@ -17,9 +17,18 @@ import type { AccountPlatform } from '@gmdb/contract'
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024
 
+const avatarFrameIdSchema = t.Nullable(t.String())
+
 export const authSessionModels = {
   UpdateNicknameDTO: t.Object({
     login: t.String({ minLength: 2, maxLength: 32 }),
+  }),
+  // Что выбрано и что уже открыто: заблокированные рамки фронт показывает
+  // с замком, поэтому список открытых едет вместе с выбором.
+  CustomizationEntity: t.Object({
+    avatarFrameId: avatarFrameIdSchema,
+    activeBadgeId: t.Nullable(t.String()),
+    unlockedAvatarFrameIds: t.Array(t.String()),
   }),
   // Отсутствие поля — «не менять», `null` — «сбросить». Id проверяются по
   // каталогу `@gmdb/contract` уже в роуте: `string` ещё ничего не гарантирует.
@@ -34,10 +43,13 @@ export interface CustomizationUpdateInput {
   activeBadgeId?: string | null | undefined
 }
 
+export type GatewayCustomization = typeof authSessionModels.CustomizationEntity.static
+
 export interface AuthSessionPort {
   getAccounts(userId: string): Promise<UserAccount[]>
   unlinkAccount(userId: string, platform: AccountPlatform): Promise<void>
   updateLogin(userId: string, login: string): Promise<GatewayUser>
+  getCustomization(userId: string): Promise<GatewayCustomization>
   updateCustomization(userId: string, data: CustomizationUpdateInput): Promise<GatewayUser>
   deleteUser(userId: string): Promise<void>
   uploadAvatar(userId: string, buffer: Buffer): Promise<GatewayUser>
@@ -123,6 +135,21 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
         body: 'UpdateNicknameDTO' as const,
         response: {
           200: 'UserEntity' as const,
+          ...standardErrors(),
+        },
+      },
+    )
+    .get(
+      '/auth/me/customization',
+      async (ctx) => {
+        await limit(ctx, 'AuthController.getCustomization', RATE_LIMITS.public)
+        const user = await requireSession(ctx.request)
+
+        return await authSession.getCustomization(user.id)
+      },
+      {
+        response: {
+          200: 'CustomizationEntity' as const,
           ...standardErrors(),
         },
       },

@@ -1,5 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
+import { ForbiddenException } from '@backend/utils/errors'
 import type { GatewayUser } from '@backend/gateway/auth'
 import type { AuthSessionPort } from '@backend/gateway/auth-session'
 
@@ -20,6 +21,11 @@ function sessionStub(overrides: Partial<AuthSessionPort> = {}): AuthSessionPort 
     getAccounts: mock(async () => []),
     unlinkAccount: mock(async () => {}),
     updateLogin: mock(async () => USER),
+    getCustomization: mock(async () => ({
+      avatarFrameId: null,
+      activeBadgeId: null,
+      unlockedAvatarFrameIds: [],
+    })),
     updateCustomization: mock(async () => USER),
     deleteUser: mock(async () => {}),
     uploadAvatar: mock(async () => USER),
@@ -158,16 +164,45 @@ describe('auth session', () => {
       )
     }
 
+    it('returns the selected and unlocked cosmetics', async () => {
+      const { gateway, authSession } = build({
+        user: USER,
+        session: sessionStub({
+          getCustomization: mock(async () => ({
+            avatarFrameId: 'admin',
+            activeBadgeId: 'cinema-buff',
+            unlockedAvatarFrameIds: ['admin'],
+          })),
+        }),
+      })
+
+      const response = await gateway.handle(request('/auth/me/customization'))
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({
+        avatarFrameId: 'admin',
+        activeBadgeId: 'cinema-buff',
+        unlockedAvatarFrameIds: ['admin'],
+      })
+      expect(authSession.getCustomization).toHaveBeenCalledWith(USER.id)
+    })
+
+    it('requires a session for the customization state', async () => {
+      const response = await build().gateway.handle(request('/auth/me/customization', {}, false))
+
+      expect(response.status).toBe(401)
+    })
+
     it('saves a frame and a badge from the catalog', async () => {
       const { gateway, authSession } = build({ user: USER })
 
       const response = await gateway.handle(
-        patchCustomization({ avatarFrameId: 'gold', activeBadgeId: 'cinema-buff' }),
+        patchCustomization({ avatarFrameId: 'admin', activeBadgeId: 'cinema-buff' }),
       )
 
       expect(response.status).toBe(200)
       expect(authSession.updateCustomization).toHaveBeenCalledWith(USER.id, {
-        avatarFrameId: 'gold',
+        avatarFrameId: 'admin',
         activeBadgeId: 'cinema-buff',
       })
     })
@@ -216,10 +251,25 @@ describe('auth session', () => {
       expect(authSession.updateCustomization).not.toHaveBeenCalled()
     })
 
+    it('answers 403 when the frame is not unlocked yet', async () => {
+      const { gateway } = build({
+        user: USER,
+        session: sessionStub({
+          updateCustomization: mock(async () => {
+            throw new ForbiddenException('Рамка ещё не открыта')
+          }),
+        }),
+      })
+
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'wordle-streak' }))
+
+      expect(response.status).toBe(403)
+    })
+
     it('requires a session', async () => {
       const { gateway, authSession } = build()
 
-      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'gold' }, false))
+      const response = await gateway.handle(patchCustomization({ avatarFrameId: 'admin' }, false))
 
       expect(response.status).toBe(401)
       expect(authSession.updateCustomization).not.toHaveBeenCalled()

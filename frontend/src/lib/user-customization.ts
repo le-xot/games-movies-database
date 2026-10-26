@@ -1,4 +1,4 @@
-import { AVATAR_FRAMES, USER_BADGES, findAvatarFrame, findUserBadge } from '@gmdb/contract'
+import { findAvatarFrame, findUserBadge } from '@gmdb/contract'
 import { Film, Moon, Trophy } from '@lucide/vue'
 import type { AvatarFrameId, UserBadgeId } from '@gmdb/contract'
 import type { Component } from 'vue'
@@ -16,6 +16,8 @@ export interface ResolvedFrame {
   id: AvatarFrameId
   title: string
   description: string
+  /** Как открыть рамку — показываем на заблокированной карточке. */
+  requirement: string
   /** Градиент кольца: обёртка аватара с отступом. */
   ringClassName: string
   /** Внешнее свечение под кольцом. */
@@ -35,21 +37,17 @@ interface FrameStyle {
 }
 
 const FRAME_STYLES: Record<AvatarFrameId, FrameStyle> = {
-  gold: {
+  admin: {
+    ring: 'bg-[conic-gradient(from_210deg,#f87171,#b91c1c,#f87171,#991b1b,#f87171)]',
+    glow: 'shadow-[0_0_12px_rgba(248,113,113,0.5)]',
+  },
+  'wordle-streak': {
     ring: 'bg-[conic-gradient(from_140deg,#f8e08e,#c98a2b,#f8e08e,#b9721f,#f8e08e)]',
-    glow: 'shadow-[0_0_10px_rgba(248,224,142,0.45)]',
+    glow: 'shadow-[0_0_12px_rgba(248,224,142,0.45)]',
   },
-  neon: {
-    ring: 'bg-[conic-gradient(from_90deg,#22d3ee,#a855f7,#22d3ee)]',
-    glow: 'shadow-[0_0_12px_rgba(34,211,238,0.55)]',
-  },
-  frost: {
-    ring: 'bg-[conic-gradient(from_220deg,#bae6fd,#e0f2fe,#7dd3fc,#bae6fd)]',
-    glow: 'shadow-[0_0_10px_rgba(125,211,252,0.5)]',
-  },
-  ember: {
-    ring: 'bg-[conic-gradient(from_200deg,#fb923c,#ef4444,#fbbf24,#fb923c)]',
-    glow: 'shadow-[0_0_12px_rgba(251,146,60,0.5)]',
+  'ratings-100': {
+    ring: 'bg-[conic-gradient(from_20deg,#86efac,#15803d,#86efac,#166534,#86efac)]',
+    glow: 'shadow-[0_0_12px_rgba(134,239,172,0.45)]',
   },
 }
 
@@ -68,6 +66,7 @@ export function resolveFrame(id: string | null | undefined): ResolvedFrame | nul
     id: frame.id,
     title: frame.title,
     description: frame.description,
+    requirement: frame.requirement,
     ringClassName: style.ring,
     glowClassName: style.glow,
   }
@@ -84,7 +83,3 @@ export function resolveBadge(id: string | null | undefined): ResolvedBadge | nul
     icon: BADGE_ICONS[badge.id],
   }
 }
-
-/** Варианты для выбора в аккаунт-диалоге — в порядке каталога. */
-export const FRAME_OPTIONS: readonly string[] = AVATAR_FRAMES.map((frame) => frame.id)
-export const BADGE_OPTIONS: readonly string[] = USER_BADGES.map((badge) => badge.id)

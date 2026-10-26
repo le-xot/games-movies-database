@@ -10,9 +10,9 @@ import type { HTMLAttributes } from 'vue'
  * Аватар пользователя вместе с косметической рамкой.
  *
  * `Avatar` из `components/ui` намеренно остаётся нейтральной shadcn-обёрткой:
- * рамка живёт здесь слоем снаружи, поэтому работает в любом размере и не
+ * рамка живёт здесь бордером на обёртке, поэтому работает в любом размере и не
  * трогает сам примитив. Размер задаётся классом (`size-10`, `size-16`, …) —
- * от него же зависит толщина кольца, чтобы 16-пиксельному аватару не досталось
+ * от него же зависит толщина кольца, чтобы маленькому аватару не досталось
  * кольцо шире самого аватара.
  */
 const props = withDefaults(
@@ -40,13 +40,13 @@ const frame = computed(() => resolveFrame(props.frameId))
 
 const frameShape = computed(() => (props.shape === 'square' ? 'rounded-md' : 'rounded-full'))
 
-const ringPadding = computed(() => {
+const ringWidth = computed(() => {
   const match = /(?:^|\s)size-(\d+(?:\.\d+)?)/.exec(props.size)
   const px = match ? Number(match[1]) * 4 : 40
 
-  if (px >= 48) return 'p-[3px]'
-  if (px >= 32) return 'p-0.5'
-  return 'p-[1.5px]'
+  if (px >= 48) return 'border-[3px]'
+  if (px >= 28) return 'border-2'
+  return 'border'
 })
 
 const initial = computed(() => props.login.charAt(0).toUpperCase())
@@ -60,7 +60,7 @@ const initial = computed(() => props.login.charAt(0).toUpperCase())
         'relative inline-flex shrink-0',
         size,
         frameShape,
-        frame && [frame.ringClassName, ringPadding],
+        frame && [frame.ringClassName, ringWidth],
         props.class,
       )
     "

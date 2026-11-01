@@ -1,6 +1,5 @@
 import {
   parseWsMessage,
-  WsEvents,
   type ClientToServerEvents,
   type ServerToClientEvents,
   type WsMessage,
@@ -8,16 +7,18 @@ import {
 import { useQueryCache } from '@pinia/colada'
 import { onMounted, onUnmounted, ref } from 'vue'
 import {
+  FRIENDS_QUERY_KEY,
   RECORDS_QUERY_KEYS,
   STATS_QUERY_KEY,
   SUGGESTION_QUERY_KEY,
+  USER_RATINGS_QUERY_KEY,
   WORDLE_LEADERBOARD_KEY,
 } from '@/composables/query-keys'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
 import {
-  RECORD_GENRES,
   createConnectTracker,
   enqueueResync,
+  invalidationKeysFor,
   type CoalescerKey,
 } from '@/composables/websocket-resync'
 import { RecordGenre } from '@/lib/api'
@@ -43,6 +44,8 @@ export function useWebSocket() {
       stats: () => queryCache.invalidateQueries({ key: [STATS_QUERY_KEY] }),
       user: () => userStore.refetchUser(),
       wordle: () => queryCache.invalidateQueries({ key: [WORDLE_LEADERBOARD_KEY] }),
+      friends: () => queryCache.invalidateQueries({ key: [FRIENDS_QUERY_KEY] }),
+      'user-ratings': () => queryCache.invalidateQueries({ key: [USER_RATINGS_QUERY_KEY] }),
       'records:ANIME': () =>
         queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.ANIME]] }),
       'records:CARTOON': () =>
@@ -78,36 +81,7 @@ export function useWebSocket() {
   }
 
   function handleMessage(message: WsMessage) {
-    switch (message.event) {
-      case WsEvents.UPDATE_RECORDS: {
-        coalescer.enqueue('stats')
-        const genre = (message.payload as { genre?: RecordGenre } | undefined)?.genre
-        if (genre) {
-          coalescer.enqueue(`records:${genre}`)
-        } else {
-          for (const item of RECORD_GENRES) coalescer.enqueue(`records:${item}`)
-        }
-        break
-      }
-      case WsEvents.UPDATE_LIKES:
-      case WsEvents.UPDATE_SUGGESTIONS:
-        coalescer.enqueue('suggestions')
-        break
-      case WsEvents.UPDATE_RATINGS:
-        for (const genre of RECORD_GENRES) coalescer.enqueue(`records:${genre}`)
-        break
-      case WsEvents.UPDATE_QUEUE:
-        coalescer.enqueue('suggestions')
-        coalescer.enqueue('stats')
-        break
-      case WsEvents.UPDATE_USERS:
-        coalescer.enqueue('user')
-        coalescer.enqueue('wordle')
-        break
-      case WsEvents.UPDATE_WORDLE:
-        coalescer.enqueue('wordle')
-        break
-    }
+    for (const key of invalidationKeysFor(message)) coalescer.enqueue(key)
   }
 
   function connect() {

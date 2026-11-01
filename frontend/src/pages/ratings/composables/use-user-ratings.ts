@@ -3,6 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { USER_RATINGS_QUERY_KEY } from '@/composables/query-keys'
 import { unwrap } from '@/lib/api'
 import { assertOk } from '@/lib/api'
 import { getNextRatingsPageParam } from '@/pages/ratings/composables/user-ratings-pagination'
@@ -34,7 +35,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
     hasNextPage,
     loadNextPage: loadNextPageRaw,
   } = useInfiniteQuery<GetUserRatingsEntity, Error, number>(() => ({
-    key: ['user-ratings', profileUserId.value, gradeFilter.value],
+    key: [USER_RATINGS_QUERY_KEY, profileUserId.value, gradeFilter.value],
     initialPageParam: 1,
     query: async ({ pageParam }) => {
       error.value = null

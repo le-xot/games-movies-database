@@ -1,7 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { AccountPlatform, WordleGameStatus } from '@backend/enums'
 import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
-import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
 import { UserService } from '@backend/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import {
@@ -38,6 +37,13 @@ export const DEDUP_TTL_SECONDS = 259_200
 export const DEDUP_KEY_PREFIX = 'wordle:notify'
 export const LINK_KEY_PREFIX = 'wordle:notify:link'
 export const LINK_TTL_SECONDS = 600
+/**
+ * Префикс deep-link payload: `/start wordle_<token>`.
+ *
+ * Payload из `t.me/<bot>?start=...` непрозрачен, поэтому каждая фича метит
+ * свои ссылки — иначе два обработчика `/start` будут драться за один payload.
+ */
+export const START_PAYLOAD_PREFIX = 'wordle_'
 
 export interface WordleNotificationConfig {
   appPublicUrl: string
@@ -60,7 +66,6 @@ export class WordleNotificationService {
 
   constructor(
     private readonly telegram: TelegramBotService,
-    registry: TelegramCommandRegistry,
     private readonly notifications: DrizzleWordleNotificationRepository,
     private readonly users: UserService,
     private readonly redis: RedisClient,
@@ -70,17 +75,13 @@ export class WordleNotificationService {
     this.slots = resolveSlots(config.morningRaw, config.eveningRaw, (message) =>
       this.logger.warn(message),
     )
-    registry.register({
-      name: 'wordle',
-      description: 'Включить напоминания про Вордли',
-      handler: (context) => this.handleSubscribe(context),
-    })
-    registry.register({
-      name: 'wordle_off',
-      description: 'Выключить напоминания про Вордли',
-      handler: (context) => this.handleUnsubscribe(context.chatId),
-    })
-    registry.registerStartPayload((context) => this.handleStartToken(context))
+    telegram.registerCommand('wordle', 'Включить напоминания про Вордли', (context) =>
+      this.handleSubscribe(context),
+    )
+    telegram.registerCommand('wordle_off', 'Выключить напоминания про Вордли', (context) =>
+      this.handleUnsubscribe(context.chatId),
+    )
+    telegram.registerStartHandler((context) => this.handleStartToken(context))
   }
 
   async runSlot(slot: SlotName, now: Date = new Date()): Promise<void> {
@@ -264,7 +265,7 @@ export class WordleNotificationService {
       this.logger.warn(`Redis недоступен при создании ссылки: ${String(error)}`)
       throw new ServiceUnavailableException('Не удалось создать ссылку, попробуйте позже')
     }
-    return { url: `https://t.me/${username}?start=${token}` }
+    return { url: `https://t.me/${username}?start=${START_PAYLOAD_PREFIX}${token}` }
   }
 
   async getStatus(userId: string): Promise<WordleNotificationsStatusDTO> {
@@ -310,18 +311,22 @@ export class WordleNotificationService {
     await this.bind(context, user.id)
   }
 
-  private async handleStartToken(context: TelegramCommandContext): Promise<void> {
-    if (!context.payload) return
-    const userId = await this.consumeLinkToken(context.payload)
+  private async handleStartToken(context: TelegramCommandContext): Promise<boolean> {
+    const payload = context.payload
+    if (!payload?.startsWith(START_PAYLOAD_PREFIX)) return false
+
+    const userId = await this.consumeLinkToken(payload.slice(START_PAYLOAD_PREFIX.length))
     const user = userId ? await this.users.getUserById(userId) : null
     if (!user) {
       await this.telegram.sendMessage(
         context.chatId,
         'Ссылка устарела — сгенерируй новую в настройках аккаунта.',
       )
-      return
+      return true
     }
+
     await this.bind(context, user.id)
+    return true
   }
 
   private async bind(context: TelegramCommandContext, userId: string): Promise<void> {

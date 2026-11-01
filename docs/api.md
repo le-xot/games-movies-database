@@ -169,7 +169,8 @@ OAuth-callback'и провайдеров (`TWITCH_CALLBACK_URL`, `KICK_CALLBACK_
 
 > Входящий вебхук бота (`TELEGRAM_BOT_WEBHOOK_URL`) принимает `POST /telegram/webhook`:
 > секрет приходит в заголовке `x-telegram-bot-api-secret-token`, при незаданном секрете
-> роут закрыт (401). См. `backend/src/gateway/telegram.ts`.
+> роут закрыт (401). Разбор апдейтов — grammY (`TelegramBotService.handleUpdate`),
+> бот слушает `message` и `callback_query`. См. `backend/src/gateway/telegram.ts`.
 
 ## Медиа и TWIR
 

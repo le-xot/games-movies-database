@@ -59,7 +59,7 @@ Nest здесь больше нет: модуль — это папка с се�
   - `TwirService` -> `UserService`, `SuggestionService`
   - `AvatarService` -> `S3Service`; `UserService` -> `AvatarService`
   - `ImgService` -> `S3Service`
-  - `WordleNotificationService` -> `TelegramBotService`, `TelegramCommandRegistry`, репозитории, `UserService`, Redis
+  - `WordleNotificationService` -> `TelegramBotService`, репозитории, `UserService`, Redis; команды и deep-link регистрирует через бот
   - `TelegramService` -> `oauth.telegram.org` (OpenID Connect, outbound)
 
 ## ANTI-PATTERNS

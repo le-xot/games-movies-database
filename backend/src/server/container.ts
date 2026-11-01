@@ -126,9 +126,11 @@ export function createContainer(): Container {
   const kick = new KickService()
   const authService = new AuthService(env.JWT_SECRET, users, twitch, kick)
   const telegramBot = new TelegramBotService({
-    token: env.TELEGRAM_BOT_TOKEN ?? null,
-    webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL ?? null,
-    webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET ?? null,
+    // Пустая строка из `.env.example` — это «не задано»: grammY не создаёт Bot
+    // с пустым токеном, а падать на старте из-за этого приложение не должно.
+    token: env.TELEGRAM_BOT_TOKEN || null,
+    webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL || null,
+    webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET || null,
   })
   const wordleNotifications = new WordleNotificationService(
     telegramBot,

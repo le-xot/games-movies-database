@@ -178,6 +178,20 @@ describe('TelegramBotService', () => {
     expect(service.getWebhookSecret()).toBeNull()
   })
 
+  it('survives an empty token from .env.example', async () => {
+    service = new TelegramBotService({
+      token: '',
+      webhookUrl: '',
+      webhookSecret: '',
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    expect(service.isConfigured()).toBe(false)
+    expect(service.getWebhookSecret()).toBeNull()
+    await expect(service.handleUpdate({ update_id: 1 })).resolves.toBeUndefined()
+    expect(fetchMock.mock.calls.length).toBe(0)
+  })
+
   it('skips a command Telegram would reject', () => {
     service.registerCommand('Wordle', 'Верхний регистр', () => {})
     service.registerCommand('wordle', '', () => {})

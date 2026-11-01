@@ -1,7 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { Logger } from '@backend/utils/logger'
 import { CommandGroup } from '@grammyjs/commands'
-import { Bot, type CommandContext, type Context } from 'grammy'
+import { Bot, BotError, type CommandContext, type Context } from 'grammy'
 import type {
   TelegramCommandContext,
   TelegramCommandHandler,
@@ -13,8 +13,13 @@ import type { Update, UserFromGetMe } from 'grammy/types'
 export const TELEGRAM_HELP_HEADER = 'Вот что я умею:'
 
 const WEBHOOK_SECRET_PATTERN = /^[A-Za-z0-9_-]{1,256}$/
+/** Ограничения Bot API на команду: иначе `setMyCommands` отвергнет весь список. */
+const COMMAND_NAME_PATTERN = /^[a-z0-9_]{1,32}$/
+const MAX_COMMAND_DESCRIPTION_LENGTH = 256
 const SEND_ATTEMPTS = 2
 const RETRY_DELAY_MS = 1000
+const API_TIMEOUT_MS = 15_000
+const INIT_TIMEOUT_MS = 10_000
 
 /**
  * Заглушка токена для незаданного `TELEGRAM_BOT_TOKEN`.
@@ -25,11 +30,25 @@ const RETRY_DELAY_MS = 1000
  */
 const UNCONFIGURED_TOKEN = '0:unconfigured'
 
+/**
+ * grammY типизирует `signal` через `abort-controller`, но рантайм-то один:
+ * стандартный `AbortSignal` из Bun/Node он принимает как есть.
+ */
+type TelegramSignal = Parameters<Bot['api']['setWebhook']>[2]
+
+function apiSignal(timeoutMs: number): TelegramSignal {
+  return AbortSignal.timeout(timeoutMs) as TelegramSignal
+}
+
 export interface TelegramBotConfig {
   token: string | null
   webhookUrl: string | null
   webhookSecret: string | null
   retryDelayMs?: number
+  /** Таймаут одного вызова Bot API; по умолчанию 15 с. */
+  apiTimeoutMs?: number
+  /** Предел на `bot.init()` (он ретраит сетевые ошибки без счёта); по умолчанию 10 с. */
+  initTimeoutMs?: number
   /** Подмена транспорта: тесты и прокси. По умолчанию — fetch из grammY. */
   fetch?: typeof fetch
   /** Готовая информация о боте; в рантайме её подтягивает `bot.init()`. */
@@ -63,8 +82,10 @@ export function webhookSecretsMatch(header: string | undefined, expected: string
 export class TelegramBotService {
   private readonly logger = new Logger(TelegramBotService.name)
   private readonly bot: Bot
-  private readonly commands = new CommandGroup()
+  private readonly commands = new CommandGroup({ ignoreCase: true })
   private readonly startHandlers: TelegramStartHandler[] = []
+  private readonly registeredCommands = new Set<string>()
+  private initPromise: Promise<boolean> | null = null
   private botUsername: string | null = null
 
   constructor(private readonly config: TelegramBotConfig) {
@@ -80,10 +101,6 @@ export class TelegramBotService {
     privateChats.on('message:text', async (ctx) => {
       if (!ctx.message.text.startsWith('/')) return
       await this.sendHelp(String(ctx.chat.id))
-    })
-
-    this.bot.catch((error) => {
-      this.logger.warn(`Не удалось обработать апдейт Telegram: ${String(error)}`)
     })
 
     this.registerCommand('start', 'Показать приветствие и список команд', async (context) => {
@@ -103,7 +120,13 @@ export class TelegramBotService {
     )
   }
 
+  /**
+   * Секрет отдаётся только полностью настроенному боту: иначе вебхук
+   * подтверждал бы апдейты, которые некому обработать, и Telegram считал бы
+   * их доставленными. Без секрета роут отвечает 401, и доставка повторится.
+   */
   getWebhookSecret(): string | null {
+    if (!this.isConfigured()) return null
     return isValidWebhookSecret(this.config.webhookSecret) ? this.config.webhookSecret : null
   }
 
@@ -111,9 +134,24 @@ export class TelegramBotService {
    * Регистрирует команду в grammY и в меню бота.
    *
    * Имя и описание уходят в `setMyCommands`, поэтому команда сразу появляется
-   * в подсказках Telegram и в `/help`.
+   * в подсказках Telegram и в `/help`. Кривой дескриптор не роняет старт, но и
+   * не попадает в меню: Bot API отвергает весь список целиком.
    */
   registerCommand(name: string, description: string, handler: TelegramCommandHandler): void {
+    if (!COMMAND_NAME_PATTERN.test(name)) {
+      this.logger.warn(`Команда «${name}» не зарегистрирована: имя не подходит под Bot API`)
+      return
+    }
+    if (description.trim().length === 0 || description.length > MAX_COMMAND_DESCRIPTION_LENGTH) {
+      this.logger.warn(`Команда «${name}» не зарегистрирована: недопустимое описание`)
+      return
+    }
+    if (this.registeredCommands.has(name)) {
+      this.logger.warn(`Команда «${name}» уже зарегистрирована — повтор пропущен`)
+      return
+    }
+
+    this.registeredCommands.add(name)
     this.commands.command(name, description, async (ctx) => {
       await handler(this.toCommandContext(name, ctx))
     })
@@ -139,16 +177,9 @@ export class TelegramBotService {
   }
 
   async onModuleInit(): Promise<void> {
-    if (!this.isConfigured()) {
-      this.logger.log('Telegram-бот не настроен — вебхук не регистрируется')
+    if (!(await this.ensureInitialized())) {
+      this.logger.log('Telegram-бот не инициализирован — вебхук не регистрируется')
       return
-    }
-
-    try {
-      // Без init() у контекста нет `me`, и команда с суффиксом `@bot` падает.
-      await this.bot.init()
-    } catch (error) {
-      this.logger.warn(`Telegram init failed: ${String(error)}`)
     }
 
     await this.ensureWebhook()
@@ -163,27 +194,40 @@ export class TelegramBotService {
     try {
       // `commands.setCommands` шлёт в Bot API лишние поля (`hasHandler`),
       // поэтому меню собираем сами из тех же дескрипторов.
-      await this.bot.api.setMyCommands(this.menu())
+      await this.bot.api.setMyCommands(
+        this.menu(),
+        undefined,
+        apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
+      )
     } catch (error) {
-      this.logger.warn(`Telegram setMyCommands failed: ${String(error)}`)
+      this.logger.warn(`Telegram setMyCommands failed: ${this.describeError(error)}`)
     }
   }
 
+  /**
+   * Отправка сообщения. Токен — единственное, что нужно для исходящих:
+   * рассылка живёт отдельно от вебхука, поэтому `isConfigured()` здесь ни при чём.
+   */
   async sendMessage(chatId: string, text: string, button?: TelegramButton): Promise<boolean> {
     if (!this.config.token) return false
 
     for (let attempt = 1; attempt <= SEND_ATTEMPTS; attempt += 1) {
       try {
-        await this.bot.api.sendMessage(chatId, text, {
-          link_preview_options: { is_disabled: true },
-          ...(button
-            ? { reply_markup: { inline_keyboard: [[{ text: button.text, url: button.url }]] } }
-            : {}),
-        })
+        await this.bot.api.sendMessage(
+          chatId,
+          text,
+          {
+            link_preview_options: { is_disabled: true },
+            ...(button
+              ? { reply_markup: { inline_keyboard: [[{ text: button.text, url: button.url }]] } }
+              : {}),
+          },
+          apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
+        )
 
         return true
       } catch (error) {
-        this.logger.warn(`Telegram sendMessage failed: ${String(error)}`)
+        this.logger.warn(`Telegram sendMessage failed: ${this.describeError(error)}`)
 
         if (attempt < SEND_ATTEMPTS) {
           await new Promise((resolve) =>
@@ -204,10 +248,10 @@ export class TelegramBotService {
     }
 
     try {
-      const me = await this.bot.api.getMe()
+      const me = await this.bot.api.getMe(apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS))
       if (me.username) this.botUsername = me.username
     } catch (error) {
-      this.logger.warn(`Telegram getMe failed: ${String(error)}`)
+      this.logger.warn(`Telegram getMe failed: ${this.describeError(error)}`)
     }
 
     return this.botUsername
@@ -220,13 +264,17 @@ export class TelegramBotService {
     }
 
     try {
-      await this.bot.api.setWebhook(this.config.webhookUrl as string, {
-        secret_token: this.config.webhookSecret as string,
-        allowed_updates: ['message', 'callback_query'],
-      })
+      await this.bot.api.setWebhook(
+        this.config.webhookUrl as string,
+        {
+          secret_token: this.config.webhookSecret as string,
+          allowed_updates: ['message', 'callback_query'],
+        },
+        apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
+      )
       this.logger.log('Вебхук Telegram зарегистрирован')
     } catch (error) {
-      this.logger.warn(`Telegram setWebhook failed: ${String(error)}`)
+      this.logger.warn(`Telegram setWebhook failed: ${this.describeError(error)}`)
     }
   }
 
@@ -238,10 +286,44 @@ export class TelegramBotService {
    */
   async handleUpdate(update: unknown): Promise<void> {
     try {
+      // Первый апдейт после неудачного старта сам поднимет инициализацию:
+      // вебхук уже может быть зарегистрирован с прошлого запуска.
+      if (!this.bot.isInited() && this.isConfigured()) {
+        await this.ensureInitialized()
+      }
+
       await this.bot.handleUpdate(update as Update)
     } catch (error) {
-      this.logger.warn(`Не удалось обработать апдейт Telegram: ${String(error)}`)
+      this.logUpdateError(error)
     }
+  }
+
+  /**
+   * Инициализация бота (без неё grammY не разбирает апдейты — нет `me`).
+   *
+   * Ограничена таймаутом и дедуплицирована: grammY ретраит сетевые ошибки без
+   * предела попыток, а `container.init()` не должен ждать вечно — сайт обязан
+   * подняться даже без Telegram. Неудачная попытка не запоминается: следующий
+   * апдейт попробует снова.
+   */
+  private ensureInitialized(): Promise<boolean> {
+    if (this.bot.isInited()) return Promise.resolve(true)
+    if (!this.isConfigured()) return Promise.resolve(false)
+
+    if (!this.initPromise) {
+      this.initPromise = this.bot
+        .init(apiSignal(this.config.initTimeoutMs ?? INIT_TIMEOUT_MS))
+        .then(() => true)
+        .catch((error) => {
+          this.logger.warn(`Telegram init failed: ${this.describeError(error)}`)
+          return false
+        })
+        .finally(() => {
+          this.initPromise = null
+        })
+    }
+
+    return this.initPromise
   }
 
   private async runStartPayload(context: TelegramCommandContext): Promise<boolean> {
@@ -254,6 +336,21 @@ export class TelegramBotService {
 
   private async sendHelp(chatId: string): Promise<void> {
     await this.sendMessage(chatId, this.helpText())
+  }
+
+  private logUpdateError(error: unknown): void {
+    if (error instanceof BotError) {
+      this.logger.warn(
+        `Апдейт ${error.ctx.update.update_id} не обработан: ${this.describeError(error.error)}`,
+      )
+      return
+    }
+
+    this.logger.warn(`Не удалось обработать апдейт Telegram: ${this.describeError(error)}`)
+  }
+
+  private describeError(error: unknown): string {
+    return error instanceof Error ? `${error.name}: ${error.message}` : String(error)
   }
 
   private toCommandContext(name: string, ctx: CommandContext<Context>): TelegramCommandContext {

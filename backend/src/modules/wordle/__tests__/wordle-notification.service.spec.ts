@@ -90,6 +90,97 @@ function stubAudience(
   telegram.sendMessage = mock(options.send ?? (() => Promise.resolve(true)))
 }
 
+const BOT_INFO = {
+  id: 1,
+  is_bot: true,
+  first_name: 'Wordle',
+  username: 'wordle_bot',
+} as never
+
+function textUpdate(text: string) {
+  return {
+    update_id: 1,
+    message: {
+      message_id: 10,
+      date: 1_760_000_000,
+      text,
+      chat: { id: 42, type: 'private' },
+      from: { id: 7, is_bot: false, first_name: 'Иван' },
+    },
+  }
+}
+
+function createRoutedService() {
+  const telegram = new TelegramBotService({
+    token: '123:abc',
+    webhookUrl: 'https://example.test/api/telegram/webhook',
+    webhookSecret: 'secret_123',
+    botInfo: BOT_INFO,
+    fetch: (() => Promise.reject(new Error('сеть в тестах запрещена'))) as unknown as typeof fetch,
+  })
+  const sent: SentCall[] = []
+  telegram.sendMessage = mock(
+    async (chatId: string, text: string, button?: { text: string; url: string }) => {
+      sent.push(button ? [chatId, text, button] : [chatId, text])
+      return true
+    },
+  ) as unknown as TelegramBotService['sendMessage']
+
+  const notifications = createMock(DrizzleWordleNotificationRepository)
+  const users = createMock(UserService)
+  const redis = { send: mock(() => Promise.resolve('OK')) }
+  const service = new WordleNotificationService(
+    telegram,
+    notifications,
+    users,
+    redis as unknown as RedisClient,
+    CONFIG,
+  )
+
+  return { service, telegram, notifications, users, redis, sent }
+}
+
+describe('WordleNotificationService через настоящий роутинг бота', () => {
+  it('обрабатывает /wordle и привязывает чат по telegram id', async () => {
+    const { telegram, notifications, users } = createRoutedService()
+    users.getUserByPlatformId = mock(() => Promise.resolve({ id: 'user-9' } as never))
+
+    await telegram.handleUpdate(textUpdate('/wordle'))
+
+    expect(users.getUserByPlatformId).toHaveBeenCalledWith('TELEGRAM', '7')
+    expect(notifications.upsert).toHaveBeenCalledWith({
+      userId: 'user-9',
+      chatId: '42',
+      telegramUsername: null,
+    })
+  })
+
+  it('отписывает чат по /wordle_off', async () => {
+    const { telegram, notifications } = createRoutedService()
+    notifications.findByChatId = mock(() =>
+      Promise.resolve({ userId: 'user-1', chatId: '42' } as never),
+    )
+
+    await telegram.handleUpdate(textUpdate('/wordle_off'))
+
+    expect(notifications.deleteByChatId).toHaveBeenCalledWith('42')
+  })
+
+  it('проводит /start wordle_<token> до привязки', async () => {
+    const { telegram, notifications, users, redis } = createRoutedService()
+    redis.send = mock(() => Promise.resolve('user-1'))
+    users.getUserById = mock(() => Promise.resolve({ id: 'user-1' } as never))
+
+    await telegram.handleUpdate(textUpdate('/start wordle_token-1'))
+
+    expect(notifications.upsert).toHaveBeenCalledWith({
+      userId: 'user-1',
+      chatId: '42',
+      telegramUsername: null,
+    })
+  })
+})
+
 describe('WordleNotificationService.runSlot', () => {
   it('sends the morning text with the streak to winners without a finished game', async () => {
     const { service, notifications, telegram, redis } = createService()

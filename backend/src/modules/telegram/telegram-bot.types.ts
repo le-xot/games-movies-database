@@ -6,7 +6,7 @@
  */
 export interface TelegramCommandContext {
   command: string
-  /** Хвост команды: `/start wordle:token` → `wordle:token`. */
+  /** Хвост команды: `/start wordle_abc` → `wordle_abc`. */
   payload: string | null
   chatId: string
   fromId: string

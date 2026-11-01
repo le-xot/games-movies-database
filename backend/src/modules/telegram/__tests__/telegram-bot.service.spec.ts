@@ -11,6 +11,8 @@ const CONFIG: TelegramBotConfig = {
   webhookUrl: 'https://le-xot.dev/api/telegram/webhook',
   webhookSecret: 'secret_123',
   retryDelayMs: 1,
+  apiTimeoutMs: 200,
+  initTimeoutMs: 100,
 }
 
 function jsonResponse(data: unknown, status = 200): Response {
@@ -107,6 +109,82 @@ describe('TelegramBotService', () => {
           allowed_updates: ['message', 'callback_query'],
         },
       },
+    ])
+  })
+
+  it('initializes the bot and registers the webhook on startup', async () => {
+    fetchMock = mock(() => Promise.resolve(jsonResponse({ ok: true, result: { id: 1 } })))
+    service = new TelegramBotService({ ...CONFIG, fetch: fetchMock as unknown as typeof fetch })
+
+    await service.onModuleInit()
+
+    expect(calls().map(({ url }) => url)).toEqual([
+      'https://api.telegram.org/bot123:abc/getMe',
+      'https://api.telegram.org/bot123:abc/setWebhook',
+    ])
+  })
+
+  it('survives a failed init and registers no webhook', async () => {
+    fetchMock = mock(() => Promise.reject(new Error('телеграм недоступен')))
+    service = new TelegramBotService({ ...CONFIG, fetch: fetchMock as unknown as typeof fetch })
+
+    await expect(service.onModuleInit()).resolves.toBeUndefined()
+
+    const urls = calls().map(({ url }) => url)
+    expect(urls.length).toBeGreaterThan(0)
+    expect(urls).not.toContain('https://api.telegram.org/bot123:abc/setWebhook')
+  })
+
+  it('keeps the update handler alive after a failed init', async () => {
+    let failInit = true
+    fetchMock = mock((url: string) => {
+      if (failInit && String(url).endsWith('/getMe')) {
+        return Promise.reject(new Error('телеграм недоступен'))
+      }
+      return Promise.resolve(jsonResponse({ ok: true, result: { id: 1, username: 'wordle_bot' } }))
+    })
+    service = new TelegramBotService({ ...CONFIG, fetch: fetchMock as unknown as typeof fetch })
+    service.sendMessage = mock(() => Promise.resolve(true)) as never
+
+    await service.onModuleInit()
+    failInit = false
+
+    await expect(
+      service.handleUpdate({
+        update_id: 5,
+        message: {
+          message_id: 1,
+          date: 1_760_000_000,
+          text: '/start',
+          chat: { id: 42, type: 'private' },
+          from: { id: 7, is_bot: false, first_name: 'Иван' },
+        },
+      }),
+    ).resolves.toBeUndefined()
+
+    // Второй getMe прошёл в handleUpdate, значит бот ожил без рестарта.
+    expect(calls().map(({ url }) => url)).toContain('https://api.telegram.org/bot123:abc/getMe')
+    expect(service.sendMessage).toHaveBeenCalled()
+  })
+
+  it('does not hand out the webhook secret when the bot is not fully configured', () => {
+    service = new TelegramBotService({
+      token: '123:abc',
+      webhookUrl: null,
+      webhookSecret: 'secret_123',
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    expect(service.getWebhookSecret()).toBeNull()
+  })
+
+  it('skips a command Telegram would reject', () => {
+    service.registerCommand('Wordle', 'Верхний регистр', () => {})
+    service.registerCommand('wordle', '', () => {})
+
+    expect(service.menu()).toEqual([
+      { command: 'start', description: 'Показать приветствие и список команд' },
+      { command: 'help', description: 'Показать список команд' },
     ])
   })
 

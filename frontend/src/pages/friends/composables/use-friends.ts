@@ -1,6 +1,7 @@
 import { useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { FRIENDS_QUERY_KEY } from '@/composables/query-keys'
 import { unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { parseApiError } from '@/utils/api-error'
@@ -15,7 +16,7 @@ export const useFriends = defineStore('friends/use-friends', () => {
     isLoading,
     refetch,
   } = useQuery<FriendsMemberEntity[]>({
-    key: ['friends'],
+    key: [FRIENDS_QUERY_KEY],
     query: async () => {
       error.value = null
       try {

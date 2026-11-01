@@ -3,6 +3,8 @@ import { RecordGenre } from '@/lib/api'
 export const STATS_QUERY_KEY = 'stats'
 export const SUGGESTION_QUERY_KEY = 'suggestion'
 export const WORDLE_LEADERBOARD_KEY = 'wordle/leaderboard'
+export const FRIENDS_QUERY_KEY = 'friends'
+export const USER_RATINGS_QUERY_KEY = 'user-ratings'
 
 /** Единый источник query-ключей для media-страниц (используется сторами и сокетом). */
 export const RECORDS_QUERY_KEYS = {

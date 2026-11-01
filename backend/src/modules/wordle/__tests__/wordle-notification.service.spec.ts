@@ -2,7 +2,6 @@ import { describe, expect, it, mock, spyOn } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { WordleGameStatus } from '@backend/enums'
 import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
-import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
 import { UserService } from '@backend/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import {
@@ -54,7 +53,6 @@ function makeGame(overrides: Partial<Record<string, unknown>> = {}) {
 
 function createService() {
   const telegram = createMock(TelegramBotService)
-  const registry = new TelegramCommandRegistry(telegram)
   const notifications = createMock(DrizzleWordleNotificationRepository)
   const users = createMock(UserService)
   const redis: { send: (command: string, args: string[]) => Promise<unknown> } = {
@@ -62,19 +60,12 @@ function createService() {
   }
   const service = new WordleNotificationService(
     telegram,
-    registry,
     notifications,
     users,
     redis as unknown as RedisClient,
     CONFIG,
   )
-  return { service, telegram, registry, notifications, users, redis }
-}
-
-function commandHandler(registry: TelegramCommandRegistry, name: string) {
-  const definition = registry.resolve(name)
-  if (!definition) throw new Error(`Команда ${name} не зарегистрирована`)
-  return definition.handler
+  return { service, telegram, notifications, users, redis }
 }
 
 function stubAudience(
@@ -98,6 +89,97 @@ function stubAudience(
   )
   telegram.sendMessage = mock(options.send ?? (() => Promise.resolve(true)))
 }
+
+const BOT_INFO = {
+  id: 1,
+  is_bot: true,
+  first_name: 'Wordle',
+  username: 'wordle_bot',
+} as never
+
+function textUpdate(text: string) {
+  return {
+    update_id: 1,
+    message: {
+      message_id: 10,
+      date: 1_760_000_000,
+      text,
+      chat: { id: 42, type: 'private' },
+      from: { id: 7, is_bot: false, first_name: 'Иван' },
+    },
+  }
+}
+
+function createRoutedService() {
+  const telegram = new TelegramBotService({
+    token: '123:abc',
+    webhookUrl: 'https://example.test/api/telegram/webhook',
+    webhookSecret: 'secret_123',
+    botInfo: BOT_INFO,
+    fetch: (() => Promise.reject(new Error('сеть в тестах запрещена'))) as unknown as typeof fetch,
+  })
+  const sent: SentCall[] = []
+  telegram.sendMessage = mock(
+    async (chatId: string, text: string, button?: { text: string; url: string }) => {
+      sent.push(button ? [chatId, text, button] : [chatId, text])
+      return true
+    },
+  ) as unknown as TelegramBotService['sendMessage']
+
+  const notifications = createMock(DrizzleWordleNotificationRepository)
+  const users = createMock(UserService)
+  const redis = { send: mock(() => Promise.resolve('OK')) }
+  const service = new WordleNotificationService(
+    telegram,
+    notifications,
+    users,
+    redis as unknown as RedisClient,
+    CONFIG,
+  )
+
+  return { service, telegram, notifications, users, redis, sent }
+}
+
+describe('WordleNotificationService через настоящий роутинг бота', () => {
+  it('обрабатывает /wordle и привязывает чат по telegram id', async () => {
+    const { telegram, notifications, users } = createRoutedService()
+    users.getUserByPlatformId = mock(() => Promise.resolve({ id: 'user-9' } as never))
+
+    await telegram.handleUpdate(textUpdate('/wordle'))
+
+    expect(users.getUserByPlatformId).toHaveBeenCalledWith('TELEGRAM', '7')
+    expect(notifications.upsert).toHaveBeenCalledWith({
+      userId: 'user-9',
+      chatId: '42',
+      telegramUsername: null,
+    })
+  })
+
+  it('отписывает чат по /wordle_off', async () => {
+    const { telegram, notifications } = createRoutedService()
+    notifications.findByChatId = mock(() =>
+      Promise.resolve({ userId: 'user-1', chatId: '42' } as never),
+    )
+
+    await telegram.handleUpdate(textUpdate('/wordle_off'))
+
+    expect(notifications.deleteByChatId).toHaveBeenCalledWith('42')
+  })
+
+  it('проводит /start wordle_<token> до привязки', async () => {
+    const { telegram, notifications, users, redis } = createRoutedService()
+    redis.send = mock(() => Promise.resolve('user-1'))
+    users.getUserById = mock(() => Promise.resolve({ id: 'user-1' } as never))
+
+    await telegram.handleUpdate(textUpdate('/start wordle_token-1'))
+
+    expect(notifications.upsert).toHaveBeenCalledWith({
+      userId: 'user-1',
+      chatId: '42',
+      telegramUsername: null,
+    })
+  })
+})
 
 describe('WordleNotificationService.runSlot', () => {
   it('sends the morning text with the streak to winners without a finished game', async () => {
@@ -265,32 +347,40 @@ describe('WordleNotificationService scheduler', () => {
 })
 
 describe('WordleNotificationService commands', () => {
-  it('registers the wordle commands in the bot menu', () => {
-    const { registry } = createService()
+  it('registers the wordle commands in the bot', () => {
+    const { telegram } = createService()
 
-    expect(registry.menu()).toEqual([
-      { command: 'start', description: 'Показать приветствие и список команд' },
-      { command: 'help', description: 'Показать список команд' },
-      { command: 'wordle', description: 'Включить напоминания про Вордли' },
-      { command: 'wordle_off', description: 'Выключить напоминания про Вордли' },
-    ])
+    expect(telegram.registerCommand).toHaveBeenCalledTimes(2)
+    expect(telegram.registerCommand).toHaveBeenNthCalledWith(
+      1,
+      'wordle',
+      'Включить напоминания про Вордли',
+      expect.any(Function),
+    )
+    expect(telegram.registerCommand).toHaveBeenNthCalledWith(
+      2,
+      'wordle_off',
+      'Выключить напоминания про Вордли',
+      expect.any(Function),
+    )
+    expect(telegram.registerStartHandler).toHaveBeenCalledTimes(1)
   })
 
   it('binds a chat with a valid start token', async () => {
-    const { registry, telegram, notifications, users, redis } = createService()
+    const { service, telegram, notifications, users, redis } = createService()
     redis.send = mock(() => Promise.resolve('user-1'))
     users.getUserById = mock(() => Promise.resolve({ id: 'user-1' } as never))
     telegram.sendMessage = mock(() => Promise.resolve(true))
-    const handler = registry.resolveStartPayload()
-    if (!handler) throw new Error('Обработчик start-payload не зарегистрирован')
 
-    await handler({
-      command: 'start',
-      payload: 'token-1',
-      chatId: '42',
-      fromId: '7',
-      username: 'ivan',
-    })
+    await expect(
+      service['handleStartToken']({
+        command: 'start',
+        payload: 'wordle_token-1',
+        chatId: '42',
+        fromId: '7',
+        username: 'ivan',
+      }),
+    ).resolves.toBe(true)
 
     expect(notifications.upsert).toHaveBeenCalledWith({
       userId: 'user-1',
@@ -301,19 +391,37 @@ describe('WordleNotificationService commands', () => {
     expect(text).toContain('12:00 и 20:00')
   })
 
-  it('reports an expired link token', async () => {
-    const { registry, telegram, notifications, redis } = createService()
-    redis.send = mock(() => Promise.resolve(null))
-    const handler = registry.resolveStartPayload()
-    if (!handler) throw new Error('Обработчик start-payload не зарегистрирован')
+  it('ignores a start payload that belongs to another feature', async () => {
+    const { service, redis, users } = createService()
+    redis.send = mock(() => Promise.resolve('user-1'))
 
-    await handler({
-      command: 'start',
-      payload: 'stale',
-      chatId: '42',
-      fromId: '7',
-      username: null,
-    })
+    await expect(
+      service['handleStartToken']({
+        command: 'start',
+        payload: 'something-else',
+        chatId: '42',
+        fromId: '7',
+        username: null,
+      }),
+    ).resolves.toBe(false)
+
+    expect(redis.send).not.toHaveBeenCalled()
+    expect(users.getUserById).not.toHaveBeenCalled()
+  })
+
+  it('reports an expired link token', async () => {
+    const { service, telegram, notifications, redis } = createService()
+    redis.send = mock(() => Promise.resolve(null))
+
+    await expect(
+      service['handleStartToken']({
+        command: 'start',
+        payload: 'wordle_stale',
+        chatId: '42',
+        fromId: '7',
+        username: null,
+      }),
+    ).resolves.toBe(true)
 
     expect(notifications.upsert).not.toHaveBeenCalled()
     const text = sentCalls(telegram)[0]?.[1]
@@ -321,14 +429,11 @@ describe('WordleNotificationService commands', () => {
   })
 
   it('auto-matches a telegram login by platform id', async () => {
-    const { registry, telegram, notifications, users } = createService()
+    const { service, telegram, notifications, users } = createService()
     users.getUserByPlatformId = mock(() => Promise.resolve({ id: 'user-9' } as never))
     telegram.sendMessage = mock(() => Promise.resolve(true))
 
-    await commandHandler(
-      registry,
-      'wordle',
-    )({
+    await service['handleSubscribe']({
       command: 'wordle',
       payload: null,
       chatId: '42',
@@ -345,13 +450,10 @@ describe('WordleNotificationService commands', () => {
   })
 
   it('explains how to connect when there is no account match', async () => {
-    const { registry, telegram, users } = createService()
+    const { service, telegram, users } = createService()
     users.getUserByPlatformId = mock(() => Promise.resolve(null))
 
-    await commandHandler(
-      registry,
-      'wordle',
-    )({
+    await service['handleSubscribe']({
       command: 'wordle',
       payload: null,
       chatId: '42',
@@ -366,35 +468,17 @@ describe('WordleNotificationService commands', () => {
   })
 
   it('unbinds on wordle_off and reports when there was nothing to unbind', async () => {
-    const { registry, telegram, notifications } = createService()
+    const { service, telegram, notifications } = createService()
     notifications.findByChatId = mock(() =>
       Promise.resolve({ userId: 'user-1', chatId: '42' } as never),
     )
 
-    await commandHandler(
-      registry,
-      'wordle_off',
-    )({
-      command: 'wordle_off',
-      payload: null,
-      chatId: '42',
-      fromId: '7',
-      username: null,
-    })
+    await service['handleUnsubscribe']('42')
 
     expect(notifications.deleteByChatId).toHaveBeenCalledWith('42')
 
     notifications.findByChatId = mock(() => Promise.resolve(null))
-    await commandHandler(
-      registry,
-      'wordle_off',
-    )({
-      command: 'wordle_off',
-      payload: null,
-      chatId: '42',
-      fromId: '7',
-      username: null,
-    })
+    await service['handleUnsubscribe']('42')
     const texts = sentCalls(telegram).map((call) => call[1])
     expect(texts.some((text) => text.includes('и так выключены'))).toBe(true)
   })
@@ -411,7 +495,7 @@ describe('WordleNotificationService commands', () => {
 
     const result = await service.createLink('user-1')
 
-    expect(result.url).toMatch(/^https:\/\/t\.me\/wordle_bot\?start=/)
+    expect(result.url).toMatch(/^https:\/\/t\.me\/wordle_bot\?start=wordle_/)
     expect(sets[0]?.[0]).toMatch(/^wordle:notify:link:/)
     expect(sets[0]?.[1]).toBe('user-1')
     expect(sets[0]?.[2]).toBe('EX')

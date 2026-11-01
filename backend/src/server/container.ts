@@ -23,8 +23,6 @@ import { SteamService } from '@backend/modules/steam/steam.service'
 import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '@backend/modules/suggestion/suggestion.service'
 import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
-import { TelegramCommandRegistry } from '@backend/modules/telegram/telegram-command.registry'
-import { TelegramUpdateHandler } from '@backend/modules/telegram/telegram-update.handler'
 import { TelegramService } from '@backend/modules/telegram/telegram.service'
 import { TwirService } from '@backend/modules/twir/twir.service'
 import { TwitchService } from '@backend/modules/twitch/twitch.service'
@@ -132,11 +130,8 @@ export function createContainer(): Container {
     webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL ?? null,
     webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET ?? null,
   })
-  const telegramCommands = new TelegramCommandRegistry(telegramBot)
-  const telegramUpdateHandler = new TelegramUpdateHandler(telegramBot, telegramCommands)
   const wordleNotifications = new WordleNotificationService(
     telegramBot,
-    telegramCommands,
     new DrizzleWordleNotificationRepository(drizzle),
     users,
     redisClient,
@@ -171,7 +166,7 @@ export function createContainer(): Container {
   const started: Array<{
     onModuleInit?: () => unknown
     onApplicationBootstrap?: () => unknown
-  }> = [twitch, kick, telegramBot, telegramCommands, weather, wordle, wordleNotifications]
+  }> = [twitch, kick, telegramBot, weather, wordle, wordleNotifications]
 
   const stoppable: Array<{ onModuleDestroy?: () => unknown }> = [wordle, wordleNotifications]
 
@@ -203,7 +198,6 @@ export function createContainer(): Container {
         auth: authService,
         telegram: telegramService,
         telegramBot,
-        telegramWebhook: telegramUpdateHandler,
       }),
       ...wordlePorts({ wordle, wordlePractice, wordleNotifications }),
       rateLimit,

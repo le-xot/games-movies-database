@@ -7,8 +7,6 @@ import type { ImgService } from '@backend/modules/img/img.service'
 import type { LimitService } from '@backend/modules/limit/limit.service'
 import type { SteamService } from '@backend/modules/steam/steam.service'
 import type { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
-import type { TelegramUpdate } from '@backend/modules/telegram/telegram-bot.types'
-import type { TelegramUpdateHandler } from '@backend/modules/telegram/telegram-update.handler'
 import type { TelegramService } from '@backend/modules/telegram/telegram.service'
 import type { TwirService } from '@backend/modules/twir/twir.service'
 
@@ -23,7 +21,6 @@ export interface IntegrationServices {
   auth: AuthService
   telegram: TelegramService
   telegramBot: TelegramBotService
-  telegramWebhook: TelegramUpdateHandler
 }
 
 /** Внешние интеграции: OAuth, Steam, картинки, лимиты, TWIR. */
@@ -37,7 +34,6 @@ export function integrationPorts({
   auth,
   telegram,
   telegramBot,
-  telegramWebhook,
 }: IntegrationServices): Pick<
   GatewayDeps,
   | 'limits'
@@ -118,7 +114,7 @@ export function integrationPorts({
     },
     telegramWebhook: {
       getWebhookSecret: () => telegramBot.getWebhookSecret(),
-      handleUpdate: (update) => telegramWebhook.handle(update as TelegramUpdate),
+      handleUpdate: (update) => telegramBot.handleUpdate(update),
     },
   }
 }

@@ -15,9 +15,11 @@
   "dependencies": {
     "@gmd/database": "workspace:*",
     "@gmdb/contract": "workspace:*",
+    "@grammyjs/commands": "1.4.0",
     "drizzle-orm": "0.45.4",
     "elysia": "1.4.30",
     "envalid": "8.2.0",
+    "grammy": "1.46.0",
     "jose": "6.2.13",
     "pg": "8.23.1",
     "sharp": "0.35.5"

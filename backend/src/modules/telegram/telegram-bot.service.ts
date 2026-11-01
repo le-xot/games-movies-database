@@ -89,7 +89,7 @@ export class TelegramBotService {
   private botUsername: string | null = null
 
   constructor(private readonly config: TelegramBotConfig) {
-    this.bot = new Bot(config.token ?? UNCONFIGURED_TOKEN, {
+    this.bot = new Bot(config.token || UNCONFIGURED_TOKEN, {
       ...(config.fetch ? { client: { fetch: config.fetch } } : {}),
       ...(config.botInfo ? { botInfo: config.botInfo } : {}),
     })

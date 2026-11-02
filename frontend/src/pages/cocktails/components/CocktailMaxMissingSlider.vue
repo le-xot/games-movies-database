@@ -25,6 +25,9 @@ const caption = computed(() => {
   return `Не больше ${missing} ${missingWord} ${ingredientWord}`
 })
 
+/** Короткое значение в шапке: полная фраза живёт в `title` и `aria-label`. */
+const shortValue = computed(() => (props.modelValue === 0 ? 'нет' : `+${props.modelValue}`))
+
 function update(values: number[] | undefined) {
   const next = values?.[0]
   if (typeof next !== 'number') return
@@ -33,10 +36,14 @@ function update(values: number[] | undefined) {
 </script>
 
 <template>
-  <div class="flex min-w-0 flex-col gap-2">
-    <div class="flex items-baseline justify-between gap-3">
-      <span class="text-sm font-medium">Недостающие ингредиенты</span>
-      <span class="text-right text-xs text-muted-foreground">{{ caption }}</span>
+  <div class="flex min-w-0 flex-col gap-2" :title="caption">
+    <div class="flex items-center justify-between gap-3">
+      <span class="text-sm font-medium">Докупать до</span>
+      <span
+        class="min-w-10 rounded-full border border-white/15 px-2 py-0.5 text-center text-xs tabular-nums text-muted-foreground"
+      >
+        {{ shortValue }}
+      </span>
     </div>
 
     <div class="px-2">

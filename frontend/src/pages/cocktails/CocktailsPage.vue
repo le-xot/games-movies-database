@@ -12,17 +12,15 @@ import CocktailShelves from '@/pages/cocktails/components/CocktailShelves.vue'
 import { filterMatches } from '@/pages/cocktails/composables/cocktail-filter'
 import { useCocktailBar } from '@/pages/cocktails/composables/use-cocktail-bar'
 import { useCocktailCatalog } from '@/pages/cocktails/composables/use-cocktail-catalog'
-import {
-  MATCH_MAX_MISSING,
-  useCocktailMatch,
-} from '@/pages/cocktails/composables/use-cocktail-match'
+import { useCocktailMatch } from '@/pages/cocktails/composables/use-cocktail-match'
 import { pluralRu } from '@/utils/plural-ru'
 
 const COCKTAIL_FORMS = ['коктейль', 'коктейля', 'коктейлей'] as const
 const INGREDIENT_FORMS = ['ингредиент', 'ингредиента', 'ингредиентов'] as const
 
 const query = ref('')
-const maxMissing = ref(MATCH_MAX_MISSING)
+// По умолчанию — только то, что можно смешать прямо сейчас.
+const maxMissing = ref(0)
 
 const {
   shelves,
@@ -137,7 +135,7 @@ function retry() {
         />
       </div>
 
-      <CocktailMaxMissingSlider v-model="maxMissing" class="sm:ml-auto sm:w-72" />
+      <CocktailMaxMissingSlider v-model="maxMissing" class="sm:ml-auto sm:w-64" />
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">

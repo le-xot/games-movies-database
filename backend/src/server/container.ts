@@ -2,6 +2,7 @@ import { DrizzleService } from '@backend/database/drizzle.service'
 import { createJwtAuthenticator } from '@backend/gateway/jwt-authenticator'
 import { AuthService } from '@backend/modules/auth/auth.service'
 import { AvatarService } from '@backend/modules/avatar/avatar.service'
+import { CocktailBotService } from '@backend/modules/cocktail/cocktail-bot.service'
 import { CocktailService } from '@backend/modules/cocktail/cocktail.service'
 import { DrizzleCocktailRepository } from '@backend/modules/cocktail/repositories/drizzle-cocktail.repository'
 import { ImgService } from '@backend/modules/img/img.service'
@@ -135,6 +136,12 @@ export function createContainer(): Container {
     token: env.TELEGRAM_BOT_TOKEN || null,
     webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL || null,
     webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET || null,
+  })
+  // Хуков инициализации нет: команда регистрируется в конструкторе, поэтому в
+  // `started` сервис не попадает. `void` — чтобы не заводить неиспользуемую
+  // переменную: экземпляр нужен только ради побочного эффекта.
+  void new CocktailBotService(telegramBot, cocktails, users, {
+    appPublicUrl: env.APP_PUBLIC_URL,
   })
   const wordleNotifications = new WordleNotificationService(
     telegramBot,

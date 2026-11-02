@@ -74,6 +74,7 @@ export function useCocktailBar() {
   const queryCache = useQueryCache()
   const userStore = useUser()
   const isLoggedIn = computed(() => userStore.isLoggedIn)
+  const currentUserId = computed(() => userStore.currentUserId)
 
   const mode = ref<CocktailBarMode>(isLoggedIn.value ? 'mine' : 'guest')
   /** Режим выбрал пользователь: авто-откат по 401 его больше не отменяет. */
@@ -131,14 +132,51 @@ export function useCocktailBar() {
     mineIds.value = value.ingredientIds
   })
 
-  watch(isLoggedIn, (loggedIn) => {
-    // Вход или выход сбрасывает последствия протухшей cookie: после логина
-    // снова можно идти в свой бар.
+  /**
+   * Полный сброс своего бара при смене пользователя.
+   *
+   * Кэш живёт с `gcTime: false`, а набор и флаг несохранённых изменений — в
+   * замыкании страницы. Если их не обнулить, следующий вошедший в этой же
+   * вкладке унаследует чужой набор и отправит его в `PUT`.
+   */
+  function resetOwnBar() {
+    clearSaveTimer()
+    hasPendingSave.value = false
+    hasUnsavedChanges.value = false
+    saveError.value = null
+    barLoadError.value = null
+    mineIds.value = []
+
+    // Данные выкидываем, запись в кэше оставляем: компонент уже подписан на неё.
+    queryCache.setQueryData<CocktailBar | undefined>([COCKTAIL_BAR_KEY], undefined)
+    // `when = 0` помечает запись устаревшей: при следующем `enabled: true` colada
+    // сама сходит за свежим баром нового пользователя.
+    void queryCache.invalidateQueries({ key: [COCKTAIL_BAR_KEY], exact: true }, false)
+  }
+
+  watch(currentUserId, (next, previous) => {
+    if (next === previous) return
+
     isBarAccessDenied.value = false
     isUserModeChosen.value = false
-    mode.value = loggedIn ? 'mine' : 'guest'
-    // Набор, который не успел сохраниться до выхода, досылаем после входа.
-    if (loggedIn && hasUnsavedChanges.value) scheduleSave()
+
+    if (!next) {
+      // Выход: чужой набор и кэш не должны пережить смену пользователя, иначе
+      // следующий вошедший в этой же вкладке отправит их в `PUT`.
+      resetOwnBar()
+      mode.value = 'guest'
+      return
+    }
+
+    mode.value = 'mine'
+
+    // Смена пользователя без выхода: `enabled` не меняется, поэтому сбрасываем
+    // накопленное и перечитываем бар явно. При обычном входе кэш уже пуст, а
+    // `enabled: false → true` запускает загрузку сам.
+    if (previous) {
+      resetOwnBar()
+      void refetchBar()
+    }
   })
 
   watch(barError, (error) => {

@@ -5,10 +5,12 @@ import type { SeedCocktail } from '../types'
  * Классика до эпохи модерна: от Джерри Томаса и «Савойского бармена» до
  * американских баров середины XX века.
  *
- * Коктейли официального списка IBA сюда не входят — они живут в
- * `cocktails-iba.ts`. Пропорции — по книжным рецептам, где ингредиент
- * отсутствует в каталоге (мараскино, крем де мент, кальвадос, писко), он
- * заменён ближайшим по сухости или просто опущен; такие места отмечены в `note`.
+ * Коктейли официального списка IBA живут в `cocktails-iba.ts`; здесь остались
+ * только те, что попали в список уже после того, как были описаны как классика
+ * (`brandy-crusta`, `corpse-reviver-2`, `suffering-bastard`) — они помечены
+ * `iba: true`. Пропорции — по книжным рецептам; где ингредиента нет в каталоге
+ * (фиалковый ликёр, флёрдоранж, Lillet blanc, ирландский виски, Old Tom Gin),
+ * он заменён ближайшим или опущен, и это отмечено в `note`.
  */
 export const COCKTAILS_CLASSICS: SeedCocktail[] = [
   // ДЖИН
@@ -236,7 +238,8 @@ export const COCKTAILS_CLASSICS: SeedCocktail[] = [
       { ingredientId: 'gin', amount: '45 мл' },
       { ingredientId: 'tomato-juice', amount: '90 мл' },
       { ingredientId: 'lemon-juice', amount: '15 мл' },
-      { ingredientId: 'celery-bitters', amount: '2 дэша' },
+      { ingredientId: 'worcestershire-sauce', amount: '2 дэша' },
+      { ingredientId: 'tabasco', amount: '2 капли' },
       { ingredientId: 'salt', amount: 'щепотка' },
     ],
   },
@@ -351,6 +354,7 @@ export const COCKTAILS_CLASSICS: SeedCocktail[] = [
     glass: 'Коктейльный бокал',
     garnish: null,
     note: 'В оригинале Lillet blanc; здесь сухой вермут как ближайшая замена',
+    iba: true,
     sourceName: 'Савойский бармен, 1930',
     items: [
       { ingredientId: 'gin', amount: '25 мл' },
@@ -930,13 +934,14 @@ export const COCKTAILS_CLASSICS: SeedCocktail[] = [
     glass: 'Хайбол',
     garnish: 'Веточка мяты',
     note: 'Каир, отель «Шепард», 1940-е: лекарство для выздоравливающих',
+    iba: true,
     sourceName: 'Диффорд',
     items: [
       { ingredientId: 'gin', amount: '30 мл' },
       { ingredientId: 'brandy', amount: '30 мл' },
       { ingredientId: 'lime-juice', amount: '20 мл' },
       { ingredientId: 'angostura', amount: '2 дэша' },
-      { ingredientId: 'ginger-ale', amount: 'до края' },
+      { ingredientId: 'ginger-beer', amount: 'до края' },
     ],
   },
   {
@@ -1243,10 +1248,12 @@ export const COCKTAILS_CLASSICS: SeedCocktail[] = [
     method: CocktailMethod.SHAKE,
     glass: 'Бокал для вина',
     garnish: 'Сахарный обод и спираль лимона',
-    note: 'Цедру срезать одной длинной спиралью и уложить по стенке',
+    note: 'Цедру срезать одной длинной спиралью и уложить по стенке; мараскино — барная ложка',
+    iba: true,
     sourceName: 'Джерри Томас, 1862',
     items: [
       { ingredientId: 'brandy', amount: '60 мл' },
+      { ingredientId: 'maraschino', amount: '7,5 мл' },
       { ingredientId: 'lemon-juice', amount: '20 мл' },
       { ingredientId: 'sugar-syrup', amount: '10 мл' },
       { ingredientId: 'orange-bitters', amount: '2 дэша' },
@@ -1520,6 +1527,179 @@ export const COCKTAILS_CLASSICS: SeedCocktail[] = [
     items: [
       { ingredientId: 'sweet-vermouth', amount: '90 мл' },
       { ingredientId: 'orange-bitters', amount: '2 дэша' },
+    ],
+  },
+
+  // ДОБОР: КЛАССИКА, КОТОРУЮ ДЕРЖАЛИ В ТЕНИ
+  {
+    id: 'income-tax',
+    name: 'Инкам такс',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: 'Кружок апельсина',
+    note: 'Джин, два вермута и апельсиновый сок; появился в 1920-е как шутка про налоги',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'gin', amount: '45 мл' },
+      { ingredientId: 'dry-vermouth', amount: '15 мл' },
+      { ingredientId: 'sweet-vermouth', amount: '15 мл' },
+      { ingredientId: 'orange-juice', amount: '15 мл' },
+      { ingredientId: 'angostura', amount: '2 дэша' },
+    ],
+  },
+  {
+    id: 'satans-whiskers',
+    name: 'Сатанс вискерс',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: 'Цедра апельсина',
+    note: 'Всего понемногу: два вермута, джин, апельсиновый сок и кюрасао',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'gin', amount: '20 мл' },
+      { ingredientId: 'dry-vermouth', amount: '20 мл' },
+      { ingredientId: 'sweet-vermouth', amount: '20 мл' },
+      { ingredientId: 'orange-juice', amount: '20 мл' },
+      { ingredientId: 'triple-sec', amount: '15 мл' },
+      { ingredientId: 'orange-bitters', amount: '2 дэша' },
+    ],
+  },
+  {
+    id: 'ford-cocktail',
+    name: 'Форд коктейль',
+    method: CocktailMethod.STIR,
+    glass: 'Коктейльный бокал',
+    garnish: 'Цедра апельсина',
+    note: 'В оригинале Old Tom Gin; с лондонским сухим напиток становится строже',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'gin', amount: '60 мл' },
+      { ingredientId: 'dry-vermouth', amount: '20 мл' },
+      { ingredientId: 'benedictine', amount: '5 мл' },
+      { ingredientId: 'orange-bitters', amount: '2 дэша' },
+    ],
+  },
+  {
+    id: 'de-la-louisiane',
+    name: 'Де ля Луизиан',
+    method: CocktailMethod.STIR,
+    glass: 'Коктейльный бокал',
+    garnish: 'Коктейльная вишня',
+    note: 'Нью-орлеанский родственник Манхэттена: бенедиктин вместо половины вермута',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'rye-whiskey', amount: '30 мл' },
+      { ingredientId: 'sweet-vermouth', amount: '30 мл' },
+      { ingredientId: 'benedictine', amount: '15 мл' },
+      { ingredientId: 'absinthe', amount: '1 дэш' },
+      { ingredientId: 'peychauds', amount: '2 дэша' },
+    ],
+  },
+  {
+    id: 'corpse-reviver-1',
+    name: 'Корпс ривайвер №1',
+    method: CocktailMethod.STIR,
+    glass: 'Коктейльный бокал',
+    garnish: 'Цедра апельсина',
+    note: 'Утренний вариант из «Савойского бармена»: коньяк, кальвадос и сладкий вермут',
+    sourceName: 'Савойский бармен, 1930',
+    items: [
+      { ingredientId: 'cognac', amount: '30 мл' },
+      { ingredientId: 'calvados', amount: '30 мл' },
+      { ingredientId: 'sweet-vermouth', amount: '30 мл' },
+    ],
+  },
+  {
+    id: 'chrysanthemum',
+    name: 'Хризантема',
+    method: CocktailMethod.STIR,
+    glass: 'Коктейльный бокал',
+    garnish: 'Цедра лимона',
+    note: 'Сухой вермут как основа — редкий случай, когда он играет первую скрипку',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'dry-vermouth', amount: '60 мл' },
+      { ingredientId: 'benedictine', amount: '15 мл' },
+      { ingredientId: 'absinthe', amount: '1 дэш' },
+    ],
+  },
+  {
+    id: 'blood-and-sand',
+    name: 'Блад энд сэнд',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: 'Кружок апельсина',
+    note: 'Шотландский виски, вишнёвый ликёр и апельсиновый сок в равных долях',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'scotch-whisky', amount: '20 мл' },
+      { ingredientId: 'sweet-vermouth', amount: '20 мл' },
+      { ingredientId: 'cherry-liqueur', amount: '20 мл' },
+      { ingredientId: 'orange-juice', amount: '20 мл' },
+    ],
+  },
+  {
+    id: 'brandy-alexander',
+    name: 'Бренди Александр',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: 'Тёртый мускатный орех',
+    note: 'Тот же Александр, но на бренди; в Штатах его пили после ужина вместо десерта',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'brandy', amount: '30 мл' },
+      { ingredientId: 'creme-de-cacao-brown', amount: '30 мл' },
+      { ingredientId: 'cream', amount: '30 мл' },
+    ],
+  },
+  {
+    id: 'golden-cadillac',
+    name: 'Голден кадиллак',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: null,
+    note: 'Гальяно с белым какао и сливками — сладкий, но не приторный, если не перелить гальяно',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'galliano', amount: '30 мл' },
+      { ingredientId: 'creme-de-cacao-white', amount: '30 мл' },
+      { ingredientId: 'cream', amount: '30 мл' },
+    ],
+  },
+  {
+    id: 'american-beauty',
+    name: 'Американ бьюти',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: 'Листик мяты',
+    note: 'Бренди, сухой вермут, гренадин и капля крема де мент — коктейль 1910-х',
+    sourceName: 'Диффорд',
+    items: [
+      { ingredientId: 'brandy', amount: '30 мл' },
+      { ingredientId: 'dry-vermouth', amount: '15 мл' },
+      { ingredientId: 'orange-juice', amount: '15 мл' },
+      { ingredientId: 'grenadine', amount: '7,5 мл' },
+      {
+        ingredientId: 'creme-de-menthe',
+        amount: '7,5 мл',
+        tier: CocktailTier.CORE,
+      },
+    ],
+  },
+  {
+    id: 'daiquiri-no-3',
+    name: 'Дайкири №3',
+    method: CocktailMethod.SHAKE,
+    glass: 'Коктейльный бокал',
+    garnish: 'Долька лайма',
+    note: 'Вариант Константино Рибалайгуа из «Эль Флоридиты»: грейпфрут и мараскино',
+    sourceName: 'Эль Флоридита, 1930-е',
+    items: [
+      { ingredientId: 'white-rum', amount: '60 мл' },
+      { ingredientId: 'lime-juice', amount: '15 мл' },
+      { ingredientId: 'grapefruit-juice', amount: '15 мл' },
+      { ingredientId: 'maraschino', amount: '7,5 мл' },
+      { ingredientId: 'sugar-syrup', amount: '5 мл' },
     ],
   },
 ]

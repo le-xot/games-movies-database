@@ -110,6 +110,30 @@ export const INGREDIENTS: SeedIngredient[] = [
     category: IngredientCategory.SPIRIT,
     defaultTier: CocktailTier.CORE,
   },
+  {
+    id: 'grappa',
+    name: 'Граппа',
+    category: IngredientCategory.SPIRIT,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'calvados',
+    name: 'Кальвадос',
+    category: IngredientCategory.SPIRIT,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'pisco',
+    name: 'Писко',
+    category: IngredientCategory.SPIRIT,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'cachaca',
+    name: 'Кашаса',
+    category: IngredientCategory.SPIRIT,
+    defaultTier: CocktailTier.CORE,
+  },
 
   // LIQUEUR
   {
@@ -217,6 +241,60 @@ export const INGREDIENTS: SeedIngredient[] = [
   {
     id: 'chartreuse',
     name: 'Шартрез',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'creme-de-cacao-white',
+    name: 'Крем де какао белый',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'creme-de-cacao-brown',
+    name: 'Крем де какао коричневый',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'creme-de-menthe',
+    name: 'Крем де мент зелёный',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'peach-liqueur',
+    name: 'Персиковый ликёр',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'apricot-brandy',
+    name: 'Абрикосовый бренди',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'creme-de-cassis',
+    name: 'Кассис',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'elderflower-liqueur',
+    name: 'Ликёр бузинный',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'maraschino',
+    name: 'Мараскино',
+    category: IngredientCategory.LIQUEUR,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'cherry-liqueur',
+    name: 'Вишнёвый ликёр',
     category: IngredientCategory.LIQUEUR,
     defaultTier: CocktailTier.CORE,
   },
@@ -398,6 +476,36 @@ export const INGREDIENTS: SeedIngredient[] = [
     category: IngredientCategory.MIXER,
     defaultTier: CocktailTier.FREE,
   },
+  {
+    id: 'ginger-beer',
+    name: 'Имбирное пиво',
+    category: IngredientCategory.MIXER,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'coconut-cream',
+    name: 'Кокосовые сливки',
+    category: IngredientCategory.MIXER,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'peach-puree',
+    name: 'Персиковое пюре',
+    category: IngredientCategory.MIXER,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'pomegranate-juice',
+    name: 'Сок гранатовый',
+    category: IngredientCategory.MIXER,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'grapefruit-lemonade',
+    name: 'Грейпфрутовый лимонад',
+    category: IngredientCategory.MIXER,
+    defaultTier: CocktailTier.CORE,
+  },
 
   // SYRUP
   {
@@ -445,6 +553,18 @@ export const INGREDIENTS: SeedIngredient[] = [
   {
     id: 'ginger-syrup',
     name: 'Сироп имбирный',
+    category: IngredientCategory.SYRUP,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'agave-syrup',
+    name: 'Сироп агавовый',
+    category: IngredientCategory.SYRUP,
+    defaultTier: CocktailTier.CORE,
+  },
+  {
+    id: 'lemon-cordial',
+    name: 'Кордиал лимонный',
     category: IngredientCategory.SYRUP,
     defaultTier: CocktailTier.CORE,
   },
@@ -619,6 +739,18 @@ export const INGREDIENTS: SeedIngredient[] = [
   {
     id: 'bay-leaf',
     name: 'Лавровый лист',
+    category: IngredientCategory.PANTRY,
+    defaultTier: CocktailTier.EXTRA,
+  },
+  {
+    id: 'worcestershire-sauce',
+    name: 'Соус вустерский',
+    category: IngredientCategory.PANTRY,
+    defaultTier: CocktailTier.EXTRA,
+  },
+  {
+    id: 'tabasco',
+    name: 'Табаско',
     category: IngredientCategory.PANTRY,
     defaultTier: CocktailTier.EXTRA,
   },

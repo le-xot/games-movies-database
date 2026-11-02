@@ -149,8 +149,8 @@ export function useCocktailBar() {
 
     // Данные выкидываем, запись в кэше оставляем: компонент уже подписан на неё.
     queryCache.setQueryData<CocktailBar | undefined>([COCKTAIL_BAR_KEY], undefined)
-    // `when = 0` помечает запись устаревшей: при следующем `enabled: true` colada
-    // сама сходит за свежим баром нового пользователя.
+    // `when = 0` дополнительно снимает свежесть: если ответ на `GET /bar`
+    // придёт от colada, а не от явного `refetchBar()`, он всё равно сходит в сеть.
     void queryCache.invalidateQueries({ key: [COCKTAIL_BAR_KEY], exact: true }, false)
   }
 
@@ -169,14 +169,10 @@ export function useCocktailBar() {
     }
 
     mode.value = 'mine'
-
-    // Смена пользователя без выхода: `enabled` не меняется, поэтому сбрасываем
-    // накопленное и перечитываем бар явно. При обычном входе кэш уже пуст, а
-    // `enabled: false → true` запускает загрузку сам.
-    if (previous) {
-      resetOwnBar()
-      void refetchBar()
-    }
+    // На `enabled → true` полагаться нельзя: в кэше может лежать свежая запись
+    // прошлого пользователя. Сбрасываем и перезапрашиваем безусловно.
+    resetOwnBar()
+    void refetchBar()
   })
 
   watch(barError, (error) => {
@@ -203,14 +199,22 @@ export function useCocktailBar() {
     }
 
     const snapshot = [...mineIds.value]
+    const requestUserId = currentUserId.value
+
     try {
       const saved = await saveBar({ ingredientIds: snapshot })
+      // Пока летел `PUT`, пользователь мог выйти или смениться: чужой ответ не
+      // должен ни попасть в кэш, ни вернуть набор в `mineIds`.
+      if (requestUserId !== currentUserId.value) return
+
       queryCache.setQueryData([COCKTAIL_BAR_KEY], saved)
       hasPendingSave.value = false
       hasUnsavedChanges.value = false
       saveError.value = null
       if (!sameSet(mineIds.value, snapshot)) scheduleSave()
     } catch {
+      if (requestUserId !== currentUserId.value) return
+
       // Локальный набор остаётся как есть: пользователь не должен терять выбор
       // из-за сети. Повторим на следующем изменении, `saveError` чистится только
       // успешной синхронизацией.
@@ -239,6 +243,11 @@ export function useCocktailBar() {
 
     // В режиме «мой бар» без доступа править нечего: набор живёт на сервере.
     if (!canUseOwnBar.value) return
+
+    // Пока `GET /bar` не ответил, серверный набор неизвестен: `PUT` затёр бы его
+    // неполным локальным. После первой правки кэш уже оптимистичный, поэтому
+    // проверка не мешает серии кликов.
+    if (!bar.value && !hasUnsavedChanges.value) return
 
     mineIds.value = next
     hasUnsavedChanges.value = true

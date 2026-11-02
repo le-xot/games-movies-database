@@ -1,5 +1,6 @@
 import { errorBody } from '@backend/gateway/errors'
 import { wsRoutes } from '@backend/gateway/ws'
+import { buildSitemap, DEFAULT_SITE_URL } from '@backend/server/page-meta'
 import { createStaticHandler } from '@backend/server/static'
 import { isOriginAllowed } from '@backend/utils/cors-origins'
 import { buildSecurityHeaders } from '@backend/utils/security-headers'
@@ -11,6 +12,8 @@ export interface HttpOptions {
   production?: boolean
   /** Каталог собранного фронта. Без него статика не раздаётся (тесты, dev). */
   staticRoot?: string | undefined
+  /** Публичный адрес сайта: из него собираются canonical, og и sitemap. */
+  siteUrl?: string | undefined
 }
 
 const PREFLIGHT_MAX_AGE_SECONDS = 600
@@ -37,8 +40,9 @@ function apiNotFound(): Response {
  * (`credentials: true`, только перечисленные origin'ы, первый хоп прокси).
  */
 export function createHttpServer(gateway: Gateway, options: HttpOptions) {
-  const { corsOrigins, production = false, staticRoot } = options
+  const { corsOrigins, production = false, staticRoot, siteUrl = DEFAULT_SITE_URL } = options
   const security = buildSecurityHeaders(production)
+  const sitemap = buildSitemap(siteUrl)
 
   const app = new Elysia()
     .onRequest(({ request, set }) => {
@@ -78,10 +82,22 @@ export function createHttpServer(gateway: Gateway, options: HttpOptions) {
 
       return errorBody(404, 'Not Found')
     })
+    // Карта сайта: живёт рядом со статикой, но не зависит от неё — в dev
+    // бэкенд тоже должен отдавать валидный XML, а не SPA-оболочку.
+    .get(
+      '/sitemap.xml',
+      () =>
+        new Response(sitemap, {
+          headers: {
+            'content-type': 'application/xml; charset=utf-8',
+            'cache-control': 'public, max-age=3600',
+          },
+        }),
+    )
 
   if (!staticRoot) return app
 
-  const serveStatic = createStaticHandler(staticRoot)
+  const serveStatic = createStaticHandler(staticRoot, siteUrl)
 
   return app.get('/*', ({ request }) =>
     isApiPath(new URL(request.url).pathname) ? apiNotFound() : serveStatic(request),

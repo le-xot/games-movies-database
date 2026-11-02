@@ -1,4 +1,5 @@
 import { normalize, resolve, sep } from 'node:path'
+import { injectPageMeta } from '@backend/server/page-meta'
 import { setAssetCacheHeaders } from '@backend/utils/static-cache-headers'
 
 const HTML_CONTENT_TYPE = 'text/html; charset=utf-8'
@@ -16,6 +17,7 @@ const CONTENT_TYPES: Record<string, string> = {
   ico: 'image/x-icon',
   woff2: 'font/woff2',
   txt: 'text/plain; charset=utf-8',
+  xml: 'application/xml; charset=utf-8',
 }
 
 const INDEX_CACHE_CONTROL = 'no-cache'
@@ -30,18 +32,20 @@ function contentTypeFor(path: string): string {
  * Отдаёт собранный фронт из `root` с SPA-фолбэком на `index.html`.
  *
  * Путь нормализуется и проверяется на выход за пределы `root`: без этого
- * `/%2e%2e/%2e%2e/etc/passwd` уехал бы наружу.
+ * `/%2e%2e/%2e%2e/etc/passwd` уехал бы наружу. В `index.html` подставляется
+ * `<head>` запрошенной страницы — см. `page-meta.ts`.
  */
-export function createStaticHandler(root: string) {
+export function createStaticHandler(root: string, siteUrl: string) {
   const rootWithSeparator = resolve(root) + sep
+  const indexFile = resolve(root, 'index.html')
 
   return async function serveStatic(request: Request): Promise<Response> {
     const url = new URL(request.url)
-    const requested = decodeURIComponent(url.pathname)
+    const requested = safeDecode(url.pathname)
 
     const candidate = resolve(root, `.${normalize(requested)}`)
     const insideRoot = candidate === resolve(root) || candidate.startsWith(rootWithSeparator)
-    const file = Bun.file(insideRoot ? candidate : resolve(root, 'index.html'))
+    const file = Bun.file(insideRoot ? candidate : indexFile)
 
     if (insideRoot && (await file.exists()) && candidate !== resolve(root)) {
       const headers = new Headers({ 'content-type': contentTypeFor(candidate) })
@@ -50,16 +54,24 @@ export function createStaticHandler(root: string) {
       return new Response(file, { headers })
     }
 
-    const index = Bun.file(resolve(root, 'index.html'))
+    const index = Bun.file(indexFile)
     if (!(await index.exists())) {
       return new Response('Not Found', { status: 404 })
     }
 
-    return new Response(index, {
+    return new Response(injectPageMeta(await index.text(), requested, siteUrl), {
       headers: {
         'content-type': HTML_CONTENT_TYPE,
         'cache-control': INDEX_CACHE_CONTROL,
       },
     })
+  }
+}
+
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
   }
 }

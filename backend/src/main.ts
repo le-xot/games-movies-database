@@ -22,6 +22,7 @@ const app = createHttpServer(createGateway(container.deps), {
   corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
   production: env.NODE_ENV === 'production',
   staticRoot: resolve(import.meta.dir, '../../frontend/dist'),
+  siteUrl: env.APP_PUBLIC_URL,
 })
 
 const port = env.APP_PORT

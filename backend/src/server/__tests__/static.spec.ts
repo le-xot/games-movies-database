@@ -24,7 +24,10 @@ beforeAll(() => {
   root = join(mkdtempSync(join(tmpdir(), 'gmd-static-')), 'dist')
   mkdirSync(join(root, 'assets'), { recursive: true })
   mkdirSync(join(root, 'images'), { recursive: true })
-  writeFileSync(join(root, 'index.html'), '<!doctype html><title>app</title>')
+  writeFileSync(
+    join(root, 'index.html'),
+    '<!doctype html><html><head><!--seo:start--><title>app</title><!--seo:end--></head><body>shell</body></html>',
+  )
   writeFileSync(join(root, 'assets/app-abc123.js'), 'console.log("app")')
   writeFileSync(join(root, 'images/lexot.webp'), 'binary')
 })
@@ -55,13 +58,34 @@ describe('static assets', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toContain('text/html')
     expect(response.headers.get('cache-control')).toBe('no-cache')
-    expect(await response.text()).toContain('<title>app</title>')
+
+    const html = await response.text()
+    expect(html).toContain('<title>Игры Лешота — оценки и мнения</title>')
+    expect(html).toContain('<link rel="canonical" href="https://le-xot.dev/db/games" />')
+    expect(html).toContain('shell')
+  })
+
+  it('closes private pages from the index', async () => {
+    const response = await get('/db/users/58511e26-c706-44be-af4e-be39302f35a9/ratings')
+
+    expect(await response.text()).toContain('<meta name="robots" content="noindex,follow" />')
+  })
+
+  it('serves the sitemap above the static fallback', async () => {
+    const response = await get('/sitemap.xml')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('application/xml')
+
+    const xml = await response.text()
+    expect(xml).toContain('<loc>https://le-xot.dev/db/games</loc>')
+    expect(xml).not.toContain('/db/admin')
   })
 
   it('does not let a request escape the static root', async () => {
     const response = await get('/%2e%2e/%2e%2e/etc/passwd')
 
-    expect(await response.text()).toContain('<title>app</title>')
+    expect(await response.text()).toContain('shell')
   })
 
   it('keeps /api routes above the static fallback', async () => {

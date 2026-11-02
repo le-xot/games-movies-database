@@ -11,7 +11,9 @@ const weatherExpanded = ref(false)
 const heroLoaded = ref(false)
 
 onMounted(() => {
-  title.value = 'Сайт Лешота'
+  // Та же строка, что в backend/src/server/page-meta.ts: иначе после монтирования
+  // заголовок откатится и разойдётся с тем, что увидел поисковик.
+  title.value = 'Лешот — сайт Лешота'
 })
 </script>
 
@@ -29,7 +31,7 @@ onMounted(() => {
             src="/images/lexot.webp"
             width="666"
             height="666"
-            alt=""
+            alt="Лешот"
             @load="heroLoaded = true"
             @error="heroLoaded = true"
           />

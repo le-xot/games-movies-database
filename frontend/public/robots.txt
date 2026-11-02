@@ -1,12 +1,11 @@
-# Allow all web crawlers
+# Основной адрес сайта — le-xot.dev (le-xot.ru отдаёт на него 301)
 User-agent: *
 Allow: /
 
-# Disallow admin routes
-Disallow: /admin/
-Disallow: /reference/
-Disallow: /docs/
+# Личное и служебное в индексе не нужно
+Disallow: /db/admin
+Disallow: /db/ratings/my
+Disallow: /db/users/*/ratings
+Disallow: /auth/callback/
 
-# Sitemap location
-Sitemap: https://le-xot.ru/sitemap.xml
-Host: le-xot.ru
+Sitemap: https://le-xot.dev/sitemap.xml

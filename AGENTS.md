@@ -25,33 +25,34 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 
 ## WHERE TO LOOK
 
-| Task                 | Location                                                        | Notes                                                                                                                          |
-| -------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Add backend feature  | `backend/src/gateway/{name}.ts` + `backend/src/modules/{name}/` | Роут и схемы — в гейтвее, домен — в modules                                                                                    |
-| Add frontend page    | `frontend/src/pages/{feature}/`                                 | Страница `{Name}Page.vue` + `composables/`; жанровые разделы — только `composables/`, рендер общий `pages/media/MediaPage.vue` |
-| Sidebar / nav        | `frontend/src/components/layout/db/`                            | `LayoutSidebar.vue`, `NavItem.vue`, `use-db-navigation.ts`                                                                     |
-| Account modal        | `frontend/src/components/account/`                              | Открывается через `use-account-dialog`                                                                                         |
-| Login modal          | `frontend/src/components/form/`                                 | `LoginDialog.vue`, открывается через `use-login-dialog`                                                                        |
-| Command palette      | `frontend/src/components/palette/`                              | `CommandPalette.vue` + `stores/use-command-palette.ts`                                                                         |
-| Add UI primitive     | `frontend/src/components/ui/{name}/`                            | shadcn-vue pattern: .vue files + index.ts barrel                                                                               |
-| Modify auth flow     | `backend/src/gateway/auth-oauth.ts` + `gateway/auth-session.ts` | OAuth-роуты, cookie `token`, `tg_oidc_*`; guards — `gateway/auth.ts`                                                           |
-| Issue JWT            | `backend/src/modules/auth/`                                     | `auth.service.ts` (подпись), `auth.oauth-state.ts` (state/PKCE)                                                                |
-| Telegram login       | `backend/src/modules/telegram/`                                 | OIDC (PKCE, JWKS) + бот и рассылки; cookies `tg_oidc_*`, env `TELEGRAM_*`                                                      |
-| Rate limiting        | `backend/src/gateway/rate-limit.ts`                             | Порт и `enforceRateLimit`; Redis-реализация — `utils/rate-limit.ts`, пресеты — `utils/rate-limits.ts`                          |
-| Database schema      | `database/src/schema/`                                          | Drizzle `pgTable`/`pgEnum`; `isoTimestamp` отдаёт ISO-строку вместо `Date`                                                     |
-| Server layer         | `backend/src/server/`                                           | Composition root, порты по доменам (`wiring/`), HTTP и статика; см. `server/AGENTS.md`                                         |
-| Database migrations  | `database/migrations/`                                          | Generated SQL; applied by `migrations` compose service                                                                         |
-| DB access            | `backend/src/database/drizzle.service.ts`                       | `DrizzleService` создаётся в `server/container.ts`, сервисы получают его в конструктор                                         |
-| API client           | `frontend/src/lib/api.ts`                                       | Eden Treaty: типы выводятся из `App`, кодогена нет                                                                             |
-| Environment vars     | `backend/.env.example`                                          | Copy to `backend/.env`                                                                                                         |
-| Prod secrets         | Doppler (default) или Infisical (`SECRETS_PROVIDER`)            | `scripts/render-env.sh` рендерит `.env` на сервере; токен в `~/.config/gmd/secrets.env`                                        |
-| Router paths         | `frontend/src/router/router-paths.ts`                           | ROUTER_PATHS constant                                                                                                          |
-| Image proxy          | `frontend/src/utils/image.ts`                                   | Routes through `/api/img`                                                                                                      |
-| Watch links          | `frontend/src/utils/generate-watch-link.ts`                     | Kinobox canonical URLs                                                                                                         |
-| Env validation       | `backend/src/utils/enviroments.ts`                              | envalid; note the typo in filename                                                                                             |
-| Media page factories | `frontend/src/composables/factories/`                           | `create-params-store.ts`, `create-records-store.ts`                                                                            |
-| Архитектура          | `docs/architecture.md`                                          | Слои, жизненный цикл запроса, чек-лист нового домена                                                                           |
-| API-справочник       | `docs/api.md`                                                   | Роуты, доступ, лимиты, WS-события (Swagger нет)                                                                                |
+| Task                 | Location                                                        | Notes                                                                                                                           |
+| -------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Add backend feature  | `backend/src/gateway/{name}.ts` + `backend/src/modules/{name}/` | Роут и схемы — в гейтвее, домен — в modules                                                                                     |
+| Add frontend page    | `frontend/src/pages/{feature}/`                                 | Страница `{Name}Page.vue` + `composables/`; жанровые разделы — только `composables/`, рендер общий `pages/media/MediaPage.vue`  |
+| Sidebar / nav        | `frontend/src/components/layout/db/`                            | `LayoutSidebar.vue`, `NavItem.vue`, `use-db-navigation.ts`                                                                      |
+| Account modal        | `frontend/src/components/account/`                              | Открывается через `use-account-dialog`                                                                                          |
+| Login modal          | `frontend/src/components/form/`                                 | `LoginDialog.vue`, открывается через `use-login-dialog`                                                                         |
+| Command palette      | `frontend/src/components/palette/`                              | `CommandPalette.vue` + `stores/use-command-palette.ts`                                                                          |
+| Add UI primitive     | `frontend/src/components/ui/{name}/`                            | shadcn-vue pattern: .vue files + index.ts barrel                                                                                |
+| Modify auth flow     | `backend/src/gateway/auth-oauth.ts` + `gateway/auth-session.ts` | OAuth-роуты, cookie `token`, `tg_oidc_*`; guards — `gateway/auth.ts`                                                            |
+| Issue JWT            | `backend/src/modules/auth/`                                     | `auth.service.ts` (подпись), `auth.oauth-state.ts` (state/PKCE)                                                                 |
+| Telegram login       | `backend/src/modules/telegram/`                                 | OIDC (PKCE, JWKS) + бот и рассылки; cookies `tg_oidc_*`, env `TELEGRAM_*`                                                       |
+| Rate limiting        | `backend/src/gateway/rate-limit.ts`                             | Порт и `enforceRateLimit`; Redis-реализация — `utils/rate-limit.ts`, пресеты — `utils/rate-limits.ts`                           |
+| Database schema      | `database/src/schema/`                                          | Drizzle `pgTable`/`pgEnum`; `isoTimestamp` отдаёт ISO-строку вместо `Date`                                                      |
+| Server layer         | `backend/src/server/`                                           | Composition root, порты по доменам (`wiring/`), HTTP и статика; см. `server/AGENTS.md`                                          |
+| Meta / sitemap       | `backend/src/server/page-meta.ts`                               | title, description, canonical, `noindex`, JSON-LD и `sitemap.xml`; новый роут — добавить сюда, иначе canonical будет от главной |
+| Database migrations  | `database/migrations/`                                          | Generated SQL; applied by `migrations` compose service                                                                          |
+| DB access            | `backend/src/database/drizzle.service.ts`                       | `DrizzleService` создаётся в `server/container.ts`, сервисы получают его в конструктор                                          |
+| API client           | `frontend/src/lib/api.ts`                                       | Eden Treaty: типы выводятся из `App`, кодогена нет                                                                              |
+| Environment vars     | `backend/.env.example`                                          | Copy to `backend/.env`                                                                                                          |
+| Prod secrets         | Doppler (default) или Infisical (`SECRETS_PROVIDER`)            | `scripts/render-env.sh` рендерит `.env` на сервере; токен в `~/.config/gmd/secrets.env`                                         |
+| Router paths         | `frontend/src/router/router-paths.ts`                           | ROUTER_PATHS constant                                                                                                           |
+| Image proxy          | `frontend/src/utils/image.ts`                                   | Routes through `/api/img`                                                                                                       |
+| Watch links          | `frontend/src/utils/generate-watch-link.ts`                     | Kinobox canonical URLs                                                                                                          |
+| Env validation       | `backend/src/utils/enviroments.ts`                              | envalid; note the typo in filename                                                                                              |
+| Media page factories | `frontend/src/composables/factories/`                           | `create-params-store.ts`, `create-records-store.ts`                                                                             |
+| Архитектура          | `docs/architecture.md`                                          | Слои, жизненный цикл запроса, чек-лист нового домена                                                                            |
+| API-справочник       | `docs/api.md`                                                   | Роуты, доступ, лимиты, WS-события (Swagger нет)                                                                                 |
 
 ## CONVENTIONS
 

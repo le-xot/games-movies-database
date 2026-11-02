@@ -180,6 +180,12 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
       createLink: async () => ({ url: '' }),
       disconnect: async () => {},
     },
+    cocktails: {
+      getCatalog: async () => ({ shelves: [] }),
+      match: async () => [],
+      getBar: async () => ({ ingredientIds: [] }),
+      setBar: async (_userId, ingredientIds) => ({ ingredientIds }),
+    },
     telegramWebhook: {
       getWebhookSecret: () => null,
       handleUpdate: async () => {},

@@ -2,6 +2,8 @@ import { DrizzleService } from '@backend/database/drizzle.service'
 import { createJwtAuthenticator } from '@backend/gateway/jwt-authenticator'
 import { AuthService } from '@backend/modules/auth/auth.service'
 import { AvatarService } from '@backend/modules/avatar/avatar.service'
+import { CocktailService } from '@backend/modules/cocktail/cocktail.service'
+import { DrizzleCocktailRepository } from '@backend/modules/cocktail/repositories/drizzle-cocktail.repository'
 import { ImgService } from '@backend/modules/img/img.service'
 import { KickService } from '@backend/modules/kick/kick.service'
 import { LikeService } from '@backend/modules/like/like.service'
@@ -39,6 +41,7 @@ import { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 import { WordleService } from '@backend/modules/wordle/wordle.service'
 import { analyticsPorts } from '@backend/server/wiring/analytics'
 import { catalogPorts } from '@backend/server/wiring/catalog'
+import { cocktailPorts } from '@backend/server/wiring/cocktails'
 import { integrationPorts } from '@backend/server/wiring/integrations'
 import { peoplePorts } from '@backend/server/wiring/people'
 import { wordlePorts } from '@backend/server/wiring/wordle'
@@ -111,6 +114,7 @@ export function createContainer(): Container {
   const imgService = new ImgService(s3)
   const steam = new SteamService(providers, new DrizzleRecordRepository(drizzle), events)
   const twir = new TwirService(users, suggestions)
+  const cocktails = new CocktailService(new DrizzleCocktailRepository(drizzle))
 
   const redisClient = new RedisClient(env.REDIS_URL)
 
@@ -202,6 +206,7 @@ export function createContainer(): Container {
         telegramBot,
       }),
       ...wordlePorts({ wordle, wordlePractice, wordleNotifications }),
+      ...cocktailPorts({ cocktails }),
       rateLimit,
     },
     async close() {

@@ -104,7 +104,7 @@ const resultsSummary = computed(() => {
 
   // «194» — не размер справочника, а всё, что нашлось при докупке до максимума.
   const hidden = total - shown
-  return `${shown} ${pluralRu(shown, COCKTAIL_FORMS)} сейчас · ещё ${hidden} ${pluralRu(hidden, COCKTAIL_FORMS)} с докупкой`
+  return `${shown} ${pluralRu(shown, COCKTAIL_FORMS)} сейчас · ещё ${hidden} с докупкой`
 })
 
 const emptySearchDescription = computed(() => {

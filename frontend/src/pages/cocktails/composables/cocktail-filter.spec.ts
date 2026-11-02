@@ -47,6 +47,21 @@ describe('filterMatches', () => {
     expect(filterMatches(withExtras, 0, '').map((item) => item.name)).toEqual(['Сприц'])
   })
 
+  it('keeps a cocktail with a missing extra in the default mode', () => {
+    const withExtras = [cocktail('Сприц', [], ['Биттер'])]
+    expect(filterMatches(withExtras, 0, '', false).map((item) => item.name)).toEqual(['Сприц'])
+  })
+
+  it('hides a cocktail with a missing extra in the strict mode', () => {
+    const withExtras = [cocktail('Сприц', [], ['Биттер']), cocktail('Мохито')]
+    expect(filterMatches(withExtras, 3, '', true).map((item) => item.name)).toEqual(['Мохито'])
+  })
+
+  it('keeps a cocktail whose extras are all present in the strict mode', () => {
+    const complete = [cocktail('Сприц', [], [])]
+    expect(filterMatches(complete, 0, '', true).map((item) => item.name)).toEqual(['Сприц'])
+  })
+
   it('matches the name case-insensitively', () => {
     expect(filterMatches(cocktails, 3, '  МАР ').map((item) => item.name)).toEqual(['Маргарита'])
   })

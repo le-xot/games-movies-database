@@ -4,11 +4,12 @@ import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import CocktailAddDialog from '@/pages/cocktails/components/CocktailAddDialog.vue'
+import CocktailBarField from '@/pages/cocktails/components/CocktailBarField.vue'
 import CocktailCard from '@/pages/cocktails/components/CocktailCard.vue'
 import CocktailEmptyState from '@/pages/cocktails/components/CocktailEmptyState.vue'
-import CocktailMaxMissingSlider from '@/pages/cocktails/components/CocktailMaxMissingSlider.vue'
+import CocktailFilters from '@/pages/cocktails/components/CocktailFilters.vue'
 import CocktailModeSwitch from '@/pages/cocktails/components/CocktailModeSwitch.vue'
-import CocktailShelves from '@/pages/cocktails/components/CocktailShelves.vue'
 import { filterMatches } from '@/pages/cocktails/composables/cocktail-filter'
 import { useCocktailBar } from '@/pages/cocktails/composables/use-cocktail-bar'
 import { useCocktailCatalog } from '@/pages/cocktails/composables/use-cocktail-catalog'
@@ -19,11 +20,13 @@ import {
 import { pluralRu } from '@/utils/plural-ru'
 
 const COCKTAIL_FORMS = ['коктейль', 'коктейля', 'коктейлей'] as const
-const INGREDIENT_FORMS = ['ингредиент', 'ингредиента', 'ингредиентов'] as const
 
 const query = ref('')
 // По умолчанию — только то, что можно смешать прямо сейчас.
 const maxMissing = ref(0)
+// Необязательные строки («по желанию») по умолчанию не мешают показывать коктейль.
+const strictExtras = ref(false)
+const isAddDialogOpen = ref(false)
 
 const {
   shelves,
@@ -55,7 +58,19 @@ const {
 })
 
 const visibleCocktails = computed(() =>
-  filterMatches(cocktails.value, maxMissing.value, query.value),
+  filterMatches(cocktails.value, maxMissing.value, query.value, strictExtras.value),
+)
+
+const ingredientNames = computed(() => {
+  const names = new Map<string, string>()
+  for (const shelf of shelves.value) {
+    for (const ingredient of shelf.ingredients) names.set(ingredient.id, ingredient.name)
+  }
+  return names
+})
+
+const barChips = computed(() =>
+  ingredientIds.value.map((id) => ({ id, name: ingredientNames.value.get(id) ?? id })),
 )
 
 const needsLogin = computed(() => mode.value === 'mine' && !canUseOwnBar.value)
@@ -72,20 +87,18 @@ const hasEmptyBar = computed(
     ingredientIds.value.length === 0,
 )
 
-const barSummary = computed(() => {
-  if (isBarInitialLoading.value || needsLogin.value || hasBarLoadError.value) return ''
-
-  const count = ingredientIds.value.length
-  return `${count} ${pluralRu(count, INGREDIENT_FORMS)} в баре`
-})
-
 const resultsSummary = computed(() => {
   if (showSkeletons.value || hasEmptyBar.value || needsLogin.value) return ''
   if (hasBarLoadError.value) return ''
 
   // `total` считаем с тем же фильтром по имени, что и `shown`: иначе поиск
   // занижает выдачу, а «ещё N с докупкой» раздувается остатком справочника.
-  const total = filterMatches(cocktails.value, MATCH_MAX_MISSING, query.value).length
+  const total = filterMatches(
+    cocktails.value,
+    MATCH_MAX_MISSING,
+    query.value,
+    strictExtras.value,
+  ).length
   const shown = visibleCocktails.value.length
   if (shown === total) return `${total} ${pluralRu(total, COCKTAIL_FORMS)}`
 
@@ -96,7 +109,7 @@ const resultsSummary = computed(() => {
 
 const emptySearchDescription = computed(() => {
   if (query.value.trim() !== '') return `По запросу «${query.value.trim()}» ничего не нашлось.`
-  return 'Попробуйте допустить больше недостающих ингредиентов или отметьте на полках то, что уже есть.'
+  return 'Разрешите докупку или добавьте ингредиенты'
 })
 
 function retry() {
@@ -119,103 +132,104 @@ function retry() {
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <CocktailModeSwitch :model-value="mode" @update:model-value="switchMode" />
 
-        <div class="flex flex-col items-start gap-1 sm:items-end">
-          <span class="text-xs text-muted-foreground">{{ barSummary }}</span>
+        <div v-if="isSaving || saveError" class="flex flex-col items-start gap-1 sm:items-end">
           <span v-if="isSaving" class="text-xs text-muted-foreground">Сохраняем…</span>
           <span v-else-if="saveError" class="text-xs text-destructive">{{ saveError }}</span>
         </div>
       </div>
     </header>
 
-    <div
-      class="flex flex-col gap-4 rounded-xl border border-white/10 bg-[var(--n-action-color)] p-3 sm:flex-row sm:items-center"
-    >
-      <div class="relative w-full sm:max-w-xs">
-        <Search
-          class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-        />
-        <Input
-          v-model="query"
-          type="search"
-          placeholder="Найти коктейль"
-          aria-label="Найти коктейль"
-          class="pl-9"
-        />
+    <CocktailBarField
+      :chips="barChips"
+      :is-loading="isBarInitialLoading || isCatalogLoading"
+      :readonly="needsLogin"
+      @remove="toggleIngredient"
+      @add="isAddDialogOpen = true"
+    />
+
+    <CocktailAddDialog
+      v-model:open="isAddDialogOpen"
+      :shelves="shelves"
+      :selected-ids="ingredientIds"
+      :is-loading="isCatalogLoading"
+      @toggle="toggleIngredient"
+    />
+
+    <section class="flex min-w-0 flex-col gap-4">
+      <div
+        v-if="hasCatalogError || hasMatchError || hasBarLoadError"
+        class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[var(--n-action-color)] px-4 py-3"
+      >
+        <span class="text-sm text-destructive">
+          {{
+            hasBarLoadError
+              ? barLoadError
+              : hasCatalogError
+                ? 'Не удалось загрузить полки'
+                : 'Не удалось подобрать коктейли'
+          }}
+        </span>
+        <Button variant="outline" size="sm" @click="retry">
+          <RotateCw />
+          Повторить
+        </Button>
       </div>
 
-      <CocktailMaxMissingSlider v-model="maxMissing" class="sm:ml-auto sm:w-64" />
-    </div>
-
-    <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-      <aside
-        class="flex min-w-0 flex-col gap-2 lg:sticky lg:top-2 lg:max-h-[calc(100dvh-180px)] lg:overflow-y-auto lg:pr-1"
-      >
-        <h2 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Полки</h2>
-        <CocktailShelves
-          :shelves="shelves"
-          :selected-ids="ingredientIds"
-          :is-loading="isCatalogLoading"
-          @toggle="toggleIngredient"
-        />
-      </aside>
-
-      <section class="flex min-w-0 flex-col gap-4">
-        <div
-          v-if="hasCatalogError || hasMatchError || hasBarLoadError"
-          class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[var(--n-action-color)] px-4 py-3"
-        >
-          <span class="text-sm text-destructive">
-            {{
-              hasBarLoadError
-                ? barLoadError
-                : hasCatalogError
-                  ? 'Не удалось загрузить полки'
-                  : 'Не удалось подобрать коктейли'
-            }}
-          </span>
-          <Button variant="outline" size="sm" @click="retry">
-            <RotateCw />
-            Повторить
-          </Button>
-        </div>
-
-        <div class="flex items-baseline justify-between gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Что можно смешать
           </h2>
           <span class="text-xs text-muted-foreground">{{ resultsSummary }}</span>
         </div>
 
-        <div v-if="showSkeletons" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Skeleton v-for="n in 4" :key="n" class="h-64 w-full rounded-xl" aria-hidden="true" />
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <div class="relative sm:w-44">
+            <Search
+              class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              v-model="query"
+              type="search"
+              placeholder="Найти коктейль"
+              aria-label="Найти коктейль"
+              class="pl-9"
+            />
+          </div>
+
+          <CocktailFilters v-model="maxMissing" v-model:strict-extras="strictExtras" />
         </div>
+      </div>
 
-        <CocktailEmptyState
-          v-else-if="needsLogin"
-          title="Мой бар доступен после входа"
-          description="Войдите через Twitch, Kick или Telegram — и набор ингредиентов сохранится в аккаунте. Пока можно пользоваться гостевым режимом."
+      <div v-if="showSkeletons" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Skeleton v-for="n in 4" :key="n" class="h-64 w-full rounded-xl" aria-hidden="true" />
+      </div>
+
+      <CocktailEmptyState
+        v-else-if="needsLogin"
+        title="Мой бар доступен после входа"
+        description="Войдите через Twitch, Kick или Telegram — и набор ингредиентов сохранится в аккаунте. Пока можно пользоваться гостевым режимом."
+      />
+
+      <CocktailEmptyState
+        v-else-if="hasEmptyBar"
+        title="Бар пока пуст"
+        description="Добавьте то, что стоит у вас на полке"
+      />
+
+      <CocktailEmptyState
+        v-else-if="visibleCocktails.length === 0 && !hasMatchError && !hasBarLoadError"
+        title="Ничего не нашлось"
+        :description="emptySearchDescription"
+      />
+
+      <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <CocktailCard
+          v-for="cocktail in visibleCocktails"
+          :key="cocktail.id"
+          :cocktail="cocktail"
         />
-
-        <CocktailEmptyState
-          v-else-if="hasEmptyBar"
-          title="Бар пока пуст"
-          description="Отметьте ингредиенты на полках слева — и здесь появятся коктейли, которые можно собрать."
-        />
-
-        <CocktailEmptyState
-          v-else-if="visibleCocktails.length === 0 && !hasMatchError && !hasBarLoadError"
-          title="Ничего не нашлось"
-          :description="emptySearchDescription"
-        />
-
-        <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <CocktailCard
-            v-for="cocktail in visibleCocktails"
-            :key="cocktail.id"
-            :cocktail="cocktail"
-          />
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 </template>

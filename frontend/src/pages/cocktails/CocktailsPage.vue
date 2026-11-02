@@ -83,7 +83,10 @@ const resultsSummary = computed(() => {
   const total = cocktails.value.length
   const shown = visibleCocktails.value.length
   if (shown === total) return `${total} ${pluralRu(total, COCKTAIL_FORMS)}`
-  return `${shown} из ${total}`
+
+  // «194» — не размер справочника, а всё, что нашлось при докупке до максимума.
+  const hidden = total - shown
+  return `${shown} ${pluralRu(shown, COCKTAIL_FORMS)} сейчас · ещё ${hidden} ${pluralRu(hidden, COCKTAIL_FORMS)} с докупкой`
 })
 
 const emptySearchDescription = computed(() => {

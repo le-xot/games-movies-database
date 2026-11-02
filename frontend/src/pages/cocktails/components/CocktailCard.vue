@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { CocktailTier } from '@/lib/api'
 import { pluralRu } from '@/utils/plural-ru'
 import type { CocktailMethodValue, MatchedCocktail } from '@/pages/cocktails/types'
 
@@ -10,6 +11,8 @@ const METHOD_LABELS: Record<CocktailMethodValue, string> = {
   BLEND: 'блендер',
 }
 
+const INGREDIENT_FORMS = ['ингредиента', 'ингредиентов', 'ингредиентов'] as const
+
 const props = defineProps<{
   cocktail: MatchedCocktail
 }>()
@@ -17,11 +20,25 @@ const props = defineProps<{
 const methodLabel = computed(() => METHOD_LABELS[props.cocktail.method])
 const missingCoreLabel = computed(() => props.cocktail.missingCore.join(', '))
 const missingExtraLabel = computed(() => props.cocktail.missingExtra.join(', '))
-const availableLabel = computed(() => {
-  const total = props.cocktail.ingredients.length
-  const present = props.cocktail.ingredients.filter((ingredient) => ingredient.present).length
-  return `${present} из ${total} ${pluralRu(total, ['ингредиента', 'ингредиентов', 'ингредиентов'])}`
+
+/**
+ * Считаем только обязательные строки: необязательные (`EXTRA`/`FREE`) и так
+ * подписаны отдельным «По желанию», и в счётчике они читались бы как нехватка.
+ */
+const coreCountLabel = computed(() => {
+  const core = props.cocktail.ingredients.filter(
+    (ingredient) => ingredient.tier === CocktailTier.CORE,
+  )
+  if (core.length === 0) return null
+
+  const present = core.filter((ingredient) => ingredient.present).length
+  return `${present} из ${core.length} ${pluralRu(core.length, INGREDIENT_FORMS)}`
 })
+
+/** Вторая строка шапки: посуда и счётчик обязательных строк, если он есть. */
+const summaryLine = computed(() =>
+  [props.cocktail.glass, coreCountLabel.value].filter(Boolean).join(' · '),
+)
 </script>
 
 <template>
@@ -35,7 +52,7 @@ const availableLabel = computed(() => {
           {{ methodLabel }}
         </span>
       </div>
-      <p class="text-xs text-muted-foreground">{{ cocktail.glass }} · {{ availableLabel }}</p>
+      <p class="text-xs text-muted-foreground">{{ summaryLine }}</p>
     </header>
 
     <ul class="flex flex-col gap-1">

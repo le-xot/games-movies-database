@@ -185,11 +185,13 @@ OAuth-callback'и провайдеров (`TWITCH_CALLBACK_URL`, `KICK_CALLBACK_
 `GET /cocktails/catalog` → `{ shelves: [{ id, title, ingredients: [{ id, name }] }] }`; полки идут
 в порядке `IngredientCategory`, пустые не отдаются.
 
-`POST /cocktails/match` — тело `{ "ingredientIds": string[], "maxMissing": 0..3 }` (до 300 id),
+`POST /cocktails/match` — тело `{ "ingredientIds": string[], "maxMissing": 0..50 }` (до 300 id),
 ответ — **массив** коктейлей (`CocktailDTO`), отсортированный по числу недостающих
 `CORE`-ингредиентов, затем по имени. `maxMissing` ограничивает только `CORE`: недостающий `EXTRA`
 попадает в `missingExtra`, но коктейль не выбрасывает. Пустой набор при `maxMissing = 0` даёт
 пустой массив, а не 404; при `maxMissing > 0` в выдачу попадут и коктейли, которые пока не собрать.
+Команда бота `/bar` и подбор на странице используют `0..3`; поиск по справочнику запрашивает `50`,
+чтобы находить коктейли независимо от фильтра докупки.
 
 `GET /cocktails/bar` и `PUT /cocktails/bar` — один конверт `{ "ingredientIds": string[] }`.
 `PUT` заменяет бар целиком: дубликаты схлопываются, неизвестный id — `400`.

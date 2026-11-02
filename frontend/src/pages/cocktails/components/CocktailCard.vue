@@ -20,6 +20,8 @@ const props = defineProps<{
 const methodLabel = computed(() => METHOD_LABELS[props.cocktail.method])
 const missingCoreLabel = computed(() => props.cocktail.missingCore.join(', '))
 const missingExtraLabel = computed(() => props.cocktail.missingExtra.join(', '))
+/** Число недостающих обязательных строк: столько нужно докупить до сборки. */
+const missingCount = computed(() => props.cocktail.missingCore.length)
 
 /**
  * Считаем только обязательные строки: необязательные (`EXTRA`/`FREE`) и так
@@ -48,9 +50,18 @@ const summaryLine = computed(() =>
     <header class="flex flex-col gap-1">
       <div class="flex items-start justify-between gap-3">
         <h3 class="text-lg font-semibold leading-tight">{{ cocktail.name }}</h3>
-        <span class="shrink-0 text-xs uppercase tracking-wide text-muted-foreground">
-          {{ methodLabel }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span
+            v-if="missingCount > 0"
+            class="rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-medium text-amber-400"
+            :aria-label="`Не хватает ${missingCount} ${pluralRu(missingCount, INGREDIENT_FORMS)}`"
+          >
+            не хватает {{ missingCount }}
+          </span>
+          <span class="text-xs uppercase tracking-wide text-muted-foreground">
+            {{ methodLabel }}
+          </span>
+        </div>
       </div>
       <p class="text-xs text-muted-foreground">{{ summaryLine }}</p>
     </header>

@@ -176,8 +176,8 @@ describe('matchCocktails', () => {
     expect(sorted.map((cocktail) => cocktail.missingCore.length)).toEqual([1, 1])
   })
 
-  it('rejects maxMissing outside 0..3', () => {
-    expect(() => matchCocktails([NEGRONI], INGREDIENTS, [], 4)).toThrow(RangeError)
+  it('rejects maxMissing outside 0..50', () => {
+    expect(() => matchCocktails([NEGRONI], INGREDIENTS, [], 51)).toThrow(RangeError)
     expect(() => matchCocktails([NEGRONI], INGREDIENTS, [], -1)).toThrow(RangeError)
   })
 

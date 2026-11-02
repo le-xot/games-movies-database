@@ -69,7 +69,7 @@ export const cocktailModels = {
   }),
   MatchCocktailsDTO: t.Object({
     ingredientIds: t.Array(t.String(), { maxItems: 300 }),
-    maxMissing: t.Integer({ minimum: 0, maximum: 3 }),
+    maxMissing: t.Integer({ minimum: 0, maximum: 50 }),
   }),
   CocktailBarDTO: t.Object({
     ingredientIds: t.Array(t.String()),

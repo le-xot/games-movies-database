@@ -24,3 +24,17 @@ export function filterMatches(
     return cocktail.name.toLowerCase().includes(needle)
   })
 }
+
+/**
+ * Поиск по имени без порога недостающих.
+ *
+ * Режим поиска запрашивает справочник с `maxMissing: 50`, поэтому в выдачу
+ * попадают и коктейли, которые сейчас не собрать. Порядок не трогаем: матчер
+ * уже отсортировал по числу недостающих `CORE`, затем по имени.
+ */
+export function searchMatches(cocktails: MatchedCocktail[], query: string): MatchedCocktail[] {
+  const needle = query.trim().toLowerCase()
+  if (needle === '') return [...cocktails]
+
+  return cocktails.filter((cocktail) => cocktail.name.toLowerCase().includes(needle))
+}

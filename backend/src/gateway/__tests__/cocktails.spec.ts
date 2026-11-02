@@ -103,11 +103,22 @@ describe('cocktails', () => {
     expect(match).toHaveBeenCalledWith({ ingredientIds: ['gin'], maxMissing: 1 })
   })
 
-  it('rejects a threshold outside 0..3', async () => {
+  it('accepts the catalog-wide threshold used by search', async () => {
     const { gateway, match } = build()
 
     const response = await gateway.handle(
-      jsonRequest('/cocktails/match', 'POST', { ingredientIds: ['gin'], maxMissing: 7 }, false),
+      jsonRequest('/cocktails/match', 'POST', { ingredientIds: ['gin'], maxMissing: 50 }, false),
+    )
+
+    expect(response.status).toBe(200)
+    expect(match).toHaveBeenCalledWith({ ingredientIds: ['gin'], maxMissing: 50 })
+  })
+
+  it('rejects a threshold outside 0..50', async () => {
+    const { gateway, match } = build()
+
+    const response = await gateway.handle(
+      jsonRequest('/cocktails/match', 'POST', { ingredientIds: ['gin'], maxMissing: 51 }, false),
     )
 
     expect(response.status).toBe(400)

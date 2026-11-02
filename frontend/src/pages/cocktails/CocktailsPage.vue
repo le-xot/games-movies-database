@@ -10,7 +10,7 @@ import CocktailCard from '@/pages/cocktails/components/CocktailCard.vue'
 import CocktailEmptyState from '@/pages/cocktails/components/CocktailEmptyState.vue'
 import CocktailFilters from '@/pages/cocktails/components/CocktailFilters.vue'
 import CocktailModeSwitch from '@/pages/cocktails/components/CocktailModeSwitch.vue'
-import { filterMatches } from '@/pages/cocktails/composables/cocktail-filter'
+import { filterMatches, searchMatches } from '@/pages/cocktails/composables/cocktail-filter'
 import { useCocktailBar } from '@/pages/cocktails/composables/use-cocktail-bar'
 import { useCocktailCatalog } from '@/pages/cocktails/composables/use-cocktail-catalog'
 import {
@@ -53,12 +53,32 @@ const {
   isInitialLoading: isMatchLoading,
   error: matchError,
   refetch: refetchMatch,
+  submittedSearch,
+  searchCocktails,
+  isSearchInitialLoading,
+  error: searchError,
+  refetch: refetchSearch,
 } = useCocktailMatch(() => ingredientIds.value, {
   enabled: computed(() => ingredientIds.value.length > 0),
+  searchQuery: query,
 })
 
+const trimmedQuery = computed(() => query.value.trim())
+const isSearching = computed(() => trimmedQuery.value !== '')
+/** Первый ответ поиска ещё не пришёл: показываем скелетоны, а не «ничего не нашлось». */
+const isSearchPending = computed(
+  () => isSearching.value && (submittedSearch.value === '' || isSearchInitialLoading.value),
+)
+
+/**
+ * В режиме поиска источник другой: полная выдача с `maxMissing: 50`, фильтры
+ * докупки и «по желанию» не применяются. Пока поиск отвечает, держим прошлую
+ * выдачу, чтобы карточки не мигали на каждой букве.
+ */
 const visibleCocktails = computed(() =>
-  filterMatches(cocktails.value, maxMissing.value, query.value, strictExtras.value),
+  isSearching.value
+    ? searchMatches(searchCocktails.value, submittedSearch.value)
+    : filterMatches(cocktails.value, maxMissing.value, query.value, strictExtras.value),
 )
 
 const ingredientNames = computed(() => {
@@ -75,9 +95,15 @@ const barChips = computed(() =>
 
 const needsLogin = computed(() => mode.value === 'mine' && !canUseOwnBar.value)
 const hasCatalogError = computed(() => Boolean(catalogError.value))
-const hasMatchError = computed(() => Boolean(matchError.value))
+/** Ошибка того запроса, на котором сейчас держится выдача. */
+const hasMatchError = computed(() =>
+  isSearching.value ? Boolean(searchError.value) : Boolean(matchError.value),
+)
 const hasBarLoadError = computed(() => Boolean(barLoadError.value))
-const showSkeletons = computed(() => isBarInitialLoading.value || isMatchLoading.value)
+const showSkeletons = computed(
+  () =>
+    isBarInitialLoading.value || (isSearching.value ? isSearchPending.value : isMatchLoading.value),
+)
 
 const hasEmptyBar = computed(
   () =>
@@ -88,8 +114,16 @@ const hasEmptyBar = computed(
 )
 
 const resultsSummary = computed(() => {
-  if (showSkeletons.value || hasEmptyBar.value || needsLogin.value) return ''
-  if (hasBarLoadError.value) return ''
+  if (hasBarLoadError.value || needsLogin.value) return ''
+
+  // В режиме поиска счётчик другой: фильтры не применены, «докупки» в нём нет.
+  if (isSearching.value) {
+    if (isSearchPending.value) return ''
+    const found = visibleCocktails.value.length
+    return `найдено ${found} ${pluralRu(found, COCKTAIL_FORMS)}`
+  }
+
+  if (showSkeletons.value || hasEmptyBar.value) return ''
 
   // `total` считаем с тем же фильтром по имени, что и `shown`: иначе поиск
   // занижает выдачу, а «ещё N с докупкой» раздувается остатком справочника.
@@ -114,7 +148,10 @@ const emptySearchDescription = computed(() => {
 
 function retry() {
   if (hasCatalogError.value) void refetchCatalog()
-  if (hasMatchError.value) void refetchMatch()
+  if (hasMatchError.value) {
+    if (isSearching.value) void refetchSearch()
+    else void refetchMatch()
+  }
   if (hasBarLoadError.value) reloadBar()
 }
 </script>
@@ -212,7 +249,7 @@ function retry() {
       />
 
       <CocktailEmptyState
-        v-else-if="hasEmptyBar"
+        v-else-if="hasEmptyBar && !isSearching"
         title="Бар пока пуст"
         description="Добавьте то, что стоит у вас на полке"
       />

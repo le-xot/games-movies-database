@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { filterMatches } from '@/pages/cocktails/composables/cocktail-filter'
+import { filterMatches, searchMatches } from '@/pages/cocktails/composables/cocktail-filter'
 import type { MatchedCocktail } from '@/pages/cocktails/types'
 
 function cocktail(
@@ -80,5 +80,40 @@ describe('filterMatches', () => {
     const input = [...cocktails]
     filterMatches(input, 3, 'мо')
     expect(input).toHaveLength(cocktails.length)
+  })
+})
+
+describe('searchMatches', () => {
+  it('keeps a cocktail that needs more ingredients than the purchase filter allows', () => {
+    const unmakeable = [cocktail('Негрони', ['Кампари', 'Красный вермут'])]
+
+    expect(searchMatches(unmakeable, 'негрони').map((item) => item.name)).toEqual(['Негрони'])
+  })
+
+  it('matches the name case-insensitively and ignores surrounding spaces', () => {
+    const cocktails = [cocktail('Негрони', ['Кампари']), cocktail('Мохито')]
+
+    expect(searchMatches(cocktails, '  НЕГР ').map((item) => item.name)).toEqual(['Негрони'])
+  })
+
+  it('preserves the order of the matcher output', () => {
+    const sorted = [
+      cocktail('Апероль', []),
+      cocktail('Бульвардье', ['Кампари']),
+      cocktail('Негрони', ['Кампари']),
+    ]
+
+    expect(searchMatches(sorted, '').map((item) => item.name)).toEqual([
+      'Апероль',
+      'Бульвардье',
+      'Негрони',
+    ])
+  })
+
+  it('does not mutate the input array', () => {
+    const input = [cocktail('Негрони', ['Кампари'])]
+    searchMatches(input, 'нег')
+
+    expect(input).toHaveLength(1)
   })
 })

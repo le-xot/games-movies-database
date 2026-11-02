@@ -6,8 +6,13 @@ import type {
   MatchedIngredient,
 } from './cocktail.types'
 
-/** Больше трёх недостающих CORE-ингредиентов — уже не «почти получится». */
-const MAX_MISSING_LIMIT = 3
+/**
+ * Верхняя граница `maxMissing`.
+ *
+ * Для подбора с докупкой это «не больше трёх», но поиск по справочнику
+ * запрашивает 50 — ему нужны и коктейли, которые сейчас не собрать.
+ */
+const MAX_MISSING_LIMIT = 50
 
 /**
  * Матчинг коктейлей по имеющимся ингредиентам.
@@ -17,7 +22,7 @@ const MAX_MISSING_LIMIT = 3
  * коктейль не выбрасывает, а `FREE` не считается отсутствующим никогда.
  * Порядок выдачи: по числу недостающих `CORE`, затем по имени (`ru`).
  *
- * @throws {RangeError} если `maxMissing` вне `0..3` — это ошибка разработчика.
+ * @throws {RangeError} если `maxMissing` вне `0..50` — это ошибка разработчика.
  */
 export function matchCocktails(
   cocktails: readonly CatalogCocktail[],

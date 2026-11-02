@@ -98,7 +98,7 @@ export function useDbNavigation() {
   )
 
   const bottomItems = computed(() =>
-    [wordleNavItem, cocktailsNavItem, homeNavItem].filter(isItemVisible),
+    [cocktailsNavItem, wordleNavItem, homeNavItem].filter(isItemVisible),
   )
 
   function handleNavClick(name: string) {

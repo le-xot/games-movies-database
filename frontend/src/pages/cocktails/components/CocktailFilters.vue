@@ -8,6 +8,8 @@ const MISSING_FORMS = ['недостающего', 'недостающих', 'н
 const INGREDIENT_FORMS = ['ингредиента', 'ингредиентов', 'ингредиентов'] as const
 
 const STRICT_EXTRAS_HINT = 'Считать «по желанию» (цедра, биттер, мята) обязательным'
+/** Поиск по справочнику идёт мимо этих фильтров, поэтому во время поиска они гаснут. */
+const DISABLED_HINT = 'Не влияет на поиск'
 
 const STEPS = Array.from({ length: MATCH_MAX_MISSING + 1 }, (_, index) => index)
 
@@ -23,6 +25,8 @@ function stepHint(step: number): string {
 defineProps<{
   modelValue: number
   strictExtras: boolean
+  /** Во время поиска фильтры не применяются: показываем их погашенными. */
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -34,9 +38,11 @@ const emit = defineEmits<{
 <template>
   <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
     <div
-      class="inline-flex rounded-md border p-0.5"
+      class="inline-flex rounded-md border p-0.5 transition-opacity"
+      :class="disabled && 'opacity-50'"
       role="group"
       aria-label="Сколько недостающих ингредиентов можно докупить"
+      :title="disabled ? DISABLED_HINT : undefined"
     >
       <Button
         v-for="step in STEPS"
@@ -44,18 +50,26 @@ const emit = defineEmits<{
         size="sm"
         :variant="modelValue === step ? 'secondary' : 'ghost'"
         :aria-pressed="modelValue === step"
-        :title="stepHint(step)"
-        :aria-label="stepHint(step)"
+        :disabled="disabled"
+        :aria-disabled="disabled ? 'true' : undefined"
+        :title="disabled ? DISABLED_HINT : stepHint(step)"
+        :aria-label="disabled ? DISABLED_HINT : stepHint(step)"
         @click="emit('update:modelValue', step)"
       >
         {{ stepLabel(step) }}
       </Button>
     </div>
 
-    <label class="flex cursor-pointer items-center gap-2 select-none" :title="STRICT_EXTRAS_HINT">
+    <label
+      class="flex items-center gap-2 select-none transition-opacity"
+      :class="[disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
+      :title="disabled ? DISABLED_HINT : STRICT_EXTRAS_HINT"
+      :aria-disabled="disabled ? 'true' : undefined"
+    >
       <Switch
         :model-value="strictExtras"
-        :aria-label="STRICT_EXTRAS_HINT"
+        :disabled="disabled"
+        :aria-label="disabled ? DISABLED_HINT : STRICT_EXTRAS_HINT"
         @update:model-value="emit('update:strictExtras', $event)"
       />
       <span class="text-xs text-muted-foreground">по желанию</span>

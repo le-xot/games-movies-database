@@ -234,7 +234,11 @@ function retry() {
             />
           </div>
 
-          <CocktailFilters v-model="maxMissing" v-model:strict-extras="strictExtras" />
+          <CocktailFilters
+            v-model="maxMissing"
+            v-model:strict-extras="strictExtras"
+            :disabled="isSearching"
+          />
         </div>
       </div>
 

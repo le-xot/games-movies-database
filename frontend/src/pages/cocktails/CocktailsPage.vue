@@ -12,7 +12,10 @@ import CocktailShelves from '@/pages/cocktails/components/CocktailShelves.vue'
 import { filterMatches } from '@/pages/cocktails/composables/cocktail-filter'
 import { useCocktailBar } from '@/pages/cocktails/composables/use-cocktail-bar'
 import { useCocktailCatalog } from '@/pages/cocktails/composables/use-cocktail-catalog'
-import { useCocktailMatch } from '@/pages/cocktails/composables/use-cocktail-match'
+import {
+  MATCH_MAX_MISSING,
+  useCocktailMatch,
+} from '@/pages/cocktails/composables/use-cocktail-match'
 import { pluralRu } from '@/utils/plural-ru'
 
 const COCKTAIL_FORMS = ['коктейль', 'коктейля', 'коктейлей'] as const
@@ -80,7 +83,9 @@ const resultsSummary = computed(() => {
   if (showSkeletons.value || hasEmptyBar.value || needsLogin.value) return ''
   if (hasBarLoadError.value) return ''
 
-  const total = cocktails.value.length
+  // `total` считаем с тем же фильтром по имени, что и `shown`: иначе поиск
+  // занижает выдачу, а «ещё N с докупкой» раздувается остатком справочника.
+  const total = filterMatches(cocktails.value, MATCH_MAX_MISSING, query.value).length
   const shown = visibleCocktails.value.length
   if (shown === total) return `${total} ${pluralRu(total, COCKTAIL_FORMS)}`
 

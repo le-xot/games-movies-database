@@ -73,7 +73,10 @@ export class CocktailBotService {
 
     const bar = await this.cocktails.getBar(user.id)
     if (bar.ingredientIds.length === 0) {
-      await this.telegram.sendMessage(context.chatId, buildEmptyBarText())
+      await this.telegram.sendMessage(context.chatId, buildEmptyBarText(), {
+        text: OPEN_SITE_BUTTON_TEXT,
+        url: this.appPublicUrl,
+      })
       return
     }
 

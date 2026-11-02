@@ -155,7 +155,7 @@ export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps
     .put(
       '/cocktails/bar',
       async (ctx) => {
-        await limit(ctx, 'CocktailController.setBar', RATE_LIMITS.write)
+        await limit(ctx, 'CocktailController.setBar', RATE_LIMITS.cocktailBar)
 
         return await cocktails.setBar(
           (await requireBarOwner(ctx.request)).id,

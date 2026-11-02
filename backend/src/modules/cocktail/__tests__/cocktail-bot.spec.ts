@@ -106,15 +106,20 @@ describe('CocktailBotService /bar', () => {
     ])
   })
 
-  it('говорит про пустой бар и не ищет коктейли', async () => {
+  it('говорит про пустой бар, ведёт на сайт и не ищет коктейли', async () => {
     const { telegram, cocktails, sent } = createService({ bar: [] })
 
     await runBar(telegram, null)
 
     expect(cocktails.getBar).toHaveBeenCalledWith('user-1')
     expect(cocktails.match).not.toHaveBeenCalled()
-    expect(sent).toHaveLength(1)
-    expect(sent[0]?.text).toBe(buildEmptyBarText())
+    expect(sent).toEqual([
+      {
+        chatId: '42',
+        text: buildEmptyBarText(),
+        button: { text: OPEN_SITE_BUTTON_TEXT, url: 'https://example.test' },
+      },
+    ])
   })
 
   it('показывает до десяти коктейлей и хвост «и ещё N»', async () => {

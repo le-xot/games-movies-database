@@ -444,7 +444,7 @@ TWIR_API=your_api_key
 - PostgreSQL 17
 - Drizzle ORM: схема в `database/src/schema/`, сгенерированные SQL миграции в `database/migrations/`
 - Генерация миграций из схемы — `bun db:generate`, применение — `bun db:migrate`
-- В продакшене миграции применяет one-shot сервис `migrations` перед запуском `application`
+- В продакшене миграции применяет one-shot сервис `migrations`: его образ запускает `migrate-and-seed` — сначала миграции, затем бутстрап каталога коктейлей. Сид наполняет только полностью пустую базу и на непустой пропускается с кодом 0.
 - Для существующей базы однократно выполните `bun db:baseline` перед первым деплоем
 - Enum-константы описаны через `pgEnum` в `database/src/schema/enums.ts`
 - DBX доступен на порту `4224` в dev-режиме
@@ -473,7 +473,7 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - **RustFS** — S3-совместимое хранилище для изображений
 - **DBX** с Traefik reverse proxy (`dbx.le-xot.dev`) — база, Redis и RustFS из одного UI (плагин S3 Browser)
 - **logs** (Dozzle) с Traefik reverse proxy (`logs.le-xot.dev`) — логи контейнеров
-- **migrations** — one-shot сервис: применяет миграции перед запуском `application`
+- **migrations** — one-shot сервис: выполняет `migrate-and-seed` (миграции, затем бутстрап каталога коктейлей, который наполняет только полностью пустую базу) перед запуском `application`
 - **Приложение** с Traefik reverse proxy (`le-xot.dev`)
 
 DBX и Dozzle закрыты `ipallowlist` по `ADMIN_ALLOWED_IPS`; без этой переменной middlewares не соберутся.

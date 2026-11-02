@@ -70,9 +70,12 @@ export class DrizzleCocktailRepository implements CocktailRepository {
 
       if (ingredientIds.length === 0) return
 
+      // Два одновременных `PUT` могут вставить один и тот же PK: лишний конфликт
+      // не должен превращаться в 500 — набор просто останется объединённым.
       await tx
         .insert(cocktailBarItems)
         .values(ingredientIds.map((ingredientId) => ({ userId, ingredientId })))
+        .onConflictDoNothing()
     })
   }
 }

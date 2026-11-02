@@ -124,13 +124,20 @@ export function useCocktailBar() {
     saveTimer = null
   }
 
-  watch(bar, (value) => {
-    if (!value) return
-    barLoadError.value = null
-    // Несохранённый набор важнее серверного: иначе `PUT`-ошибка теряет выбор.
-    if (hasUnsavedChanges.value) return
-    mineIds.value = value.ingredientIds
-  })
+  // `immediate` обязателен: кэш бара живёт с `gcTime: false`, и при возврате на
+  // страницу `bar.value` уже есть, а без немедленного запуска `mineIds` остаётся
+  // пустым до ответа рефетча. Клик в этом окне отправил бы бар из одного пункта.
+  watch(
+    bar,
+    (value) => {
+      if (!value) return
+      barLoadError.value = null
+      // Несохранённый набор важнее серверного: иначе `PUT`-ошибка теряет выбор.
+      if (hasUnsavedChanges.value) return
+      mineIds.value = value.ingredientIds
+    },
+    { immediate: true },
+  )
 
   /**
    * Полный сброс своего бара при смене пользователя.

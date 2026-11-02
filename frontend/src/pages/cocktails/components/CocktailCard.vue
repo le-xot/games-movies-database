@@ -11,7 +11,7 @@ const METHOD_LABELS: Record<CocktailMethodValue, string> = {
   BLEND: 'блендер',
 }
 
-const INGREDIENT_FORMS = ['ингредиента', 'ингредиентов', 'ингредиентов'] as const
+const INGREDIENT_FORMS = ['ингредиент', 'ингредиента', 'ингредиентов'] as const
 
 const props = defineProps<{
   cocktail: MatchedCocktail

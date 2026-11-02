@@ -8,9 +8,9 @@ import { validateCatalog } from './validate'
 /**
  * Одноразовый бутстрап каталога.
  *
- * Источник правды — прод-база: команда наполняет только пустые таблицы, а на
- * наполненной каталоге молча выходит с кодом 0. Ошибки валидатора печатаются
- * списком, код возврата — 1, вставки не происходит.
+ * Источник правды — прод-база: команда наполняет только полностью пустые
+ * таблицы, а на непустом каталоге молча выходит с кодом 0. Ошибки валидатора
+ * печатаются списком, код возврата — 1, вставки не происходит.
  */
 async function main() {
   const pool = createPool()
@@ -18,11 +18,16 @@ async function main() {
   if (!pool) return
 
   try {
-    const existing = await pool.query<{ count: number }>(
-      'select count(*)::int as count from cocktail_ingredients',
+    const existing = await pool.query<{ ingredients: number; cocktails: number }>(
+      `select
+         (select count(*)::int from cocktail_ingredients) as ingredients,
+         (select count(*)::int from cocktails) as cocktails`,
     )
 
-    if ((existing.rows[0]?.count ?? 0) > 0) {
+    // Проверяем обе таблицы: непустые коктейли при пустых ингредиентах — это
+    // тоже «каталог уже есть», и вставка упала бы на unique violation.
+    const counts = existing.rows[0]
+    if ((counts?.ingredients ?? 0) > 0 || (counts?.cocktails ?? 0) > 0) {
       console.log('Каталог уже наполнен, бутстрап пропущен')
       return
     }

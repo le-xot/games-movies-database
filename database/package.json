@@ -6,11 +6,14 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
+    "./seed": "./src/seed/index.ts",
     "./migrations": "./src/lib/migrations.ts"
   },
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "bun run src/migrate.ts",
+    "migrate-and-seed": "bun run src/migrate.ts && bun run src/seed/seed.ts",
+    "seed": "bun run src/seed/seed.ts",
     "baseline": "bun run src/baseline.ts",
     "typecheck": "bun check -b"
   },

@@ -104,3 +104,38 @@ export const ImageVariant = {
   avatar: 'avatar',
 } as const
 export type ImageVariant = (typeof ImageVariant)[keyof typeof ImageVariant]
+
+/**
+ * Категория ингредиента — полка в баре.
+ *
+ * Порядок ключей совпадает с порядком полок в интерфейсе, значения уходят
+ * в pgEnum, поэтому их нельзя переименовывать.
+ */
+export const IngredientCategory = {
+  SPIRIT: 'SPIRIT',
+  LIQUEUR: 'LIQUEUR',
+  WINE_BEER: 'WINE_BEER',
+  MIXER: 'MIXER',
+  SYRUP: 'SYRUP',
+  BITTER: 'BITTER',
+  FRESH: 'FRESH',
+  PANTRY: 'PANTRY',
+} as const
+export type IngredientCategory = (typeof IngredientCategory)[keyof typeof IngredientCategory]
+
+/** Уровень коктейля: базовый, дополнительный или без ограничений. */
+export const CocktailTier = {
+  CORE: 'CORE',
+  EXTRA: 'EXTRA',
+  FREE: 'FREE',
+} as const
+export type CocktailTier = (typeof CocktailTier)[keyof typeof CocktailTier]
+
+/** Способ приготовления коктейля. */
+export const CocktailMethod = {
+  SHAKE: 'SHAKE',
+  STIR: 'STIR',
+  BUILD: 'BUILD',
+  BLEND: 'BLEND',
+} as const
+export type CocktailMethod = (typeof CocktailMethod)[keyof typeof CocktailMethod]

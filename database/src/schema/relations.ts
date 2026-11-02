@@ -1,4 +1,7 @@
 import { relations } from 'drizzle-orm'
+import { cocktailIngredients } from './cocktail-ingredients'
+import { cocktailRecipeItems } from './cocktail-recipe-items'
+import { cocktails } from './cocktails'
 import { likes } from './likes'
 import { recordRatings } from './record-ratings'
 import { records } from './records'
@@ -42,4 +45,19 @@ export const userAccountsRelations = relations(userAccounts, ({ one }) => ({
 
 export const wordleGamesRelations = relations(wordleGames, ({ one }) => ({
   user: one(users, { fields: [wordleGames.userId], references: [users.id] }),
+}))
+
+export const cocktailsRelations = relations(cocktails, ({ many }) => ({
+  items: many(cocktailRecipeItems),
+}))
+
+export const cocktailRecipeItemsRelations = relations(cocktailRecipeItems, ({ one }) => ({
+  cocktail: one(cocktails, {
+    fields: [cocktailRecipeItems.cocktailId],
+    references: [cocktails.id],
+  }),
+  ingredient: one(cocktailIngredients, {
+    fields: [cocktailRecipeItems.ingredientId],
+    references: [cocktailIngredients.id],
+  }),
 }))

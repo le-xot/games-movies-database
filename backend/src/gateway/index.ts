@@ -1,5 +1,6 @@
 import { oauthRoutes, type OAuthConfig, type OAuthPort } from '@backend/gateway/auth-oauth'
 import { authSessionRoutes, type AuthSessionPort } from '@backend/gateway/auth-session'
+import { cocktailRoutes, type CocktailsPort } from '@backend/gateway/cocktails'
 import { errorBody, fromDomainError } from '@backend/gateway/errors'
 import { healthRoutes } from '@backend/gateway/health'
 import { likeRoutes, type LikesService } from '@backend/gateway/likes'
@@ -50,6 +51,7 @@ export interface GatewayDeps {
   steam: SteamPort
   wordle: WordleServicePort
   wordleNotifications: WordleNotificationsPort
+  cocktails: CocktailsPort
   telegramWebhook: TelegramWebhookPort
   auth: Authenticator
   rateLimit: RateLimiter
@@ -128,6 +130,7 @@ export function createGateway(deps: GatewayDeps) {
     )
     .use(healthRoutes(deps))
     .use(wordleRoutes(deps))
+    .use(cocktailRoutes(deps))
     .use(mediaRoutes(deps))
     .use(steamRoutes(deps))
 }

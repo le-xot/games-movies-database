@@ -3,6 +3,8 @@ import crypto from 'node:crypto'
 import { RecordGrade, UserRole } from '@backend/enums'
 import { DrizzleUserRepository } from '@backend/modules/user/repositories/drizzle-user.repository'
 import {
+  cocktailBarItems,
+  cocktailIngredients,
   likes,
   recordRatings,
   records,
@@ -206,6 +208,38 @@ setupIntegrationSuite('DrizzleUserRepository (integration)', ({ db }) => {
     expect(
       await db.select().from(wordleGames).where(eq(wordleGames.userId, target.id)),
     ).toHaveLength(2)
+  })
+
+  it('merges cocktail bars of both users into the target', async () => {
+    const target = await seedUser(db, 'bar-target')
+    const source = await seedUser(db, 'bar-source')
+
+    for (const id of ['gin', 'campari', 'vermouth']) {
+      await db.insert(cocktailIngredients).values({
+        id,
+        name: id,
+        category: 'SPIRIT',
+        defaultTier: 'CORE',
+        sortOrder: 0,
+      })
+    }
+    await db.insert(cocktailBarItems).values([
+      { userId: target.id, ingredientId: 'gin' },
+      { userId: target.id, ingredientId: 'campari' },
+      { userId: source.id, ingredientId: 'campari' },
+      { userId: source.id, ingredientId: 'vermouth' },
+    ])
+
+    await repository.mergeUsers(target.id, source.id)
+
+    expect(
+      (await db.select().from(cocktailBarItems).where(eq(cocktailBarItems.userId, target.id)))
+        .map((item) => item.ingredientId)
+        .sort(),
+    ).toEqual(['campari', 'gin', 'vermouth'])
+    expect(
+      await db.select().from(cocktailBarItems).where(eq(cocktailBarItems.userId, source.id)),
+    ).toHaveLength(0)
   })
 
   it('rolls back the whole merge when a late step fails inside the transaction', async () => {

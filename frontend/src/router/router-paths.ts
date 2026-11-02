@@ -14,6 +14,7 @@ export const ROUTER_PATHS = {
   myRatings: '/db/ratings/my',
   userRatings: '/db/users/:id/ratings',
   wordle: '/db/wordle',
+  cocktails: '/db/cocktails',
 } as const
 
 export type RouterPath = (typeof ROUTER_PATHS)[keyof typeof ROUTER_PATHS]

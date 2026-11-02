@@ -17,4 +17,4 @@ COPY database ./database
 # `node_modules/@gmdb/contract` — симлинк на этот каталог: без него он висит.
 COPY contract ./contract
 WORKDIR /app/database
-CMD ["bun", "run", "migrate"]
+CMD ["bun", "run", "migrate-and-seed"]

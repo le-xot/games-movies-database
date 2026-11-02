@@ -5,6 +5,9 @@ export const RATE_LIMITS = {
   auth: { ttl: RATE_LIMIT_TTL, limit: 5 },
   write: { ttl: RATE_LIMIT_TTL, limit: 20 },
   like: { ttl: RATE_LIMIT_TTL, limit: 60 },
+  // Бар сохраняется сам после паузы, поэтому серия галочек не должна упираться
+  // в лимит ручных записей: кликов в минуту бывает заметно больше двадцати.
+  cocktailBar: { ttl: RATE_LIMIT_TTL, limit: 120 },
   suggestion: { ttl: RATE_LIMIT_TTL, limit: 20 },
   img: { ttl: RATE_LIMIT_TTL, limit: 3000 },
   twir: { ttl: RATE_LIMIT_TTL, limit: 120 },

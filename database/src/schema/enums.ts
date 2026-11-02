@@ -1,5 +1,8 @@
 import {
   AccountPlatform,
+  CocktailMethod,
+  CocktailTier,
+  IngredientCategory,
   LimitType,
   RecordGenre,
   RecordGrade,
@@ -12,6 +15,9 @@ import { pgEnum } from 'drizzle-orm/pg-core'
 
 export {
   AccountPlatform,
+  CocktailMethod,
+  CocktailTier,
+  IngredientCategory,
   LimitType,
   RecordGenre,
   RecordGrade,
@@ -65,4 +71,28 @@ export const wordleGameStatusEnum = pgEnum('WordleGameStatus', [
   WordleGameStatus.IN_PROGRESS,
   WordleGameStatus.WON,
   WordleGameStatus.LOST,
+])
+
+export const ingredientCategoryEnum = pgEnum('ingredient_category', [
+  IngredientCategory.SPIRIT,
+  IngredientCategory.LIQUEUR,
+  IngredientCategory.WINE_BEER,
+  IngredientCategory.MIXER,
+  IngredientCategory.SYRUP,
+  IngredientCategory.BITTER,
+  IngredientCategory.FRESH,
+  IngredientCategory.PANTRY,
+])
+
+export const cocktailTierEnum = pgEnum('cocktail_tier', [
+  CocktailTier.CORE,
+  CocktailTier.EXTRA,
+  CocktailTier.FREE,
+])
+
+export const cocktailMethodEnum = pgEnum('cocktail_method', [
+  CocktailMethod.SHAKE,
+  CocktailMethod.STIR,
+  CocktailMethod.BUILD,
+  CocktailMethod.BLEND,
 ])

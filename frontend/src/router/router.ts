@@ -116,6 +116,11 @@ export const router = createRouter({
           name: 'wordle',
           component: () => import('@/pages/wordle/WordlePage.vue'),
         },
+        {
+          path: ROUTER_PATHS.cocktails,
+          name: 'cocktails',
+          component: () => import('@/pages/cocktails/CocktailsPage.vue'),
+        },
       ],
     },
     {
@@ -155,6 +160,7 @@ const EXPECTED_ROUTE_NAMES = [
   'cartoon',
   'series',
   'wordle',
+  'cocktails',
   'auth-twitch',
   'auth-kick',
   'auth-telegram',

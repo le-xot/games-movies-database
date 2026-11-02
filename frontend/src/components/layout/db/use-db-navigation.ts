@@ -6,6 +6,7 @@ import {
   HandPlatter,
   HouseIcon,
   JapaneseYen,
+  Martini,
   Popcorn,
   Puzzle,
   Star,
@@ -72,6 +73,12 @@ export const wordleNavItem: RouteItem = {
   path: ROUTER_PATHS.wordle,
 }
 
+export const cocktailsNavItem: RouteItem = {
+  name: 'Коктейли',
+  icon: Martini,
+  path: ROUTER_PATHS.cocktails,
+}
+
 export function useDbNavigation() {
   const route = useRoute()
   const { updateTitle } = useTitle()
@@ -90,14 +97,21 @@ export function useDbNavigation() {
       .filter((section) => section.items.length > 0),
   )
 
-  const bottomItems = computed(() => [wordleNavItem, homeNavItem].filter(isItemVisible))
+  const bottomItems = computed(() =>
+    [cocktailsNavItem, wordleNavItem, homeNavItem].filter(isItemVisible),
+  )
 
   function handleNavClick(name: string) {
     updateTitle(name)
   }
 
   function syncTitleFromRoute() {
-    const allItems = [...dbSections.flatMap((s) => s.items), wordleNavItem, homeNavItem]
+    const allItems = [
+      ...dbSections.flatMap((s) => s.items),
+      wordleNavItem,
+      cocktailsNavItem,
+      homeNavItem,
+    ]
     const current = allItems.find((r) => r.path === route.path)
     if (current) updateTitle(current.name)
   }

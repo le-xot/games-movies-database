@@ -9,6 +9,7 @@ import {
   UserDomain,
 } from '@backend/modules/user/entities/user-domain.entity'
 import {
+  cocktailBarItems,
   likes,
   recordRatings,
   suggestionOwnerships,
@@ -275,6 +276,27 @@ export class DrizzleUserRepository {
               gamesToMove.map((game) => game.id),
             ),
           )
+      }
+
+      const targetBarItems = await tx
+        .select({ ingredientId: cocktailBarItems.ingredientId })
+        .from(cocktailBarItems)
+        .where(eq(cocktailBarItems.userId, targetId))
+      const sourceBarItems = await tx
+        .select({ ingredientId: cocktailBarItems.ingredientId })
+        .from(cocktailBarItems)
+        .where(eq(cocktailBarItems.userId, sourceId))
+
+      if (sourceBarItems.length > 0) {
+        const barIngredientIds = new Set(
+          [...targetBarItems, ...sourceBarItems].map((item) => item.ingredientId),
+        )
+        await tx
+          .delete(cocktailBarItems)
+          .where(inArray(cocktailBarItems.userId, [targetId, sourceId]))
+        await tx
+          .insert(cocktailBarItems)
+          .values([...barIngredientIds].map((ingredientId) => ({ userId: targetId, ingredientId })))
       }
 
       if (sourceUser?.role === UserRole.ADMIN && targetUser?.role !== UserRole.ADMIN) {

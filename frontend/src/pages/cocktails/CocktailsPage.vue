@@ -12,14 +12,17 @@ import CocktailShelves from '@/pages/cocktails/components/CocktailShelves.vue'
 import { filterMatches } from '@/pages/cocktails/composables/cocktail-filter'
 import { useCocktailBar } from '@/pages/cocktails/composables/use-cocktail-bar'
 import { useCocktailCatalog } from '@/pages/cocktails/composables/use-cocktail-catalog'
-import { useCocktailMatch } from '@/pages/cocktails/composables/use-cocktail-match'
+import {
+  MATCH_MAX_MISSING,
+  useCocktailMatch,
+} from '@/pages/cocktails/composables/use-cocktail-match'
 import { pluralRu } from '@/utils/plural-ru'
 
 const COCKTAIL_FORMS = ['коктейль', 'коктейля', 'коктейлей'] as const
 const INGREDIENT_FORMS = ['ингредиент', 'ингредиента', 'ингредиентов'] as const
 
 const query = ref('')
-const maxMissing = ref(3)
+const maxMissing = ref(MATCH_MAX_MISSING)
 
 const {
   shelves,
@@ -33,10 +36,12 @@ const {
   ingredientIds,
   isSaving,
   saveError,
-  isLoggedIn,
+  barLoadError,
+  canUseOwnBar,
   isBarInitialLoading,
   toggle: toggleIngredient,
   switchMode,
+  reloadBar,
 } = useCocktailBar()
 
 const {
@@ -52,19 +57,31 @@ const visibleCocktails = computed(() =>
   filterMatches(cocktails.value, maxMissing.value, query.value),
 )
 
-const hasEmptyBar = computed(() => !isBarInitialLoading.value && ingredientIds.value.length === 0)
-const needsLogin = computed(() => mode.value === 'mine' && !isLoggedIn.value)
+const needsLogin = computed(() => mode.value === 'mine' && !canUseOwnBar.value)
 const hasCatalogError = computed(() => Boolean(catalogError.value))
 const hasMatchError = computed(() => Boolean(matchError.value))
+const hasBarLoadError = computed(() => Boolean(barLoadError.value))
 const showSkeletons = computed(() => isBarInitialLoading.value || isMatchLoading.value)
 
+const hasEmptyBar = computed(
+  () =>
+    !isBarInitialLoading.value &&
+    !needsLogin.value &&
+    !hasBarLoadError.value &&
+    ingredientIds.value.length === 0,
+)
+
 const barSummary = computed(() => {
+  if (isBarInitialLoading.value || needsLogin.value || hasBarLoadError.value) return ''
+
   const count = ingredientIds.value.length
   return `${count} ${pluralRu(count, INGREDIENT_FORMS)} в баре`
 })
 
 const resultsSummary = computed(() => {
   if (showSkeletons.value || hasEmptyBar.value || needsLogin.value) return ''
+  if (hasBarLoadError.value) return ''
+
   const total = cocktails.value.length
   const shown = visibleCocktails.value.length
   if (shown === total) return `${total} ${pluralRu(total, COCKTAIL_FORMS)}`
@@ -79,6 +96,7 @@ const emptySearchDescription = computed(() => {
 function retry() {
   if (hasCatalogError.value) void refetchCatalog()
   if (hasMatchError.value) void refetchMatch()
+  if (hasBarLoadError.value) reloadBar()
 }
 </script>
 
@@ -137,11 +155,17 @@ function retry() {
 
       <section class="flex min-w-0 flex-col gap-4">
         <div
-          v-if="hasCatalogError || hasMatchError"
+          v-if="hasCatalogError || hasMatchError || hasBarLoadError"
           class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[var(--n-action-color)] px-4 py-3"
         >
           <span class="text-sm text-destructive">
-            {{ hasCatalogError ? 'Не удалось загрузить полки' : 'Не удалось подобрать коктейли' }}
+            {{
+              hasBarLoadError
+                ? barLoadError
+                : hasCatalogError
+                  ? 'Не удалось загрузить полки'
+                  : 'Не удалось подобрать коктейли'
+            }}
           </span>
           <Button variant="outline" size="sm" @click="retry">
             <RotateCw />
@@ -173,7 +197,7 @@ function retry() {
         />
 
         <CocktailEmptyState
-          v-else-if="visibleCocktails.length === 0 && !hasMatchError"
+          v-else-if="visibleCocktails.length === 0 && !hasMatchError && !hasBarLoadError"
           title="Ничего не нашлось"
           :description="emptySearchDescription"
         />

@@ -65,7 +65,8 @@ function isUnauthorized(error: unknown): boolean {
  *
  * Серверное сохранение оптимистичное: локальный набор меняется сразу, `PUT`
  * уходит после паузы, а при отказе набор не откатывается — иначе пользователь
- * теряет только что расставленные галочки. Следующее изменение снова запустит
+ * теряет только что расставленные галочки. Пока сервер не подтвердил набор,
+ * ответ `GET /bar` его не перетирает; следующее изменение снова запустит
  * сохранение.
  */
 export function useCocktailBar() {
@@ -75,13 +76,20 @@ export function useCocktailBar() {
   const isLoggedIn = computed(() => userStore.isLoggedIn)
 
   const mode = ref<CocktailBarMode>(isLoggedIn.value ? 'mine' : 'guest')
-  /** Пользователь сам выбрал режим — автоопределение больше не вмешивается. */
-  const isModeChosen = ref(false)
+  /** Режим выбрал пользователь: авто-откат по 401 его больше не отменяет. */
+  const isUserModeChosen = ref(false)
+  /** 401 на `GET /bar`: cookie протухла, свой бар недоступен до нового входа. */
+  const isBarAccessDenied = ref(false)
 
   const guestIds = ref<string[]>(readGuestBar())
   const mineIds = ref<string[]>([])
   const saveError = ref<string | null>(null)
+  const barLoadError = ref<string | null>(null)
   const hasPendingSave = ref(false)
+  /** Изменения, которые сервер ещё не подтвердил: серверный набор их не перетирает. */
+  const hasUnsavedChanges = ref(false)
+
+  const canUseOwnBar = computed(() => isLoggedIn.value && !isBarAccessDenied.value)
 
   const {
     data: bar,
@@ -91,6 +99,8 @@ export function useCocktailBar() {
   } = useQuery<CocktailBar>({
     key: [COCKTAIL_BAR_KEY],
     query: () => unwrap(api.cocktails.bar.get()),
+    // `refetch` игнорирует `enabled`, поэтому все ручные вызовы тоже проверяют
+    // авторизацию: гостю `GET /bar` гарантированно отвечает 401.
     enabled: () => isLoggedIn.value,
     gcTime: false,
   })
@@ -114,51 +124,65 @@ export function useCocktailBar() {
   }
 
   watch(bar, (value) => {
-    if (!value || hasPendingSave.value || saveError.value) return
+    if (!value) return
+    barLoadError.value = null
+    // Несохранённый набор важнее серверного: иначе `PUT`-ошибка теряет выбор.
+    if (hasUnsavedChanges.value) return
     mineIds.value = value.ingredientIds
   })
 
-  // Пока пользователь не выбрал режим сам, следуем за авторизацией: /me может
-  // ответить уже после монтирования страницы.
   watch(isLoggedIn, (loggedIn) => {
-    if (isModeChosen.value) {
-      if (!loggedIn && mode.value === 'mine') mode.value = 'guest'
-      return
-    }
+    // Вход или выход сбрасывает последствия протухшей cookie: после логина
+    // снова можно идти в свой бар.
+    isBarAccessDenied.value = false
+    isUserModeChosen.value = false
     mode.value = loggedIn ? 'mine' : 'guest'
+    // Набор, который не успел сохраниться до выхода, досылаем после входа.
+    if (loggedIn && hasUnsavedChanges.value) scheduleSave()
   })
 
-  // 401 на GET /bar значит, что cookie протухла — молча уходим в гостевой режим.
   watch(barError, (error) => {
     if (!error) return
+
     if (isUnauthorized(error)) {
-      mode.value = 'guest'
+      isBarAccessDenied.value = true
+      // Автоматический запрос (страница открылась сама) уводит в гостя, но
+      // явный выбор «Мой бар» не отменяем — иначе кнопка выглядит сломанной.
+      if (!isUserModeChosen.value && mode.value === 'mine') mode.value = 'guest'
       return
     }
-    saveError.value = 'Не удалось загрузить ваш бар'
+
+    barLoadError.value = 'Не удалось загрузить ваш бар'
   })
 
   async function flushSave() {
     clearSaveTimer()
-    if (!hasPendingSave.value || mode.value !== 'mine') return
+    if (!hasPendingSave.value) return
+
+    if (mode.value !== 'mine' || !canUseOwnBar.value) {
+      hasPendingSave.value = false
+      return
+    }
 
     const snapshot = [...mineIds.value]
     try {
       const saved = await saveBar({ ingredientIds: snapshot })
-      saveError.value = null
       queryCache.setQueryData([COCKTAIL_BAR_KEY], saved)
       hasPendingSave.value = false
+      hasUnsavedChanges.value = false
+      saveError.value = null
       if (!sameSet(mineIds.value, snapshot)) scheduleSave()
     } catch {
       // Локальный набор остаётся как есть: пользователь не должен терять выбор
-      // из-за сети. Повторим на следующем изменении.
+      // из-за сети. Повторим на следующем изменении, `saveError` чистится только
+      // успешной синхронизацией.
       hasPendingSave.value = false
       saveError.value = 'Не удалось сохранить бар'
     }
   }
 
   function scheduleSave() {
-    if (mode.value !== 'mine' || !isLoggedIn.value) return
+    if (mode.value !== 'mine' || !canUseOwnBar.value) return
     hasPendingSave.value = true
     clearSaveTimer()
     saveTimer = setTimeout(() => {
@@ -172,12 +196,14 @@ export function useCocktailBar() {
     if (mode.value === 'guest') {
       guestIds.value = next
       writeGuestBar(next)
-      saveError.value = null
       return
     }
 
+    // В режиме «мой бар» без доступа править нечего: набор живёт на сервере.
+    if (!canUseOwnBar.value) return
+
     mineIds.value = next
-    saveError.value = null
+    hasUnsavedChanges.value = true
     queryCache.setQueryData([COCKTAIL_BAR_KEY], { ingredientIds: next })
     scheduleSave()
   }
@@ -187,18 +213,31 @@ export function useCocktailBar() {
   }
 
   function switchMode(next: CocktailBarMode) {
-    isModeChosen.value = true
     if (mode.value === next) return
 
+    isUserModeChosen.value = true
     if (hasPendingSave.value) void flushSave()
-
     mode.value = next
-    saveError.value = null
 
-    if (next === 'mine') {
-      if (bar.value) mineIds.value = bar.value.ingredientIds
-      void refetchBar()
+    if (next === 'guest') return
+
+    // Гость просто видит «Войдите»: `GET /bar` без cookie бессмыслен.
+    if (!canUseOwnBar.value) return
+
+    // Несохранённый набор не перечитываем и не перетираем — пробуем отправить снова.
+    if (hasUnsavedChanges.value) {
+      scheduleSave()
+      return
     }
+
+    if (bar.value) mineIds.value = bar.value.ingredientIds
+    void refetchBar()
+  }
+
+  function reloadBar() {
+    if (!canUseOwnBar.value) return
+    barLoadError.value = null
+    void refetchBar()
   }
 
   onScopeDispose(() => {
@@ -213,10 +252,13 @@ export function useCocktailBar() {
     ingredientIds,
     isSaving,
     saveError,
+    barLoadError,
     isLoggedIn,
+    canUseOwnBar,
     isBarInitialLoading,
     toggle,
     setAll,
     switchMode,
+    reloadBar,
   }
 }

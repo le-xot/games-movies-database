@@ -172,6 +172,31 @@ OAuth-callback'и провайдеров (`TWITCH_CALLBACK_URL`, `KICK_CALLBACK_
 > роут закрыт (401). Разбор апдейтов — grammY (`TelegramBotService.handleUpdate`),
 > бот слушает `message` и `callback_query`. См. `backend/src/gateway/telegram.ts`.
 
+## Коктейли
+
+| Метод  | Путь                 | Доступ | Лимит  | Описание                                   |
+| ------ | -------------------- | ------ | ------ | ------------------------------------------ |
+| `GET`  | `/cocktails/catalog` | public | public | каталог ингредиентов по полкам             |
+| `POST` | `/cocktails/match`   | public | public | подбор коктейлей по имеющимся ингредиентам |
+| `GET`  | `/cocktails/bar`     | user   | public | сохранённый бар пользователя               |
+| `PUT`  | `/cocktails/bar`     | user   | write  | полная замена бара                         |
+
+`GET /cocktails/catalog` → `{ shelves: [{ id, title, ingredients: [{ id, name }] }] }`; полки идут
+в порядке `IngredientCategory`, пустые не отдаются.
+
+`POST /cocktails/match` — тело `{ "ingredientIds": string[], "maxMissing": 0..3 }` (до 300 id),
+ответ — **массив** коктейлей (`CocktailDTO`), отсортированный по числу недостающих
+`CORE`-ингредиентов, затем по имени. `maxMissing` ограничивает только `CORE`: недостающий `EXTRA`
+попадает в `missingExtra`, но коктейль не выбрасывает. Пустой бар — пустой массив, а не 404.
+
+`GET /cocktails/bar` и `PUT /cocktails/bar` — один конверт `{ "ingredientIds": string[] }`.
+`PUT` заменяет бар целиком: дубликаты схлопываются, неизвестный id — `400`.
+
+> Команда бота `/bar [0-3]` — тонкий клиент: читает сохранённый бар и отдаёт результат матчинга
+> (аргумент — `maxMissing`, по умолчанию `0`). Требует привязанного Telegram-аккаунта: без привязки
+> бот присылает кнопку на сайт, при пустом баре — подсказку заполнить его. См.
+> `backend/src/modules/cocktail/cocktail-bot.service.ts`.
+
 ## Медиа и TWIR
 
 | Метод  | Путь                | Доступ  | Лимит  | Описание                                                |

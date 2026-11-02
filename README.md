@@ -265,6 +265,7 @@ games-movies-database/
 | `bun db:generate`    | Генерация SQL миграции из изменений схемы                                           |
 | `bun db:migrate`     | Применение миграций к базе данных                                                   |
 | `bun db:baseline`    | Однократный baseline существующей базы                                              |
+| `bun db:seed`        | Одноразовый бутстрап каталога коктейлей (наполняет только пустую базу)              |
 | `bun lint`           | Проверка кода oxlint                                                                |
 | `bun lint:fix`       | Автоисправление oxlint                                                              |
 | `bun format`         | Форматирование (`bun fmt`)                                                          |

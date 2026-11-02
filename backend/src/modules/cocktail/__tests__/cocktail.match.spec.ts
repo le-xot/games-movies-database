@@ -138,12 +138,47 @@ describe('matchCocktails', () => {
     expect(matched[0]?.missingCore).toEqual([])
   })
 
-  it('sorts by missing count and then by name', () => {
-    const fewest = matchCocktails([SPRITZ, NEGRONI], INGREDIENTS, ['gin', 'campari', 'ice'], 0)
-    expect(fewest.map((cocktail) => cocktail.name)).toEqual(['Негрони', 'Спритц'])
+  it('sorts by the number of missing CORE ingredients', () => {
+    // Недостающий EXTRA не должен влиять на порядок: коктейль без дырок
+    // в CORE идёт раньше, даже если ему не хватает трёх EXTRA.
+    const manyExtra: CatalogCocktail = {
+      ...SPRITZ,
+      id: 'zombie',
+      name: 'Зомби',
+      items: [
+        { ingredientId: 'gin', amount: '30 мл', tier: EXTRA, position: 1 },
+        { ingredientId: 'campari', amount: '30 мл', tier: EXTRA, position: 2 },
+        { ingredientId: 'bitter', amount: '2 дэша', tier: EXTRA, position: 3 },
+        { ingredientId: 'ice', amount: 'кубики', tier: null, position: 4 },
+      ],
+    }
+    const oneCoreMissing: CatalogCocktail = {
+      ...NEGRONI,
+      id: 'aperol',
+      name: 'Апероль',
+      items: [
+        { ingredientId: 'gin', amount: '30 мл', tier: CORE, position: 1 },
+        { ingredientId: 'ice', amount: 'кубик', tier: null, position: 2 },
+      ],
+    }
 
-    const tie = matchCocktails([SPRITZ, NEGRONI], INGREDIENTS, [], 3)
-    expect(tie.map((cocktail) => cocktail.name)).toEqual(['Негрони', 'Спритц'])
+    const sorted = matchCocktails([oneCoreMissing, manyExtra], INGREDIENTS, [], 1)
+
+    expect(sorted.map((cocktail) => cocktail.name)).toEqual(['Зомби', 'Апероль'])
+  })
+
+  it('falls back to the russian name order on equal missing CORE counts', () => {
+    const boulevardier: CatalogCocktail = { ...NEGRONI, id: 'boulevardier', name: 'Бульвардье' }
+    // Вход в обратном порядке имён: компаратор обязан переставить элементы.
+    const sorted = matchCocktails([NEGRONI, boulevardier], INGREDIENTS, ['gin'], 2)
+
+    expect(sorted.map((cocktail) => cocktail.name)).toEqual(['Бульвардье', 'Негрони'])
+    expect(sorted.map((cocktail) => cocktail.missingCore.length)).toEqual([1, 1])
+  })
+
+  it('rejects maxMissing outside 0..3', () => {
+    expect(() => matchCocktails([NEGRONI], INGREDIENTS, [], 4)).toThrow(RangeError)
+    expect(() => matchCocktails([NEGRONI], INGREDIENTS, [], -1)).toThrow(RangeError)
   })
 
   it('ignores ids in have that are absent from the catalog', () => {

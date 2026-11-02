@@ -15,6 +15,7 @@ const MAX_MISSING_LIMIT = 3
  * Чистая функция: ни БД, ни кэша, ни мутаций входа. `maxMissing` ограничивает
  * только `CORE` — недостающий `EXTRA` показывается в `missingExtra`, но
  * коктейль не выбрасывает, а `FREE` не считается отсутствующим никогда.
+ * Порядок выдачи: по числу недостающих `CORE`, затем по имени (`ru`).
  *
  * @throws {RangeError} если `maxMissing` вне `0..3` — это ошибка разработчика.
  */
@@ -38,6 +39,8 @@ export function matchCocktails(
 
     for (const item of cocktail.items) {
       const ingredient = ingredients.get(item.ingredientId)
+      // Каталог консистентен (FK в БД), поэтому строки без ингредиента невозможны:
+      // пропуск — защита от битого входа, а не бизнес-правило.
       if (!ingredient) continue
 
       const tier = item.tier ?? ingredient.defaultTier
@@ -73,10 +76,12 @@ export function matchCocktails(
     })
   }
 
-  return [...matched].sort((a, b) => {
-    const aMissing = a.missingCore.length + a.missingExtra.length
-    const bMissing = b.missingCore.length + b.missingExtra.length
-    if (aMissing !== bMissing) return aMissing - bMissing
+  matched.sort((a, b) => {
+    if (a.missingCore.length !== b.missingCore.length) {
+      return a.missingCore.length - b.missingCore.length
+    }
     return a.name.localeCompare(b.name, 'ru')
   })
+
+  return matched
 }

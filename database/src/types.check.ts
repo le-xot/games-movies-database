@@ -3,10 +3,14 @@ import type { InsertRows, SelectRow, SelectRows, TableName } from './types'
 type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
 type Expect<T extends true> = T
 
-/** Only real tables are discovered: 9 tables, no enums/relations/defaults. */
+/** Only real tables are discovered: 14 tables, no enums/relations/defaults. */
 export type TableNames = Expect<
   Equals<
     TableName,
+    | 'cocktailBarItems'
+    | 'cocktailIngredients'
+    | 'cocktailRecipeItems'
+    | 'cocktails'
     | 'likes'
     | 'limits'
     | 'recordRatings'

@@ -78,10 +78,6 @@ const SOFTWARE: PartLink[] = [
 
 const SYSTEM_PARTS: PartLink[] = [
   {
-    name: 'Gigabyte X870 AORUS ELITE WIFI7',
-    icon: Microchip,
-  },
-  {
     name: 'Ryzen 7 7800X3D',
     icon: Cpu,
   },
@@ -92,6 +88,10 @@ const SYSTEM_PARTS: PartLink[] = [
   {
     name: 'ADATA XPG Lancer Blade 32GB DDR5 5600MHz',
     icon: MemoryStick,
+  },
+  {
+    name: 'Gigabyte X870 AORUS ELITE WIFI7',
+    icon: Microchip,
   },
   {
     name: 'MONTECH GAMMA II 650',

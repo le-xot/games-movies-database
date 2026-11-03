@@ -78,11 +78,11 @@ const SOFTWARE: PartLink[] = [
 
 const SYSTEM_PARTS: PartLink[] = [
   {
-    name: 'MSI B450-A PRO MAX',
+    name: 'Gigabyte X870 AORUS ELITE WIFI7',
     icon: Microchip,
   },
   {
-    name: 'Ryzen 5 5600x',
+    name: 'Ryzen 7 7800X3D',
     icon: Cpu,
   },
   {
@@ -90,7 +90,7 @@ const SYSTEM_PARTS: PartLink[] = [
     icon: Gpu,
   },
   {
-    name: 'Crucial Ballistix 32GB 3600MHz DDR4',
+    name: 'ADATA XPG Lancer Blade 32GB DDR5 5600MHz',
     icon: MemoryStick,
   },
   {
@@ -98,7 +98,7 @@ const SYSTEM_PARTS: PartLink[] = [
     icon: BatteryCharging,
   },
   {
-    name: 'SE-224-XT',
+    name: 'ARCTIC Liquid Freezer III Pro 360',
     icon: Fan,
   },
   {

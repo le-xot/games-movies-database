@@ -7,6 +7,7 @@ import {
   Globe,
   Gpu,
   HardDrive,
+  HdmiPort,
   Headphones,
   Keyboard,
   MemoryStick,
@@ -166,6 +167,10 @@ const DEVICES: PartLink[] = [
   {
     name: 'Logitech HD Pro C920',
     icon: Webcam,
+  },
+  {
+    name: 'Fifine V3 RGB',
+    icon: HdmiPort,
   },
   {
     name: 'Thundeal TD92 Pro',

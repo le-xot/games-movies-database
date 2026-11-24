@@ -46,6 +46,7 @@ Elysia через Eden (`import type { App }`). Этот файл — справ
 | `img`            | 3000              | `/api/img`                    |
 | `twir`           | 120               | TWIR-вебхуки                  |
 | `wordlePractice` | 120               | тренировка Wordle             |
+| `telegramWebApp` | 20                | вход из Telegram Mini App     |
 
 Превышение — `429` с конвертом ошибки и заголовком `retry-after`.
 
@@ -74,19 +75,20 @@ Elysia через Eden (`import type { App }`). Этот файл — справ
 
 ## OAuth
 
-| Метод  | Путь                           | Доступ | Лимит | Описание                             |
-| ------ | ------------------------------ | ------ | ----- | ------------------------------------ |
-| `GET`  | `/auth/twitch`                 | public | auth  | 302 на Twitch                        |
-| `GET`  | `/auth/twitch/link`            | user   | auth  | привязка Twitch к текущему аккаунту  |
-| `POST` | `/auth/twitch/callback`        | public | auth  | обмен `code` на токен, ставит cookie |
-| `POST` | `/auth/twitch/link`            | user   | auth  | завершение привязки                  |
-| `GET`  | `/auth/kick`                   | public | auth  | 302 на Kick (PKCE)                   |
-| `GET`  | `/auth/kick/link`              | user   | auth  | привязка Kick                        |
-| `POST` | `/auth/kick/callback`          | public | auth  | обмен `code` + `code_verifier`       |
-| `POST` | `/auth/kick/link`              | user   | auth  | завершение привязки                  |
-| `GET`  | `/auth/telegram`               | public | auth  | 302 на Telegram OIDC (PKCE)          |
-| `GET`  | `/auth/telegram/link`          | user   | auth  | привязка Telegram                    |
-| `GET`  | `/auth/telegram/oidc/callback` | public | auth  | вход или привязка, редирект на фронт |
+| Метод  | Путь                           | Доступ | Лимит          | Описание                                      |
+| ------ | ------------------------------ | ------ | -------------- | --------------------------------------------- |
+| `GET`  | `/auth/twitch`                 | public | auth           | 302 на Twitch                                 |
+| `GET`  | `/auth/twitch/link`            | user   | auth           | привязка Twitch к текущему аккаунту           |
+| `POST` | `/auth/twitch/callback`        | public | auth           | обмен `code` на токен, ставит cookie          |
+| `POST` | `/auth/twitch/link`            | user   | auth           | завершение привязки                           |
+| `GET`  | `/auth/kick`                   | public | auth           | 302 на Kick (PKCE)                            |
+| `GET`  | `/auth/kick/link`              | user   | auth           | привязка Kick                                 |
+| `POST` | `/auth/kick/callback`          | public | auth           | обмен `code` + `code_verifier`                |
+| `POST` | `/auth/kick/link`              | user   | auth           | завершение привязки                           |
+| `GET`  | `/auth/telegram`               | public | auth           | 302 на Telegram OIDC (PKCE)                   |
+| `GET`  | `/auth/telegram/link`          | user   | auth           | привязка Telegram                             |
+| `GET`  | `/auth/telegram/oidc/callback` | public | auth           | вход или привязка, редирект на фронт          |
+| `POST` | `/auth/telegram/webapp`        | public | telegramWebApp | вход из Mini App: `initData` → cookie `token` |
 
 OAuth-callback'и провайдеров (`TWITCH_CALLBACK_URL`, `KICK_CALLBACK_URL`) указывают на
 **фронтовые** страницы `/auth/callback/{twitch,kick}` — они забирают `code`/`state` из URL и
@@ -167,6 +169,17 @@ OAuth-callback'и провайдеров (`TWITCH_CALLBACK_URL`, `KICK_CALLBACK_
 | `PATCH`  | `/wordle/notifications`      | user   | public         | вкл/выкл и слоты            |
 | `POST`   | `/wordle/notifications/link` | user   | write          | deep-link для привязки чата |
 | `DELETE` | `/wordle/notifications`      | user   | public         | отписка                     |
+
+### Telegram Mini App
+
+`/tg/wordle` — та же игра в оболочке без сайтовой шапки и сайдбара. Открывается из бота
+командой `/play` (кнопка `web_app`) и кнопкой меню рядом с полем ввода; кнопка `web_app`
+требует https-адрес в `APP_PUBLIC_URL`, иначе бот ведёт на обычную `/db/wordle`.
+
+Вход: `POST /api/auth/telegram/webapp` с подписанным `initData` из `Telegram.WebApp`.
+Сервер проверяет HMAC по `TELEGRAM_BOT_TOKEN`, свежесть `auth_date` (сутки) и ставит тот же
+`httpOnly` cookie `token`, что и OIDC-вход. Без `initData` (прямой заход по адресу) страница
+перебрасывает на `/db/wordle`.
 
 > Входящий вебхук бота (`TELEGRAM_BOT_WEBHOOK_URL`) принимает `POST /telegram/webhook`:
 > секрет приходит в заголовке `x-telegram-bot-api-secret-token`, при незаданном секрете

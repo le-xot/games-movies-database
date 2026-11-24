@@ -2,6 +2,7 @@ import { PiniaColada } from '@pinia/colada'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from '@/app.vue'
+import { prepareTelegramMiniApp } from '@/lib/telegram-webapp'
 import { router } from '@/router/router'
 import { useUser } from '@/stores/use-user'
 import '@/assets/index.css'
@@ -35,6 +36,10 @@ async function bootstrap() {
     pinia,
     queryOptions: { staleTime: 30_000, refetchOnMount: true, refetchOnWindowFocus: false },
   })
+
+  // Mini App входит сам: подписанный initData меняется на cookie до первого
+  // запроса /me — иначе страница успела бы отрисоваться гостем.
+  await prepareTelegramMiniApp()
 
   // Грузим пользователя параллельно с монтированием; заставка не даёт увидеть гостевой кадр.
   const authReady = useUser(pinia).fetchUser()

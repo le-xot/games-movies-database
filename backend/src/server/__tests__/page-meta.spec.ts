@@ -67,6 +67,14 @@ describe('page meta', () => {
     expect(injectPageMeta(shell, '/db/games', SITE)).toBe(shell)
   })
 
+  it('keeps the Telegram Mini App out of the index and the sitemap', () => {
+    const html = injectPageMeta('<!--seo:start--><!--seo:end-->', '/tg/wordle', SITE)
+
+    expect(html).toContain('<meta name="robots" content="noindex,follow" />')
+    expect(html).toContain('<title>Вордли — игра в слова</title>')
+    expect(buildSitemap(SITE)).not.toContain('/tg/wordle')
+  })
+
   it('lists public pages in the sitemap without redirects', () => {
     const xml = buildSitemap(SITE)
 

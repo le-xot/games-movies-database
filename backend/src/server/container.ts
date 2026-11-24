@@ -36,6 +36,7 @@ import { WeatherService } from '@backend/modules/weather/weather.service'
 import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import { DrizzleWordleRepository } from '@backend/modules/wordle/repositories/drizzle-wordle.repository'
 import { WordleLeaderboardCache } from '@backend/modules/wordle/wordle-leaderboard.cache'
+import { WordleMiniAppService } from '@backend/modules/wordle/wordle-miniapp.service'
 import { WordleNotificationService } from '@backend/modules/wordle/wordle-notification.service'
 import { WordlePracticeService } from '@backend/modules/wordle/wordle-practice.service'
 import { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
@@ -155,6 +156,12 @@ export function createContainer(): Container {
     },
   )
 
+  // Единственный хуконосный сервис Mini App: в конструкторе регистрирует
+  // /play, в bootstrap ставит кнопку меню рядом с полем ввода.
+  const wordleMiniApp = new WordleMiniAppService(telegramBot, {
+    appPublicUrl: env.APP_PUBLIC_URL,
+  })
+
   // При падении Redis срабатывает каждый запрос: без троттлинга это тысячи
   // одинаковых строк в минуту.
   let lastRateLimitWarning = 0
@@ -179,7 +186,7 @@ export function createContainer(): Container {
   const started: Array<{
     onModuleInit?: () => unknown
     onApplicationBootstrap?: () => unknown
-  }> = [twitch, kick, telegramBot, weather, wordle, wordleNotifications]
+  }> = [twitch, kick, telegramBot, weather, wordle, wordleNotifications, wordleMiniApp]
 
   const stoppable: Array<{ onModuleDestroy?: () => unknown }> = [wordle, wordleNotifications]
 

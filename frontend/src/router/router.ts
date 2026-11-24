@@ -1,6 +1,7 @@
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { RecordGenre } from '@/lib/api'
+import { isTelegramEnvironment } from '@/lib/telegram-webapp'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 import type { RouteMap } from 'vue-router'
@@ -124,6 +125,12 @@ export const router = createRouter({
       ],
     },
     {
+      // Telegram Mini App: своя оболочка без сайтовой, вход по initData.
+      path: ROUTER_PATHS.wordleMiniApp,
+      name: 'wordle-miniapp',
+      component: () => import('@/pages/wordle/WordleMiniAppPage.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       redirect: ROUTER_PATHS.home,
@@ -161,6 +168,7 @@ const EXPECTED_ROUTE_NAMES = [
   'series',
   'wordle',
   'cocktails',
+  'wordle-miniapp',
   'auth-twitch',
   'auth-kick',
   'auth-telegram',
@@ -179,6 +187,12 @@ if (import.meta.env.DEV) {
 }
 
 router.beforeEach(async (to) => {
+  // Прямой заход в Mini App (без данных Telegram) — ведём на обычную страницу:
+  // без initData войти внутрь нельзя, а сайт умеет работать и в браузере.
+  if (to.name === 'wordle-miniapp' && !isTelegramEnvironment()) {
+    return { path: ROUTER_PATHS.wordle }
+  }
+
   const userStore = useUser()
 
   if (!to.meta.requiresAdmin && !to.meta.requiresAuth && !to.meta.hideForAdmin) return

@@ -6,6 +6,7 @@ import {
   buildConnectRequiredText,
   buildEveningText,
   buildMorningText,
+  buildPlayButton,
   buildPlayUrl,
   pluralizeDays,
 } from '@backend/modules/wordle/wordle-notification.messages'
@@ -75,5 +76,21 @@ describe('PLAY_BUTTON_TEXT', () => {
 describe('OPEN_SITE_BUTTON_TEXT', () => {
   it('is the open-site label', () => {
     expect(OPEN_SITE_BUTTON_TEXT).toBe('Открыть сайт')
+  })
+})
+
+describe('buildPlayButton', () => {
+  it('opens the Mini App on https', () => {
+    expect(buildPlayButton('https://le-xot.dev')).toEqual({
+      text: PLAY_BUTTON_TEXT,
+      webApp: 'https://le-xot.dev/tg/wordle',
+    })
+  })
+
+  it('falls back to the site page on http', () => {
+    expect(buildPlayButton('http://localhost:5173/')).toEqual({
+      text: PLAY_BUTTON_TEXT,
+      url: 'http://localhost:5173/db/wordle',
+    })
   })
 })

@@ -38,6 +38,23 @@ describe('buildSecurityHeaders', () => {
     expect(csp).toContain("frame-ancestors 'none'")
   })
 
+  it('allows Telegram to frame the Mini App page', () => {
+    const headers = buildSecurityHeaders(true, { telegramMiniApp: true })
+    const csp = headers['Content-Security-Policy'] ?? ''
+
+    expect(headers['X-Frame-Options']).toBeUndefined()
+    expect(csp).toContain("frame-ancestors 'self' https://web.telegram.org https://*.telegram.org")
+    expect(csp).toContain('https://telegram.org')
+    expect(csp).not.toContain("frame-ancestors 'none'")
+  })
+
+  it('keeps the site unframeable and without third-party scripts', () => {
+    const csp = buildSecurityHeaders(true)['Content-Security-Policy'] ?? ''
+
+    expect(csp).toContain("frame-ancestors 'none'")
+    expect(csp).not.toContain('telegram.org')
+  })
+
   it.skipIf(!existsSync(INDEX_HTML_PATH))('allows the inline boot script from index.html', () => {
     const csp = buildSecurityHeaders(true)['Content-Security-Policy']
 

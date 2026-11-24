@@ -87,10 +87,30 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
     maxAge: ttlSeconds,
   })
 
-  const setToken = (set: { headers: Record<string, unknown> }, token: string) => {
+  /**
+   * Cookie сессии.
+   *
+   * `crossSite` нужен входу из Mini App: Telegram Web открывает страницу во
+   * фрейме с другого домена, и `SameSite=Lax` туда не доедет. `SameSite=None`
+   * браузеры принимают только вместе с `Secure`, поэтому флаг включается здесь,
+   * а не по `NODE_ENV`.
+   */
+  const setToken = (
+    set: { headers: Record<string, unknown> },
+    token: string,
+    options: { crossSite?: boolean } = {},
+  ) => {
+    const cookie = options.crossSite
+      ? serializeCookie('token', token, {
+          ...cookieOptions(TOKEN_TTL_SECONDS),
+          sameSite: 'none',
+          secure: true,
+        })
+      : serializeCookie('token', token, cookieOptions(TOKEN_TTL_SECONDS))
+
     set.headers['set-cookie'] = [
       ...((set.headers['set-cookie'] as string[] | undefined) ?? []),
-      serializeCookie('token', token, cookieOptions(TOKEN_TTL_SECONDS)),
+      cookie,
     ]
   }
 
@@ -424,7 +444,9 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           if (!profile) throw new ApiError(401, 'Не удалось подтвердить вход через Telegram')
 
           const token = await oauth.loginTelegram(profile)
-          setToken(ctx.set, token)
+          // Telegram Web встраивает Mini App во фрейм чужого домена — cookie
+          // должна быть кросс-сайтовой, иначе следующий /me придёт гостем.
+          setToken(ctx.set, token, { crossSite: true })
 
           return { success: true as const }
         },

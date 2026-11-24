@@ -216,7 +216,12 @@ describe('OAuth: telegram webapp', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ success: true })
-    expect(response.headers.getSetCookie().join(';')).toContain('token=jwt-token')
+
+    // Фрейм Telegram Web — чужой домен, поэтому cookie должна быть кросс-сайтовой.
+    const cookie = response.headers.getSetCookie().join(';')
+    expect(cookie).toContain('token=jwt-token')
+    expect(cookie).toContain('SameSite=None')
+    expect(cookie).toContain('Secure')
   })
 
   it('answers 401 when the signature does not check out', async () => {

@@ -8,6 +8,7 @@ import {
   PLAY_BUTTON_TEXT,
   buildPlayUrl,
 } from '@backend/modules/wordle/wordle-notification.messages'
+import { Logger } from '@backend/utils/logger'
 import type { TelegramButton } from '@backend/modules/telegram/telegram-bot.service'
 import type { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
 import type { TelegramCommandContext } from '@backend/modules/telegram/telegram-bot.types'
@@ -23,6 +24,7 @@ export interface WordleMiniAppConfig {
  * ни запросов, ни состояния у него нет.
  */
 export class WordleMiniAppService {
+  private readonly logger = new Logger(WordleMiniAppService.name)
   private readonly appPublicUrl: string
   private readonly miniAppUrl: string
 
@@ -41,7 +43,15 @@ export class WordleMiniAppService {
    * Поэтому ошибку не пробрасываем — старт бота не должен от неё зависеть.
    */
   async onApplicationBootstrap(): Promise<void> {
-    if (!this.telegram.isConfigured() || !isMiniAppUrlSupported(this.miniAppUrl)) return
+    // Пропуск логируем: иначе «кнопки нет» никак не отличить от «вызов упал».
+    if (!this.telegram.isConfigured()) {
+      this.logger.log('Mini App: бот не настроен — кнопка меню не ставится')
+      return
+    }
+    if (!isMiniAppUrlSupported(this.miniAppUrl)) {
+      this.logger.warn(`Mini App: адрес не https (${this.miniAppUrl}) — кнопка меню не ставится`)
+      return
+    }
 
     await this.telegram.setMenuButton(MINI_APP_MENU_TEXT, this.miniAppUrl)
   }

@@ -21,8 +21,15 @@ const PREFLIGHT_MAX_AGE_SECONDS = 600
 /** Префикс API: под ним SPA-фолбэк и текстовые 404 недопустимы. */
 const API_PREFIX = '/api'
 
+/** Маршрут Telegram Mini App: его встраивают во фрейм, остальному сайту нельзя. */
+const MINI_APP_PATH_PREFIX = '/tg/'
+
 function isApiPath(pathname: string): boolean {
   return pathname === API_PREFIX || pathname.startsWith(`${API_PREFIX}/`)
+}
+
+function isMiniAppPath(url: string): boolean {
+  return new URL(url).pathname.startsWith(MINI_APP_PATH_PREFIX)
 }
 
 function apiNotFound(): Response {
@@ -42,11 +49,12 @@ function apiNotFound(): Response {
 export function createHttpServer(gateway: Gateway, options: HttpOptions) {
   const { corsOrigins, production = false, staticRoot, siteUrl = DEFAULT_SITE_URL } = options
   const security = buildSecurityHeaders(production)
+  const miniAppSecurity = buildSecurityHeaders(production, { telegramMiniApp: true })
   const sitemap = buildSitemap(siteUrl)
 
   const app = new Elysia()
     .onRequest(({ request, set }) => {
-      set.headers = { ...security }
+      set.headers = { ...(isMiniAppPath(request.url) ? miniAppSecurity : security) }
 
       const origin = request.headers.get('origin') ?? undefined
       if (!origin || !isOriginAllowed(origin, corsOrigins)) return

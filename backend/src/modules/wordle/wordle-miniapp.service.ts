@@ -18,7 +18,7 @@ export interface WordleMiniAppConfig {
 }
 
 /**
- * Точка входа в Wordle Mini App: команда `/play` и кнопка меню.
+ * Точка входа в Wordle Mini App: команда `/wordle` и кнопка меню.
  *
  * Сама игра живёт на сайте — сервис только собирает ссылку и кнопку, поэтому
  * ни запросов, ни состояния у него нет.
@@ -35,7 +35,9 @@ export class WordleMiniAppService {
     this.appPublicUrl = config.appPublicUrl
     this.miniAppUrl = buildMiniAppUrl(config.appPublicUrl)
 
-    this.telegram.registerCommand('play', 'Открыть Вордли', (context) => this.handlePlay(context))
+    this.telegram.registerCommand('wordle', 'Играть в Вордли', (context) =>
+      this.handlePlay(context),
+    )
   }
 
   /**

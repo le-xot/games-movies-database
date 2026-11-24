@@ -29,11 +29,11 @@ export function buildPlayUrl(appPublicUrl: string): string {
 }
 
 export function buildConnectedText(morningTime: string, eveningTime: string): string {
-  return `🔔 Готово! Буду напоминать в ${morningTime} и ${eveningTime} (МСК). Настроить — в аккаунте, отключить — /wordle_off.`
+  return `🔔 Готово! Буду напоминать в ${morningTime} и ${eveningTime} (МСК). Настроить — в аккаунте, отключить — /wordle_notification_off.`
 }
 
 export function buildConnectRequiredText(): string {
-  return 'Чтобы получать напоминания про Вордли, зайди на сайт через Telegram и нажми «Подключить» в аккаунте — или просто отправь /wordle ещё раз после входа.'
+  return 'Чтобы получать напоминания про Вордли, зайди на сайт через Telegram и нажми «Подключить» в аккаунте — или просто отправь /wordle_notification ещё раз после входа.'
 }
 
 /**

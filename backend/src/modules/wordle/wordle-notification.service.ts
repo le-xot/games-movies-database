@@ -74,11 +74,13 @@ export class WordleNotificationService {
     this.slots = resolveSlots(config.morningRaw, config.eveningRaw, (message) =>
       this.logger.warn(message),
     )
-    telegram.registerCommand('wordle', 'Включить напоминания про Вордли', (context) =>
+    telegram.registerCommand('wordle_notification', 'Включить напоминания про Вордли', (context) =>
       this.handleSubscribe(context),
     )
-    telegram.registerCommand('wordle_off', 'Выключить напоминания про Вордли', (context) =>
-      this.handleUnsubscribe(context.chatId),
+    telegram.registerCommand(
+      'wordle_notification_off',
+      'Выключить напоминания про Вордли',
+      (context) => this.handleUnsubscribe(context.chatId),
     )
     telegram.registerStartHandler((context) => this.handleStartToken(context))
   }

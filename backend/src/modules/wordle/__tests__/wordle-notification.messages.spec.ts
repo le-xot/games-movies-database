@@ -55,14 +55,14 @@ describe('buildPlayUrl', () => {
 describe('buildConnectedText', () => {
   it('mentions both configured times', () => {
     expect(buildConnectedText('12:00', '20:00')).toContain('12:00 и 20:00')
-    expect(buildConnectedText('12:00', '20:00')).toContain('/wordle_off')
+    expect(buildConnectedText('12:00', '20:00')).toContain('/wordle_notification_off')
   })
 })
 
 describe('buildConnectRequiredText', () => {
   it('explains how to connect without an account match', () => {
     expect(buildConnectRequiredText()).toBe(
-      'Чтобы получать напоминания про Вордли, зайди на сайт через Telegram и нажми «Подключить» в аккаунте — или просто отправь /wordle ещё раз после входа.',
+      'Чтобы получать напоминания про Вордли, зайди на сайт через Telegram и нажми «Подключить» в аккаунте — или просто отправь /wordle_notification ещё раз после входа.',
     )
   })
 })

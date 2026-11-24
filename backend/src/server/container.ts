@@ -144,6 +144,12 @@ export function createContainer(): Container {
   void new CocktailBotService(telegramBot, cocktails, users, {
     appPublicUrl: env.APP_PUBLIC_URL,
   })
+  // Единственный хуконосный сервис Mini App: в конструкторе регистрирует
+  // /wordle, в bootstrap ставит кнопку меню рядом с полем ввода. Создаётся
+  // раньше уведомлений, чтобы игра стояла выше них в меню команд.
+  const wordleMiniApp = new WordleMiniAppService(telegramBot, {
+    appPublicUrl: env.APP_PUBLIC_URL,
+  })
   const wordleNotifications = new WordleNotificationService(
     telegramBot,
     new DrizzleWordleNotificationRepository(drizzle),
@@ -155,12 +161,6 @@ export function createContainer(): Container {
       eveningRaw: env.WORDLE_NOTIFY_EVENING,
     },
   )
-
-  // Единственный хуконосный сервис Mini App: в конструкторе регистрирует
-  // /play, в bootstrap ставит кнопку меню рядом с полем ввода.
-  const wordleMiniApp = new WordleMiniAppService(telegramBot, {
-    appPublicUrl: env.APP_PUBLIC_URL,
-  })
 
   // При падении Redis срабатывает каждый запрос: без троттлинга это тысячи
   // одинаковых строк в минуту.

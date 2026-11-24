@@ -252,7 +252,7 @@ export class TelegramBotService {
    * Кнопка меню рядом с полем ввода: точка входа в Mini App.
    *
    * Telegram принимает только https-адрес; ошибку не роняем — меню останется
-   * прежним, а команда /play всё равно откроет приложение кнопкой.
+   * прежним, а команда /wordle всё равно откроет приложение кнопкой.
    */
   async setMenuButton(text: string, url: string): Promise<boolean> {
     if (!this.config.token) return false

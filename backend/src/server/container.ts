@@ -157,7 +157,7 @@ export function createContainer(): Container {
   )
 
   // Единственный хуконосный сервис Mini App: в конструкторе регистрирует
-  // /play, в bootstrap ставит кнопку меню рядом с полем ввода.
+  // /wordle, в bootstrap ставит кнопку меню рядом с полем ввода.
   const wordleMiniApp = new WordleMiniAppService(telegramBot, {
     appPublicUrl: env.APP_PUBLIC_URL,
   })

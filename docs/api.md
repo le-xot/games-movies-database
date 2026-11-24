@@ -173,8 +173,11 @@ OAuth-callback'и провайдеров (`TWITCH_CALLBACK_URL`, `KICK_CALLBACK_
 ### Telegram Mini App
 
 `/tg/wordle` — та же игра в оболочке без сайтовой шапки и сайдбара. Открывается из бота
-командой `/play` (кнопка `web_app`) и кнопкой меню рядом с полем ввода; кнопка `web_app`
+командой `/wordle` (кнопка `web_app`) и кнопкой меню рядом с полем ввода; кнопка `web_app`
 требует https-адрес в `APP_PUBLIC_URL`, иначе бот ведёт на обычную `/db/wordle`.
+
+Напоминания живут отдельными командами: `/wordle_notification` — включить,
+`/wordle_notification_off` — выключить.
 
 Вход: `POST /api/auth/telegram/webapp` с подписанным `initData` из `Telegram.WebApp`.
 Сервер проверяет HMAC по `TELEGRAM_BOT_TOKEN`, свежесть `auth_date` (сутки) и ставит тот же

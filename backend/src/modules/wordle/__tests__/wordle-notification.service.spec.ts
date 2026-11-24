@@ -141,11 +141,11 @@ function createRoutedService() {
 }
 
 describe('WordleNotificationService через настоящий роутинг бота', () => {
-  it('обрабатывает /wordle и привязывает чат по telegram id', async () => {
+  it('обрабатывает /wordle_notification и привязывает чат по telegram id', async () => {
     const { telegram, notifications, users } = createRoutedService()
     users.getUserByPlatformId = mock(() => Promise.resolve({ id: 'user-9' } as never))
 
-    await telegram.handleUpdate(textUpdate('/wordle'))
+    await telegram.handleUpdate(textUpdate('/wordle_notification'))
 
     expect(users.getUserByPlatformId).toHaveBeenCalledWith('TELEGRAM', '7')
     expect(notifications.upsert).toHaveBeenCalledWith({
@@ -155,13 +155,13 @@ describe('WordleNotificationService через настоящий роутинг
     })
   })
 
-  it('отписывает чат по /wordle_off', async () => {
+  it('отписывает чат по /wordle_notification_off', async () => {
     const { telegram, notifications } = createRoutedService()
     notifications.findByChatId = mock(() =>
       Promise.resolve({ userId: 'user-1', chatId: '42' } as never),
     )
 
-    await telegram.handleUpdate(textUpdate('/wordle_off'))
+    await telegram.handleUpdate(textUpdate('/wordle_notification_off'))
 
     expect(notifications.deleteByChatId).toHaveBeenCalledWith('42')
   })
@@ -353,13 +353,13 @@ describe('WordleNotificationService commands', () => {
     expect(telegram.registerCommand).toHaveBeenCalledTimes(2)
     expect(telegram.registerCommand).toHaveBeenNthCalledWith(
       1,
-      'wordle',
+      'wordle_notification',
       'Включить напоминания про Вордли',
       expect.any(Function),
     )
     expect(telegram.registerCommand).toHaveBeenNthCalledWith(
       2,
-      'wordle_off',
+      'wordle_notification_off',
       'Выключить напоминания про Вордли',
       expect.any(Function),
     )
@@ -434,7 +434,7 @@ describe('WordleNotificationService commands', () => {
     telegram.sendMessage = mock(() => Promise.resolve(true))
 
     await service['handleSubscribe']({
-      command: 'wordle',
+      command: 'wordle_notification',
       payload: null,
       chatId: '42',
       fromId: '7',
@@ -454,7 +454,7 @@ describe('WordleNotificationService commands', () => {
     users.getUserByPlatformId = mock(() => Promise.resolve(null))
 
     await service['handleSubscribe']({
-      command: 'wordle',
+      command: 'wordle_notification',
       payload: null,
       chatId: '42',
       fromId: '7',
@@ -467,7 +467,7 @@ describe('WordleNotificationService commands', () => {
     expect(button).toEqual({ text: 'Открыть сайт', url: 'https://example.test' })
   })
 
-  it('unbinds on wordle_off and reports when there was nothing to unbind', async () => {
+  it('unbinds on wordle_notification_off and reports when there was nothing to unbind', async () => {
     const { service, telegram, notifications } = createService()
     notifications.findByChatId = mock(() =>
       Promise.resolve({ userId: 'user-1', chatId: '42' } as never),

@@ -38,17 +38,17 @@ function createBot(configured = true) {
 }
 
 async function runPlay(commands: Map<string, TelegramCommandHandler>) {
-  const handler = commands.get('play')
-  if (!handler) throw new Error('команда /play не зарегистрирована')
+  const handler = commands.get('wordle')
+  if (!handler) throw new Error('команда /wordle не зарегистрирована')
   await handler(CONTEXT)
 }
 
 describe('WordleMiniAppService', () => {
-  it('registers the /play command', () => {
+  it('registers the /wordle command', () => {
     const { bot, commands } = createBot()
     new WordleMiniAppService(bot, { appPublicUrl: 'https://le-xot.dev' })
 
-    expect([...commands.keys()]).toEqual(['play'])
+    expect([...commands.keys()]).toEqual(['wordle'])
   })
 
   it('opens the Mini App with a web_app button on https', async () => {

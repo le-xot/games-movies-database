@@ -1,18 +1,23 @@
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it, mock } from 'bun:test'
+import { WordleGameStatus } from '@backend/enums'
 import { WordleMiniAppService } from '@backend/modules/wordle/wordle-miniapp.service'
 import type { TelegramBotService } from '@backend/modules/telegram/telegram-bot.service'
 import type {
   TelegramCommandContext,
   TelegramCommandHandler,
 } from '@backend/modules/telegram/telegram-bot.types'
+import type { UserService } from '@backend/modules/user/user.service'
+import type { WordleService } from '@backend/modules/wordle/wordle.service'
 
 const CONTEXT: TelegramCommandContext = {
-  command: 'play',
+  command: 'wordle',
   payload: null,
   chatId: '42',
   fromId: '7',
   username: 'ivan',
 }
+
+const GENERIC_TEXT = 'Слово дня ждёт. Открой игру — она запустится прямо в Telegram.'
 
 function createBot(configured = true) {
   const commands = new Map<string, TelegramCommandHandler>()
@@ -37,38 +42,120 @@ function createBot(configured = true) {
   return { bot, commands, sent, menu }
 }
 
-async function runPlay(commands: Map<string, TelegramCommandHandler>) {
-  const handler = commands.get('wordle')
-  if (!handler) throw new Error('команда /wordle не зарегистрирована')
-  await handler(CONTEXT)
+interface ServiceOptions {
+  appPublicUrl?: string
+  configured?: boolean
+  user?: { id: string } | null
+  state?: unknown
+  stateThrows?: boolean
+}
+
+function createService(options: ServiceOptions = {}) {
+  const { bot, commands, sent, menu } = createBot(options.configured ?? true)
+  const getUserByPlatformId = mock(async () => options.user ?? null)
+  const getState = mock(async () => {
+    if (options.stateThrows) throw new Error('db down')
+
+    return options.state ?? { status: WordleGameStatus.IN_PROGRESS, attempts: 0, maxAttempts: 6 }
+  })
+
+  const service = new WordleMiniAppService(
+    bot,
+    { getUserByPlatformId } as unknown as UserService,
+    { getState } as unknown as WordleService,
+    { appPublicUrl: options.appPublicUrl ?? 'https://le-xot.dev' },
+  )
+
+  const play = async () => {
+    const handler = commands.get('wordle')
+    if (!handler) throw new Error('команда /wordle не зарегистрирована')
+    await handler(CONTEXT)
+  }
+
+  return { service, bot, commands, sent, menu, play, getUserByPlatformId, getState }
 }
 
 describe('WordleMiniAppService', () => {
   it('registers the /wordle command', () => {
-    const { bot, commands } = createBot()
-    new WordleMiniAppService(bot, { appPublicUrl: 'https://le-xot.dev' })
+    const { commands } = createService()
 
     expect([...commands.keys()]).toEqual(['wordle'])
   })
 
-  it('opens the Mini App with a web_app button on https', async () => {
-    const { bot, commands, sent } = createBot()
-    new WordleMiniAppService(bot, { appPublicUrl: 'https://le-xot.dev/' })
+  it('answers a player without an account with the generic text', async () => {
+    const { play, sent, getUserByPlatformId, getState } = createService()
 
-    await runPlay(commands)
+    await play()
 
+    expect(getUserByPlatformId).toHaveBeenCalledWith('TELEGRAM', '7')
+    expect(getState).not.toHaveBeenCalled()
     expect(sent[0]).toEqual({
       chatId: '42',
-      text: 'Слово дня ждёт. Открой игру — она запустится прямо в Telegram.',
+      text: GENERIC_TEXT,
       button: { text: 'Играть', webApp: 'https://le-xot.dev/tg/wordle' },
     })
   })
 
-  it('falls back to the site page on http', async () => {
-    const { bot, commands, sent } = createBot()
-    new WordleMiniAppService(bot, { appPublicUrl: 'http://localhost:5173' })
+  it('does not offer the word to someone who already won today', async () => {
+    const { play, sent } = createService({
+      user: { id: 'user-9' },
+      state: { status: WordleGameStatus.WON, attempts: 3, maxAttempts: 6 },
+    })
 
-    await runPlay(commands)
+    await play()
+
+    expect(sent[0]?.text).toBe(
+      'Сегодняшнее слово угадано с 3-й попытки. Новая партия — после полуночи по Москве.',
+    )
+  })
+
+  it('reports the end of attempts after a loss', async () => {
+    const { play, sent } = createService({
+      user: { id: 'user-9' },
+      state: { status: WordleGameStatus.LOST, attempts: 6, maxAttempts: 6 },
+    })
+
+    await play()
+
+    expect(sent[0]?.text).toBe(
+      'Попытки на сегодня закончились. Новая партия — после полуночи по Москве.',
+    )
+  })
+
+  it('offers to continue a started game', async () => {
+    const { play, sent } = createService({
+      user: { id: 'user-9' },
+      state: { status: WordleGameStatus.IN_PROGRESS, attempts: 2, maxAttempts: 6 },
+    })
+
+    await play()
+
+    expect(sent[0]?.text).toBe('Партия идёт: 2 из 6. Продолжи — игра откроется в Telegram.')
+  })
+
+  it('keeps the generic text before the first guess', async () => {
+    const { play, sent } = createService({
+      user: { id: 'user-9' },
+      state: { status: WordleGameStatus.IN_PROGRESS, attempts: 0, maxAttempts: 6 },
+    })
+
+    await play()
+
+    expect(sent[0]?.text).toBe(GENERIC_TEXT)
+  })
+
+  it('falls back to the generic text when the state cannot be read', async () => {
+    const { play, sent } = createService({ user: { id: 'user-9' }, stateThrows: true })
+
+    await play()
+
+    expect(sent[0]?.text).toBe(GENERIC_TEXT)
+  })
+
+  it('falls back to the site page on http', async () => {
+    const { play, sent } = createService({ appPublicUrl: 'http://localhost:5173' })
+
+    await play()
 
     expect(sent[0]?.button).toEqual({
       text: 'Играть',
@@ -77,8 +164,7 @@ describe('WordleMiniAppService', () => {
   })
 
   it('sets the menu button when the bot is configured', async () => {
-    const { bot, menu } = createBot()
-    const service = new WordleMiniAppService(bot, { appPublicUrl: 'https://le-xot.dev' })
+    const { service, menu } = createService()
 
     await service.onApplicationBootstrap()
 
@@ -86,15 +172,11 @@ describe('WordleMiniAppService', () => {
   })
 
   it('skips the menu button on http and without configuration', async () => {
-    const http = createBot()
-    await new WordleMiniAppService(http.bot, {
-      appPublicUrl: 'http://localhost:5173',
-    }).onApplicationBootstrap()
+    const http = createService({ appPublicUrl: 'http://localhost:5173' })
+    await http.service.onApplicationBootstrap()
 
-    const unconfigured = createBot(false)
-    await new WordleMiniAppService(unconfigured.bot, {
-      appPublicUrl: 'https://le-xot.dev',
-    }).onApplicationBootstrap()
+    const unconfigured = createService({ configured: false })
+    await unconfigured.service.onApplicationBootstrap()
 
     expect(http.menu).toEqual([])
     expect(unconfigured.menu).toEqual([])

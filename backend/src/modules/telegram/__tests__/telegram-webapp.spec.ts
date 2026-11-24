@@ -118,6 +118,19 @@ describe('verifyTelegramWebAppInitData', () => {
     expect(verifyTelegramWebAppInitData(initData, BOT_TOKEN, { now: NOW })).toBeNull()
   })
 
+  it('keeps the signature field in the data-check-string', () => {
+    // Новые клиенты кладут в initData ещё и Ed25519-подпись для сторонних
+    // проверок; в HMAC-строку она входит, исключается только `hash`.
+    const initData = signInitData({
+      query_id: 'AAHdF6IQAAAAAN0XohDhrOrc',
+      user: JSON.stringify(USER),
+      auth_date: String(NOW_SECONDS),
+      signature: 'Ed25519-signature-value',
+    })
+
+    expect(verifyTelegramWebAppInitData(initData, BOT_TOKEN, { now: NOW })).toEqual(USER)
+  })
+
   it('rejects data without auth_date', () => {
     const initData = signInitData({ user: JSON.stringify(USER) })
 

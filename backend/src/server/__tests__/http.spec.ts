@@ -40,6 +40,17 @@ describe('HTTP layer', () => {
     expect(response.headers.get('content-security-policy')).toContain("default-src 'self'")
   })
 
+  it('lets Telegram frame the Mini App page only', async () => {
+    const miniApp = await get('/tg/wordle')
+    const site = await get('/db/wordle')
+
+    expect(miniApp.headers.get('x-frame-options')).toBeNull()
+    expect(miniApp.headers.get('content-security-policy')).toContain('https://web.telegram.org')
+
+    expect(site.headers.get('x-frame-options')).toBe('DENY')
+    expect(site.headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
+  })
+
   it('omits CSP outside production', async () => {
     const app = createHttpServer(createTestGateway(), {
       corsOrigins: CORS_ORIGINS,

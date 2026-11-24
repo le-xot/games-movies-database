@@ -95,7 +95,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER_HOST" \
             "set -e; cd $DEPLOY_DIR && \
              docker compose ps -q application | xargs -r docker inspect --format '{{.Image}}' > .rollback-image || true; \
-             bash render-env.sh && docker compose pull application migrations logs && \
+             bash render-env.sh && docker compose pull application migrations logs rustfs && \
              docker compose up -d --remove-orphans && docker image prune -f --filter until=168h"
 
       - name: Health check

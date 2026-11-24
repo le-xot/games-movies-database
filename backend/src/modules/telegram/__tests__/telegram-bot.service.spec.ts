@@ -109,6 +109,27 @@ describe('TelegramBotService', () => {
     ])
   })
 
+  it('retries the menu button after a failed attempt', async () => {
+    let call = 0
+    fetchMock = mock(() => {
+      call += 1
+
+      return Promise.resolve(
+        call === 1
+          ? jsonResponse({ ok: false, description: 'boom' }, 500)
+          : jsonResponse({ ok: true, result: true }),
+      )
+    })
+    service = new TelegramBotService({
+      ...CONFIG,
+      retryDelayMs: 1,
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    expect(await service.setMenuButton('Вордли', 'https://le-xot.dev/tg/wordle')).toBe(true)
+    expect(fetchMock.mock.calls.length).toBe(2)
+  })
+
   it('does not call Bot API for the menu button without a token', async () => {
     service = new TelegramBotService({
       ...CONFIG,

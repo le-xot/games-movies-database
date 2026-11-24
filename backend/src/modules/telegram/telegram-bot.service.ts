@@ -257,17 +257,31 @@ export class TelegramBotService {
   async setMenuButton(text: string, url: string): Promise<boolean> {
     if (!this.config.token) return false
 
-    try {
-      await this.bot.api.setChatMenuButton(
-        { menu_button: { type: 'web_app', text, web_app: { url } } },
-        apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
-      )
+    // Повтор нужен из-за старта: Bot API вызывается сразу после setWebhook и
+    // setMyCommands, и разовый сбой сети не должен оставить кнопку незаданной.
+    for (let attempt = 1; attempt <= SEND_ATTEMPTS; attempt += 1) {
+      try {
+        await this.bot.api.setChatMenuButton(
+          { menu_button: { type: 'web_app', text, web_app: { url } } },
+          apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
+        )
+        this.logger.log(`Кнопка меню Telegram: «${text}» → ${url}`)
 
-      return true
-    } catch (error) {
-      this.logger.warn(`Telegram setChatMenuButton failed: ${this.describeError(error)}`)
-      return false
+        return true
+      } catch (error) {
+        this.logger.warn(
+          `Telegram setChatMenuButton failed (попытка ${attempt}/${SEND_ATTEMPTS}): ${this.describeError(error)}`,
+        )
+
+        if (attempt < SEND_ATTEMPTS) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, this.config.retryDelayMs ?? RETRY_DELAY_MS),
+          )
+        }
+      }
     }
+
+    return false
   }
 
   async getBotUsername(): Promise<string | null> {

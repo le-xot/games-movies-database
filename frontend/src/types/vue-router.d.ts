@@ -35,6 +35,7 @@ declare module 'vue-router' {
       series: RouteRecordInfo<'series', '/db/series'>
       wordle: RouteRecordInfo<'wordle', '/db/wordle'>
       cocktails: RouteRecordInfo<'cocktails', '/db/cocktails'>
+      'wordle-miniapp': RouteRecordInfo<'wordle-miniapp', '/tg/wordle'>
       'auth-twitch': RouteRecordInfo<'auth-twitch', '/auth/callback/twitch'>
       'auth-kick': RouteRecordInfo<'auth-kick', '/auth/callback/kick'>
       'auth-telegram': RouteRecordInfo<'auth-telegram', '/auth/callback/telegram'>

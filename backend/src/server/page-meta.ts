@@ -96,6 +96,12 @@ const PAGES: Record<string, PageMeta> = {
     title: 'Коктейли Лешота — рецепты',
     description: 'Коктейли Лешота: рецепты, состав и пропорции.',
   },
+  // Оболочка Telegram Mini App: та же игра, но адрес открывают только из бота.
+  '/tg/wordle': {
+    title: 'Вордли — игра в слова',
+    description: 'Вордли от Лешота внутри Telegram.',
+    indexable: false,
+  },
 }
 
 /** Личные и служебные адреса: в индексе им делать нечего. */
@@ -107,7 +113,9 @@ const PRIVATE_PATHS: readonly RegExp[] = [
 ]
 
 /** Адреса, которые попадают в `sitemap.xml` (без редиректов и приватных страниц). */
-const SITEMAP_PATHS = Object.keys(PAGES).filter((path) => path !== '/db')
+const SITEMAP_PATHS = Object.keys(PAGES).filter(
+  (path) => path !== '/db' && PAGES[path]?.indexable !== false,
+)
 
 /** Адрес сайта по умолчанию; в проде приходит из `APP_PUBLIC_URL`. */
 export const DEFAULT_SITE_URL = 'https://le-xot.dev'

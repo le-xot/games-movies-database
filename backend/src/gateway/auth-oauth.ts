@@ -25,6 +25,11 @@ export const oauthModels = {
     code: t.String(),
     state: t.String(),
   }),
+  // `initData` — подписанная строка из Telegram, по ней и находится аккаунт.
+  // Верхняя граница с запасом: реальная строка — это query-string с профилем.
+  TelegramWebAppAuthDto: t.Object({
+    initData: t.String({ minLength: 1, maxLength: 8192 }),
+  }),
 }
 
 export interface TelegramProfile {
@@ -45,6 +50,13 @@ export interface OAuthPort {
   exchangeTelegram(code: string, codeVerifier: string): Promise<TelegramProfile>
   loginTelegram(profile: TelegramProfile): Promise<string>
   linkTelegram(userId: string, profile: TelegramProfile): Promise<void>
+  /**
+   * Проверяет `initData` Telegram Mini App и отдаёт профиль.
+   *
+   * `null` — подпись, свежесть или формат не сошлись: наружу это уходит как 401
+   * без подробностей, чтобы по ответу нельзя было подбирать подпись.
+   */
+  verifyTelegramWebApp(initData: string): TelegramProfile | null
 }
 
 export interface OAuthConfig {
@@ -112,11 +124,12 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       server: { requestIP: (r: Request) => { address: string } | null } | null
     },
     route: string,
+    rateLimitConfig: Parameters<typeof enforceRateLimit>[1]['config'] = RATE_LIMITS.auth,
   ) =>
     enforceRateLimit(rateLimit, {
       request: ctx.request,
       route,
-      config: RATE_LIMITS.auth,
+      config: rateLimitConfig,
       ip: ctx.server?.requestIP(ctx.request)?.address,
     })
 
@@ -397,6 +410,27 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
             error: t.String(),
           }),
           response: { 302: t.Void(), ...standardErrors() },
+        },
+      )
+      // Вход из Telegram Mini App: браузерной навигации нет, `initData` приходит
+      // подписанной строкой. Токен ставим той же cookie, что и OIDC-вход, —
+      // дальше SPA живёт как обычно и не знает, откуда пришла сессия.
+      .post(
+        '/auth/telegram/webapp',
+        async (ctx) => {
+          await limit(ctx, 'AuthController.telegramWebApp', RATE_LIMITS.telegramWebApp)
+
+          const profile = oauth.verifyTelegramWebApp((ctx.body as { initData: string }).initData)
+          if (!profile) throw new ApiError(401, 'Не удалось подтвердить вход через Telegram')
+
+          const token = await oauth.loginTelegram(profile)
+          setToken(ctx.set, token)
+
+          return { success: true as const }
+        },
+        {
+          body: 'TelegramWebAppAuthDto' as const,
+          response: { 200: 'SuccessResponseDTO' as const, ...standardErrors() },
         },
       )
   )

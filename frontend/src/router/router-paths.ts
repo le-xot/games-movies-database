@@ -15,6 +15,7 @@ export const ROUTER_PATHS = {
   userRatings: '/db/users/:id/ratings',
   wordle: '/db/wordle',
   cocktails: '/db/cocktails',
+  wordleMiniApp: '/tg/wordle',
 } as const
 
 export type RouterPath = (typeof ROUTER_PATHS)[keyof typeof ROUTER_PATHS]

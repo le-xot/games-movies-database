@@ -1,4 +1,8 @@
 import { ImgVariant } from '@backend/modules/img/img.dto'
+import {
+  toTelegramProfile,
+  verifyTelegramWebAppInitData,
+} from '@backend/modules/telegram/telegram-webapp'
 import { env } from '@backend/utils/enviroments'
 import type { GatewayDeps } from '@backend/gateway'
 import type { AuthService } from '@backend/modules/auth/auth.service'
@@ -102,6 +106,13 @@ export function integrationPorts({
       loginTelegram: (profile) => auth.handleTelegramOidcLogin(profile),
       linkTelegram: async (userId, profile) => {
         await auth.linkTelegramOidc(userId, profile)
+      },
+      // Без токена бота Mini App войти не может — как и OIDC-вход: тогда роут
+      // честно отвечает 401, а не падает на пустом HMAC-ключе.
+      verifyTelegramWebApp: (initData) => {
+        const user = verifyTelegramWebAppInitData(initData, env.TELEGRAM_BOT_TOKEN ?? '')
+
+        return user ? toTelegramProfile(user) : null
       },
     },
     oauthConfig: {

@@ -1,6 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
 import type { GatewayUser } from '@backend/gateway/auth'
+import type { TelegramProfile } from '@backend/gateway/auth-oauth'
 
 const USER: GatewayUser = {
   id: 'user-1',
@@ -13,7 +14,13 @@ const USER: GatewayUser = {
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
-function build(options: { user?: GatewayUser | null; exchangeTwitch?: unknown } = {}) {
+function build(
+  options: {
+    user?: GatewayUser | null
+    exchangeTwitch?: unknown
+    webAppProfile?: TelegramProfile | null
+  } = {},
+) {
   const exchangeTwitch = options.exchangeTwitch ?? mock(async () => 'jwt-token')
   const gateway = createTestGateway({
     auth: { resolve: async () => options.user ?? null },
@@ -33,6 +40,7 @@ function build(options: { user?: GatewayUser | null; exchangeTwitch?: unknown } 
       }),
       loginTelegram: async () => 'jwt-token',
       linkTelegram: async () => {},
+      verifyTelegramWebApp: () => options.webAppProfile ?? null,
     },
   })
 
@@ -187,5 +195,39 @@ describe('OAuth: telegram', () => {
     expect(response.status).toBe(302)
     expect(response.headers.get('location')).toContain('mode=login')
     expect(response.headers.getSetCookie().join(';')).toContain('token=jwt-token')
+  })
+})
+
+describe('OAuth: telegram webapp', () => {
+  const PROFILE: TelegramProfile = { id: '42', firstName: 'Иван', username: 'ivan' }
+
+  function post(body: unknown) {
+    return request('/auth/telegram/webapp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  }
+
+  it('logs in and sets the token cookie for a valid initData', async () => {
+    const response = await build({ webAppProfile: PROFILE }).gateway.handle(
+      post({ initData: 'query_id=1&hash=abc' }),
+    )
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ success: true })
+    expect(response.headers.getSetCookie().join(';')).toContain('token=jwt-token')
+  })
+
+  it('answers 401 when the signature does not check out', async () => {
+    const response = await build().gateway.handle(post({ initData: 'query_id=1&hash=bad' }))
+
+    expect(response.status).toBe(401)
+  })
+
+  it('rejects an empty initData before touching Telegram', async () => {
+    const response = await build({ webAppProfile: PROFILE }).gateway.handle(post({ initData: '' }))
+
+    expect(response.status).toBe(400)
   })
 })

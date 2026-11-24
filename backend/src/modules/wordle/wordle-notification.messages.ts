@@ -1,3 +1,9 @@
+import {
+  buildMiniAppUrl,
+  isMiniAppUrlSupported,
+} from '@backend/modules/wordle/wordle-miniapp.messages'
+import type { TelegramButton } from '@backend/modules/telegram/telegram-bot.service'
+
 export const PLAY_BUTTON_TEXT = 'Играть'
 export const OPEN_SITE_BUTTON_TEXT = 'Открыть сайт'
 
@@ -28,4 +34,18 @@ export function buildConnectedText(morningTime: string, eveningTime: string): st
 
 export function buildConnectRequiredText(): string {
   return 'Чтобы получать напоминания про Вордли, зайди на сайт через Telegram и нажми «Подключить» в аккаунте — или просто отправь /wordle ещё раз после входа.'
+}
+
+/**
+ * Кнопка «Играть»: в проде открывает Mini App, в dev — страницу сайта.
+ *
+ * Игра одна и та же, разница только в оболочке: в Telegram — без шапки и
+ * сайдбара, с автоматическим входом по `initData`.
+ */
+export function buildPlayButton(appPublicUrl: string): TelegramButton {
+  const miniAppUrl = buildMiniAppUrl(appPublicUrl)
+
+  return isMiniAppUrlSupported(miniAppUrl)
+    ? { text: PLAY_BUTTON_TEXT, webApp: miniAppUrl }
+    : { text: PLAY_BUTTON_TEXT, url: buildPlayUrl(appPublicUrl) }
 }

@@ -64,6 +64,62 @@ describe('TelegramBotService', () => {
     ])
   })
 
+  it('sends a message with a Mini App button', async () => {
+    const ok = await service.sendMessage('42', 'Слово дня ждёт', {
+      text: 'Играть',
+      webApp: 'https://le-xot.dev/tg/wordle',
+    })
+
+    expect(ok).toBe(true)
+    expect(calls()).toEqual([
+      {
+        url: 'https://api.telegram.org/bot123:abc/sendMessage',
+        body: {
+          chat_id: '42',
+          text: 'Слово дня ждёт',
+          link_preview_options: { is_disabled: true },
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: 'Играть', web_app: { url: 'https://le-xot.dev/tg/wordle' } }],
+            ],
+          },
+        },
+      },
+    ])
+  })
+
+  it('sets the menu button as a Mini App entry point', async () => {
+    fetchMock = mock(() => Promise.resolve(jsonResponse({ ok: true, result: true })))
+    service = new TelegramBotService({ ...CONFIG, fetch: fetchMock as unknown as typeof fetch })
+
+    const ok = await service.setMenuButton('Вордли', 'https://le-xot.dev/tg/wordle')
+
+    expect(ok).toBe(true)
+    expect(calls()).toEqual([
+      {
+        url: 'https://api.telegram.org/bot123:abc/setChatMenuButton',
+        body: {
+          menu_button: {
+            type: 'web_app',
+            text: 'Вордли',
+            web_app: { url: 'https://le-xot.dev/tg/wordle' },
+          },
+        },
+      },
+    ])
+  })
+
+  it('does not call Bot API for the menu button without a token', async () => {
+    service = new TelegramBotService({
+      ...CONFIG,
+      token: '',
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    expect(await service.setMenuButton('Вордли', 'https://le-xot.dev/tg/wordle')).toBe(false)
+    expect(fetchMock.mock.calls.length).toBe(0)
+  })
+
   it('retries once and gives up after two failures', async () => {
     fetchMock = mock(() => Promise.resolve(jsonResponse({ ok: false, description: 'boom' }, 500)))
     service = new TelegramBotService({ ...CONFIG, fetch: fetchMock as unknown as typeof fetch })

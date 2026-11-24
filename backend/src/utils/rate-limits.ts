@@ -12,6 +12,9 @@ export const RATE_LIMITS = {
   img: { ttl: RATE_LIMIT_TTL, limit: 3000 },
   twir: { ttl: RATE_LIMIT_TTL, limit: 120 },
   wordlePractice: { ttl: RATE_LIMIT_TTL, limit: 120 },
+  // Вход из Mini App: Telegram открывает окно заново при каждом заходе, и пара
+  // ретраев на плохой сети не должна упираться в общий лимит логина 5/мин.
+  telegramWebApp: { ttl: RATE_LIMIT_TTL, limit: 20 },
 } as const
 
 export type RateLimitConfig = { ttl: number; limit: number }

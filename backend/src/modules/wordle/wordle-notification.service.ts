@@ -10,12 +10,11 @@ import {
 } from '@backend/modules/wordle/wordle-notification.dto'
 import {
   OPEN_SITE_BUTTON_TEXT,
-  PLAY_BUTTON_TEXT,
   buildConnectedText,
   buildConnectRequiredText,
   buildEveningText,
   buildMorningText,
-  buildPlayUrl,
+  buildPlayButton,
 } from '@backend/modules/wordle/wordle-notification.messages'
 import {
   formatSlotTime,
@@ -166,10 +165,11 @@ export class WordleNotificationService {
 
     const text =
       slot === 'morning' ? buildMorningText(recipient.streak) : buildEveningText(recipient.streak)
-    const ok = await this.telegram.sendMessage(recipient.chatId, text, {
-      text: PLAY_BUTTON_TEXT,
-      url: buildPlayUrl(this.appPublicUrl),
-    })
+    const ok = await this.telegram.sendMessage(
+      recipient.chatId,
+      text,
+      buildPlayButton(this.appPublicUrl),
+    )
     if (ok) await this.markSent(key)
     return ok
   }

@@ -55,9 +55,19 @@ export interface TelegramBotConfig {
   botInfo?: UserFromGetMe
 }
 
-export interface TelegramButton {
-  text: string
-  url: string
+/**
+ * Кнопка под сообщением.
+ *
+ * `webApp` открывает Telegram Mini App — Bot API принимает только https и
+ * только в личных чатах. `url` — обычная внешняя ссылка.
+ */
+export type TelegramButton = { text: string; url: string } | { text: string; webApp: string }
+
+/** Инлайн-кнопка в терминах Bot API: web_app в приоритете над обычной ссылкой. */
+function toInlineButton(button: TelegramButton) {
+  return 'webApp' in button
+    ? { text: button.text, web_app: { url: button.webApp } }
+    : { text: button.text, url: button.url }
 }
 
 export function isValidWebhookSecret(secret: string | null | undefined): secret is string {
@@ -218,9 +228,7 @@ export class TelegramBotService {
           text,
           {
             link_preview_options: { is_disabled: true },
-            ...(button
-              ? { reply_markup: { inline_keyboard: [[{ text: button.text, url: button.url }]] } }
-              : {}),
+            ...(button ? { reply_markup: { inline_keyboard: [[toInlineButton(button)]] } } : {}),
           },
           apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
         )
@@ -238,6 +246,28 @@ export class TelegramBotService {
     }
 
     return false
+  }
+
+  /**
+   * Кнопка меню рядом с полем ввода: точка входа в Mini App.
+   *
+   * Telegram принимает только https-адрес; ошибку не роняем — меню останется
+   * прежним, а команда /play всё равно откроет приложение кнопкой.
+   */
+  async setMenuButton(text: string, url: string): Promise<boolean> {
+    if (!this.config.token) return false
+
+    try {
+      await this.bot.api.setChatMenuButton(
+        { menu_button: { type: 'web_app', text, web_app: { url } } },
+        apiSignal(this.config.apiTimeoutMs ?? API_TIMEOUT_MS),
+      )
+
+      return true
+    } catch (error) {
+      this.logger.warn(`Telegram setChatMenuButton failed: ${this.describeError(error)}`)
+      return false
+    }
   }
 
   async getBotUsername(): Promise<string | null> {

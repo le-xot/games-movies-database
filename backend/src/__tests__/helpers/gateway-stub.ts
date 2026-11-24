@@ -120,6 +120,7 @@ export function createTestGateway(overrides: Partial<GatewayDeps> = {}) {
         throw new Error('loginTelegram не заглушен')
       },
       linkTelegram: async () => {},
+      verifyTelegramWebApp: () => null,
     },
     oauthConfig: {
       twitchClientId: 'twitch-client',

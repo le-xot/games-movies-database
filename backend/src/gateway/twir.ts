@@ -14,10 +14,7 @@ export const twirModels = {
   }),
 }
 
-export interface TwirInput {
-  userId: string
-  link: string
-}
+export type TwirInput = typeof twirModels.SuggestionCreateByTwirDTO.static
 
 export interface TwirService {
   createSuggestion(input: TwirInput): Promise<SuggestionResponse>

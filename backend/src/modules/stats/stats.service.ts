@@ -1,10 +1,10 @@
 import { DrizzleStatsRepository } from '@backend/modules/stats/repositories/drizzle-stats.repository'
-import { RecordsStatsDTO } from '@backend/modules/stats/stats.dto'
+import type { RecordsStats } from '@backend/modules/stats/stats.entity'
 
 export class StatsService {
   constructor(private readonly statsRepository: DrizzleStatsRepository) {}
 
-  async getRecordsStats(): Promise<RecordsStatsDTO> {
+  async getRecordsStats(): Promise<RecordsStats> {
     const [
       total,
       byGenre,

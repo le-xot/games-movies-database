@@ -1,5 +1,4 @@
 import { SuggestionService } from '@backend/modules/suggestion/suggestion.service'
-import { SuggestionCreateByTwirDTO } from '@backend/modules/twir/twir.dto'
 import { UserService } from '@backend/modules/user/user.service'
 import { NotFoundError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
@@ -11,7 +10,7 @@ export class TwirService {
     private readonly suggestion: SuggestionService,
   ) {}
 
-  async createSuggestionWithTwir(data: SuggestionCreateByTwirDTO) {
+  async createSuggestionWithTwir(data: { userId: string; link: string }) {
     this.logger.log(`createSuggestionWithTwir userId=${data.userId} link=${data.link}`)
     const user = await this.user.getUserById(data.userId)
     if (!user) {

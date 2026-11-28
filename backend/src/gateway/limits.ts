@@ -3,7 +3,7 @@ import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
 import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
-import { UserRole, type LimitType } from '@gmdb/contract'
+import { UserRole } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 
 const { LimitType: limitTypeSchema } = accountEnumModels
@@ -19,13 +19,11 @@ export const limitModels = {
   }),
 }
 
-export interface Limit {
-  name: LimitType
-  quantity: number
-}
+export type ChangeLimitInput = typeof limitModels.ChangeLimitDTO.static
+export type Limit = typeof limitModels.LimitEntity.static
 
 export interface LimitsService {
-  change(input: Limit): Promise<Limit>
+  change(input: ChangeLimitInput): Promise<Limit>
 }
 
 export interface LimitRouteDeps {

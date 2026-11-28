@@ -214,3 +214,17 @@
   G-03 (тип-тесты полноты словарей), G-04 (полная синхронизация карт рекона).
 - **Ревью 14**: CHANGES → двойной суффикс `/pc`, watcher оценок вне своих маршрутов — исправлено
   `20eb8a7`; админка сознательно «Админка Лешота».
+
+## Раунд 19–22 — B-12: class-DTO исчезли из домена
+
+- `6486c0f`: удалены weather/limit/stats/twir `*.dto.ts` → доменные типы в `entities/`;
+  гейтвей больше не дублирует схемы (`WeatherResponse` из статических типов компонент,
+  `ChangeLimitInput`/`Limit`/`TwirInput` из моделей).
+- `a457e45`: record и steam — `CreateRecordFromLinkInput`, `UpdateRecordData`, `SteamGame`/
+  `SteamImportGame` вместо Nest-классов.
+- `13221a9`: wordle — последние class-DTO; в `gateway/wordle.ts` удалены ручные интерфейсы
+  портов (~80 строк), типы берутся из `modules/wordle/entities` и реэкспортируются для
+  `api-types`/тестов.
+- `90e4676`: `img.dto.ts` → `img-variant.ts` — в `modules/` не осталось ни одного `.dto.ts`.
+- Wire-контракт не менялся: формы держат TypeBox-модели, доменные типы структурно совпадают
+  (проверяется холодным typecheck'ом backend+frontend и unit/integration-тестами).

@@ -85,6 +85,30 @@ describe('архитектура backend', () => {
   })
 
   /**
+   * Доступ к БД — только через репозитории: сервис с `DrizzleService` или
+   * импортом схемы снова открывает второй путь к таблицам.
+   */
+  it('сервисы домена не импортируют БД напрямую', async () => {
+    const modulesDir = join(SOURCE_ROOT, 'modules')
+    const files = (await collectTypeScriptFiles(modulesDir)).filter(
+      (file) => file.endsWith('.service.ts') && !file.endsWith('.spec.ts'),
+    )
+    const offenders: string[] = []
+
+    for (const file of files) {
+      const text = await readFile(file, 'utf8')
+      if (
+        text.includes('@backend/database/drizzle.service') ||
+        text.includes('@gmd/database/schema')
+      ) {
+        offenders.push(relative(SOURCE_ROOT, file))
+      }
+    }
+
+    expect(offenders.sort()).toEqual([])
+  })
+
+  /**
    * Гейтвей знает только порты: из `modules/` ему разрешены чистые функции и
    * константы (`auth.oauth-state`, `telegram.constants`, `cocktail.types`),
    * но не классы сервисов — иначе HTTP-слой тянет весь домен.

@@ -66,6 +66,8 @@ backend/src/
 
 - **Typo**: не «исправлять» `utils/enviroments.ts` без обновления всех импортов.
 - **Drizzle**: не создавать `pg.Pool` вне `DrizzleService`.
+- **SQL в сервисах**: доменный сервис не импортирует `DrizzleService`/`@gmd/database/schema` —
+  только через репозиторий; проверяет `__tests__/architecture.spec.ts`.
 - **`console.*` в коде** — только `utils/logger.ts`, `main.ts` и скрипты; oxlint это ловит.
 - **`process.env`** — только в `utils/enviroments.ts`; иначе падает `__tests__/architecture.spec.ts`.
 - **`t.Unsafe` в схемах ответа**: ломает рантайм-валидацию TypeBox («Unknown type»),

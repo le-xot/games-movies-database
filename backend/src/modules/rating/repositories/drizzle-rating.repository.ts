@@ -44,6 +44,26 @@ export class DrizzleRatingRepository {
     return rating
   }
 
+  /** Существует ли запись: валидация FK перед оценкой. */
+  async recordExists(recordId: number): Promise<boolean> {
+    const record = await this.drizzle.db.query.records.findFirst({
+      where: eq(records.id, recordId),
+      columns: { id: true },
+    })
+
+    return Boolean(record)
+  }
+
+  /** Короткая карточка пользователя для заголовка «Оценки {login}». */
+  async findUserBrief(userId: string): Promise<{ id: string; login: string } | null> {
+    return (
+      (await this.drizzle.db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: { id: true, login: true },
+      })) ?? null
+    )
+  }
+
   async deleteByUserAndRecord(userId: string, recordId: number): Promise<number> {
     const result = await this.drizzle.db
       .delete(recordRatings)

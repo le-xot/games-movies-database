@@ -3,7 +3,6 @@ import { RecordGrade } from '@backend/enums'
 import { NotFoundError } from '@backend/utils/errors'
 import { RatingService } from '../rating.service'
 import { DrizzleRatingRepository } from '../repositories/drizzle-rating.repository'
-import type { DrizzleService } from '@backend/database/drizzle.service'
 
 const makeRating = (
   overrides?: Partial<{ id: string; userId: string; recordId: number; grade: RecordGrade }>,
@@ -17,20 +16,6 @@ const makeRating = (
   ...overrides,
 })
 
-function makeDrizzle(
-  recordRow: { id: number } | null,
-  userRow: { id: string; login: string } | null = { id: 'user-1', login: 'user-1' },
-) {
-  return {
-    db: {
-      query: {
-        records: { findFirst: mock(() => Promise.resolve(recordRow)) },
-        users: { findFirst: mock(() => Promise.resolve(userRow)) },
-      },
-    },
-  } as unknown as DrizzleService
-}
-
 describe('RatingService', () => {
   let service: RatingService
   let mockRepo: DrizzleRatingRepository
@@ -43,9 +28,11 @@ describe('RatingService', () => {
         Promise.resolve(makeRating({ userId, recordId, grade })),
       ),
       deleteByUserAndRecord: mock(() => Promise.resolve(1)),
+      recordExists: mock(() => Promise.resolve(true)),
+      findUserBrief: mock(() => Promise.resolve({ id: 'owner-1', login: 'owner-login' })),
     } as unknown as DrizzleRatingRepository
     mockEventEmitter = { emit: mock(() => {}) }
-    service = new RatingService(mockRepo, makeDrizzle({ id: 1 }), mockEventEmitter as any)
+    service = new RatingService(mockRepo, mockEventEmitter as any)
   })
 
   describe('rate', () => {
@@ -79,7 +66,8 @@ describe('RatingService', () => {
     })
 
     it('throws NotFoundError for a missing record without touching ratings', async () => {
-      service = new RatingService(mockRepo, makeDrizzle(null), mockEventEmitter as any)
+      mockRepo.recordExists = mock(() => Promise.resolve(false)) as any
+      service = new RatingService(mockRepo, mockEventEmitter as any)
 
       await expect(service.rate('user-1', 999, RecordGrade.LIKE)).rejects.toThrow(NotFoundError)
       expect(mockRepo.upsert).not.toHaveBeenCalled()
@@ -126,11 +114,7 @@ describe('RatingService', () => {
     })
 
     beforeEach(() => {
-      service = new RatingService(
-        mockRepo,
-        makeDrizzle({ id: 1 }, { id: 'owner-1', login: 'owner-login' }),
-        mockEventEmitter as any,
-      )
+      service = new RatingService(mockRepo, mockEventEmitter as any)
       mockRepo.findByUserWithRecords = mock(() => Promise.resolve([makeRow()])) as any
       mockRepo.countByUser = mock(() => Promise.resolve(1)) as any
       mockRepo.aggregateByRecords = mock(() =>
@@ -175,7 +159,8 @@ describe('RatingService', () => {
     })
 
     it('throws NotFoundError for unknown profile user', async () => {
-      service = new RatingService(mockRepo, makeDrizzle({ id: 1 }, null), mockEventEmitter as any)
+      mockRepo.findUserBrief = mock(() => Promise.resolve(null)) as any
+      service = new RatingService(mockRepo, mockEventEmitter as any)
 
       await expect(service.getUserRatings('viewer-1', 'ghost', 1, 10, undefined)).rejects.toThrow(
         NotFoundError,

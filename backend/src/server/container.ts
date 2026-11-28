@@ -98,7 +98,7 @@ export function createContainer(): Container {
   const weather = lifecycle.add(new WeatherService())
 
   const ratingRepository = lifecycle.add(new DrizzleRatingRepository(drizzle))
-  const ratings = lifecycle.add(new RatingService(ratingRepository, drizzle, events))
+  const ratings = lifecycle.add(new RatingService(ratingRepository, events))
 
   const twitch = lifecycle.add(new TwitchService())
   const providers = lifecycle.add(

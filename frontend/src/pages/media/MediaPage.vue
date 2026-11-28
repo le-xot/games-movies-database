@@ -72,7 +72,7 @@ const items = computed(() => media.value?.records.items ?? [])
       :has-next-page="media.records.hasNextPage"
       :has-episode-column="media.entry.hasEpisodeColumn"
       :delete-confirm-title="media.entry.deleteConfirmTitle"
-      :has-error="!!media.records.error"
+      :suppress-empty-state="!!media.records.error"
       @update="media.records.updateRecord"
       @update-poster="media.records.updatePoster"
       @delete="media.records.deleteRecord"

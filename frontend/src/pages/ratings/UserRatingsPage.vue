@@ -44,7 +44,7 @@ const {
         :is-loading-next="isLoadingNext"
         :has-next-page="hasNextPage"
         :has-episode-column="true"
-        :has-error="!!error"
+        :suppress-empty-state="!!error"
         delete-confirm-title="Удалить запись?"
         @update="ratings.updateRecord"
         @update-poster="ratings.updatePoster"

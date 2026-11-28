@@ -39,6 +39,7 @@ backend/src/
 | Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole`        |
 | Real-time   | `gateway/ws.ts`                            | `/ws`, одна комната, кадры `{ event, payload }`                   |
 | Env         | `utils/enviroments.ts`                     | envalid (в имени файла опечатка — так и надо)                     |
+| Логи        | `utils/logger.ts`                          | `Logger` с уровнями; уровень — `LOG_LEVEL` из env                 |
 | Типы фронта | `api-types.ts`                             | Алиасы доменных типов; сами схемы — в `gateway/*.ts`              |
 
 ## CONVENTIONS
@@ -63,6 +64,8 @@ backend/src/
 
 - **Typo**: не «исправлять» `utils/enviroments.ts` без обновления всех импортов.
 - **Drizzle**: не создавать `pg.Pool` вне `DrizzleService`.
+- **`console.*` в коде** — только `utils/logger.ts`, `main.ts` и скрипты; oxlint это ловит.
+- **`process.env`** — только в `utils/enviroments.ts`; иначе падает `__tests__/architecture.spec.ts`.
 - **`t.Unsafe` в схемах ответа**: ломает рантайм-валидацию TypeBox («Unknown type»),
   выглядит валидным в типах и падает 500 на живом запросе.
 - **`null` в ответе**: Elysia отдаёт пустое тело — для nullable-ответов нужен явный

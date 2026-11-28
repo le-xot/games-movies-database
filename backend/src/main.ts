@@ -6,6 +6,7 @@ import { createContainer } from '@backend/server/container'
 import { createHttpServer } from '@backend/server/http'
 import { parseCorsOrigins } from '@backend/utils/cors-origins'
 import { env } from '@backend/utils/enviroments'
+import { configureLogger } from '@backend/utils/logger'
 
 /**
  * Продовая точка входа: HTTP-обвязка вокруг Elysia-гейтвея, раздача собранного
@@ -16,6 +17,9 @@ import { env } from '@backend/utils/enviroments'
 
 /** Больше 8 МиБ не принимаем: аватар ограничен 5 МиБ, остальные тела мелкие. */
 const MAX_REQUEST_BODY_BYTES = 8 * 1024 * 1024
+
+configureLogger(env.LOG_LEVEL)
+
 const container = createContainer()
 
 const app = createHttpServer(createGateway(container.deps), {

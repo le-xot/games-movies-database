@@ -44,9 +44,7 @@ function resolveSpecifier(fromFile: string, specifier: string): string | null {
     return null
   }
 
-  const candidates = base.endsWith('.ts')
-    ? [base]
-    : [base.endsWith('.vue') ? base : `${base}.ts`, join(base, 'index.ts')]
+  const candidates = base.endsWith('.ts') ? [base] : [`${base}.ts`, join(base, 'index.ts')]
 
   return (
     candidates.find((candidate) => {
@@ -59,12 +57,12 @@ function resolveSpecifier(fromFile: string, specifier: string): string | null {
   )
 }
 
-/**
- * Ловушка на мёртвый код: файл, который никто не импортирует, — это либо
- * забытая реализация (как Nest-era DTO), либо намеренная точка входа.
- * Первое правим, второе добавляем в `ENTRYPOINTS` с комментарием.
- */
 describe('архитектура backend', () => {
+  /**
+   * Ловушка на мёртвый код: файл, который никто не импортирует, — это либо
+   * забытая реализация (как Nest-era DTO), либо намеренная точка входа.
+   * Первое правим, второе добавляем в `ENTRYPOINTS` с комментарием.
+   */
   it('не содержит файлов без импортёров (кроме entrypoints)', async () => {
     const files = await collectTypeScriptFiles(SOURCE_ROOT)
     const imported = new Set<string>()
@@ -84,5 +82,32 @@ describe('архитектура backend', () => {
       .sort()
 
     expect(orphans).toEqual([])
+  })
+
+  /**
+   * Конфигурация читается в одном месте — `utils/enviroments.ts`. Тестовые
+   * харнессы (`__tests__`, `__integration__`, `__e2e__`) — исключение: они
+   * получают DSN из окружения раннера, а не из конфигурации приложения.
+   */
+  it('читает process.env только через utils/enviroments.ts', async () => {
+    const files = await collectTypeScriptFiles(SOURCE_ROOT)
+    const offenders: string[] = []
+
+    for (const file of files) {
+      const rel = relative(SOURCE_ROOT, file)
+      if (
+        rel === 'utils/enviroments.ts' ||
+        rel.startsWith('__tests__/') ||
+        rel.startsWith('__integration__/') ||
+        rel.startsWith('__e2e__/')
+      ) {
+        continue
+      }
+
+      const text = await readFile(file, 'utf8')
+      if (/\bprocess\.env\b/.test(text)) offenders.push(rel)
+    }
+
+    expect(offenders.sort()).toEqual([])
   })
 })

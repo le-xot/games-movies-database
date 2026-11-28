@@ -1,4 +1,3 @@
-import process from 'node:process'
 import { Logger } from '@backend/utils/logger'
 import * as schema from '@gmd/database/schema'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
@@ -9,8 +8,8 @@ export class DrizzleService {
   readonly pool: Pool
   readonly db: NodePgDatabase<typeof schema>
 
-  constructor() {
-    this.pool = new Pool({ connectionString: process.env.DATASOURCE_URL ?? '' })
+  constructor(connectionString: string) {
+    this.pool = new Pool({ connectionString })
     this.pool.on('error', (error) => this.logger.error('Database pool error', error))
     this.db = drizzle(this.pool, { schema })
   }

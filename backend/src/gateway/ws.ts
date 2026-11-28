@@ -1,3 +1,6 @@
+import { Logger } from '@backend/utils/logger'
+
+const wsLogger = new Logger('WS')
 import { isOriginAllowed } from '@backend/utils/cors-origins'
 import { WsEvents } from '@gmdb/contract'
 import { Elysia } from 'elysia'
@@ -66,7 +69,7 @@ export function bridgeWsEvents({ emitter, publisher }: WsBridgeOptions) {
       try {
         publisher()?.publish(WS_TOPIC, JSON.stringify({ event, payload }))
       } catch (error) {
-        console.warn(`[gateway] не удалось отправить ${event}: ${String(error)}`)
+        wsLogger.warn(`не удалось отправить ${event}: ${String(error)}`)
       }
     })
   }

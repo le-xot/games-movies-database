@@ -1,3 +1,6 @@
+import { Logger } from '@backend/utils/logger'
+
+const eventsLogger = new Logger('DomainEvents')
 type Listener = (payload: never) => void
 
 /**
@@ -32,7 +35,7 @@ export class DomainEvents {
       try {
         ;(listener as (value: unknown) => void)(payload)
       } catch (error) {
-        console.warn(`[events] обработчик ${event} упал: ${String(error)}`)
+        eventsLogger.warn(`обработчик ${event} упал: ${String(error)}`)
       }
     }
 

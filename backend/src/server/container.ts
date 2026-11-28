@@ -50,6 +50,7 @@ import { peoplePorts } from '@backend/server/wiring/people'
 import { wordlePorts } from '@backend/server/wiring/wordle'
 import { DomainEvents } from '@backend/utils/domain-events'
 import { env } from '@backend/utils/enviroments'
+import { Logger } from '@backend/utils/logger'
 import { hitRateLimit } from '@backend/utils/rate-limit'
 import { RedisClient } from 'bun'
 import type { GatewayDeps } from '@backend/gateway'
@@ -77,8 +78,8 @@ export interface Container {
  * уже отдают ISO-строки для дат.
  */
 export function createContainer(): Container {
-  const lifecycle = new Lifecycle()
-  const drizzle = lifecycle.add(new DrizzleService())
+  const lifecycle = new Lifecycle((message) => new Logger('Lifecycle').warn(message))
+  const drizzle = lifecycle.add(new DrizzleService(env.DATASOURCE_URL))
   const events = new DomainEvents()
   const s3 = lifecycle.add(new S3Service())
 
@@ -182,7 +183,7 @@ export function createContainer(): Container {
         if (now - lastRateLimitWarning < RATE_LIMIT_WARNING_INTERVAL_MS) return
 
         lastRateLimitWarning = now
-        console.warn(`[gateway] Redis недоступен, лимит пропущен: ${String(error)}`)
+        new Logger('RateLimit').warn(`Redis недоступен, лимит пропущен: ${String(error)}`)
       }),
   }
 

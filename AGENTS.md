@@ -147,3 +147,6 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Rate limiting: `enforceRateLimit` в гейтвее поверх Redis (`Bun.redis`). Fixed window via Lua, пресеты в `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, twir 120/min, wordlePractice 120/min). Fail-open when Redis is down, но с таймаутом 250 мс — иначе первый запрос после падения Redis висит ~30 с на переподключении. Client tracked by first `X-Forwarded-For` hop. Порядок: лимит → auth → роли. Роут закрывается `rateLimitGuard(rateLimit)`; ключ — `rl:{METHOD} {path}:{ip}` (путь из `ctx.route`)
 - Production `REDIS_URL=redis://redis:6379` is set in docker-compose.yml; dev defaults to `redis://localhost:6379`
 - Auth: JWT stored in httpOnly cookie named `token`. CORS allows localhost:3000, localhost:5173 и https://le-xot.dev
+- Logging: `Logger` с уровнями, уровень — `LOG_LEVEL` (`debug|info|warn|error`, devDefault `debug`)
+  через `configureLogger` в `main.ts`. `console.*` вне логгера/main/скриптов запрещён oxlint'ом;
+  `process.env` читается только в `backend/src/utils/enviroments.ts` (проверяет architecture.spec)

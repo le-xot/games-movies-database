@@ -15,12 +15,14 @@ export interface DestroyHooks {
   onModuleDestroy?(): unknown
 }
 
+import { Logger } from '@backend/utils/logger'
+
 type LogFn = (message: string) => void
 
 export class Lifecycle {
   private readonly services: object[] = []
 
-  constructor(private readonly log: LogFn = (message) => console.warn(message)) {}
+  constructor(private readonly log: LogFn = (message) => new Logger('Lifecycle').warn(message)) {}
 
   /** Регистрирует сервис и возвращает его же — точки регистрации не забыть. */
   add<T extends object>(service: T): T {

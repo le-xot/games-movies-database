@@ -11,6 +11,12 @@ export const env = cleanEnv(process.env, {
 
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
 
+  LOG_LEVEL: str({
+    choices: ['debug', 'info', 'warn', 'error'],
+    default: 'info',
+    devDefault: 'debug',
+  }),
+
   TWITCH_CLIENT_ID: str({ default: undefined }),
   TWITCH_CLIENT_SECRET: str({ default: undefined }),
   TWITCH_CALLBACK_URL: str({}),

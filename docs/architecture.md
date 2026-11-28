@@ -111,6 +111,17 @@
   `publicErrors()` — без 401/403
 - Неизвестный путь под `/api` отдаёт JSON, а не SPA-фолбэк
 
+## Логирование и конфигурация
+
+- Единственный фасад — `Logger` (`backend/src/utils/logger.ts`): контекст в префиксе, уровни
+  `debug | info | warn | error`. Уровень берётся из `LOG_LEVEL` (devDefault — `debug`) и
+  задаётся один раз в `main.ts` через `configureLogger`.
+- `console.*` вне логгера разрешён только в `main.ts`, скриптах и тестовых харнессах —
+  это проверяет oxlint (`eslint/no-console`) в `.oxlintrc.json`.
+- `process.env` читается только в `utils/enviroments.ts`; сервисы получают значения через
+  `env.*` или конструктор (`DrizzleService(env.DATASOURCE_URL)`). Нарушение ловит
+  `backend/src/__tests__/architecture.spec.ts`.
+
 ## WebSocket
 
 - Нативный WS на Bun, путь `/ws` (`gateway/ws.ts`), одна комната, Socket.IO нет

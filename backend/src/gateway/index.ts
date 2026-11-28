@@ -23,6 +23,7 @@ import {
   type WordleServicePort,
 } from '@backend/gateway/wordle'
 import { HttpError } from '@backend/utils/errors'
+import { Logger } from '@backend/utils/logger'
 import { Elysia } from 'elysia'
 import type { Authenticator } from '@backend/gateway/auth'
 import type { RateLimiter } from '@backend/gateway/rate-limit'
@@ -58,6 +59,8 @@ export interface GatewayDeps {
   rateLimit: RateLimiter
 }
 
+const logger = new Logger('Gateway')
+
 export function createGateway(deps: GatewayDeps) {
   return new Elysia({ name: 'gateway' })
     .onError(({ code, error, set }) => {
@@ -76,7 +79,7 @@ export function createGateway(deps: GatewayDeps) {
         if ((error as { type?: string }).type === 'response') {
           // Тело ошибки содержит сам ответ (а значит и данные из БД) —
           // наружу и в лог отдаём только место расхождения.
-          console.error('[gateway] response schema violation', {
+          logger.error('response schema violation', {
             type: (error as { type?: string }).type,
             path: (error as { valueError?: { path?: string } }).valueError?.path,
           })
@@ -107,7 +110,7 @@ export function createGateway(deps: GatewayDeps) {
         return errorBody(status, error instanceof Error ? error.message : 'Bad Request')
       }
 
-      console.error('[gateway] unhandled error', error)
+      logger.error('unhandled error', error)
       set.status = 500
       return errorBody(500, 'Internal server error')
     })

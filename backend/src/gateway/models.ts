@@ -1,45 +1,46 @@
+import {
+  AccountPlatform as AccountPlatformValues,
+  LimitType as LimitTypeValues,
+  RecordGenre as RecordGenreValues,
+  RecordGrade as RecordGradeValues,
+  RecordStatus as RecordStatusValues,
+  RecordType as RecordTypeValues,
+} from '@gmdb/contract'
 import { t } from 'elysia'
+
+/**
+ * TypeBox-union из константного словаря `@gmdb/contract`. Значения объявлены
+ * один раз — в контракте; литеральный тип union'а сохраняется, поэтому типы
+ * Eden не деградируют до `string`.
+ */
+type LiteralSchema<Value extends string> = ReturnType<typeof t.Literal<Value>>
+
+export function enumUnion<const Values extends Record<string, string>>(values: Values) {
+  // `Object.values` теряет точный тип значений у объектного литерала — без
+  // приведения TypeBox вывел бы `string` вместо объединения литералов.
+  type Value = Values[keyof Values]
+  const literals = Object.values(values).map((value) => t.Literal(value as Value)) as [
+    LiteralSchema<Value>,
+    ...LiteralSchema<Value>[],
+  ]
+
+  return t.Union(literals)
+}
 
 /**
  * Справочники записей. Регистрируются каждым роут-плагином гейтвея: строковая
  * ссылка на модель (`200: 'QueueDto'`) проверяется по реестру того `Elysia`, на
  * котором висит роут.
  */
-export const AccountPlatform = t.Union([
-  t.Literal('TWITCH'),
-  t.Literal('KICK'),
-  t.Literal('TELEGRAM'),
-])
-export const LimitType = t.Union([t.Literal('SUGGESTION')])
+export const AccountPlatform = enumUnion(AccountPlatformValues)
+export const LimitType = enumUnion(LimitTypeValues)
 
 export const accountEnumModels = { AccountPlatform, LimitType }
 
-export const RecordGenre = t.Union([
-  t.Literal('GAME'),
-  t.Literal('MOVIE'),
-  t.Literal('ANIME'),
-  t.Literal('CARTOON'),
-  t.Literal('SERIES'),
-])
-export const RecordStatus = t.Union([
-  t.Literal('QUEUE'),
-  t.Literal('PROGRESS'),
-  t.Literal('DROP'),
-  t.Literal('NOTINTERESTED'),
-  t.Literal('UNFINISHED'),
-  t.Literal('DONE'),
-])
-export const RecordGrade = t.Union([
-  t.Literal('DISLIKE'),
-  t.Literal('BEER'),
-  t.Literal('LIKE'),
-  t.Literal('RECOMMEND'),
-])
-export const RecordType = t.Union([
-  t.Literal('WRITTEN'),
-  t.Literal('SUGGESTION'),
-  t.Literal('ORDER'),
-])
+export const RecordGenre = enumUnion(RecordGenreValues)
+export const RecordStatus = enumUnion(RecordStatusValues)
+export const RecordGrade = enumUnion(RecordGradeValues)
+export const RecordType = enumUnion(RecordTypeValues)
 
 export const recordEnumModels = { RecordGenre, RecordStatus, RecordGrade, RecordType }
 

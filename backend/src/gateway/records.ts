@@ -7,13 +7,21 @@ import {
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
-import { HTTP_URL_PATTERN, recordEnumModels } from '@backend/gateway/models'
+import { HTTP_URL_PATTERN, enumUnion, recordEnumModels } from '@backend/gateway/models'
 import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import {
+  RecordDirection,
+  RecordOrderBy,
+  UserRole,
+  type RecordGenre,
+  type RecordGrade,
+  type RecordStatus,
+  type RecordType,
+} from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 import type { RateLimitConfig } from '@backend/utils/rate-limits'
-import type { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@gmdb/contract'
 
 const { UserEntity } = authModels
 const { LikeEntity } = likeModels
@@ -131,7 +139,7 @@ export interface RecordRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 const ARRAY_QUERY_KEYS = ['status', 'grade'] as const
 const NUMBER_QUERY_KEYS = ['page', 'limit'] as const
 
@@ -204,8 +212,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
           search: t.Optional(t.String()),
           page: t.Optional(t.Number({ minimum: 1, maximum: 10_000, multipleOf: 1 })),
           limit: t.Optional(t.Number({ minimum: 1, maximum: 100, multipleOf: 1 })),
-          orderBy: t.Optional(t.Union([t.Literal('id'), t.Literal('title')])),
-          direction: t.Optional(t.Union([t.Literal('asc'), t.Literal('desc')])),
+          orderBy: t.Optional(enumUnion(RecordOrderBy)),
+          direction: t.Optional(enumUnion(RecordDirection)),
         }),
         response: {
           200: 'GetAllRecordsDTO' as const,

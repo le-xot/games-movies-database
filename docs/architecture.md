@@ -80,6 +80,9 @@
 - **`null` в ответе** Elysia отдаёт пустым телом; для nullable нужен явный `Response('null')`.
 - **Числа в query**: если в схеме есть `t.Ref`, Elysia перестаёт приводить строки к числу —
   для этого есть `coerceQueryNumbers` (`gateway/query.ts`).
+- **Enum'ы — из `@gmdb/contract`.** TypeBox-схемы собираются `enumUnion` (`gateway/models.ts`),
+  `pgEnum` — те же константы; совпадение множеств проверяет `gateway/__tests__/enum-sources.spec.ts`.
+  Порядок значений в БД исторический, порядок отображения задаёт контракт.
 
 ## Аутентификация и роли
 

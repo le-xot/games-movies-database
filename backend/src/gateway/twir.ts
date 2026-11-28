@@ -1,5 +1,4 @@
 import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
-import { recordEnumModels } from '@backend/gateway/models'
 import { HTTP_URL_PATTERN } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { suggestionModels, type SuggestionResponse } from '@backend/gateway/suggestions'
@@ -32,7 +31,7 @@ export interface TwirRouteDeps {
 
 export function twirRoutes({ twir, rateLimit, apiKey }: TwirRouteDeps) {
   return new Elysia({ name: 'twir' })
-    .model({ ...apiErrorModels, ...recordEnumModels, ...suggestionModels, ...twirModels })
+    .model({ ...apiErrorModels, ...suggestionModels, ...twirModels })
     .post(
       '/twir/suggestion',
       async (ctx) => {

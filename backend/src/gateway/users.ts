@@ -8,11 +8,11 @@ import {
   type GatewayUser,
 } from '@backend/gateway/auth'
 import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
-import { accountEnumModels, recordEnumModels } from '@backend/gateway/models'
+import { accountEnumModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type AccountPlatform } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { AccountPlatform } from '@gmdb/contract'
 
 const { AccountPlatform: accountPlatformSchema } = accountEnumModels
 
@@ -84,7 +84,7 @@ export interface UserRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 
 export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
   const limit = (
@@ -100,7 +100,6 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       ...apiErrorModels,
       ...authModels,
       ...accountEnumModels,
-      ...recordEnumModels,
       ...userModels,
     })
     .get(

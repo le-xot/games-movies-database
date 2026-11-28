@@ -11,8 +11,8 @@ import { recordEnumModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { recordModels, type GatewayRecord } from '@backend/gateway/records'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type RecordGenre } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { RecordGenre } from '@gmdb/contract'
 
 const { RecordGenre: recordGenreSchema } = recordEnumModels
 const { RecordEntity } = recordModels
@@ -46,7 +46,7 @@ export interface SuggestionRouteDeps {
   rateLimit: RateLimiter
 }
 
-const USER_ROLES = ['USER', 'ADMIN'] as const
+const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
 
 export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRouteDeps) {
   const limit = (

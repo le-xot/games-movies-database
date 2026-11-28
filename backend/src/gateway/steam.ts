@@ -11,8 +11,8 @@ import { recordEnumModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { recordModels, type GatewayRecord } from '@backend/gateway/records'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type RecordGrade, type RecordStatus } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { RecordGrade, RecordStatus } from '@gmdb/contract'
 
 const { RecordGrade: recordGradeSchema, RecordStatus: recordStatusSchema } = recordEnumModels
 const { RecordEntity } = recordModels
@@ -88,7 +88,7 @@ export interface SteamRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 
 export function steamRoutes({ steam, auth, rateLimit }: SteamRouteDeps) {
   const limit = (

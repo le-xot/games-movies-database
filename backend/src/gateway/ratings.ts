@@ -11,9 +11,9 @@ import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { recordModels } from '@backend/gateway/records'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type RecordGrade } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 import type { RateLimitConfig } from '@backend/utils/rate-limits'
-import type { RecordGrade } from '@gmdb/contract'
 
 const { RecordGrade: recordGradeSchema } = recordEnumModels
 const { UserEntity } = authModels
@@ -90,8 +90,8 @@ export interface RatingRouteDeps {
   rateLimit: RateLimiter
 }
 
-const USER_ROLES = ['USER', 'ADMIN'] as const
-const RATER_ROLES = ['USER'] as const
+const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
+const RATER_ROLES = [UserRole.USER] as const
 
 export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
   const limit = (

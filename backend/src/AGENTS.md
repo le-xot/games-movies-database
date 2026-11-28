@@ -55,6 +55,9 @@ backend/src/
 - **Домен не знает про HTTP-слой.** Гейтвей получает порты (`WeatherReader`,
   `LikesService`), а не классы Nest.
 - **События**: `DomainEvents` (см. `utils/domain-events.ts`), мост в WS — `bridgeWsEvents`.
+- **Enum'ы**: значения — только из `@gmdb/contract`; TypeBox-схемы собираются `enumUnion`
+  (`gateway/models.ts`), литералы доменных значений в схемах запрещены. Инвариант contract ↔ pgEnum
+  держит `gateway/__tests__/enum-sources.spec.ts`.
 
 ## ANTI-PATTERNS
 

@@ -6,15 +6,16 @@ import {
   type Authenticator,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels, publicErrors } from '@backend/gateway/errors'
+import { enumUnion } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, WordleGameStatus, WordleHistoryStatus, WordleLetterState } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { WordleGameStatus, WordleHistoryStatus, WordleLetterState } from '@gmdb/contract'
 
 export const wordleModels = {
-  WordleGameStatus: t.Union([t.Literal('IN_PROGRESS'), t.Literal('WON'), t.Literal('LOST')]),
-  WordleLetterState: t.Union([t.Literal('CORRECT'), t.Literal('PRESENT'), t.Literal('ABSENT')]),
-  WordleHistoryStatus: t.Union([t.Literal('WON'), t.Literal('LOST'), t.Literal('NONE')]),
+  WordleGameStatus: enumUnion(WordleGameStatus),
+  WordleLetterState: enumUnion(WordleLetterState),
+  WordleHistoryStatus: enumUnion(WordleHistoryStatus),
   WordleGuessDTO: t.Object({
     word: t.String(),
   }),
@@ -223,7 +224,7 @@ export interface WordleRouteDeps {
   rateLimit: RateLimiter
 }
 
-const USER_ROLES = ['USER', 'ADMIN'] as const
+const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
 
 export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: WordleRouteDeps) {
   const limit = (

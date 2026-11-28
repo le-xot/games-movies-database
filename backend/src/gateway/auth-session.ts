@@ -7,7 +7,11 @@ import {
 } from '@backend/gateway/auth'
 import { clearCookie } from '@backend/gateway/cookies'
 import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
-import { accountEnumModels, commonModels } from '@backend/gateway/models'
+import {
+  AccountPlatform as AccountPlatformSchema,
+  accountEnumModels,
+  commonModels,
+} from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { userModels, type UserAccount } from '@backend/gateway/users'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
@@ -112,7 +116,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       },
       {
         params: t.Object({
-          platform: t.Union([t.Literal('TWITCH'), t.Literal('KICK'), t.Literal('TELEGRAM')]),
+          platform: AccountPlatformSchema,
         }),
         response: {
           200: 'SuccessResponseDTO' as const,

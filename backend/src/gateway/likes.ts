@@ -8,6 +8,7 @@ import {
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 
 const { UserEntity } = authModels
@@ -49,7 +50,7 @@ export interface LikeRouteDeps {
   rateLimit: RateLimiter
 }
 
-const USER_ROLES = ['USER', 'ADMIN'] as const
+const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
 
 export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
   return new Elysia({ name: 'likes' })

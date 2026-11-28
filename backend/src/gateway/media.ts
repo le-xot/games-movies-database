@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import { apiErrorModels, errorBody, publicErrors } from '@backend/gateway/errors'
+import { enumUnion } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { ImageVariant } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-
-export type ImageVariant = 'poster' | 'avatar'
 
 export interface ImageReader {
   getImage(
@@ -55,7 +55,7 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
       {
         query: t.Object({
           urlEncoded: t.String(),
-          variant: t.Optional(t.Union([t.Literal('poster'), t.Literal('avatar')])),
+          variant: t.Optional(enumUnion(ImageVariant)),
         }),
         response: { 200: t.Void(), ...publicErrors() },
       },

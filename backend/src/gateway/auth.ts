@@ -1,11 +1,13 @@
 import { ApiError } from '@backend/gateway/errors'
+import { enumUnion } from '@backend/gateway/models'
+import { UserRole } from '@gmdb/contract'
 import { t } from 'elysia'
 
 /**
  * Схемы пользователя. Имена (`UserEntity`, `UserRole`) и набор полей повторяют
  * то, что генерировал Nest: от них зависит `$ref` в контракте и типы фронта.
  */
-const userRoleSchema = t.Union([t.Literal('USER'), t.Literal('ADMIN')])
+const userRoleSchema = enumUnion(UserRole)
 
 export const UserEntity = t.Object({
   id: t.String(),

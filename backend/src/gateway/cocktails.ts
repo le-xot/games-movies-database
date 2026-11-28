@@ -1,35 +1,20 @@
 import { authModels, requireUser, resolveUser, type Authenticator } from '@backend/gateway/auth'
 import { apiErrorModels, publicErrors, standardErrors } from '@backend/gateway/errors'
+import { enumUnion } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { CocktailMethod, CocktailTier, IngredientCategory } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
 import type { CocktailCatalog } from '@backend/modules/cocktail/cocktail.service'
 import type { MatchedCocktail } from '@backend/modules/cocktail/cocktail.types'
 
 /**
- * Справочники коктейлей. Значения совпадают с `@gmdb/contract`; здесь они
- * продублированы литералами, потому что TypeBox-схемы — единственный источник
- * валидации и типов фронта.
+ * Справочники коктейлей. Значения — из `@gmdb/contract`; TypeBox-схемы нужны,
+ * потому что они же служат валидацией и источником типов фронта.
  */
-const ingredientCategorySchema = t.Union([
-  t.Literal('SPIRIT'),
-  t.Literal('LIQUEUR'),
-  t.Literal('WINE_BEER'),
-  t.Literal('MIXER'),
-  t.Literal('SYRUP'),
-  t.Literal('BITTER'),
-  t.Literal('FRESH'),
-  t.Literal('PANTRY'),
-])
-
-const cocktailTierSchema = t.Union([t.Literal('CORE'), t.Literal('EXTRA'), t.Literal('FREE')])
-
-const cocktailMethodSchema = t.Union([
-  t.Literal('SHAKE'),
-  t.Literal('STIR'),
-  t.Literal('BUILD'),
-  t.Literal('BLEND'),
-])
+const ingredientCategorySchema = enumUnion(IngredientCategory)
+const cocktailTierSchema = enumUnion(CocktailTier)
+const cocktailMethodSchema = enumUnion(CocktailMethod)
 
 export const cocktailModels = {
   IngredientCategory: ingredientCategorySchema,

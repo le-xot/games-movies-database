@@ -9,8 +9,8 @@ import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type LimitType } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { LimitType } from '@gmdb/contract'
 
 const { LimitType: limitTypeSchema } = accountEnumModels
 
@@ -40,7 +40,7 @@ export interface LimitRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 
 export function limitRoutes({ limits, auth, rateLimit }: LimitRouteDeps) {
   return new Elysia({ name: 'limits' })

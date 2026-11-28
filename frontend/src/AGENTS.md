@@ -40,6 +40,7 @@ frontend/src/
 | Route            | `router/`                    | Add to `router-paths.ts` then `router.ts`; имена — в `types/vue-router.d.ts`                                                     |
 | Styling          | `assets/index.css`           | Tailwind 4 CSS variables + global overrides                                                                                      |
 | Utils            | `lib/utils.ts`               | Primary `cn()` helper (clsx + tailwind-merge)                                                                                    |
+| Status/grade     | `lib/record-vocabulary.ts`   | Имена, цвета и классы статусов/оценок; порядки — тоже оттуда                                                                     |
 | Add media genre  | `pages/{genre}/composables/` | Shared `pages/media/MediaPage.vue`; genre from `route.meta.genre`; factories in `composables/factories/`                         |
 | Account UI       | `components/account/`        | Modal sections; opened via `use-account-dialog` store                                                                            |
 | Login modal      | `components/form/`           | `LoginDialog.vue`; opened via `use-login-dialog` store                                                                           |

@@ -1,5 +1,11 @@
 import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
 import { GENRES } from '@/lib/genre-registry'
+import {
+  GRADE_REPORT_ORDER,
+  GRADE_VOCABULARY,
+  STATUS_REPORT_ORDER,
+  STATUS_VOCABULARY,
+} from '@/lib/record-vocabulary'
 
 /** Порядок и подписи жанров — из единого реестра. */
 export const GENRE_ORDER: RecordGenre[] = GENRES.map((entry) => entry.genre)
@@ -17,36 +23,17 @@ export const GENRE_COLORS: Record<RecordGenre, string> = {
   [RecordGenre.SERIES]: '#4a3b6b',
 }
 
-export const STATUS_ORDER: RecordStatus[] = [
-  RecordStatus.DONE,
-  RecordStatus.PROGRESS,
-  RecordStatus.QUEUE,
-  RecordStatus.UNFINISHED,
-  RecordStatus.DROP,
-]
+export const STATUS_ORDER: readonly RecordStatus[] = STATUS_REPORT_ORDER
 
-export const STATUS_COLORS: Record<RecordStatus, string> = {
-  [RecordStatus.DONE]: '#2b593f',
-  [RecordStatus.PROGRESS]: '#89632a',
-  [RecordStatus.QUEUE]: '#333333',
-  [RecordStatus.UNFINISHED]: '#28456c',
-  [RecordStatus.DROP]: '#6e3630',
-  [RecordStatus.NOTINTERESTED]: '#4a4a4a',
-}
+export const STATUS_COLORS: Record<RecordStatus, string> = Object.fromEntries(
+  Object.entries(STATUS_VOCABULARY).map(([status, entry]) => [status, entry.tone]),
+) as Record<RecordStatus, string>
 
-export const GRADE_ORDER: RecordGrade[] = [
-  RecordGrade.RECOMMEND,
-  RecordGrade.LIKE,
-  RecordGrade.BEER,
-  RecordGrade.DISLIKE,
-]
+export const GRADE_ORDER: readonly RecordGrade[] = GRADE_REPORT_ORDER
 
-export const GRADE_COLORS: Record<RecordGrade, string> = {
-  [RecordGrade.RECOMMEND]: '#28456c',
-  [RecordGrade.LIKE]: '#2b593f',
-  [RecordGrade.BEER]: '#89632a',
-  [RecordGrade.DISLIKE]: '#6e3630',
-}
+export const GRADE_COLORS: Record<RecordGrade, string> = Object.fromEntries(
+  Object.entries(GRADE_VOCABULARY).map(([grade, entry]) => [grade, entry.tone]),
+) as Record<RecordGrade, string>
 
 export function toPercent(count: number, total: number): string {
   if (total <= 0) return '0%'

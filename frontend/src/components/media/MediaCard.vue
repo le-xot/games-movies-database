@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useRating } from '@/composables/use-rating'
 import { RecordEntity, RecordGrade, RecordStatus, RecordUpdateDTO } from '@/lib/api'
+import { GRADE_BUTTON_ORDER, GRADE_VOCABULARY } from '@/lib/record-vocabulary'
 import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useUser } from '@/stores/use-user'
 import {
@@ -177,11 +178,15 @@ function getInitials(title: string): string {
   return title.slice(0, 2).toUpperCase()
 }
 
-const gradeOrder = [RecordGrade.DISLIKE, RecordGrade.BEER, RecordGrade.LIKE, RecordGrade.RECOMMEND]
+const gradeButtons = GRADE_BUTTON_ORDER.map((grade) => {
+  const entry = GRADE_VOCABULARY[grade]
 
-const gradeButtons = gradeOrder.map((grade) => {
-  const bg = gradeTags[grade].class?.replace(' border', '') ?? ''
-  return { grade, emoji: gradeTags[grade].name, bg, border: bg.replace('bg-', 'border-') }
+  return {
+    grade,
+    emoji: entry.name,
+    bg: entry.badgeClass.replace(' border', ''),
+    border: entry.borderClass ?? '',
+  }
 })
 </script>
 

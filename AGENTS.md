@@ -84,7 +84,6 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
 - **NEVER** добавлять `@nestjs/*` — Nest из проекта выпилен, зависимостей нет
 - **NEVER** объявлять `t.Unsafe` в схемах ответа — ломает рантайм-валидацию TypeBox
-- `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
 
 ## GIT
 

@@ -26,7 +26,7 @@ Nest здесь больше нет: модуль — это папка с се�
 | **rating**            | 5     | Оценки записей, средние и топ по пользователям                      |
 | **stats**             | 3     | Public records stats (genre/status/grade breakdowns)                |
 | **like**              | 5     | Лайки советов, каскадное удаление по пользователю                   |
-| **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)            |
+| **suggestion**        | 4     | User-submitted content                                              |
 | **avatar**            | 1     | Avatar upload/delete via S3, Sharp image processing                 |
 | **s3**                | 1     | S3/RustFS storage abstraction (upload, delete, exists)              |
 | **kick**              | 1     | Kick API client for user metadata                                   |
@@ -67,6 +67,5 @@ Nest здесь больше нет: модуль — это папка с се�
 - **Manual Mapping**: маппинг доменных сущностей в DTO гейтвея живёт в `backend/src/server/wiring/` — не размазывайте его по роутам.
 - **Direct Socket Calls**: сервисы эмитят события через `DomainEvents`, а не трогают WebSocket напрямую.
 - **Guard Sprawl**: не переписывайте проверку доступа; используйте `requireUser` / `requireRole` из `gateway/auth.ts`.
-- **Typo Fixes**: Do not rename `suggesttion.dto.ts` without a full project refactor.
 - **Throttler**: `@nestjs/throttler` удалён — лимиты ставятся `enforceRateLimit` с пресетами `RATE_LIMITS` в роутах гейтвея.
 - **Provider Leaks**: Keep external API keys in `.env` and validate via `env` из `backend/src/utils/enviroments.ts`.

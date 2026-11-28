@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'bun:test'
+import { WordleLetterState } from '@/lib/api'
 import {
   firstEmptyIndex,
+  hintLetters,
   lastFilledIndex,
   moveLetterInCells,
   placeLetterInCells,
 } from '@/pages/wordle/constants/wordle-constants'
+
+const { CORRECT, PRESENT, ABSENT } = WordleLetterState
 
 describe('placeLetterInCells', () => {
   it('puts the letter exactly into the target cell, keeping holes around it', () => {
@@ -71,5 +75,51 @@ describe('lastFilledIndex', () => {
 
   it('returns -1 for an empty row', () => {
     expect(lastFilledIndex([null, null])).toBe(-1)
+  })
+})
+
+describe('hintLetters', () => {
+  it('returns an empty row without guesses', () => {
+    expect(hintLetters([], 5)).toEqual([null, null, null, null, null])
+  })
+
+  it('takes the letter from the position guessed green', () => {
+    expect(
+      hintLetters([{ word: 'зебра', states: [ABSENT, CORRECT, ABSENT, ABSENT, ABSENT] }], 5),
+    ).toEqual([null, 'е', null, null, null])
+  })
+
+  it('keeps the greens gathered in earlier guesses', () => {
+    expect(
+      hintLetters(
+        [
+          { word: 'зебра', states: [ABSENT, CORRECT, ABSENT, ABSENT, ABSENT] },
+          { word: 'кобра', states: [CORRECT, ABSENT, ABSENT, ABSENT, ABSENT] },
+        ],
+        5,
+      ),
+    ).toEqual(['к', 'е', null, null, null])
+  })
+
+  it('keeps a green position after a miss in the following guess', () => {
+    expect(
+      hintLetters(
+        [
+          { word: 'зебра', states: [ABSENT, CORRECT, ABSENT, ABSENT, ABSENT] },
+          { word: 'ежики', states: [ABSENT, ABSENT, PRESENT, ABSENT, ABSENT] },
+        ],
+        5,
+      ),
+    ).toEqual([null, 'е', null, null, null])
+  })
+
+  it('ignores present and absent letters', () => {
+    const guesses = [{ word: 'кокос', states: [ABSENT, PRESENT, PRESENT, ABSENT, ABSENT] }]
+    expect(hintLetters(guesses, 5)).toEqual([null, null, null, null, null])
+  })
+
+  it('stops at the requested word length', () => {
+    const guesses = [{ word: 'слово', states: [CORRECT, CORRECT, CORRECT, CORRECT, CORRECT] }]
+    expect(hintLetters(guesses, 3)).toEqual(['с', 'л', 'о'])
   })
 })

@@ -321,6 +321,57 @@ test.describe('practice result on desktop', () => {
   })
 })
 
+test.describe('green letter hints', () => {
+  test.use({
+    storageState: ADMIN_STATE_FILE,
+    viewport: { width: 1440, height: 900 },
+  })
+
+  // Живая тренировка выдаёт случайное слово, а тесту нужна гарантированная зелёная
+  // буква, поэтому состояние партии подменяется фикстурой: «зебра», «е» на 2-й позиции.
+  const practiceState = {
+    status: 'IN_PROGRESS',
+    attempts: 1,
+    maxAttempts: 6,
+    wordLength: 5,
+    guesses: [{ word: 'зебра', states: ['ABSENT', 'CORRECT', 'ABSENT', 'ABSENT', 'ABSENT'] }],
+    answer: null,
+  }
+
+  test('shows the guessed green letter in gray in the next row', async ({ page }) => {
+    await page.route('**/api/wordle/practice', (route) => route.fulfill({ json: practiceState }))
+
+    await page.goto('/db/wordle')
+    await page.getByRole('tab', { name: 'Тренировка' }).click()
+    await expect(page.locator('[data-wordle-practice]')).toBeVisible()
+
+    const hint = page.locator('[data-wordle-hint]')
+    await expect(hint).toHaveCount(1)
+    await expect(hint).toHaveText('е')
+    await expect(hint).toHaveClass(/text-zinc-500/)
+
+    // Подсказка — не буква: набор идёт в первую пустую клетку и не заполняет строку.
+    const activeCells = page.locator('[data-wordle-drop]')
+    await wordleKey(page, 'а').click()
+    await expect(activeCells.nth(0)).toHaveText('а')
+    await expect(hint).toHaveText('е')
+
+    let guessesSent = 0
+    page.on('request', (request) => {
+      if (request.url().includes('/api/wordle/practice/guess')) guessesSent += 1
+    })
+
+    await page.locator('[aria-label="Клавиатура"]').getByRole('button', { name: 'Ввод' }).click()
+    await page.waitForTimeout(500)
+    expect(guessesSent).toBe(0)
+
+    // Настоящая буква в подсказанной клетке перекрывает подсказку.
+    await wordleKey(page, 'б').click()
+    await expect(activeCells.nth(1)).toHaveText('б')
+    await expect(page.locator('[data-wordle-hint]')).toHaveCount(0)
+  })
+})
+
 test.describe('daily leaderboard preview', () => {
   test.use({
     storageState: ADMIN_STATE_FILE,

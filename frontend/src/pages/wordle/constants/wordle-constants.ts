@@ -1,5 +1,5 @@
 import { WordleLetterState } from '@/lib/api'
-import type { WordleLeaderboardDTO } from '@/lib/api'
+import type { WordleGuessStateDTO, WordleLeaderboardDTO } from '@/lib/api'
 
 export type WordleLeaderboardMode = 'today' | 'wins' | 'streak'
 
@@ -123,6 +123,29 @@ export function lastFilledIndex(cells: WordleGuessCell[]): number {
     if (cells[index] !== null) return index
   }
   return -1
+}
+
+/**
+ * Буквы на позициях, уже угаданных зелёным, — подсказка для активной строки.
+ *
+ * Позиции копятся по всем попыткам: найденная зелёная не исчезает, даже если в
+ * следующей попытке на этом месте ошибка. Подсказка не заменяет ввод — игрок
+ * всё равно обязан поставить букву сам, поэтому буквы живут отдельно от `cells`.
+ */
+export function hintLetters(
+  guesses: readonly WordleGuessStateDTO[],
+  wordLength: number,
+): WordleGuessCell[] {
+  const hints = emptyGuessCells(wordLength)
+
+  for (const guess of guesses) {
+    guess.states.forEach((state, index) => {
+      if (state !== WordleLetterState.CORRECT || index >= wordLength) return
+      hints[index] = guess.word[index] ?? null
+    })
+  }
+
+  return hints
 }
 
 export function formatWordleGlobalStats(leaderboard?: WordleLeaderboardDTO): string {

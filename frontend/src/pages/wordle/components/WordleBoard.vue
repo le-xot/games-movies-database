@@ -5,6 +5,8 @@ import { useWordleSettings } from '@/pages/wordle/composables/use-wordle-setting
 import {
   COLORBLIND_LETTER_STATE_CLASS,
   LETTER_STATE_CLASS,
+  emptyGuessCells,
+  hintLetters,
 } from '@/pages/wordle/constants/wordle-constants'
 import type { WordleGuessStateDTO, WordleLetterState } from '@/lib/api'
 import type { WordleGuessCell } from '@/pages/wordle/constants/wordle-constants'
@@ -21,6 +23,7 @@ const props = defineProps<{
 interface BoardCell {
   letter: string
   state?: WordleLetterState
+  hint?: WordleGuessCell
 }
 
 const emptyRow = () => Array.from({ length: props.wordLength }, () => ({ letter: '' }))
@@ -28,6 +31,12 @@ const emptyRow = () => Array.from({ length: props.wordLength }, () => ({ letter:
 const { isColorblind } = useWordleSettings()
 const letterStateClass = computed(() =>
   isColorblind.value ? COLORBLIND_LETTER_STATE_CLASS : LETTER_STATE_CLASS,
+)
+
+// Подсказка нужна только пока игрок может вводить: в завершённой партии пустые
+// строки остаются пустыми, иначе серые буквы выглядят как недоигранный ход.
+const hints = computed<WordleGuessCell[]>(() =>
+  props.disabled ? emptyGuessCells(props.wordLength) : hintLetters(props.guesses, props.wordLength),
 )
 
 const rows = computed<BoardCell[][]>(() => {
@@ -50,6 +59,7 @@ const rows = computed<BoardCell[][]>(() => {
       result.push(
         Array.from({ length: props.wordLength }, (_, letterIndex) => ({
           letter: props.cells[letterIndex] ?? '',
+          hint: hints.value[letterIndex] ?? null,
         })),
       )
       continue
@@ -134,7 +144,9 @@ onMounted(() => {
             ? letterStateClass[cell.state]
             : cell.letter
               ? 'border-zinc-500 bg-transparent text-white'
-              : 'border-zinc-700 bg-transparent text-white',
+              : cell.hint
+                ? 'border-zinc-700 bg-transparent text-zinc-500'
+                : 'border-zinc-700 bg-transparent text-white',
           animatedRow === rowIndex ? 'animate-flip' : '',
           isDropTarget(cellIndex, rowIndex) ? 'ring-2 ring-zinc-300' : '',
           isDragSource(cellIndex, rowIndex) ? 'opacity-40' : '',
@@ -143,10 +155,11 @@ onMounted(() => {
             : '',
         ]"
         :data-wordle-drop="isDragRow(rowIndex) ? cellIndex : undefined"
+        :data-wordle-hint="!cell.letter && cell.hint ? cell.hint : undefined"
         :style="animatedRow === rowIndex ? { animationDelay: `${cellIndex * 120}ms` } : undefined"
         @pointerdown="onCellPointerDown($event, cell, cellIndex, rowIndex)"
       >
-        {{ cell.letter }}
+        {{ cell.letter || cell.hint }}
       </div>
     </div>
   </div>

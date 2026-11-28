@@ -1,4 +1,3 @@
-import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { GENRES } from '@/lib/genre-registry'
 import { isTelegramEnvironment } from '@/lib/telegram-webapp'
@@ -206,22 +205,7 @@ router.beforeEach(async (to) => {
 
   if (!to.meta.requiresAdmin && !to.meta.requiresAuth && !to.meta.hideForAdmin) return
 
-  if (userStore.isLoading) {
-    await Promise.race([
-      new Promise<void>((resolve) => {
-        const stop = watch(
-          () => userStore.isLoading,
-          (loading) => {
-            if (!loading) {
-              stop()
-              resolve()
-            }
-          },
-        )
-      }),
-      new Promise<void>((resolve) => setTimeout(resolve, 1500)),
-    ])
-  }
+  await userStore.whenQuerySettled()
 
   if (!userStore.isLoggedIn) {
     return { path: ROUTER_PATHS.home }

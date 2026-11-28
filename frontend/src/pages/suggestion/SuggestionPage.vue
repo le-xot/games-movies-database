@@ -20,7 +20,7 @@ function handleSuggestClick() {
   if (!user.isInitialized) return
 
   if (!user.isLoggedIn) {
-    loginDialog.openLogin()
+    loginDialog.open()
     return
   }
 

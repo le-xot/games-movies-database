@@ -158,7 +158,7 @@ async function handleFriendsRate(grade: RecordGrade) {
     return
   }
   if (!isLoggedIn.value) {
-    loginDialog.openLogin()
+    loginDialog.open()
     return
   }
   if (ratingPending.value) return

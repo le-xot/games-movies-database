@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { useCommandPalette } from '@/stores/use-command-palette'
 
 const { sections, bottomItems } = useDbNavigation()
-const { openPalette } = useCommandPalette()
+const { open: openPalette } = useCommandPalette()
 const isSheetOpen = ref(false)
 
 function closeMobileNav() {

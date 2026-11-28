@@ -7,6 +7,9 @@ import { useApi } from '@/stores/use-api'
 
 export const USER_QUERY_KEY = 'user'
 
+/** Сколько ждём /me до первого рендера (и в guard роутера). */
+export const AUTH_BOOT_TIMEOUT_MS = 1500
+
 export const useUser = defineStore('global/use-user', () => {
   const api = useApi()
   const isInitialized = ref(false)
@@ -43,18 +46,22 @@ export const useUser = defineStore('global/use-user', () => {
     localStorage.setItem(STORAGE_KEYS.editorEnabled, String(val))
   })
 
-  /** Резолвится, когда текущий запрос /me закончился (успех или гость). */
-  const whenQuerySettled = () =>
+  /** Резолвится, когда текущий запрос /me закончился (успех, гость или таймаут). */
+  const whenQuerySettled = (timeoutMs = AUTH_BOOT_TIMEOUT_MS) =>
     new Promise<void>((resolve) => {
       if (!isLoading.value) {
         resolve()
         return
       }
+
+      const finish = () => {
+        stop()
+        clearTimeout(timer)
+        resolve()
+      }
+      const timer = setTimeout(finish, timeoutMs)
       const stop = watch(isLoading, (loading) => {
-        if (!loading) {
-          stop()
-          resolve()
-        }
+        if (!loading) finish()
       })
     })
 
@@ -96,6 +103,7 @@ export const useUser = defineStore('global/use-user', () => {
     isInitialized,
     currentUserId,
     fetchUser,
+    whenQuerySettled,
     userLogin,
     userLogout,
     refetchUser,

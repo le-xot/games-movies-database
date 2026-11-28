@@ -54,7 +54,7 @@ const userRoleLabel = computed(() =>
         ? 'h-10 justify-center px-0'
         : '-ml-1.5 h-10 w-[calc(100%+6px)] justify-start gap-1.5 px-2 hover:bg-white/10'
     "
-    @click="accountDialog.openAccount()"
+    @click="accountDialog.open()"
   >
     <UserAvatar
       :profile-image-url="user.profileImageUrl"
@@ -70,7 +70,7 @@ const userRoleLabel = computed(() =>
     </template>
   </Button>
 
-  <Button v-else-if="user" variant="ghost" class="gap-2" @click="accountDialog.openAccount()">
+  <Button v-else-if="user" variant="ghost" class="gap-2" @click="accountDialog.open()">
     <span class="text-base">{{ user.login }}</span>
     <UserAvatar
       :profile-image-url="user.profileImageUrl"
@@ -91,7 +91,7 @@ const userRoleLabel = computed(() =>
         : '',
     ]"
     :aria-label="collapsed ? 'Войти' : undefined"
-    @click="loginDialog.openLogin()"
+    @click="loginDialog.open()"
   >
     <CircleUserRound v-if="collapsed" />
     <template v-else-if="collapsed === false">

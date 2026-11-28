@@ -5,14 +5,12 @@ import App from '@/app.vue'
 import { STORAGE_KEYS, VERSIONED_STORAGE_KEYS } from '@/lib/storage-keys'
 import { prepareTelegramMiniApp } from '@/lib/telegram-webapp'
 import { router } from '@/router/router'
-import { useUser } from '@/stores/use-user'
+import { AUTH_BOOT_TIMEOUT_MS, useUser } from '@/stores/use-user'
 import '@/assets/index.css'
 import 'vue-sonner/style.css'
 
 const APP_VERSION = '3.3.0'
 /** Сколько ждём /api/auth/me до первого рендера. Дольше — монтируемся и догружаем в фоне. */
-const AUTH_BOOT_TIMEOUT_MS = 1500
-
 /** Сколько держим заставку ради баннера главной. Дольше — показываем страницу без него. */
 const HERO_IMAGE_TIMEOUT_MS = 800
 

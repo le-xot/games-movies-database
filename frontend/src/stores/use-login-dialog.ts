@@ -1,24 +1,3 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { ref } from 'vue'
+import { createDialogStore } from '@/stores/create-dialog-store'
 
-export const useLoginDialog = defineStore('global/use-login-dialog', () => {
-  const isOpen = ref(false)
-
-  function openLogin() {
-    isOpen.value = true
-  }
-
-  function closeLogin() {
-    isOpen.value = false
-  }
-
-  return {
-    isOpen,
-    openLogin,
-    closeLogin,
-  }
-})
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useLoginDialog, import.meta.hot))
-}
+export const useLoginDialog = createDialogStore('global/use-login-dialog')

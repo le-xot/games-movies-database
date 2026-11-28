@@ -73,7 +73,7 @@ watch(activeIndex, async () => {
 })
 
 function handleOpenChange(open: boolean) {
-  if (!open) palette.closePalette()
+  if (!open) palette.close()
 }
 
 function moveActive(delta: number) {
@@ -86,7 +86,7 @@ function selectAt(index: number) {
   const item = items.value[index]
   if (!item) return
 
-  palette.closePalette()
+  palette.close()
 
   if (item.kind === 'command') {
     void router.push(item.command.path)

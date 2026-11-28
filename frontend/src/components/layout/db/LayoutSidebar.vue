@@ -12,7 +12,7 @@ import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useCommandPalette } from '@/stores/use-command-palette'
 
 const { sections, bottomItems } = useDbNavigation()
-const { openPalette } = useCommandPalette()
+const { open: openPalette } = useCommandPalette()
 const collapsed = useStorage(STORAGE_KEYS.dbSidebarCollapsed, false)
 </script>
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { RecordGenre } from '@/lib/api'
+import { GENRE_QUERY_KEYS } from '@/lib/genre-keys'
 import {
   GENRES,
   GENRE_REGISTRY,

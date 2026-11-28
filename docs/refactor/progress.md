@@ -56,3 +56,77 @@
 - **Проверки**: lint 0/0, typecheck зелёный, backend 646 / frontend 126 pass,
   frontend build зелёный.
 - **Дальше**: батч 3 — enum SSOT (TypeBox из `@gmdb/contract` + инвариант-тест contract ↔ pgEnum).
+
+## Раунд 3 — enum SSOT (`91d68c2`, ревью `reviews/batch-03.md`: APPROVE)
+
+- TypeBox-модели 13 enum'ов и inline-схемы (platform, variant, orderBy, direction) собираются
+  из `@gmdb/contract` через `enumUnion`; ролевые константы — `UserRole.*`.
+- Инвариант `enum-sources.spec.ts` (TypeBox ↔ contract ↔ pgEnum); мутационно проверен ревьюером.
+- Урок: `t.Union` нужен **tuple**, массив ломает вывод типов Elysia (ADR-0004).
+
+## Раунд 4 — единая модель ошибок (`76d3fec` + ловушки `9042286`)
+
+- Удалены `ApiError`, `fromDomainError` (duck-typing) и Nest-обёртка `HttpException/HttpStatus`;
+  подклассы переименованы в `*Error`, добавлены `TooManyRequestsError`/`BadGatewayError`.
+- Осознанный bugfix: уже привязанный аккаунт — 409 вместо 500 (ADR-0001).
+- Ревью: CHANGES REQUIRED по тестовой защите → `on-error.spec.ts` (8 классов через реальный роут),
+  таблица дефолтов, регресс 409. После фикса — APPROVE.
+
+## Раунд 5 — auth и лимиты (`604f866`, `b07e249`, `a6837fa` + ловушка `b77235c`)
+
+- `requireAuthenticated(auth, request, roles?)` заменил 21 склейку guard-цепочек и 10 голых вызовов.
+- `rateLimitGuard` заменил 9 closure и 15 прямых вызовов; ключ — `rl:{METHOD} {ctx.route}:{ip}`,
+  ~50 legacy-ключей `*Controller.*` удалены (ADR-0003).
+- Ревью: CHANGES REQUIRED по тесту нового канона → `rate-limit-guard.spec.ts`
+  (параметры не дробят ключ, метод/путь различаются, query игнорируется) — мутация «key из URL»
+  валит тест.
+
+## Раунд 6 — lifecycle (`108ebfa`, docs `f793bac`)
+
+- `Lifecycle.add()` — регистрация там же, где создание; ручные списки `started`/`stoppable` удалены,
+  `DrizzleService` получил ping и `pool.end()`, таймер погоды снимается, дубли сервисов убраны
+  (ADR-0002). Ревью: CHANGES REQUIRED только по docs-строке чек-листа → исправлено `f793bac`.
+
+## Раунд 7 — каскад удаления записи (`409ff26`, ревью: APPROVE)
+
+- Латентный 500: удаление предложения с оценкой падало на FK `restrict`. Каскад теперь только в
+  `DrizzleRecordRepository`; suggestion-репозиторий делегирует create/delete.
+- Интеграционные тесты на живом Postgres (61 pass), ревью мутационно подтвердило падение старого кода.
+
+## Раунд 8 — единый путь ошибки фронта (`41ae5e6`, fix `df972f6`)
+
+- `ErrorRetry` (bar/block) заменил 7 копий; `parseApiError` — единственный разбор ошибки
+  (локальный дубль в wordle удалён); русские fallback; админ больше не проглатывает ошибку удаления.
+- Ревью: CHANGES REQUIRED — `vue-tsc` с холодным кешем падал на трёх неиспользуемых `RotateCw`
+  (инкрементальный кеш `vue-tsc` это маскировал) → исправлено `df972f6`.
+
+## Раунд 9 — один бесконечный список (`5346375`)
+
+- `useRecordsList` + `useRecordMutations`: жанровые сторы и «Мои оценки» используют одну механику
+  пагинации/ретрая/мутаций; `user-ratings-pagination.ts` удалён, покрытие `nextPageParam` перенесено.
+
+## Раунд 10 — ловушка на мёртвый код (`90c6c6c`)
+
+- `__tests__/architecture.spec.ts`: файл без импортёров валит тест (entrypoints — в явном allowlist);
+  мутация проверена.
+
+## Раунд 11 — Logger и env под запретом (`4471595`)
+
+- `Logger` с уровнями и `LOG_LEVEL` (devDefault debug), `configureLogger` в `main.ts`;
+  7 `console.*` из рантайма переведены; `DrizzleService(DSN)` больше не читает env.
+- Ловушки: oxlint `no-console` для `backend/src` + тест «`process.env` только в `enviroments.ts`».
+
+## Раунд 12 — secrets и граница гейтвея (`1757fb7`)
+
+- `utils/secrets.ts::secretsMatch` — одна timing-safe проверка для /twir и Telegram webhook;
+  `utils/api-key.ts` и локальный дубль удалены.
+- Типы `CocktailCatalog` уехали в `cocktail.types.ts`; новый инвариант «gateway не импортирует
+  `modules/**/*.service`».
+
+## Известные ограничения процесса
+
+- **`vue-tsc` инкрементальный кеш** (`frontend/node_modules/.cache/vue-tsc`) маскировал TS6133:
+  перед финальной проверкой фронта кеш нужно чистить (`rm -rf frontend/node_modules/.cache/vue-tsc`).
+- **E2E (Playwright) не запускались**: нужен собранный фронт + бэкенд на изолированных портах.
+  Интеграционные тесты гоняются на dev-postgres (`RUN_DB_TESTS=1`, `lists_test`).
+- Ревью 9, 11, 12 — на момент записи в работе; их вердикты фиксируются в `reviews/`.

@@ -54,8 +54,9 @@
 
 1. `onRequest` в `http.ts` ставит security-заголовки и CORS-origin, если он в списке `CORS_ORIGINS`
 2. Запрос попадает в `/api` → роут гейтвея
-3. `enforceRateLimit` — фикс-окно в Redis по ключу `rl:{route}:{ip}`; при недоступном Redis лимит
-   пропускается (fail-open) с таймаутом 250 мс
+3. `rateLimitGuard(rateLimit)` в каждом роут-плагине — фикс-окно в Redis по ключу
+   `rl:{METHOD} {path}:{ip}` (путь из `ctx.route`, не из URL — параметры в ключ не попадают);
+   при недоступном Redis лимит пропускается (fail-open) с таймаутом 250 мс
 4. Аутентификация: `resolveUser` читает JWT из cookie `token`; `requireUser` / `requireRole`
    бросают 401/403
 5. Порт из `wiring/` превращает query/body в аргументы сервиса

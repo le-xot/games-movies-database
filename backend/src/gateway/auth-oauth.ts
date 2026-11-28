@@ -8,7 +8,7 @@ import {
 import { clearCookie, serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { commonModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { assertOAuthState } from '@backend/modules/auth/auth.oauth-state'
 import {
   TELEGRAM_OIDC_LINKING_COOKIE,
@@ -138,20 +138,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
     ]
   }
 
-  const limit = (
-    ctx: {
-      request: Request
-      server: { requestIP: (r: Request) => { address: string } | null } | null
-    },
-    route: string,
-    rateLimitConfig: Parameters<typeof enforceRateLimit>[1]['config'] = RATE_LIMITS.auth,
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request: ctx.request,
-      route,
-      config: rateLimitConfig,
-      ip: ctx.server?.requestIP(ctx.request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit, RATE_LIMITS.auth)
 
   const redirect = (url: string) => new Response(null, { status: 302, headers: { location: url } })
 
@@ -188,7 +175,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/twitch',
         async (ctx) => {
-          await limit(ctx, 'AuthController.twitchAuth')
+          await limit(ctx)
           const state = crypto.randomBytes(16).toString('hex')
           addCookies(ctx.set, [
             serializeCookie('twitch_state', state, cookieOptions(OAUTH_COOKIE_TTL_SECONDS)),
@@ -201,7 +188,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/twitch/link',
         async (ctx) => {
-          await limit(ctx, 'AuthController.twitchLinkAuth')
+          await limit(ctx)
           await requireAuthenticated(auth, ctx.request)
           const state = crypto.randomBytes(16).toString('hex')
           addCookies(ctx.set, [
@@ -216,7 +203,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .post(
         '/auth/twitch/callback',
         async (ctx) => {
-          await limit(ctx, 'AuthController.twitchAuthCallback')
+          await limit(ctx)
           const body = ctx.body as { code: string; state: string }
           verifyState(
             ctx,
@@ -239,7 +226,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .post(
         '/auth/twitch/link',
         async (ctx) => {
-          await limit(ctx, 'AuthController.linkTwitch')
+          await limit(ctx)
           const user = await requireAuthenticated(auth, ctx.request)
           const body = ctx.body as { code: string; state: string }
           verifyState(
@@ -262,7 +249,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/kick',
         async (ctx) => {
-          await limit(ctx, 'AuthController.kickAuth')
+          await limit(ctx)
           const verifier = crypto.randomBytes(32).toString('base64url')
           const challenge = crypto.createHash('sha256').update(verifier).digest('base64url')
           const state = crypto.randomBytes(16).toString('hex')
@@ -283,7 +270,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/kick/link',
         async (ctx) => {
-          await limit(ctx, 'AuthController.kickLinkAuth')
+          await limit(ctx)
           await requireAuthenticated(auth, ctx.request)
           const verifier = crypto.randomBytes(32).toString('base64url')
           const challenge = crypto.createHash('sha256').update(verifier).digest('base64url')
@@ -306,7 +293,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .post(
         '/auth/kick/callback',
         async (ctx) => {
-          await limit(ctx, 'AuthController.kickAuthCallback')
+          await limit(ctx)
           const body = ctx.body as { code: string; state: string }
           const cookie = ctx.request.headers.get('cookie')
           const verifier = readCookie(cookie, 'kick_code_verifier')
@@ -333,7 +320,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .post(
         '/auth/kick/link',
         async (ctx) => {
-          await limit(ctx, 'AuthController.linkKick')
+          await limit(ctx)
           const user = await requireAuthenticated(auth, ctx.request)
           const body = ctx.body as { code: string; state: string }
           const cookie = ctx.request.headers.get('cookie')
@@ -360,7 +347,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/telegram',
         async (ctx) => {
-          await limit(ctx, 'AuthController.telegramAuth')
+          await limit(ctx)
           const request = oauth.createTelegramRequest()
           addCookies(ctx.set, telegramCookies(request.state, request.codeVerifier, cookieOptions))
 
@@ -371,7 +358,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/telegram/link',
         async (ctx) => {
-          await limit(ctx, 'AuthController.telegramLinkAuth')
+          await limit(ctx)
           await requireAuthenticated(auth, ctx.request)
           const request = oauth.createTelegramRequest()
           addCookies(
@@ -386,7 +373,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .get(
         '/auth/telegram/oidc/callback',
         async (ctx) => {
-          await limit(ctx, 'AuthController.telegramOidcCallback')
+          await limit(ctx)
           const query = ctx.query as { code: string; state: string; error: string }
           const cookie = ctx.request.headers.get('cookie')
           const storedState = readCookie(cookie, TELEGRAM_OIDC_STATE_COOKIE)
@@ -438,7 +425,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
       .post(
         '/auth/telegram/webapp',
         async (ctx) => {
-          await limit(ctx, 'AuthController.telegramWebApp', RATE_LIMITS.telegramWebApp)
+          await limit(ctx, RATE_LIMITS.telegramWebApp)
 
           const profile = oauth.verifyTelegramWebApp((ctx.body as { initData: string }).initData)
           if (!profile) throw new UnauthorizedError('Не удалось подтвердить вход через Telegram')

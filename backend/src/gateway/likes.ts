@@ -1,11 +1,6 @@
-import {
-  authModels,
-  requireRole,
-  type Authenticator,
-  requireAuthenticated,
-} from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -52,19 +47,16 @@ export interface LikeRouteDeps {
 const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
 
 export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'likes' })
     .model({ ...apiErrorModels, ...authModels, ...likeModels })
     .post(
       '/likes',
-      async ({ request, server, body }) => {
-        await enforceRateLimit(rateLimit, {
-          request,
-          route: 'LikeController.createLike',
-          config: RATE_LIMITS.like,
-          ip: server?.requestIP(request)?.address,
-        })
+      async ({ request, server, route, body }) => {
+        await limit({ request, server, route }, RATE_LIMITS.like)
 
-        const user = requireRole(await requireAuthenticated(auth, request), USER_ROLES)
+        const user = await requireAuthenticated(auth, request, USER_ROLES)
 
         return await likes.createLike(user.id, body.recordId)
       },
@@ -78,15 +70,10 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
     )
     .delete(
       '/likes/:recordId',
-      async ({ request, server, params }) => {
-        await enforceRateLimit(rateLimit, {
-          request,
-          route: 'LikeController.deleteLike',
-          config: RATE_LIMITS.like,
-          ip: server?.requestIP(request)?.address,
-        })
+      async ({ request, server, route, params }) => {
+        await limit({ request, server, route }, RATE_LIMITS.like)
 
-        const user = requireRole(await requireAuthenticated(auth, request), USER_ROLES)
+        const user = await requireAuthenticated(auth, request, USER_ROLES)
 
         await likes.deleteLike(user.id, params.recordId)
       },
@@ -100,15 +87,10 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
     )
     .get(
       '/likes/records/:id',
-      async ({ request, server, params }) => {
-        await enforceRateLimit(rateLimit, {
-          request,
-          route: 'LikeController.getLikesByRecordId',
-          config: RATE_LIMITS.public,
-          ip: server?.requestIP(request)?.address,
-        })
+      async ({ request, server, route, params }) => {
+        await limit({ request, server, route }, RATE_LIMITS.public)
 
-        requireRole(await requireAuthenticated(auth, request), USER_ROLES)
+        await requireAuthenticated(auth, request, USER_ROLES)
 
         return await likes.getLikesByRecordId(params.id)
       },
@@ -122,15 +104,10 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
     )
     .get(
       '/likes/users/:id',
-      async ({ request, server, params }) => {
-        await enforceRateLimit(rateLimit, {
-          request,
-          route: 'LikeController.getLikesByUserId',
-          config: RATE_LIMITS.public,
-          ip: server?.requestIP(request)?.address,
-        })
+      async ({ request, server, route, params }) => {
+        await limit({ request, server, route }, RATE_LIMITS.public)
 
-        requireRole(await requireAuthenticated(auth, request), USER_ROLES)
+        await requireAuthenticated(auth, request, USER_ROLES)
 
         return await likes.getLikesByUserId(params.id)
       },
@@ -144,15 +121,10 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
     )
     .get(
       '/likes/count',
-      async ({ request, server, query }) => {
-        await enforceRateLimit(rateLimit, {
-          request,
-          route: 'LikeController.getLikes',
-          config: RATE_LIMITS.public,
-          ip: server?.requestIP(request)?.address,
-        })
+      async ({ request, server, route, query }) => {
+        await limit({ request, server, route }, RATE_LIMITS.public)
 
-        requireRole(await requireAuthenticated(auth, request), USER_ROLES)
+        await requireAuthenticated(auth, request, USER_ROLES)
 
         return await likes.getLikes(query.page, query.limit)
       },

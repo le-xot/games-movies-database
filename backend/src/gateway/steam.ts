@@ -1,13 +1,8 @@
-import {
-  authModels,
-  requireRole,
-  type Authenticator,
-  requireAuthenticated,
-} from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
 import { recordEnumModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { recordModels, type GatewayRecord } from '@backend/gateway/records'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole, type RecordGrade, type RecordStatus } from '@gmdb/contract'
@@ -90,23 +85,9 @@ export interface SteamRouteDeps {
 const ADMIN = [UserRole.ADMIN] as const
 
 export function steamRoutes({ steam, auth, rateLimit }: SteamRouteDeps) {
-  const limit = (
-    ctx: {
-      request: Request
-      server: { requestIP: (r: Request) => { address: string } | null } | null
-    },
-    route: string,
-    config: Parameters<typeof enforceRateLimit>[1]['config'],
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request: ctx.request,
-      route,
-      config,
-      ip: ctx.server?.requestIP(ctx.request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit)
 
-  const requireAdmin = async (request: Request) =>
-    requireRole(await requireAuthenticated(auth, request), ADMIN)
+  const requireAdmin = async (request: Request) => await requireAuthenticated(auth, request, ADMIN)
 
   return new Elysia({ name: 'steam' })
     .model({
@@ -120,7 +101,7 @@ export function steamRoutes({ steam, auth, rateLimit }: SteamRouteDeps) {
     .get(
       '/steam/games',
       async (ctx) => {
-        await limit(ctx, 'SteamController.getSteamGames', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
         await requireAdmin(ctx.request)
 
         return await steam.getGames()
@@ -132,7 +113,7 @@ export function steamRoutes({ steam, auth, rateLimit }: SteamRouteDeps) {
     .post(
       '/steam/import',
       async (ctx) => {
-        await limit(ctx, 'SteamController.importSteamGames', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireAdmin(ctx.request)
         ctx.set.status = 201
 

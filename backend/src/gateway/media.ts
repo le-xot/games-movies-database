@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { apiErrorModels, errorBody, publicErrors } from '@backend/gateway/errors'
 import { enumUnion } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { ImageVariant } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -27,17 +27,14 @@ const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 const AVATAR_CACHE = 'public, max-age=86400'
 
 export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'media' })
     .model({ ...apiErrorModels })
     .get(
       '/img',
       async (ctx) => {
-        await enforceRateLimit(rateLimit, {
-          request: ctx.request,
-          route: 'ImgController.getImageContent',
-          config: RATE_LIMITS.img,
-          ip: ctx.server?.requestIP(ctx.request)?.address,
-        })
+        await limit(ctx, RATE_LIMITS.img)
 
         const query = ctx.query as { urlEncoded: string; variant?: ImageVariant }
         const variant = query.variant ?? 'poster'
@@ -63,12 +60,7 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
     .get(
       '/avatar/:userId',
       async (ctx) => {
-        await enforceRateLimit(rateLimit, {
-          request: ctx.request,
-          route: 'AvatarController.getAvatar',
-          config: RATE_LIMITS.public,
-          ip: ctx.server?.requestIP(ctx.request)?.address,
-        })
+        await limit(ctx, RATE_LIMITS.public)
 
         const buffer = await avatars.getAvatar(ctx.params.userId)
 

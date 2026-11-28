@@ -1,12 +1,7 @@
-import {
-  authModels,
-  requireRole,
-  type Authenticator,
-  requireAuthenticated,
-} from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels, publicErrors } from '@backend/gateway/errors'
 import { enumUnion } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole, WordleGameStatus, WordleHistoryStatus, WordleLetterState } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -226,23 +221,10 @@ export interface WordleRouteDeps {
 const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
 
 export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: WordleRouteDeps) {
-  const limit = (
-    ctx: {
-      request: Request
-      server: { requestIP: (r: Request) => { address: string } | null } | null
-    },
-    route: string,
-    config: Parameters<typeof enforceRateLimit>[1]['config'],
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request: ctx.request,
-      route,
-      config,
-      ip: ctx.server?.requestIP(ctx.request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit)
 
   const requirePlayer = async (request: Request) =>
-    requireRole(await requireAuthenticated(auth, request), USER_ROLES)
+    await requireAuthenticated(auth, request, USER_ROLES)
 
   const wordleRouteModels = { ...apiErrorModels, ...authModels, ...wordleModels }
 
@@ -251,7 +233,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .get(
       '/wordle/state',
       async (ctx) => {
-        await limit(ctx, 'WordleController.getState', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await wordle.getState((await requirePlayer(ctx.request)).id)
       },
@@ -262,7 +244,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .post(
       '/wordle/guess',
       async (ctx) => {
-        await limit(ctx, 'WordleController.makeGuess', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
 
         return await wordle.makeGuess(
           (await requirePlayer(ctx.request)).id,
@@ -277,7 +259,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .get(
       '/wordle/stats',
       async (ctx) => {
-        await limit(ctx, 'WordleController.getStats', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await wordle.getStats((await requirePlayer(ctx.request)).id)
       },
@@ -288,7 +270,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .get(
       '/wordle/leaderboard',
       async (ctx) => {
-        await limit(ctx, 'WordleController.getLeaderboard', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await wordle.getLeaderboard()
       },
@@ -299,7 +281,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .get(
       '/wordle/practice',
       async (ctx) => {
-        await limit(ctx, 'WordleController.getPracticeState', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         const state = await wordle.getPracticeState((await requirePlayer(ctx.request)).id)
 
@@ -323,7 +305,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .post(
       '/wordle/practice',
       async (ctx) => {
-        await limit(ctx, 'WordleController.startPractice', RATE_LIMITS.wordlePractice)
+        await limit(ctx, RATE_LIMITS.wordlePractice)
 
         return await wordle.startPractice((await requirePlayer(ctx.request)).id)
       },
@@ -334,7 +316,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .post(
       '/wordle/practice/guess',
       async (ctx) => {
-        await limit(ctx, 'WordleController.makePracticeGuess', RATE_LIMITS.wordlePractice)
+        await limit(ctx, RATE_LIMITS.wordlePractice)
 
         return await wordle.makePracticeGuess(
           (await requirePlayer(ctx.request)).id,
@@ -349,7 +331,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .get(
       '/wordle/notifications',
       async (ctx) => {
-        await limit(ctx, 'WordleNotificationController.getStatus', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await wordleNotifications.getStatus((await requirePlayer(ctx.request)).id)
       },
@@ -360,7 +342,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .patch(
       '/wordle/notifications',
       async (ctx) => {
-        await limit(ctx, 'WordleNotificationController.update', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await wordleNotifications.updateFlags(
           (await requirePlayer(ctx.request)).id,
@@ -375,7 +357,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .post(
       '/wordle/notifications/link',
       async (ctx) => {
-        await limit(ctx, 'WordleNotificationController.createLink', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         ctx.set.status = 201
 
         return await wordleNotifications.createLink((await requirePlayer(ctx.request)).id)
@@ -387,7 +369,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     .delete(
       '/wordle/notifications',
       async (ctx) => {
-        await limit(ctx, 'WordleNotificationController.remove', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
         const user = await requirePlayer(ctx.request)
 
         await wordleNotifications.disconnect(user.id)

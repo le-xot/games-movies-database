@@ -19,7 +19,7 @@ const auth: Authenticator = {
 
 const request = (cookie?: string) =>
   new Request('http://localhost/api/me', {
-    headers: cookie ? { cookie } : undefined,
+    headers: cookie ? { cookie } : {},
   })
 
 describe('requireAuthenticated', () => {

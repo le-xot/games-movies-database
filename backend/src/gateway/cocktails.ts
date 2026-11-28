@@ -1,7 +1,7 @@
 import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { apiErrorModels, publicErrors, standardErrors } from '@backend/gateway/errors'
 import { enumUnion } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { CocktailMethod, CocktailTier, IngredientCategory } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -81,20 +81,7 @@ export interface CocktailRouteDeps {
 }
 
 export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps) {
-  const limit = (
-    ctx: {
-      request: Request
-      server: { requestIP: (r: Request) => { address: string } | null } | null
-    },
-    route: string,
-    config: Parameters<typeof enforceRateLimit>[1]['config'],
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request: ctx.request,
-      route,
-      config,
-      ip: ctx.server?.requestIP(ctx.request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit)
 
   const requireBarOwner = async (request: Request) => await requireAuthenticated(auth, request)
 
@@ -103,7 +90,7 @@ export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps
     .get(
       '/cocktails/catalog',
       async (ctx) => {
-        await limit(ctx, 'CocktailController.getCatalog', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await cocktails.getCatalog()
       },
@@ -114,7 +101,7 @@ export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps
     .post(
       '/cocktails/match',
       async (ctx) => {
-        await limit(ctx, 'CocktailController.match', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await cocktails.match(ctx.body as MatchCocktailsInput)
       },
@@ -129,7 +116,7 @@ export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps
     .get(
       '/cocktails/bar',
       async (ctx) => {
-        await limit(ctx, 'CocktailController.getBar', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await cocktails.getBar((await requireBarOwner(ctx.request)).id)
       },
@@ -140,7 +127,7 @@ export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps
     .put(
       '/cocktails/bar',
       async (ctx) => {
-        await limit(ctx, 'CocktailController.setBar', RATE_LIMITS.cocktailBar)
+        await limit(ctx, RATE_LIMITS.cocktailBar)
 
         return await cocktails.setBar(
           (await requireBarOwner(ctx.request)).id,

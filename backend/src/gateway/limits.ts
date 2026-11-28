@@ -1,12 +1,7 @@
-import {
-  authModels,
-  requireRole,
-  type Authenticator,
-  requireAuthenticated,
-} from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole, type LimitType } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -42,19 +37,16 @@ export interface LimitRouteDeps {
 const ADMIN = [UserRole.ADMIN] as const
 
 export function limitRoutes({ limits, auth, rateLimit }: LimitRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'limits' })
     .model({ ...apiErrorModels, ...authModels, ...accountEnumModels, ...limitModels })
     .post(
       '/limits',
       async (ctx) => {
-        await enforceRateLimit(rateLimit, {
-          request: ctx.request,
-          route: 'LimitController.changeLimit',
-          config: RATE_LIMITS.write,
-          ip: ctx.server?.requestIP(ctx.request)?.address,
-        })
+        await limit(ctx, RATE_LIMITS.write)
 
-        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
 
         return await limits.change(ctx.body as Limit)
       },

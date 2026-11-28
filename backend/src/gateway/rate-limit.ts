@@ -1,6 +1,6 @@
 import { TooManyRequestsError } from '@backend/utils/errors'
+import { RATE_LIMITS, type RateLimitConfig } from '@backend/utils/rate-limits'
 import type { RateLimitResult } from '@backend/utils/rate-limit'
-import type { RateLimitConfig } from '@backend/utils/rate-limits'
 
 /**
  * Что гейтвею нужно от лимитера. Реализация на Redis живёт в
@@ -43,4 +43,33 @@ export async function enforceRateLimit(
       'retry-after': String(retryAfterSeconds),
     })
   }
+}
+
+/**
+ * Минимальный контекст роута, который нужен лимитеру. `route` — путь,
+ * зарегистрированный в роутере (`/records/:id`), а не URL запроса: ключ не
+ * должен зависеть от параметров.
+ */
+export interface RateLimitContext {
+  request: Request
+  route?: string
+  server?: { requestIP: (request: Request) => { address: string } | null } | null
+}
+
+/**
+ * Единственный способ закрыть роут лимитом. Ключ — реальный метод и путь
+ * (`rl:GET /records:1.2.3.4`), а не имя Nest-контроллера: название роута и
+ * лимит живут в одном месте и не расходятся при переименовании.
+ */
+export function rateLimitGuard(
+  limiter: RateLimiter,
+  defaultConfig: RateLimitConfig = RATE_LIMITS.public,
+) {
+  return (ctx: RateLimitContext, config: RateLimitConfig = defaultConfig): Promise<void> =>
+    enforceRateLimit(limiter, {
+      request: ctx.request,
+      route: `${ctx.request.method} ${ctx.route || new URL(ctx.request.url).pathname}`,
+      config,
+      ip: ctx.server?.requestIP(ctx.request)?.address,
+    })
 }

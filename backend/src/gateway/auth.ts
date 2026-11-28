@@ -1,4 +1,3 @@
-import { enumUnion } from '@backend/gateway/models'
 import { ForbiddenError, UnauthorizedError } from '@backend/utils/errors'
 import { UserRole } from '@gmdb/contract'
 import { t } from 'elysia'
@@ -7,7 +6,7 @@ import { t } from 'elysia'
  * Схемы пользователя. Имена (`UserEntity`, `UserRole`) и набор полей повторяют
  * то, что генерировал Nest: от них зависит `$ref` в контракте и типы фронта.
  */
-const userRoleSchema = enumUnion(UserRole)
+const userRoleSchema = t.Enum(UserRole)
 
 export const UserEntity = t.Object({
   id: t.String(),

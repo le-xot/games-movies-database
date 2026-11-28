@@ -1,6 +1,5 @@
 import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels, publicErrors } from '@backend/gateway/errors'
-import { enumUnion } from '@backend/gateway/models'
 import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole, WordleGameStatus, WordleHistoryStatus, WordleLetterState } from '@gmdb/contract'
@@ -18,9 +17,9 @@ import type {
 } from '@backend/modules/wordle/entities/wordle.entity'
 
 export const wordleModels = {
-  WordleGameStatus: enumUnion(WordleGameStatus),
-  WordleLetterState: enumUnion(WordleLetterState),
-  WordleHistoryStatus: enumUnion(WordleHistoryStatus),
+  WordleGameStatus: t.Enum(WordleGameStatus),
+  WordleLetterState: t.Enum(WordleLetterState),
+  WordleHistoryStatus: t.Enum(WordleHistoryStatus),
   WordleGuessDTO: t.Object({
     word: t.String(),
   }),

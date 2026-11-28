@@ -6,7 +6,7 @@ import {
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
-import { HTTP_URL_PATTERN, enumUnion, recordEnumModels } from '@backend/gateway/models'
+import { HTTP_URL_PATTERN, recordEnumModels } from '@backend/gateway/models'
 import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
 import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
@@ -194,8 +194,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
           search: t.Optional(t.String()),
           page: t.Optional(t.Number({ minimum: 1, maximum: 10_000, multipleOf: 1 })),
           limit: t.Optional(t.Number({ minimum: 1, maximum: 100, multipleOf: 1 })),
-          orderBy: t.Optional(enumUnion(RecordOrderBy)),
-          direction: t.Optional(enumUnion(RecordDirection)),
+          orderBy: t.Optional(t.Enum(RecordOrderBy)),
+          direction: t.Optional(t.Enum(RecordDirection)),
         }),
         response: {
           200: 'GetAllRecordsDTO' as const,

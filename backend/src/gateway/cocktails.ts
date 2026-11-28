@@ -1,6 +1,5 @@
 import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { apiErrorModels, publicErrors, standardErrors } from '@backend/gateway/errors'
-import { enumUnion } from '@backend/gateway/models'
 import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { CocktailMethod, CocktailTier, IngredientCategory } from '@gmdb/contract'
@@ -11,9 +10,9 @@ import type { CocktailCatalog, MatchedCocktail } from '@backend/modules/cocktail
  * Справочники коктейлей. Значения — из `@gmdb/contract`; TypeBox-схемы нужны,
  * потому что они же служат валидацией и источником типов фронта.
  */
-const ingredientCategorySchema = enumUnion(IngredientCategory)
-const cocktailTierSchema = enumUnion(CocktailTier)
-const cocktailMethodSchema = enumUnion(CocktailMethod)
+const ingredientCategorySchema = t.Enum(IngredientCategory)
+const cocktailTierSchema = t.Enum(CocktailTier)
+const cocktailMethodSchema = t.Enum(CocktailMethod)
 
 export const cocktailModels = {
   IngredientCategory: ingredientCategorySchema,

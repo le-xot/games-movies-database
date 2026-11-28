@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto'
 import { apiErrorModels, errorBody, publicErrors } from '@backend/gateway/errors'
-import { enumUnion } from '@backend/gateway/models'
 import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { ImageVariant } from '@gmdb/contract'
@@ -52,7 +51,7 @@ export function mediaRoutes({ images, avatars, rateLimit }: MediaRouteDeps) {
       {
         query: t.Object({
           urlEncoded: t.String(),
-          variant: t.Optional(enumUnion(ImageVariant)),
+          variant: t.Optional(t.Enum(ImageVariant)),
         }),
         response: { 200: t.Void(), ...publicErrors() },
       },

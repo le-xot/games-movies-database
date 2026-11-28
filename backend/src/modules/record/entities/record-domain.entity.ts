@@ -2,6 +2,12 @@ import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enu
 import type { RecordFriendsView } from '@backend/modules/rating/entities/rating-domain.entity'
 import type { SelectRow } from '@gmd/database'
 
+export interface CreateRecordFromLinkInput {
+  link: string
+  status?: RecordStatus
+  type?: RecordType
+}
+
 export interface CreateRecordData {
   title: string
   posterUrl: string

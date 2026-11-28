@@ -4,10 +4,11 @@ import { ImgService } from '@backend/modules/img/img.service'
 import { emptyFriendsCounts } from '@backend/modules/rating/entities/rating-domain.entity'
 import { DrizzleRatingRepository } from '@backend/modules/rating/repositories/drizzle-rating.repository'
 import {
+  CreateRecordFromLinkInput,
   RecordWithFriends,
   RecordWithRelations,
+  UpdateRecordData,
 } from '@backend/modules/record/entities/record-domain.entity'
-import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@backend/modules/record/record.dto'
 import { RecordEntity } from '@backend/modules/record/record.entity'
 import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
 import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
@@ -72,7 +73,7 @@ export class RecordService {
     emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, { genre: genre ?? undefined, id, action })
   }
 
-  async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
+  async createRecordFromLink(data: CreateRecordFromLinkInput): Promise<RecordEntity> {
     this.logger.log(`Creating record from link link=${data.link}`)
     const preparedData = await this.recordsProviderService.prepareData({
       link: data.link,
@@ -95,7 +96,7 @@ export class RecordService {
     return createdData
   }
 
-  async patchRecord(id: number, data: RecordUpdateDTO): Promise<RecordEntity> {
+  async patchRecord(id: number, data: UpdateRecordData): Promise<RecordEntity> {
     this.logger.log(`Patching record id=${id}`)
     const foundedRecord = await this.recordRepository.findById(id)
     if (!foundedRecord) {

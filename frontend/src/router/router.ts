@@ -53,7 +53,7 @@ export const router = createRouter({
           path: ROUTER_PATHS.pc,
           name: 'pc',
           component: () => import('@/pages/pc/PcPage.vue'),
-          meta: { title: 'Сетап Лешота' },
+          meta: { title: 'Сетап Лешота', titleSuffix: false },
         },
       ],
     },

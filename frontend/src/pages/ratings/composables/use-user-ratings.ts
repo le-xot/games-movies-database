@@ -57,9 +57,17 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
 
   const profileLogin = computed(() => list.items.value[0]?.userLogin ?? null)
 
+  const isRatingsRoute = computed(
+    () => route.name === 'my-ratings' || route.name === 'user-ratings',
+  )
+
   watch(
-    [isMine, profileLogin],
-    ([mine, login]) => {
+    [isMine, profileLogin, isRatingsRoute],
+    ([mine, login, onRatingsRoute]) => {
+      // Стор живёт после ухода со страницы: без этого заголовок оценок
+      // перетирал бы `meta.title` любой другой страницы.
+      if (!onRatingsRoute) return
+
       updateTitle(mine ? 'Мои оценки' : login ? `Оценки ${login}` : 'Оценки пользователя')
     },
     { immediate: true },

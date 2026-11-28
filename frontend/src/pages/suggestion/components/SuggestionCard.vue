@@ -9,8 +9,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import UserAvatar from '@/components/user/UserAvatar.vue'
-import { RecordEntity, RecordGenre, RecordType, UserRole } from '@/lib/api'
-import { GENRE_REGISTRY, SUGGESTION_GENRES } from '@/lib/genre-registry'
+import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
+import { GENRE_REGISTRY } from '@/lib/genre-registry'
+import { groupSuggestions, isQueuedRecord } from '@/pages/suggestion/composables/suggestion-groups'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
@@ -43,54 +44,7 @@ function triggerAnimation(itemId: number, direction: 'like' | 'unlike') {
   )
 }
 
-const groupedItems = computed(() => {
-  const queuedItems: RecordEntity[] = []
-  const groups = new Map<RecordGenre, RecordEntity[]>()
-
-  for (const item of props.items) {
-    if (!item.genre) continue
-
-    if (isQueued(item)) {
-      queuedItems.push(item)
-      continue
-    }
-
-    if (!groups.has(item.genre)) {
-      groups.set(item.genre, [])
-    }
-
-    groups.get(item.genre)!.push(item)
-  }
-
-  const sortItems = (items: RecordEntity[]) => {
-    if (props.sortBy === 'date') {
-      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    } else {
-      items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
-    }
-  }
-
-  queuedItems.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  for (const items of groups.values()) {
-    sortItems(items)
-  }
-
-  const groupOrder: RecordGenre[] = SUGGESTION_GENRES.map((entry) => entry.genre)
-
-  const result: [string, RecordEntity[]][] = []
-
-  if (queuedItems.length > 0) {
-    result.push(['queued', queuedItems])
-  }
-
-  result.push(
-    ...Array.from(groups.entries())
-      .sort(([a], [b]) => groupOrder.indexOf(a) - groupOrder.indexOf(b))
-      .map(([genre, items]): [string, RecordEntity[]] => [genre, items]),
-  )
-
-  return result
-})
+const groupedItems = computed(() => groupSuggestions(props.items, props.sortBy))
 
 type GenreValue = `${RecordGenre}`
 
@@ -112,10 +66,6 @@ function isLikedByCurrentUser(item: RecordEntity) {
 
 function getLikesCount(item: RecordEntity) {
   return item.likes?.length || 0
-}
-
-function isQueued(item: RecordEntity) {
-  return item.type === RecordType.WRITTEN
 }
 
 async function handleLikeClick(item: RecordEntity) {
@@ -142,7 +92,7 @@ async function handleLikeClick(item: RecordEntity) {
 
 function adminActions(item: RecordEntity) {
   return [
-    ...(!isQueued(item)
+    ...(!isQueuedRecord(item)
       ? [
           {
             key: 'approve',
@@ -184,7 +134,7 @@ function toggleGenreCollapse(genre: string) {
       <slot name="title" />
     </p>
 
-    <template v-for="([genre, groupItems], index) in groupedItems" :key="genre">
+    <template v-for="({ key: genre, items: groupItems }, index) in groupedItems" :key="genre">
       <Separator v-if="genre !== 'queued' && index > 0" class="mb-6" />
       <div class="mb-8">
         <div v-if="genre === 'queued'" class="flex items-center justify-center gap-2 mb-4">
@@ -226,15 +176,16 @@ function toggleGenreCollapse(genre: string) {
                 class="min-h-[250px] flex flex-col transition-[height,border-color,border-width] duration-300"
                 :class="{
                   'sm:h-[250px]': isAdmin,
-                  'border-2 border-primary': newRecords.isRecordNew(item.id) && !isQueued(item),
-                  'border-2 border-yellow-400': isQueued(item),
+                  'border-2 border-primary':
+                    newRecords.isRecordNew(item.id) && !isQueuedRecord(item),
+                  'border-2 border-yellow-400': isQueuedRecord(item),
                 }"
               >
                 <TooltipProvider :delay-duration="200">
                   <Tooltip>
                     <TooltipTrigger as-child>
                       <button
-                        v-if="!isQueued(item)"
+                        v-if="!isQueuedRecord(item)"
                         :data-like-btn="item.id"
                         size="sm"
                         :disabled="likingStates.get(item.id)"
@@ -263,7 +214,7 @@ function toggleGenreCollapse(genre: string) {
                       </div>
                     </TooltipTrigger>
                     <TooltipContent
-                      v-if="!isQueued(item) && item.likes?.length"
+                      v-if="!isQueuedRecord(item) && item.likes?.length"
                       side="top"
                       class="flex flex-col gap-1.5 p-2"
                     >
@@ -311,7 +262,7 @@ function toggleGenreCollapse(genre: string) {
                       <div class="flex justify-between w-full">
                         <div
                           v-if="
-                            !isQueued(item) &&
+                            !isQueuedRecord(item) &&
                             item.suggestionOwnership?.user &&
                             item.suggestionOwnership.user.role === UserRole.USER &&
                             item.suggestionOwnership.user.id === currentUserId

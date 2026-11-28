@@ -54,13 +54,14 @@ export const useUser = defineStore('global/use-user', () => {
         return
       }
 
+      let stop = () => {}
       const finish = () => {
         stop()
         clearTimeout(timer)
         resolve()
       }
       const timer = setTimeout(finish, timeoutMs)
-      const stop = watch(isLoading, (loading) => {
+      stop = watch(isLoading, (loading) => {
         if (!loading) finish()
       })
     })

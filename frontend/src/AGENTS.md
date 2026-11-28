@@ -77,8 +77,8 @@ frontend/src/
 
 - **Setup**: Always use `<script setup lang="ts">`.
 - **Naming**: `.vue` files use PascalCase (e.g., `AnimePage.vue`, `DataCards.vue`). `.ts` files use kebab-case (e.g., `use-api.ts`). Exception: `app.vue` (root component).
-- **Imports**: shared components are imported by file (`import DataCards from '@/components/media/DataCards.vue'`). Barrels (`index.ts`) exist only for multi-file UI primitives (`@/components/ui/button`); feature directories keep no barrels.
-- **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension. Use `@/` alias for all internal paths.
+- **Import paths**: `@/` alias for all internal paths. Feature directories import by file (`@/components/media/DataCards.vue`); barrels (`index.ts`) exist only where the directory is a public API: `components/ui/*` primitives and `components/{form,account,palette}`. Directories without barrels: `components/{media,layout,dialog}`, `composables/`, `stores/`, `utils/`.
+- **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension.
 - **UI Primitives**: shadcn-vue + reka-ui. Import via barrel: `import { Button } from '@/components/ui/button'`.
 - **Validation**: vee-validate 5.
 - **Toasts**: vue-sonner (wrapper in `components/ui/sonner`).

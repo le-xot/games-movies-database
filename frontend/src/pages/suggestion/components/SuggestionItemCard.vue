@@ -16,7 +16,7 @@ import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 
-const props = defineProps<{ item: RecordEntity; isAdmin: boolean }>()
+defineProps<{ item: RecordEntity; isAdmin: boolean }>()
 
 const suggestion = useSuggestion()
 const like = useLike()
@@ -242,3 +242,14 @@ function adminActions(item: RecordEntity) {
     </Card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

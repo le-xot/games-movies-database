@@ -9,7 +9,6 @@
  * `@/lib/api`. Новый алиас добавляется вместе с потребителем.
  */
 export type { GatewayUser as UserEntity } from '@backend/gateway/auth'
-export type { GatewayCustomization as UserCustomizationEntity } from '@backend/gateway/auth-session'
 export type {
   GatewayRecord as RecordEntity,
   RecordsPage as GetAllRecordsDTO,

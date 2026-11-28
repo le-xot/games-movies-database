@@ -25,7 +25,9 @@ describe('record vocabulary', () => {
     const entries = [...Object.values(STATUS_VOCABULARY), ...Object.values(GRADE_VOCABULARY)]
 
     for (const entry of entries) {
-      expect(entry.badgeClass).toContain(`[${entry.tone}]`)
+      if ('badgeClass' in entry && entry.badgeClass) {
+        expect(entry.badgeClass).toContain(`[${entry.tone}]`)
+      }
       if ('borderClass' in entry && entry.borderClass) {
         expect(entry.borderClass).toContain(`[${entry.tone}]`)
       }

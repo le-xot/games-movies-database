@@ -16,7 +16,8 @@ export interface RecordVocabularyEntry {
   description?: string
   /** Цвет для графиков и инлайн-стилей. */
   tone: string
-  badgeClass: string
+  /** Класс фона бейджа; отсутствует, если статус показывает стандартный вид. */
+  badgeClass?: string
   borderClass?: string
 }
 
@@ -55,7 +56,6 @@ export const STATUS_VOCABULARY = {
     name: 'Не интересно',
     description: 'заказ не интересен.',
     tone: '#4a4a4a',
-    badgeClass: 'bg-[#4a4a4a]',
   },
 } satisfies Record<RecordStatus, RecordVocabularyEntry>
 

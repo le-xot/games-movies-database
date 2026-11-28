@@ -125,7 +125,7 @@ bun db:baseline                # One-time: mark 0000_init applied on an existing
 cd backend && bun test         # Backend unit tests (bun test)
 bun --filter=./backend run test:integration   # Integration tests (RUN_DB_TESTS=1 + Postgres)
 cd frontend && bun run test    # Frontend unit tests
-cd frontend && bun run test:e2e               # Playwright E2E
+cd frontend && bun run test:e2e               # Playwright E2E (нужны postgres + redis: bun infra:start)
 bun run test:scripts           # render-env.sh + rollback.sh script tests
 
 # Docker

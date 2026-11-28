@@ -27,7 +27,7 @@
 | F-05 | Заголовок документа из `route.meta.title` через `router.afterEach` | `5d999c7` | review (batches 14) |
 | F-07 | Все ключи localStorage/sessionStorage в `lib/storage-keys.ts` + скан-ловушка | `934ffc5` | APPROVE |
 | B-13 | `RatingService` без прямого SQL: запросы в `DrizzleRatingRepository` + инвариант «сервисы без БД» | `13148e3` | APPROVE |
-| G-06 | E2E baseline: 40 pass / 4 pre-existing слово-падения, зафиксированы | — | база на master `e73dcfb` |
+| G-06 | E2E baseline: **44/44** при полной инфре (postgres + redis); wordle-практика без Redis падает — это не баг продукта | — | `bun infra:start` |
 
 | B-12 | Class-DTO модулей удалены: доменные типы в `entities/`, гейтвей без дублей портов, `modules/*.dto.ts` нет; ловушка в architecture.spec | `6486c0f`…`223c17b` | APPROVE (19–21), ниты закрыты |
 

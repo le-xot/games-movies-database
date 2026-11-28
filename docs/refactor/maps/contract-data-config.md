@@ -1,5 +1,8 @@
 # Contract, данные, конфиг — карта SSOT и дрейфа
 
+> **Снимок рекона (батчи 1–2).** Актуальное состояние — `tasks.md` и `progress.md`;
+> часть находок уже закрыта (см. таблицу «Сделано»).
+
 > Снимок: 2026-11-28, worktree `chore/code-cleanup` (ветка от `master` @ `e73dcfb`). Область: `contract/src/*`,
 > `database/src/{schema,seed}/*`, TypeBox-модели + `api-types.ts`/`enums/*`/`enviroments.ts` в `backend/src`,
 > `docker-compose*.yml`, `.github/workflows/*`, `package.json` ×5, `scripts/*`, `README.md`, oxlint/oxfmt/tsconfig.

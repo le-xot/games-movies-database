@@ -83,9 +83,11 @@ describe('groupSuggestions', () => {
   })
 
   it('не теряет жанр вне списка советов', () => {
-    const groups = groupSuggestions([item({ id: 1, genre: RecordGenre.ANIME })], 'date')
+    // Сегодня все жанры enum'а есть в SUGGESTION_GENRES — проверяем узелок на будущее.
+    const rareGenre = 'BOOK' as RecordGenre
+    const groups = groupSuggestions([item({ id: 1, genre: rareGenre })], 'date')
 
-    expect(groups.map((group) => group.key)).toContain(RecordGenre.ANIME)
+    expect(groups.map((group) => group.key)).toContain(rareGenre)
   })
 
   it('пропускает записи без жанра и пустой вход', () => {

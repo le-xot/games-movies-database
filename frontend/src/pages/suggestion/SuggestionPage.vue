@@ -14,6 +14,7 @@ import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
+import type { SuggestionSortBy } from '@/pages/suggestion/composables/suggestion-groups'
 
 const suggestion = useSuggestion()
 const user = useUser()
@@ -42,7 +43,7 @@ function handleSuggestClick() {
   openSuggestionDialog()
 }
 
-const sortBy = useLocalStorage<'date' | 'likes'>(STORAGE_KEYS.suggestionSortBy, 'date')
+const sortBy = useLocalStorage<SuggestionSortBy>(STORAGE_KEYS.suggestionSortBy, 'date')
 
 function toggleSort() {
   sortBy.value = sortBy.value === 'date' ? 'likes' : 'date'

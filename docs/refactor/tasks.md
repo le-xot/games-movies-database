@@ -22,6 +22,13 @@
 | G-01 | Ловушка «нет .ts без импортёров»                                                                      | `90c6c6c`            | —                           |
 | G-02 | oxlint `no-console`; тест «`process.env` только в enviroments»; тест «gateway не импортирует сервисы» | `4471595`, `1757fb7` | review                      |
 
+| F-03 | Реестр жанров: маршруты, меню, префетч, WS, статистика, советы из `lib/genre-registry.ts` | `a40fbfa`, `71521c0` | CHANGES → фикс B1 |
+| F-04 | Словарь статусов/оценок: имена, цвета, классы и порядки в `lib/record-vocabulary.ts` | `0ded33d`, `0291448` | CHANGES → фикс B1 |
+| F-05 | Заголовок документа из `route.meta.title` через `router.afterEach` | `5d999c7` | review (batches 14) |
+| F-07 | Все ключи localStorage/sessionStorage в `lib/storage-keys.ts` + скан-ловушка | `934ffc5` | APPROVE |
+| B-13 | `RatingService` без прямого SQL: запросы в `DrizzleRatingRepository` + инвариант «сервисы без БД» | `13148e3` | APPROVE |
+| G-06 | E2E baseline: 40 pass / 4 pre-existing слово-падения, зафиксированы | — | база на master `e73dcfb` |
+
 ## В пуле
 
 ### Backend

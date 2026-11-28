@@ -1,4 +1,3 @@
-import { timingSafeEqual } from 'node:crypto'
 import { Logger } from '@backend/utils/logger'
 import { CommandGroup } from '@grammyjs/commands'
 import { Bot, BotError, type CommandContext, type Context } from 'grammy'
@@ -72,14 +71,6 @@ function toInlineButton(button: TelegramButton) {
 
 export function isValidWebhookSecret(secret: string | null | undefined): secret is string {
   return typeof secret === 'string' && WEBHOOK_SECRET_PATTERN.test(secret)
-}
-
-export function webhookSecretsMatch(header: string | undefined, expected: string): boolean {
-  if (!header) return false
-  const headerBytes = Buffer.from(header, 'utf8')
-  const expectedBytes = Buffer.from(expected, 'utf8')
-  if (headerBytes.length !== expectedBytes.length) return false
-  return timingSafeEqual(headerBytes, expectedBytes)
 }
 
 /**

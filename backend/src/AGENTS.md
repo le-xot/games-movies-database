@@ -55,6 +55,8 @@ backend/src/
   числу — используйте `coerceQueryNumbers` (см. `gateway/query.ts`).
 - **Домен не знает про HTTP-слой.** Гейтвей получает порты (`WeatherReader`,
   `LikesService`), а не классы Nest.
+  Из `modules/` гейтвею разрешены только чистые функции и константы — это проверяет
+  `__tests__/architecture.spec.ts`.
 - **События**: `DomainEvents` (см. `utils/domain-events.ts`), мост в WS — `bridgeWsEvents`.
 - **Enum'ы**: значения — только из `@gmdb/contract`; TypeBox-схемы собираются `enumUnion`
   (`gateway/models.ts`), литералы доменных значений в схемах запрещены. Инвариант contract ↔ pgEnum

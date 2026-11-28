@@ -85,6 +85,30 @@ describe('архитектура backend', () => {
   })
 
   /**
+   * Гейтвей знает только порты: из `modules/` ему разрешены чистые функции и
+   * константы (`auth.oauth-state`, `telegram.constants`, `cocktail.types`),
+   * но не классы сервисов — иначе HTTP-слой тянет весь домен.
+   */
+  it('гейтвей не импортирует доменные сервисы', async () => {
+    const gatewayFiles = (await collectTypeScriptFiles(join(SOURCE_ROOT, 'gateway'))).filter(
+      (file) => !file.endsWith('.spec.ts'),
+    )
+    const offenders: string[] = []
+
+    for (const file of gatewayFiles) {
+      const text = await readFile(file, 'utf8')
+      for (const match of text.matchAll(/from '(@backend\/modules\/[^']+)'/g)) {
+        const specifier = match[1] ?? ''
+        if (/\.service$/.test(specifier)) {
+          offenders.push(`${relative(SOURCE_ROOT, file)} -> ${specifier}`)
+        }
+      }
+    }
+
+    expect(offenders).toEqual([])
+  })
+
+  /**
    * Конфигурация читается в одном месте — `utils/enviroments.ts`. Тестовые
    * харнессы (`__tests__`, `__integration__`, `__e2e__`) — исключение: они
    * получают DSN из окружения раннера, а не из конфигурации приложения.

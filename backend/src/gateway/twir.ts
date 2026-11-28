@@ -2,9 +2,9 @@ import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { HTTP_URL_PATTERN } from '@backend/gateway/models'
 import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { suggestionModels, type SuggestionResponse } from '@backend/gateway/suggestions'
-import { isApiKeyValid } from '@backend/utils/api-key'
 import { UnauthorizedError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { secretsMatch } from '@backend/utils/secrets'
 import { Elysia, t } from 'elysia'
 
 export const twirModels = {
@@ -40,7 +40,7 @@ export function twirRoutes({ twir, rateLimit, apiKey }: TwirRouteDeps) {
       async (ctx) => {
         await limit(ctx, RATE_LIMITS.twir)
 
-        if (!isApiKeyValid(ctx.request.headers.get('x-api-key'), apiKey)) {
+        if (!secretsMatch(ctx.request.headers.get('x-api-key'), apiKey)) {
           throw new UnauthorizedError()
         }
 

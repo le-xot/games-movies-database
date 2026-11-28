@@ -5,8 +5,7 @@ import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { CocktailMethod, CocktailTier, IngredientCategory } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { CocktailCatalog } from '@backend/modules/cocktail/cocktail.service'
-import type { MatchedCocktail } from '@backend/modules/cocktail/cocktail.types'
+import type { CocktailCatalog, MatchedCocktail } from '@backend/modules/cocktail/cocktail.types'
 
 /**
  * Справочники коктейлей. Значения — из `@gmdb/contract`; TypeBox-схемы нужны,

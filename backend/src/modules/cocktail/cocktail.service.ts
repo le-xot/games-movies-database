@@ -2,17 +2,13 @@ import { BadRequestError } from '@backend/utils/errors'
 import { IngredientCategory } from '@gmdb/contract'
 import { SHELF_TITLES } from './cocktail.catalogue'
 import { matchCocktails } from './cocktail.match'
-import type { CatalogCocktail, CatalogIngredient, MatchedCocktail } from './cocktail.types'
-
-export interface CocktailCatalogShelf {
-  id: IngredientCategory
-  title: string
-  ingredients: Array<{ id: string; name: string }>
-}
-
-export interface CocktailCatalog {
-  shelves: CocktailCatalogShelf[]
-}
+import type {
+  CatalogCocktail,
+  CatalogIngredient,
+  CocktailCatalog,
+  CocktailCatalogShelf,
+  MatchedCocktail,
+} from './cocktail.types'
 
 /** Порт каталога: снимок ингредиентов с рецептами и бар пользователя. */
 export interface CocktailRepository {

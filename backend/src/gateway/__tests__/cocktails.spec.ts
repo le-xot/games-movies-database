@@ -2,7 +2,7 @@ import { describe, expect, it, mock } from 'bun:test'
 import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
 import type { GatewayUser } from '@backend/gateway/auth'
 import type { CocktailsPort } from '@backend/gateway/cocktails'
-import type { CocktailCatalog } from '@backend/modules/cocktail/cocktail.service'
+import type { CocktailCatalog } from '@backend/modules/cocktail/cocktail.types'
 import type { MatchedCocktail } from '@backend/modules/cocktail/cocktail.types'
 
 const USER: GatewayUser = {

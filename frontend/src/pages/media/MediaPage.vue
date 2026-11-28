@@ -1,27 +1,50 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import DataCards from '@/components/media/DataCards.vue'
 import Search from '@/components/media/Search.vue'
-import { GENRE_REGISTRY } from '@/lib/genre-registry'
+import {
+  GENRE_REGISTRY,
+  type GenreEntry,
+  type GenreParamsStore,
+  type GenreRecordsStore,
+} from '@/lib/genre-registry'
 import { GENRE_STORES } from '@/pages/media/genre-stores'
 
 const route = useRoute()
 
+interface GenreMedia {
+  entry: GenreEntry
+  records: GenreRecordsStore
+  params: GenreParamsStore
+}
+
 /**
  * Жанровая страница — одна для пяти разделов: метаданные берутся из реестра,
- * сторы — из карты жанров. Отдельного `switch` здесь больше нет.
+ * сторы — из карты жанров. Сторы создаются в `watch(immediate)`, то есть в setup:
+ * colada вешает lifecycle-хуки стора, и вызывать их из `computed` (во время
+ * рендера) нельзя — запрос тогда не стартует.
  */
-const media = computed(() => {
-  const genre = route.meta.genre
-  if (!genre) return null
+const media = ref<GenreMedia | null>(null)
 
-  const entry = GENRE_REGISTRY[genre]
-  const stores = GENRE_STORES[genre]
+watch(
+  () => route.meta.genre,
+  (genre) => {
+    if (!genre) {
+      media.value = null
+      return
+    }
 
-  return { entry, records: stores.useRecords(), params: stores.useParams() }
-})
+    const stores = GENRE_STORES[genre]
+    media.value = {
+      entry: GENRE_REGISTRY[genre],
+      records: stores.useRecords(),
+      params: stores.useParams(),
+    }
+  },
+  { immediate: true },
+)
 
 const items = computed(() => media.value?.records.items ?? [])
 </script>

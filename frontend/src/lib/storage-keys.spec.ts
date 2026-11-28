@@ -21,7 +21,7 @@ async function collectSourceFiles(dir: string): Promise<string[]> {
   return files
 }
 
-const STORAGE_LITERAL = /(?:localStorage|sessionStorage)\.(?:getItem|setItem|removeItem)\(\s*'/
+const STORAGE_LITERAL = /(?:localStorage|sessionStorage)\??\.(?:getItem|setItem|removeItem)\(\s*'/
 const COMPOSABLE_LITERAL = /\buse(?:Local)?Storage(?:<[^>]*>)?\(\s*'/
 
 describe('storage keys', () => {
@@ -30,6 +30,23 @@ describe('storage keys', () => {
 
     expect(new Set(values).size).toBe(values.length)
     expect(values.every((value) => value.length > 0)).toBe(true)
+  })
+
+  it('фиксирует фактические значения ключей', () => {
+    // Значения — контракт хранилища: переименование ключа молча сбрасывает
+    // пользовательские настройки, поэтому оно обязано ломать тест.
+    expect(STORAGE_KEYS).toEqual({
+      appVersion: 'app_version',
+      loginReturnUrl: 'loginReturnUrl',
+      accountDialogOnLoad: 'accountDialogOnLoad',
+      dbSidebarCollapsed: 'db-sidebar-collapsed',
+      steamHidden: 'steam-hidden',
+      viewedSuggestions: 'viewed-suggestions',
+      suggestionSortBy: 'suggestion-sort-by',
+      editorEnabled: 'editorEnabled',
+      wordleColorblind: 'wordle:colorblind',
+      cocktailBar: 'cocktails:guest-bar',
+    })
   })
 
   it('сбрасывает только объявленные ключи', () => {

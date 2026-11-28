@@ -41,6 +41,7 @@ export const router = createRouter({
       path: ROUTER_PATHS.home,
       name: 'home-layout',
       component: () => import('@/components/layout/home/LayoutHome.vue'),
+      meta: { title: 'Лешот' },
       children: [
         {
           path: ROUTER_PATHS.home,
@@ -60,6 +61,7 @@ export const router = createRouter({
       path: ROUTER_PATHS.db,
       name: 'db',
       component: () => import('@/components/layout/db/LayoutDatabase.vue'),
+      meta: { title: 'База' },
       redirect: { path: ROUTER_PATHS.dbSuggestion },
       children: [
         {

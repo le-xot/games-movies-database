@@ -39,11 +39,17 @@ describe('genre registry', () => {
     expect(genreLabel(undefined)).toBe('')
   })
 
-  it('содержит все жанры в каждом порядке', () => {
+  it('содержит все жанры в каждом порядке без дублей', () => {
     for (const order of [GENRES, NAV_GENRES, SUGGESTION_GENRES]) {
-      expect(new Set(order.map((entry) => entry.genre))).toEqual(
-        new Set(Object.values(RecordGenre)),
-      )
+      const genres = order.map((entry) => entry.genre)
+      expect(new Set(genres)).toEqual(new Set(Object.values(RecordGenre)))
+      expect(new Set(genres).size).toBe(genres.length)
+    }
+  })
+
+  it('держит query-ключ реестра равным листу genre-keys', () => {
+    for (const entry of GENRES) {
+      expect(entry.queryKey).toBe(GENRE_QUERY_KEYS[entry.genre])
     }
   })
 

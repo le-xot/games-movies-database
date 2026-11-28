@@ -2,11 +2,14 @@
 import { ArrowUpDown, EyeOff, ListPlus } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
 import { toast } from 'vue-sonner'
+import { useDialog } from '@/components/dialog/composables/use-dialog'
 import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
+import SuggestionForm from '@/pages/suggestion/components/SuggestionForm.vue'
+import SupportedServices from '@/pages/suggestion/components/SupportedServices.vue'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useNewRecords } from '@/stores/use-new-records'
@@ -15,6 +18,18 @@ import { useUser } from '@/stores/use-user'
 const suggestion = useSuggestion()
 const user = useUser()
 const loginDialog = useLoginDialog()
+const dialog = useDialog()
+
+/** Диалог — часть страницы: стор больше не тянет Vue-компоненты и модалку. */
+function openSuggestionDialog() {
+  dialog.openDialog({
+    title: 'Поддерживаемые сервисы',
+    customContent: SupportedServices,
+    onSubmit: () => {},
+    onCancel: () => dialog.closeDialog(),
+    component: SuggestionForm,
+  })
+}
 
 function handleSuggestClick() {
   if (!user.isInitialized) return
@@ -24,7 +39,7 @@ function handleSuggestClick() {
     return
   }
 
-  suggestion.openSuggestionDialog()
+  openSuggestionDialog()
 }
 
 const sortBy = useLocalStorage<'date' | 'likes'>(STORAGE_KEYS.suggestionSortBy, 'date')

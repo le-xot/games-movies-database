@@ -1,6 +1,7 @@
 import { GENRE_QUERY_KEYS } from '@/lib/genre-keys'
 
 export const STATS_QUERY_KEY = 'stats'
+export const WEATHER_QUERY_KEY = 'weather'
 export const SUGGESTION_QUERY_KEY = 'suggestion'
 export const WORDLE_LEADERBOARD_KEY = 'wordle/leaderboard'
 export const FRIENDS_QUERY_KEY = 'friends'

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RotateCw } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import DataCards from '@/components/media/DataCards.vue'

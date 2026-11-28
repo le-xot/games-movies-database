@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RotateCw } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ErrorRetry from '@/components/feedback/ErrorRetry.vue'

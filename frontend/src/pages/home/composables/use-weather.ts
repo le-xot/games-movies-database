@@ -53,14 +53,10 @@ export function useWeather() {
   const { data, isLoading } = useQuery({
     key: [WEATHER_QUERY_KEY],
     staleTime: WEATHER_STALE_TIME_MS,
-    query: async () => {
-      try {
-        return await unwrap(api.weather.get())
-      } catch {
-        // Погода не критична: пустой виджет лучше ошибки на главной.
-        return null
-      }
-    },
+    // Кэш должен жить не меньше TTL: иначе дефолтные 5 минут вытесняют данные
+    // раньше, чем они устареют, и виджет мигает пустым при ремоунте.
+    gcTime: WEATHER_STALE_TIME_MS,
+    query: () => unwrap(api.weather.get()),
   })
 
   const view = computed(() => {

@@ -1,3 +1,4 @@
+import { RecordType } from '@/lib/api'
 import { SUGGESTION_GENRES } from '@/lib/genre-registry'
 import type { RecordEntity, RecordGenre } from '@/lib/api'
 
@@ -5,11 +6,11 @@ export type SuggestionSortBy = 'date' | 'likes'
 
 /** «В очереди» — записи типа WRITTEN, остальные разложены по жанрам. */
 export function isQueuedRecord(item: RecordEntity): boolean {
-  return item.type === 'WRITTEN'
+  return item.type === RecordType.WRITTEN
 }
 
 /** Ключ группы: `queued` или жанр. */
-export type SuggestionGroupKey = 'queued' | `${RecordGenre}`
+type SuggestionGroupKey = 'queued' | `${RecordGenre}`
 
 export interface SuggestionGroup {
   key: SuggestionGroupKey
@@ -50,7 +51,8 @@ export function groupSuggestions(
 
   const groups: SuggestionGroup[] = []
   if (queued.length > 0) {
-    groups.push({ key: 'queued', items: sortItems(queued, sortBy) })
+    // Очередь — всегда хронология: «лайки» для неё смысла не имеют (как и в прежнем поведении).
+    groups.push({ key: 'queued', items: sortItems(queued, 'date') })
   }
 
   const order = SUGGESTION_GENRES.map((entry) => entry.genre)
@@ -59,6 +61,11 @@ export function groupSuggestions(
   for (const genre of order) {
     const bucket = byGenre.get(genre)
     if (bucket?.length) genreGroups.push({ key: genre, items: sortItems(bucket, sortBy) })
+  }
+
+  // Жанр вне SUGGESTION_GENRES не теряем: раньше он рендерился, пусть и в конце.
+  for (const [genre, bucket] of byGenre) {
+    if (!order.includes(genre)) genreGroups.push({ key: genre, items: sortItems(bucket, sortBy) })
   }
 
   return groups.concat(genreGroups)

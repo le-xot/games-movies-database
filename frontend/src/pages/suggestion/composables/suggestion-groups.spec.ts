@@ -58,6 +58,36 @@ describe('groupSuggestions', () => {
     expect(groups[0]?.items.map((entry) => entry.id)).toEqual([1, 2, 3])
   })
 
+  it('очередь сортируется по дате даже в режиме лайков', () => {
+    const groups = groupSuggestions(
+      [
+        item({ id: 1, type: RecordType.WRITTEN, createdAt: '2026-01-01T00:00:00.000Z', likes: [] }),
+        item({
+          id: 2,
+          type: RecordType.WRITTEN,
+          createdAt: '2026-03-01T00:00:00.000Z',
+          likes: [{ id: 1 }],
+        }),
+        item({
+          id: 3,
+          type: RecordType.WRITTEN,
+          createdAt: '2026-02-01T00:00:00.000Z',
+          likes: [{ id: 1 }, { id: 2 }, { id: 3 }],
+        }),
+      ],
+      'likes',
+    )
+
+    expect(groups[0]?.key).toBe('queued')
+    expect(groups[0]?.items.map((entry) => entry.id)).toEqual([2, 3, 1])
+  })
+
+  it('не теряет жанр вне списка советов', () => {
+    const groups = groupSuggestions([item({ id: 1, genre: RecordGenre.ANIME })], 'date')
+
+    expect(groups.map((group) => group.key)).toContain(RecordGenre.ANIME)
+  })
+
   it('пропускает записи без жанра и пустой вход', () => {
     expect(groupSuggestions([item({ genre: null })], 'date')).toEqual([])
     expect(groupSuggestions([], 'likes')).toEqual([])

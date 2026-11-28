@@ -11,7 +11,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import { RecordEntity, RecordGenre, UserRole } from '@/lib/api'
 import { GENRE_REGISTRY } from '@/lib/genre-registry'
-import { groupSuggestions, isQueuedRecord } from '@/pages/suggestion/composables/suggestion-groups'
+import {
+  groupSuggestions,
+  isQueuedRecord,
+  type SuggestionSortBy,
+} from '@/pages/suggestion/composables/suggestion-groups'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
@@ -20,7 +24,7 @@ import { generateWatchLink } from '@/utils/generate-watch-link'
 
 const props = defineProps<{
   items: RecordEntity[]
-  sortBy: 'date' | 'likes'
+  sortBy: SuggestionSortBy
 }>()
 
 const { isAdmin, currentUserId } = storeToRefs(useUser())

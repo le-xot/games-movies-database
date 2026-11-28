@@ -374,3 +374,14 @@
 - Фактические размеры после выноса: MediaCard 331→238, SuggestionCard 367→123,
   `SuggestionItemCard` 244 (в сообщениях были «≈239/≈200» — историческая неточность).
 - Итог раунда: **F-10 закрыт**, пул задач пуст; все ревью кампании — APPROVE после фиксов.
+
+## Пост-кампания: `enumUnion` → `t.Enum` (`aa2ba0a`)
+
+- По вопросу владельца («нигде не видел такую реализацию») разобрали хелпер: `enumUnion` был
+  самодельной обёрткой над `t.Union`, tuple-каст и `value as Value` держали литеральный тип.
+  Проверки показали, что `t.Enum(dictionary)` делает то же самое, а JSON-схемы и `static`/Eden-типы
+  совпадают байт-в-байт (включая словарь из одного значения).
+- 17 схем в `gateway/{models,auth,cocktails,media,records,wordle}.ts` переведены на `t.Enum`;
+  `enumUnion`, `LiteralSchema` и касты удалены. ADR-0004 переписан, `docs/architecture.md` синхронизирован.
+- Проверено: backend typecheck 0, холодный root typecheck (Eden-типы фронта), 716 backend unit
+  (включая `enum-sources.spec`), build, e2e `records`+`admin` 4/4.

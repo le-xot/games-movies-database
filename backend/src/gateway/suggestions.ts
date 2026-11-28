@@ -1,9 +1,8 @@
 import {
   authModels,
   requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
@@ -94,7 +93,7 @@ export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRou
           'SuggestionController.userSuggest',
           RATE_LIMITS.suggestion,
         )
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), USER_ROLES)
+        const user = requireRole(await requireAuthenticated(auth, ctx.request), USER_ROLES)
 
         return await suggestions.create({
           link: (ctx.body as CreateSuggestionInput).link,
@@ -118,7 +117,7 @@ export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRou
           'SuggestionController.deleteUserSuggestion',
           RATE_LIMITS.public,
         )
-        const user = requireUser(await resolveUser(auth, ctx.request))
+        const user = await requireAuthenticated(auth, ctx.request)
 
         await suggestions.remove(ctx.params.id, user.id)
       },

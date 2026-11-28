@@ -1,9 +1,8 @@
 import {
   authModels,
   requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels, publicErrors } from '@backend/gateway/errors'
 import { enumUnion } from '@backend/gateway/models'
@@ -243,7 +242,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
     })
 
   const requirePlayer = async (request: Request) =>
-    requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
+    requireRole(await requireAuthenticated(auth, request), USER_ROLES)
 
   const wordleRouteModels = { ...apiErrorModels, ...authModels, ...wordleModels }
 

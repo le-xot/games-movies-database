@@ -1,9 +1,9 @@
 import {
   authModels,
   requireRole,
-  requireUser,
   resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
@@ -179,7 +179,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
           'RecordController.createRecordFromLink',
           RATE_LIMITS.write,
         )
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
         ctx.set.status = 201
 
         return await records.createFromLink(ctx.body as RecordCreateInput)
@@ -225,7 +225,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
       '/records/:id',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RecordController.findRecordById', RATE_LIMITS.public)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        const user = requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
 
         return await records.findById(ctx.params.id, user.id)
       },
@@ -241,7 +241,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
       '/records/:id',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RecordController.patchRecord', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
 
         return await records.patch(ctx.params.id, ctx.body as RecordUpdateInput)
       },
@@ -258,7 +258,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
       '/records/:id/poster',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RecordController.updatePoster', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
 
         return await records.updatePoster(ctx.params.id, (ctx.body as RecordUpdatePosterInput).url)
       },
@@ -275,7 +275,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
       '/records/:id',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RecordController.deleteRecord', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
         ctx.set.status = 204
 
         await records.remove(ctx.params.id)

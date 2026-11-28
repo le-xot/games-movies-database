@@ -1,9 +1,8 @@
 import {
   authModels,
   requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
@@ -55,7 +54,7 @@ export function limitRoutes({ limits, auth, rateLimit }: LimitRouteDeps) {
           ip: ctx.server?.requestIP(ctx.request)?.address,
         })
 
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
 
         return await limits.change(ctx.body as Limit)
       },

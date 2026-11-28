@@ -1,9 +1,8 @@
 import {
   authModels,
   requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
@@ -65,7 +64,7 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
           ip: server?.requestIP(request)?.address,
         })
 
-        const user = requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
+        const user = requireRole(await requireAuthenticated(auth, request), USER_ROLES)
 
         return await likes.createLike(user.id, body.recordId)
       },
@@ -87,7 +86,7 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
           ip: server?.requestIP(request)?.address,
         })
 
-        const user = requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
+        const user = requireRole(await requireAuthenticated(auth, request), USER_ROLES)
 
         await likes.deleteLike(user.id, params.recordId)
       },
@@ -109,7 +108,7 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
           ip: server?.requestIP(request)?.address,
         })
 
-        requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
+        requireRole(await requireAuthenticated(auth, request), USER_ROLES)
 
         return await likes.getLikesByRecordId(params.id)
       },
@@ -131,7 +130,7 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
           ip: server?.requestIP(request)?.address,
         })
 
-        requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
+        requireRole(await requireAuthenticated(auth, request), USER_ROLES)
 
         return await likes.getLikesByUserId(params.id)
       },
@@ -153,7 +152,7 @@ export function likeRoutes({ likes, auth, rateLimit }: LikeRouteDeps) {
           ip: server?.requestIP(request)?.address,
         })
 
-        requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
+        requireRole(await requireAuthenticated(auth, request), USER_ROLES)
 
         return await likes.getLikes(query.page, query.limit)
       },

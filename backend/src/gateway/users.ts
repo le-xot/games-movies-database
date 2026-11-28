@@ -2,10 +2,9 @@ import {
   UserEntity,
   authModels,
   requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
   type GatewayUser,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
@@ -121,7 +120,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       '/users/:id/accounts',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'UserController.getUserAccounts', RATE_LIMITS.public)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
 
         return await users.getAccounts(ctx.params.id)
       },
@@ -137,7 +136,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       '/users/:id',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'UserController.getUserById', RATE_LIMITS.public)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
 
         const user = await users.getById(ctx.params.id)
         if (!user) throw new NotFoundError(`User ${ctx.params.id} not found`)
@@ -156,7 +155,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       '/users/:id',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'UserController.deleteUser', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
         ctx.set.status = 204
 
         await users.remove(ctx.params.id)
@@ -173,7 +172,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
       '/users/:id/merge',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'UserController.mergeUsers', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        requireRole(await requireAuthenticated(auth, ctx.request), ADMIN)
         ctx.set.status = 201
 
         return await users.merge(ctx.params.id, (ctx.body as MergeInput).sourceUserId)

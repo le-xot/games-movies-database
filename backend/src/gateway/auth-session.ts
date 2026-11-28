@@ -1,9 +1,8 @@
 import {
   authModels,
-  requireUser,
-  resolveUser,
   type Authenticator,
   type GatewayUser,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { clearCookie } from '@backend/gateway/cookies'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
@@ -80,7 +79,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       ip: ctx.server?.requestIP(ctx.request)?.address,
     })
 
-  const requireSession = async (request: Request) => requireUser(await resolveUser(auth, request))
+  const requireSession = async (request: Request) => await requireAuthenticated(auth, request)
 
   return new Elysia({ name: 'auth-session' })
     .model({

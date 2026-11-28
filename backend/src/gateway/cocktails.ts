@@ -1,4 +1,4 @@
-import { authModels, requireUser, resolveUser, type Authenticator } from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { apiErrorModels, publicErrors, standardErrors } from '@backend/gateway/errors'
 import { enumUnion } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
@@ -96,7 +96,7 @@ export function cocktailRoutes({ cocktails, auth, rateLimit }: CocktailRouteDeps
       ip: ctx.server?.requestIP(ctx.request)?.address,
     })
 
-  const requireBarOwner = async (request: Request) => requireUser(await resolveUser(auth, request))
+  const requireBarOwner = async (request: Request) => await requireAuthenticated(auth, request)
 
   return new Elysia({ name: 'cocktails' })
     .model({ ...apiErrorModels, ...authModels, ...cocktailModels })

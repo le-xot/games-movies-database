@@ -1,4 +1,4 @@
-import { authModels, requireUser, resolveUser, type Authenticator } from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
@@ -27,7 +27,7 @@ export function meRoutes({ auth, rateLimit }: MeRouteDeps) {
         ip: server?.requestIP(request)?.address,
       })
 
-      return requireUser(await resolveUser(auth, request))
+      return await requireAuthenticated(auth, request)
     },
     {
       response: {

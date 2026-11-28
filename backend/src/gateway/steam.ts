@@ -1,9 +1,8 @@
 import {
   authModels,
   requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
@@ -107,7 +106,7 @@ export function steamRoutes({ steam, auth, rateLimit }: SteamRouteDeps) {
     })
 
   const requireAdmin = async (request: Request) =>
-    requireRole(requireUser(await resolveUser(auth, request)), ADMIN)
+    requireRole(await requireAuthenticated(auth, request), ADMIN)
 
   return new Elysia({ name: 'steam' })
     .model({

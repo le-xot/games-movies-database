@@ -2,9 +2,8 @@ import crypto from 'node:crypto'
 import {
   authModels,
   readCookie,
-  requireUser,
-  resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { clearCookie, serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
@@ -203,7 +202,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
         '/auth/twitch/link',
         async (ctx) => {
           await limit(ctx, 'AuthController.twitchLinkAuth')
-          requireUser(await resolveUser(auth, ctx.request))
+          await requireAuthenticated(auth, ctx.request)
           const state = crypto.randomBytes(16).toString('hex')
           addCookies(ctx.set, [
             serializeCookie('twitch_state', state, cookieOptions(OAUTH_COOKIE_TTL_SECONDS)),
@@ -241,7 +240,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
         '/auth/twitch/link',
         async (ctx) => {
           await limit(ctx, 'AuthController.linkTwitch')
-          const user = requireUser(await resolveUser(auth, ctx.request))
+          const user = await requireAuthenticated(auth, ctx.request)
           const body = ctx.body as { code: string; state: string }
           verifyState(
             ctx,
@@ -285,7 +284,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
         '/auth/kick/link',
         async (ctx) => {
           await limit(ctx, 'AuthController.kickLinkAuth')
-          requireUser(await resolveUser(auth, ctx.request))
+          await requireAuthenticated(auth, ctx.request)
           const verifier = crypto.randomBytes(32).toString('base64url')
           const challenge = crypto.createHash('sha256').update(verifier).digest('base64url')
           const state = crypto.randomBytes(16).toString('hex')
@@ -335,7 +334,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
         '/auth/kick/link',
         async (ctx) => {
           await limit(ctx, 'AuthController.linkKick')
-          const user = requireUser(await resolveUser(auth, ctx.request))
+          const user = await requireAuthenticated(auth, ctx.request)
           const body = ctx.body as { code: string; state: string }
           const cookie = ctx.request.headers.get('cookie')
           const verifier = readCookie(cookie, 'kick_code_verifier')
@@ -373,7 +372,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
         '/auth/telegram/link',
         async (ctx) => {
           await limit(ctx, 'AuthController.telegramLinkAuth')
-          requireUser(await resolveUser(auth, ctx.request))
+          await requireAuthenticated(auth, ctx.request)
           const request = oauth.createTelegramRequest()
           addCookies(
             ctx.set,
@@ -407,7 +406,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
             const profile = await oauth.exchangeTelegram(query.code, verifier)
 
             if (isLinking) {
-              const user = requireUser(await resolveUser(auth, ctx.request))
+              const user = await requireAuthenticated(auth, ctx.request)
               await oauth.linkTelegram(user.id, profile)
 
               return redirect(`${config.telegramCallbackUrl}?mode=link`)

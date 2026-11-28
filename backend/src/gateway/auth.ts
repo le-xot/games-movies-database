@@ -75,6 +75,21 @@ export function requireUser(user: GatewayUser | null): GatewayUser {
   return user
 }
 
+/**
+ * Закрывает роут: берёт пользователя из cookie `token` и, если роли заданы,
+ * проверяет их. Единственный канон для «auth → роли» — вместо склейки
+ * `requireRole(requireUser(await resolveUser(...)))` в каждом хендлере.
+ */
+export async function requireAuthenticated(
+  auth: Authenticator,
+  request: Request,
+  allowedRoles?: readonly GatewayUser['role'][],
+): Promise<GatewayUser> {
+  const user = requireUser(await resolveUser(auth, request))
+
+  return allowedRoles ? requireRole(user, allowedRoles) : user
+}
+
 /** Повторяет RolesGuard: чужую роль отбиваем 403, как это делал Nest. */
 export function requireRole(
   user: GatewayUser,

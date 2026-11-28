@@ -1,9 +1,9 @@
 import {
   authModels,
   requireRole,
-  requireUser,
   resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { recordEnumModels } from '@backend/gateway/models'
@@ -130,7 +130,7 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
       '/ratings/:recordId',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RatingController.rate', RATE_LIMITS.like)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), RATER_ROLES)
+        const user = requireRole(await requireAuthenticated(auth, ctx.request), RATER_ROLES)
 
         return await ratings.rate(
           user.id,
@@ -151,7 +151,7 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
       '/ratings/:recordId',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RatingController.unrate', RATE_LIMITS.like)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), RATER_ROLES)
+        const user = requireRole(await requireAuthenticated(auth, ctx.request), RATER_ROLES)
 
         await ratings.unrate(user.id, ctx.params.recordId)
       },
@@ -167,7 +167,7 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
       '/ratings/my',
       async (ctx) => {
         await limit(ctx.request, ctx.server, 'RatingController.getMyRatings', RATE_LIMITS.public)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), USER_ROLES)
+        const user = requireRole(await requireAuthenticated(auth, ctx.request), USER_ROLES)
 
         return await ratings.getMy(user.id, ctx.query as RatingsQuery)
       },

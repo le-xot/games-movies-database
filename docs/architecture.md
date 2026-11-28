@@ -167,8 +167,8 @@
    `standardErrors()`, роуты с лимитом и gard'ами
 3. `backend/src/server/wiring/<группа>.ts` — реализация порта: query/body → аргументы сервиса,
    сущность → DTO
-4. `backend/src/server/container.ts` — создать сервис, добавить в `started`/`stoppable` при
-   наличии хуков, развернуть порт в `deps`
+4. `backend/src/server/container.ts` — создать сервис через `lifecycle.add(new X(...))`
+   (хуки подхватятся сами), развернуть порт в `deps`
 5. `backend/src/gateway/index.ts` — `.use(<домен>Routes(deps))`
 6. Если нужен realtime — эмитить событие в `DomainEvents` и добавить его в `contract/src/ws.ts`
 7. Тесты: юнит на сервис и роуты, при работе с БД — интеграционный спек

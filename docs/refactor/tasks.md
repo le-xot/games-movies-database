@@ -29,7 +29,7 @@
 | B-13 | `RatingService` без прямого SQL: запросы в `DrizzleRatingRepository` + инвариант «сервисы без БД» | `13148e3` | APPROVE |
 | G-06 | E2E baseline: 40 pass / 4 pre-existing слово-падения, зафиксированы | — | база на master `e73dcfb` |
 
-| B-12 | Class-DTO модулей удалены: доменные типы в `entities/`, гейтвей без дублей портов, `modules/*.dto.ts` нет | `6486c0f`…`90e4676` | review (19–21) |
+| B-12 | Class-DTO модулей удалены: доменные типы в `entities/`, гейтвей без дублей портов, `modules/*.dto.ts` нет; ловушка в architecture.spec | `6486c0f`…`223c17b` | APPROVE (19–21), ниты закрыты |
 
 ## В пуле
 

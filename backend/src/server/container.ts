@@ -109,7 +109,11 @@ export function createContainer(): Container {
     new RecordService(recordRepository, providers, events, imgService, ratingRepository),
   )
   const suggestions = lifecycle.add(
-    new SuggestionService(new DrizzleSuggestionRepository(drizzle), providers, events),
+    new SuggestionService(
+      new DrizzleSuggestionRepository(drizzle, recordRepository),
+      providers,
+      events,
+    ),
   )
   const limits = lifecycle.add(new LimitService(new DrizzleLimitRepository(drizzle)))
   const steam = lifecycle.add(new SteamService(providers, recordRepository, events))

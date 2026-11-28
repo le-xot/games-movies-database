@@ -81,7 +81,7 @@ export class SuggestionService {
       throw new BadRequestError('Запись не является предложением')
     }
 
-    await this.suggestionRepository.deleteSuggestionWithLikes(id)
+    await this.suggestionRepository.deleteSuggestion(id)
 
     emitWs(this.eventEmitter, WsEvents.UPDATE_SUGGESTIONS, {
       id,

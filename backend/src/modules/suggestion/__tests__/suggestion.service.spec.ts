@@ -123,12 +123,12 @@ describe('SuggestionService', () => {
       const suggestion = makeRecord({ id: 5, type: RecordType.SUGGESTION })
       mockRepo.findSuggestionById = mock(() => Promise.resolve(suggestion))
       mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'user-1' }))
-      mockRepo.deleteSuggestionWithLikes = mock(() => Promise.resolve())
+      mockRepo.deleteSuggestion = mock(() => Promise.resolve())
 
       await service.deleteUserSuggestion(5, 'user-1')
 
       expect(mockRepo.findSuggestionById).toHaveBeenCalledWith(5)
-      expect(mockRepo.deleteSuggestionWithLikes).toHaveBeenCalledWith(5)
+      expect(mockRepo.deleteSuggestion).toHaveBeenCalledWith(5)
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'update-suggestions',
         expect.objectContaining({ id: 5, action: 'deleted' }),
@@ -139,7 +139,7 @@ describe('SuggestionService', () => {
       mockRepo.findSuggestionById = mock(() => Promise.resolve(null))
 
       await expect(service.deleteUserSuggestion(99, 'user-1')).rejects.toThrow(NotFoundError)
-      expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
+      expect(mockRepo.deleteSuggestion).not.toHaveBeenCalled()
     })
 
     it('throws ForbiddenError when userId does not match', async () => {
@@ -148,7 +148,7 @@ describe('SuggestionService', () => {
       mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'other-user' }))
 
       await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(ForbiddenError)
-      expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
+      expect(mockRepo.deleteSuggestion).not.toHaveBeenCalled()
     })
 
     it('throws BadRequestError when record is not a suggestion', async () => {
@@ -157,7 +157,7 @@ describe('SuggestionService', () => {
       mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'user-1' }))
 
       await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(BadRequestError)
-      expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
+      expect(mockRepo.deleteSuggestion).not.toHaveBeenCalled()
     })
   })
 })

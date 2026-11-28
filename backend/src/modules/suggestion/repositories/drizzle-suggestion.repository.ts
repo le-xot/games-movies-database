@@ -2,7 +2,8 @@ import { DrizzleService } from '@backend/database/drizzle.service'
 import { LimitType, RecordGenre, RecordStatus, RecordType } from '@backend/enums'
 import { LimitDomain } from '@backend/modules/limit/entities/limit.entity'
 import { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
-import { likes, limits, records, suggestionOwnerships } from '@gmd/database/schema'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
+import { limits, records, suggestionOwnerships } from '@gmd/database/schema'
 import { and, count, eq, inArray, or, type SQL } from 'drizzle-orm'
 
 export interface CreateSuggestionData {
@@ -19,7 +20,10 @@ export interface SuggestionFilters {
 }
 
 export class DrizzleSuggestionRepository {
-  constructor(private readonly drizzle: DrizzleService) {}
+  constructor(
+    private readonly drizzle: DrizzleService,
+    private readonly recordsRepository: DrizzleRecordRepository,
+  ) {}
 
   async findLimit(limitType: LimitType): Promise<LimitDomain | null> {
     return (
@@ -36,31 +40,25 @@ export class DrizzleSuggestionRepository {
     return result?.value ?? 0
   }
 
+  /** Запись предложения — это обычная запись с владельцем; инвариант живёт в record-репозитории. */
   async createSuggestion(data: CreateSuggestionData, userId: string): Promise<RecordWithRelations> {
-    return await this.drizzle.db.transaction(async (tx) => {
-      const [record] = await tx
-        .insert(records)
-        .values({
-          title: data.title,
-          posterUrl: data.posterUrl,
-          genre: data.genre,
-          link: data.link,
-          status: RecordStatus.QUEUE,
-          type: RecordType.SUGGESTION,
-        })
-        .returning()
-
-      if (!record) throw new Error('Failed to create suggestion')
-
-      await tx.insert(suggestionOwnerships).values({ recordId: record.id, userId })
-
-      const created = await tx.query.records.findFirst({
-        where: eq(records.id, record.id),
-        with: { suggestionOwnership: true, likes: true },
-      })
-      if (!created) throw new Error('Failed to load created suggestion')
-      return created
+    const record = await this.recordsRepository.create({
+      title: data.title,
+      posterUrl: data.posterUrl,
+      genre: data.genre,
+      link: data.link,
+      status: RecordStatus.QUEUE,
+      type: RecordType.SUGGESTION,
+      userId,
     })
+
+    const created = await this.drizzle.db.query.records.findFirst({
+      where: eq(records.id, record.id),
+      with: { suggestionOwnership: true, likes: true },
+    })
+    if (!created) throw new Error('Failed to load created suggestion')
+
+    return created
   }
 
   async findSuggestions(filters: SuggestionFilters): Promise<RecordWithRelations[]> {
@@ -108,11 +106,13 @@ export class DrizzleSuggestionRepository {
     return ownership ?? null
   }
 
-  async deleteSuggestionWithLikes(recordId: number): Promise<void> {
-    await this.drizzle.db.transaction(async (tx) => {
-      await tx.delete(likes).where(eq(likes.recordId, recordId))
-      await tx.delete(suggestionOwnerships).where(eq(suggestionOwnerships.recordId, recordId))
-      await tx.delete(records).where(eq(records.id, recordId))
-    })
+  /**
+   * Удаляет запись со всеми зависимостями через record-репозиторий: ownerships
+   * уходят каскадом FK, а likes/recordRatings без этого снега не удалить —
+   * они `restrict`. Раньше здесь была своя транзакция, которая забывала
+   * `recordRatings` и падала на оценённом предложении.
+   */
+  async deleteSuggestion(recordId: number): Promise<void> {
+    await this.recordsRepository.delete(recordId)
   }
 }

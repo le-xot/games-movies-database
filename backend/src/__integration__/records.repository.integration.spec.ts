@@ -1,6 +1,7 @@
 import { expect, it } from 'bun:test'
+import crypto from 'node:crypto'
 import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
-import { likes, records, suggestionOwnerships } from '@gmd/database/schema'
+import { likes, recordRatings, records, suggestionOwnerships } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
 import { seedLike, seedRecord, recordCreateData, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
@@ -83,16 +84,32 @@ setupIntegrationSuite('DrizzleRecordRepository (integration)', ({ db }) => {
     await expect(repository.update(999999, { title: 'x' })).rejects.toThrow('not found')
   })
 
-  it('deletes the record together with its likes', async () => {
-    const user = await seedUser(db, 'liker')
-    const created = await repository.create(recordCreateData())
-    await seedLike(db, user.id, created.id)
+  it('deletes the record together with likes, ratings and ownership', async () => {
+    const liker = await seedUser(db, 'liker')
+    const owner = await seedUser(db, 'owner')
+    const created = await repository.create(recordCreateData({ userId: owner.id }))
+    await seedLike(db, liker.id, created.id)
+    await db.insert(recordRatings).values({
+      id: crypto.randomUUID(),
+      userId: liker.id,
+      recordId: created.id,
+      grade: 'LIKE',
+    })
 
     await repository.delete(created.id)
 
     expect(await repository.findById(created.id)).toBeNull()
-    const remaining = await db.select().from(likes).where(eq(likes.recordId, created.id))
-    expect(remaining).toHaveLength(0)
+    expect(await db.select().from(records).where(eq(records.id, created.id))).toHaveLength(0)
+    expect(await db.select().from(likes).where(eq(likes.recordId, created.id))).toHaveLength(0)
+    expect(
+      await db.select().from(recordRatings).where(eq(recordRatings.recordId, created.id)),
+    ).toHaveLength(0)
+    expect(
+      await db
+        .select()
+        .from(suggestionOwnerships)
+        .where(eq(suggestionOwnerships.recordId, created.id)),
+    ).toHaveLength(0)
   })
 
   it('filters by search/status/type/genre/grade and counts matches', async () => {

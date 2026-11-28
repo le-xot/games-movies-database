@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { assertOk, UserRole } from '@/lib/api'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useApi } from '@/stores/use-api'
 
 export const USER_QUERY_KEY = 'user'
@@ -33,13 +34,13 @@ export const useUser = defineStore('global/use-user', () => {
   })
 
   const isLoggedIn = computed(() => !!user.value)
-  const editorEnabled = ref(localStorage.getItem('editorEnabled') !== 'false')
+  const editorEnabled = ref(localStorage.getItem(STORAGE_KEYS.editorEnabled) !== 'false')
   const isRealAdmin = computed(() => user.value?.role === UserRole.ADMIN)
   const isAdmin = computed(() => isRealAdmin.value && editorEnabled.value)
   const currentUserId = computed(() => user.value?.id)
 
   watch(editorEnabled, (val) => {
-    localStorage.setItem('editorEnabled', String(val))
+    localStorage.setItem(STORAGE_KEYS.editorEnabled, String(val))
   })
 
   /** Резолвится, когда текущий запрос /me закончился (успех или гость). */

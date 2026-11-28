@@ -41,6 +41,7 @@ frontend/src/
 | Styling          | `assets/index.css`           | Tailwind 4 CSS variables + global overrides                                                                                      |
 | Utils            | `lib/utils.ts`               | Primary `cn()` helper (clsx + tailwind-merge)                                                                                    |
 | Status/grade     | `lib/record-vocabulary.ts`   | Имена, цвета и классы статусов/оценок; порядки — тоже оттуда                                                                     |
+| Storage          | `lib/storage-keys.ts`        | Все ключи localStorage/sessionStorage; сброс по версии — из того же списка                                                       |
 | Add media genre  | `pages/{genre}/composables/` | Shared `pages/media/MediaPage.vue`; genre from `route.meta.genre`; factories in `composables/factories/`                         |
 | Account UI       | `components/account/`        | Modal sections; opened via `use-account-dialog` store                                                                            |
 | Login modal      | `components/form/`           | `LoginDialog.vue`; opened via `use-login-dialog` store                                                                           |

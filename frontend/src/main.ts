@@ -2,6 +2,7 @@ import { PiniaColada } from '@pinia/colada'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from '@/app.vue'
+import { STORAGE_KEYS, VERSIONED_STORAGE_KEYS } from '@/lib/storage-keys'
 import { prepareTelegramMiniApp } from '@/lib/telegram-webapp'
 import { router } from '@/router/router'
 import { useUser } from '@/stores/use-user'
@@ -9,22 +10,18 @@ import '@/assets/index.css'
 import 'vue-sonner/style.css'
 
 const APP_VERSION = '3.3.0'
-const STORAGE_VERSION_KEY = 'app_version'
-
 /** Сколько ждём /api/auth/me до первого рендера. Дольше — монтируемся и догружаем в фоне. */
 const AUTH_BOOT_TIMEOUT_MS = 1500
 
 /** Сколько держим заставку ради баннера главной. Дольше — показываем страницу без него. */
 const HERO_IMAGE_TIMEOUT_MS = 800
 
-const KEYS_TO_CLEAR = ['viewed-suggestions', 'suggestion-sort-by']
-
-const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+const storedVersion = localStorage.getItem(STORAGE_KEYS.appVersion)
 if (storedVersion !== APP_VERSION) {
-  for (const key of KEYS_TO_CLEAR) {
+  for (const key of VERSIONED_STORAGE_KEYS) {
     localStorage.removeItem(key)
   }
-  localStorage.setItem(STORAGE_VERSION_KEY, APP_VERSION)
+  localStorage.setItem(STORAGE_KEYS.appVersion, APP_VERSION)
 }
 
 async function bootstrap() {

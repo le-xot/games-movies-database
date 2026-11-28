@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import { RecordGrade, RecordStatus, unwrap } from '@/lib/api'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useApi } from '@/stores/use-api'
 import type { SteamGameDto } from '@/lib/api'
 
@@ -23,7 +24,7 @@ export function useSteamSync() {
   const steamGames = ref<SteamGame[]>([])
   const existingAppIds = ref<Set<string>>(new Set())
   const selected = ref<Map<number, SelectedGame>>(new Map())
-  const hiddenAppIds = useLocalStorage<number[]>('steam-hidden', [])
+  const hiddenAppIds = useLocalStorage<number[]>(STORAGE_KEYS.steamHidden, [])
   const isLoadingSteam = ref(false)
   const isImporting = ref(false)
   const steamLoaded = ref(false)

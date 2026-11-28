@@ -8,11 +8,12 @@ import { PALETTE_SHORTCUT_HINT } from '@/components/palette/constants/palette-co
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useCommandPalette } from '@/stores/use-command-palette'
 
 const { sections, bottomItems } = useDbNavigation()
 const { openPalette } = useCommandPalette()
-const collapsed = useStorage('db-sidebar-collapsed', false)
+const collapsed = useStorage(STORAGE_KEYS.dbSidebarCollapsed, false)
 </script>
 
 <template>

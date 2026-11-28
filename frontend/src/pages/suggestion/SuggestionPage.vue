@@ -5,6 +5,7 @@ import { toast } from 'vue-sonner'
 import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useLoginDialog } from '@/stores/use-login-dialog'
@@ -26,7 +27,7 @@ function handleSuggestClick() {
   suggestion.openSuggestionDialog()
 }
 
-const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
+const sortBy = useLocalStorage<'date' | 'likes'>(STORAGE_KEYS.suggestionSortBy, 'date')
 
 function toggleSort() {
   sortBy.value = sortBy.value === 'date' ? 'likes' : 'date'

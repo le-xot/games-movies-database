@@ -2,12 +2,13 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import { computed, onScopeDispose, ref, watch } from 'vue'
 import { COCKTAIL_BAR_KEY } from '@/composables/query-keys'
 import { unwrap } from '@/lib/api'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
 import type { CocktailBar } from '@/pages/cocktails/types'
 
 /** Гостевой набор живёт в браузере: без аккаунта бару негде храниться. */
-export const GUEST_BAR_STORAGE_KEY = 'cocktails:guest-bar'
+export const GUEST_BAR_STORAGE_KEY = STORAGE_KEYS.cocktailBar
 
 /** Пауза между последним кликом и `PUT`: за набор из десяти галочек платим одним запросом. */
 export const BAR_SAVE_DEBOUNCE_MS = 600

@@ -3,6 +3,7 @@ import { Loader2 } from '@lucide/vue'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 
@@ -25,13 +26,13 @@ onMounted(async () => {
 
   try {
     if (isLinking) {
-      const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
-      localStorage.removeItem('loginReturnUrl')
+      const returnUrl = localStorage.getItem(STORAGE_KEYS.loginReturnUrl) || ROUTER_PATHS.db
+      localStorage.removeItem(STORAGE_KEYS.loginReturnUrl)
       await router.push(returnUrl)
       toast.success('Аккаунт привязан', { description: 'Telegram привязан к профилю' })
     } else {
-      const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
-      localStorage.removeItem('loginReturnUrl')
+      const returnUrl = localStorage.getItem(STORAGE_KEYS.loginReturnUrl) || ROUTER_PATHS.db
+      localStorage.removeItem(STORAGE_KEYS.loginReturnUrl)
       await userApi.refetchUser()
       await router.push(returnUrl)
       toast.success('Вход выполнен', { description: 'Вы вошли через Telegram' })

@@ -6,6 +6,7 @@ import { TelegramIcon, TwitchIcon } from 'vue3-simple-icons'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AccountPlatform, assertOk, unwrap } from '@/lib/api'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { ACCOUNT_DIALOG_ON_LOAD_KEY } from '@/stores/use-account-dialog'
 import { useApi } from '@/stores/use-api'
 import { getImageUrl } from '@/utils/image'
@@ -38,7 +39,7 @@ async function loadAccounts() {
 }
 
 function connectAccount(platform: 'kick' | 'twitch' | 'telegram') {
-  localStorage.setItem('loginReturnUrl', window.location.pathname)
+  localStorage.setItem(STORAGE_KEYS.loginReturnUrl, window.location.pathname)
   sessionStorage.setItem(ACCOUNT_DIALOG_ON_LOAD_KEY, '1')
   window.location.href = `${window.location.origin}/api/auth/${platform}/link`
 }

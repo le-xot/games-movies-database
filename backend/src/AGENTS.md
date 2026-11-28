@@ -33,7 +33,7 @@ backend/src/
 | ----------- | ------------------------------------------ | ----------------------------------------------------------------- |
 | Роут        | `gateway/<домен>.ts`                       | Модели + `.get/.post`, схемы ответов по кодам                     |
 | Сборка      | `gateway/index.ts`                         | `createGateway(deps)` — список портов и подключение роутов        |
-| Проводка    | `server/container.ts`                      | Composition root: сервисы создаются руками, хуки — явно           |
+| Проводка    | `server/container.ts`                      | Composition root: `lifecycle.add(new X(...))` — хуки подхватятся  |
 | Rate limits | `gateway/rate-limit.ts`                    | `rateLimitGuard` закрывает роут; пресеты — `utils/rate-limits.ts` |
 | Ошибки      | `utils/errors.ts`                          | `HttpError`-подклассы; конверт — `onError` в `gateway/index.ts`   |
 | Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole`        |

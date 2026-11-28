@@ -41,10 +41,10 @@
 `createContainer()` (`backend/src/server/container.ts`) собирает всё руками: `new` сервисов,
 `new` репозиториев, один `DrizzleService`, один `RedisClient`, один `DomainEvents`. DI-контейнера нет.
 
-- Сервисы, которым нужен прогрев или таймер, реализуют `onModuleInit` / `onApplicationBootstrap` /
-  `onModuleDestroy` (имена остались с Nest-эпохи) и **обязательно** попадают в списки
-  `started` / `stoppable`. Забыть — значит молча не запустить погоду, расписание уведомлений
-  или уборку в Wordle.
+- Сервисы регистрируются в `Lifecycle` там же, где создаются: `lifecycle.add(new X(...))`.
+  Хуки `onModuleInit` / `onApplicationBootstrap` / `onModuleDestroy` (имена остались с Nest-эпохи)
+  вызываются в порядке регистрации; отдельного списка `started`/`stoppable` больше нет, поэтому
+  забыть сервис с таймером или прогревом нельзя.
 - Хуки вызывает `container.init()` / `container.close()`. Ошибка в хуке не роняет старт: пишем
   warning и живём дальше.
 - `main.ts` на `SIGTERM`/`SIGINT` делает `app.stop()` (новые соединения не принимаются) и

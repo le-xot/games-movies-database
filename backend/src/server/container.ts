@@ -41,6 +41,7 @@ import { WordleNotificationService } from '@backend/modules/wordle/wordle-notifi
 import { WordlePracticeService } from '@backend/modules/wordle/wordle-practice.service'
 import { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 import { WordleService } from '@backend/modules/wordle/wordle.service'
+import { Lifecycle } from '@backend/server/lifecycle'
 import { analyticsPorts } from '@backend/server/wiring/analytics'
 import { catalogPorts } from '@backend/server/wiring/catalog'
 import { cocktailPorts } from '@backend/server/wiring/cocktails'
@@ -76,90 +77,93 @@ export interface Container {
  * уже отдают ISO-строки для дат.
  */
 export function createContainer(): Container {
-  const drizzle = new DrizzleService()
+  const lifecycle = new Lifecycle()
+  const drizzle = lifecycle.add(new DrizzleService())
   const events = new DomainEvents()
-  const s3 = new S3Service()
+  const s3 = lifecycle.add(new S3Service())
 
-  const avatars = new AvatarService(s3)
-  const users = new UserService(
-    new DrizzleUserRepository(drizzle),
-    events,
-    avatars,
-    new DrizzleCustomizationStatsRepository(drizzle),
+  const avatars = lifecycle.add(new AvatarService(s3))
+  const users = lifecycle.add(
+    new UserService(
+      new DrizzleUserRepository(drizzle),
+      events,
+      avatars,
+      new DrizzleCustomizationStatsRepository(drizzle),
+    ),
   )
-  const likes = new LikeService(new DrizzleLikeRepository(drizzle), events)
-  const stats = new StatsService(new DrizzleStatsRepository(drizzle))
-  const queue = new QueueService(new DrizzleQueueRepository(drizzle))
-  const weather = new WeatherService()
+  const likes = lifecycle.add(new LikeService(new DrizzleLikeRepository(drizzle), events))
+  const stats = lifecycle.add(new StatsService(new DrizzleStatsRepository(drizzle)))
+  const queue = lifecycle.add(new QueueService(new DrizzleQueueRepository(drizzle)))
+  const weather = lifecycle.add(new WeatherService())
 
-  const ratingRepository = new DrizzleRatingRepository(drizzle)
-  const ratings = new RatingService(ratingRepository, drizzle, events)
+  const ratingRepository = lifecycle.add(new DrizzleRatingRepository(drizzle))
+  const ratings = lifecycle.add(new RatingService(ratingRepository, drizzle, events))
 
-  const twitch = new TwitchService()
-  const providers = new RecordsProvidersService(
-    new DrizzleRecordsProvidersRepository(drizzle),
-    twitch,
+  const twitch = lifecycle.add(new TwitchService())
+  const providers = lifecycle.add(
+    new RecordsProvidersService(new DrizzleRecordsProvidersRepository(drizzle), twitch),
   )
-  const records = new RecordService(
-    new DrizzleRecordRepository(drizzle),
-    providers,
-    events,
-    new ImgService(s3),
-    ratingRepository,
+  const recordRepository = lifecycle.add(new DrizzleRecordRepository(drizzle))
+  const imgService = lifecycle.add(new ImgService(s3))
+  const records = lifecycle.add(
+    new RecordService(recordRepository, providers, events, imgService, ratingRepository),
   )
-  const suggestions = new SuggestionService(
-    new DrizzleSuggestionRepository(drizzle),
-    providers,
-    events,
+  const suggestions = lifecycle.add(
+    new SuggestionService(new DrizzleSuggestionRepository(drizzle), providers, events),
   )
-  const limits = new LimitService(new DrizzleLimitRepository(drizzle))
-  const imgService = new ImgService(s3)
-  const steam = new SteamService(providers, new DrizzleRecordRepository(drizzle), events)
-  const twir = new TwirService(users, suggestions)
-  const cocktails = new CocktailService(new DrizzleCocktailRepository(drizzle))
+  const limits = lifecycle.add(new LimitService(new DrizzleLimitRepository(drizzle)))
+  const steam = lifecycle.add(new SteamService(providers, recordRepository, events))
+  const twir = lifecycle.add(new TwirService(users, suggestions))
+  const cocktails = lifecycle.add(new CocktailService(new DrizzleCocktailRepository(drizzle)))
 
   const redisClient = new RedisClient(env.REDIS_URL)
 
   const dictionary = new WordleDictionary(env.WORDLE_ANSWERS_SALT)
-  const wordle = new WordleService(
-    new DrizzleWordleRepository(drizzle),
-    dictionary,
-    new WordleLeaderboardCache(),
-    events,
+  const wordle = lifecycle.add(
+    new WordleService(
+      new DrizzleWordleRepository(drizzle),
+      dictionary,
+      new WordleLeaderboardCache(),
+      events,
+    ),
   )
-  const wordlePractice = new WordlePracticeService(redisClient, dictionary)
-  const telegramService = new TelegramService()
-  const kick = new KickService()
-  const authService = new AuthService(env.JWT_SECRET, users, twitch, kick)
-  const telegramBot = new TelegramBotService({
-    // Пустая строка из `.env.example` — это «не задано»: grammY не создаёт Bot
-    // с пустым токеном, а падать на старте из-за этого приложение не должно.
-    token: env.TELEGRAM_BOT_TOKEN || null,
-    webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL || null,
-    webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET || null,
-  })
-  // Хуков инициализации нет: команда регистрируется в конструкторе, поэтому в
-  // `started` сервис не попадает. `void` — чтобы не заводить неиспользуемую
-  // переменную: экземпляр нужен только ради побочного эффекта.
-  void new CocktailBotService(telegramBot, cocktails, users, {
-    appPublicUrl: env.APP_PUBLIC_URL,
-  })
-  // Единственный хуконосный сервис Mini App: в конструкторе регистрирует
-  // /wordle, в bootstrap ставит кнопку меню рядом с полем ввода. Создаётся
-  // раньше уведомлений, чтобы игра стояла выше них в меню команд.
-  const wordleMiniApp = new WordleMiniAppService(telegramBot, users, wordle, {
-    appPublicUrl: env.APP_PUBLIC_URL,
-  })
-  const wordleNotifications = new WordleNotificationService(
-    telegramBot,
-    new DrizzleWordleNotificationRepository(drizzle),
-    users,
-    redisClient,
-    {
-      appPublicUrl: env.APP_PUBLIC_URL,
-      morningRaw: env.WORDLE_NOTIFY_MORNING,
-      eveningRaw: env.WORDLE_NOTIFY_EVENING,
-    },
+  const wordlePractice = lifecycle.add(new WordlePracticeService(redisClient, dictionary))
+  const telegramService = lifecycle.add(new TelegramService())
+  const kick = lifecycle.add(new KickService())
+  const authService = lifecycle.add(new AuthService(env.JWT_SECRET, users, twitch, kick))
+  const telegramBot = lifecycle.add(
+    new TelegramBotService({
+      // Пустая строка из `.env.example` — это «не задано»: grammY не создаёт Bot
+      // с пустым токеном, а падать на старте из-за этого приложение не должно.
+      token: env.TELEGRAM_BOT_TOKEN || null,
+      webhookUrl: env.TELEGRAM_BOT_WEBHOOK_URL || null,
+      webhookSecret: env.TELEGRAM_BOT_WEBHOOK_SECRET || null,
+    }),
+  )
+  // Хуков инициализации нет: команда регистрируется в конструкторе. Экземпляр
+  // всё равно регистрируем, чтобы будущий хук заработал сам, а `void` гасит
+  // «неиспользуемую переменную».
+  void lifecycle.add(
+    new CocktailBotService(telegramBot, cocktails, users, { appPublicUrl: env.APP_PUBLIC_URL }),
+  )
+  // В конструкторе регистрирует /wordle, в bootstrap ставит кнопку меню рядом
+  // с полем ввода. Создаётся раньше уведомлений, чтобы игра стояла выше них
+  // в меню команд.
+  void lifecycle.add(
+    new WordleMiniAppService(telegramBot, users, wordle, { appPublicUrl: env.APP_PUBLIC_URL }),
+  )
+  const wordleNotifications = lifecycle.add(
+    new WordleNotificationService(
+      telegramBot,
+      new DrizzleWordleNotificationRepository(drizzle),
+      users,
+      redisClient,
+      {
+        appPublicUrl: env.APP_PUBLIC_URL,
+        morningRaw: env.WORDLE_NOTIFY_MORNING,
+        eveningRaw: env.WORDLE_NOTIFY_EVENING,
+      },
+    ),
   )
 
   // При падении Redis срабатывает каждый запрос: без троттлинга это тысячи
@@ -183,26 +187,10 @@ export function createContainer(): Container {
     users: { getById: (id) => users.getUserById(id) },
   })
 
-  const started: Array<{
-    onModuleInit?: () => unknown
-    onApplicationBootstrap?: () => unknown
-  }> = [twitch, kick, telegramBot, weather, wordle, wordleNotifications, wordleMiniApp]
-
-  const stoppable: Array<{ onModuleDestroy?: () => unknown }> = [wordle, wordleNotifications]
-
   return {
     emitter: events,
     async init() {
-      for (const service of started) {
-        try {
-          await service.onModuleInit?.()
-          await service.onApplicationBootstrap?.()
-        } catch (error) {
-          // Nest ронял старт приложения; здесь живём дальше: погода или
-          // телеграм могут быть недоступны, но сайт обязан подняться.
-          console.warn(`[gateway] init ${service.constructor.name} упал: ${String(error)}`)
-        }
-      }
+      await lifecycle.init()
     },
     deps: {
       ...analyticsPorts({ weather, stats, queue }),
@@ -224,15 +212,7 @@ export function createContainer(): Container {
       rateLimit,
     },
     async close() {
-      for (const service of stoppable) {
-        try {
-          await service.onModuleDestroy?.()
-        } catch (error) {
-          console.warn(`[gateway] shutdown ${service.constructor.name} упал: ${String(error)}`)
-        }
-      }
-
-      await drizzle.pool.end()
+      await lifecycle.close()
       redisClient.close()
     },
   }

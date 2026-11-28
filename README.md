@@ -417,7 +417,7 @@ WEATHER_LON=your_longitude
 
 ### TWIR
 
-Вебхуки от внешнего TWIR бота. Защищены API-ключом: `x-api-key` сверяется в `backend/src/utils/api-key.ts` (сравнение в постоянном времени).
+Вебхуки от внешнего TWIR бота. Защищены API-ключом: `x-api-key` сверяется `secretsMatch` из `backend/src/utils/secrets.ts` (сравнение в постоянном времени).
 
 ```
 TWIR_API=your_api_key
@@ -452,8 +452,8 @@ TWIR_API=your_api_key
 ### Guards и авторизация
 
 - `requireUser` / `requireRole` — обычные функции-гарды в `backend/src/gateway/auth.ts`: JWT читается из cookie `token`
-- API-ключ TWIR — `isApiKeyValid` из `backend/src/utils/api-key.ts` (сравнение в постоянном времени)
-- `enforceRateLimit` — кастомный rate limiter на Redis, вызывается внутри роутов. Пресеты `RATE_LIMITS` в `backend/src/utils/rate-limits.ts` (public 1000/мин, auth 5/мин, write 20/мин, like 60/мин, cocktailBar 120/мин, suggestion 20/мин, img 3000/мин, twir 120/мин, wordlePractice 120/мин). Фикс-окно через Lua, ключ `rl:{route}:{ip}`, при недоступности Redis — fail-open. Порядок: лимит → auth → роли
+- API-ключ TWIR и секрет вебхука Telegram — `secretsMatch` из `backend/src/utils/secrets.ts` (сравнение в постоянном времени)
+- `enforceRateLimit` — кастомный rate limiter на Redis, вызывается внутри роутов. Пресеты `RATE_LIMITS` в `backend/src/utils/rate-limits.ts` (public 1000/мин, auth 5/мин, write 20/мин, like 60/мин, cocktailBar 120/мин, suggestion 20/мин, img 3000/мин, twir 120/мин, wordlePractice 120/мин). Фикс-окно через Lua, ключ `rl:{METHOD} {path}:{ip}` (путь из `ctx.route`), при недоступности Redis — fail-open. Порядок: лимит → auth → роли; роут закрывается `rateLimitGuard`
 
 ## Деплой
 

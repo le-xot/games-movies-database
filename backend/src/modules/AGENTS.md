@@ -9,8 +9,9 @@ Nest здесь больше нет: модуль — это папка с се�
 
 - `{name}.service.ts` — бизнес-логика, обычный класс без декораторов
 - `repositories/drizzle-{name}.repository.ts` — доступ к БД через `DrizzleService`
-- `{name}.dto.ts` / `{name}.entity.ts` — типы; схемы валидации лежат
-  в гейтвее (`gateway/<домен>.ts`), а не здесь
+- `{name}.entity.ts` / `entities/*.entity.ts` — доменные типы (интерфейсы); схемы валидации
+  лежат в гейтвее (`gateway/<домен>.ts`). Class-DTO (`{name}.dto.ts`) не заводим: инстансов
+  таких классов в проекте нет
 - хуки `onModuleInit` / `onApplicationBootstrap` / `onModuleDestroy` остались
   по имени с Nest-эпохи: их вызывает `container.init()` / `container.close()`
 
@@ -26,7 +27,7 @@ Nest здесь больше нет: модуль — это папка с се�
 | **rating**            | 5     | Оценки записей, средние и топ по пользователям                      |
 | **stats**             | 3     | Public records stats (genre/status/grade breakdowns)                |
 | **like**              | 5     | Лайки советов, каскадное удаление по пользователю                   |
-| **suggestion**        | 4     | User-submitted content (note: `suggesttion.dto.ts` typo)            |
+| **suggestion**        | 4     | User-submitted content                                              |
 | **avatar**            | 1     | Avatar upload/delete via S3, Sharp image processing                 |
 | **s3**                | 1     | S3/RustFS storage abstraction (upload, delete, exists)              |
 | **kick**              | 1     | Kick API client for user metadata                                   |
@@ -64,9 +65,9 @@ Nest здесь больше нет: модуль — это папка с се�
 
 ## ANTI-PATTERNS
 
-- **Manual Mapping**: маппинг доменных сущностей в DTO гейтвея живёт в `backend/src/server/wiring/` — не размазывайте его по роутам.
+- **Mapping**: форму ответа держит TypeBox-схема; `server/wiring/` — адаптер порта (сигнатуры,
+  presentation-конверсии), а не маппер DTO (ADR-0007). Не размазывайте конверсии по роутам.
 - **Direct Socket Calls**: сервисы эмитят события через `DomainEvents`, а не трогают WebSocket напрямую.
 - **Guard Sprawl**: не переписывайте проверку доступа; используйте `requireUser` / `requireRole` из `gateway/auth.ts`.
-- **Typo Fixes**: Do not rename `suggesttion.dto.ts` without a full project refactor.
 - **Throttler**: `@nestjs/throttler` удалён — лимиты ставятся `enforceRateLimit` с пресетами `RATE_LIMITS` в роутах гейтвея.
 - **Provider Leaks**: Keep external API keys in `.env` and validate via `env` из `backend/src/utils/enviroments.ts`.

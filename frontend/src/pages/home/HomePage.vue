@@ -1,20 +1,12 @@
 <script setup lang="ts">
-import { useTitle } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import TimeBadge from '@/pages/home/components/TimeBadge.vue'
 import WeatherBadge from '@/pages/home/components/WeatherBadge.vue'
 import { HOME_GRID_ITEMS } from '@/pages/home/constants/home-items'
 
-const title = useTitle()
 const weatherExpanded = ref(false)
 const heroLoaded = ref(false)
-
-onMounted(() => {
-  // Та же строка, что в backend/src/server/page-meta.ts: иначе после монтирования
-  // заголовок откатится и разойдётся с тем, что увидел поисковик.
-  title.value = 'Лешот — сайт Лешота'
-})
 </script>
 
 <template>

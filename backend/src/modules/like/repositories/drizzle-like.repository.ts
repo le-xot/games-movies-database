@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { DrizzleService } from '@backend/database/drizzle.service'
 import { likes } from '@gmd/database/schema'
 import { and, count, eq } from 'drizzle-orm'
-import { LikeDomain } from '../entities/like.entity'
+import { LikeDomain } from '../entities/like-domain.entity'
 
 export class DrizzleLikeRepository {
   constructor(private readonly drizzle: DrizzleService) {}

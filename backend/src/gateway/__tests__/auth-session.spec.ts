@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { createTestGateway } from '@backend/__tests__/helpers/gateway-stub'
-import { ForbiddenException } from '@backend/utils/errors'
+import { ForbiddenError } from '@backend/utils/errors'
 import type { GatewayUser } from '@backend/gateway/auth'
 import type { AuthSessionPort } from '@backend/gateway/auth-session'
 
@@ -240,7 +240,7 @@ describe('auth session', () => {
         user: USER,
         session: sessionStub({
           updateCustomization: mock(async () => {
-            throw new ForbiddenException('Рамка ещё не открыта')
+            throw new ForbiddenError('Рамка ещё не открыта')
           }),
         }),
       })

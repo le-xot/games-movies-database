@@ -1,27 +1,23 @@
 import { RecordGenre, RecordType } from '@backend/enums'
-import { QueueDto, QueueItemDto } from '@backend/modules/queue/queue.dto'
 import { Logger } from '@backend/utils/logger'
 import { DrizzleQueueRepository } from './repositories/drizzle-queue.repository'
+import type { Queue, QueueItem } from '@backend/modules/queue/queue.entity'
 
 export class QueueService {
   private readonly logger = new Logger(QueueService.name)
 
   constructor(private readonly queueRepository: DrizzleQueueRepository) {}
 
-  async getQueue(): Promise<QueueDto> {
+  async getQueue(): Promise<Queue> {
     const records = await this.queueRepository.findQueueRecords(RecordType.WRITTEN)
 
     const toQueueItem = (
       record: (typeof records)[number],
       genre: RecordGenre | null,
-    ): QueueItemDto => ({
+    ): QueueItem => ({
       title: record.title,
       posterUrl: record.posterUrl,
-      createdAt: new Date(record.createdAt).toLocaleDateString('ru-RU', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
+      createdAt: record.createdAt,
       link: record.link,
       type: record.type,
       genre,

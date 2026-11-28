@@ -53,3 +53,14 @@ export interface MatchedCocktail {
   missingCore: string[]
   missingExtra: string[]
 }
+
+/** Полка каталога: категория ингредиентов и то, что на ней лежит. */
+export interface CocktailCatalogShelf {
+  id: IngredientCategory
+  title: string
+  ingredients: Array<{ id: string; name: string }>
+}
+
+export interface CocktailCatalog {
+  shelves: CocktailCatalogShelf[]
+}

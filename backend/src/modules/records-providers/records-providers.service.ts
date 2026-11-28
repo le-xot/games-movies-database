@@ -1,7 +1,7 @@
 import { RecordGenre, RecordStatus, RecordType } from '@backend/enums'
 import { TwitchService } from '@backend/modules/twitch/twitch.service'
 import { env } from '@backend/utils/enviroments'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import { isRecord } from '@backend/utils/type-guards'
 import { DrizzleRecordsProvidersRepository } from './repositories/drizzle-records-providers.repository'
@@ -177,18 +177,18 @@ export class RecordsProvidersService {
 
   private validateExistingRecord(record: RecordDomain) {
     if (record.type === RecordType.SUGGESTION) {
-      throw new BadRequestException('Уже есть в советах')
+      throw new BadRequestError('Уже есть в советах')
     }
     if (record.type !== RecordType.WRITTEN) return
 
-    throw new BadRequestException(
+    throw new BadRequestError(
       record.status == null ? 'Уже есть в базе' : this.writtenStatusMessages[record.status],
     )
   }
 
   async prepareData(data: { link: string }): Promise<PreparedData> {
     const newRecord = await this.resolveLink(data.link)
-    if (!newRecord.title) throw new BadRequestException('Не удалось получить данные из API')
+    if (!newRecord.title) throw new BadRequestError('Не удалось получить данные из API')
 
     const foundedRecord = await this.repo.findRecordByLinkAndGenre(newRecord.link, newRecord.genre)
 
@@ -212,14 +212,14 @@ export class RecordsProvidersService {
         if (match) return route.fetch(match)
       }
     }
-    throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
+    throw new BadRequestError('Неверный или неподдерживаемый формат ссылки')
   }
 
   private parseUrl(link: string) {
     try {
       return new URL(link)
     } catch {
-      throw new BadRequestException('Неверный или неподдерживаемый формат ссылки')
+      throw new BadRequestError('Неверный или неподдерживаемый формат ссылки')
     }
   }
 
@@ -230,7 +230,7 @@ export class RecordsProvidersService {
   private async checkGenrePermission(genre: RecordGenre) {
     const rule = await this.repo.findSuggestionRulesByGenre(genre)
     if (!rule?.permission) {
-      throw new BadRequestException(GENRE_PERMISSION_MESSAGES[genre])
+      throw new BadRequestError(GENRE_PERMISSION_MESSAGES[genre])
     }
   }
 
@@ -241,13 +241,11 @@ export class RecordsProvidersService {
       headers: { Accept: 'application/json' },
     })
     if (!response.ok)
-      throw new BadRequestException(
-        `Не удалось получить данные из API Shikimori: ${response.status}`,
-      )
+      throw new BadRequestError(`Не удалось получить данные из API Shikimori: ${response.status}`)
 
     const anime: unknown = await response.json()
     if (!isShikimoriAnime(anime)) {
-      throw new BadRequestException('Не удалось получить данные из API Shikimori')
+      throw new BadRequestError('Не удалось получить данные из API Shikimori')
     }
 
     return {
@@ -261,7 +259,7 @@ export class RecordsProvidersService {
   private async fetchKinopoisk(id: number): Promise<PreparedData> {
     const film = await this.kinopoiskGet(`films/${id}`)
     if (!isKinopoiskFilm(film)) {
-      throw new BadRequestException('Не удалось получить данные из API Кинопоиска')
+      throw new BadRequestError('Не удалось получить данные из API Кинопоиска')
     }
     return this.mapKinopoiskFilm(film, id)
   }
@@ -269,9 +267,9 @@ export class RecordsProvidersService {
   private async fetchFromImdb(imdbId: string): Promise<PreparedData> {
     const data = await this.kinopoiskGet(`films?imdbId=${imdbId}`)
     const film = isRecord(data) && Array.isArray(data.items) ? data.items[0] : undefined
-    if (!film) throw new BadRequestException('Фильм не найден в API Кинопоиска по IMDB ID')
+    if (!film) throw new BadRequestError('Фильм не найден в API Кинопоиска по IMDB ID')
     if (!isKinopoiskFilm(film)) {
-      throw new BadRequestException('Не удалось получить данные из API Кинопоиска')
+      throw new BadRequestError('Не удалось получить данные из API Кинопоиска')
     }
 
     return this.mapKinopoiskFilm(film)
@@ -279,7 +277,7 @@ export class RecordsProvidersService {
 
   private async kinopoiskGet(path: string): Promise<unknown> {
     const apiKey = this.getKinopoiskApiKey()
-    if (!apiKey) throw new BadRequestException('API ключ для Кинопоиска не настроен')
+    if (!apiKey) throw new BadRequestError('API ключ для Кинопоиска не настроен')
 
     const response = await fetch(`https://kinopoiskapiunofficial.tech/api/v2.2/${path}`, {
       headers: {
@@ -288,9 +286,7 @@ export class RecordsProvidersService {
       },
     })
     if (!response.ok)
-      throw new BadRequestException(
-        `Не удалось получить данные из API Кинопоиска: ${response.status}`,
-      )
+      throw new BadRequestError(`Не удалось получить данные из API Кинопоиска: ${response.status}`)
 
     return (await response.json()) as unknown
   }
@@ -311,8 +307,7 @@ export class RecordsProvidersService {
     genres: Array<{ genre: string }>,
     type: string,
   ): Promise<RecordGenre> {
-    if (!genres?.length)
-      throw new BadRequestException('Не удалось определить жанр из API Кинопоиска')
+    if (!genres?.length) throw new BadRequestError('Не удалось определить жанр из API Кинопоиска')
 
     if (genres.some((g) => g.genre.toLowerCase() === 'аниме')) {
       await this.checkGenrePermission(RecordGenre.ANIME)
@@ -340,7 +335,7 @@ export class RecordsProvidersService {
     await this.checkGenrePermission(RecordGenre.GAME)
 
     const clientId = this.getTwitchClientId()
-    if (!clientId) throw new BadRequestException('TWITCH_CLIENT_ID не настроен')
+    if (!clientId) throw new BadRequestError('TWITCH_CLIENT_ID не настроен')
 
     const accessToken = await this.twitch.getAppAccessToken()
     const response = await fetch('https://api.igdb.com/v4/games', {
@@ -353,12 +348,12 @@ export class RecordsProvidersService {
       body: `fields name,cover.url,slug; where ${where};`,
     })
     if (!response.ok)
-      throw new BadRequestException(`Не удалось получить данные из API IGDB: ${response.status}`)
+      throw new BadRequestError(`Не удалось получить данные из API IGDB: ${response.status}`)
 
     const data: unknown = await response.json()
     const game = Array.isArray(data) ? data[0] : undefined
-    if (!game) throw new BadRequestException('Игра не найдена в API IGDB')
-    if (!isIgdbGame(game)) throw new BadRequestException('Не удалось получить данные из API IGDB')
+    if (!game) throw new BadRequestError('Игра не найдена в API IGDB')
+    if (!isIgdbGame(game)) throw new BadRequestError('Не удалось получить данные из API IGDB')
 
     const coverUrl = game.cover?.url
       ? `https:${game.cover.url.replace('t_thumb', 't_cover_big')}`
@@ -377,7 +372,7 @@ export class RecordsProvidersService {
 
   async fetchIGDBFromSteam(appId: string) {
     const clientId = this.getTwitchClientId()
-    if (!clientId) throw new BadRequestException('TWITCH_CLIENT_ID не настроен')
+    if (!clientId) throw new BadRequestError('TWITCH_CLIENT_ID не настроен')
 
     const accessToken = await this.twitch.getAppAccessToken()
 
@@ -394,14 +389,14 @@ export class RecordsProvidersService {
       body,
     })
     if (!externalResp.ok)
-      throw new BadRequestException(
+      throw new BadRequestError(
         `Не удалось получить данные external_games IGDB: ${externalResp.status}`,
       )
 
     const externalData: unknown = await externalResp.json()
     const externalGame = Array.isArray(externalData) ? externalData[0] : undefined
     if (!isRecord(externalGame) || typeof externalGame.game !== 'number') {
-      throw new BadRequestException('Игра не найдена в IGDB по Steam ID')
+      throw new BadRequestError('Игра не найдена в IGDB по Steam ID')
     }
 
     return this.fetchIGDBGame(`id = ${externalGame.game}`)
@@ -419,7 +414,7 @@ export class RecordsProvidersService {
 
   private matchGroup(match: RegExpMatchArray, index: number): string {
     const value = match[index]
-    if (value === undefined) throw new BadRequestException('Не удалось разобрать ссылку')
+    if (value === undefined) throw new BadRequestError('Не удалось разобрать ссылку')
     return value
   }
 }

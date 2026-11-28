@@ -3,6 +3,7 @@ import { t } from 'elysia'
 /**
  * Стандартный конверт ошибки. Форма повторяет то, что отдавал Nest
  * (`ApiErrorDto`), потому что фронт на неё завязан через `parseApiError`.
+ * Сами ошибки — `HttpError`-подклассы из `utils/errors.ts`.
  */
 export const ApiErrorModel = t.Object({
   statusCode: t.Number(),
@@ -42,21 +43,6 @@ export function publicErrors(): BaseErrorResponses {
   return BASE_ERRORS
 }
 
-/**
- * Ошибка гейтвея: несёт HTTP-статус, сообщение и заголовки, а превращается в
- * ответ в одном месте — в обработчике `onError` из `gateway/index.ts`.
- */
-export class ApiError extends Error {
-  constructor(
-    readonly statusCode: number,
-    message: string,
-    readonly headers?: Record<string, string>,
-  ) {
-    super(message)
-    this.name = 'ApiError'
-  }
-}
-
 const STATUS_TEXT: Record<number, string> = {
   400: 'Bad Request',
   401: 'Unauthorized',
@@ -74,24 +60,4 @@ export function errorBody(statusCode: number, message: string) {
     message,
     error: STATUS_TEXT[statusCode] ?? 'Error',
   }
-}
-
-/**
- * Мост для доменных ошибок. Доменные сервисы пока бросают Nest-исключения
- * (`NotFoundException`, `ConflictException`, …) — их нужно отдать тем же
- * статусом, что отдавал Nest.
- *
- * Статус берём из поля `statusCode`, которое выставляют доменные исключения:
- * гейтвей не должен импортировать HTTP-фреймворк.
- */
-export function fromDomainError(error: unknown): ApiError | null {
-  if (error instanceof ApiError) return error
-
-  const status = (error as { statusCode?: unknown }).statusCode
-
-  if (typeof status !== 'number' || status < 400 || status > 599) return null
-
-  const message = error instanceof Error ? error.message : (STATUS_TEXT[status] ?? 'Error')
-
-  return new ApiError(status, message)
 }

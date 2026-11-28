@@ -1,13 +1,10 @@
 <script lang="ts" setup>
 import { Cpu, Gamepad2, Monitor, ShieldCheck } from '@lucide/vue'
-import { useTitle } from '@vueuse/core'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { hardware } from '@/pages/pc/constants/parts-links'
 import { ROUTER_PATHS } from '@/router/router-paths'
-
-const title = useTitle()
 
 const softwareParts = hardware['Софт']
 const systemParts = hardware.Железки
@@ -56,10 +53,6 @@ async function copyText(text: string) {
     toast.error('Не удалось скопировать', { description: text })
   }
 }
-
-onMounted(() => {
-  title.value = 'Сетап Лешота'
-})
 </script>
 
 <template>

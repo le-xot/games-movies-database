@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { unwrap } from '@/lib/api'
 import { assertOk } from '@/lib/api'
@@ -54,7 +55,8 @@ export function useAdminUsers() {
           await assertOk(api.users({ id: userId }).delete())
           await fetchUsers()
         } catch (err) {
-          console.error('Failed to delete user:', err)
+          console.error('Не удалось удалить пользователя:', err)
+          toast.error('Не удалось удалить пользователя')
         }
       },
     })

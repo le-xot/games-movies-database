@@ -16,11 +16,6 @@ import {
   WORD_PATTERN,
   normalizeWord,
 } from '@backend/modules/wordle/wordle.dictionary'
-import {
-  WordleLeaderboardDTO,
-  WordleStateDTO,
-  WordleStatsDTO,
-} from '@backend/modules/wordle/wordle.dto'
 import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 import {
   MAX_ATTEMPTS,
@@ -31,8 +26,13 @@ import {
   computeWordleStats,
 } from '@backend/modules/wordle/wordle.stats'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
+import type {
+  WordleLeaderboard,
+  WordleState,
+  WordleStats,
+} from '@backend/modules/wordle/entities/wordle.entity'
 import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
@@ -75,25 +75,21 @@ export class WordleService {
     return closed
   }
 
-  async getState(userId: string, now: Date = new Date()): Promise<WordleStateDTO> {
+  async getState(userId: string, now: Date = new Date()): Promise<WordleState> {
     const date = getMoscowDateKey(now)
     const game = await this.repository.findByUserAndDate(userId, date)
     return this.buildState(game, date, now)
   }
 
-  async makeGuess(
-    userId: string,
-    rawWord: string,
-    now: Date = new Date(),
-  ): Promise<WordleStateDTO> {
+  async makeGuess(userId: string, rawWord: string, now: Date = new Date()): Promise<WordleState> {
     const date = getMoscowDateKey(now)
 
     const word = normalizeWord(rawWord)
     if (!WORD_PATTERN.test(word)) {
-      throw new BadRequestException('Слово должно состоять из 5 русских букв')
+      throw new BadRequestError('Слово должно состоять из 5 русских букв')
     }
     if (!this.dictionary.isValidWord(word)) {
-      throw new BadRequestException('Слово не найдено в словаре')
+      throw new BadRequestError('Слово не найдено в словаре')
     }
 
     let game = await this.repository.findByUserAndDate(userId, date)
@@ -107,12 +103,12 @@ export class WordleService {
     }
 
     if (game.status !== WordleGameStatus.IN_PROGRESS) {
-      throw new BadRequestException('Игра на сегодня уже завершена')
+      throw new BadRequestError('Игра на сегодня уже завершена')
     }
 
     const updated = await this.repository.appendGuess(game.id, word)
     if (!updated) {
-      throw new BadRequestException('Игра на сегодня уже завершена')
+      throw new BadRequestError('Игра на сегодня уже завершена')
     }
 
     if (updated.status !== WordleGameStatus.IN_PROGRESS) {
@@ -124,7 +120,7 @@ export class WordleService {
     return this.buildState(updated, date, now)
   }
 
-  async getStats(userId: string, now: Date = new Date()): Promise<WordleStatsDTO> {
+  async getStats(userId: string, now: Date = new Date()): Promise<WordleStats> {
     const today = getMoscowDateKey(now)
 
     const [games, leaderboard] = await Promise.all([
@@ -167,7 +163,7 @@ export class WordleService {
     })
   }
 
-  async getLeaderboard(now: Date = new Date()): Promise<WordleLeaderboardDTO> {
+  async getLeaderboard(now: Date = new Date()): Promise<WordleLeaderboard> {
     const today = getMoscowDateKey(now)
 
     const [cached, winsToday, dailyRows] = await Promise.all([
@@ -196,7 +192,7 @@ export class WordleService {
     }
   }
 
-  private buildState(game: WordleGameRecord | null, date: string, now: Date): WordleStateDTO {
+  private buildState(game: WordleGameRecord | null, date: string, now: Date): WordleState {
     const guesses = game?.guesses ?? []
     const status = game?.status ?? WordleGameStatus.IN_PROGRESS
     const answer = game?.answer ?? null

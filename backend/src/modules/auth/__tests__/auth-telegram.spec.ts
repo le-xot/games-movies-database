@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { HttpException } from '@backend/utils/errors'
+import { ConflictError } from '@backend/utils/errors'
 import { jwtVerify } from 'jose'
 import { AuthService } from '../auth.service'
 
@@ -63,6 +63,6 @@ describe('AuthService telegram oidc', () => {
   it('rejects linking when telegram is already linked', async () => {
     userService.getLinkedAccounts = mock(() => Promise.resolve([{ platform: 'TELEGRAM' }]))
 
-    await expect(service.linkTelegramOidc('user-1', profile)).rejects.toThrow(HttpException)
+    await expect(service.linkTelegramOidc('user-1', profile)).rejects.toThrow(ConflictError)
   })
 })

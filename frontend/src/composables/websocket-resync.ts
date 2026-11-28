@@ -13,8 +13,8 @@ export type CoalescerKey =
 
 export const RECORD_GENRES = Object.values(RecordGenre)
 
-/** Query groups invalidated after a socket reconnect to catch up on events missed while offline. */
-export const WEBSOCKET_RESYNC_KEYS: CoalescerKey[] = [
+/** Единственный список групп кэша: из него выводятся и ресинк, и обработчики. */
+export const COALESCER_KEYS: CoalescerKey[] = [
   'suggestions',
   'stats',
   'user',
@@ -23,6 +23,9 @@ export const WEBSOCKET_RESYNC_KEYS: CoalescerKey[] = [
   'user-ratings',
   ...RECORD_GENRES.map((genre) => `records:${genre}` as RecordsCoalescerKey),
 ]
+
+/** Query groups invalidated after a socket reconnect to catch up on events missed while offline. */
+export const WEBSOCKET_RESYNC_KEYS: CoalescerKey[] = COALESCER_KEYS
 
 /** Один жанр из payload или все сразу, если сервер жанр не прислал. */
 function recordKeys(genre?: RecordGenre | null): RecordsCoalescerKey[] {

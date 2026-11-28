@@ -6,14 +6,6 @@ import {
 } from '@gmdb/contract'
 import { useQueryCache } from '@pinia/colada'
 import { onMounted, onUnmounted, ref } from 'vue'
-import {
-  FRIENDS_QUERY_KEY,
-  RECORDS_QUERY_KEYS,
-  STATS_QUERY_KEY,
-  SUGGESTION_QUERY_KEY,
-  USER_RATINGS_QUERY_KEY,
-  WORDLE_LEADERBOARD_KEY,
-} from '@/composables/query-keys'
 import { createEventCoalescer } from '@/composables/use-event-coalescer'
 import {
   createConnectTracker,
@@ -21,7 +13,7 @@ import {
   invalidationKeysFor,
   type CoalescerKey,
 } from '@/composables/websocket-resync'
-import { RecordGenre } from '@/lib/api'
+import { buildWsHandlers } from '@/composables/ws-handlers'
 import { useUser } from '@/stores/use-user'
 
 /** Первая пауза перед переподключением и её потолок. */
@@ -38,26 +30,14 @@ export function useWebSocket() {
   let reconnectAttempt = 0
   let stopped = false
 
-  const coalescer = createEventCoalescer<CoalescerKey>({
-    handlers: {
-      suggestions: () => queryCache.invalidateQueries({ key: [SUGGESTION_QUERY_KEY] }),
-      stats: () => queryCache.invalidateQueries({ key: [STATS_QUERY_KEY] }),
-      user: () => userStore.refetchUser(),
-      wordle: () => queryCache.invalidateQueries({ key: [WORDLE_LEADERBOARD_KEY] }),
-      friends: () => queryCache.invalidateQueries({ key: [FRIENDS_QUERY_KEY] }),
-      'user-ratings': () => queryCache.invalidateQueries({ key: [USER_RATINGS_QUERY_KEY] }),
-      'records:ANIME': () =>
-        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.ANIME]] }),
-      'records:CARTOON': () =>
-        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.CARTOON]] }),
-      'records:SERIES': () =>
-        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.SERIES]] }),
-      'records:MOVIE': () =>
-        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.MOVIE]] }),
-      'records:GAME': () =>
-        queryCache.invalidateQueries({ key: [RECORDS_QUERY_KEYS[RecordGenre.GAME]] }),
+  const handlers = buildWsHandlers({
+    invalidate: (key) => {
+      void queryCache.invalidateQueries({ key })
     },
+    refetchUser: () => userStore.refetchUser(),
   })
+
+  const coalescer = createEventCoalescer<CoalescerKey>({ handlers })
 
   const trackConnect = createConnectTracker(() => enqueueResync(coalescer))
 

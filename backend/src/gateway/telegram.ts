@@ -1,7 +1,8 @@
-import { ApiError, apiErrorModels, standardErrors } from '@backend/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
-import { webhookSecretsMatch } from '@backend/modules/telegram/telegram-bot.service'
+import { apiErrorModels, standardErrors } from '@backend/gateway/errors'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
+import { UnauthorizedError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { secretsMatch } from '@backend/utils/secrets'
 import { Elysia, t } from 'elysia'
 
 export const telegramWebhookModels = {
@@ -28,23 +29,20 @@ export interface TelegramWebhookRouteDeps {
  * `x-telegram-bot-api-secret-token` — сравнение в постоянном времени.
  */
 export function telegramWebhookRoutes({ telegramWebhook, rateLimit }: TelegramWebhookRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'telegram-webhook' })
     .model({ ...apiErrorModels, ...telegramWebhookModels })
     .post(
       '/telegram/webhook',
       async (ctx) => {
-        await enforceRateLimit(rateLimit, {
-          request: ctx.request,
-          route: 'TelegramBotController.handleUpdate',
-          config: RATE_LIMITS.public,
-          ip: ctx.server?.requestIP(ctx.request)?.address,
-        })
+        await limit(ctx, RATE_LIMITS.public)
 
         const expected = telegramWebhook.getWebhookSecret()
         const header = ctx.request.headers.get('x-telegram-bot-api-secret-token') ?? undefined
 
-        if (!expected || !webhookSecretsMatch(header, expected)) {
-          throw new ApiError(401, 'Unauthorized')
+        if (!expected || !secretsMatch(header, expected)) {
+          throw new UnauthorizedError()
         }
 
         await telegramWebhook.handleUpdate(ctx.body ?? {})

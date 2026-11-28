@@ -20,12 +20,10 @@ import {
 } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
 import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  NotFoundException,
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
 } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 
@@ -132,7 +130,7 @@ export class UserService {
   async deleteUserById(id: string): Promise<void> {
     const user = await this.userRepository.findById(id)
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     await this.userRepository.deleteWithCascade(id)
@@ -142,7 +140,7 @@ export class UserService {
 
   async mergeUsers(targetId: string, sourceId: string): Promise<MergeUsersResult> {
     if (targetId === sourceId) {
-      throw new BadRequestException('Cannot merge a user with themselves')
+      throw new BadRequestError('Cannot merge a user with themselves')
     }
 
     const [target, source] = await Promise.all([
@@ -150,7 +148,7 @@ export class UserService {
       this.userRepository.findById(sourceId),
     ])
     if (!target || !source) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const result = await this.userRepository.mergeUsers(targetId, sourceId)
@@ -164,12 +162,12 @@ export class UserService {
   async updateLogin(userId: string, login: string): Promise<UserDomain> {
     const existing = await this.userRepository.findByLogin(login)
     if (existing && existing.id !== userId) {
-      throw new ConflictException('Логин уже занят')
+      throw new ConflictError('Логин уже занят')
     }
 
     const current = await this.userRepository.findById(userId)
     if (!current) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const user = await this.userRepository.update(userId, { login })
@@ -186,7 +184,7 @@ export class UserService {
       this.logger.warn(
         `linkPlatformAccount: platform ${data.platform}/${data.platformUserId} already linked to userId=${existing.id}`,
       )
-      throw new Error('This platform account is already linked to another user')
+      throw new ConflictError('This platform account is already linked to another user')
     }
     await this.userRepository.linkPlatformAccount(userId, data)
     this.logger.log(
@@ -197,7 +195,7 @@ export class UserService {
   async unlinkPlatformAccount(userId: string, platform: AccountPlatform): Promise<void> {
     const accounts = await this.userRepository.findAccountsByUserId(userId)
     if (accounts.length <= 1) {
-      throw new HttpException('Cannot unlink the last account', HttpStatus.BAD_REQUEST)
+      throw new BadRequestError('Cannot unlink the last account')
     }
 
     await this.userRepository.unlinkPlatformAccount(userId, platform)
@@ -235,7 +233,7 @@ export class UserService {
   async getCustomization(userId: string): Promise<UserCustomization> {
     const user = await this.userRepository.findById(userId)
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     return {
@@ -252,12 +250,12 @@ export class UserService {
   async updateCustomization(userId: string, data: UpdateCustomizationData): Promise<UserDomain> {
     const current = await this.userRepository.findById(userId)
     if (!current) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const unlocked = await this.unlockEarnedFrames(current)
     if (data.avatarFrameId && !unlocked.includes(data.avatarFrameId)) {
-      throw new ForbiddenException('Рамка ещё не открыта')
+      throw new ForbiddenError('Рамка ещё не открыта')
     }
 
     const user = await this.userRepository.update(userId, {
@@ -271,7 +269,7 @@ export class UserService {
   async uploadAvatar(userId: string, imageBuffer: Buffer): Promise<UserDomain> {
     const user = await this.userRepository.findById(userId)
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const s3Key = await this.avatarService.processAndStoreAvatar(userId, imageBuffer)
@@ -288,7 +286,7 @@ export class UserService {
   async deleteAvatar(userId: string): Promise<UserDomain> {
     const user = await this.userRepository.findById(userId)
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const profileImageUrl = await this.avatarService.generateAndStoreDefaultAvatar(

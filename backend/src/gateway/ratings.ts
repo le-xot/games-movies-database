@@ -1,19 +1,17 @@
 import {
   authModels,
-  requireRole,
-  requireUser,
   resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { recordEnumModels } from '@backend/gateway/models'
 import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { recordModels } from '@backend/gateway/records'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type RecordGrade } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { RateLimitConfig } from '@backend/utils/rate-limits'
-import type { RecordGrade } from '@gmdb/contract'
 
 const { RecordGrade: recordGradeSchema } = recordEnumModels
 const { UserEntity } = authModels
@@ -90,22 +88,11 @@ export interface RatingRouteDeps {
   rateLimit: RateLimiter
 }
 
-const USER_ROLES = ['USER', 'ADMIN'] as const
-const RATER_ROLES = ['USER'] as const
+const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
+const RATER_ROLES = [UserRole.USER] as const
 
 export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
-  const limit = (
-    request: Request,
-    server: { requestIP: (r: Request) => { address: string } | null } | null,
-    route: string,
-    config: RateLimitConfig,
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request,
-      route,
-      config,
-      ip: server?.requestIP(request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit)
 
   const querySchema = t.Object({
     grade: t.Optional(t.Array(recordGradeSchema)),
@@ -129,8 +116,8 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
     .put(
       '/ratings/:recordId',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RatingController.rate', RATE_LIMITS.like)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), RATER_ROLES)
+        await limit(ctx, RATE_LIMITS.like)
+        const user = await requireAuthenticated(auth, ctx.request, RATER_ROLES)
 
         return await ratings.rate(
           user.id,
@@ -150,8 +137,8 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
     .delete(
       '/ratings/:recordId',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RatingController.unrate', RATE_LIMITS.like)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), RATER_ROLES)
+        await limit(ctx, RATE_LIMITS.like)
+        const user = await requireAuthenticated(auth, ctx.request, RATER_ROLES)
 
         await ratings.unrate(user.id, ctx.params.recordId)
       },
@@ -166,8 +153,8 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
     .get(
       '/ratings/my',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RatingController.getMyRatings', RATE_LIMITS.public)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), USER_ROLES)
+        await limit(ctx, RATE_LIMITS.public)
+        const user = await requireAuthenticated(auth, ctx.request, USER_ROLES)
 
         return await ratings.getMy(user.id, ctx.query as RatingsQuery)
       },
@@ -182,7 +169,7 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
     .get(
       '/ratings/users/:id',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RatingController.getUserRatings', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
         const viewer = await resolveUser(auth, ctx.request)
 
         return await ratings.getUser(viewer?.id, ctx.params.id, ctx.query as RatingsQuery)
@@ -199,7 +186,7 @@ export function ratingRoutes({ ratings, auth, rateLimit }: RatingRouteDeps) {
     .get(
       '/ratings/friends',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RatingController.getFriends', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await ratings.getFriends()
       },

@@ -1,16 +1,12 @@
 import { RecordGrade } from '@/lib/api'
+import { GRADE_REPORT_ORDER } from '@/lib/record-vocabulary'
 
 /**
  * Клиентское зеркало `backend/src/modules/rating/entities/rating-domain.entity.ts`.
  * Порядок и тай-брейк обязаны совпадать с бэкендом: используется для
  * оптимистичного обновления счётчиков до прихода ответа сервера.
  */
-export const FRIENDS_GRADE_ORDER: readonly RecordGrade[] = [
-  RecordGrade.RECOMMEND,
-  RecordGrade.LIKE,
-  RecordGrade.BEER,
-  RecordGrade.DISLIKE,
-]
+export const FRIENDS_GRADE_ORDER: readonly RecordGrade[] = GRADE_REPORT_ORDER
 
 export type FriendsCounts = Record<RecordGrade, number>
 

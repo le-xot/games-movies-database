@@ -9,7 +9,7 @@ import {
 } from '@backend/modules/wordle/wordle-practice.service'
 import { getMoscowDateKey, shiftDateKey } from '@backend/modules/wordle/wordle.date'
 import { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import type { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 import type { RedisClient } from 'bun'
 
@@ -113,19 +113,19 @@ describe('WordlePracticeService', () => {
   it('rejects words outside the pattern', async () => {
     const { service } = makeService()
 
-    await expect(service.makeGuess('user-1', 'abc')).rejects.toBeInstanceOf(BadRequestException)
+    await expect(service.makeGuess('user-1', 'abc')).rejects.toBeInstanceOf(BadRequestError)
   })
 
   it('rejects words missing from the dictionary', async () => {
     const { service } = makeService()
 
-    await expect(service.makeGuess('user-1', 'абвгд')).rejects.toBeInstanceOf(BadRequestException)
+    await expect(service.makeGuess('user-1', 'абвгд')).rejects.toBeInstanceOf(BadRequestError)
   })
 
   it('rejects guesses without a session', async () => {
     const { service } = makeService()
 
-    await expect(service.makeGuess('user-1', ANSWER)).rejects.toBeInstanceOf(BadRequestException)
+    await expect(service.makeGuess('user-1', ANSWER)).rejects.toBeInstanceOf(BadRequestError)
   })
 
   it('scores a winning guess and reveals the answer', async () => {
@@ -158,7 +158,7 @@ describe('WordlePracticeService', () => {
   it('rejects guesses after the round is finished', async () => {
     const { service } = makeService({ answer: ANSWER, guesses: [ANSWER] })
 
-    await expect(service.makeGuess('user-1', 'кокос')).rejects.toBeInstanceOf(BadRequestException)
+    await expect(service.makeGuess('user-1', 'кокос')).rejects.toBeInstanceOf(BadRequestError)
   })
 
   it('treats broken session payloads as absent', async () => {

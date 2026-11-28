@@ -27,7 +27,7 @@
 | --------- | ---------------------------------------------- | -------------------------------------------------------------- | -------------------- |
 | Транспорт | `backend/src/server/http.ts`                   | префикс `/api`, CORS, security-заголовки, JSON-404, SPA-фолбэк | домен                |
 | Гейтвей   | `backend/src/gateway/`                         | роуты, схемы TypeBox, коды ответов, лимиты, gard'ы             | как устроен сервис   |
-| Проводка  | `backend/src/server/wiring/`                   | query/body → аргументы сервиса, маппинг сущностей в DTO        | бизнес-логику        |
+| Проводка  | `backend/src/server/wiring/`                   | адаптеры портов: сигнатуры и presentation-конверсии (даты)     | бизнес-логику        |
 | Домен     | `backend/src/modules/`                         | бизнес-логика, репозитории, события                            | HTTP, Elysia, cookie |
 | Данные    | `backend/src/database/`, `database/src/schema` | пул соединений, схема, миграции                                | HTTP-формы           |
 | Контракт  | `contract/` (`@gmdb/contract`)                 | enum'ы, WS-события, каталог косметики, `parseWsMessage`        | всё остальное        |
@@ -41,10 +41,10 @@
 `createContainer()` (`backend/src/server/container.ts`) собирает всё руками: `new` сервисов,
 `new` репозиториев, один `DrizzleService`, один `RedisClient`, один `DomainEvents`. DI-контейнера нет.
 
-- Сервисы, которым нужен прогрев или таймер, реализуют `onModuleInit` / `onApplicationBootstrap` /
-  `onModuleDestroy` (имена остались с Nest-эпохи) и **обязательно** попадают в списки
-  `started` / `stoppable`. Забыть — значит молча не запустить погоду, расписание уведомлений
-  или уборку в Wordle.
+- Сервисы регистрируются в `Lifecycle` там же, где создаются: `lifecycle.add(new X(...))`.
+  Хуки `onModuleInit` / `onApplicationBootstrap` / `onModuleDestroy` (имена остались с Nest-эпохи)
+  вызываются в порядке регистрации; отдельного списка `started`/`stoppable` больше нет, поэтому
+  забыть сервис с таймером или прогревом нельзя.
 - Хуки вызывает `container.init()` / `container.close()`. Ошибка в хуке не роняет старт: пишем
   warning и живём дальше.
 - `main.ts` на `SIGTERM`/`SIGINT` делает `app.stop()` (новые соединения не принимаются) и
@@ -54,8 +54,9 @@
 
 1. `onRequest` в `http.ts` ставит security-заголовки и CORS-origin, если он в списке `CORS_ORIGINS`
 2. Запрос попадает в `/api` → роут гейтвея
-3. `enforceRateLimit` — фикс-окно в Redis по ключу `rl:{route}:{ip}`; при недоступном Redis лимит
-   пропускается (fail-open) с таймаутом 250 мс
+3. `rateLimitGuard(rateLimit)` в каждом роут-плагине — фикс-окно в Redis по ключу
+   `rl:{METHOD} {path}:{ip}` (путь из `ctx.route`, не из URL — параметры в ключ не попадают);
+   при недоступном Redis лимит пропускается (fail-open) с таймаутом 250 мс
 4. Аутентификация: `resolveUser` читает JWT из cookie `token`; `requireUser` / `requireRole`
    бросают 401/403
 5. Порт из `wiring/` превращает query/body в аргументы сервиса
@@ -80,6 +81,9 @@
 - **`null` в ответе** Elysia отдаёт пустым телом; для nullable нужен явный `Response('null')`.
 - **Числа в query**: если в схеме есть `t.Ref`, Elysia перестаёт приводить строки к числу —
   для этого есть `coerceQueryNumbers` (`gateway/query.ts`).
+- **Enum'ы — из `@gmdb/contract`.** TypeBox-схемы собираются штатным `t.Enum` (`gateway/models.ts`),
+  `pgEnum` — те же константы; совпадение множеств проверяет `gateway/__tests__/enum-sources.spec.ts`.
+  Порядок значений в БД исторический, порядок отображения задаёт контракт.
 
 ## Аутентификация и роли
 
@@ -100,10 +104,23 @@
 { "statusCode": 404, "message": "Not Found", "error": "Not Found" }
 ```
 
-- Домен бросает `ApiError` из `gateway/errors.ts`; Nest-исключений в проекте нет
+- Домен и гейтвей бросают `HttpError`-подклассы из `utils/errors.ts` (`BadRequestError`,
+  `NotFoundError`, …); `onError` в `gateway/index.ts` превращает их в конверт. Generic `Error`
+  на клиентских ветках запрещён — он станет 500.
 - `standardErrors()` — для защищённых роутов (400/401/403/404/409/429/500),
   `publicErrors()` — без 401/403
 - Неизвестный путь под `/api` отдаёт JSON, а не SPA-фолбэк
+
+## Логирование и конфигурация
+
+- Единственный фасад — `Logger` (`backend/src/utils/logger.ts`): контекст в префиксе, уровни
+  `debug | info | warn | error`. Уровень берётся из `LOG_LEVEL` (devDefault — `debug`) и
+  задаётся один раз в `main.ts` через `configureLogger`.
+- `console.*` вне логгера разрешён только в `main.ts`, скриптах и тестовых харнессах —
+  это проверяет oxlint (`eslint/no-console`) в `.oxlintrc.json`.
+- `process.env` читается только в `utils/enviroments.ts`; сервисы получают значения через
+  `env.*` или конструктор (`DrizzleService(env.DATASOURCE_URL)`). Нарушение ловит
+  `backend/src/__tests__/architecture.spec.ts`.
 
 ## WebSocket
 
@@ -159,10 +176,10 @@
    репозиторий через `DrizzleService`
 2. `backend/src/gateway/<домен>.ts` — интерфейс порта, TypeBox-модели, `publicErrors()` /
    `standardErrors()`, роуты с лимитом и gard'ами
-3. `backend/src/server/wiring/<группа>.ts` — реализация порта: query/body → аргументы сервиса,
-   сущность → DTO
-4. `backend/src/server/container.ts` — создать сервис, добавить в `started`/`stoppable` при
-   наличии хуков, развернуть порт в `deps`
+3. `backend/src/server/wiring/<группа>.ts` — адаптер порта: query/body → аргументы сервиса и
+   presentation-конверсии (даты/локаль). Форму ответа держит TypeBox-схема (ADR-0007)
+4. `backend/src/server/container.ts` — создать сервис через `lifecycle.add(new X(...))`
+   (хуки подхватятся сами), развернуть порт в `deps`
 5. `backend/src/gateway/index.ts` — `.use(<домен>Routes(deps))`
 6. Если нужен realtime — эмитить событие в `DomainEvents` и добавить его в `contract/src/ws.ts`
 7. Тесты: юнит на сервис и роуты, при работе с БД — интеграционный спек

@@ -1,13 +1,12 @@
 import { ref } from 'vue'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
-const STORAGE_KEY = 'wordle:colorblind'
-
-const isColorblind = ref(localStorage.getItem(STORAGE_KEY) === 'true')
+const isColorblind = ref(localStorage.getItem(STORAGE_KEYS.wordleColorblind) === 'true')
 
 export function useWordleSettings() {
   function setColorblind(value: boolean) {
     isColorblind.value = value
-    localStorage.setItem(STORAGE_KEY, String(value))
+    localStorage.setItem(STORAGE_KEYS.wordleColorblind, String(value))
   }
 
   return { isColorblind, setColorblind }

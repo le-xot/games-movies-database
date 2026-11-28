@@ -1,11 +1,12 @@
-import { ApiError } from '@backend/gateway/errors'
+import { ForbiddenError, UnauthorizedError } from '@backend/utils/errors'
+import { UserRole } from '@gmdb/contract'
 import { t } from 'elysia'
 
 /**
  * Схемы пользователя. Имена (`UserEntity`, `UserRole`) и набор полей повторяют
  * то, что генерировал Nest: от них зависит `$ref` в контракте и типы фронта.
  */
-const userRoleSchema = t.Union([t.Literal('USER'), t.Literal('ADMIN')])
+const userRoleSchema = t.Enum(UserRole)
 
 export const UserEntity = t.Object({
   id: t.String(),
@@ -68,9 +69,24 @@ export async function resolveUser(
 }
 
 export function requireUser(user: GatewayUser | null): GatewayUser {
-  if (!user) throw new ApiError(401, 'Unauthorized')
+  if (!user) throw new UnauthorizedError()
 
   return user
+}
+
+/**
+ * Закрывает роут: берёт пользователя из cookie `token` и, если роли заданы,
+ * проверяет их. Единственный канон для «auth → роли» — вместо склейки
+ * `requireRole(requireUser(await resolveUser(...)))` в каждом хендлере.
+ */
+export async function requireAuthenticated(
+  auth: Authenticator,
+  request: Request,
+  allowedRoles?: readonly GatewayUser['role'][],
+): Promise<GatewayUser> {
+  const user = requireUser(await resolveUser(auth, request))
+
+  return allowedRoles ? requireRole(user, allowedRoles) : user
 }
 
 /** Повторяет RolesGuard: чужую роль отбиваем 403, как это делал Nest. */
@@ -78,7 +94,7 @@ export function requireRole(
   user: GatewayUser,
   allowed: readonly GatewayUser['role'][],
 ): GatewayUser {
-  if (!allowed.includes(user.role)) throw new ApiError(403, 'Forbidden')
+  if (!allowed.includes(user.role)) throw new ForbiddenError()
 
   return user
 }

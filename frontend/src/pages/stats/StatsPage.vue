@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { RotateCw } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RecordGrade } from '@/lib/api'
@@ -132,7 +131,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
   <div class="flex flex-col gap-4">
     <template v-if="isLoading">
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <Card v-for="n in 5" :key="n" class="bg-[var(--n-action-color)]">
+        <Card v-for="n in 5" :key="n">
           <CardHeader class="pb-2">
             <div class="h-4 w-16 animate-pulse rounded bg-zinc-700" />
           </CardHeader>
@@ -143,7 +142,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
       </div>
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card v-for="n in 3" :key="n" class="bg-[var(--n-action-color)] lg:last:col-span-2">
+        <Card v-for="n in 3" :key="n" class="lg:last:col-span-2">
           <CardHeader>
             <div class="h-5 w-32 animate-pulse rounded bg-zinc-700" />
           </CardHeader>
@@ -154,13 +153,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
       </div>
     </template>
 
-    <div v-else-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
-      <p class="text-sm text-destructive">{{ error }}</p>
-      <Button variant="outline" size="sm" @click="statsStore.refetch()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+    <ErrorRetry v-else-if="error" variant="block" :message="error" @retry="statsStore.refetch()" />
 
     <div v-else-if="isEmpty" class="py-16 text-center text-muted-foreground">
       Пока нечего считать — в кладовке нет записей
@@ -170,7 +163,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
       <StatsSummaryCards :total="total" :by-status="byStatus" :friends-votes="friendsVotes" />
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card class="bg-[var(--n-action-color)]">
+        <Card>
           <CardHeader>
             <CardTitle>По жанрам</CardTitle>
             <CardDescription>Мои записи и голоса друзей</CardDescription>
@@ -189,7 +182,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
           </CardContent>
         </Card>
 
-        <Card class="bg-[var(--n-action-color)]">
+        <Card>
           <CardHeader>
             <CardTitle>Статусы и оценки</CardTitle>
             <CardDescription>Прогресс коллекции и распределение оценок</CardDescription>
@@ -216,7 +209,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
           </CardContent>
         </Card>
 
-        <Card class="bg-[var(--n-action-color)] lg:col-span-2">
+        <Card class="lg:col-span-2">
           <CardHeader
             class="flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between"
           >

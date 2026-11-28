@@ -1,8 +1,9 @@
 import { useLocalStorage } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 export const useNewRecords = defineStore('global/use-new-records', () => {
-  const viewedRecords = useLocalStorage<number[]>('viewed-suggestions', [])
+  const viewedRecords = useLocalStorage<number[]>(STORAGE_KEYS.viewedSuggestions, [])
 
   const markRecordAsViewed = (recordId: number) => {
     if (!viewedRecords.value.includes(recordId)) {

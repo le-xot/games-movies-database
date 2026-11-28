@@ -2,7 +2,7 @@ import { KickService } from '@backend/modules/kick/kick.service'
 import { formatTelegramLogin } from '@backend/modules/telegram/telegram.utils'
 import { TwitchService } from '@backend/modules/twitch/twitch.service'
 import { UserService } from '@backend/modules/user/user.service'
-import { HttpException, HttpStatus } from '@backend/utils/errors'
+import { ConflictError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import { SignJWT } from 'jose'
 import type { TelegramProfile } from '@backend/modules/telegram/telegram.types'
@@ -121,7 +121,7 @@ export class AuthService {
 
     const accounts = await this.userService.getLinkedAccounts(userId)
     if (accounts.some((account) => account.platform === 'TELEGRAM')) {
-      throw new HttpException('Telegram account is already linked', HttpStatus.CONFLICT)
+      throw new ConflictError('Telegram account is already linked')
     }
 
     await this.userService.linkPlatformAccount(userId, {

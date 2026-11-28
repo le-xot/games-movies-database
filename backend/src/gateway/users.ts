@@ -1,18 +1,17 @@
 import {
   UserEntity,
   authModels,
-  requireRole,
-  requireUser,
-  resolveUser,
   type Authenticator,
   type GatewayUser,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
-import { accountEnumModels, recordEnumModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import { accountEnumModels } from '@backend/gateway/models'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
+import { NotFoundError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type AccountPlatform } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { AccountPlatform } from '@gmdb/contract'
 
 const { AccountPlatform: accountPlatformSchema } = accountEnumModels
 
@@ -84,29 +83,22 @@ export interface UserRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 
 export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
-  const limit = (
-    request: Request,
-    server: { requestIP: (r: Request) => { address: string } | null } | null,
-    route: string,
-    config: Parameters<typeof enforceRateLimit>[1]['config'],
-  ) =>
-    enforceRateLimit(rateLimit, { request, route, config, ip: server?.requestIP(request)?.address })
+  const limit = rateLimitGuard(rateLimit)
 
   return new Elysia({ name: 'users' })
     .model({
       ...apiErrorModels,
       ...authModels,
       ...accountEnumModels,
-      ...recordEnumModels,
       ...userModels,
     })
     .get(
       '/users/users',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'UserController.getAllUsers', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await users.getAll()
       },
@@ -120,8 +112,8 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
     .get(
       '/users/:id/accounts',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'UserController.getUserAccounts', RATE_LIMITS.public)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.public)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
 
         return await users.getAccounts(ctx.params.id)
       },
@@ -136,11 +128,11 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
     .get(
       '/users/:id',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'UserController.getUserById', RATE_LIMITS.public)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.public)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
 
         const user = await users.getById(ctx.params.id)
-        if (!user) throw new ApiError(404, `User ${ctx.params.id} not found`)
+        if (!user) throw new NotFoundError(`User ${ctx.params.id} not found`)
 
         return user
       },
@@ -155,8 +147,8 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
     .delete(
       '/users/:id',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'UserController.deleteUser', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.write)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
         ctx.set.status = 204
 
         await users.remove(ctx.params.id)
@@ -172,8 +164,8 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
     .post(
       '/users/:id/merge',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'UserController.mergeUsers', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.write)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
         ctx.set.status = 201
 
         return await users.merge(ctx.params.id, (ctx.body as MergeInput).sourceUserId)

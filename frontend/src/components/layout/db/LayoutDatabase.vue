@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { AccountDialog } from '@/components/account'
 import Dialog from '@/components/dialog/Dialog.vue'
 import { LoginDialog } from '@/components/form'
 import LayoutBody from '@/components/layout/db/LayoutBody.vue'
 import LayoutHeader from '@/components/layout/db/LayoutHeader.vue'
 import LayoutSidebar from '@/components/layout/db/LayoutSidebar.vue'
-import { useDbNavigation } from '@/components/layout/db/use-db-navigation'
-
-const { syncTitleFromRoute } = useDbNavigation()
-
-onMounted(syncTitleFromRoute)
 </script>
 
 <template>

@@ -4,10 +4,11 @@ import { ImgService } from '@backend/modules/img/img.service'
 import { emptyFriendsCounts } from '@backend/modules/rating/entities/rating-domain.entity'
 import { DrizzleRatingRepository } from '@backend/modules/rating/repositories/drizzle-rating.repository'
 import {
+  CreateRecordFromLinkInput,
   RecordWithFriends,
   RecordWithRelations,
+  UpdateRecordData,
 } from '@backend/modules/record/entities/record-domain.entity'
-import { RecordCreateFromLinkDTO, RecordUpdateDTO } from '@backend/modules/record/record.dto'
 import { RecordEntity } from '@backend/modules/record/record.entity'
 import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
 import { RecordsProvidersService } from '@backend/modules/records-providers/records-providers.service'
@@ -19,7 +20,7 @@ import {
   type UpdateSuggestionsPayload,
 } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { NotFoundException } from '@backend/utils/errors'
+import { NotFoundError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 
 export class RecordService {
@@ -72,7 +73,7 @@ export class RecordService {
     emitWs(this.eventEmitter, WsEvents.UPDATE_RECORDS, { genre: genre ?? undefined, id, action })
   }
 
-  async createRecordFromLink(data: RecordCreateFromLinkDTO): Promise<RecordEntity> {
+  async createRecordFromLink(data: CreateRecordFromLinkInput): Promise<RecordEntity> {
     this.logger.log(`Creating record from link link=${data.link}`)
     const preparedData = await this.recordsProviderService.prepareData({
       link: data.link,
@@ -95,11 +96,11 @@ export class RecordService {
     return createdData
   }
 
-  async patchRecord(id: number, data: RecordUpdateDTO): Promise<RecordEntity> {
+  async patchRecord(id: number, data: UpdateRecordData): Promise<RecordEntity> {
     this.logger.log(`Patching record id=${id}`)
     const foundedRecord = await this.recordRepository.findById(id)
     if (!foundedRecord) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
     const updatedRecord = await this.recordRepository.update(id, data)
 
@@ -128,7 +129,7 @@ export class RecordService {
     this.logger.log(`Updating poster for record id=${id}`)
     const record = await this.recordRepository.findById(id)
     if (!record) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
 
     const urlBase64 = Buffer.from(url, 'utf8').toString('base64')
@@ -147,7 +148,7 @@ export class RecordService {
     const foundedRecord = await this.recordRepository.findById(id)
 
     if (!foundedRecord) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
 
     await this.recordRepository.delete(id)
@@ -198,10 +199,10 @@ export class RecordService {
   async findRecordById(id: number, userId?: string): Promise<RecordWithFriends> {
     const record = await this.recordRepository.findById(id)
     if (!record) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
     const [attached] = await this.attachFriends([record], userId)
-    if (!attached) throw new NotFoundException('Record not found')
+    if (!attached) throw new NotFoundError('Record not found')
     return attached
   }
 }

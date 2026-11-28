@@ -1,72 +1,66 @@
 /**
- * HTTP-ошибки домена. Имена совпадают с Nest-исключениями, чтобы код сервисов
- * не пришлось переписывать: заменился только источник импорта.
+ * Единственная ошибка с HTTP-семантикой. Домен и гейтвей бросают подклассы,
+ * а гейтвей превращает их в конверт `ApiErrorDto` в одном месте — `onError`
+ * из `gateway/index.ts`.
  *
- * Гейтвей превращает их в ответ через `fromDomainError` (смотрит на
- * `statusCode`). Когда домен окончательно отвыкнет от HTTP, эти классы заменятся
- * на предметные ошибки, а маппинг переедет в гейтвей.
+ * Форма конверта (`statusCode`/`message`/`error`) зафиксирована фронтовым
+ * `parseApiError`, поэтому коды и тексты — часть внешнего контракта.
  */
 export class HttpError extends Error {
   constructor(
     readonly statusCode: number,
     message: string,
+    readonly headers?: Record<string, string>,
   ) {
     super(message)
     this.name = new.target.name
   }
 }
 
-export const HttpStatus = {
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  TOO_MANY_REQUESTS: 429,
-  INTERNAL_SERVER_ERROR: 500,
-  BAD_GATEWAY: 502,
-  SERVICE_UNAVAILABLE: 503,
-} as const
-
-export class BadRequestException extends HttpError {
-  constructor(message = 'Bad Request') {
-    super(HttpStatus.BAD_REQUEST, message)
+export class BadRequestError extends HttpError {
+  constructor(message = 'Bad Request', headers?: Record<string, string>) {
+    super(400, message, headers)
   }
 }
 
-export class UnauthorizedException extends HttpError {
-  constructor(message = 'Unauthorized') {
-    super(HttpStatus.UNAUTHORIZED, message)
+export class UnauthorizedError extends HttpError {
+  constructor(message = 'Unauthorized', headers?: Record<string, string>) {
+    super(401, message, headers)
   }
 }
 
-export class ForbiddenException extends HttpError {
-  constructor(message = 'Forbidden') {
-    super(HttpStatus.FORBIDDEN, message)
+export class ForbiddenError extends HttpError {
+  constructor(message = 'Forbidden', headers?: Record<string, string>) {
+    super(403, message, headers)
   }
 }
 
-export class NotFoundException extends HttpError {
-  constructor(message = 'Not Found') {
-    super(HttpStatus.NOT_FOUND, message)
+export class NotFoundError extends HttpError {
+  constructor(message = 'Not Found', headers?: Record<string, string>) {
+    super(404, message, headers)
   }
 }
 
-export class ConflictException extends HttpError {
-  constructor(message = 'Conflict') {
-    super(HttpStatus.CONFLICT, message)
+export class ConflictError extends HttpError {
+  constructor(message = 'Conflict', headers?: Record<string, string>) {
+    super(409, message, headers)
   }
 }
 
-export class ServiceUnavailableException extends HttpError {
-  constructor(message = 'Service Unavailable') {
-    super(HttpStatus.SERVICE_UNAVAILABLE, message)
+export class TooManyRequestsError extends HttpError {
+  constructor(message = 'Too Many Requests', headers?: Record<string, string>) {
+    super(429, message, headers)
   }
 }
 
-/** Совместимость с `new HttpException(message, status)`. */
-export class HttpException extends HttpError {
-  constructor(message: string, statusCode: number) {
-    super(statusCode, message)
+export class BadGatewayError extends HttpError {
+  constructor(message = 'Bad Gateway', headers?: Record<string, string>) {
+    super(502, message, headers)
+  }
+}
+
+export class ServiceUnavailableError extends HttpError {
+  constructor(message = 'Service Unavailable', headers?: Record<string, string>) {
+    super(503, message, headers)
   }
 }

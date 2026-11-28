@@ -3,7 +3,7 @@ import { RecordsProvidersService } from '@backend/modules/records-providers/reco
 import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/repositories/drizzle-suggestion.repository'
 import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { BadRequestException, ForbiddenException, NotFoundException } from '@backend/utils/errors'
+import { BadRequestError, ForbiddenError, NotFoundError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 
 export class SuggestionService {
@@ -21,7 +21,7 @@ export class SuggestionService {
     this.logger.log(`User suggesting link=${data.link} userId=${data.userId}`)
     const limit = await this.suggestionRepository.findLimit(LimitType.SUGGESTION)
     if (!limit) {
-      throw new BadRequestException('Лимит предложений не настроен')
+      throw new BadRequestError('Лимит предложений не настроен')
     }
 
     const suggestionsCount = await this.suggestionRepository.countUserSuggestions(
@@ -30,7 +30,7 @@ export class SuggestionService {
     )
 
     if (suggestionsCount >= limit.quantity) {
-      throw new BadRequestException('Достигнут лимит предложений')
+      throw new BadRequestError('Достигнут лимит предложений')
     }
 
     const preparedData = await this.recordsProviderService.prepareData({
@@ -69,19 +69,19 @@ export class SuggestionService {
     const suggestion = await this.suggestionRepository.findSuggestionById(id)
 
     if (!suggestion) {
-      throw new NotFoundException('Предложение не найдено')
+      throw new NotFoundError('Предложение не найдено')
     }
 
     const owner = await this.suggestionRepository.findSuggestionOwner(id)
     if (!owner || owner.userId !== userId) {
-      throw new ForbiddenException('Вы можете удалять только свои предложения')
+      throw new ForbiddenError('Вы можете удалять только свои предложения')
     }
 
     if (suggestion.type !== RecordType.SUGGESTION) {
-      throw new BadRequestException('Запись не является предложением')
+      throw new BadRequestError('Запись не является предложением')
     }
 
-    await this.suggestionRepository.deleteSuggestionWithLikes(id)
+    await this.suggestionRepository.deleteSuggestion(id)
 
     emitWs(this.eventEmitter, WsEvents.UPDATE_SUGGESTIONS, {
       id,

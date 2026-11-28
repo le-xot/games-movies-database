@@ -1,19 +1,25 @@
 import {
   authModels,
-  requireRole,
-  requireUser,
   resolveUser,
   type Authenticator,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
 import { HTTP_URL_PATTERN, recordEnumModels } from '@backend/gateway/models'
 import { coerceQueryNumbers, collectArrayQuery } from '@backend/gateway/query'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import {
+  RecordDirection,
+  RecordOrderBy,
+  UserRole,
+  type RecordGenre,
+  type RecordGrade,
+  type RecordStatus,
+  type RecordType,
+} from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { RateLimitConfig } from '@backend/utils/rate-limits'
-import type { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@gmdb/contract'
 
 const { UserEntity } = authModels
 const { LikeEntity } = likeModels
@@ -131,23 +137,12 @@ export interface RecordRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 const ARRAY_QUERY_KEYS = ['status', 'grade'] as const
 const NUMBER_QUERY_KEYS = ['page', 'limit'] as const
 
 export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
-  const limit = (
-    request: Request,
-    server: { requestIP: (r: Request) => { address: string } | null } | null,
-    route: string,
-    config: RateLimitConfig,
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request,
-      route,
-      config,
-      ip: server?.requestIP(request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit)
 
   return new Elysia({ name: 'records' })
     .model({
@@ -165,13 +160,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
     .post(
       '/records/link',
       async (ctx) => {
-        await limit(
-          ctx.request,
-          ctx.server,
-          'RecordController.createRecordFromLink',
-          RATE_LIMITS.write,
-        )
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.write)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
         ctx.set.status = 201
 
         return await records.createFromLink(ctx.body as RecordCreateInput)
@@ -187,7 +177,7 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
     .get(
       '/records',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RecordController.getAllRecords', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
         const viewer = await resolveUser(auth, ctx.request)
 
         return await records.getAll({
@@ -204,8 +194,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
           search: t.Optional(t.String()),
           page: t.Optional(t.Number({ minimum: 1, maximum: 10_000, multipleOf: 1 })),
           limit: t.Optional(t.Number({ minimum: 1, maximum: 100, multipleOf: 1 })),
-          orderBy: t.Optional(t.Union([t.Literal('id'), t.Literal('title')])),
-          direction: t.Optional(t.Union([t.Literal('asc'), t.Literal('desc')])),
+          orderBy: t.Optional(t.Enum(RecordOrderBy)),
+          direction: t.Optional(t.Enum(RecordDirection)),
         }),
         response: {
           200: 'GetAllRecordsDTO' as const,
@@ -216,8 +206,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
     .get(
       '/records/:id',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RecordController.findRecordById', RATE_LIMITS.public)
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.public)
+        const user = await requireAuthenticated(auth, ctx.request, ADMIN)
 
         return await records.findById(ctx.params.id, user.id)
       },
@@ -232,8 +222,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
     .patch(
       '/records/:id',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RecordController.patchRecord', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.write)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
 
         return await records.patch(ctx.params.id, ctx.body as RecordUpdateInput)
       },
@@ -249,8 +239,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
     .patch(
       '/records/:id/poster',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RecordController.updatePoster', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.write)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
 
         return await records.updatePoster(ctx.params.id, (ctx.body as RecordUpdatePosterInput).url)
       },
@@ -266,8 +256,8 @@ export function recordRoutes({ records, auth, rateLimit }: RecordRouteDeps) {
     .delete(
       '/records/:id',
       async (ctx) => {
-        await limit(ctx.request, ctx.server, 'RecordController.deleteRecord', RATE_LIMITS.write)
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await limit(ctx, RATE_LIMITS.write)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
         ctx.set.status = 204
 
         await records.remove(ctx.params.id)

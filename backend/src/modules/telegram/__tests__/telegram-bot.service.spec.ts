@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import {
   TelegramBotService,
   isValidWebhookSecret,
-  webhookSecretsMatch,
   type TelegramBotConfig,
 } from '@backend/modules/telegram/telegram-bot.service'
 
@@ -335,12 +334,5 @@ describe('webhook secret helpers', () => {
     expect(isValidWebhookSecret('bad secret')).toBe(false)
     expect(isValidWebhookSecret(null)).toBe(false)
     expect(isValidWebhookSecret(undefined)).toBe(false)
-  })
-
-  it('rejects missing, short and different secrets', () => {
-    expect(webhookSecretsMatch(undefined, 'secret_123')).toBe(false)
-    expect(webhookSecretsMatch('short', 'secret_123')).toBe(false)
-    expect(webhookSecretsMatch('secret_124', 'secret_123')).toBe(false)
-    expect(webhookSecretsMatch('secret_123', 'secret_123')).toBe(true)
   })
 })

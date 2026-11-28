@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useLoginDialog } from '@/stores/use-login-dialog'
 
 type LoginPlatform = 'twitch' | 'kick' | 'telegram'
@@ -18,7 +19,7 @@ const loginDialog = useLoginDialog()
 const loadingPlatform = ref<LoginPlatform | null>(null)
 
 function handleLogin(platform: LoginPlatform) {
-  localStorage.setItem('loginReturnUrl', window.location.pathname)
+  localStorage.setItem(STORAGE_KEYS.loginReturnUrl, window.location.pathname)
   loadingPlatform.value = platform
   window.location.href = `${window.location.origin}/api/auth/${platform}`
 }

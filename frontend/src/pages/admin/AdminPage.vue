@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Trash2Icon, Tv, RotateCw } from '@lucide/vue'
-import { useTitle } from '@vueuse/core'
+import { Trash2Icon, Tv } from '@lucide/vue'
 import { onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -11,9 +11,6 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 import MergeAccountsPanel from '@/pages/admin/components/MergeAccountsPanel.vue'
 import SteamSyncPanel from '@/pages/admin/components/SteamSyncPanel.vue'
 import { useAdminUsers } from '@/pages/admin/composables/use-admin-users'
-
-const title = useTitle()
-onMounted(() => (title.value = 'Админка'))
 
 const { users, accounts, isLoading, error, fetchUsers, deleteUser } = useAdminUsers()
 
@@ -39,7 +36,7 @@ function toggleId(id: string) {
       v-if="isLoading"
       class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4"
     >
-      <Card v-for="n in 6" :key="n" class="bg-[var(--n-action-color)]">
+      <Card v-for="n in 6" :key="n">
         <CardContent class="flex items-center gap-4 pt-6">
           <Skeleton class="size-10 shrink-0 rounded-full" />
           <div class="flex flex-1 flex-col gap-2">
@@ -50,13 +47,7 @@ function toggleId(id: string) {
       </Card>
     </div>
 
-    <div v-else-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
-      <p class="text-sm text-destructive">{{ error }}</p>
-      <Button variant="outline" size="sm" @click="fetchUsers()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+    <ErrorRetry v-else-if="error" variant="block" :message="error" @retry="fetchUsers()" />
 
     <template v-else>
       <h2 class="text-lg font-semibold text-muted-foreground">Пользователи</h2>

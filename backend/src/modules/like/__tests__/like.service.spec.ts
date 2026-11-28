@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
-import { BadRequestException, NotFoundException } from '@backend/utils/errors'
+import { BadRequestError, NotFoundError } from '@backend/utils/errors'
 import { LikeService } from '../like.service'
 import { DrizzleLikeRepository } from '../repositories/drizzle-like.repository'
 
@@ -53,10 +53,10 @@ describe('LikeService', () => {
       )
     })
 
-    it('throws BadRequestException if like already exists', async () => {
+    it('throws BadRequestError if like already exists', async () => {
       mockRepo.findByUserAndRecord = mock(() => Promise.resolve(makeLike()))
 
-      await expect(service.createLike('user-1', 1)).rejects.toThrow(BadRequestException)
+      await expect(service.createLike('user-1', 1)).rejects.toThrow(BadRequestError)
       expect(mockRepo.create).not.toHaveBeenCalled()
     })
   })
@@ -78,10 +78,10 @@ describe('LikeService', () => {
       )
     })
 
-    it('throws NotFoundException if nothing was deleted', async () => {
+    it('throws NotFoundError if nothing was deleted', async () => {
       mockRepo.deleteByUserAndRecord = mock(() => Promise.resolve(0))
 
-      await expect(service.deleteLike('user-1', 1)).rejects.toThrow(NotFoundException)
+      await expect(service.deleteLike('user-1', 1)).rejects.toThrow(NotFoundError)
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
   })

@@ -37,9 +37,11 @@ frontend/src/
 | ---------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Add Page         | `pages/{name}/`              | `{Name}Page.vue` + `composables/` if complex; жанровые разделы — только `composables/`, рендер общий `pages/media/MediaPage.vue` |
 | Update API       | `lib/api.ts`                 | Eden Treaty; типы из `App` (`@backend/gateway`), реэкспорт из `@backend/api-types`                                               |
-| Route            | `router/`                    | Add to `router-paths.ts` then `router.ts`; имена — в `types/vue-router.d.ts`                                                     |
+| Route            | `router/`                    | Add to `ROUTE_TABLE` (`router-paths.ts`) then `router.ts`; `RouteNamedMap` выводится сам, жанры — из реестра                     |
 | Styling          | `assets/index.css`           | Tailwind 4 CSS variables + global overrides                                                                                      |
 | Utils            | `lib/utils.ts`               | Primary `cn()` helper (clsx + tailwind-merge)                                                                                    |
+| Status/grade     | `lib/record-vocabulary.ts`   | Имена, цвета и классы статусов/оценок; порядки — тоже оттуда                                                                     |
+| Storage          | `lib/storage-keys.ts`        | Все ключи localStorage/sessionStorage; сброс по версии — из того же списка                                                       |
 | Add media genre  | `pages/{genre}/composables/` | Shared `pages/media/MediaPage.vue`; genre from `route.meta.genre`; factories in `composables/factories/`                         |
 | Account UI       | `components/account/`        | Modal sections; opened via `use-account-dialog` store                                                                            |
 | Login modal      | `components/form/`           | `LoginDialog.vue`; opened via `use-login-dialog` store                                                                           |
@@ -50,14 +52,17 @@ frontend/src/
 
 ## STORES (Pinia — `stores/`)
 
-| Name                | Purpose                                                      |
-| ------------------- | ------------------------------------------------------------ |
-| `useUser`           | Auth state, login/logout, /auth/me data, admin/login getters |
-| `useAccountDialog`  | Account modal open state (`ACCOUNT_DIALOG_ON_LOAD_KEY`)      |
-| `useLoginDialog`    | Login modal open state                                       |
-| `useCommandPalette` | Command palette open state (`isOpen`, `open/close/toggle`)   |
-| `useNewRecords`     | localStorage tracking for "new" record badges                |
-| `useTitle`          | Document title management                                    |
+| Name                | Purpose                                                                         |
+| ------------------- | ------------------------------------------------------------------------------- |
+| `useUser`           | Auth state, login/logout, /auth/me data, admin/login getters                    |
+| `useAccountDialog`  | Account modal open state (`ACCOUNT_DIALOG_ON_LOAD_KEY`); из `createDialogStore` |
+| `useLoginDialog`    | Login modal open state; из `createDialogStore`                                  |
+| `useCommandPalette` | Command palette open state; из `createDialogStore`                              |
+| `useNewRecords`     | localStorage tracking for "new" record badges                                   |
+| `useTitle`          | Единственный владелец `document.title`; ставится роутером из `meta.title`       |
+
+`createDialogStore` (`stores/create-dialog-store.ts`) — общая фабрика boolean-модалок:
+`isOpen` + `open/close/toggle`.
 
 `useApi` (`stores/use-api.ts`) — **не** Pinia store, а обычная функция, возвращающая Eden-клиент из `lib/api.ts`: клиент — `Proxy`, и `reactive()` ломает его ловушки.
 
@@ -77,8 +82,8 @@ frontend/src/
 
 - **Setup**: Always use `<script setup lang="ts">`.
 - **Naming**: `.vue` files use PascalCase (e.g., `AnimePage.vue`, `DataCards.vue`). `.ts` files use kebab-case (e.g., `use-api.ts`). Exception: `app.vue` (root component).
-- **Barrel imports**: Shared component directories have `index.ts` barrels. Example: `import { DataCards } from '@/components/media'`
-- **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension. Use `@/` alias for all internal paths.
+- **Import paths**: `@/` alias for all internal paths. Feature directories import by file (`@/components/media/DataCards.vue`); barrels (`index.ts`) exist only where the directory is a public API: `components/ui/*` primitives and `components/{form,account,palette}`. Directories without barrels: `components/{media,layout,dialog}`, `composables/`, `stores/`, `utils/`.
+- **Imports**: `.vue` imports MUST keep extension; `.ts` imports MUST NOT have extension.
 - **UI Primitives**: shadcn-vue + reka-ui. Import via barrel: `import { Button } from '@/components/ui/button'`.
 - **Validation**: vee-validate 5.
 - **Toasts**: vue-sonner (wrapper in `components/ui/sonner`).

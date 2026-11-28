@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { assertOk } from '@/lib/api'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useApi } from '@/stores/use-api'
 import { useUser } from '@/stores/use-user'
@@ -94,17 +95,17 @@ onMounted(async () => {
   const isLinking = getCookie(provider.cookieName) === '1'
   deleteCookie(provider.cookieName)
 
-  const returnUrl = localStorage.getItem('loginReturnUrl') || ROUTER_PATHS.db
+  const returnUrl = localStorage.getItem(STORAGE_KEYS.loginReturnUrl) || ROUTER_PATHS.db
 
   try {
     if (isLinking) {
       await provider.link(code, state)
-      localStorage.removeItem('loginReturnUrl')
+      localStorage.removeItem(STORAGE_KEYS.loginReturnUrl)
       await router.push(returnUrl)
       toast.success('Аккаунт привязан', { description: `${provider.name} привязан к профилю` })
     } else {
       await provider.login(code, state)
-      localStorage.removeItem('loginReturnUrl')
+      localStorage.removeItem(STORAGE_KEYS.loginReturnUrl)
       await router.push(returnUrl)
       toast.success('Вход выполнен', { description: `Вы вошли через ${provider.name}` })
     }

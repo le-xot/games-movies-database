@@ -1,18 +1,12 @@
-import {
-  authModels,
-  requireRole,
-  requireUser,
-  resolveUser,
-  type Authenticator,
-} from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { likeModels } from '@backend/gateway/likes'
 import { recordEnumModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { recordModels, type GatewayRecord } from '@backend/gateway/records'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole, type RecordGenre } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { RecordGenre } from '@gmdb/contract'
 
 const { RecordGenre: recordGenreSchema } = recordEnumModels
 const { RecordEntity } = recordModels
@@ -46,16 +40,10 @@ export interface SuggestionRouteDeps {
   rateLimit: RateLimiter
 }
 
-const USER_ROLES = ['USER', 'ADMIN'] as const
+const USER_ROLES = [UserRole.USER, UserRole.ADMIN] as const
 
 export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRouteDeps) {
-  const limit = (
-    request: Request,
-    server: { requestIP: (r: Request) => { address: string } | null } | null,
-    route: string,
-    config: Parameters<typeof enforceRateLimit>[1]['config'],
-  ) =>
-    enforceRateLimit(rateLimit, { request, route, config, ip: server?.requestIP(request)?.address })
+  const limit = rateLimitGuard(rateLimit)
 
   return new Elysia({ name: 'suggestions' })
     .model({
@@ -69,12 +57,7 @@ export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRou
     .get(
       '/suggestions',
       async (ctx) => {
-        await limit(
-          ctx.request,
-          ctx.server,
-          'SuggestionController.getSuggestions',
-          RATE_LIMITS.public,
-        )
+        await limit(ctx, RATE_LIMITS.public)
 
         return await suggestions.list()
       },
@@ -88,13 +71,8 @@ export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRou
     .post(
       '/suggestions',
       async (ctx) => {
-        await limit(
-          ctx.request,
-          ctx.server,
-          'SuggestionController.userSuggest',
-          RATE_LIMITS.suggestion,
-        )
-        const user = requireRole(requireUser(await resolveUser(auth, ctx.request)), USER_ROLES)
+        await limit(ctx, RATE_LIMITS.suggestion)
+        const user = await requireAuthenticated(auth, ctx.request, USER_ROLES)
 
         return await suggestions.create({
           link: (ctx.body as CreateSuggestionInput).link,
@@ -112,13 +90,8 @@ export function suggestionRoutes({ suggestions, auth, rateLimit }: SuggestionRou
     .delete(
       '/suggestions/:id',
       async (ctx) => {
-        await limit(
-          ctx.request,
-          ctx.server,
-          'SuggestionController.deleteUserSuggestion',
-          RATE_LIMITS.public,
-        )
-        const user = requireUser(await resolveUser(auth, ctx.request))
+        await limit(ctx, RATE_LIMITS.public)
+        const user = await requireAuthenticated(auth, ctx.request)
 
         await suggestions.remove(ctx.params.id, user.id)
       },

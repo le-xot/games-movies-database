@@ -1,6 +1,6 @@
-import { authModels, requireUser, resolveUser, type Authenticator } from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia } from 'elysia'
 
@@ -17,17 +17,14 @@ export interface MeRouteDeps {
  * чем AuthGuard на роуте.
  */
 export function meRoutes({ auth, rateLimit }: MeRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'me' }).model({ ...apiErrorModels, ...authModels }).get(
     '/auth/me',
-    async ({ request, server }) => {
-      await enforceRateLimit(rateLimit, {
-        request,
-        route: 'AuthController.me',
-        config: RATE_LIMITS.public,
-        ip: server?.requestIP(request)?.address,
-      })
+    async ({ request, server, route }) => {
+      await limit({ request, server, route }, RATE_LIMITS.public)
 
-      return requireUser(await resolveUser(auth, request))
+      return await requireAuthenticated(auth, request)
     },
     {
       response: {

@@ -1,31 +1,49 @@
 <script setup lang="ts">
-import { ArrowUpDown, EyeOff, ListPlus, RotateCw } from '@lucide/vue'
+import { ArrowUpDown, EyeOff, ListPlus } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
 import { toast } from 'vue-sonner'
+import { useDialog } from '@/components/dialog/composables/use-dialog'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
+import SuggestionForm from '@/pages/suggestion/components/SuggestionForm.vue'
+import SupportedServices from '@/pages/suggestion/components/SupportedServices.vue'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useLoginDialog } from '@/stores/use-login-dialog'
 import { useNewRecords } from '@/stores/use-new-records'
 import { useUser } from '@/stores/use-user'
+import type { SuggestionSortBy } from '@/pages/suggestion/composables/suggestion-groups'
 
 const suggestion = useSuggestion()
 const user = useUser()
 const loginDialog = useLoginDialog()
+const dialog = useDialog()
+
+/** Диалог — часть страницы: стор больше не тянет Vue-компоненты и модалку. */
+function openSuggestionDialog() {
+  dialog.openDialog({
+    title: 'Поддерживаемые сервисы',
+    customContent: SupportedServices,
+    onSubmit: () => {},
+    onCancel: () => dialog.closeDialog(),
+    component: SuggestionForm,
+  })
+}
 
 function handleSuggestClick() {
   if (!user.isInitialized) return
 
   if (!user.isLoggedIn) {
-    loginDialog.openLogin()
+    loginDialog.open()
     return
   }
 
-  suggestion.openSuggestionDialog()
+  openSuggestionDialog()
 }
 
-const sortBy = useLocalStorage<'date' | 'likes'>('suggestion-sort-by', 'date')
+const sortBy = useLocalStorage<SuggestionSortBy>(STORAGE_KEYS.suggestionSortBy, 'date')
 
 function toggleSort() {
   sortBy.value = sortBy.value === 'date' ? 'likes' : 'date'
@@ -45,16 +63,11 @@ function handleMarkAllAsViewed() {
 
 <template>
   <div class="flex flex-col gap-4 h-full">
-    <div
+    <ErrorRetry
       v-if="suggestion.error"
-      class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[var(--n-action-color)] px-4 py-3"
-    >
-      <span class="text-sm text-destructive">Не удалось загрузить советы</span>
-      <Button variant="outline" size="sm" @click="suggestion.refetchSuggestions()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+      message="Не удалось загрузить советы"
+      @retry="suggestion.refetchSuggestions()"
+    />
 
     <SuggestionCard :items="suggestion.suggestions || []" :sort-by="sortBy">
       <template #title>

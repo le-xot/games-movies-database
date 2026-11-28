@@ -5,12 +5,12 @@ import {
   WORD_PATTERN,
   normalizeWord,
 } from '@backend/modules/wordle/wordle.dictionary'
-import { WordlePracticeStateDTO } from '@backend/modules/wordle/wordle.dto'
 import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 import { MAX_ATTEMPTS, WORD_LENGTH } from '@backend/modules/wordle/wordle.stats'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import { RedisClient } from 'bun'
+import type { WordlePracticeState } from '@backend/modules/wordle/entities/wordle.entity'
 
 export const PRACTICE_KEY_PREFIX = 'wordle:practice'
 export const PRACTICE_TTL_SECONDS = 86_400
@@ -36,12 +36,12 @@ export class WordlePracticeService {
     private readonly dictionary: WordleDictionary,
   ) {}
 
-  async getState(userId: string): Promise<WordlePracticeStateDTO | null> {
+  async getState(userId: string): Promise<WordlePracticeState | null> {
     const session = await this.readSession(userId)
     return session ? this.buildState(session) : null
   }
 
-  async start(userId: string, now: Date = new Date()): Promise<WordlePracticeStateDTO> {
+  async start(userId: string, now: Date = new Date()): Promise<WordlePracticeState> {
     const previous = await this.readSession(userId)
     const excluded = this.getUpcomingAnswers(getMoscowDateKey(now))
     if (previous) excluded.push(previous.answer)
@@ -54,19 +54,19 @@ export class WordlePracticeService {
     return this.buildState(session)
   }
 
-  async makeGuess(userId: string, rawWord: string): Promise<WordlePracticeStateDTO> {
+  async makeGuess(userId: string, rawWord: string): Promise<WordlePracticeState> {
     const word = normalizeWord(rawWord)
     if (!WORD_PATTERN.test(word)) {
-      throw new BadRequestException('Слово должно состоять из 5 русских букв')
+      throw new BadRequestError('Слово должно состоять из 5 русских букв')
     }
     if (!this.dictionary.isValidWord(word)) {
-      throw new BadRequestException('Слово не найдено в словаре')
+      throw new BadRequestError('Слово не найдено в словаре')
     }
 
     const session = await this.readSession(userId)
-    if (!session) throw new BadRequestException('Тренировочная партия не начата')
+    if (!session) throw new BadRequestError('Тренировочная партия не начата')
     if (derivePracticeStatus(session.answer, session.guesses) !== WordleGameStatus.IN_PROGRESS) {
-      throw new BadRequestException('Тренировочная партия уже завершена')
+      throw new BadRequestError('Тренировочная партия уже завершена')
     }
 
     // Гонка двух вкладок осознанно принята: режим неучётный, цена — потеря одной догадки.
@@ -81,7 +81,7 @@ export class WordlePracticeService {
     )
   }
 
-  private buildState(session: WordlePracticeSession): WordlePracticeStateDTO {
+  private buildState(session: WordlePracticeSession): WordlePracticeState {
     const status = derivePracticeStatus(session.answer, session.guesses)
 
     return {

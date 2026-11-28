@@ -1,6 +1,6 @@
 import { apiErrorModels, publicErrors } from '@backend/gateway/errors'
 import { recordEnumModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
 
@@ -74,17 +74,14 @@ export interface StatsRouteDeps {
 }
 
 export function statsRoutes({ stats, rateLimit }: StatsRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'stats' })
     .model({ ...apiErrorModels, ...recordEnumModels, ...statsModels })
     .get(
       '/stats/records',
-      async ({ request, server }) => {
-        await enforceRateLimit(rateLimit, {
-          request,
-          route: 'StatsController.getRecordsStats',
-          config: RATE_LIMITS.public,
-          ip: server?.requestIP(request)?.address,
-        })
+      async ({ request, server, route }) => {
+        await limit({ request, server, route }, RATE_LIMITS.public)
 
         return await stats.getRecordsStats()
       },

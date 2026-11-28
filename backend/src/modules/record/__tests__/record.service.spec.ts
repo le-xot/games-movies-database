@@ -3,7 +3,7 @@ import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { makeRecordRow } from '@backend/__tests__/helpers/record-fixture'
 import { RecordGenre, RecordGrade, RecordStatus, RecordType } from '@backend/enums'
 import { DrizzleRatingRepository } from '@backend/modules/rating/repositories/drizzle-rating.repository'
-import { NotFoundException } from '@backend/utils/errors'
+import { NotFoundError } from '@backend/utils/errors'
 import { RecordService } from '../record.service'
 import { DrizzleRecordRepository } from '../repositories/drizzle-record.repository'
 import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
@@ -131,10 +131,10 @@ describe('RecordService', () => {
   })
 
   describe('patchRecord', () => {
-    it('throws NotFoundException when record does not exist', async () => {
+    it('throws NotFoundError when record does not exist', async () => {
       mockRepo.findById = mock(() => Promise.resolve(null))
 
-      await expect(service.patchRecord(999, {} as any)).rejects.toThrow(NotFoundException)
+      await expect(service.patchRecord(999, {} as any)).rejects.toThrow(NotFoundError)
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
 
@@ -175,11 +175,11 @@ describe('RecordService', () => {
   })
 
   describe('updatePoster', () => {
-    it('throws NotFoundException when record does not exist', async () => {
+    it('throws NotFoundError when record does not exist', async () => {
       mockRepo.findById = mock(() => Promise.resolve(null))
 
       await expect(service.updatePoster(999, 'https://example.com/poster.jpg')).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       )
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
@@ -231,10 +231,10 @@ describe('RecordService', () => {
   })
 
   describe('deleteRecord', () => {
-    it('throws NotFoundException when record not found', async () => {
+    it('throws NotFoundError when record not found', async () => {
       mockRepo.findById = mock(() => Promise.resolve(null))
 
-      await expect(service.deleteRecord(999)).rejects.toThrow(NotFoundException)
+      await expect(service.deleteRecord(999)).rejects.toThrow(NotFoundError)
       expect(mockRepo.delete).not.toHaveBeenCalled()
     })
 
@@ -357,10 +357,10 @@ describe('RecordService', () => {
       expect(result).toMatchObject({ id: 7, friendsTotal: 0, myGrade: RecordGrade.BEER })
     })
 
-    it('throws NotFoundException when not found', async () => {
+    it('throws NotFoundError when not found', async () => {
       mockRepo.findById = mock(() => Promise.resolve(null))
 
-      await expect(service.findRecordById(0)).rejects.toThrow(NotFoundException)
+      await expect(service.findRecordById(0)).rejects.toThrow(NotFoundError)
     })
   })
 })

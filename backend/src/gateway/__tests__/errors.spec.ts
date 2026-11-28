@@ -1,29 +1,59 @@
 import { describe, expect, it } from 'bun:test'
-import { ApiError, errorBody, fromDomainError } from '@backend/gateway/errors'
-import { NotFoundException } from '@backend/utils/errors'
+import { errorBody } from '@backend/gateway/errors'
+import {
+  BadGatewayError,
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  HttpError,
+  NotFoundError,
+  ServiceUnavailableError,
+  TooManyRequestsError,
+  UnauthorizedError,
+} from '@backend/utils/errors'
 
-describe('fromDomainError', () => {
-  it('keeps gateway errors as is', () => {
-    const error = new ApiError(429, 'slow down', { 'retry-after': '5' })
+describe('HttpError', () => {
+  it('carries status, message and headers', () => {
+    const error = new TooManyRequestsError('slow down', { 'retry-after': '5' })
 
-    expect(fromDomainError(error)).toBe(error)
+    expect(error).toBeInstanceOf(HttpError)
+    expect(error.statusCode).toBe(429)
+    expect(error.message).toBe('slow down')
+    expect(error.headers).toEqual({ 'retry-after': '5' })
   })
 
-  it('maps a Nest HttpException to the same status and message', () => {
-    const mapped = fromDomainError(new NotFoundException('User not found'))
-
-    expect(mapped).toBeInstanceOf(ApiError)
-    expect(mapped?.statusCode).toBe(404)
-    expect(mapped?.message).toBe('User not found')
+  it('uses the subclass name', () => {
+    expect(new TooManyRequestsError().name).toBe('TooManyRequestsError')
   })
 
-  it('ignores errors that are not HTTP-like', () => {
-    expect(fromDomainError(new Error('boom'))).toBeNull()
+  it('is not a domain-agnostic Error substitute', () => {
+    expect(new Error('boom')).not.toBeInstanceOf(HttpError)
   })
 })
 
+describe('HttpError subclasses', () => {
+  const defaults = [
+    [new BadRequestError(), 400, 'Bad Request'],
+    [new UnauthorizedError(), 401, 'Unauthorized'],
+    [new ForbiddenError(), 403, 'Forbidden'],
+    [new NotFoundError(), 404, 'Not Found'],
+    [new ConflictError(), 409, 'Conflict'],
+    [new TooManyRequestsError(), 429, 'Too Many Requests'],
+    [new BadGatewayError(), 502, 'Bad Gateway'],
+    [new ServiceUnavailableError(), 503, 'Service Unavailable'],
+  ] as const
+
+  for (const [error, status, message] of defaults) {
+    it(`${error.constructor.name} carries ${status} and a default message`, () => {
+      expect(error).toBeInstanceOf(HttpError)
+      expect(error.statusCode).toBe(status)
+      expect(error.message).toBe(message)
+    })
+  }
+})
+
 describe('errorBody', () => {
-  it('builds the Nest envelope', () => {
+  it('builds the ApiErrorDto envelope', () => {
     expect(errorBody(404, 'Not Found')).toEqual({
       statusCode: 404,
       message: 'Not Found',

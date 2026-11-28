@@ -1,12 +1,11 @@
 import { apiErrorModels, errorBody, publicErrors } from '@backend/gateway/errors'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
 
 /**
- * Описание погодного ответа в TypeBox. Имена моделей повторяют DTO из
- * `modules/weather/weather.dto.ts`: от них зависит `$ref` в контракте, а значит
- * и имена схем в сгенерированных типах фронта.
+ * Описание погодного ответа в TypeBox — единственный источник формы на проводе.
+ * Имена моделей фиксированы контрактом `$ref`: от них зависят типы фронта.
  */
 export const weatherModels = {
   WeatherMainDTO: t.Object({
@@ -40,13 +39,14 @@ export const weatherModels = {
   }),
 }
 
-export interface WeatherResponse {
-  main: { temp: number; feels_like: number; humidity: number; pressure: number }
-  weather: { main: string; description: string }[]
-  wind: { speed: number }
+/** Тип ответа собирается из статических типов схем (Ref'ы внутри модели дают unknown). */
+export type WeatherResponse = {
+  main: typeof weatherModels.WeatherMainDTO.static
+  weather: (typeof weatherModels.WeatherConditionDTO.static)[]
+  wind: typeof weatherModels.WeatherWindDTO.static
   visibility: number
-  clouds: { all: number }
-  sys: { sunrise: number; sunset: number }
+  clouds: typeof weatherModels.WeatherCloudsDTO.static
+  sys: typeof weatherModels.WeatherSysDTO.static
   name: string
 }
 
@@ -61,15 +61,12 @@ export interface WeatherRouteDeps {
 }
 
 export function weatherRoutes({ weather, rateLimit }: WeatherRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'weather' }).model({ ...apiErrorModels, ...weatherModels }).get(
     '/weather',
-    async ({ set, request, server }) => {
-      await enforceRateLimit(rateLimit, {
-        request,
-        route: 'WeatherController.getWeather',
-        config: RATE_LIMITS.public,
-        ip: server?.requestIP(request)?.address,
-      })
+    async ({ set, request, server, route }) => {
+      await limit({ request, server, route }, RATE_LIMITS.public)
 
       const data = await weather.getWeatherData()
 

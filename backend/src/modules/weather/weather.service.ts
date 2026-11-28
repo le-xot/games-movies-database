@@ -1,9 +1,9 @@
 import { env } from '@backend/utils/enviroments'
 import { Logger } from '@backend/utils/logger'
 import { isRecord } from '@backend/utils/type-guards'
-import type { WeatherDTO } from '@backend/modules/weather/weather.dto'
+import type { WeatherSnapshot } from '@backend/modules/weather/entities/weather.entity'
 
-function isWeatherData(value: unknown): value is WeatherDTO {
+function isWeatherData(value: unknown): value is WeatherSnapshot {
   if (!isRecord(value)) return false
   const main = value.main
   const wind = value.wind
@@ -35,8 +35,9 @@ function isWeatherData(value: unknown): value is WeatherDTO {
 
 export class WeatherService {
   private readonly logger = new Logger(WeatherService.name)
-  private cachedData: WeatherDTO | null = null
+  private cachedData: WeatherSnapshot | null = null
   private lastFetch: number = 0
+  private timer: ReturnType<typeof setInterval> | null = null
   private readonly CACHE_DURATION = 5 * 60 * 1000
 
   async onModuleInit() {
@@ -44,7 +45,7 @@ export class WeatherService {
     try {
       await this.fetchWeatherData()
       this.logger.log('Initial weather data fetched successfully')
-      setInterval(() => {
+      this.timer = setInterval(() => {
         this.fetchWeatherData().catch((e) => {
           this.logger.error(`Failed to fetch weather data: ${e.message}`, e.stack)
         })
@@ -55,6 +56,13 @@ export class WeatherService {
         (e as Error).stack,
       )
       throw new Error(`Failed to initialize WeatherService: ${(e as Error).message}`, { cause: e })
+    }
+  }
+
+  onModuleDestroy(): void {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
     }
   }
 
@@ -81,7 +89,7 @@ export class WeatherService {
     }
   }
 
-  async getWeatherData(): Promise<WeatherDTO | null> {
+  async getWeatherData(): Promise<WeatherSnapshot | null> {
     if (Date.now() - this.lastFetch >= this.CACHE_DURATION) {
       await this.fetchWeatherData()
     }

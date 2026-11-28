@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { randomBytes } from 'node:crypto'
 import { env } from '@backend/utils/enviroments'
-import { HttpException, HttpStatus } from '@backend/utils/errors'
+import { BadGatewayError, ServiceUnavailableError, UnauthorizedError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import {
@@ -22,7 +22,7 @@ export class TelegramService {
 
   assertConfigured(): void {
     if (!this.isConfigured) {
-      throw new HttpException('Telegram auth is not configured', HttpStatus.SERVICE_UNAVAILABLE)
+      throw new ServiceUnavailableError('Telegram auth is not configured')
     }
   }
 
@@ -65,12 +65,12 @@ export class TelegramService {
     if (!response.ok) {
       const body = await response.text()
       this.logger.warn(`Telegram token exchange failed (${response.status}): ${body.slice(0, 200)}`)
-      throw new HttpException('Telegram token exchange failed', HttpStatus.BAD_GATEWAY)
+      throw new BadGatewayError('Telegram token exchange failed')
     }
 
     const data = (await response.json()) as { id_token?: string }
     if (!data.id_token) {
-      throw new HttpException('Telegram did not return an id_token', HttpStatus.BAD_GATEWAY)
+      throw new BadGatewayError('Telegram did not return an id_token')
     }
 
     return this.verifyIdToken(data.id_token)
@@ -85,7 +85,7 @@ export class TelegramService {
       return mapTelegramOidcClaims(payload as TelegramOidcClaims)
     } catch (error) {
       this.logger.warn(`Telegram id_token verification failed: ${String(error)}`)
-      throw new HttpException('Invalid Telegram id_token', HttpStatus.UNAUTHORIZED)
+      throw new UnauthorizedError('Invalid Telegram id_token')
     }
   }
 
@@ -95,7 +95,7 @@ export class TelegramService {
     const clientId = env.TELEGRAM_CLIENT_ID
     const clientSecret = env.TELEGRAM_CLIENT_SECRET
     if (!clientId || !clientSecret) {
-      throw new HttpException('Telegram auth is not configured', HttpStatus.SERVICE_UNAVAILABLE)
+      throw new ServiceUnavailableError('Telegram auth is not configured')
     }
     return { clientId, clientSecret }
   }

@@ -1,16 +1,10 @@
-import {
-  authModels,
-  requireRole,
-  requireUser,
-  resolveUser,
-  type Authenticator,
-} from '@backend/gateway/auth'
+import { authModels, type Authenticator, requireAuthenticated } from '@backend/gateway/auth'
 import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { UserRole } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
-import type { LimitType } from '@gmdb/contract'
 
 const { LimitType: limitTypeSchema } = accountEnumModels
 
@@ -25,13 +19,11 @@ export const limitModels = {
   }),
 }
 
-export interface Limit {
-  name: LimitType
-  quantity: number
-}
+export type ChangeLimitInput = typeof limitModels.ChangeLimitDTO.static
+export type Limit = typeof limitModels.LimitEntity.static
 
 export interface LimitsService {
-  change(input: Limit): Promise<Limit>
+  change(input: ChangeLimitInput): Promise<Limit>
 }
 
 export interface LimitRouteDeps {
@@ -40,24 +32,21 @@ export interface LimitRouteDeps {
   rateLimit: RateLimiter
 }
 
-const ADMIN = ['ADMIN'] as const
+const ADMIN = [UserRole.ADMIN] as const
 
 export function limitRoutes({ limits, auth, rateLimit }: LimitRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'limits' })
     .model({ ...apiErrorModels, ...authModels, ...accountEnumModels, ...limitModels })
     .post(
       '/limits',
       async (ctx) => {
-        await enforceRateLimit(rateLimit, {
-          request: ctx.request,
-          route: 'LimitController.changeLimit',
-          config: RATE_LIMITS.write,
-          ip: ctx.server?.requestIP(ctx.request)?.address,
-        })
+        await limit(ctx, RATE_LIMITS.write)
 
-        requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
+        await requireAuthenticated(auth, ctx.request, ADMIN)
 
-        return await limits.change(ctx.body as Limit)
+        return await limits.change(ctx.body as ChangeLimitInput)
       },
       {
         body: 'ChangeLimitDTO' as const,

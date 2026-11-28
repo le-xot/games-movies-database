@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { RotateCw, Search } from '@lucide/vue'
+import { Search } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,7 +18,6 @@ import {
   type FriendsSort,
 } from '@/pages/friends/friends-members'
 import { GRADE_COLORS } from '@/pages/stats/constants/stats-constants'
-import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
 import { getTopGrade } from '@/utils/friends-rating'
 import { pluralRu } from '@/utils/plural-ru'
@@ -26,9 +26,6 @@ import type { FriendsMemberEntity } from '@/lib/api'
 const NEUTRAL_COLOR = '#333333'
 const PARTICIPANT_FORMS = ['участник', 'участника', 'участников'] as const
 const RATING_FORMS = ['оценка', 'оценки', 'оценок'] as const
-
-const { updateTitle } = useTitle()
-updateTitle('Друзья')
 
 const friends = useFriends()
 const { items, isLoading, error } = storeToRefs(friends)
@@ -117,19 +114,13 @@ function retry() {
       </div>
     </header>
 
-    <div v-if="error" class="flex flex-col items-center gap-3 py-16 text-center">
-      <p class="text-sm text-destructive">{{ error }}</p>
-      <Button variant="outline" size="sm" @click="retry">
-        <RotateCw />
-        Повторить
-      </Button>
-    </div>
+    <ErrorRetry v-if="error" variant="block" :message="error" @retry="retry" />
 
     <ul v-else-if="isLoading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <li
         v-for="n in 6"
         :key="n"
-        class="flex h-44 animate-pulse flex-col gap-5 rounded-xl border border-white/10 bg-[var(--n-action-color)] p-5"
+        class="flex h-44 animate-pulse flex-col gap-5 rounded-xl border border-white/10 p-5"
       >
         <div class="flex items-center gap-4">
           <div class="size-16 shrink-0 rounded-full bg-zinc-700" />
@@ -154,7 +145,7 @@ function retry() {
       <li v-for="member in visible" :key="member.userId" class="flex">
         <RouterLink
           :to="{ name: 'user-ratings', params: { id: member.userId } }"
-          class="group relative flex w-full flex-col gap-5 overflow-hidden rounded-xl border bg-[var(--n-action-color)] p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          class="group relative flex w-full flex-col gap-5 overflow-hidden rounded-xl border p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           :class="isSelf(member) ? 'border-white/40' : 'border-white/10'"
           :style="{
             backgroundImage: `linear-gradient(160deg, ${favoriteColor(member)}55 0%, transparent 60%)`,

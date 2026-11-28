@@ -1,15 +1,19 @@
 import {
   authModels,
-  requireUser,
-  resolveUser,
   type Authenticator,
   type GatewayUser,
+  requireAuthenticated,
 } from '@backend/gateway/auth'
 import { clearCookie } from '@backend/gateway/cookies'
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
-import { accountEnumModels, commonModels } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
+import {
+  AccountPlatform as AccountPlatformSchema,
+  accountEnumModels,
+  commonModels,
+} from '@backend/gateway/models'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { userModels, type UserAccount } from '@backend/gateway/users'
+import { BadRequestError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { isAvatarFrameId } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -60,22 +64,9 @@ export interface AuthSessionRouteDeps {
 }
 
 export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionRouteDeps) {
-  const limit = (
-    ctx: {
-      request: Request
-      server: { requestIP: (r: Request) => { address: string } | null } | null
-    },
-    route: string,
-    config: Parameters<typeof enforceRateLimit>[1]['config'],
-  ) =>
-    enforceRateLimit(rateLimit, {
-      request: ctx.request,
-      route,
-      config,
-      ip: ctx.server?.requestIP(ctx.request)?.address,
-    })
+  const limit = rateLimitGuard(rateLimit)
 
-  const requireSession = async (request: Request) => requireUser(await resolveUser(auth, request))
+  const requireSession = async (request: Request) => await requireAuthenticated(auth, request)
 
   return new Elysia({ name: 'auth-session' })
     .model({
@@ -89,7 +80,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .get(
       '/auth/accounts',
       async (ctx) => {
-        await limit(ctx, 'AuthController.getLinkedAccounts', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
 
         return await authSession.getAccounts((await requireSession(ctx.request)).id)
       },
@@ -103,7 +94,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .delete(
       '/auth/accounts/:platform',
       async (ctx) => {
-        await limit(ctx, 'AuthController.unlinkAccount', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
 
         await authSession.unlinkAccount(user.id, ctx.params.platform as AccountPlatform)
@@ -112,7 +103,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
       },
       {
         params: t.Object({
-          platform: t.Union([t.Literal('TWITCH'), t.Literal('KICK'), t.Literal('TELEGRAM')]),
+          platform: AccountPlatformSchema,
         }),
         response: {
           200: 'SuccessResponseDTO' as const,
@@ -123,7 +114,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .patch(
       '/auth/me',
       async (ctx) => {
-        await limit(ctx, 'AuthController.updateNickname', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
 
         return await authSession.updateLogin(user.id, (ctx.body as { login: string }).login)
@@ -139,7 +130,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .get(
       '/auth/me/customization',
       async (ctx) => {
-        await limit(ctx, 'AuthController.getCustomization', RATE_LIMITS.public)
+        await limit(ctx, RATE_LIMITS.public)
         const user = await requireSession(ctx.request)
 
         return await authSession.getCustomization(user.id)
@@ -154,14 +145,14 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .patch(
       '/auth/me/customization',
       async (ctx) => {
-        await limit(ctx, 'AuthController.updateCustomization', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
         const body = ctx.body as CustomizationUpdateInput
 
         // Проверка по каталогу, а не только по типу: неизвестный/устаревший id
         // не должен доехать до БД.
         if (typeof body.avatarFrameId === 'string' && !isAvatarFrameId(body.avatarFrameId)) {
-          throw new ApiError(400, 'Неизвестная рамка аватара')
+          throw new BadRequestError('Неизвестная рамка аватара')
         }
 
         return await authSession.updateCustomization(user.id, {
@@ -179,7 +170,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .delete(
       '/auth/me',
       async (ctx) => {
-        await limit(ctx, 'AuthController.deleteMe', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
 
         await authSession.deleteUser(user.id)
@@ -197,7 +188,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .post(
       '/auth/logout',
       async (ctx) => {
-        await limit(ctx, 'AuthController.logout', RATE_LIMITS.auth)
+        await limit(ctx, RATE_LIMITS.auth)
         ctx.set.headers['set-cookie'] = clearCookie('token')
         // Именно `undefined`: `null` не проходит схему `t.Void()` и даёт 422.
         return undefined
@@ -212,17 +203,17 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .post(
       '/auth/me/avatar',
       async (ctx) => {
-        await limit(ctx, 'AuthController.uploadAvatar', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
 
         // Elysia уже разобрала multipart в `ctx.body`: request.formData() здесь
         // бросает «Body already used».
         const file = (ctx.body as { file?: File }).file
-        if (!(file instanceof File)) throw new ApiError(400, 'No file provided')
+        if (!(file instanceof File)) throw new BadRequestError('No file provided')
         if (!file.type.startsWith('image/')) {
-          throw new ApiError(400, 'Only image files are allowed')
+          throw new BadRequestError('Only image files are allowed')
         }
-        if (file.size > MAX_AVATAR_BYTES) throw new ApiError(400, 'File too large')
+        if (file.size > MAX_AVATAR_BYTES) throw new BadRequestError('File too large')
 
         return await authSession.uploadAvatar(user.id, Buffer.from(await file.arrayBuffer()))
       },
@@ -238,7 +229,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
     .delete(
       '/auth/me/avatar',
       async (ctx) => {
-        await limit(ctx, 'AuthController.deleteAvatar', RATE_LIMITS.write)
+        await limit(ctx, RATE_LIMITS.write)
         const user = await requireSession(ctx.request)
 
         return await authSession.deleteAvatar(user.id)

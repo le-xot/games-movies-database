@@ -3,7 +3,7 @@ import {
   CocktailService,
   type CocktailRepository,
 } from '@backend/modules/cocktail/cocktail.service'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { CocktailMethod, CocktailTier, IngredientCategory } from '@gmdb/contract'
 import type { CatalogCocktail, CatalogIngredient } from '@backend/modules/cocktail/cocktail.types'
 
@@ -71,7 +71,7 @@ describe('CocktailService', () => {
     const repository = createRepository()
     const service = new CocktailService(repository)
 
-    await expect(service.setBar('user-1', ['gin', 'absinthe'])).rejects.toThrow(BadRequestException)
+    await expect(service.setBar('user-1', ['gin', 'absinthe'])).rejects.toThrow(BadRequestError)
     await expect(service.setBar('user-1', ['gin', 'absinthe'])).rejects.toThrow(
       'Unknown ingredient: absinthe',
     )

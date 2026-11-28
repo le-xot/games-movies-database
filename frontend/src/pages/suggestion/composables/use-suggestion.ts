@@ -2,12 +2,9 @@ import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
-import { useDialog } from '@/components/dialog/composables/use-dialog'
 import { SUGGESTION_QUERY_KEY } from '@/composables/query-keys'
 import { RecordEntity, RecordStatus, RecordType, unwrap } from '@/lib/api'
 import { assertOk } from '@/lib/api'
-import SuggestionForm from '@/pages/suggestion/components/SuggestionForm.vue'
-import SupportedServices from '@/pages/suggestion/components/SupportedServices.vue'
 import { useApi } from '@/stores/use-api'
 import { useNewRecords } from '@/stores/use-new-records'
 import { parseApiError } from '@/utils/api-error'
@@ -15,22 +12,7 @@ import { parseApiError } from '@/utils/api-error'
 export const useSuggestion = defineStore('queue/use-suggestion', () => {
   const api = useApi()
   const error = ref<string | null>(null)
-  const dialog = useDialog()
   const newRecords = useNewRecords()
-
-  function openSuggestionDialog(onClose?: () => void) {
-    dialog.openDialog({
-      title: 'Поддерживаемые сервисы',
-      description: undefined,
-      customContent: SupportedServices,
-      onSubmit: () => {},
-      onCancel: () => {
-        dialog.closeDialog()
-        if (onClose) onClose()
-      },
-      component: SuggestionForm,
-    })
-  }
 
   const {
     data: suggestions,
@@ -46,7 +28,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         const data = await unwrap(api.suggestions.get())
         return data
       } catch (err) {
-        error.value = await parseApiError(err, 'Failed to load suggestions')
+        error.value = await parseApiError(err, 'Не удалось загрузить советы')
         throw err
       }
     },
@@ -179,7 +161,6 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
     handleDeleteSuggestion,
     handleDeleteOwnSuggestion,
     handleApproveSuggestion,
-    openSuggestionDialog,
   }
 })
 

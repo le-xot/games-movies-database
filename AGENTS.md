@@ -84,7 +84,6 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
 - **NEVER** добавлять `@nestjs/*` — Nest из проекта выпилен, зависимостей нет
 - **NEVER** объявлять `t.Unsafe` в схемах ответа — ломает рантайм-валидацию TypeBox
-- `suggesttion.dto.ts` has a typo (double t) — do not rename without updating all imports
 
 ## GIT
 
@@ -126,7 +125,7 @@ bun db:baseline                # One-time: mark 0000_init applied on an existing
 cd backend && bun test         # Backend unit tests (bun test)
 bun --filter=./backend run test:integration   # Integration tests (RUN_DB_TESTS=1 + Postgres)
 cd frontend && bun run test    # Frontend unit tests
-cd frontend && bun run test:e2e               # Playwright E2E
+cd frontend && bun run test:e2e               # Playwright E2E (нужны postgres + redis: bun infra:start)
 bun run test:scripts           # render-env.sh + rollback.sh script tests
 
 # Docker
@@ -145,6 +144,9 @@ docker run -p 3000:3000 --env-file .env games-movies-database
 - Tests: backend has unit tests via `bun test` (see `backend/src/**/__tests__/`). Run from `backend/` — envalid needs `backend/.env` on import.
 - Migrations run as a separate one-shot `migrations` compose service before `application` starts (`depends_on: service_completed_successfully`)
 - Existing Prisma-era DBs must be baselined once (`docker compose run --rm --no-deps migrations bun run baseline`); `_prisma_migrations` is intentionally kept for rollback
-- Rate limiting: `enforceRateLimit` в гейтвее поверх Redis (`Bun.redis`). Fixed window via Lua, пресеты в `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, twir 120/min, wordlePractice 120/min). Fail-open when Redis is down, но с таймаутом 250 мс — иначе первый запрос после падения Redis висит ~30 с на переподключении. Client tracked by first `X-Forwarded-For` hop. Порядок: лимит → auth → роли
+- Rate limiting: `enforceRateLimit` в гейтвее поверх Redis (`Bun.redis`). Fixed window via Lua, пресеты в `backend/src/utils/rate-limits.ts` (public 1000/min, auth 5/min, write 20/min, like 60/min, suggestion 20/min, img 3000/min, twir 120/min, wordlePractice 120/min). Fail-open when Redis is down, но с таймаутом 250 мс — иначе первый запрос после падения Redis висит ~30 с на переподключении. Client tracked by first `X-Forwarded-For` hop. Порядок: лимит → auth → роли. Роут закрывается `rateLimitGuard(rateLimit)`; ключ — `rl:{METHOD} {path}:{ip}` (путь из `ctx.route`)
 - Production `REDIS_URL=redis://redis:6379` is set in docker-compose.yml; dev defaults to `redis://localhost:6379`
 - Auth: JWT stored in httpOnly cookie named `token`. CORS allows localhost:3000, localhost:5173 и https://le-xot.dev
+- Logging: `Logger` с уровнями, уровень — `LOG_LEVEL` (`debug|info|warn|error`, devDefault `debug`)
+  через `configureLogger` в `main.ts`. `console.*` вне логгера/main/скриптов запрещён oxlint'ом;
+  `process.env` читается только в `backend/src/utils/enviroments.ts` (проверяет architecture.spec)

@@ -205,7 +205,7 @@ describe('RecordsProvidersService', () => {
       }
     })
 
-    it('throws BadRequestException for unsupported link format', async () => {
+    it('throws BadRequestError for unsupported link format', async () => {
       await expect(
         service.prepareData({ link: 'https://unsupported.example.com/abc' }),
       ).rejects.toThrow('Неверный или неподдерживаемый формат ссылки')

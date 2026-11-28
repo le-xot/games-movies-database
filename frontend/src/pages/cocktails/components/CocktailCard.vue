@@ -45,7 +45,7 @@ const summaryLine = computed(() =>
 
 <template>
   <article
-    class="flex flex-col gap-4 rounded-xl border border-white/10 bg-[var(--n-action-color)] p-4 transition-colors hover:border-white/20"
+    class="flex flex-col gap-4 rounded-xl border border-white/10 p-4 transition-colors hover:border-white/20"
   >
     <header class="flex flex-col gap-1">
       <div class="flex items-start justify-between gap-3">

@@ -1,10 +1,10 @@
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
-import { recordEnumModels } from '@backend/gateway/models'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { HTTP_URL_PATTERN } from '@backend/gateway/models'
-import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { suggestionModels, type SuggestionResponse } from '@backend/gateway/suggestions'
-import { isApiKeyValid } from '@backend/utils/api-key'
+import { UnauthorizedError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
+import { secretsMatch } from '@backend/utils/secrets'
 import { Elysia, t } from 'elysia'
 
 export const twirModels = {
@@ -14,10 +14,7 @@ export const twirModels = {
   }),
 }
 
-export interface TwirInput {
-  userId: string
-  link: string
-}
+export type TwirInput = typeof twirModels.SuggestionCreateByTwirDTO.static
 
 export interface TwirService {
   createSuggestion(input: TwirInput): Promise<SuggestionResponse>
@@ -31,20 +28,17 @@ export interface TwirRouteDeps {
 }
 
 export function twirRoutes({ twir, rateLimit, apiKey }: TwirRouteDeps) {
+  const limit = rateLimitGuard(rateLimit)
+
   return new Elysia({ name: 'twir' })
-    .model({ ...apiErrorModels, ...recordEnumModels, ...suggestionModels, ...twirModels })
+    .model({ ...apiErrorModels, ...suggestionModels, ...twirModels })
     .post(
       '/twir/suggestion',
       async (ctx) => {
-        await enforceRateLimit(rateLimit, {
-          request: ctx.request,
-          route: 'TwirController.createSuggestionWithTwir',
-          config: RATE_LIMITS.twir,
-          ip: ctx.server?.requestIP(ctx.request)?.address,
-        })
+        await limit(ctx, RATE_LIMITS.twir)
 
-        if (!isApiKeyValid(ctx.request.headers.get('x-api-key'), apiKey)) {
-          throw new ApiError(401, 'Unauthorized')
+        if (!secretsMatch(ctx.request.headers.get('x-api-key'), apiKey)) {
+          throw new UnauthorizedError()
         }
 
         return await twir.createSuggestion(ctx.body as TwirInput)

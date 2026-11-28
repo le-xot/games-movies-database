@@ -1,9 +1,23 @@
 import type { RecordGenre } from '@/lib/api'
+import type { GENRES } from '@/lib/genre-registry'
+import type { ROUTE_TABLE } from '@/router/router-paths'
 import type { RouteRecordInfo } from 'vue-router'
 
+/** Жанровые маршруты генерируются из реестра, остальные — из `ROUTE_TABLE`. */
+type GenreRouteMap = {
+  [Entry in (typeof GENRES)[number] as Entry['routeName']]: RouteRecordInfo<
+    Entry['routeName'],
+    Entry['path']
+  >
+}
+
+type StaticRouteMap = {
+  [Name in keyof typeof ROUTE_TABLE]: RouteRecordInfo<Name, (typeof ROUTE_TABLE)[Name]>
+}
+
 /**
- * Аугментация vue-router. `RouteNamedMap` синхронизируется с именами в `src/router/router.ts`
- * вручную; dev-проверка в router.ts предупреждает о рассинхроне имён.
+ * Аугментация vue-router: карта имён выводится из `ROUTE_TABLE` и реестра жанров,
+ * а не переписывается руками. Dev-проверка в router.ts ловит маршрут, забытый в таблице.
  */
 declare module 'vue-router' {
   interface RouteMeta {
@@ -14,32 +28,13 @@ declare module 'vue-router' {
     provider?: 'twitch' | 'kick'
     /** Стабильный ключ страницы: маршруты с одинаковым ключом не пересоздают компонент. */
     pageKey?: string
+    /** Заголовок документа; ставится после навигации (`router.afterEach`). */
+    title?: string
+    /** `false` — не добавлять суффикс «Лешота». */
+    titleSuffix?: boolean
   }
 
   interface TypesConfig {
-    RouteNamedMap: {
-      home: RouteRecordInfo<'home', '/'>
-      'home-layout': RouteRecordInfo<'home-layout', '/'>
-      pc: RouteRecordInfo<'pc', '/pc'>
-      db: RouteRecordInfo<'db', '/db'>
-      admin: RouteRecordInfo<'admin', '/db/admin'>
-      suggestion: RouteRecordInfo<'suggestion', '/db/suggestion'>
-      stats: RouteRecordInfo<'stats', '/db/stats'>
-      friends: RouteRecordInfo<'friends', '/db/friends'>
-      'my-ratings': RouteRecordInfo<'my-ratings', '/db/ratings/my'>
-      'user-ratings': RouteRecordInfo<'user-ratings', '/db/users/:id/ratings'>
-      anime: RouteRecordInfo<'anime', '/db/anime'>
-      games: RouteRecordInfo<'games', '/db/games'>
-      movie: RouteRecordInfo<'movie', '/db/movie'>
-      cartoon: RouteRecordInfo<'cartoon', '/db/cartoon'>
-      series: RouteRecordInfo<'series', '/db/series'>
-      wordle: RouteRecordInfo<'wordle', '/db/wordle'>
-      cocktails: RouteRecordInfo<'cocktails', '/db/cocktails'>
-      'wordle-miniapp': RouteRecordInfo<'wordle-miniapp', '/tg/wordle'>
-      'auth-twitch': RouteRecordInfo<'auth-twitch', '/auth/callback/twitch'>
-      'auth-kick': RouteRecordInfo<'auth-kick', '/auth/callback/kick'>
-      'auth-telegram': RouteRecordInfo<'auth-telegram', '/auth/callback/telegram'>
-      'not-found': RouteRecordInfo<'not-found', '/:pathMatch(.*)*'>
-    }
+    RouteNamedMap: StaticRouteMap & GenreRouteMap
   }
 }

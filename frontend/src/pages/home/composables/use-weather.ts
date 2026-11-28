@@ -8,7 +8,9 @@ import {
   Sun,
   Wind,
 } from '@lucide/vue'
-import { type Component, onMounted, ref } from 'vue'
+import { useQuery } from '@pinia/colada'
+import { computed, type Component } from 'vue'
+import { WEATHER_QUERY_KEY } from '@/composables/query-keys'
 import { unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { UFA_TIME_ZONE } from '@/utils/time'
@@ -31,104 +33,68 @@ const weatherIcons: Record<string, Component> = {
   Tornado: Wind,
 }
 
-let cached: {
-  city: string
-  temp: number
-  condition: string
-  description: string
-  feelsLike: number
-  humidity: number
-  windSpeed: number
-  pressure: number
-  visibility: number
-  clouds: number
-  sunrise: string
-  sunset: string
-  icon: Component
-} | null = null
+/** Погода обновляется раз в 10 минут; кэш и дедупликацию держит colada. */
+const WEATHER_STALE_TIME_MS = 10 * 60 * 1000
 
-const WEATHER_CACHE_TTL_MS = 10 * 60 * 1000
-let cachedAt = 0
+const formatTime = (unixSeconds: number) =>
+  new Date(unixSeconds * 1000).toLocaleTimeString('ru-RU', {
+    timeZone: UFA_TIME_ZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
+/**
+ * Погода для виджета: один colada-запрос (кэш, дедупликация, инвалидация) и
+ * презентационное отображение в computed. Ручной модульный кэш удалён.
+ */
 export function useWeather() {
   const api = useApi()
-  const city = ref(cached?.city ?? '')
-  const temp = ref<number | null>(cached?.temp ?? null)
-  const condition = ref(cached?.condition ?? '')
-  const description = ref(cached?.description ?? '')
-  const feelsLike = ref<number | null>(cached?.feelsLike ?? null)
-  const humidity = ref<number | null>(cached?.humidity ?? null)
-  const windSpeed = ref<number | null>(cached?.windSpeed ?? null)
-  const pressure = ref<number | null>(cached?.pressure ?? null)
-  const visibility = ref<number | null>(cached?.visibility ?? null)
-  const clouds = ref<number | null>(cached?.clouds ?? null)
-  const sunrise = ref(cached?.sunrise ?? '')
-  const sunset = ref(cached?.sunset ?? '')
-  const icon = ref<Component>(cached?.icon ?? Cloud)
-  const loading = ref(!cached)
 
-  onMounted(async () => {
-    if (cached && Date.now() - cachedAt < WEATHER_CACHE_TTL_MS) return
+  const { data, isLoading } = useQuery({
+    key: [WEATHER_QUERY_KEY],
+    staleTime: WEATHER_STALE_TIME_MS,
+    // Кэш должен жить не меньше TTL: иначе дефолтные 5 минут вытесняют данные
+    // раньше, чем они устареют, и виджет мигает пустым при ремоунте.
+    gcTime: WEATHER_STALE_TIME_MS,
+    query: () => unwrap(api.weather.get()),
+  })
 
-    try {
-      const data = await unwrap(api.weather.get())
-      city.value = data.name
-      temp.value = Math.round(data.main.temp)
-      condition.value = data.weather[0]?.main ?? ''
-      description.value = data.weather[0]?.description ?? ''
-      feelsLike.value = Math.round(data.main.feels_like)
-      humidity.value = data.main.humidity
-      windSpeed.value = Math.round(data.wind.speed)
-      pressure.value = Math.round(data.main.pressure * 0.750062)
-      visibility.value = Math.round(data.visibility / 1000)
-      clouds.value = data.clouds.all
-      sunrise.value = new Date(data.sys.sunrise * 1000).toLocaleTimeString('ru-RU', {
-        timeZone: UFA_TIME_ZONE,
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-      sunset.value = new Date(data.sys.sunset * 1000).toLocaleTimeString('ru-RU', {
-        timeZone: UFA_TIME_ZONE,
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-      icon.value = weatherIcons[condition.value] ?? Cloud
-      cached = {
-        city: city.value,
-        temp: temp.value,
-        condition: condition.value,
-        description: description.value,
-        feelsLike: feelsLike.value,
-        humidity: humidity.value,
-        windSpeed: windSpeed.value,
-        pressure: pressure.value,
-        visibility: visibility.value,
-        clouds: clouds.value,
-        sunrise: sunrise.value,
-        sunset: sunset.value,
-        icon: icon.value,
-      }
-      cachedAt = Date.now()
-    } catch {
-      // silently fail — weather is non-critical
-    } finally {
-      loading.value = false
+  const view = computed(() => {
+    const raw = data.value
+    if (!raw) return null
+
+    const condition = raw.weather[0]?.main ?? ''
+
+    return {
+      city: raw.name,
+      temp: Math.round(raw.main.temp),
+      condition,
+      description: raw.weather[0]?.description ?? '',
+      feelsLike: Math.round(raw.main.feels_like),
+      humidity: raw.main.humidity,
+      windSpeed: Math.round(raw.wind.speed),
+      pressure: Math.round(raw.main.pressure * 0.750062),
+      visibility: Math.round(raw.visibility / 1000),
+      clouds: raw.clouds.all,
+      sunrise: formatTime(raw.sys.sunrise),
+      sunset: formatTime(raw.sys.sunset),
+      icon: weatherIcons[condition] ?? Cloud,
     }
   })
 
   return {
-    city,
-    temp,
-    description,
-    feelsLike,
-    humidity,
-    windSpeed,
-    pressure,
-    visibility,
-    clouds,
-    sunrise,
-    sunset,
-    icon,
-    loading,
+    city: computed(() => view.value?.city ?? ''),
+    temp: computed(() => view.value?.temp ?? null),
+    description: computed(() => view.value?.description ?? ''),
+    feelsLike: computed(() => view.value?.feelsLike ?? null),
+    humidity: computed(() => view.value?.humidity ?? null),
+    windSpeed: computed(() => view.value?.windSpeed ?? null),
+    pressure: computed(() => view.value?.pressure ?? null),
+    visibility: computed(() => view.value?.visibility ?? null),
+    clouds: computed(() => view.value?.clouds ?? null),
+    sunrise: computed(() => view.value?.sunrise ?? ''),
+    sunset: computed(() => view.value?.sunset ?? ''),
+    icon: computed(() => view.value?.icon ?? Cloud),
+    loading: computed(() => isLoading.value && !view.value),
   }
 }

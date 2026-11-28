@@ -20,6 +20,6 @@ export function useCommandPaletteHotkey() {
   useEventListener(window, 'keydown', (event: KeyboardEvent) => {
     if (!isPaletteShortcut(event)) return
     event.preventDefault()
-    palette.togglePalette()
+    palette.toggle()
   })
 }

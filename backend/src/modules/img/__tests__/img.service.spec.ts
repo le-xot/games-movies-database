@@ -4,10 +4,10 @@ import { createHash } from 'node:crypto'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { S3Service } from '@backend/modules/s3/s3.service'
 import { env } from '@backend/utils/enviroments'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import sharp from 'sharp'
 import { MAX_IMAGE_BYTES } from '../img-url-safety'
-import { ImgVariant } from '../img.dto'
+import { ImgVariant } from '../img-variant'
 import { ImgService } from '../img.service'
 
 const svgFixture = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180">
@@ -211,10 +211,10 @@ describe('ImgService', () => {
 
       try {
         await expect(service.getImageContent(toBase64('file:///etc/passwd'))).rejects.toThrow(
-          BadRequestException,
+          BadRequestError,
         )
         await expect(service.getImageContent(toBase64('http://127.0.0.1/a.jpg'))).rejects.toThrow(
-          BadRequestException,
+          BadRequestError,
         )
       } finally {
         restore()
@@ -228,7 +228,7 @@ describe('ImgService', () => {
       try {
         await expect(
           service.getImageContent(toBase64('https://93.184.216.34/huge.jpg')),
-        ).rejects.toThrow(BadRequestException)
+        ).rejects.toThrow(BadRequestError)
       } finally {
         restore()
       }
@@ -246,7 +246,7 @@ describe('ImgService', () => {
       try {
         await expect(
           service.getImageContent(toBase64('https://93.184.216.34/big.png')),
-        ).rejects.toThrow(BadRequestException)
+        ).rejects.toThrow(BadRequestError)
       } finally {
         restore()
       }

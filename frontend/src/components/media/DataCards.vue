@@ -3,7 +3,7 @@ import { useVirtualizer } from '@tanstack/vue-virtual'
 import { useEventListener, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch, type ComponentPublicInstance } from 'vue'
 import MediaCard from '@/components/media/MediaCard.vue'
-import { Card } from '@/components/ui/card'
+import RecordCardSkeleton from '@/components/media/RecordCardSkeleton.vue'
 import { useScrollContainer } from '@/composables/use-scroll-container'
 import { RecordEntity, RecordUpdateDTO } from '@/lib/api'
 
@@ -14,7 +14,8 @@ const props = defineProps<{
   hasNextPage: boolean
   hasEpisodeColumn: boolean
   deleteConfirmTitle: string
-  hasError?: boolean
+  /** Скрыть «пусто», когда ошибку показывает страница. */
+  suppressEmptyState?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -27,7 +28,13 @@ const emit = defineEmits<{
 const gridClass =
   'w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'
 
-const skeletonCount = 5
+/** Сколько карточек-скелетонов показываем до первого ответа. */
+const INITIAL_SKELETON_COUNT = 5
+/** Оценка высоты строки для виртуализатора: одна колонка выше. */
+const singleColumnRowHeight = 640
+const multiColumnRowHeight = 520
+/** Порог «долистал почти до конца» для автоподгрузки, px. */
+const LOAD_MORE_THRESHOLD_PX = 600
 
 // Скелетон показываем сразу: страница появляется вместе с ним, пустой области не видно.
 const showSkeleton = computed(() => props.isLoading && props.items.length === 0)
@@ -71,7 +78,7 @@ const virtualizer = useVirtualizer(
   computed(() => ({
     count: rowCount.value,
     getScrollElement: () => scrollContainer.value,
-    estimateSize: () => (columns.value === 1 ? 640 : 520),
+    estimateSize: () => (columns.value === 1 ? singleColumnRowHeight : multiColumnRowHeight),
     overscan: 4,
     scrollMargin: scrollMargin.value,
   })),
@@ -89,13 +96,11 @@ watch(listRef, updateScrollMargin, { flush: 'post' })
 useResizeObserver(scrollContainer, updateScrollMargin)
 useResizeObserver(() => listRef.value?.parentElement, updateScrollMargin)
 
-const LOAD_MORE_THRESHOLD = 600
-
 function maybeLoadMore() {
   const container = scrollContainer.value
   if (!container || !props.hasNextPage || props.isLoadingNext || rows.value.length === 0) return
   const { scrollTop, clientHeight, scrollHeight } = container
-  if (scrollTop + clientHeight >= scrollHeight - LOAD_MORE_THRESHOLD) {
+  if (scrollTop + clientHeight >= scrollHeight - LOAD_MORE_THRESHOLD_PX) {
     emit('loadMore')
   }
 }
@@ -108,23 +113,7 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
 
 <template>
   <div v-if="!items.length && showSkeleton" :class="gridClass" class="data-fade-in">
-    <Card v-for="n in skeletonCount" :key="n" class="bg-[var(--n-action-color)]">
-      <div class="flex flex-row sm:flex-col">
-        <div
-          class="w-[130px] sm:w-full flex-shrink-0 aspect-[2/3] bg-zinc-700 animate-pulse rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
-        />
-        <div class="flex flex-col gap-2 p-3 flex-1 min-w-0">
-          <div class="h-4 w-3/4 bg-zinc-700 rounded animate-pulse" />
-          <div class="h-3 w-1/2 bg-zinc-700 rounded animate-pulse" />
-          <div class="flex gap-2 mt-1">
-            <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
-            <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
-            <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
-            <div class="h-6 w-10 bg-zinc-700 rounded animate-pulse" />
-          </div>
-        </div>
-      </div>
-    </Card>
+    <RecordCardSkeleton v-for="n in INITIAL_SKELETON_COUNT" :key="n" with-badges />
   </div>
 
   <div v-else-if="items.length" ref="listRef" class="w-full data-fade-in">
@@ -151,24 +140,14 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
         </div>
 
         <div v-else :class="gridClass">
-          <Card v-for="n in columns" :key="n" class="bg-[var(--n-action-color)]">
-            <div class="flex flex-row sm:flex-col">
-              <div
-                class="w-[130px] sm:w-full flex-shrink-0 aspect-[2/3] bg-zinc-700 animate-pulse rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
-              />
-              <div class="flex flex-col gap-2 p-3 flex-1 min-w-0">
-                <div class="h-4 w-3/4 bg-zinc-700 rounded animate-pulse" />
-                <div class="h-3 w-1/2 bg-zinc-700 rounded animate-pulse" />
-              </div>
-            </div>
-          </Card>
+          <RecordCardSkeleton v-for="n in columns" :key="n" />
         </div>
       </div>
     </div>
   </div>
 
   <div
-    v-else-if="!hasError && !isLoading"
+    v-else-if="!suppressEmptyState && !isLoading"
     class="h-24 flex items-center justify-center text-muted-foreground"
   >
     No results.

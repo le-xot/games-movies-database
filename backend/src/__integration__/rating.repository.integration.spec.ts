@@ -12,6 +12,21 @@ setupIntegrationSuite('DrizzleRatingRepository (integration)', ({ db }) => {
   const ratings = new DrizzleRatingRepository(drizzle)
   const recordsRepo = new DrizzleRecordRepository(drizzle)
 
+  it('tells whether a record exists and finds a user brief', async () => {
+    const user = await seedUser(db, 'brief-owner')
+    const [record] = await db
+      .insert(records)
+      .values(seedRecord({ title: 'Exists' }))
+      .returning()
+    if (!record) throw new Error('seed failed')
+
+    expect(await ratings.recordExists(record.id)).toBe(true)
+    expect(await ratings.recordExists(999_999)).toBe(false)
+
+    expect(await ratings.findUserBrief(user.id)).toEqual({ id: user.id, login: user.login })
+    expect(await ratings.findUserBrief('ghost')).toBeNull()
+  })
+
   it('upserts one vote per user and aggregates counts with top grade', async () => {
     const user1 = await seedUser(db, 'rater-1')
     const user2 = await seedUser(db, 'rater-2')

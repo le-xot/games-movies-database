@@ -1,4 +1,3 @@
-import { DrizzleService } from '@backend/database/drizzle.service'
 import { RecordGrade } from '@backend/enums'
 import {
   FriendsCounts,
@@ -6,10 +5,8 @@ import {
 } from '@backend/modules/rating/entities/rating-domain.entity'
 import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { NotFoundException } from '@backend/utils/errors'
+import { NotFoundError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
-import { records, users } from '@gmd/database/schema'
-import { eq } from 'drizzle-orm'
 import { DrizzleRatingRepository } from './repositories/drizzle-rating.repository'
 
 export class RatingService {
@@ -17,18 +14,13 @@ export class RatingService {
 
   constructor(
     private readonly ratingRepository: DrizzleRatingRepository,
-    private readonly drizzle: DrizzleService,
     private readonly eventEmitter: DomainEvents,
   ) {}
 
   async rate(userId: string, recordId: number, grade: RecordGrade) {
     this.logger.log(`Rating record userId=${userId} recordId=${recordId} grade=${grade}`)
-    const record = await this.drizzle.db.query.records.findFirst({
-      where: eq(records.id, recordId),
-      columns: { id: true },
-    })
-    if (!record) {
-      throw new NotFoundException('Record not found')
+    if (!(await this.ratingRepository.recordExists(recordId))) {
+      throw new NotFoundError('Record not found')
     }
 
     const existing = await this.ratingRepository.findByUserAndRecord(userId, recordId)
@@ -48,7 +40,7 @@ export class RatingService {
     const deletedCount = await this.ratingRepository.deleteByUserAndRecord(userId, recordId)
 
     if (deletedCount === 0) {
-      throw new NotFoundException('Оценка не найдена')
+      throw new NotFoundError('Оценка не найдена')
     }
 
     emitWs(this.eventEmitter, WsEvents.UPDATE_RATINGS, {
@@ -67,12 +59,9 @@ export class RatingService {
     limit: number = 10,
     grades?: RecordGrade[],
   ) {
-    const profile = await this.drizzle.db.query.users.findFirst({
-      where: eq(users.id, profileUserId),
-      columns: { id: true, login: true },
-    })
+    const profile = await this.ratingRepository.findUserBrief(profileUserId)
     if (!profile) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const skip = (page - 1) * limit

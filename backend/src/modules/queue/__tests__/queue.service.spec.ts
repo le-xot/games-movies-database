@@ -51,11 +51,7 @@ describe('QueueService', () => {
         {
           title: 'Game 1',
           posterUrl: 'poster-1',
-          createdAt: new Date(createdAt).toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
+          createdAt,
           link: 'https://example.com/game-1',
           type: RecordType.WRITTEN,
           genre: null,
@@ -65,11 +61,7 @@ describe('QueueService', () => {
         {
           title: 'Movie 1',
           posterUrl: 'poster-2',
-          createdAt: new Date(createdAt).toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
+          createdAt,
           link: 'https://example.com/movie-1',
           type: RecordType.WRITTEN,
           genre: RecordGenre.MOVIE,

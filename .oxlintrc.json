@@ -18,8 +18,18 @@
     "eslint/no-console": "off",
     "eslint/no-alert": "off",
     "typescript/no-explicit-any": "warn",
-    "typescript/no-extraneous-class": ["warn", { "allowWithDecorator": true }],
-    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
+    "typescript/no-extraneous-class": [
+      "warn",
+      {
+        "allowWithDecorator": true
+      }
+    ],
+    "import/no-unassigned-import": [
+      "warn",
+      {
+        "allow": ["**/*.css"]
+      }
+    ]
   },
   "ignorePatterns": [
     "dist",
@@ -28,5 +38,20 @@
     "frontend/src/lib/api.ts",
     "**/__tests__/**",
     "**/*.spec.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["backend/src/**/*.ts"],
+      "excludeFiles": [
+        "backend/src/__e2e__/**",
+        "backend/src/__integration__/**",
+        "backend/src/main.ts",
+        "backend/src/utils/logger.ts",
+        "backend/src/modules/wordle/scripts/**"
+      ],
+      "rules": {
+        "eslint/no-console": "error"
+      }
+    }
   ]
 }

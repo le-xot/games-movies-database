@@ -2,9 +2,13 @@ import { useMutation, useQuery } from '@pinia/colada'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { assertOk, UserRole } from '@/lib/api'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { useApi } from '@/stores/use-api'
 
 export const USER_QUERY_KEY = 'user'
+
+/** Сколько ждём /me до первого рендера (и в guard роутера). */
+export const AUTH_BOOT_TIMEOUT_MS = 1500
 
 export const useUser = defineStore('global/use-user', () => {
   const api = useApi()
@@ -33,27 +37,32 @@ export const useUser = defineStore('global/use-user', () => {
   })
 
   const isLoggedIn = computed(() => !!user.value)
-  const editorEnabled = ref(localStorage.getItem('editorEnabled') !== 'false')
+  const editorEnabled = ref(localStorage.getItem(STORAGE_KEYS.editorEnabled) !== 'false')
   const isRealAdmin = computed(() => user.value?.role === UserRole.ADMIN)
   const isAdmin = computed(() => isRealAdmin.value && editorEnabled.value)
   const currentUserId = computed(() => user.value?.id)
 
   watch(editorEnabled, (val) => {
-    localStorage.setItem('editorEnabled', String(val))
+    localStorage.setItem(STORAGE_KEYS.editorEnabled, String(val))
   })
 
-  /** Резолвится, когда текущий запрос /me закончился (успех или гость). */
-  const whenQuerySettled = () =>
+  /** Резолвится, когда текущий запрос /me закончился (успех, гость или таймаут). */
+  const whenQuerySettled = (timeoutMs = AUTH_BOOT_TIMEOUT_MS) =>
     new Promise<void>((resolve) => {
       if (!isLoading.value) {
         resolve()
         return
       }
-      const stop = watch(isLoading, (loading) => {
-        if (!loading) {
-          stop()
-          resolve()
-        }
+
+      let stop = () => {}
+      const finish = () => {
+        stop()
+        clearTimeout(timer)
+        resolve()
+      }
+      const timer = setTimeout(finish, timeoutMs)
+      stop = watch(isLoading, (loading) => {
+        if (!loading) finish()
       })
     })
 
@@ -95,6 +104,7 @@ export const useUser = defineStore('global/use-user', () => {
     isInitialized,
     currentUserId,
     fetchUser,
+    whenQuerySettled,
     userLogin,
     userLogout,
     refetchUser,

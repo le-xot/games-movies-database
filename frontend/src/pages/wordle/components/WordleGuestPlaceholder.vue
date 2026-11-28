@@ -39,10 +39,7 @@ const {
         <h1 class="text-xl font-bold">Вордли</h1>
         <p class="text-sm text-muted-foreground">Угадайте слово дня и попадите в таблицу лидеров</p>
       </div>
-      <Button
-        class="h-auto whitespace-normal px-4 py-2 text-center"
-        @click="loginDialog.openLogin()"
-      >
+      <Button class="h-auto whitespace-normal px-4 py-2 text-center" @click="loginDialog.open()">
         Войдите в аккаунт, чтобы сыграть в Вордли
       </Button>
     </div>

@@ -25,18 +25,18 @@ const router = useRouter()
 onMounted(() => {
   if (sessionStorage.getItem(ACCOUNT_DIALOG_ON_LOAD_KEY) === '1') {
     sessionStorage.removeItem(ACCOUNT_DIALOG_ON_LOAD_KEY)
-    accountDialog.openAccount()
+    accountDialog.open()
   }
 })
 
 function goToAdmin() {
-  accountDialog.closeAccount()
+  accountDialog.close()
   router.push(ROUTER_PATHS.admin)
 }
 
 async function logout() {
   await userStore.userLogout()
-  accountDialog.closeAccount()
+  accountDialog.close()
   router.push(ROUTER_PATHS.dbSuggestion)
 }
 </script>

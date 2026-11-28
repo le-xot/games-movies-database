@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { isIP } from 'node:net'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import {
   assertPublicHttpUrl,
   fetchPublicImage,
@@ -43,33 +43,31 @@ describe('isBlockedAddress', () => {
 
 describe('assertPublicHttpUrl', () => {
   it('rejects non-http schemes', async () => {
-    await expect(assertPublicHttpUrl('file:///etc/passwd')).rejects.toThrow(BadRequestException)
-    await expect(assertPublicHttpUrl('ftp://example.com/a.png')).rejects.toThrow(
-      BadRequestException,
-    )
+    await expect(assertPublicHttpUrl('file:///etc/passwd')).rejects.toThrow(BadRequestError)
+    await expect(assertPublicHttpUrl('ftp://example.com/a.png')).rejects.toThrow(BadRequestError)
   })
 
   it('rejects URLs with credentials', async () => {
     await expect(assertPublicHttpUrl('http://user:pass@example.com/a.png')).rejects.toThrow(
-      BadRequestException,
+      BadRequestError,
     )
   })
 
   it('rejects literal private hosts', async () => {
-    await expect(assertPublicHttpUrl('http://127.0.0.1/a.png')).rejects.toThrow(BadRequestException)
-    await expect(assertPublicHttpUrl('http://[::1]/a.png')).rejects.toThrow(BadRequestException)
+    await expect(assertPublicHttpUrl('http://127.0.0.1/a.png')).rejects.toThrow(BadRequestError)
+    await expect(assertPublicHttpUrl('http://[::1]/a.png')).rejects.toThrow(BadRequestError)
   })
 
   it('rejects hostnames resolving to private addresses', async () => {
     await expect(
       assertPublicHttpUrl('https://internal.example/a.png', fakeLookup('10.0.0.5')),
-    ).rejects.toThrow(BadRequestException)
+    ).rejects.toThrow(BadRequestError)
   })
 
   it('rejects hostnames with mixed public and private resolutions', async () => {
     await expect(
       assertPublicHttpUrl('https://rebind.example/a.png', fakeLookup('93.184.216.34', '127.0.0.1')),
-    ).rejects.toThrow(BadRequestException)
+    ).rejects.toThrow(BadRequestError)
   })
 
   it('rejects hostnames that fail to resolve', async () => {
@@ -77,7 +75,7 @@ describe('assertPublicHttpUrl', () => {
 
     await expect(
       assertPublicHttpUrl('https://missing.example/a.png', failingLookup),
-    ).rejects.toThrow(BadRequestException)
+    ).rejects.toThrow(BadRequestError)
   })
 
   it('allows public literal IP and public resolution', async () => {
@@ -103,7 +101,7 @@ describe('fetchPublicImage', () => {
     try {
       await expect(
         fetchPublicImage('https://cdn.example/a.png', {}, fakeLookup('93.184.216.34')),
-      ).rejects.toThrow(BadRequestException)
+      ).rejects.toThrow(BadRequestError)
     } finally {
       globalThis.fetch = originalFetch
     }

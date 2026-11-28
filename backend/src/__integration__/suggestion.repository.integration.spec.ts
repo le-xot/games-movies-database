@@ -1,13 +1,17 @@
 import { expect, it } from 'bun:test'
+import crypto from 'node:crypto'
+import { DrizzleRecordRepository } from '@backend/modules/record/repositories/drizzle-record.repository'
 import { DrizzleSuggestionRepository } from '@backend/modules/suggestion/repositories/drizzle-suggestion.repository'
-import { limits, records, suggestionOwnerships } from '@gmd/database/schema'
+import { limits, recordRatings, records, suggestionOwnerships } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
 import { seedLike, seedRecord, seedUser } from './helpers/fixtures'
 import { setupIntegrationSuite } from './helpers/suite'
 import type { DrizzleService } from '@backend/database/drizzle.service'
 
 setupIntegrationSuite('DrizzleSuggestionRepository (integration)', ({ db }) => {
-  const repository = new DrizzleSuggestionRepository({ db } as unknown as DrizzleService)
+  const drizzle = { db } as unknown as DrizzleService
+  const recordsRepository = new DrizzleRecordRepository(drizzle)
+  const repository = new DrizzleSuggestionRepository(drizzle, recordsRepository)
 
   it('finds a configured limit or returns null', async () => {
     expect(await repository.findLimit('SUGGESTION')).toBeNull()
@@ -87,7 +91,7 @@ setupIntegrationSuite('DrizzleSuggestionRepository (integration)', ({ db }) => {
     expect(await repository.findSuggestionOwner(999999)).toBeNull()
   })
 
-  it('deletes the suggestion with its likes and ownership', async () => {
+  it('deletes the suggestion with its likes, ownership and ratings', async () => {
     const user = await seedUser(db, 'owner')
     const liker = await seedUser(db, 'liker')
     const created = await repository.createSuggestion(
@@ -95,12 +99,24 @@ setupIntegrationSuite('DrizzleSuggestionRepository (integration)', ({ db }) => {
       user.id,
     )
     await seedLike(db, liker.id, created.id)
+    // Оценка держит запись FK `restrict`: удаление без чистки recordRatings падало 500.
+    await db.insert(recordRatings).values({
+      id: crypto.randomUUID(),
+      userId: liker.id,
+      recordId: created.id,
+      grade: 'LIKE',
+    })
 
-    await repository.deleteSuggestionWithLikes(created.id)
+    await repository.deleteSuggestion(created.id)
 
     expect(await repository.findSuggestionById(created.id)).toBeNull()
     expect(await repository.findSuggestionOwner(created.id)).toBeNull()
     const recordRows = await db.select().from(records).where(eq(records.id, created.id))
     expect(recordRows).toHaveLength(0)
+    const ratingRows = await db
+      .select()
+      .from(recordRatings)
+      .where(eq(recordRatings.recordId, created.id))
+    expect(ratingRows).toHaveLength(0)
   })
 })

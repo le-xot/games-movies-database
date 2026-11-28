@@ -5,7 +5,7 @@ import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
 import { env } from '@backend/utils/enviroments'
 import { Logger } from '@backend/utils/logger'
-import type { SteamImportGameDto, SteamGameDto } from './steam.dto'
+import type { SteamGame, SteamImportGame } from './steam.entity'
 import type { RecordWithRelations } from '@backend/modules/record/entities/record-domain.entity'
 
 interface SteamOwnedGamesResponse {
@@ -30,7 +30,7 @@ export class SteamService {
     private readonly eventEmitter: DomainEvents,
   ) {}
 
-  async getOwnedGames(): Promise<SteamGameDto[]> {
+  async getOwnedGames(): Promise<SteamGame[]> {
     if (!env.STEAM_API_KEY || !env.STEAM_ID) {
       this.logger.warn('STEAM_API_KEY or STEAM_ID not configured')
       return []
@@ -90,7 +90,7 @@ export class SteamService {
   }
 
   async importGames(
-    games: SteamImportGameDto[],
+    games: SteamImportGame[],
     userId: string,
   ): Promise<{ created: RecordWithRelations[]; failed: { appId: number; reason: string }[] }> {
     const existingGames = await this.findDuplicateGames()

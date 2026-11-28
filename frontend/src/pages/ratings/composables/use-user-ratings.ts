@@ -2,15 +2,13 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRecordMutations } from '@/composables/factories/record-mutations'
-import { useRecordsList } from '@/composables/factories/records-list'
+import { RECORDS_PAGE_SIZE, useRecordsList } from '@/composables/factories/records-list'
 import { USER_RATINGS_QUERY_KEY } from '@/composables/query-keys'
 import { unwrap } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
 import type { RecordGrade } from '@/lib/api'
-
-const PAGE_SIZE = 50
 
 export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
   const api = useApi()
@@ -27,7 +25,7 @@ export const useUserRatings = defineStore('ratings/use-user-ratings', () => {
   // Тот же список, что и у жанров: отличается только запрос.
   const list = useRecordsList(() => ({
     key: [USER_RATINGS_QUERY_KEY, profileUserId.value, gradeFilter.value],
-    pageSize: PAGE_SIZE,
+    pageSize: RECORDS_PAGE_SIZE,
     errorMessage: 'Не удалось загрузить оценки',
     fetchPage: async (page, limit) => {
       if (!profileUserId.value) return { items: [], total: 0 }

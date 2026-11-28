@@ -2,6 +2,9 @@ import { useInfiniteQuery, type EntryKey, type UseInfiniteQueryData } from '@pin
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import { parseApiError } from '@/utils/api-error'
 
+/** Размер страницы для всех списков записей. */
+export const RECORDS_PAGE_SIZE = 50
+
 export interface RecordsListPage<TItem> {
   items: TItem[]
   total: number

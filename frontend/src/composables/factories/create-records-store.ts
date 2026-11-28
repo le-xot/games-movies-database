@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useRecordMutations } from '@/composables/factories/record-mutations'
-import { useRecordsList } from '@/composables/factories/records-list'
+import { RECORDS_PAGE_SIZE, useRecordsList } from '@/composables/factories/records-list'
 import { unwrap, type RecordEntity, type RecordUpdateDTO } from '@/lib/api'
 import { useApi } from '@/stores/use-api'
 import type { RecordsQueryParams } from '@/composables/factories/create-params-store'
@@ -17,8 +17,6 @@ export interface RecordsStoreConfig<TItems extends string, TRefetch extends stri
   refetchName: TRefetch
   pageSize?: number
 }
-
-const DEFAULT_PAGE_SIZE = 50
 
 export type RecordsStoreReturn<TItems extends string, TRefetch extends string> = {
   items: RecordEntity[]
@@ -45,7 +43,7 @@ export function createRecordsStore<TItems extends string, TRefetch extends strin
   return defineStore(config.storeId, () => {
     const api = useApi()
     const paramsStoreInstance = config.paramsStore()
-    const pageSize = config.pageSize ?? DEFAULT_PAGE_SIZE
+    const pageSize = config.pageSize ?? RECORDS_PAGE_SIZE
 
     const list = useRecordsList(() => ({
       key: [config.queryKey, paramsStoreInstance.params],

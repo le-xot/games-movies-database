@@ -9,11 +9,7 @@
  * `@/lib/api`. Новый алиас добавляется вместе с потребителем.
  */
 export type { GatewayUser as UserEntity } from '@backend/gateway/auth'
-export type {
-  GatewayRecord as RecordEntity,
-  RecordsPage as GetAllRecordsDTO,
-} from '@backend/gateway/records'
-export type { RatingsPage as GetUserRatingsEntity } from '@backend/gateway/ratings'
+export type { GatewayRecord as RecordEntity } from '@backend/gateway/records'
 export type { GenreCountDTO, StatusCountDTO } from '@backend/gateway/stats'
 export type {
   MergeResult as MergeUsersResultEntity,

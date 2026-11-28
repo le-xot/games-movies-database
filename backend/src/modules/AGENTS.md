@@ -7,6 +7,8 @@ Nest здесь больше нет: модуль — это папка с се�
 
 ## MODULE TEMPLATE
 
+Инварианты и ловушки — в корневом `AGENTS.md`; здесь только локальные правила модулей.
+
 - `{name}.service.ts` — бизнес-логика, обычный класс без декораторов
 - `repositories/drizzle-{name}.repository.ts` — доступ к БД через `DrizzleService`
 - `{name}.entity.ts` / `entities/*.entity.ts` — доменные типы (интерфейсы); схемы валидации

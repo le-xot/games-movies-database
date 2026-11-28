@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Updated:** 2026-10-26
+**Updated:** 2026-11-28
 **Stack:** Bun + Elysia + Vue 3 (Nest, Socket.IO, Swagger и кодоген контракта выпилены)
 
 ## OVERVIEW
@@ -73,6 +73,54 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **API client**: `frontend/src/lib/api.ts` — Eden Treaty (`@elysia/eden`), `treaty<App>`, где `App` — `import type { App } from '@backend/gateway'`. Типы домена переэкспортируются из `@backend/api-types`, значения (enum'ы, WS-события) — из `@gmdb/contract`. Кодогена нет: ни `openapi.json`, ни `api-types.ts` не генерятся. Хелперы `unwrap()` / `assertOk()` достают данные или бросают `Response` с телом ошибки, поэтому `parseApiError` работает как раньше. `useApi()` — обычная функция, возвращающая клиент (не Pinia store)
 - **Database**: Drizzle ORM. Schema lives in `database/src/schema/`, migrations are generated SQL committed under `database/migrations/`. Never edit `database/migrations/` by hand — use `bun db:generate`.
 
+## АРХИТЕКТУРНЫЙ КОНТРАКТ
+
+Правила, за которые заплачено большой уборкой. Это инварианты, а не стиль: нарушение — регресс.
+Подробности — `docs/architecture.md`, решения — `docs/refactor/adr/`.
+
+1. **Один владелец на каждое понятие.** Добавляешь значение или правило — расширяй владельца, не
+   заводи второй список:
+   - значения и типы enum'ов — `contract/src/enums.ts`; TypeBox-схема — `t.Enum(dictionary)` в
+     `backend/src/gateway/models.ts`; `pgEnum` — те же значения;
+   - жанры, меню и их пути — `frontend/src/lib/genre-registry.ts`;
+   - статусы и оценки (подписи, цвета, порядки) — `frontend/src/lib/record-vocabulary.ts`;
+   - ключи localStorage/sessionStorage — `frontend/src/lib/storage-keys.ts`;
+   - `document.title` — `frontend/src/stores/use-title.ts`, ставится из `route.meta.title`;
+   - маршруты — `ROUTE_TABLE` в `router/router-paths.ts` (`RouteNamedMap` выводится типами);
+   - boolean-модалки — `createDialogStore`; списки записей — `composables/factories/`;
+   - кэш-ключи — `composables/query-keys.ts`; WS-события — `composables/ws-handlers.ts`.
+2. **Направление зависимостей.** `server → gateway → modules`. Гейтвей знает только порты и не
+   импортирует сервисы домена; домен не знает про HTTP, а в БД ходит только через репозиторий.
+   `server/wiring/` — адаптер порта (формы, локали), не маппер DTO.
+3. **Ошибки.** Только `HttpError`-подклассы (`backend/src/utils/errors.ts`), клиенту — конверт
+   `ApiErrorDto` из `onError`. Обычный `Error` на клиентской ветке станет 500.
+4. **Auth и лимиты.** В роуте порядок: лимит → auth → роли. Ключ лимита строится из `ctx.route`,
+   а не из имени контроллера.
+5. **Жизненный цикл.** Сервис создаётся через `lifecycle.add(new X(...))`; хуки — по имени
+   (`onModuleInit` / `onModuleDestroy`), порядок = порядок создания; ошибка хука не роняет старт.
+6. **Логи и env.** `Logger`; `console.*` запрещён oxlint'ом; `process.env` — только в
+   `backend/src/utils/enviroments.ts`.
+7. **Удаление вместо наслоения.** Новый канон = миграция всех вызывающих + удаление старого +
+   ловушка в тесте в том же PR. Совместимость — только под реального вызывающего или внешний
+   контракт. Абстракция без двух реальных вызывающих не нужна (Deletion Test).
+8. **Схема — не тип.** Форму ответа держит TypeBox-схема; ручные дубли интерфейсов в гейтвее не
+   заводим. Для перечислений — `t.Enum` (работает и для словаря из одного значения).
+
+## ЛОВУШКИ (ENFORCEMENT)
+
+| Инвариант                                                                                                                         | Чем держится                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| нет `.ts` без импортёров; `process.env` только в env; гейтвей без сервисов; сервисы без БД; нет class-DTO и `modules/**/*.dto.ts` | `backend/src/__tests__/architecture.spec.ts`                       |
+| contract ↔ TypeBox ↔ `pgEnum`                                                                                                     | `backend/src/gateway/__tests__/enum-sources.spec.ts`               |
+| конверт ошибок и коды                                                                                                             | `backend/src/gateway/__tests__/on-error.spec.ts`                   |
+| ключ и порядок rate-limit                                                                                                         | `backend/src/gateway/__tests__/rate-limit-guard.spec.ts`           |
+| порядок и сбои lifecycle                                                                                                          | `backend/src/server/__tests__/lifecycle.spec.ts`                   |
+| имена, пути и заголовки маршрутов                                                                                                 | `frontend/src/router/router.spec.ts`, `router/title-rules.spec.ts` |
+| полнота словарей, ключи хранилища, WS-хендлеры                                                                                    | `frontend/src/lib/*.spec.ts`, `composables/ws-handlers.spec.ts`    |
+
+Перед PR: `bun lint && bun typecheck`, `cd backend && bun test`, `cd frontend && bun test src`.
+Менял поведение — прогони e2e после `bun infra:start` (postgres + redis обязательны).
+
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - **NEVER** use icon libraries other than @lucide/vue / vue3-simple-icons
@@ -84,6 +132,11 @@ Full-stack personal media tracker (games, movies, anime, cartoons, series, PC ga
 - **NEVER** import Pinia stores from `frontend/src/composables/` — they live in `frontend/src/stores/`
 - **NEVER** добавлять `@nestjs/*` — Nest из проекта выпилен, зависимостей нет
 - **NEVER** объявлять `t.Unsafe` в схемах ответа — ломает рантайм-валидацию TypeBox
+- **NEVER** заводить `*.dto.ts` / class-DTO в домене: формы — интерфейсы в `entities/`,
+  TypeBox-схема — в гейтвее
+- **NEVER** писать свои обёртки над TypeBox/Elysia (`enumUnion`-подобные): для enum'ов есть `t.Enum`
+- **NEVER** дублировать списки маршрутов, жанров, статусов, ключей хранилища — у них есть
+  владельцы из архитектурного контракта
 
 ## GIT
 

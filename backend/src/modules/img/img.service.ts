@@ -5,7 +5,7 @@ import {
   fetchPublicImage,
   MAX_IMAGE_BYTES,
 } from '@backend/modules/img/img-url-safety'
-import { ImgVariant } from '@backend/modules/img/img.dto'
+import { ImgVariant } from '@backend/modules/img/img-variant'
 import { S3Service } from '@backend/modules/s3/s3.service'
 import { env } from '@backend/utils/enviroments'
 import { BadRequestError } from '@backend/utils/errors'

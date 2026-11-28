@@ -1,4 +1,4 @@
-import { ImgVariant } from '@backend/modules/img/img.dto'
+import { ImgVariant } from '@backend/modules/img/img-variant'
 import {
   toTelegramProfile,
   verifyTelegramWebAppInitData,

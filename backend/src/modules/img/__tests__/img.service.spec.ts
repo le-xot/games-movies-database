@@ -7,7 +7,7 @@ import { env } from '@backend/utils/enviroments'
 import { BadRequestError } from '@backend/utils/errors'
 import sharp from 'sharp'
 import { MAX_IMAGE_BYTES } from '../img-url-safety'
-import { ImgVariant } from '../img.dto'
+import { ImgVariant } from '../img-variant'
 import { ImgService } from '../img.service'
 
 const svgFixture = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180">

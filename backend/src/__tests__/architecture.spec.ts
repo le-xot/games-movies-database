@@ -119,11 +119,10 @@ describe('архитектура backend', () => {
 
     for (const file of files) {
       const rel = relative(SOURCE_ROOT, file)
+      // Тестовые харнессы — в любом вложенном каталоге (`modules/x/__tests__`).
       if (
         rel === 'utils/enviroments.ts' ||
-        rel.startsWith('__tests__/') ||
-        rel.startsWith('__integration__/') ||
-        rel.startsWith('__e2e__/')
+        /(^|\/)(__tests__|__integration__|__e2e__)\//.test(rel)
       ) {
         continue
       }

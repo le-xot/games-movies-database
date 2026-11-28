@@ -2,9 +2,9 @@
 import { RotateCw } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import DataCards from '@/components/media/DataCards.vue'
 import Search from '@/components/media/Search.vue'
-import { Button } from '@/components/ui/button'
 import { RecordGenre, type RecordEntity } from '@/lib/api'
 import { useAnime } from '@/pages/anime/composables/use-anime'
 import { useAnimeParams } from '@/pages/anime/composables/use-anime-params'
@@ -76,16 +76,11 @@ const items = computed<RecordEntity[]>(() => media.value?.records.items ?? [])
 
 <template>
   <div v-if="media" class="flex h-full flex-col gap-4">
-    <div
+    <ErrorRetry
       v-if="media.records.error"
-      class="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-4 py-3"
-    >
-      <span class="text-sm text-destructive">Не удалось загрузить записи</span>
-      <Button variant="outline" size="sm" @click="media.records.retry()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+      message="Не удалось загрузить записи"
+      @retry="media.records.retry()"
+    />
 
     <Search
       v-model:value="media.params.search"

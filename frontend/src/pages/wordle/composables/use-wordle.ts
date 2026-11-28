@@ -15,6 +15,7 @@ import {
   placeLetterInCells,
 } from '@/pages/wordle/constants/wordle-constants'
 import { useApi } from '@/stores/use-api'
+import { parseApiError } from '@/utils/api-error'
 import type {
   WordleGameStatus as WordleGameStatusValue,
   WordleLeaderboardDTO,
@@ -29,16 +30,6 @@ export const WORDLE_STATS_KEY = 'wordle/stats'
 export const WORDLE_PRACTICE_KEY = 'wordle/practice'
 
 export type WordleMode = 'daily' | 'practice'
-
-function extractErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'error' in error) {
-    const body = (error as { error?: { message?: string | string[] } }).error
-    const message = body?.message
-    if (Array.isArray(message)) return message[0] ?? fallback
-    if (typeof message === 'string') return message
-  }
-  return fallback
-}
 
 /**
  * Скелетон нужен только пока данных ещё нет.
@@ -222,7 +213,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
       } catch (error) {
         shake()
         toast.error('Ошибка', {
-          description: extractErrorMessage(error, 'Не удалось отправить слово'),
+          description: await parseApiError(error, 'Не удалось отправить слово'),
         })
       }
       return
@@ -238,7 +229,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     } catch (error) {
       shake()
       toast.error('Ошибка', {
-        description: extractErrorMessage(error, 'Не удалось отправить слово'),
+        description: await parseApiError(error, 'Не удалось отправить слово'),
       })
     }
   }
@@ -251,7 +242,7 @@ export const useWordle = defineStore('wordle/use-wordle', () => {
     } catch (error) {
       shake()
       toast.error('Ошибка', {
-        description: extractErrorMessage(error, 'Не удалось начать тренировку'),
+        description: await parseApiError(error, 'Не удалось начать тренировку'),
       })
     }
   }

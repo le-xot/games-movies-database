@@ -2,8 +2,8 @@
 import { RotateCw } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RecordGrade } from '@/lib/api'
@@ -154,13 +154,7 @@ const isEmpty = computed(() => !isLoading.value && !error.value && total.value =
       </div>
     </template>
 
-    <div v-else-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
-      <p class="text-sm text-destructive">{{ error }}</p>
-      <Button variant="outline" size="sm" @click="statsStore.refetch()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+    <ErrorRetry v-else-if="error" variant="block" :message="error" @retry="statsStore.refetch()" />
 
     <div v-else-if="isEmpty" class="py-16 text-center text-muted-foreground">
       Пока нечего считать — в кладовке нет записей

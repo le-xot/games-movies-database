@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Trash2Icon, Tv, RotateCw } from '@lucide/vue'
+import { Trash2Icon, Tv } from '@lucide/vue'
 import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -50,13 +51,7 @@ function toggleId(id: string) {
       </Card>
     </div>
 
-    <div v-else-if="error" class="flex flex-col items-center gap-3 py-8 text-center">
-      <p class="text-sm text-destructive">{{ error }}</p>
-      <Button variant="outline" size="sm" @click="fetchUsers()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+    <ErrorRetry v-else-if="error" variant="block" :message="error" @retry="fetchUsers()" />
 
     <template v-else>
       <h2 class="text-lg font-semibold text-muted-foreground">Пользователи</h2>

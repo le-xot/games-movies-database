@@ -46,7 +46,7 @@ export const useSuggestion = defineStore('queue/use-suggestion', () => {
         const data = await unwrap(api.suggestions.get())
         return data
       } catch (err) {
-        error.value = await parseApiError(err, 'Failed to load suggestions')
+        error.value = await parseApiError(err, 'Не удалось загрузить советы')
         throw err
       }
     },

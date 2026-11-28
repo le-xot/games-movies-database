@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { RotateCw, Search } from '@lucide/vue'
+import { Search } from '@lucide/vue'
 import { computed, ref } from 'vue'
-import { Button } from '@/components/ui/button'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import CocktailAddDialog from '@/pages/cocktails/components/CocktailAddDialog.vue'
@@ -100,6 +100,13 @@ const hasMatchError = computed(() =>
   isSearching.value ? Boolean(searchError.value) : Boolean(matchError.value),
 )
 const hasBarLoadError = computed(() => Boolean(barLoadError.value))
+
+/** Текст ошибки выбирает самый «ближний» сломанный источник. */
+const barErrorText = computed(() => {
+  if (hasBarLoadError.value) return barLoadError.value ?? 'Не удалось загрузить бар'
+  if (hasCatalogError.value) return 'Не удалось загрузить полки'
+  return 'Не удалось подобрать коктейли'
+})
 const showSkeletons = computed(
   () =>
     isBarInitialLoading.value || (isSearching.value ? isSearchPending.value : isMatchLoading.value),
@@ -193,24 +200,11 @@ function retry() {
     />
 
     <section class="flex min-w-0 flex-col gap-4">
-      <div
+      <ErrorRetry
         v-if="hasCatalogError || hasMatchError || hasBarLoadError"
-        class="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-4 py-3"
-      >
-        <span class="text-sm text-destructive">
-          {{
-            hasBarLoadError
-              ? barLoadError
-              : hasCatalogError
-                ? 'Не удалось загрузить полки'
-                : 'Не удалось подобрать коктейли'
-          }}
-        </span>
-        <Button variant="outline" size="sm" @click="retry">
-          <RotateCw />
-          Повторить
-        </Button>
-      </div>
+        :message="barErrorText"
+        @retry="retry"
+      />
 
       <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { RotateCw, Search } from '@lucide/vue'
+import { Search } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -117,13 +118,7 @@ function retry() {
       </div>
     </header>
 
-    <div v-if="error" class="flex flex-col items-center gap-3 py-16 text-center">
-      <p class="text-sm text-destructive">{{ error }}</p>
-      <Button variant="outline" size="sm" @click="retry">
-        <RotateCw />
-        Повторить
-      </Button>
-    </div>
+    <ErrorRetry v-if="error" variant="block" :message="error" @retry="retry" />
 
     <ul v-else-if="isLoading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <li

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ArrowUpDown, EyeOff, ListPlus, RotateCw } from '@lucide/vue'
+import { ArrowUpDown, EyeOff, ListPlus } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
 import { toast } from 'vue-sonner'
+import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import SuggestionCard from '@/pages/suggestion/components/SuggestionCard.vue'
@@ -45,16 +46,11 @@ function handleMarkAllAsViewed() {
 
 <template>
   <div class="flex flex-col gap-4 h-full">
-    <div
+    <ErrorRetry
       v-if="suggestion.error"
-      class="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-4 py-3"
-    >
-      <span class="text-sm text-destructive">Не удалось загрузить советы</span>
-      <Button variant="outline" size="sm" @click="suggestion.refetchSuggestions()">
-        <RotateCw class="size-4" />
-        Повторить
-      </Button>
-    </div>
+      message="Не удалось загрузить советы"
+      @retry="suggestion.refetchSuggestions()"
+    />
 
     <SuggestionCard :items="suggestion.suggestions || []" :sort-by="sortBy">
       <template #title>

@@ -8,7 +8,7 @@ import {
 import { WordlePracticeStateDTO } from '@backend/modules/wordle/wordle.dto'
 import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 import { MAX_ATTEMPTS, WORD_LENGTH } from '@backend/modules/wordle/wordle.stats'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import { RedisClient } from 'bun'
 
@@ -57,16 +57,16 @@ export class WordlePracticeService {
   async makeGuess(userId: string, rawWord: string): Promise<WordlePracticeStateDTO> {
     const word = normalizeWord(rawWord)
     if (!WORD_PATTERN.test(word)) {
-      throw new BadRequestException('Слово должно состоять из 5 русских букв')
+      throw new BadRequestError('Слово должно состоять из 5 русских букв')
     }
     if (!this.dictionary.isValidWord(word)) {
-      throw new BadRequestException('Слово не найдено в словаре')
+      throw new BadRequestError('Слово не найдено в словаре')
     }
 
     const session = await this.readSession(userId)
-    if (!session) throw new BadRequestException('Тренировочная партия не начата')
+    if (!session) throw new BadRequestError('Тренировочная партия не начата')
     if (derivePracticeStatus(session.answer, session.guesses) !== WordleGameStatus.IN_PROGRESS) {
-      throw new BadRequestException('Тренировочная партия уже завершена')
+      throw new BadRequestError('Тренировочная партия уже завершена')
     }
 
     // Гонка двух вкладок осознанно принята: режим неучётный, цена — потеря одной догадки.

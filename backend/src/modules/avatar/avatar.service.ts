@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 import { S3Service } from '@backend/modules/s3/s3.service'
 import { env } from '@backend/utils/enviroments'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { assertPixelLimit, MAX_IMAGE_PIXELS } from '@backend/utils/image-limits'
 import { Logger } from '@backend/utils/logger'
 import sharp from 'sharp'
@@ -56,7 +56,7 @@ export class AvatarService {
   async processAndStoreAvatar(userId: string, imageBuffer: Buffer): Promise<string> {
     const metadata = await this.readMetadata(imageBuffer)
     if (!metadata.format || !ALLOWED_AVATAR_FORMATS.has(metadata.format)) {
-      throw new BadRequestException('Unsupported image format')
+      throw new BadRequestError('Unsupported image format')
     }
     assertPixelLimit(metadata.width ?? 0, metadata.height ?? 0)
 
@@ -76,7 +76,7 @@ export class AvatarService {
     try {
       return await sharp(imageBuffer, { limitInputPixels: MAX_IMAGE_PIXELS }).metadata()
     } catch {
-      throw new BadRequestException('Invalid image file')
+      throw new BadRequestError('Invalid image file')
     }
   }
 

@@ -7,9 +7,10 @@ import {
   type Authenticator,
   type GatewayUser,
 } from '@backend/gateway/auth'
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { accountEnumModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
+import { NotFoundError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole, type AccountPlatform } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -139,7 +140,7 @@ export function userRoutes({ users, auth, rateLimit }: UserRouteDeps) {
         requireRole(requireUser(await resolveUser(auth, ctx.request)), ADMIN)
 
         const user = await users.getById(ctx.params.id)
-        if (!user) throw new ApiError(404, `User ${ctx.params.id} not found`)
+        if (!user) throw new NotFoundError(`User ${ctx.params.id} not found`)
 
         return user
       },

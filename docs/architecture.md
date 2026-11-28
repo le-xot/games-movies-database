@@ -103,7 +103,9 @@
 { "statusCode": 404, "message": "Not Found", "error": "Not Found" }
 ```
 
-- Домен бросает `ApiError` из `gateway/errors.ts`; Nest-исключений в проекте нет
+- Домен и гейтвей бросают `HttpError`-подклассы из `utils/errors.ts` (`BadRequestError`,
+  `NotFoundError`, …); `onError` в `gateway/index.ts` превращает их в конверт. Generic `Error`
+  на клиентских ветках запрещён — он станет 500.
 - `standardErrors()` — для защищённых роутов (400/401/403/404/409/429/500),
   `publicErrors()` — без 401/403
 - Неизвестный путь под `/api` отдаёт JSON, а не SPA-фолбэк

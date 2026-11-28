@@ -26,7 +26,7 @@ import {
 } from '@backend/modules/wordle/wordle-notification.schedule'
 import { getMoscowDateKey } from '@backend/modules/wordle/wordle.date'
 import { computeWordleStats } from '@backend/modules/wordle/wordle.stats'
-import { NotFoundException, ServiceUnavailableException } from '@backend/utils/errors'
+import { NotFoundError, ServiceUnavailableError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import type { TelegramCommandContext } from '@backend/modules/telegram/telegram-bot.types'
 import type { RedisClient } from 'bun'
@@ -249,11 +249,11 @@ export class WordleNotificationService {
 
   async createLink(userId: string): Promise<WordleNotificationsLinkDTO> {
     if (!this.telegram.isConfigured()) {
-      throw new ServiceUnavailableException('Уведомления недоступны')
+      throw new ServiceUnavailableError('Уведомления недоступны')
     }
     const username = await this.telegram.getBotUsername()
     if (!username) {
-      throw new ServiceUnavailableException('Не удалось получить имя бота')
+      throw new ServiceUnavailableError('Не удалось получить имя бота')
     }
     const token = randomBytes(32).toString('base64url')
     try {
@@ -265,7 +265,7 @@ export class WordleNotificationService {
       ])
     } catch (error) {
       this.logger.warn(`Redis недоступен при создании ссылки: ${String(error)}`)
-      throw new ServiceUnavailableException('Не удалось создать ссылку, попробуйте позже')
+      throw new ServiceUnavailableError('Не удалось создать ссылку, попробуйте позже')
     }
     return { url: `https://t.me/${username}?start=${START_PAYLOAD_PREFIX}${token}` }
   }
@@ -291,7 +291,7 @@ export class WordleNotificationService {
       morningEnabled: flags.morningEnabled,
       eveningEnabled: flags.eveningEnabled,
     })
-    if (!updated) throw new NotFoundException('Подписка не найдена')
+    if (!updated) throw new NotFoundError('Подписка не найдена')
     return this.getStatus(userId)
   }
 

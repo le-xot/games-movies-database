@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { UserRole } from '@backend/enums'
 import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  NotFoundException,
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
 } from '@backend/utils/errors'
 import { UserDomain } from '../entities/user-domain.entity'
 import { DrizzleUserRepository } from '../repositories/drizzle-user.repository'
@@ -260,13 +260,13 @@ describe('UserService', () => {
       })
     })
 
-    it('throws NotFoundException when the user does not exist', async () => {
+    it('throws NotFoundError when the user does not exist', async () => {
       const findById = mock(() =>
         Promise.resolve(null),
       ) as unknown as DrizzleUserRepository['findById']
       mockRepo.findById = findById
 
-      await expect(service.deleteUserById('missing-id')).rejects.toThrow(NotFoundException)
+      await expect(service.deleteUserById('missing-id')).rejects.toThrow(NotFoundError)
       expect(mockRepo.deleteWithCascade).not.toHaveBeenCalled()
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
@@ -472,7 +472,7 @@ describe('UserService', () => {
 
       await expect(
         service.updateCustomization('user-3', { avatarFrameId: 'wordle-streak' }),
-      ).rejects.toThrow(ForbiddenException)
+      ).rejects.toThrow(ForbiddenError)
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
 
@@ -499,7 +499,7 @@ describe('UserService', () => {
 
       await expect(
         service.updateCustomization('missing', { avatarFrameId: 'admin' }),
-      ).rejects.toThrow(NotFoundException)
+      ).rejects.toThrow(NotFoundError)
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
   })
@@ -520,7 +520,7 @@ describe('UserService', () => {
     it('rejects a login already used by another user', async () => {
       mockRepo.findByLogin = mock(() => Promise.resolve({ ...user, id: 'user-2' })) as any
 
-      await expect(service.updateLogin('user-1', 'taken')).rejects.toThrow(ConflictException)
+      await expect(service.updateLogin('user-1', 'taken')).rejects.toThrow(ConflictError)
       expect(mockRepo.update).not.toHaveBeenCalled()
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
@@ -584,17 +584,17 @@ describe('UserService', () => {
     }
 
     it('rejects merging a user with themselves', async () => {
-      await expect(service.mergeUsers('user-1', 'user-1')).rejects.toThrow(BadRequestException)
+      await expect(service.mergeUsers('user-1', 'user-1')).rejects.toThrow(BadRequestError)
       expect(mockRepo.findById).not.toHaveBeenCalled()
       expect(mockRepo.mergeUsers).not.toHaveBeenCalled()
     })
 
-    it('throws NotFoundException when a user is missing', async () => {
+    it('throws NotFoundError when a user is missing', async () => {
       mockRepo.findById = mock((id: string) =>
         Promise.resolve(id === 'user-1' ? targetUser : null),
       ) as any
 
-      await expect(service.mergeUsers('user-1', 'missing')).rejects.toThrow(NotFoundException)
+      await expect(service.mergeUsers('user-1', 'missing')).rejects.toThrow(NotFoundError)
       expect(mockRepo.mergeUsers).not.toHaveBeenCalled()
     })
 
@@ -620,13 +620,11 @@ describe('UserService', () => {
   })
 
   describe('updateLogin', () => {
-    it('throws NotFoundException when the user no longer exists', async () => {
+    it('throws NotFoundError when the user no longer exists', async () => {
       mockRepo.findByLogin = mock(() => Promise.resolve(null)) as any
       mockRepo.findById = mock(() => Promise.resolve(null)) as any
 
-      await expect(service.updateLogin('missing-user', 'new-login')).rejects.toThrow(
-        NotFoundException,
-      )
+      await expect(service.updateLogin('missing-user', 'new-login')).rejects.toThrow(NotFoundError)
       expect(mockRepo.update).not.toHaveBeenCalled()
     })
   })

@@ -1,4 +1,4 @@
-import { ApiError } from '@backend/gateway/errors'
+import { TooManyRequestsError } from '@backend/utils/errors'
 import type { RateLimitResult } from '@backend/utils/rate-limit'
 import type { RateLimitConfig } from '@backend/utils/rate-limits'
 
@@ -39,7 +39,7 @@ export async function enforceRateLimit(
   const { allowed, retryAfterSeconds } = await limiter.hit(key, config)
 
   if (!allowed) {
-    throw new ApiError(429, 'Превышен лимит запросов', {
+    throw new TooManyRequestsError('Превышен лимит запросов', {
       'retry-after': String(retryAfterSeconds),
     })
   }

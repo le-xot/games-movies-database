@@ -1,4 +1,4 @@
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { IngredientCategory } from '@gmdb/contract'
 import { SHELF_TITLES } from './cocktail.catalogue'
 import { matchCocktails } from './cocktail.match'
@@ -65,7 +65,7 @@ export class CocktailService {
     const known = new Set(await this.repository.findIngredientIds())
 
     for (const id of unique) {
-      if (!known.has(id)) throw new BadRequestException(`Unknown ingredient: ${id}`)
+      if (!known.has(id)) throw new BadRequestError(`Unknown ingredient: ${id}`)
     }
 
     await this.repository.replaceBar(userId, unique)

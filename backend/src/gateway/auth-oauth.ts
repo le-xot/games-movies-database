@@ -7,7 +7,7 @@ import {
   type Authenticator,
 } from '@backend/gateway/auth'
 import { clearCookie, serializeCookie, type CookieOptions } from '@backend/gateway/cookies'
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { commonModels } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { assertOAuthState } from '@backend/modules/auth/auth.oauth-state'
@@ -17,6 +17,7 @@ import {
   TELEGRAM_OIDC_TTL_SECONDS,
   TELEGRAM_OIDC_VERIFIER_COOKIE,
 } from '@backend/modules/telegram/telegram.constants'
+import { BadRequestError, UnauthorizedError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
 
@@ -311,7 +312,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           const cookie = ctx.request.headers.get('cookie')
           const verifier = readCookie(cookie, 'kick_code_verifier')
 
-          if (!verifier) throw new ApiError(400, 'Missing code verifier')
+          if (!verifier) throw new BadRequestError('Missing code verifier')
           verifyState(
             ctx,
             ['kick_state', 'kick_code_verifier', 'kick_linking'],
@@ -339,7 +340,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           const cookie = ctx.request.headers.get('cookie')
           const verifier = readCookie(cookie, 'kick_code_verifier')
 
-          if (!verifier) throw new ApiError(400, 'Missing code verifier')
+          if (!verifier) throw new BadRequestError('Missing code verifier')
           verifyState(
             ctx,
             ['kick_state', 'kick_code_verifier', 'kick_linking'],
@@ -397,11 +398,11 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           addCookies(ctx.set, telegramClearCookies())
 
           try {
-            if (query.error) throw new ApiError(400, `Telegram: ${query.error}`)
+            if (query.error) throw new BadRequestError(`Telegram: ${query.error}`)
             if (!storedState || !query.state || query.state !== storedState) {
-              throw new ApiError(400, 'Invalid state')
+              throw new BadRequestError('Invalid state')
             }
-            if (!query.code || !verifier) throw new ApiError(400, 'Missing code or verifier')
+            if (!query.code || !verifier) throw new BadRequestError('Missing code or verifier')
 
             const profile = await oauth.exchangeTelegram(query.code, verifier)
 
@@ -441,7 +442,7 @@ export function oauthRoutes({ oauth, auth, rateLimit, config }: OAuthRouteDeps) 
           await limit(ctx, 'AuthController.telegramWebApp', RATE_LIMITS.telegramWebApp)
 
           const profile = oauth.verifyTelegramWebApp((ctx.body as { initData: string }).initData)
-          if (!profile) throw new ApiError(401, 'Не удалось подтвердить вход через Telegram')
+          if (!profile) throw new UnauthorizedError('Не удалось подтвердить вход через Telegram')
 
           const token = await oauth.loginTelegram(profile)
           // Telegram Web встраивает Mini App во фрейм чужого домена — cookie

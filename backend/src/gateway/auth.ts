@@ -1,5 +1,5 @@
-import { ApiError } from '@backend/gateway/errors'
 import { enumUnion } from '@backend/gateway/models'
+import { ForbiddenError, UnauthorizedError } from '@backend/utils/errors'
 import { UserRole } from '@gmdb/contract'
 import { t } from 'elysia'
 
@@ -70,7 +70,7 @@ export async function resolveUser(
 }
 
 export function requireUser(user: GatewayUser | null): GatewayUser {
-  if (!user) throw new ApiError(401, 'Unauthorized')
+  if (!user) throw new UnauthorizedError()
 
   return user
 }
@@ -80,7 +80,7 @@ export function requireRole(
   user: GatewayUser,
   allowed: readonly GatewayUser['role'][],
 ): GatewayUser {
-  if (!allowed.includes(user.role)) throw new ApiError(403, 'Forbidden')
+  if (!allowed.includes(user.role)) throw new ForbiddenError()
 
   return user
 }

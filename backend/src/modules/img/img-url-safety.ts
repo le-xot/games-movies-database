@@ -1,6 +1,6 @@
 import { lookup } from 'node:dns/promises'
 import { isIP } from 'node:net'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024
 export const IMAGE_FETCH_TIMEOUT_MS = 10_000
@@ -95,14 +95,14 @@ function parseHttpUrl(raw: string): URL {
   try {
     url = new URL(raw)
   } catch {
-    throw new BadRequestException('Invalid image URL')
+    throw new BadRequestError('Invalid image URL')
   }
 
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new BadRequestException('Only http(s) image URLs are allowed')
+    throw new BadRequestError('Only http(s) image URLs are allowed')
   }
   if (url.username || url.password) {
-    throw new BadRequestException('Image URL must not contain credentials')
+    throw new BadRequestError('Image URL must not contain credentials')
   }
 
   return url
@@ -117,7 +117,7 @@ export async function assertPublicHttpUrl(
 
   if (isIP(hostname)) {
     if (isBlockedAddress(hostname)) {
-      throw new BadRequestException('Image URL points to a private address')
+      throw new BadRequestError('Image URL points to a private address')
     }
     return url
   }
@@ -126,11 +126,11 @@ export async function assertPublicHttpUrl(
   try {
     addresses = await lookupHost(hostname)
   } catch {
-    throw new BadRequestException('Failed to resolve image host')
+    throw new BadRequestError('Failed to resolve image host')
   }
 
   if (addresses.length === 0 || addresses.some((entry) => isBlockedAddress(entry.address))) {
-    throw new BadRequestException('Image URL points to a private address')
+    throw new BadRequestError('Image URL points to a private address')
   }
 
   return url
@@ -152,7 +152,7 @@ export async function fetchPublicImage(
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location')
-      if (!location) throw new BadRequestException('Image redirect without location')
+      if (!location) throw new BadRequestError('Image redirect without location')
       url = await assertPublicHttpUrl(new URL(location, url).toString(), lookupHost)
       continue
     }
@@ -160,5 +160,5 @@ export async function fetchPublicImage(
     return response
   }
 
-  throw new BadRequestException('Too many image redirects')
+  throw new BadRequestError('Too many image redirects')
 }

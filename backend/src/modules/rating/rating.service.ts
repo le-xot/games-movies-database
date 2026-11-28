@@ -6,7 +6,7 @@ import {
 } from '@backend/modules/rating/entities/rating-domain.entity'
 import { WsEvents, emitWs } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { NotFoundException } from '@backend/utils/errors'
+import { NotFoundError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import { records, users } from '@gmd/database/schema'
 import { eq } from 'drizzle-orm'
@@ -28,7 +28,7 @@ export class RatingService {
       columns: { id: true },
     })
     if (!record) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
 
     const existing = await this.ratingRepository.findByUserAndRecord(userId, recordId)
@@ -48,7 +48,7 @@ export class RatingService {
     const deletedCount = await this.ratingRepository.deleteByUserAndRecord(userId, recordId)
 
     if (deletedCount === 0) {
-      throw new NotFoundException('Оценка не найдена')
+      throw new NotFoundError('Оценка не найдена')
     }
 
     emitWs(this.eventEmitter, WsEvents.UPDATE_RATINGS, {
@@ -72,7 +72,7 @@ export class RatingService {
       columns: { id: true, login: true },
     })
     if (!profile) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundError('User not found')
     }
 
     const skip = (page - 1) * limit

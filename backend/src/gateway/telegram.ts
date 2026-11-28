@@ -1,6 +1,7 @@
-import { ApiError, apiErrorModels, standardErrors } from '@backend/gateway/errors'
+import { apiErrorModels, standardErrors } from '@backend/gateway/errors'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { webhookSecretsMatch } from '@backend/modules/telegram/telegram-bot.service'
+import { UnauthorizedError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
 
@@ -44,7 +45,7 @@ export function telegramWebhookRoutes({ telegramWebhook, rateLimit }: TelegramWe
         const header = ctx.request.headers.get('x-telegram-bot-api-secret-token') ?? undefined
 
         if (!expected || !webhookSecretsMatch(header, expected)) {
-          throw new ApiError(401, 'Unauthorized')
+          throw new UnauthorizedError()
         }
 
         await telegramWebhook.handleUpdate(ctx.body ?? {})

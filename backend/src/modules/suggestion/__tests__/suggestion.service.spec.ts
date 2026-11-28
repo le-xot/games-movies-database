@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { makeRecordRow } from '@backend/__tests__/helpers/record-fixture'
 import { LimitType, RecordStatus, RecordType } from '@backend/enums'
-import { BadRequestException, ForbiddenException, NotFoundException } from '@backend/utils/errors'
+import { BadRequestError, ForbiddenError, NotFoundError } from '@backend/utils/errors'
 import { DrizzleSuggestionRepository } from '../repositories/drizzle-suggestion.repository'
 import { SuggestionService } from '../suggestion.service'
 import type { LimitDomain } from '@backend/modules/limit/entities/limit.entity'
@@ -54,7 +54,7 @@ describe('SuggestionService', () => {
       )
     })
 
-    it('throws BadRequestException when suggestion count meets the limit', async () => {
+    it('throws BadRequestError when suggestion count meets the limit', async () => {
       const limit: LimitDomain = { name: LimitType.SUGGESTION, quantity: 3 }
 
       mockRepo.findLimit = mock(() => Promise.resolve(limit))
@@ -62,18 +62,18 @@ describe('SuggestionService', () => {
 
       await expect(
         service.userSuggest({ link: 'https://shikimori.one/animes/1', userId: 'user-1' }),
-      ).rejects.toThrow(BadRequestException)
+      ).rejects.toThrow(BadRequestError)
 
       expect(mockRepo.createSuggestion).not.toHaveBeenCalled()
     })
 
-    it('throws BadRequestException when suggestion limit is not configured', async () => {
+    it('throws BadRequestError when suggestion limit is not configured', async () => {
       mockRepo.findLimit = mock(() => Promise.resolve(null))
       mockRepo.countUserSuggestions = mock(() => Promise.resolve(0))
 
       await expect(
         service.userSuggest({ link: 'https://shikimori.one/animes/1', userId: 'user-1' }),
-      ).rejects.toThrow(BadRequestException)
+      ).rejects.toThrow(BadRequestError)
 
       expect(mockRepo.createSuggestion).not.toHaveBeenCalled()
     })
@@ -135,28 +135,28 @@ describe('SuggestionService', () => {
       )
     })
 
-    it('throws NotFoundException when suggestion does not exist', async () => {
+    it('throws NotFoundError when suggestion does not exist', async () => {
       mockRepo.findSuggestionById = mock(() => Promise.resolve(null))
 
-      await expect(service.deleteUserSuggestion(99, 'user-1')).rejects.toThrow(NotFoundException)
+      await expect(service.deleteUserSuggestion(99, 'user-1')).rejects.toThrow(NotFoundError)
       expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
     })
 
-    it('throws ForbiddenException when userId does not match', async () => {
+    it('throws ForbiddenError when userId does not match', async () => {
       const suggestion = makeRecord({ id: 5, type: RecordType.SUGGESTION })
       mockRepo.findSuggestionById = mock(() => Promise.resolve(suggestion))
       mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'other-user' }))
 
-      await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(ForbiddenException)
+      await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(ForbiddenError)
       expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
     })
 
-    it('throws BadRequestException when record is not a suggestion', async () => {
+    it('throws BadRequestError when record is not a suggestion', async () => {
       const record = makeRecord({ id: 5, type: RecordType.WRITTEN })
       mockRepo.findSuggestionById = mock(() => Promise.resolve(record))
       mockRepo.findSuggestionOwner = mock(() => Promise.resolve({ userId: 'user-1' }))
 
-      await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(BadRequestException)
+      await expect(service.deleteUserSuggestion(5, 'user-1')).rejects.toThrow(BadRequestError)
       expect(mockRepo.deleteSuggestionWithLikes).not.toHaveBeenCalled()
     })
   })

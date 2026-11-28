@@ -2,7 +2,7 @@ import { describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
 import { S3Service } from '@backend/modules/s3/s3.service'
 import { env } from '@backend/utils/enviroments'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import sharp from 'sharp'
 import {
   AVATAR_PALETTE,
@@ -59,7 +59,7 @@ describe('AvatarService.processAndStoreAvatar', () => {
 
     await expect(
       service.processAndStoreAvatar('user-1', Buffer.from('not an image')),
-    ).rejects.toThrow(BadRequestException)
+    ).rejects.toThrow(BadRequestError)
   })
 
   it('rejects an unsupported format', async () => {
@@ -70,7 +70,7 @@ describe('AvatarService.processAndStoreAvatar', () => {
       .tiff()
       .toBuffer()
 
-    await expect(service.processAndStoreAvatar('user-1', tiff)).rejects.toThrow(BadRequestException)
+    await expect(service.processAndStoreAvatar('user-1', tiff)).rejects.toThrow(BadRequestError)
   })
 
   it('rejects images above the pixel limit', async () => {
@@ -79,7 +79,7 @@ describe('AvatarService.processAndStoreAvatar', () => {
       '<svg xmlns="http://www.w3.org/2000/svg" width="100000" height="100000"></svg>',
     )
 
-    await expect(service.processAndStoreAvatar('user-1', bomb)).rejects.toThrow(BadRequestException)
+    await expect(service.processAndStoreAvatar('user-1', bomb)).rejects.toThrow(BadRequestError)
   })
 
   it('stores a valid png as webp', async () => {

@@ -8,7 +8,7 @@ import {
 import { ImgVariant } from '@backend/modules/img/img.dto'
 import { S3Service } from '@backend/modules/s3/s3.service'
 import { env } from '@backend/utils/enviroments'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { assertPixelLimit } from '@backend/utils/image-limits'
 import { Logger } from '@backend/utils/logger'
 
@@ -66,23 +66,23 @@ export class ImgService {
       }
 
       if (!response.ok) {
-        throw new BadRequestException(`Failed to fetch image: ${response.status}`)
+        throw new BadRequestError(`Failed to fetch image: ${response.status}`)
       }
 
       const contentType = response.headers.get('content-type')
       if (!contentType?.startsWith('image/')) {
         this.logger.warn(`URL does not point to an image content-type=${contentType}`)
-        throw new BadRequestException('URL does not point to an image')
+        throw new BadRequestError('URL does not point to an image')
       }
 
       const declaredLength = Number(response.headers.get('content-length') ?? '0')
       if (declaredLength > MAX_IMAGE_BYTES) {
-        throw new BadRequestException('Image is too large')
+        throw new BadRequestError('Image is too large')
       }
 
       const fileContent = await response.arrayBuffer()
       if (fileContent.byteLength > MAX_IMAGE_BYTES) {
-        throw new BadRequestException('Image is too large')
+        throw new BadRequestError('Image is too large')
       }
 
       const metadata = await new Bun.Image(fileContent).metadata().catch((): null => null)
@@ -109,10 +109,10 @@ export class ImgService {
 
       return { buffer: Buffer.from(imageBytes), contentType: 'image/webp' }
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof BadRequestError) {
         throw error
       }
-      throw new BadRequestException(
+      throw new BadRequestError(
         `Failed to process image: ${error instanceof Error ? error.message : String(error)}`,
       )
     }

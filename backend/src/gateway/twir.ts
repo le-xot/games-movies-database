@@ -1,8 +1,9 @@
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import { HTTP_URL_PATTERN } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { suggestionModels, type SuggestionResponse } from '@backend/gateway/suggestions'
 import { isApiKeyValid } from '@backend/utils/api-key'
+import { UnauthorizedError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { Elysia, t } from 'elysia'
 
@@ -43,7 +44,7 @@ export function twirRoutes({ twir, rateLimit, apiKey }: TwirRouteDeps) {
         })
 
         if (!isApiKeyValid(ctx.request.headers.get('x-api-key'), apiKey)) {
-          throw new ApiError(401, 'Unauthorized')
+          throw new UnauthorizedError()
         }
 
         return await twir.createSuggestion(ctx.body as TwirInput)

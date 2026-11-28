@@ -19,7 +19,7 @@ import {
   type UpdateSuggestionsPayload,
 } from '@backend/modules/websocket/websocket.events'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { NotFoundException } from '@backend/utils/errors'
+import { NotFoundError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 
 export class RecordService {
@@ -99,7 +99,7 @@ export class RecordService {
     this.logger.log(`Patching record id=${id}`)
     const foundedRecord = await this.recordRepository.findById(id)
     if (!foundedRecord) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
     const updatedRecord = await this.recordRepository.update(id, data)
 
@@ -128,7 +128,7 @@ export class RecordService {
     this.logger.log(`Updating poster for record id=${id}`)
     const record = await this.recordRepository.findById(id)
     if (!record) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
 
     const urlBase64 = Buffer.from(url, 'utf8').toString('base64')
@@ -147,7 +147,7 @@ export class RecordService {
     const foundedRecord = await this.recordRepository.findById(id)
 
     if (!foundedRecord) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
 
     await this.recordRepository.delete(id)
@@ -198,10 +198,10 @@ export class RecordService {
   async findRecordById(id: number, userId?: string): Promise<RecordWithFriends> {
     const record = await this.recordRepository.findById(id)
     if (!record) {
-      throw new NotFoundException('Record not found')
+      throw new NotFoundError('Record not found')
     }
     const [attached] = await this.attachFriends([record], userId)
-    if (!attached) throw new NotFoundException('Record not found')
+    if (!attached) throw new NotFoundError('Record not found')
     return attached
   }
 }

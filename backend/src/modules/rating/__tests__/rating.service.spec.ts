@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { RecordGrade } from '@backend/enums'
-import { NotFoundException } from '@backend/utils/errors'
+import { NotFoundError } from '@backend/utils/errors'
 import { RatingService } from '../rating.service'
 import { DrizzleRatingRepository } from '../repositories/drizzle-rating.repository'
 import type { DrizzleService } from '@backend/database/drizzle.service'
@@ -78,10 +78,10 @@ describe('RatingService', () => {
       )
     })
 
-    it('throws NotFoundException for a missing record without touching ratings', async () => {
+    it('throws NotFoundError for a missing record without touching ratings', async () => {
       service = new RatingService(mockRepo, makeDrizzle(null), mockEventEmitter as any)
 
-      await expect(service.rate('user-1', 999, RecordGrade.LIKE)).rejects.toThrow(NotFoundException)
+      await expect(service.rate('user-1', 999, RecordGrade.LIKE)).rejects.toThrow(NotFoundError)
       expect(mockRepo.upsert).not.toHaveBeenCalled()
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
@@ -103,10 +103,10 @@ describe('RatingService', () => {
       )
     })
 
-    it('throws NotFoundException if nothing was deleted', async () => {
+    it('throws NotFoundError if nothing was deleted', async () => {
       mockRepo.deleteByUserAndRecord = mock(() => Promise.resolve(0)) as any
 
-      await expect(service.unrate('user-1', 1)).rejects.toThrow(NotFoundException)
+      await expect(service.unrate('user-1', 1)).rejects.toThrow(NotFoundError)
       expect(mockEventEmitter.emit).not.toHaveBeenCalled()
     })
   })
@@ -174,11 +174,11 @@ describe('RatingService', () => {
       expect(result.items[0]).toMatchObject({ myGrade: null, userGrade: RecordGrade.RECOMMEND })
     })
 
-    it('throws NotFoundException for unknown profile user', async () => {
+    it('throws NotFoundError for unknown profile user', async () => {
       service = new RatingService(mockRepo, makeDrizzle({ id: 1 }, null), mockEventEmitter as any)
 
       await expect(service.getUserRatings('viewer-1', 'ghost', 1, 10, undefined)).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       )
       expect(mockRepo.findByUserWithRecords).not.toHaveBeenCalled()
     })

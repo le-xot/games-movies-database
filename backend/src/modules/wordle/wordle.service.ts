@@ -31,7 +31,7 @@ import {
   computeWordleStats,
 } from '@backend/modules/wordle/wordle.stats'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
@@ -90,10 +90,10 @@ export class WordleService {
 
     const word = normalizeWord(rawWord)
     if (!WORD_PATTERN.test(word)) {
-      throw new BadRequestException('Слово должно состоять из 5 русских букв')
+      throw new BadRequestError('Слово должно состоять из 5 русских букв')
     }
     if (!this.dictionary.isValidWord(word)) {
-      throw new BadRequestException('Слово не найдено в словаре')
+      throw new BadRequestError('Слово не найдено в словаре')
     }
 
     let game = await this.repository.findByUserAndDate(userId, date)
@@ -107,12 +107,12 @@ export class WordleService {
     }
 
     if (game.status !== WordleGameStatus.IN_PROGRESS) {
-      throw new BadRequestException('Игра на сегодня уже завершена')
+      throw new BadRequestError('Игра на сегодня уже завершена')
     }
 
     const updated = await this.repository.appendGuess(game.id, word)
     if (!updated) {
-      throw new BadRequestException('Игра на сегодня уже завершена')
+      throw new BadRequestError('Игра на сегодня уже завершена')
     }
 
     if (updated.status !== WordleGameStatus.IN_PROGRESS) {

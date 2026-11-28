@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import { assertPixelLimit, MAX_IMAGE_PIXELS } from '../image-limits'
 
 describe('assertPixelLimit', () => {
@@ -15,7 +15,7 @@ describe('assertPixelLimit', () => {
     [100_000, 100_000],
     [5000, 5001],
   ])('rejects %sx%s above the limit', (width, height) => {
-    expect(() => assertPixelLimit(width, height)).toThrow(BadRequestException)
+    expect(() => assertPixelLimit(width, height)).toThrow(BadRequestError)
   })
 
   it.each([
@@ -25,7 +25,7 @@ describe('assertPixelLimit', () => {
     [Number.NaN, 100],
     [Number.POSITIVE_INFINITY, 1],
   ])('rejects invalid dimensions %sx%s', (width, height) => {
-    expect(() => assertPixelLimit(width, height)).toThrow(BadRequestException)
+    expect(() => assertPixelLimit(width, height)).toThrow(BadRequestError)
   })
 
   it('exposes a 25MP default', () => {

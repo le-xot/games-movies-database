@@ -11,7 +11,7 @@ import { getMoscowDateKey } from '@backend/modules/wordle/wordle.date'
 import { WordleLetterState } from '@backend/modules/wordle/wordle.scoring'
 import { WordleService } from '@backend/modules/wordle/wordle.service'
 import { DomainEvents } from '@backend/utils/domain-events'
-import { BadRequestException } from '@backend/utils/errors'
+import { BadRequestError } from '@backend/utils/errors'
 import type { WordleDictionary } from '@backend/modules/wordle/wordle.dictionary'
 
 const NOW = new Date('2026-09-20T10:00:00.000Z')
@@ -105,15 +105,15 @@ describe('WordleService', () => {
     })
 
     it('rejects words that are not five cyrillic letters', async () => {
-      await expect(service.makeGuess('user-1', 'кот', NOW)).rejects.toThrow(BadRequestException)
-      await expect(service.makeGuess('user-1', 'hello', NOW)).rejects.toThrow(BadRequestException)
-      await expect(service.makeGuess('user-1', 'сл4во', NOW)).rejects.toThrow(BadRequestException)
+      await expect(service.makeGuess('user-1', 'кот', NOW)).rejects.toThrow(BadRequestError)
+      await expect(service.makeGuess('user-1', 'hello', NOW)).rejects.toThrow(BadRequestError)
+      await expect(service.makeGuess('user-1', 'сл4во', NOW)).rejects.toThrow(BadRequestError)
       expect(mockRepo.appendGuess).not.toHaveBeenCalled()
     })
 
     it('rejects words missing from the dictionary', async () => {
       await expect(service.makeGuess('user-1', 'книга', NOW)).rejects.toThrow(
-        new BadRequestException('Слово не найдено в словаре'),
+        new BadRequestError('Слово не найдено в словаре'),
       )
     })
 
@@ -175,7 +175,7 @@ describe('WordleService', () => {
       )
 
       await expect(service.makeGuess('user-1', 'кокос', NOW)).rejects.toThrow(
-        new BadRequestException('Игра на сегодня уже завершена'),
+        new BadRequestError('Игра на сегодня уже завершена'),
       )
       expect(mockRepo.appendGuess).not.toHaveBeenCalled()
     })
@@ -184,7 +184,7 @@ describe('WordleService', () => {
       mockRepo.appendGuess = mock(() => Promise.resolve(null))
 
       await expect(service.makeGuess('user-1', 'кокос', NOW)).rejects.toThrow(
-        new BadRequestException('Игра на сегодня уже завершена'),
+        new BadRequestError('Игра на сегодня уже завершена'),
       )
     })
 

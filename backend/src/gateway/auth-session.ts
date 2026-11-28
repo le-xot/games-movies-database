@@ -6,7 +6,7 @@ import {
   type GatewayUser,
 } from '@backend/gateway/auth'
 import { clearCookie } from '@backend/gateway/cookies'
-import { standardErrors, ApiError, apiErrorModels } from '@backend/gateway/errors'
+import { standardErrors, apiErrorModels } from '@backend/gateway/errors'
 import {
   AccountPlatform as AccountPlatformSchema,
   accountEnumModels,
@@ -14,6 +14,7 @@ import {
 } from '@backend/gateway/models'
 import { enforceRateLimit, type RateLimiter } from '@backend/gateway/rate-limit'
 import { userModels, type UserAccount } from '@backend/gateway/users'
+import { BadRequestError } from '@backend/utils/errors'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { isAvatarFrameId } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
@@ -165,7 +166,7 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
         // Проверка по каталогу, а не только по типу: неизвестный/устаревший id
         // не должен доехать до БД.
         if (typeof body.avatarFrameId === 'string' && !isAvatarFrameId(body.avatarFrameId)) {
-          throw new ApiError(400, 'Неизвестная рамка аватара')
+          throw new BadRequestError('Неизвестная рамка аватара')
         }
 
         return await authSession.updateCustomization(user.id, {
@@ -222,11 +223,11 @@ export function authSessionRoutes({ authSession, auth, rateLimit }: AuthSessionR
         // Elysia уже разобрала multipart в `ctx.body`: request.formData() здесь
         // бросает «Body already used».
         const file = (ctx.body as { file?: File }).file
-        if (!(file instanceof File)) throw new ApiError(400, 'No file provided')
+        if (!(file instanceof File)) throw new BadRequestError('No file provided')
         if (!file.type.startsWith('image/')) {
-          throw new ApiError(400, 'Only image files are allowed')
+          throw new BadRequestError('Only image files are allowed')
         }
-        if (file.size > MAX_AVATAR_BYTES) throw new ApiError(400, 'File too large')
+        if (file.size > MAX_AVATAR_BYTES) throw new BadRequestError('File too large')
 
         return await authSession.uploadAvatar(user.id, Buffer.from(await file.arrayBuffer()))
       },

@@ -1,7 +1,7 @@
 import { oauthRoutes, type OAuthConfig, type OAuthPort } from '@backend/gateway/auth-oauth'
 import { authSessionRoutes, type AuthSessionPort } from '@backend/gateway/auth-session'
 import { cocktailRoutes, type CocktailsPort } from '@backend/gateway/cocktails'
-import { errorBody, fromDomainError } from '@backend/gateway/errors'
+import { errorBody } from '@backend/gateway/errors'
 import { healthRoutes } from '@backend/gateway/health'
 import { likeRoutes, type LikesService } from '@backend/gateway/likes'
 import { limitRoutes, type LimitsService } from '@backend/gateway/limits'
@@ -22,6 +22,7 @@ import {
   type WordleNotificationsPort,
   type WordleServicePort,
 } from '@backend/gateway/wordle'
+import { HttpError } from '@backend/utils/errors'
 import { Elysia } from 'elysia'
 import type { Authenticator } from '@backend/gateway/auth'
 import type { RateLimiter } from '@backend/gateway/rate-limit'
@@ -60,13 +61,11 @@ export interface GatewayDeps {
 export function createGateway(deps: GatewayDeps) {
   return new Elysia({ name: 'gateway' })
     .onError(({ code, error, set }) => {
-      const httpError = fromDomainError(error)
+      if (error instanceof HttpError) {
+        set.status = error.statusCode
+        if (error.headers) set.headers = { ...set.headers, ...error.headers }
 
-      if (httpError) {
-        set.status = httpError.statusCode
-        if (httpError.headers) set.headers = { ...set.headers, ...httpError.headers }
-
-        return errorBody(httpError.statusCode, httpError.message)
+        return errorBody(error.statusCode, error.message)
       }
 
       // Валидация схемы: Elysia присылает VALIDATION с деталями.

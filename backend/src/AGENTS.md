@@ -58,12 +58,14 @@ backend/src/
   Из `modules/` гейтвею разрешены только чистые функции и константы — это проверяет
   `__tests__/architecture.spec.ts`.
 - **События**: `DomainEvents` (см. `utils/domain-events.ts`), мост в WS — `bridgeWsEvents`.
-- **Enum'ы**: значения — только из `@gmdb/contract`; TypeBox-схемы собираются `enumUnion`
-  (`gateway/models.ts`), литералы доменных значений в схемах запрещены. Инвариант contract ↔ pgEnum
-  держит `gateway/__tests__/enum-sources.spec.ts`.
+- **Enum'ы**: значения — только из `@gmdb/contract`; TypeBox-схемы собираются штатным
+  `t.Enum(dictionary)` (`gateway/models.ts`), литералы доменных значений в схемах запрещены.
+  Инвариант contract ↔ TypeBox ↔ pgEnum держит `gateway/__tests__/enum-sources.spec.ts`.
 
 ## ANTI-PATTERNS
 
+- **Свои обёртки над TypeBox/Elysia**: не изобретать `enumUnion`-подобное — у TypeBox есть
+  `t.Enum`, и он сохраняет литеральные типы Eden.
 - **Typo**: не «исправлять» `utils/enviroments.ts` без обновления всех импортов.
 - **Drizzle**: не создавать `pg.Pool` вне `DrizzleService`.
 - **SQL в сервисах**: доменный сервис не импортирует `DrizzleService`/`@gmd/database/schema` —

@@ -1,6 +1,6 @@
 # FRONTEND KNOWLEDGE BASE
 
-**Updated:** 2026-10-26
+**Updated:** 2026-11-28
 **Root:** frontend/src/
 
 ## OVERVIEW
@@ -78,6 +78,22 @@ frontend/src/
 | `query-keys`           | Ключи кэша @pinia/colada                                                 |
 | `factories/`           | `create-params-store`, `create-records-store` для медиа-страниц          |
 
+## STATE & DATA OWNERSHIP
+
+Один владелец на понятие; второй список заводить нельзя (см. корневой `AGENTS.md`).
+
+- Жанры, меню и пути — `lib/genre-registry.ts`; статусы/оценки — `lib/record-vocabulary.ts`.
+- Ключи localStorage/sessionStorage — `lib/storage-keys.ts`; `document.title` — `stores/use-title.ts`.
+- Маршруты — `ROUTE_TABLE` (`router/router-paths.ts`), `RouteNamedMap` выводится типами,
+  заголовок ставится из `meta.title` в `router.afterEach`.
+- Кэш — `@pinia/colada`: ключи из `composables/query-keys.ts`; если задаёшь `staleTime`, ставь
+  `gcTime >= staleTime`; сетевую ошибку не кэшируй как успешный `null`.
+- Списки записей с пагинацией и их мутации — фабрики `composables/factories/`
+  (`useRecordsList`, `useRecordMutations`), а не своя копия в странице. Прочие данные
+  (статистика, друзья, погода, бар) живут в своих `pages/*/composables`.
+- WS-события — `composables/ws-handlers.ts`; модалки — `createDialogStore`.
+- Сторы и composables — данные и мутации; `.vue` и диалоги собирает страница или компонент.
+
 ## COMPONENT PATTERNS
 
 - **Setup**: Always use `<script setup lang="ts">`.
@@ -93,6 +109,11 @@ frontend/src/
 
 ## ANTI-PATTERNS
 
+- **Don't** хардкодить ключи localStorage/sessionStorage — только `STORAGE_KEYS`
+- **Don't** заводить второй реестр жанров/статусов/маршрутов — расширяй владельца
+- **Don't** писать в `document.title` напрямую — только через `useTitle`; по умолчанию
+  заголовок ставит роутер из `meta.title`
+- **Don't** дублировать пагинацию/список записей мимо `composables/factories/`
 - **NEVER** заводить кодоген контракта: типы идут из Eden (`App`) и `@backend/api-types` (статические `export type` из `gateway/*`); файлов `openapi.json` и `src/lib/api-types.ts` в проекте нет.
 - **Don't** remove the autofill hack in `index.css` (9999s transition delay).
 - **Don't** use icon libraries other than @lucide/vue or vue3-simple-icons.

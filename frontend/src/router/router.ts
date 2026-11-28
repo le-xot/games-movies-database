@@ -1,10 +1,18 @@
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { RecordGenre } from '@/lib/api'
+import { GENRES } from '@/lib/genre-registry'
 import { isTelegramEnvironment } from '@/lib/telegram-webapp'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useUser } from '@/stores/use-user'
 import type { RouteMap } from 'vue-router'
+
+/** Жанровые маршруты генерируются из реестра: новый жанр — одна запись там. */
+const GENRE_ROUTES = GENRES.map((entry) => ({
+  path: entry.path,
+  name: entry.routeName,
+  component: () => import('@/pages/media/MediaPage.vue'),
+  meta: { genre: entry.genre, pageKey: 'media' },
+}))
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -82,36 +90,7 @@ export const router = createRouter({
           name: 'user-ratings',
           component: () => import('@/pages/ratings/UserRatingsPage.vue'),
         },
-        {
-          path: ROUTER_PATHS.dbAnime,
-          name: 'anime',
-          component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.ANIME, pageKey: 'media' },
-        },
-        {
-          path: ROUTER_PATHS.dbGames,
-          name: 'games',
-          component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.GAME, pageKey: 'media' },
-        },
-        {
-          path: ROUTER_PATHS.dbMovie,
-          name: 'movie',
-          component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.MOVIE, pageKey: 'media' },
-        },
-        {
-          path: ROUTER_PATHS.dbCartoon,
-          name: 'cartoon',
-          component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.CARTOON, pageKey: 'media' },
-        },
-        {
-          path: ROUTER_PATHS.dbSeries,
-          name: 'series',
-          component: () => import('@/pages/media/MediaPage.vue'),
-          meta: { genre: RecordGenre.SERIES, pageKey: 'media' },
-        },
+        ...GENRE_ROUTES,
         {
           path: ROUTER_PATHS.wordle,
           name: 'wordle',

@@ -10,7 +10,7 @@ import { useCommandPaletteSearch } from '@/components/palette/composables/use-co
 import { PALETTE_SHORTCUT_HINT } from '@/components/palette/constants/palette-constants'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { GENRE_LABELS } from '@/pages/stats/constants/stats-constants'
+import { genreLabel } from '@/lib/genre-registry'
 import { useCommandPalette } from '@/stores/use-command-palette'
 import { generateWatchLink } from '@/utils/generate-watch-link'
 import { getImageUrl } from '@/utils/image'
@@ -118,7 +118,7 @@ function handleInputKeydown(event: KeyboardEvent) {
 useCommandPaletteHotkey()
 
 const initials = (title: string) => title.slice(0, 2).toUpperCase()
-const genreLabel = (genre: RecordEntity['genre']) => (genre ? GENRE_LABELS[genre] : '')
+const recordGenreLabel = (genre: RecordEntity['genre']) => genreLabel(genre)
 const gradeChipClass = (grade: RecordGrade) => gradeTags[grade].class?.replace(' border', '')
 const gradeTitle = (grade: RecordGrade) => gradeTags[grade].label ?? ''
 
@@ -197,7 +197,7 @@ const emptyText = computed(() => {
             <span class="min-w-0 flex-1">
               <span class="block truncate">{{ record.title }}</span>
               <span class="block truncate text-xs text-muted-foreground">
-                {{ genreLabel(record.genre) }}
+                {{ recordGenreLabel(record.genre) }}
                 <template v-if="record.episode"> · {{ record.episode }}</template>
               </span>
             </span>

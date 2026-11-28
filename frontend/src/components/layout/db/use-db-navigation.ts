@@ -1,19 +1,7 @@
-import {
-  Baby,
-  ChartPie,
-  Film,
-  Gamepad2,
-  HandPlatter,
-  HouseIcon,
-  JapaneseYen,
-  Martini,
-  Popcorn,
-  Puzzle,
-  Star,
-  Users,
-} from '@lucide/vue'
+import { ChartPie, HandPlatter, HouseIcon, Martini, Puzzle, Star, Users } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { NAV_GENRES } from '@/lib/genre-registry'
 import { ROUTER_PATHS } from '@/router/router-paths'
 import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
@@ -38,13 +26,11 @@ export const dbSections: NavSection[] = [
     items: [{ name: 'Советы', icon: HandPlatter, path: ROUTER_PATHS.dbSuggestion }],
   },
   {
-    items: [
-      { name: 'Игры', icon: Gamepad2, path: ROUTER_PATHS.dbGames },
-      { name: 'Аниме', icon: JapaneseYen, path: ROUTER_PATHS.dbAnime },
-      { name: 'Фильмы', icon: Film, path: ROUTER_PATHS.dbMovie },
-      { name: 'Сериалы', icon: Popcorn, path: ROUTER_PATHS.dbSeries },
-      { name: 'Мультфильмы', icon: Baby, path: ROUTER_PATHS.dbCartoon },
-    ],
+    items: NAV_GENRES.map((entry) => ({
+      name: entry.label,
+      icon: entry.icon,
+      path: entry.path as RouterPath,
+    })),
   },
   {
     items: [

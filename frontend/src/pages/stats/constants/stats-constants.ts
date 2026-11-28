@@ -1,20 +1,12 @@
 import { RecordGenre, RecordGrade, RecordStatus } from '@/lib/api'
+import { GENRES } from '@/lib/genre-registry'
 
-export const GENRE_ORDER: RecordGenre[] = [
-  RecordGenre.GAME,
-  RecordGenre.MOVIE,
-  RecordGenre.ANIME,
-  RecordGenre.CARTOON,
-  RecordGenre.SERIES,
-]
+/** Порядок и подписи жанров — из единого реестра. */
+export const GENRE_ORDER: RecordGenre[] = GENRES.map((entry) => entry.genre)
 
-export const GENRE_LABELS: Record<RecordGenre, string> = {
-  [RecordGenre.GAME]: 'Игры',
-  [RecordGenre.MOVIE]: 'Фильмы',
-  [RecordGenre.ANIME]: 'Аниме',
-  [RecordGenre.CARTOON]: 'Мультфильмы',
-  [RecordGenre.SERIES]: 'Сериалы',
-}
+export const GENRE_LABELS: Record<RecordGenre, string> = Object.fromEntries(
+  GENRES.map((entry) => [entry.genre, entry.label]),
+) as Record<RecordGenre, string>
 
 // Цвета согласованы с палитрой бейджей (use-badge-select)
 export const GENRE_COLORS: Record<RecordGenre, string> = {

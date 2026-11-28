@@ -1,16 +1,5 @@
 <script setup lang="ts">
-import {
-  Baby,
-  Crown,
-  Film,
-  Gamepad2,
-  Heart,
-  JapaneseYen,
-  ListOrdered,
-  PencilOff,
-  Popcorn,
-  Trash2,
-} from '@lucide/vue'
+import { Crown, Heart, ListOrdered, PencilOff, Trash2 } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import MediaPoster from '@/components/media/MediaPoster.vue'
@@ -21,6 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import { RecordEntity, RecordGenre, RecordType, UserRole } from '@/lib/api'
+import { GENRE_REGISTRY, SUGGESTION_GENRES } from '@/lib/genre-registry'
 import { useLike } from '@/pages/suggestion/composables/use-like'
 import { useSuggestion } from '@/pages/suggestion/composables/use-suggestion'
 import { useNewRecords } from '@/stores/use-new-records'
@@ -85,13 +75,7 @@ const groupedItems = computed(() => {
     sortItems(items)
   }
 
-  const groupOrder: RecordGenre[] = [
-    RecordGenre.MOVIE,
-    RecordGenre.GAME,
-    RecordGenre.ANIME,
-    RecordGenre.CARTOON,
-    RecordGenre.SERIES,
-  ]
+  const groupOrder: RecordGenre[] = SUGGESTION_GENRES.map((entry) => entry.genre)
 
   const result: [string, RecordEntity[]][] = []
 
@@ -110,25 +94,13 @@ const groupedItems = computed(() => {
 
 type GenreValue = `${RecordGenre}`
 
-const genreTitles: Record<GenreValue, string> = {
-  [RecordGenre.GAME]: 'Игры',
-  [RecordGenre.MOVIE]: 'Фильмы',
-  [RecordGenre.SERIES]: 'Сериалы',
-  [RecordGenre.ANIME]: 'Аниме',
-  [RecordGenre.CARTOON]: 'Мультфильмы',
-} as const
-
-const genreIcons: Record<GenreValue, typeof Gamepad2> = {
-  [RecordGenre.GAME]: Gamepad2,
-  [RecordGenre.MOVIE]: Film,
-  [RecordGenre.SERIES]: Popcorn,
-  [RecordGenre.ANIME]: JapaneseYen,
-  [RecordGenre.CARTOON]: Baby,
-}
-
 function getGroupTitle(genre: GenreValue): string {
-  return genreTitles[genre]
+  return GENRE_REGISTRY[genre].label
 }
+
+const genreIcons = Object.fromEntries(
+  Object.values(GENRE_REGISTRY).map((entry) => [entry.genre, entry.icon]),
+) as Record<GenreValue, (typeof GENRE_REGISTRY)[RecordGenre]['icon']>
 
 function handleCardHover(recordId: number) {
   newRecords.markRecordAsViewed(recordId)

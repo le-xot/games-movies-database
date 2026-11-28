@@ -1,11 +1,11 @@
 import { createRecordsStore } from '@/composables/factories/create-records-store'
-import { RECORDS_QUERY_KEYS } from '@/composables/query-keys'
 import { RecordGenre } from '@/lib/api'
+import { GENRE_QUERY_KEYS } from '@/lib/genre-keys'
 import { useAnimeParams } from '@/pages/anime/composables/use-anime-params'
 
 export const useAnime = createRecordsStore({
   storeId: 'anime/use-anime',
-  queryKey: RECORDS_QUERY_KEYS[RecordGenre.ANIME],
+  queryKey: GENRE_QUERY_KEYS[RecordGenre.ANIME],
   paramsStore: useAnimeParams,
   itemsName: 'videos',
   refetchName: 'refetchVideos',

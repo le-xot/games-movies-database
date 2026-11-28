@@ -32,7 +32,7 @@
 | B-12 | Class-DTO модулей удалены: доменные типы в `entities/`, гейтвей без дублей портов, `modules/*.dto.ts` нет; ловушка в architecture.spec | `6486c0f`…`223c17b` | APPROVE (19–21), ниты закрыты |
 
 | F-08 | Router SSOT: `ROUTE_TABLE` → `RouteNamedMap` + маршруты; фабрика `createAppRouter`, `router.spec.ts` | `4e37e88`, `f0661b7` | APPROVE (25) |
-| F-09 | Фабрика модалок и единое ожидание /me (часть F-09: остались погода на colada и диалог в сторе советов) | `97c5ebc`, `f0661b7` | APPROVE (24) |
+| F-09 | Модалки, единое ожидание /me, погода на colada, диалог советов из страницы | `97c5ebc`, `436d132`, `1f4bfc3` | APPROVE (24, 28) |
 | F-12 | Один скелетон карточки, константы DataCards, `suppressEmptyState` | `48356cf` | review |
 
 ## В пуле

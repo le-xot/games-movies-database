@@ -244,10 +244,10 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
   const requirePlayer = async (request: Request) =>
     requireRole(requireUser(await resolveUser(auth, request)), USER_ROLES)
 
-  const wordleModels_ = { ...apiErrorModels, ...authModels, ...wordleModels }
+  const wordleRouteModels = { ...apiErrorModels, ...authModels, ...wordleModels }
 
   return new Elysia({ name: 'wordle' })
-    .model({ ...wordleModels_, ...wordleNotificationModels })
+    .model({ ...wordleRouteModels, ...wordleNotificationModels })
     .get(
       '/wordle/state',
       async (ctx) => {

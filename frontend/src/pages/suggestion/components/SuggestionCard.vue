@@ -251,7 +251,7 @@ function toggleGenreCollapse(genre: string) {
                 </Badge>
               </transition>
               <Card
-                class="bg-[var(--n-action-color)] min-h-[250px] flex flex-col transition-[height,border-color,border-width] duration-300"
+                class="min-h-[250px] flex flex-col transition-[height,border-color,border-width] duration-300"
                 :class="{
                   'sm:h-[250px]': isAdmin,
                   'border-2 border-primary': newRecords.isRecordNew(item.id) && !isQueued(item),

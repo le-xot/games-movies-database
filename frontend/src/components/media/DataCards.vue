@@ -108,7 +108,7 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
 
 <template>
   <div v-if="!items.length && showSkeleton" :class="gridClass" class="data-fade-in">
-    <Card v-for="n in skeletonCount" :key="n" class="bg-[var(--n-action-color)]">
+    <Card v-for="n in skeletonCount" :key="n">
       <div class="flex flex-row sm:flex-col">
         <div
           class="w-[130px] sm:w-full flex-shrink-0 aspect-[2/3] bg-zinc-700 animate-pulse rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"
@@ -151,7 +151,7 @@ watch([() => props.items.length, () => props.hasNextPage, () => props.isLoadingN
         </div>
 
         <div v-else :class="gridClass">
-          <Card v-for="n in columns" :key="n" class="bg-[var(--n-action-color)]">
+          <Card v-for="n in columns" :key="n">
             <div class="flex flex-row sm:flex-col">
               <div
                 class="w-[130px] sm:w-full flex-shrink-0 aspect-[2/3] bg-zinc-700 animate-pulse rounded-tl-[calc(var(--radius)+4px)] rounded-bl-[calc(var(--radius)+4px)] sm:rounded-bl-none sm:rounded-t-[calc(var(--radius)+4px)]"

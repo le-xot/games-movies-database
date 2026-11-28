@@ -129,7 +129,7 @@ function retry() {
       <li
         v-for="n in 6"
         :key="n"
-        class="flex h-44 animate-pulse flex-col gap-5 rounded-xl border border-white/10 bg-[var(--n-action-color)] p-5"
+        class="flex h-44 animate-pulse flex-col gap-5 rounded-xl border border-white/10 p-5"
       >
         <div class="flex items-center gap-4">
           <div class="size-16 shrink-0 rounded-full bg-zinc-700" />
@@ -154,7 +154,7 @@ function retry() {
       <li v-for="member in visible" :key="member.userId" class="flex">
         <RouterLink
           :to="{ name: 'user-ratings', params: { id: member.userId } }"
-          class="group relative flex w-full flex-col gap-5 overflow-hidden rounded-xl border bg-[var(--n-action-color)] p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          class="group relative flex w-full flex-col gap-5 overflow-hidden rounded-xl border p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           :class="isSelf(member) ? 'border-white/40' : 'border-white/10'"
           :style="{
             backgroundImage: `linear-gradient(160deg, ${favoriteColor(member)}55 0%, transparent 60%)`,

@@ -23,7 +23,7 @@ const cards = computed(() => [
 
 <template>
   <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
-    <Card v-for="card in cards" :key="card.title" class="bg-[var(--n-action-color)]">
+    <Card v-for="card in cards" :key="card.title">
       <CardHeader class="pb-2">
         <CardTitle class="text-sm font-medium text-muted-foreground">{{ card.title }}</CardTitle>
       </CardHeader>

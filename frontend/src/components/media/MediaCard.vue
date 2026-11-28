@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { useDialog } from '@/components/dialog/composables/use-dialog'
-import BadgeSelect from '@/components/media/badge/BadgeSelect.vue'
+import BadgePopover from '@/components/media/badge/BadgePopover.vue'
 import { useBadgeSelect } from '@/components/media/badge/composables/use-badge-select'
 import MediaPoster from '@/components/media/MediaPoster.vue'
 import { Button } from '@/components/ui/button'
@@ -186,7 +186,7 @@ const gradeButtons = gradeOrder.map((grade) => {
 </script>
 
 <template>
-  <Card data-testid="record-card" class="bg-[var(--n-action-color)] overflow-hidden h-full">
+  <Card data-testid="record-card" class="overflow-hidden h-full">
     <div class="flex flex-row sm:flex-col h-full">
       <MediaPoster
         :url="item.posterUrl"
@@ -216,7 +216,7 @@ const gradeButtons = gradeOrder.map((grade) => {
           </Button>
         </a>
         <div v-if="isPosterStatus(item.status)" class="absolute bottom-1 right-1 z-10">
-          <BadgeSelect
+          <BadgePopover
             :value="item.status ?? undefined"
             kind="status"
             compact
@@ -258,14 +258,14 @@ const gradeButtons = gradeOrder.map((grade) => {
         </div>
 
         <div class="mt-auto flex flex-col gap-2">
-          <BadgeSelect
+          <BadgePopover
             v-if="!isPosterStatus(item.status)"
             :value="item.status ?? undefined"
             kind="status"
             @update="handleStatusUpdate"
           />
 
-          <BadgeSelect
+          <BadgePopover
             v-if="!shouldHideGrade(item.status)"
             :value="item.grade ?? undefined"
             kind="grade"

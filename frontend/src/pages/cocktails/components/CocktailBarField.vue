@@ -22,7 +22,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="rounded-xl border border-white/10 bg-[var(--n-action-color)] p-3">
+  <div class="rounded-xl border border-white/10 p-3">
     <div v-if="isLoading" class="flex flex-wrap gap-2">
       <Skeleton v-for="n in 3" :key="n" class="h-7 w-24 rounded-full" aria-hidden="true" />
     </div>

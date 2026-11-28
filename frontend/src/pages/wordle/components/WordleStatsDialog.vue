@@ -76,7 +76,7 @@ const globalStats = computed(() => [
       </DialogHeader>
 
       <div class="grid grid-cols-4 gap-2">
-        <Card v-for="item in summary" :key="item.label" class="bg-[var(--n-action-color)]">
+        <Card v-for="item in summary" :key="item.label">
           <CardContent class="flex flex-col items-center px-2 py-3">
             <span class="text-2xl font-bold">{{ item.value }}</span>
             <span class="text-center text-xs text-muted-foreground">{{ item.label }}</span>
@@ -132,7 +132,7 @@ const globalStats = computed(() => [
         </div>
 
         <div class="mb-3 grid grid-cols-3 gap-2">
-          <Card v-for="item in globalStats" :key="item.label" class="bg-[var(--n-action-color)]">
+          <Card v-for="item in globalStats" :key="item.label">
             <CardContent class="flex flex-col items-center px-2 py-2">
               <span class="text-lg font-bold">{{ item.value }}</span>
               <span class="text-center text-xs text-muted-foreground">{{ item.label }}</span>

@@ -39,7 +39,7 @@ function toggleId(id: string) {
       v-if="isLoading"
       class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4"
     >
-      <Card v-for="n in 6" :key="n" class="bg-[var(--n-action-color)]">
+      <Card v-for="n in 6" :key="n">
         <CardContent class="flex items-center gap-4 pt-6">
           <Skeleton class="size-10 shrink-0 rounded-full" />
           <div class="flex flex-1 flex-col gap-2">

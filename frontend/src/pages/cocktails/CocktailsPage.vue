@@ -195,7 +195,7 @@ function retry() {
     <section class="flex min-w-0 flex-col gap-4">
       <div
         v-if="hasCatalogError || hasMatchError || hasBarLoadError"
-        class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[var(--n-action-color)] px-4 py-3"
+        class="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-4 py-3"
       >
         <span class="text-sm text-destructive">
           {{

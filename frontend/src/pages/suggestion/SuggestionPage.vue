@@ -47,7 +47,7 @@ function handleMarkAllAsViewed() {
   <div class="flex flex-col gap-4 h-full">
     <div
       v-if="suggestion.error"
-      class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[var(--n-action-color)] px-4 py-3"
+      class="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-4 py-3"
     >
       <span class="text-sm text-destructive">Не удалось загрузить советы</span>
       <Button variant="outline" size="sm" @click="suggestion.refetchSuggestions()">

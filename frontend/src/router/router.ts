@@ -202,6 +202,31 @@ export function createAppRouter(history: RouterHistory = defaultHistory()) {
   return router
 }
 
+/**
+ * Имена, реально объявленные в `ROUTES`. Список статический (жанровые — выражением),
+ * чтобы typecheck ловил удаление/добавление записи в `ROUTE_TABLE` без правки этой строки:
+ * проверки живут в `router.check.ts`.
+ */
+export const ROUTE_NAMES_USED = [
+  'home-layout',
+  'home',
+  'pc',
+  'db',
+  'admin',
+  'suggestion',
+  'stats',
+  'friends',
+  'my-ratings',
+  'user-ratings',
+  'wordle',
+  'cocktails',
+  'wordle-miniapp',
+  'auth-twitch',
+  'auth-kick',
+  'auth-telegram',
+  'not-found',
+] as const satisfies readonly RouteName[]
+
 export const router = createAppRouter()
 
 /** Заранее подгружает чанки страницы, чтобы переход по клику не ждал сеть. */

@@ -10,7 +10,6 @@ import '@/assets/index.css'
 import 'vue-sonner/style.css'
 
 const APP_VERSION = '3.3.0'
-/** Сколько ждём /api/auth/me до первого рендера. Дольше — монтируемся и догружаем в фоне. */
 /** Сколько держим заставку ради баннера главной. Дольше — показываем страницу без него. */
 const HERO_IMAGE_TIMEOUT_MS = 800
 

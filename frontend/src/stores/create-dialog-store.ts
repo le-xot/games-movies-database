@@ -1,4 +1,4 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 /**
@@ -6,7 +6,7 @@ import { ref } from 'vue'
  * методов. Раньше три стора копировали друг друга и называли методы по-разному.
  */
 export function createDialogStore(id: string) {
-  const store = defineStore(id, () => {
+  return defineStore(id, () => {
     const isOpen = ref(false)
 
     function open() {
@@ -23,10 +23,4 @@ export function createDialogStore(id: string) {
 
     return { isOpen, open, close, toggle }
   })
-
-  if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(store, import.meta.hot))
-  }
-
-  return store
 }

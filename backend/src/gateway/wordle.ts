@@ -5,6 +5,17 @@ import { rateLimitGuard, type RateLimiter } from '@backend/gateway/rate-limit'
 import { RATE_LIMITS } from '@backend/utils/rate-limits'
 import { UserRole, WordleGameStatus, WordleHistoryStatus, WordleLetterState } from '@gmdb/contract'
 import { Elysia, t } from 'elysia'
+import type {
+  WordleNotificationLink,
+  WordleNotificationStatus,
+  WordleNotificationUpdate,
+} from '@backend/modules/wordle/entities/wordle-notification.entity'
+import type {
+  WordleLeaderboard,
+  WordlePracticeState,
+  WordleState,
+  WordleStats,
+} from '@backend/modules/wordle/entities/wordle.entity'
 
 export const wordleModels = {
   WordleGameStatus: enumUnion(WordleGameStatus),
@@ -109,90 +120,15 @@ export const wordleNotificationModels = {
   }),
 }
 
-export interface WordleGuessState {
-  word: string
-  states: WordleLetterState[]
-}
-
-export interface WordleState {
-  date: string
-  status: WordleGameStatus
-  attempts: number
-  maxAttempts: number
-  wordLength: number
-  guesses: WordleGuessState[]
-  answer: string | null
-  msUntilNextWord: number
-}
-
-export interface WordleStats {
-  played: number
-  wins: number
-  winRate: number
-  currentStreak: number
-  maxStreak: number
-  distribution: number[]
-  totalPlayers: number
-  rank: number | null
-  history: { date: string; status: WordleHistoryStatus }[]
-}
-
-export interface WordleLeaderboard {
-  entries: {
-    userId: string
-    login: string
-    profileImageUrl: string
-    color: string
-    avatarFrameId: string | null
-    wins: number
-    avgAttempts: number
-    currentStreak: number
-    maxStreak: number
-  }[]
-  totalPlayers: number
-  totalGames: number
-  winsToday: number
-  today: {
-    entries: {
-      userId: string
-      login: string
-      profileImageUrl: string
-      color: string
-      avatarFrameId: string | null
-      status: WordleGameStatus
-      attempts: number
-      guesses: { states: WordleLetterState[] }[]
-    }[]
-    total: number
-  }
-}
-
-export interface WordlePracticeState {
-  status: WordleGameStatus
-  attempts: number
-  maxAttempts: number
-  wordLength: number
-  guesses: WordleGuessState[]
-  answer: string | null
-}
-export interface WordleNotificationStatus {
-  available: boolean
-  connected: boolean
-  morningEnabled: boolean
-  morningTime: string
-  eveningEnabled: boolean
-  eveningTime: string
-  telegramUsername: string | null
-}
-
-export interface WordleNotificationLink {
-  url: string
-}
-
-export interface WordleNotificationInput {
-  morningEnabled?: boolean | undefined
-  eveningEnabled?: boolean | undefined
-}
+// Порт и типы фронта: доменные формы Wordle (проводную форму держат модели выше).
+export type {
+  WordleGuessState,
+  WordleLeaderboard,
+  WordlePracticeState,
+  WordleState,
+  WordleStats,
+} from '@backend/modules/wordle/entities/wordle.entity'
+export type { WordleNotificationStatus } from '@backend/modules/wordle/entities/wordle-notification.entity'
 
 export interface WordleServicePort {
   getState(userId: string): Promise<WordleState>
@@ -206,7 +142,7 @@ export interface WordleServicePort {
 
 export interface WordleNotificationsPort {
   getStatus(userId: string): Promise<WordleNotificationStatus>
-  updateFlags(userId: string, input: WordleNotificationInput): Promise<WordleNotificationStatus>
+  updateFlags(userId: string, input: WordleNotificationUpdate): Promise<WordleNotificationStatus>
   createLink(userId: string): Promise<WordleNotificationLink>
   disconnect(userId: string): Promise<void>
 }
@@ -346,7 +282,7 @@ export function wordleRoutes({ wordle, wordleNotifications, auth, rateLimit }: W
 
         return await wordleNotifications.updateFlags(
           (await requirePlayer(ctx.request)).id,
-          ctx.body as WordleNotificationInput,
+          ctx.body as WordleNotificationUpdate,
         )
       },
       {

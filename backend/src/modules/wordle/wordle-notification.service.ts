@@ -4,11 +4,6 @@ import { TelegramBotService } from '@backend/modules/telegram/telegram-bot.servi
 import { UserService } from '@backend/modules/user/user.service'
 import { DrizzleWordleNotificationRepository } from '@backend/modules/wordle/repositories/drizzle-wordle-notification.repository'
 import {
-  WordleNotificationsLinkDTO,
-  WordleNotificationsStatusDTO,
-  WordleNotificationsUpdateDTO,
-} from '@backend/modules/wordle/wordle-notification.dto'
-import {
   OPEN_SITE_BUTTON_TEXT,
   buildConnectedText,
   buildConnectRequiredText,
@@ -29,6 +24,11 @@ import { computeWordleStats } from '@backend/modules/wordle/wordle.stats'
 import { NotFoundError, ServiceUnavailableError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
 import type { TelegramCommandContext } from '@backend/modules/telegram/telegram-bot.types'
+import type {
+  WordleNotificationLink,
+  WordleNotificationStatus,
+  WordleNotificationUpdate,
+} from '@backend/modules/wordle/entities/wordle-notification.entity'
 import type { RedisClient } from 'bun'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -247,7 +247,7 @@ export class WordleNotificationService {
     }
   }
 
-  async createLink(userId: string): Promise<WordleNotificationsLinkDTO> {
+  async createLink(userId: string): Promise<WordleNotificationLink> {
     if (!this.telegram.isConfigured()) {
       throw new ServiceUnavailableError('Уведомления недоступны')
     }
@@ -270,7 +270,7 @@ export class WordleNotificationService {
     return { url: `https://t.me/${username}?start=${START_PAYLOAD_PREFIX}${token}` }
   }
 
-  async getStatus(userId: string): Promise<WordleNotificationsStatusDTO> {
+  async getStatus(userId: string): Promise<WordleNotificationStatus> {
     const subscription = await this.notifications.findByUserId(userId)
     return {
       available: this.telegram.isConfigured(),
@@ -285,8 +285,8 @@ export class WordleNotificationService {
 
   async updateFlags(
     userId: string,
-    flags: WordleNotificationsUpdateDTO,
-  ): Promise<WordleNotificationsStatusDTO> {
+    flags: WordleNotificationUpdate,
+  ): Promise<WordleNotificationStatus> {
     const updated = await this.notifications.updateFlags(userId, {
       morningEnabled: flags.morningEnabled,
       eveningEnabled: flags.eveningEnabled,

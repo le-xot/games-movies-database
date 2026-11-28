@@ -9,8 +9,9 @@ Nest здесь больше нет: модуль — это папка с се�
 
 - `{name}.service.ts` — бизнес-логика, обычный класс без декораторов
 - `repositories/drizzle-{name}.repository.ts` — доступ к БД через `DrizzleService`
-- `{name}.dto.ts` / `{name}.entity.ts` — типы; схемы валидации лежат
-  в гейтвее (`gateway/<домен>.ts`), а не здесь
+- `{name}.entity.ts` / `entities/*.entity.ts` — доменные типы (интерфейсы); схемы валидации
+  лежат в гейтвее (`gateway/<домен>.ts`). Class-DTO (`{name}.dto.ts`) не заводим: инстансов
+  таких классов в проекте нет
 - хуки `onModuleInit` / `onApplicationBootstrap` / `onModuleDestroy` остались
   по имени с Nest-эпохи: их вызывает `container.init()` / `container.close()`
 
@@ -64,7 +65,8 @@ Nest здесь больше нет: модуль — это папка с се�
 
 ## ANTI-PATTERNS
 
-- **Manual Mapping**: маппинг доменных сущностей в DTO гейтвея живёт в `backend/src/server/wiring/` — не размазывайте его по роутам.
+- **Mapping**: форму ответа держит TypeBox-схема; `server/wiring/` — адаптер порта (сигнатуры,
+  presentation-конверсии), а не маппер DTO (ADR-0007). Не размазывайте конверсии по роутам.
 - **Direct Socket Calls**: сервисы эмитят события через `DomainEvents`, а не трогают WebSocket напрямую.
 - **Guard Sprawl**: не переписывайте проверку доступа; используйте `requireUser` / `requireRole` из `gateway/auth.ts`.
 - **Throttler**: `@nestjs/throttler` удалён — лимиты ставятся `enforceRateLimit` с пресетами `RATE_LIMITS` в роутах гейтвея.

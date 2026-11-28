@@ -16,11 +16,6 @@ import {
   WORD_PATTERN,
   normalizeWord,
 } from '@backend/modules/wordle/wordle.dictionary'
-import {
-  WordleLeaderboardDTO,
-  WordleStateDTO,
-  WordleStatsDTO,
-} from '@backend/modules/wordle/wordle.dto'
 import { scoreGuess } from '@backend/modules/wordle/wordle.scoring'
 import {
   MAX_ATTEMPTS,
@@ -33,6 +28,11 @@ import {
 import { DomainEvents } from '@backend/utils/domain-events'
 import { BadRequestError } from '@backend/utils/errors'
 import { Logger } from '@backend/utils/logger'
+import type {
+  WordleLeaderboard,
+  WordleState,
+  WordleStats,
+} from '@backend/modules/wordle/entities/wordle.entity'
 import type { WordleLeaderboardResult } from '@backend/modules/wordle/wordle.stats'
 
 const STALE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000
@@ -75,17 +75,13 @@ export class WordleService {
     return closed
   }
 
-  async getState(userId: string, now: Date = new Date()): Promise<WordleStateDTO> {
+  async getState(userId: string, now: Date = new Date()): Promise<WordleState> {
     const date = getMoscowDateKey(now)
     const game = await this.repository.findByUserAndDate(userId, date)
     return this.buildState(game, date, now)
   }
 
-  async makeGuess(
-    userId: string,
-    rawWord: string,
-    now: Date = new Date(),
-  ): Promise<WordleStateDTO> {
+  async makeGuess(userId: string, rawWord: string, now: Date = new Date()): Promise<WordleState> {
     const date = getMoscowDateKey(now)
 
     const word = normalizeWord(rawWord)
@@ -124,7 +120,7 @@ export class WordleService {
     return this.buildState(updated, date, now)
   }
 
-  async getStats(userId: string, now: Date = new Date()): Promise<WordleStatsDTO> {
+  async getStats(userId: string, now: Date = new Date()): Promise<WordleStats> {
     const today = getMoscowDateKey(now)
 
     const [games, leaderboard] = await Promise.all([
@@ -167,7 +163,7 @@ export class WordleService {
     })
   }
 
-  async getLeaderboard(now: Date = new Date()): Promise<WordleLeaderboardDTO> {
+  async getLeaderboard(now: Date = new Date()): Promise<WordleLeaderboard> {
     const today = getMoscowDateKey(now)
 
     const [cached, winsToday, dailyRows] = await Promise.all([
@@ -196,7 +192,7 @@ export class WordleService {
     }
   }
 
-  private buildState(game: WordleGameRecord | null, date: string, now: Date): WordleStateDTO {
+  private buildState(game: WordleGameRecord | null, date: string, now: Date): WordleState {
     const guesses = game?.guesses ?? []
     const status = game?.status ?? WordleGameStatus.IN_PROGRESS
     const answer = game?.answer ?? null

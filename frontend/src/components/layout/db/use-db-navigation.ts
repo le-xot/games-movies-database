@@ -1,9 +1,7 @@
 import { ChartPie, HandPlatter, HouseIcon, Martini, Puzzle, Star, Users } from '@lucide/vue'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { NAV_GENRES } from '@/lib/genre-registry'
 import { ROUTER_PATHS } from '@/router/router-paths'
-import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
 import type { RouterPath } from '@/router/router-paths'
 import type { Component } from 'vue'
@@ -66,8 +64,6 @@ export const cocktailsNavItem: RouteItem = {
 }
 
 export function useDbNavigation() {
-  const route = useRoute()
-  const { updateTitle } = useTitle()
   const userStore = useUser()
 
   const isItemVisible = (item: RouteItem) =>
@@ -87,20 +83,5 @@ export function useDbNavigation() {
     [cocktailsNavItem, wordleNavItem, homeNavItem].filter(isItemVisible),
   )
 
-  function handleNavClick(name: string) {
-    updateTitle(name)
-  }
-
-  function syncTitleFromRoute() {
-    const allItems = [
-      ...dbSections.flatMap((s) => s.items),
-      wordleNavItem,
-      cocktailsNavItem,
-      homeNavItem,
-    ]
-    const current = allItems.find((r) => r.path === route.path)
-    if (current) updateTitle(current.name)
-  }
-
-  return { sections, bottomItems, handleNavClick, syncTitleFromRoute }
+  return { sections, bottomItems }
 }

@@ -18,7 +18,6 @@ import {
   type FriendsSort,
 } from '@/pages/friends/friends-members'
 import { GRADE_COLORS } from '@/pages/stats/constants/stats-constants'
-import { useTitle } from '@/stores/use-title'
 import { useUser } from '@/stores/use-user'
 import { getTopGrade } from '@/utils/friends-rating'
 import { pluralRu } from '@/utils/plural-ru'
@@ -27,9 +26,6 @@ import type { FriendsMemberEntity } from '@/lib/api'
 const NEUTRAL_COLOR = '#333333'
 const PARTICIPANT_FORMS = ['участник', 'участника', 'участников'] as const
 const RATING_FORMS = ['оценка', 'оценки', 'оценок'] as const
-
-const { updateTitle } = useTitle()
-updateTitle('Друзья')
 
 const friends = useFriends()
 const { items, isLoading, error } = storeToRefs(friends)

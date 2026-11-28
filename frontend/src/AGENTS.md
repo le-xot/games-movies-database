@@ -50,14 +50,14 @@ frontend/src/
 
 ## STORES (Pinia — `stores/`)
 
-| Name                | Purpose                                                      |
-| ------------------- | ------------------------------------------------------------ |
-| `useUser`           | Auth state, login/logout, /auth/me data, admin/login getters |
-| `useAccountDialog`  | Account modal open state (`ACCOUNT_DIALOG_ON_LOAD_KEY`)      |
-| `useLoginDialog`    | Login modal open state                                       |
-| `useCommandPalette` | Command palette open state (`isOpen`, `open/close/toggle`)   |
-| `useNewRecords`     | localStorage tracking for "new" record badges                |
-| `useTitle`          | Document title management                                    |
+| Name                | Purpose                                                                   |
+| ------------------- | ------------------------------------------------------------------------- |
+| `useUser`           | Auth state, login/logout, /auth/me data, admin/login getters              |
+| `useAccountDialog`  | Account modal open state (`ACCOUNT_DIALOG_ON_LOAD_KEY`)                   |
+| `useLoginDialog`    | Login modal open state                                                    |
+| `useCommandPalette` | Command palette open state (`isOpen`, `open/close/toggle`)                |
+| `useNewRecords`     | localStorage tracking for "new" record badges                             |
+| `useTitle`          | Единственный владелец `document.title`; ставится роутером из `meta.title` |
 
 `useApi` (`stores/use-api.ts`) — **не** Pinia store, а обычная функция, возвращающая Eden-клиент из `lib/api.ts`: клиент — `Proxy`, и `reactive()` ломает его ловушки.
 

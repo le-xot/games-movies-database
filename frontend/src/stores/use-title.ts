@@ -1,16 +1,31 @@
-import { useTitle as _useTitle } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
+export const APP_TITLE_SUFFIX = 'Лешота'
+
+export interface SetTitleOptions {
+  /** `false` — заголовок без суффикса «Лешота» (например, главная уже со своим). */
+  suffix?: boolean
+}
+
+export function formatTitle(text: string, options: SetTitleOptions = {}): string {
+  return options.suffix === false ? text : `${text} ${APP_TITLE_SUFFIX}`
+}
+
+/**
+ * Единственный владелец `document.title`. Заголовок ставит роутер из
+ * `route.meta.title`; страницы не трогают документ сами.
+ */
 export const useTitle = defineStore('global/use-title', () => {
-  const title = _useTitle('', { titleTemplate: '%s Лешота' })
+  function setTitle(text: string, options: SetTitleOptions = {}) {
+    document.title = formatTitle(text, options)
+  }
 
+  /** Совместимый короткий алиас: всегда с суффиксом. */
   function updateTitle(text: string) {
-    title.value = text
+    setTitle(text)
   }
 
-  return {
-    updateTitle,
-  }
+  return { setTitle, updateTitle }
 })
 
 if (import.meta.hot) {

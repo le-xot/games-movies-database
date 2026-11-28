@@ -9,12 +9,11 @@ import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useCommandPalette } from '@/stores/use-command-palette'
 
-const { sections, bottomItems, handleNavClick } = useDbNavigation()
+const { sections, bottomItems } = useDbNavigation()
 const { openPalette } = useCommandPalette()
 const isSheetOpen = ref(false)
 
-function handleMobileNavClick(name: string) {
-  handleNavClick(name)
+function closeMobileNav() {
   isSheetOpen.value = false
 }
 </script>
@@ -42,7 +41,7 @@ function handleMobileNavClick(name: string) {
                   v-for="item in section.items"
                   :key="item.name"
                   :item="item"
-                  @select="handleMobileNavClick"
+                  @select="closeMobileNav"
                 />
                 <Separator v-if="i < sections.length - 1" class="my-2" />
               </template>
@@ -51,7 +50,7 @@ function handleMobileNavClick(name: string) {
                 v-for="item in bottomItems"
                 :key="item.name"
                 :item="item"
-                @select="handleMobileNavClick"
+                @select="closeMobileNav"
               />
             </div>
           </SheetContent>

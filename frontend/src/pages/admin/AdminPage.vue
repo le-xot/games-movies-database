@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Trash2Icon, Tv } from '@lucide/vue'
-import { useTitle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { TwitchIcon } from 'vue3-simple-icons'
 import ErrorRetry from '@/components/feedback/ErrorRetry.vue'
@@ -12,9 +11,6 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 import MergeAccountsPanel from '@/pages/admin/components/MergeAccountsPanel.vue'
 import SteamSyncPanel from '@/pages/admin/components/SteamSyncPanel.vue'
 import { useAdminUsers } from '@/pages/admin/composables/use-admin-users'
-
-const title = useTitle()
-onMounted(() => (title.value = 'Админка'))
 
 const { users, accounts, isLoading, error, fetchUsers, deleteUser } = useAdminUsers()
 

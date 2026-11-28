@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useCommandPalette } from '@/stores/use-command-palette'
 
-const { sections, bottomItems, handleNavClick } = useDbNavigation()
+const { sections, bottomItems } = useDbNavigation()
 const { openPalette } = useCommandPalette()
 const collapsed = useStorage('db-sidebar-collapsed', false)
 </script>
@@ -93,7 +93,6 @@ const collapsed = useStorage('db-sidebar-collapsed', false)
             :key="item.name"
             :item="item"
             :collapsed="collapsed"
-            @select="handleNavClick"
           />
         </div>
         <Separator v-if="i < sections.length - 1" class="my-2" />
@@ -101,13 +100,7 @@ const collapsed = useStorage('db-sidebar-collapsed', false)
     </nav>
 
     <div class="flex flex-col gap-1 border-t border-border p-3">
-      <NavItem
-        v-for="item in bottomItems"
-        :key="item.name"
-        :item="item"
-        :collapsed="collapsed"
-        @select="handleNavClick"
-      />
+      <NavItem v-for="item in bottomItems" :key="item.name" :item="item" :collapsed="collapsed" />
     </div>
   </aside>
 </template>

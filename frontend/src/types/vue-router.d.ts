@@ -14,6 +14,10 @@ declare module 'vue-router' {
     provider?: 'twitch' | 'kick'
     /** Стабильный ключ страницы: маршруты с одинаковым ключом не пересоздают компонент. */
     pageKey?: string
+    /** Заголовок документа; ставится после навигации (`router.afterEach`). */
+    title?: string
+    /** `false` — не добавлять суффикс «Лешота». */
+    titleSuffix?: boolean
   }
 
   interface TypesConfig {

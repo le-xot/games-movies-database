@@ -97,10 +97,7 @@ describe('архитектура backend', () => {
 
     for (const file of files) {
       const text = await readFile(file, 'utf8')
-      if (
-        text.includes('@backend/database/drizzle.service') ||
-        text.includes('@gmd/database/schema')
-      ) {
+      if (text.includes('@backend/database/drizzle.service') || text.includes('@gmd/database')) {
         offenders.push(relative(SOURCE_ROOT, file))
       }
     }

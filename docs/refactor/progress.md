@@ -43,3 +43,16 @@
 - **Проверки батча 1**: `bun lint` 0 warnings, `bun typecheck` зелёный, backend 646 pass / frontend
   126 pass, `frontend` vite build зелёный; в собранном CSS `--n-action-color` отсутствует.
 - **Дальше**: батч 2 — удаление мёртвого Nest-наследия (B-02), затем B-04 (ошибки) и guard-тесты.
+
+## Раунд 2 — 2026-11-28: мёртвое Nest-наследие (B-02)
+
+- **Батч 2** (`129d6e0`): удалены 10 файлов Nest-эпохи без импортёров (151 строка),
+  `GetImageQueryDTO` и `MergeUsersResultEntity`; `like/entities/like.entity.ts` →
+  `like-domain.entity.ts`; `api-types.ts` сужен 47 → 21 имени; удалён неиспользуемый
+  `ui/slider`; AGENTS.md/TODO.md/modules AGENTS.md синхронизированы.
+- **Ревью** (`review-batch2`, `reviews/batch-02.md`): **CHANGES REQUIRED** — один алиас
+  `UserCustomizationEntity` остался в `api-types.ts` (47→22 вместо 21). Исправлено
+  follow-up коммитом; счётчики сходятся.
+- **Проверки**: lint 0/0, typecheck зелёный, backend 646 / frontend 126 pass,
+  frontend build зелёный.
+- **Дальше**: батч 3 — enum SSOT (TypeBox из `@gmdb/contract` + инвариант-тест contract ↔ pgEnum).

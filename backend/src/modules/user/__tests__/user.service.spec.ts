@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { createMock } from '@backend/__tests__/helpers/mock-factory'
-import { UserRole } from '@backend/enums'
+import { AccountPlatform, UserRole } from '@backend/enums'
 import {
   BadRequestError,
   ConflictError,
@@ -294,6 +294,37 @@ describe('UserService', () => {
 
       expect(result).toEqual(accounts)
       expect(findAccountsByUserId).toHaveBeenCalledWith('user-1')
+    })
+  })
+
+  describe('linkPlatformAccount', () => {
+    const linkData = {
+      platform: AccountPlatform.TWITCH,
+      platformUserId: 'twitch-1',
+      platformLogin: 'twitch-login',
+    }
+
+    it('links the platform account when it is free', async () => {
+      mockRepo.findByPlatformId = mock(() => Promise.resolve(null)) as any
+      mockRepo.linkPlatformAccount = mock(() => Promise.resolve()) as any
+
+      await service.linkPlatformAccount('user-1', linkData)
+
+      expect(mockRepo.linkPlatformAccount).toHaveBeenCalledWith('user-1', linkData)
+    })
+
+    // Регресс: раньше здесь бросался generic Error, и клиент получал 500 вместо 409.
+    it('throws ConflictError with status 409 when the account is already linked', async () => {
+      mockRepo.findByPlatformId = mock(() => Promise.resolve({ id: 'other-user' })) as any
+      mockRepo.linkPlatformAccount = mock(() => Promise.resolve()) as any
+
+      const error = await service
+        .linkPlatformAccount('user-1', linkData)
+        .catch((thrown: unknown) => thrown)
+
+      expect(error).toBeInstanceOf(ConflictError)
+      expect((error as ConflictError).statusCode).toBe(409)
+      expect(mockRepo.linkPlatformAccount).not.toHaveBeenCalled()
     })
   })
 

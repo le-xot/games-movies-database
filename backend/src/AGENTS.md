@@ -29,17 +29,17 @@ backend/src/
 
 ## WHERE TO LOOK
 
-| Target      | File/Path                                  | Notes                                                           |
-| ----------- | ------------------------------------------ | --------------------------------------------------------------- |
-| Роут        | `gateway/<домен>.ts`                       | Модели + `.get/.post`, схемы ответов по кодам                   |
-| Сборка      | `gateway/index.ts`                         | `createGateway(deps)` — список портов и подключение роутов      |
-| Проводка    | `server/container.ts`                      | Composition root: сервисы создаются руками, хуки — явно         |
-| Rate limits | `utils/rate-limits.ts`                     | Пресеты; сам лимитер — `utils/rate-limit.ts` (Redis)            |
-| Ошибки      | `utils/errors.ts`                          | `HttpError`-подклассы; конверт — `onError` в `gateway/index.ts` |
-| Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole`      |
-| Real-time   | `gateway/ws.ts`                            | `/ws`, одна комната, кадры `{ event, payload }`                 |
-| Env         | `utils/enviroments.ts`                     | envalid (в имени файла опечатка — так и надо)                   |
-| Типы фронта | `api-types.ts`                             | Алиасы доменных типов; сами схемы — в `gateway/*.ts`            |
+| Target      | File/Path                                  | Notes                                                             |
+| ----------- | ------------------------------------------ | ----------------------------------------------------------------- |
+| Роут        | `gateway/<домен>.ts`                       | Модели + `.get/.post`, схемы ответов по кодам                     |
+| Сборка      | `gateway/index.ts`                         | `createGateway(deps)` — список портов и подключение роутов        |
+| Проводка    | `server/container.ts`                      | Composition root: сервисы создаются руками, хуки — явно           |
+| Rate limits | `gateway/rate-limit.ts`                    | `rateLimitGuard` закрывает роут; пресеты — `utils/rate-limits.ts` |
+| Ошибки      | `utils/errors.ts`                          | `HttpError`-подклассы; конверт — `onError` в `gateway/index.ts`   |
+| Auth        | `gateway/auth.ts` + `jwt-authenticator.ts` | cookie `token` → пользователь; `requireUser`/`requireRole`        |
+| Real-time   | `gateway/ws.ts`                            | `/ws`, одна комната, кадры `{ event, payload }`                   |
+| Env         | `utils/enviroments.ts`                     | envalid (в имени файла опечатка — так и надо)                     |
+| Типы фронта | `api-types.ts`                             | Алиасы доменных типов; сами схемы — в `gateway/*.ts`              |
 
 ## CONVENTIONS
 

@@ -37,7 +37,7 @@ frontend/src/
 | ---------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Add Page         | `pages/{name}/`              | `{Name}Page.vue` + `composables/` if complex; жанровые разделы — только `composables/`, рендер общий `pages/media/MediaPage.vue` |
 | Update API       | `lib/api.ts`                 | Eden Treaty; типы из `App` (`@backend/gateway`), реэкспорт из `@backend/api-types`                                               |
-| Route            | `router/`                    | Add to `router-paths.ts` then `router.ts`; имена — в `types/vue-router.d.ts`                                                     |
+| Route            | `router/`                    | Add to `ROUTE_TABLE` (`router-paths.ts`) then `router.ts`; `RouteNamedMap` выводится сам, жанры — из реестра                     |
 | Styling          | `assets/index.css`           | Tailwind 4 CSS variables + global overrides                                                                                      |
 | Utils            | `lib/utils.ts`               | Primary `cn()` helper (clsx + tailwind-merge)                                                                                    |
 | Status/grade     | `lib/record-vocabulary.ts`   | Имена, цвета и классы статусов/оценок; порядки — тоже оттуда                                                                     |

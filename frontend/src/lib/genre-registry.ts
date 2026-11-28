@@ -89,13 +89,13 @@ export const GENRE_REGISTRY = {
 } as const satisfies Record<RecordGenre, GenreEntry>
 
 /** Канонический порядок жанров: статистика и группировка советов. */
-export const GENRES: GenreEntry[] = [
+export const GENRES = [
   GENRE_REGISTRY[RecordGenre.GAME],
   GENRE_REGISTRY[RecordGenre.MOVIE],
   GENRE_REGISTRY[RecordGenre.ANIME],
   GENRE_REGISTRY[RecordGenre.CARTOON],
   GENRE_REGISTRY[RecordGenre.SERIES],
-]
+] as const satisfies readonly GenreEntry[]
 
 /** Порядок в боковом меню — отдельный, пользовательский. */
 export const NAV_GENRES: GenreEntry[] = [
@@ -119,7 +119,9 @@ export function genreLabel(genre: RecordGenre | null | undefined): string {
   return genre ? GENRE_REGISTRY[genre].label : ''
 }
 
-export const GENRES_BY_PATH = new Map(GENRES.map((entry) => [entry.path, entry]))
+export const GENRES_BY_PATH: ReadonlyMap<string, GenreEntry> = new Map(
+  GENRES.map((entry) => [entry.path, entry]),
+)
 
 /** Контракт жанрового стора: имя ключа в сторе зависит от жанра, остальное общее. */
 export interface GenreRecordsStore {

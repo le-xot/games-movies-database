@@ -46,7 +46,7 @@ export function limitRoutes({ limits, auth, rateLimit }: LimitRouteDeps) {
 
         await requireAuthenticated(auth, ctx.request, ADMIN)
 
-        return await limits.change(ctx.body as Limit)
+        return await limits.change(ctx.body as ChangeLimitInput)
       },
       {
         body: 'ChangeLimitDTO' as const,

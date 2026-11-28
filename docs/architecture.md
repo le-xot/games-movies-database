@@ -176,8 +176,8 @@
    репозиторий через `DrizzleService`
 2. `backend/src/gateway/<домен>.ts` — интерфейс порта, TypeBox-модели, `publicErrors()` /
    `standardErrors()`, роуты с лимитом и gard'ами
-3. `backend/src/server/wiring/<группа>.ts` — реализация порта: query/body → аргументы сервиса,
-   сущность → DTO
+3. `backend/src/server/wiring/<группа>.ts` — адаптер порта: query/body → аргументы сервиса и
+   presentation-конверсии (даты/локаль). Форму ответа держит TypeBox-схема (ADR-0007)
 4. `backend/src/server/container.ts` — создать сервис через `lifecycle.add(new X(...))`
    (хуки подхватятся сами), развернуть порт в `deps`
 5. `backend/src/gateway/index.ts` — `.use(<домен>Routes(deps))`

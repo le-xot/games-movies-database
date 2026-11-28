@@ -85,6 +85,31 @@ describe('архитектура backend', () => {
   })
 
   /**
+   * Class-DTO — наследие Nest: инстансов не было, формы дублировали TypeBox.
+   * Доменные формы живут интерфейсами в `entities/`; новая `.dto.ts` или
+   * `export class *DTO` — регресс (B-12).
+   */
+  it('в домене нет class-DTO', async () => {
+    const files = await collectTypeScriptFiles(join(SOURCE_ROOT, 'modules'))
+    const offenders: string[] = []
+
+    for (const file of files) {
+      const rel = relative(SOURCE_ROOT, file)
+      if (rel.endsWith('.dto.ts')) {
+        offenders.push(rel)
+        continue
+      }
+
+      const text = await readFile(file, 'utf8')
+      if (/export class \w+DTO\b/.test(text) || /new \w+DTO\(/.test(text)) {
+        offenders.push(rel)
+      }
+    }
+
+    expect(offenders.sort()).toEqual([])
+  })
+
+  /**
    * Доступ к БД — только через репозитории: сервис с `DrizzleService` или
    * импортом схемы снова открывает второй путь к таблицам.
    */

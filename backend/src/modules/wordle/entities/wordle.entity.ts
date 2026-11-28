@@ -6,10 +6,6 @@ import { WordleHistoryStatus } from '@backend/modules/wordle/wordle.stats'
  * Доменные типы Wordle: их отдают сервисы и на них же типизированы порты
  * гейтвея (проводную форму по-прежнему держат TypeBox-схемы).
  */
-export interface WordleGuess {
-  word: string
-}
-
 export interface WordleGuessState {
   word: string
   states: WordleLetterState[]
